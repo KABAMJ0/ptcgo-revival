@@ -63,12 +63,28 @@ def rewrite(source, expr, symbols=None, kind="effect", condition=None):
     """
     if STUB not in source:
         return None
+    if kind == "fossil":
+        # A fossil is a Trainer-Item played as a Basic: the definition class
+        # has to change, not just the effect slot.
+        wired = source.replace("ItemCardDef", "FossilItemCardDef")
+        hp = re.search(r"\d+", expr)
+        if hp is None:
+            return None
+        marker = ("hp=" + hp.group(0) + ", passive=FossilBodyPassive(), "
+                  "abilities=[fossil_discard_ability()]")
+        wired = wired.replace(STUB, marker)
+        symbols = {"FossilBodyPassive", "fossil_discard_ability"}
+        return _finish(wired, symbols)
     marker = f"{kind}=" + expr
     if condition:
         marker += ", condition=" + condition
     wired = source.replace(STUB, marker)
     if symbols is None:
         symbols = symbols_in(expr + (" " + condition if condition else ""))
+    return _finish(wired, symbols)
+
+
+def _finish(wired, symbols):
     if "unimplemented" not in wired:
         wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
                        r"\1,", wired)

@@ -1006,6 +1006,12 @@ RULES = [
                     "target_pred=any_of(is_pokemon_gx, is_pokemon_ex)"],
          kind="passive"),
 
+    # --- Fossils printed as Basic Pokemon ---------------------------------
+    Rule("fossil-basic",
+         r"play this card as if it were (?:(?P<art>\d+) )?(?P<hp>\d+) hp (?:basic )?colorless "
+         r"(?:basic )?pokemon .*discard this card from play.*",
+         "fossil", lambda m: [m.group("hp")], kind="fossil"),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "

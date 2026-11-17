@@ -1,7 +1,8 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import FossilItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import FossilBodyPassive, fossil_discard_ability
 
-card = ItemCardDef(
+card = FossilItemCardDef(
     guid="7a9a3cf8-041b-53a4-b40f-57efa201c75c",
     key="SV3PT5",
     name="com.direwolfdigital.cake.data.archetypes.trainer.AntiqueDomeFossil.Name",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=152,
     set_code="SV3PT5",
     rarity=Rarities.Common,
-    effect=unimplemented
+    hp=60, passive=FossilBodyPassive(), abilities=[fossil_discard_ability()]
 )
