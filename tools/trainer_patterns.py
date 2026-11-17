@@ -1034,6 +1034,29 @@ RULES = [
          r"switch in that pokemon to the active spot",
          "opponent_bench_from_hand_then_switch", lambda m: []),
 
+    # --- Tool stat-effect variants ----------------------------------------
+    Rule("tool-damage-boost-vs",
+         r"the attacks of the pokemon this card is attached to do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon (?P<kind>ex|v|vmax|gx)(?: or active pokemon [a-z]+)?"
+         r"(?: before applying weakness and resistance)?",
+         "holder_damage_boost_vs",
+         lambda m: [m.group("amount"), '"%s"' % m.group("kind")], kind="passive"),
+    Rule("tool-takes-less-basic",
+         r"if the pokemon this card is attached to is (?P<basic>1 basic) pokemon any damage done to "
+         r"this pokemon by attacks is reduced by (?P<amount>\d+)(?: after applying weakness and "
+         r"resistance)?",
+         "holder_takes_less_basic", lambda m: [m.group("amount")], kind="passive"),
+    Rule("tool-damage-reduced-by",
+         r"any damage done to the pokemon this card is attached to by attacks is reduced by "
+         r"(?P<amount>\d+)(?: after applying weakness and resistance)?",
+         "holder_takes_less", lambda m: [m.group("amount")], kind="passive"),
+    Rule("tool-no-retreat",
+         r"the pokemon this card is attached to has no retreat cost",
+         "holder_retreat_free", lambda m: [], kind="passive"),
+    Rule("tool-hp-more",
+         r"the pokemon this card is attached to has (?P<amount>\d+) more hp",
+         "holder_hp_bonus", lambda m: [m.group("amount")], kind="passive"),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "

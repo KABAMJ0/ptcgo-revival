@@ -32,6 +32,7 @@ from spirit.game.session.passives import (
 from spirit.game.card_effects.passives_common import (
     attack_discount_passive,
     hp_bonus_tool,
+    retreat_free_when,
     no_weakness_passive,
     retreat_discount,
     takes_less_passive,
@@ -3214,3 +3215,29 @@ def choose_any(options):
         if 0 <= picked < len(options):
             await options[picked][1](ctx)
     return effect
+
+
+def holder_retreat_free():
+    """The Pokemon this card is attached to has no Retreat Cost."""
+    return retreat_free_when(
+        lambda pokemon, carrier: carrier_pokemon(carrier) is pokemon)
+
+
+def holder_takes_less_basic(amount: int):
+    """If the holder is a Basic Pokemon, damage done to it by attacks is
+    reduced by `amount`."""
+    return takes_less_passive(
+        amount, protects=lambda target, carrier: carrier_pokemon(carrier) is target
+        and is_basic_pokemon(target))
+
+
+def holder_damage_boost_vs(amount: int, kind: str = "ex"):
+    """The holder's attacks do `amount` more damage to matching opposing
+    Active Pokemon; kind is 'ex', 'v', 'vmax', 'gx' or 'any'."""
+    target_pred = {
+        "ex": is_pokemon_ex,
+        "v": lambda card: is_pokemon_v(card.archetype_id),
+        "vmax": lambda card: is_pokemon_vmax(card.archetype_id),
+        "gx": is_pokemon_gx,
+    }.get(kind, lambda card: True)
+    return typed_damage_boost_tool(target_pred, amount)
