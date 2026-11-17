@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import combined, gated_hp_bonus, holder_condition_immunity, pokemon_of_subtype
 
 card = PokemonToolCardDef(
     guid="9768ba4c-0a6e-5ade-9d27-d9a92d44b03b",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=140,
     set_code="SV5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=combined(gated_hp_bonus(60, pokemon_of_subtype("Ancient")), holder_condition_immunity(pokemon_of_subtype("Ancient")))
 )

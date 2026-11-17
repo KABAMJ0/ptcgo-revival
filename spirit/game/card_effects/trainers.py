@@ -3746,3 +3746,10 @@ def pokemon_named(word: str):
         return is_pokemon_card(card) and wanted in (
             getattr(definition, "display_name", "") or "").lower()
     return predicate
+
+
+def attacker_named_team(phrase: str):
+    """Attacker predicate: the printed name contains `phrase` and the attacker
+    is not a Pokemon ex (Team Plasma's Pokemon)."""
+    named_pred = pokemon_named(phrase)
+    return lambda attacker: named_pred(attacker) and not is_pokemon_ex(attacker)

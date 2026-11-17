@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import holder_condition_immunity
 
 card = PokemonToolCardDef(
     guid="f05087b3-ca20-5ec4-b850-b5db64d3d28b",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=99,
     set_code="XY3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_condition_immunity()
 )

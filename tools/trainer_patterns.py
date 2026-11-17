@@ -346,6 +346,8 @@ def _holder(phrase):
     text = phrase.strip()
     if text == "pokemon":
         return "None"
+    if text in TYPE_NAMES.split("|"):
+        return 'pokemon_of("%s")' % text
     try:
         resolved = resolve_predicate(text)
     except Unresolved:
@@ -1360,6 +1362,41 @@ RULES = [
          "stadium_retreat_shift",
          lambda m: ["-" + str(_colorless_count(m.group("count"))),
                     'pokemon_named("%s")' % m.group("word")], kind="passive"),
+    Rule("tool-prevent-all-from-typed-subtype",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents (?P<type>[a-z]+) pokemon gx and (?P=type) pokemon ex",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")),
+                    'attacker_of_types("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("tool-prevent-all-from-ability-attacker",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents pokemon gx and pokemon ex that have abilities",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")), "attacker_has_ability()"], kind="passive"),
+    Rule("tool-prevent-all-from-ultra-beast",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents ultra beast pokemon gx and ultra beast pokemon ex",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")),
+                    'attacker_has_subtypes("Ultra Beast", "gx")'], kind="passive"),
+    Rule("tool-prevent-effects-and-damage-from-named-team",
+         r"prevent all effects of attacks including damage done to the pokemon this card is "
+         r"attached to excluding pokemon ex by your opponents team plasma pokemon",
+         "prevents_all_from",
+         lambda m: ["None", 'attacker_named_team("team plasma")', "effects_too=True"],
+         kind="passive"),
+    Rule("tool-condition-immunity",
+         r"the pokemon this card is attached to cant be affected by any special conditions "
+         r"remove any special conditions affecting that pokemon",
+         "holder_condition_immunity", lambda m: [], kind="passive"),
+    Rule("ancient-booster",
+         r"the ancient pokemon this card is attached to gets (?P<hp>\d+) hp recovers from all "
+         r"special conditions and cant be affected by any special conditions",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, pokemon_of_subtype(\"Ancient\"))" % m.group("hp"),
+                    'holder_condition_immunity(pokemon_of_subtype("Ancient"))'],
+         kind="passive"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
