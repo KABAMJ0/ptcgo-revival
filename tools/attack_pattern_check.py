@@ -18,8 +18,10 @@ import sys
 from contextlib import contextmanager
 
 from spirit.game.attributes import AttrID
+from spirit.game.models.board import EnergyEntity
 from spirit.game.data_utils import Attack, CARD_DEFS_BY_GUID
 from spirit.game.scripts.cards import loader as card_loader
+from spirit.game.session import passives
 from spirit.game.session.effects import resolve_attack
 from spirit.tools.effect_smoke import (
     P1, P2, Rig, basic_energy_guids, pick_filler_basic, pick_filler_item,
@@ -45,15 +47,17 @@ def coins(values):
         random.choice = original
 
 
-def bound_attacks(pattern_name):
-    """(definition, attack) pairs bound by `pattern_name`, in stable order."""
+def bound_abilities(pattern_name, attacks_only=True):
+    """(definition, ability) pairs bound by `pattern_name`, in stable order."""
     out = []
     for guid in sorted(CARD_DEFS_BY_GUID):
         definition = CARD_DEFS_BY_GUID[guid]
         for ability in getattr(definition, "abilities", None) or []:
-            if isinstance(ability, Attack) and \
-                    getattr(ability, "effect_source", "") == f"pattern:{pattern_name}":
-                out.append((definition, ability))
+            if getattr(ability, "effect_source", "") != f"pattern:{pattern_name}":
+                continue
+            if attacks_only and not isinstance(ability, Attack):
+                continue
+            out.append((definition, ability))
     return out
 
 
@@ -80,6 +84,15 @@ def delta(before, after, entity_id):
     return before["hp"].get(entity_id, 0) - after["hp"].get(entity_id, 0)
 
 
+def expected_damage(rig, attacker, defender, amount, cap=None, **flags):
+    """`amount` run through the real damage pipeline (weakness, resistance,
+    taken-modifiers), capped by the defender's pre-hit HP."""
+    calc = passives.compute_damage(rig.board, attacker, defender, amount,
+                                   is_attack=True, **flags)
+    limit = hp(defender) if cap is None else cap
+    return min(calc.amount, limit)
+
+
 def text_number(text, template):
     match = re.search(template, text or "")
     return int(match.group(1)) if match else None
@@ -93,7 +106,8 @@ def check_flip_damage_times_heads(before, after, rig, ability, entities):
     per = text_number(ability.game_text, r"does (\d+) damage times")
     heads = 2
     dealt = delta(before, after, entities["p2_active"].entity_id)
-    expected = per * heads
+    expected = expected_damage(rig, entities["p1_active"],
+                               entities["p2_active"], per * heads)
     return dealt == expected, f"dealt {dealt} (expected {expected})"
 
 
@@ -165,19 +179,55 @@ def check_switch_self(before, after, rig, ability, entities):
 
 def check_scale_counter_self(before, after, rig, ability, entities):
     dealt = delta(before, after, entities["p2_active"].entity_id)
-    return dealt >= (ability.damage or 0) + 10, \
-        f"dealt {dealt} with 2 counters on attacker (printed {ability.damage})"
+    amount = (ability.damage or 0) + 10 * 2
+    expected = expected_damage(rig, entities["p1_active"],
+                               entities["p2_active"], amount)
+    return dealt == expected, \
+        f"dealt {dealt} (expected {expected}: printed + 10 x 2 counters)"
 
 
 def check_ignore_resistance(before, after, rig, ability, entities):
     dealt = delta(before, after, entities["p2_active"].entity_id)
-    return dealt == (ability.damage or 0), \
-        f"dealt {dealt} (printed {ability.damage}, resistance skipped)"
+    expected = expected_damage(rig, entities["p1_active"],
+                               entities["p2_active"], ability.damage or 0,
+                               cap=before["hp"][entities["p2_active"].entity_id],
+                               ignore_resistance=True)
+    return dealt == expected, \
+        f"dealt {dealt} (expected {expected}: resistance skipped)"
 
 
 def check_bonus_condition(before, after, rig, ability, entities):
     dealt = delta(before, after, entities["p2_active"].entity_id)
     return dealt > 0, f"dealt {dealt}"
+
+
+def check_search_hand(before, after, rig, ability, entities):
+    drawn = after["hand"] - before["hand"]
+    return drawn > 0, f"hand {before['hand']} -> {after['hand']}"
+
+
+def check_attach_from_discard(before, after, rig, ability, entities):
+    gained = [pid for pid, count in after["attached"].items()
+              if count > before["attached"].get(pid, 0)]
+    return bool(gained), f"{len(gained)} Pokemon gained Energy"
+
+
+def check_temporary_passive(before, after, rig, ability, entities):
+    count = len(rig.board.temporary_passives)
+    return count > 0, f"{count} temporary passives"
+
+
+def check_less_per_counter(before, after, rig, ability, entities):
+    dealt = delta(before, after, entities["p2_active"].entity_id)
+    amount = max(0, (ability.damage or 0) - 10 * 2)
+    expected = expected_damage(rig, entities["p1_active"],
+                               entities["p2_active"], amount)
+    return dealt == expected, f"dealt {dealt} (expected {expected}: printed - 10 x 2)"
+
+
+def check_passive_bound(before, after, rig, ability, entities):
+    return getattr(ability, "passive", None) is not None, \
+        f"passive={type(getattr(ability, 'passive', None)).__name__}"
 
 
 # (pattern, check, coin values, pre-damage the attacker?)
@@ -198,11 +248,17 @@ CASES = [
     ("switch.self", check_switch_self, (1, 1, 1, 1), 0),
     ("scale.counter-self", check_scale_counter_self, (1, 1, 1, 1), 0),
     ("ignore.resistance", check_ignore_resistance, (1, 1, 1, 1), 0),
+    ("search.basic-energy-to-hand", check_search_hand, (1, 1, 1, 1), 0),
+    ("search.any-to-hand", check_search_hand, (1, 1, 1, 1), 0),
+    ("attach.energy-from-discard", check_attach_from_discard, (1, 1, 1, 1), 0),
+    ("protect.no-weakness", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("scale.less-per-counter-self", check_less_per_counter, (1, 1, 1, 1), 20),
+    ("ability.takes-less", check_passive_bound, (1, 1, 1, 1), 0),
 ]
 
 
 async def run_case(pattern, check, coin_values, seed_damage, fillers):
-    candidates = bound_attacks(pattern)
+    candidates = bound_abilities(pattern, attacks_only=pattern != "ability.takes-less")
     if not candidates:
         return FAIL, f"{pattern:<30} no card is bound by this pattern"
     definition, ability = candidates[0]
@@ -214,8 +270,13 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
 
     if seed_damage:
         attacker.set_attribute(AttrID.HP, hp(attacker) - seed_damage)
-    if pattern == "scale.counter-self":
+    if pattern in ("scale.counter-self", "scale.less-per-counter-self"):
         attacker.set_attribute(AttrID.HP, hp(attacker) - 20)
+    if pattern.startswith("attach."):
+        # The rig's discard pile holds no Energy by default.
+        for _ in range(2):
+            rig.to_area(rig.pull(P1, lambda card: isinstance(card, EnergyEntity)),
+                        P1, "discard")
 
     before = snapshot(rig)
     with coins(coin_values):

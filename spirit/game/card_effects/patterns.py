@@ -29,6 +29,12 @@ from spirit.game.card_effects.attacks_common import (
     count_energy,
     count_prizes_taken,
     damage_all_opponents,
+    defender_is_evolved,
+    defender_retreat_cost,
+    evolve_from_deck_attack,
+    discard_stadium_attack,
+    lock_chosen_defender_attack,
+    reveal_hand_attack,
     damage_per,
     damage_counters_on,
     defender_has_condition,
@@ -54,20 +60,28 @@ from spirit.game.card_effects.attacks_common import (
     spread_damage,
 )
 from spirit.game.card_effects.passives_common import (
+    flip_prevent_damage_passive,
+    is_in_active_spot,
     flip_protection,
+    no_resistance_passive,
+    no_weakness_passive,
     protect_next_turn,
+    takes_less_passive,
 )
 from spirit.game.card_effects.support_common import (
+    attach_from_discard,
     draw_attack,
     draw_until_effect,
     gust_attack,
     heal_attack,
     heal_targets,
     search_to_bench,
+    search_to_hand,
     switch_self_attack,
 )
-from spirit.game.data_utils import unimplemented
+from spirit.game.data_utils import EnergyCardDef, PokemonCardDef, def_for, unimplemented
 from spirit.game.session.effects import is_special_energy
+from spirit.game.session.passives import Passive
 
 CONDITIONS = {
     "asleep": SpecialConditions.ASLEEP,
@@ -219,7 +233,7 @@ def _heal_dealt(m, ability):
 
 
 def _draw(m, ability):
-    return draw_attack(_count(m.group(1)))
+    return draw_attack(_count(m.group(1) if m.groups() else None))
 
 
 def _draw_until(m, ability):
@@ -252,8 +266,8 @@ def _defender_energy_discard(m, ability):
 
 
 def _defender_special_energy_discard(m, ability):
-    return discard_opponent_energy_attack(count=_count(m.group(1)),
-                                          special_only=True)
+    count = _count(m.group(1)) if m.groups() else 1
+    return discard_opponent_energy_attack(count=count, special_only=True)
 
 
 def _flip_defender_energy_discard(m, ability):
@@ -463,6 +477,116 @@ def _place_counters_any(m, ability):
 
 def _energy_move(m, ability):
     return energy_move_attack(count=_count(m.group(1)))
+
+
+
+def _is_basic_energy(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return isinstance(definition, EnergyCardDef) and \
+        not getattr(definition, "is_special", False)
+
+
+def _is_pokemon_card(card) -> bool:
+    return isinstance(def_for(getattr(card, "archetype_id", None) or ""),
+                      PokemonCardDef)
+
+
+def _search_any_to_hand(m, ability):
+    return search_to_hand(None, count=_count(m.group(1)))
+
+
+def _search_basic_energy_to_hand(m, ability):
+    return search_to_hand(_is_basic_energy, count=_count(m.group(1)),
+                          reveal=True)
+
+
+def _search_pokemon_to_hand(m, ability):
+    return search_to_hand(_is_pokemon_card, count=_count(m.group(1)),
+                          reveal=True)
+
+
+def _evolve_from_deck(m, ability):
+    return evolve_from_deck_attack()
+
+
+def _attach_energy_from_discard(m, ability):
+    count = _count(m.group(1) if m.groups() else None)
+    target = (lambda pokemon: not is_in_active_spot(pokemon)) \
+        if "benched pokemon" in m.string else "self"
+    return attach_from_discard(predicate=_is_basic_energy, count=count,
+                               target=target)
+
+
+def _less_per_counter_self(m, ability):
+    return damage_per(damage_counters_on("self"), -int(m.group(1)),
+                      base=getattr(ability, "damage", 0) or 0)
+
+
+def _base_plus_per_counter_defender(m, ability):
+    return damage_per(damage_counters_on("defender"), int(m.group(2)),
+                      base=int(m.group(1)))
+
+
+def _base_plus_per_energy_defender(m, ability):
+    return damage_per(count_energy("defender"), int(m.group(2)),
+                      base=int(m.group(1)))
+
+
+def _scale_retreat_cost(m, ability):
+    per = int(m.group(1))
+    base = getattr(ability, "damage", 0) or 0 if "more damage" in m.string else 0
+    return damage_per(defender_retreat_cost, per, base=base)
+
+
+def _base_plus_if_defender_evolved(m, ability):
+    return bonus_if(defender_is_evolved, int(m.group(2)), base=int(m.group(1)))
+
+
+def _base_plus_if_defender_ex(m, ability):
+    from spirit.game.card_effects.attacks_common import defender_is_ex
+    return bonus_if(defender_is_ex, int(m.group(2)), base=int(m.group(1)))
+
+
+def _reveal_hand(m, ability):
+    return reveal_hand_attack()
+
+
+def _discard_stadium(m, ability):
+    return discard_stadium_attack()
+
+
+def _discard_stadium_bonus(m, ability):
+    return discard_stadium_attack(optional=True, bonus=int(m.group(1)))
+
+
+def _no_weakness_next_turn(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            ctx.add_passive_through_opponents_turn(
+                ctx.attacker, no_weakness_passive(protects="carrier"))
+    return effect
+
+
+def _no_resistance_next_turn(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            ctx.add_passive_through_opponents_turn(
+                ctx.attacker, no_resistance_passive())
+    return effect
+
+
+def _lock_chosen_attack(m, ability):
+    return lock_chosen_defender_attack()
+
+
+def _passive_takes_less(m, ability):
+    return takes_less_passive(int(m.group(1)), protects="carrier")
+
+
+def _passive_flip_prevent(m, ability):
+    return flip_prevent_damage_passive(title=getattr(ability, "title", ""))
 
 
 # ----------------------------------------------------------------------
@@ -759,10 +883,91 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"move (a|\d+) energy (?:card )?(?:attached )?from this "
                 r"pokemon to (a|\d+) of your benched pokemon\."),
      _energy_move),
+
+    # -- deck search / evolution ---------------------------------------
+    ("search.basic-energy-to-hand",
+     re.compile(r"search your deck for up to (\d+) basic energy cards, reveal "
+                r"them, and put them into your hand\. then, shuffle your "
+                r"deck\."), _search_basic_energy_to_hand),
+    ("search.pokemon-to-hand",
+     re.compile(r"search your deck for up to (\d+) pokemon, reveal them, and "
+                r"put them into your hand\. then, shuffle your deck\."),
+     _search_pokemon_to_hand),
+    ("search.any-to-hand",
+     re.compile(r"(?:you may )?search your deck for up to (\d+) cards and put "
+                r"them into your hand\. then, shuffle your deck\."),
+     _search_any_to_hand),
+    ("search.evolve-self",
+     re.compile(r"search your deck for a card that evolves from this pokemon "
+                r"and put it onto this pokemon to evolve it\. then, shuffle "
+                r"your deck\."), _evolve_from_deck),
+    ("attach.energy-from-discard",
+     re.compile(r"attach (?:a|(\d+)) basic energy cards? from your discard "
+                r"pile to (?:this pokemon|(?:a|\d+) of your benched pokemon)\."),
+     _attach_energy_from_discard),
+
+    # -- next-turn passives --------------------------------------------
+    ("protect.no-weakness",
+     re.compile(r"during your opponent's next turn, this pokemon has no "
+                r"weakness\."), _no_weakness_next_turn),
+    ("protect.no-resistance",
+     re.compile(r"during your opponent's next turn, this pokemon has no "
+                r"resistance\."), _no_resistance_next_turn),
+
+    # -- damage shaping ------------------------------------------------
+    ("scale.less-per-counter-self",
+     re.compile(r"this attack does (\d+) less damage for each damage counter "
+                r"on this pokemon\."), _less_per_counter_self),
+    ("bonus.base-plus-per-counter-defender",
+     re.compile(r"does (\d+) damage plus (\d+) more damage for each damage "
+                r"counter on the defending pokemon\."),
+     _base_plus_per_counter_defender),
+    ("bonus.base-plus-per-energy-defender",
+     re.compile(r"does (\d+) damage plus (\d+) more damage for each energy "
+                r"cards? attached to the defending pokemon\."),
+     _base_plus_per_energy_defender),
+    ("scale.retreat-cost",
+     re.compile(r"this attack does (\d+) (more damage|damage) for each "
+                r"colorless in your opponent's active pokemon's retreat cost\."),
+     _scale_retreat_cost),
+    ("bonus.base-plus-if-evolved",
+     re.compile(r"if the defending pokemon is an evolved pokemon, this attack "
+                r"does (\d+) damage plus (\d+) more damage\."),
+     _base_plus_if_defender_evolved),
+    ("bonus.base-plus-if-ex",
+     re.compile(r"if the defending pokemon is pokemon-ex, this attack does "
+                r"(\d+) damage plus (\d+) more damage\."),
+     _base_plus_if_defender_ex),
+
+    # -- utility -------------------------------------------------------
+    ("reveal.opponent-hand",
+     re.compile(r"your opponent reveals their hand\."), _reveal_hand),
+    ("discard.stadium",
+     re.compile(r"discard a stadium in play\."), _discard_stadium),
+    ("discard.stadium-bonus",
+     re.compile(r"you may discard a stadium in play\. if you do, this attack "
+                r"does (\d+) more damage\."), _discard_stadium_bonus),
+    ("lock.defender-chosen-attack",
+     re.compile(r"choose (?:1|a) of the defending pokemon's attacks\. that "
+                r"pokemon can't use that attack during your opponent's next "
+                r"turn\."), _lock_chosen_attack),
+
+    # -- ability passives ----------------------------------------------
+    ("ability.takes-less",
+     re.compile(r"this pokemon takes (\d+) less damage from attacks \(after "
+                r"applying weakness and resistance\)\."),
+     _passive_takes_less),
+    ("ability.flip-prevent-damage",
+     re.compile(r"if any damage is done to this pokemon by attacks, flip a "
+                r"coin\. if heads, prevent that damage\."),
+     _passive_flip_prevent),
 ]
+
 
 # name -> bind count, for the coverage report.
 BIND_COUNTS = {}
+# name -> builder failures (a pattern must never fail silently unnoticed).
+BIND_ERRORS = {}
 
 
 def bind(ability) -> Optional[str]:
@@ -782,13 +987,19 @@ def bind(ability) -> Optional[str]:
             continue
         try:
             effect = build(match, ability)
-        except (ValueError, IndexError, KeyError, TypeError):
-            # A malformed match must never turn a loadable card into a
-            # load failure: leave it unimplemented and keep going.
+        except Exception:
+            # A malformed match must never turn a loadable card into a load
+            # failure: leave it unimplemented and record why.
+            BIND_ERRORS[name] = BIND_ERRORS.get(name, 0) + 1
             return None
         if effect is None:
             return None
-        ability.effect = effect
+        if isinstance(effect, Passive):
+            # Continuous abilities ("this Pokemon takes 20 less damage"):
+            # the passive rides the Ability, there is no coroutine to run.
+            ability.passive = effect
+        else:
+            ability.effect = effect
         ability.effect_source = f"pattern:{name}"
         BIND_COUNTS[name] = BIND_COUNTS.get(name, 0) + 1
         return name

@@ -854,7 +854,10 @@ def defender_has_any_condition(ctx) -> bool:
 
 def defender_is_ex(ctx) -> bool:
     defender = ctx.defender
-    return defender is not None and "ex" in subtypes_for(defender.archetype_id)
+    if defender is None:
+        return False
+    return any(subtype.lower() == "ex"
+               for subtype in subtypes_for(defender.archetype_id))
 
 
 def defender_is_ex_or_v(ctx) -> bool:
@@ -874,6 +877,102 @@ def self_has_energy_of_type(energy_type):
     return cond
 
 
+def defender_is_evolved(ctx) -> bool:
+    defender = ctx.defender
+    if defender is None:
+        return False
+    return any(subtype in ("Stage 1", "Stage 2", "VMAX", "BREAK")
+               for subtype in subtypes_for(defender.archetype_id))
+
+
+def defender_retreat_cost(ctx) -> int:
+    from spirit.game.session.passives import effective_retreat_cost
+    defender = ctx.defender
+    return effective_retreat_cost(ctx.board, defender) if defender else 0
+
+
 def bench_has_damage_counters(ctx) -> bool:
     return any(ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0) > 0
                for pokemon in ctx.my_bench())
+
+
+# ----------------------------------------------------------------------
+# Deck / discard utility riders
+# ----------------------------------------------------------------------
+
+def evolve_from_deck_attack(damage: Optional[int] = None):
+    """"Search your deck for a card that evolves from this Pokemon and put it
+    onto this Pokemon to evolve it. Then, shuffle your deck." """
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+        from spirit.game.content.definitions import evolves_from
+
+        logic_name = attacker.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        if not logic_name:
+            return
+
+        def evolves_from_user(card) -> bool:
+            return evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
+
+        picks = await ctx.search_deck(
+            evolves_from_user, count=1, minimum=0,
+            prompt="Choose an Evolution card for this Pokémon",
+        )
+        if picks:
+            await ctx.evolve_pokemon(attacker, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def reveal_hand_attack(damage: Optional[int] = None, opponent: bool = True):
+    """"Your opponent reveals their hand"; printed damage, then the reveal."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        await ctx.reveal_hand(ctx.opponent_id if opponent else ctx.player_id)
+    return effect
+
+
+def discard_stadium_attack(damage: Optional[int] = None, optional: bool = False,
+                           bonus: int = 0):
+    """"Discard a Stadium in play" as an attack rider; optional gates it on a
+    yes/no and `bonus` is extra damage when the discard happened."""
+    async def effect(ctx):
+        if ctx.stadium_in_play() is None:
+            await ctx.deal_damage(damage)
+            return
+        if optional and not await ctx.ask_yes_no("Discard the Stadium in play?"):
+            await ctx.deal_damage(damage)
+            return
+        await ctx.discard_stadium()
+        await ctx.deal_damage((damage or 0) + bonus if bonus else damage)
+    return effect
+
+
+def lock_chosen_defender_attack(damage: Optional[int] = None):
+    """"Choose 1 of the Defending Pokemon's attacks. That Pokemon can't use
+    that attack during your opponent's next turn." """
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        entries = [entry for entry in _attack_ability_entries(defender)
+                   if entry.get("abilityID")]
+        if not entries:
+            return
+        from spirit.game.content.definitions import ABILITIES_BY_ID
+        choices = [ABILITIES_BY_ID.get(entry["abilityID"]) for entry in entries]
+        choices = [ability for ability in choices if ability is not None]
+        if not choices:
+            return
+        chosen = choices[0] if len(choices) == 1 else \
+            await ctx.choose_attack_to_copy(choices, "Choose an attack to lock")
+        if chosen is None:
+            return
+        state = ctx.session.turn_state
+        state.attack_locks[(defender.entity_id, chosen.ability_id)] = \
+            state.turn_number + 1
+    return effect
