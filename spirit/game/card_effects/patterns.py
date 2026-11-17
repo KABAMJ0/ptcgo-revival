@@ -3079,6 +3079,39 @@ def _switch_active_with_bench(m, ability):
             await ctx.switch_active(ctx.player_id, target)
     return effect
 
+
+def _flip_bonus_and_heal_self(m, ability):
+    bonus, heal = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage(printed + bonus)
+            if ctx.attacker is not None:
+                await ctx.heal(heal, ctx.attacker)
+        else:
+            await ctx.deal_damage(printed)
+    return effect
+
+
+def _own_next_turn_all_boost(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from spirit.game.card_effects.passives_common import (
+            apply_own_next_turn_boost,
+        )
+        await apply_own_next_turn_boost(ctx, amount)
+    return effect
+
+
+def _passive_survive_full_hp(m, ability):
+    from spirit.game.card_effects.passives_common import guts_survive_passive
+    return guts_survive_passive(hp_floor=int(m.group(1)), flip=False,
+                                require_full_hp=True)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4446,6 +4479,21 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("ability.switch-active-with-bench",
      re.compile(r"switch your active pokemon with (?:an?|\d+) of your benched "
                 r"pokemon\."), _switch_active_with_bench),
+
+    # -- batch 26: flip bonus with self-heal, next-turn team boost ---------
+    ("flip.bonus-and-heal-self",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) more damage "
+                r"and heal (\d+) damage from this pokemon\."),
+     _flip_bonus_and_heal_self),
+    ("boost.own-next-turn-all",
+     re.compile(r"during your next turn, each of this pokemon's attacks does "
+                r"(\d+) more damage(?: \(before applying weakness and "
+                r"resistance\))?\."), _own_next_turn_all_boost),
+    ("ability.survive-at-full-hp",
+     re.compile(r"if this pokemon has full hp and would be knocked out by "
+                r"damage from an attack, it is not knocked out, and its "
+                r"remaining hp becomes (\d+)\."),
+     _passive_survive_full_hp),
 ]
 
 
