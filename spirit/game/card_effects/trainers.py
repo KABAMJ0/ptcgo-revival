@@ -4061,3 +4061,20 @@ def shuffle_hand_draw_lock_trainers(draw: int):
                 holder, TrainerPlayLockPassive(ctx.player_id),
                 expires_after_turn=ctx.session.turn_state.turn_number)
     return effect
+
+
+def discard_typed_pokemon_to_bench_then_draw(type_name: str, draw: int):
+    """Put a matching Pokemon from your discard pile onto your Bench, then
+    draw `draw` cards."""
+    type_pred = pokemon_of(type_name)
+
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile() if type_pred(card)]
+        if pool and len(ctx.my_bench()) < BENCH_CAPACITY:
+            picks = await ctx.choose_cards(
+                pool, 1, minimum=0,
+                prompt="Choose a Pokémon from your discard pile to put on your Bench")
+            for card in picks:
+                await ctx.bench_pokemon(card)
+        await ctx.draw_cards(draw)
+    return effect

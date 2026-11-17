@@ -1628,6 +1628,16 @@ RULES = [
          r"shuffle your hand into your deck then draw (?P<n>\d+) cards you cant play any more "
          r"trainer cards this turn",
          "shuffle_hand_draw_lock_trainers", lambda m: [m.group("n")]),
+    Rule("discard-typed-pokemon-bench-then-draw",
+         r"put (?P<n>\d+) (?P<type>[a-z]+) pokemon from your discard pile onto your bench then draw "
+         r"(?P<draw>\d+) cards",
+         "discard_typed_pokemon_to_bench_then_draw",
+         lambda m: ['"%s"' % m.group("type"), m.group("draw")]),
+    Rule("breeder-stage-two-onto-basic",
+         r"put (?P<n>\d+) stage 2 evolution card from your hand on the matching basic pokemon(?: you "
+         r"can only play this card when you would be allowed to evolve that pokemon anyway| you "
+         r"can play this card only when you would be allowed to evolve that pokemon anyway)",
+         "rare_candy", lambda m: []),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
