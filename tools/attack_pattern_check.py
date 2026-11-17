@@ -261,11 +261,15 @@ CASES = [
     ("optional.bonus-self-damage", check_self_damage, (1, 1, 1, 1), 0),
     ("scale.damage-per-energy-self", check_bonus_condition, (1, 1, 1, 1), 0),
     ("discard.defender-tools", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("bonus.entered-active-this-turn", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("scale.damage-per-energy-opponent", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("ability.basic-no-retreat", check_passive_bound, (1, 1, 1, 1), 0),
 ]
 
 
 async def run_case(pattern, check, coin_values, seed_damage, fillers):
-    candidates = bound_abilities(pattern, attacks_only=pattern != "ability.takes-less")
+    candidates = bound_abilities(
+        pattern, attacks_only=not pattern.startswith("ability."))
     if not candidates:
         return FAIL, f"{pattern:<30} no card is bound by this pattern"
     definition, ability = candidates[0]

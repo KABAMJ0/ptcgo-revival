@@ -61,6 +61,7 @@ from spirit.game.card_effects.attacks_common import (
 )
 from spirit.game.card_effects.passives_common import (
     debuff_defender_attacks,
+    retreat_free_when,
     flip_prevent_damage_passive,
     is_in_active_spot,
     prevent_damage_when,
@@ -755,6 +756,73 @@ def _is_supporter(card) -> bool:
     return type(definition).__name__ == "SupporterCardDef"
 
 
+
+def _more_per_type_energy_short(m, ability):
+    return _more(count_energy("self", TYPE_WORDS[m.group(2)]), ability,
+                 int(m.group(1)))
+
+
+def _more_with_tool(m, ability):
+    from spirit.game.card_effects.attacks_common import has_tool
+    return bonus_if(lambda ctx: ctx.attacker is not None
+                    and has_tool(ctx.attacker), int(m.group(1)))
+
+
+def _spread_own_bench_also_base(m, ability):
+    return spread_damage(int(m.group(1)), side="mine", also_base=True)
+
+
+def _flip_prevent_damage_short(m, ability):
+    return flip_protection(prevent=True)
+
+
+def _counters_on_opponent_bench(m, ability):
+    return place_counters(int(m.group(1)), target="choose_any_opponent")
+
+
+def _no_retreat_next_turn_long(m, ability):
+    return no_retreat_attack()
+
+
+def _entered_active_bonus(m, ability):
+    return bonus_if(lambda ctx: ctx.attacker is not None
+                    and ctx.entered_active_this_turn(ctx.attacker),
+                    int(m.group(1)))
+
+
+def _more_times_amount_energy_defender(m, ability):
+    return _more(count_energy("defender"), ability, int(m.group(1)))
+
+
+def _damage_per_prizes_self(m, ability):
+    return damage_per(count_prizes_taken("mine"), int(m.group(1)), base=0)
+
+
+def _damage_per_energy_opponent_all(m, ability):
+    return damage_per(count_energy("opponent"), int(m.group(1)), base=0)
+
+
+def _poison_counters_on_defender(m, ability):
+    return condition_attack(SpecialConditions.POISONED, counters=int(m.group(1)))
+
+
+def _discard_any_stadium(m, ability):
+    return discard_stadium_attack()
+
+
+def _ignore_all_except_weakness(m, ability):
+    return ignore_modifier_attack(ignore_resistance=True,
+                                  ignore_target_effects=True)
+
+
+def _no_retreat_passive_team(m, ability):
+    def pred(pokemon, carrier):
+        from spirit.game.session.effects import is_basic_pokemon
+        return pokemon.owning_player_id == carrier.owning_player_id \
+            and is_basic_pokemon(pokemon)
+    return retreat_free_when(pred)
+
+
 # ----------------------------------------------------------------------
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
@@ -1146,9 +1214,9 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("debuff.defender-attacks",
      re.compile(r"during your opponent's next turn, (?:any damage done by "
                 r"attacks from the defending pokemon is reduced by|attacks "
-                r"used by the defending pokemon do) (\d+) less? ?"
-                r"(?:damage )?\(before applying weakness and resistance\)\."),
-     _debuff_defender_attacks),
+                r"used by the defending pokemon do|the defending pokemon's "
+                r"attacks do) (\d+) (?:less damage )?\(before applying "
+                r"weakness and resistance\)\."), _debuff_defender_attacks),
     ("protect.from-basic",
      re.compile(r"during your opponent's next turn, prevent all damage done to "
                 r"this pokemon by attacks from basic pokemon\."),
@@ -1224,7 +1292,59 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"your opponent switches his or her active pokemon with (an?|"
                 r"\d+) of his or her benched pokemon\."),
      _gust_opponent_chooses),
+
+    # -- batch 4: wording variants of the same shapes --------------------
+    ("scale.more-per-type-energy-short",
+     re.compile(r"does (\d+) more damage for each (" + _TYPE_WORDS +
+                r") energy attached to this pokemon\."),
+     _more_per_type_energy_short),
+    ("bonus.with-tool-attached",
+     re.compile(r"if this pokemon has a pokemon tool card attached to it, this "
+                r"attack does (\d+) more damage\."), _more_with_tool),
+    ("spread.own-bench-also-base",
+     re.compile(r"this attack also does (\d+) damage to each of your benched "
+                r"pokemon" + _BENCH_SPREAD_TAIL), _spread_own_bench_also_base),
+    ("protect.flip-damage-short",
+     re.compile(r"flip a coin\. if heads, during your opponent's next turn, "
+                r"prevent all damage done to this pokemon by attacks\."),
+     _flip_prevent_damage_short),
+    ("counters.place-opponent-bench",
+     re.compile(r"put (\d+) damage counters on your opponent's benched pokemon "
+                r"in any way you like\."), _counters_on_opponent_bench),
+    ("lock.defender-retreat-long",
+     re.compile(r"the defending pokemon can't retreat until the end of your "
+                r"opponent's next turn\."), _no_retreat_next_turn_long),
+    ("bonus.entered-active-this-turn",
+     re.compile(r"if this pokemon (?:moved from your bench to the active spot|"
+                r"was on the bench and became your active pokemon) this turn, "
+                r"this attack does (\d+) more damage\."),
+     _entered_active_bonus),
+    ("scale.more-times-energy-defender",
+     re.compile(r"this attack does (\d+) more damage times the amount of "
+                r"energy attached to your opponent's active pokemon\."),
+     _more_times_amount_energy_defender),
+    ("scale.damage-per-prizes-taken",
+     re.compile(r"this attack does (\d+) damage for each prize card you have "
+                r"taken\."), _damage_per_prizes_self),
+    ("scale.damage-per-energy-opponent",
+     re.compile(r"this attack does (\d+) damage for each energy attached to "
+                r"all of your opponent's pokemon\."),
+     _damage_per_energy_opponent_all),
+    ("poison.counters-defender",
+     re.compile(r"the defending pokemon is now poisoned\. put (\d+) damage "
+                r"counters instead of 1 on (?:the defending pokemon|that "
+                r"pokemon) between turns\."), _poison_counters_on_defender),
+    ("discard.any-stadium",
+     re.compile(r"discard any stadium card in play\."), _discard_any_stadium),
+    ("ignore.all-except-weakness",
+     re.compile(r"this attack's damage isn't affected by resistance, "
+                r"poke-powers, poke-bodies, or any other effects on the "
+                r"defending pokemon\."), _ignore_all_except_weakness),
+    ("ability.basic-no-retreat",
+     re.compile(r"your basic pokemon in play have no retreat cost\."),
+     _no_retreat_passive_team),
 ]
+
 
 
 
