@@ -3523,3 +3523,19 @@ def turn_damage_boost_vs(amount: int, target):
                 expires_after_turn=turn)
     return effect
 
+
+
+def named_exactly(name: str):
+    """Predicate: a card whose printed name is exactly `name` ("Judge", not
+    "Judge Whistle")."""
+    wanted = name.lower()
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        return (getattr(definition, "display_name", "") or "").lower() == wanted
+    return predicate
+
+
+def is_pokemon_v_card(card) -> bool:
+    """Predicate: a Pokemon V of any kind (V, VSTAR, VMAX, V-UNION)."""
+    return is_pokemon_card(card) and is_pokemon_v(card.archetype_id)

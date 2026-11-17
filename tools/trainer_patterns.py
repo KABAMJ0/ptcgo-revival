@@ -56,6 +56,8 @@ SIMPLE_PREDICATES = {
     "special energy card": "is_special_energy",
     "special energy": "is_special_energy",
     "card": "None",
+    "judge card": 'named_exactly("Judge")',
+    "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
 }
 
 TYPE_NAMES = "grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless"
@@ -649,6 +651,12 @@ RULES = [
          r"(?P<amount>\d+) more damage to (?:your opponents|the) active pokemon(?: before "
          r"applying weakness and resistance)?",
          "turn_damage_boost", lambda m: [m.group("amount")]),
+    Rule("turn-damage-boost-ex-and-v",
+         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon ex and active pokemon v(?: before applying weakness "
+         r"and resistance)?",
+         "turn_damage_boost_vs",
+         lambda m: [m.group("amount"), "any_of(is_pokemon_ex, is_pokemon_v_card)"]),
     Rule("turn-damage-boost-ex",
          r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
          r"your opponents active pokemon ex(?: before applying weakness and resistance)?",
@@ -1361,7 +1369,7 @@ def resolve(text, depth=0):
 
 # --- Modal cards ------------------------------------------------------------
 
-MODAL_HEAD = re.compile(r"^\s*choose (1|one|1 or both)(?:\s+of the following)?\s*:?\s*", re.I)
+MODAL_HEAD = re.compile(r"^\s*choose (1 or both|1|one)(?:\s+of the following)?\s*:?\s*", re.I)
 
 
 def resolve_modal(raw_text):

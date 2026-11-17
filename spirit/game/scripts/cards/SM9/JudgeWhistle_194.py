@@ -1,5 +1,7 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import choose_one, draw_n, named_exactly
 
 card = ItemCardDef(
     guid="86f89d7a-66b7-5155-bf49-5f7aa8fe4274",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=194,
     set_code="SM9",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=choose_one([("Draw a card", draw_n(1)), ("Put a Judge card from your discard pile into your hand", recover_from_discard(named_exactly("Judge"), count=1, to="hand"))])
 )
