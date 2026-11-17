@@ -11,6 +11,10 @@ from spirit.server import metrics
 from spirit import config
 from .game_session import GameSession
 
+# The client parses the MatchFound player list as GUIDs, so the bot needs a
+# GUID-shaped account id -- a name like "mock_ai_bot" makes JsonFx throw.
+BOT_ACCOUNT_ID = "00000000-0000-0000-0000-000000000b07"
+
 # A client-supplied queueName longer than this is rejected (abuse: the queues dict
 # is keyed by this string). Real format/tournament names are short.
 _MAX_QUEUE_NAME_LEN = 64
@@ -205,7 +209,7 @@ class GameSessionManager:
                     "deck": deck_data,
                     "ready": False
                 },
-                "mock_ai_bot": {
+                BOT_ACCOUNT_ID: {
                     "client": None, # No TCP client connection
                     "deck": {},    # Standard bot deck
                     "ready": True  # AI is instantly ready
@@ -441,7 +445,7 @@ class GameSessionManager:
                     "deck": deck_data,
                     "ready": False
                 },
-                "mock_ai_bot": {
+                BOT_ACCOUNT_ID: {
                     "client": None,
                     "deck": self._bot_deck(),
                     "ready": True
