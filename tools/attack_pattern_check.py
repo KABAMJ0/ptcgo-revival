@@ -354,6 +354,10 @@ CASES = [
     ("condition.both-this-and-defender", check_defender_condition, (1, 1, 1, 1), 0),
     ("energy.move-own-around", check_check_noop, (1, 1, 1, 1), 0),
     ("ignore.defending-effects-long", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("energy.move-between-opponents", check_check_noop, (1, 1, 1, 1), 0),
+    ("copy.own-bench-attack", check_check_noop, (1, 1, 1, 1), 0),
+    ("flip.until-tails-draw", check_draw, (1, 1, 1, 1), 0),
+    ("reveal.opponent-hand-plain", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
