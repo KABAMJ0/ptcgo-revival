@@ -350,6 +350,10 @@ CASES = [
     ("flip.tails-named-self-damage", check_self_damage, (0, 0, 0, 0), 0),
     ("recover.item-card", check_search_hand, (1, 1, 1, 1), 0),
     ("lock.smokescreen-worded", check_check_noop, (1, 1, 1, 1), 0),
+    ("condition.gate-not-present", check_check_noop, (1, 1, 1, 1), 0),
+    ("condition.both-this-and-defender", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy.move-own-around", check_check_noop, (1, 1, 1, 1), 0),
+    ("ignore.defending-effects-long", check_bonus_condition, (1, 1, 1, 1), 0),
 ]
 
 

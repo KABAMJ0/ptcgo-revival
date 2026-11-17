@@ -2293,6 +2293,87 @@ def _lock_opponent_items_v2(m, ability):
     return _lock_opponent_items(m, ability)
 
 
+
+def _condition_gate(m, ability):
+    required = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        defender = ctx.defender
+        present = defender is not None and required.name in (
+            defender.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        if present:
+            await ctx.deal_damage()
+    return effect
+
+
+def _both_this_and_defender(m, ability):
+    return condition_attack(CONDITIONS[m.group(1)], both_actives=True)
+
+
+def _flip_two_heads_discard_all(m, ability):
+    async def discard(ctx):
+        target = ctx.opponent_active()
+        if target is None or ctx.effects_blocked(target):
+            return
+        await ctx.discard_energy_from(target, 99,
+                                      prompt="Choose Energy to discard")
+    return flip_gate(discard, coins=2)
+
+
+def _move_own_energy_around(m, ability):
+    type_word = m.groupdict().get("type")
+    predicate = ((lambda card: energy_provides_type(card,
+                                                    TYPE_WORDS[type_word].value))
+                 if type_word else None)
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        pool = ctx.my_pokemon_in_play()
+        if len(pool) < 2:
+            return
+        await ctx.move_energy_freely(pool, pool, predicate=predicate,
+                                     prompt="Choose Energy to move")
+    return effect
+
+
+def _search_energy_attach_any_old(m, ability):
+    return search_attach_energy(_is_basic_energy, count=1, distribute=False)
+
+
+def _prevent_incoming_next_turn(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is None:
+            return
+        from spirit.game.card_effects.passives_common import apply_protection
+        await apply_protection(ctx, prevent=True)
+    return effect
+
+
+def _search_energy_attach_self_two(m, ability):
+    count = int(m.group(1))
+    type_word = m.groupdict().get("type")
+    predicate = ((lambda card: energy_provides_type(card,
+                                                    TYPE_WORDS[type_word].value))
+                 if type_word else is_basic_energy_card)
+    return _search_attach_self_factory(predicate, count)
+
+
+def _search_attach_self_factory(predicate, count):
+    async def effect(ctx):
+        picks = await ctx.search_deck(predicate, count=count, minimum=0,
+                                      prompt=f"Choose up to {count} Energy to attach")
+        if picks and ctx.attacker is not None:
+            for card in picks:
+                await ctx.attach_energy(card, ctx.attacker)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _search_supporter_show(m, ability):
+    return search_to_hand(_is_supporter, count=1, reveal=True)
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -2911,9 +2992,9 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
     # -- batch 7: discard-for-damage composites --------------------------
     ("discard.all-for-damage",
-     re.compile(r"discard all (?:(?P<type>" + _TYPE_WORDS + r") )?(?:basic )?"
-                r"energy from this pokemon\. this attack does (\d+) (?:more )?"
-                r"damage for each card you discarded in this way\."),
+     re.compile(r"discard all (?:basic )?(?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy from this pokemon\. this attack does (\d+) "
+                r"(?:more )?damage for each card you discarded in this way\."),
      _discard_for_damage),
     ("discard.any-for-damage",
      re.compile(r"you may discard any (?:amount|number) of (?:(?P<type>"
@@ -3328,7 +3409,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"pokemon powers, or any other effects on the defending "
                 r"pokemon\."), _ignore_all),
     ("discard.stadium-any-optional",
-     re.compile(r"you may discard (?:any )?stadium(?: card)? in play\."),
+     re.compile(r"you may discard (?:a |any )?stadium(?: card)? in play\."),
      _discard_stadium_optional),
     ("flip.tails-nothing-heads-shield",
      re.compile(r"flip a coin\. if tails, this attack does nothing\. if "
@@ -3364,6 +3445,48 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"looking\. look at that card you chose, then have your "
                 r"opponent shuffle that card into his or her deck\."),
      _peek_opponent_hand_card),
+
+    # -- batch 15: final wording fills -------------------------------------
+    ("ignore.defending-effects-long",
+     re.compile(r"this attack's damage isn't affected by weakness, resistance, "
+                r"or any other effects on the defending pokemon\."),
+     _ignore_all),
+    ("condition.gate-not-present",
+     re.compile(r"if the defending pokemon is not (" + _CONDITION_WORDS +
+                r"), this attack does nothing\."), _condition_gate),
+    ("condition.both-this-and-defender",
+     re.compile(r"both this pokemon and the defending pokemon are now (" +
+                _CONDITION_WORDS + r")\."), _both_this_and_defender),
+    ("discard.all-defender-energy-two-heads",
+     re.compile(r"flip (\d+) coins\. if both of them are heads, discard all "
+                r"energy attached to the defending pokemon\."),
+     _flip_two_heads_discard_all),
+    ("energy.move-own-around",
+     re.compile(r"move as many (?:(?P<type>" + _TYPE_WORDS + r") )?energy "
+                r"attached to your pokemon to your other pokemon in any way you "
+                r"like\."), _move_own_energy_around),
+    ("search.energy-attach-one-any",
+     re.compile(r"search your deck for (?:an? )?(?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy card and attach it to (?:an?|\d+) of your "
+                r"pokemon\. shuffle your deck afterward\."),
+     _search_energy_attach_any_old),
+    ("protect.prevent-incoming",
+     re.compile(r"during your opponent's next turn, if this pokemon would be "
+                r"damaged by an attack, prevent that attack's damage done to "
+                r"this pokemon\."), _prevent_incoming_next_turn),
+    ("search.energy-attach-self-count",
+     re.compile(r"search your deck for up to (\d+) (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy cards and attach them to this "
+                r"pokemon\. then, shuffle your deck\."),
+     _search_energy_attach_self_two),
+    ("search.supporter-show",
+     re.compile(r"search your deck for a supporter card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_supporter_show),
+    ("discard.random-hand-into-deck-his-her",
+     re.compile(r"choose a random card from your opponent's hand\. your "
+                r"opponent reveals that card and shuffles it into his or her "
+                r"deck\."), _random_hand_card_into_deck),
 ]
 
 
