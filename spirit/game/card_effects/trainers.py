@@ -3489,3 +3489,36 @@ class HolderCoinRerollPassive(Passive):
 def holder_coin_reroll(holder=None):
     return HolderCoinRerollPassive(holder)
 
+
+
+class TargetedTurnBoostPassive(Passive):
+    """Rides each opposing Pokemon for one turn: attacks by `player_id`'s
+    Pokemon do +amount to it while it is the Active and matches `target`."""
+
+    def __init__(self, amount, player_id, target):
+        self.amount = amount
+        self.player_id = player_id
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.to_active and attacker is not None):
+            return
+        if attacker.owning_player_id != self.player_id:
+            return
+        if carrier_pokemon(carrier) is not calc.target or not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def turn_damage_boost_vs(amount: int, target):
+    """During this turn, attacks used by your Pokemon do +amount to the
+    opponent's Active Pokemon matching `target` (Black Belt's Training)."""
+    async def effect(ctx):
+        turn = ctx.session.turn_state.turn_number
+        for pokemon in ctx.opponent_pokemon_in_play():
+            ctx.add_temporary_passive(
+                pokemon, TargetedTurnBoostPassive(amount, ctx.player_id, target),
+                expires_after_turn=turn)
+    return effect
+

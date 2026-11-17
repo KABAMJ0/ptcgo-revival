@@ -645,14 +645,14 @@ RULES = [
 
     # --- Damage modifiers -------------------------------------------------
     Rule("turn-damage-boost",
-         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
-         r"your opponents active pokemon(?: ex| v| vstar| gx)?(?: before applying weakness and "
-         r"resistance)?",
+         r"during this turn (?:attacks used by your pokemon|your pokemons attacks) do "
+         r"(?P<amount>\d+) more damage to (?:your opponents|the) active pokemon(?: before "
+         r"applying weakness and resistance)?",
          "turn_damage_boost", lambda m: [m.group("amount")]),
     Rule("turn-damage-boost-ex",
          r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
-         r"your opponents active pokemon ex",
-         "turn_damage_boost", lambda m: [m.group("amount")]),
+         r"your opponents active pokemon ex(?: before applying weakness and resistance)?",
+         "turn_damage_boost_vs", lambda m: [m.group("amount"), "is_pokemon_ex"]),
     Rule("turn-damage-boost-no-rule-box",
          r"during this turn attacks used by your pokemon that dont have 1 rule box do "
          r"(?P<amount>\d+) more damage to your opponents active pokemon(?: before applying weakness "

@@ -1,6 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
-from spirit.game.card_effects.trainers import turn_damage_boost
+from spirit.game.card_effects.trainers import is_pokemon_ex, turn_damage_boost_vs
 
 card = SupporterCardDef(
     guid="307de55f-7321-553c-80b0-79b5edf12f2f",
@@ -12,5 +12,5 @@ card = SupporterCardDef(
     collector_number=145,
     set_code="SV9",
     rarity=Rarities.Common,
-    effect=turn_damage_boost(40)
+    effect=turn_damage_boost_vs(40, is_pokemon_ex)
 )

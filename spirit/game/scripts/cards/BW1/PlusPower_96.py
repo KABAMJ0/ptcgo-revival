@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import turn_damage_boost
 
 card = ItemCardDef(
     guid="15ba7894-6949-50f2-ae3f-976e87d8615f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=96,
     set_code="BW1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=turn_damage_boost(10)
 )
