@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import devolve_to_basic
 
 card = ItemCardDef(
     guid="a76df81d-1909-5b5c-b1ca-34866b3651c1",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=78,
     set_code="BASE1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=devolve_to_basic()
 )

@@ -96,11 +96,12 @@ def canonical_text(rules) -> str:
     """The card's effect text with class reminder sentences removed, number
     words turned into digits, and whitespace/unicode normalized. Number words
     become digits so a template can capture "draw 3" and "draw two" alike."""
+    rules = [re.sub(r"\u00e9", "e", r or "") for r in (rules or [])]
     PARENTHETICAL = re.compile(
         r"\s*\((?:pokemon ex, pokemon v[^)]*|you still need[^)]*|before your attack)\)",
         re.I)
     kept = []
-    for line in (PARENTHETICAL.sub("", r) for r in (rules or [])):
+    for line in (PARENTHETICAL.sub("", r) for r in rules):
         for sentence in _sentences(line):
             probe = re.sub(r"\s+", " ", sentence).strip().lower()
             probe = probe.replace("\u2019", "'").replace("\u00e9", "e")

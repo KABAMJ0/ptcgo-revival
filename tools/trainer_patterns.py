@@ -84,6 +84,9 @@ def resolve_predicate(phrase):
     text = re.sub(r"\s+", " ", (phrase or "").strip().lower())
     text = re.sub(r"^(up to|any number of) ", "", text)
     text = re.sub(r"^(1|a|an) ", "", text)
+    combination = _any_combination(text)
+    if combination is not None:
+        return combination
     text = re.sub(r"^in any combination of ", "", text)
     text = re.sub(r" in any combination$", "", text)
     if text in SIMPLE_PREDICATES:
@@ -100,7 +103,7 @@ def resolve_predicate(phrase):
     owned = _owned_category(text)
     if owned is not None:
         return owned
-    for joiner, combinator in ((" or ", "any_of"), (" and ", "all_of")):
+    for joiner, combinator in ((" or ", "any_of"),):
         if joiner in text:
             parts = [resolve_predicate(part) for part in text.split(joiner)]
             parts = [part for part in parts if part != "None"]
@@ -117,6 +120,36 @@ def _count(value, default=1):
         return int(value)
     except ValueError:
         raise Unresolved(value)
+
+
+def _any_combination(text):
+    """"in any combination of supporter and stadium cards" -> any_of(...).
+
+    The phrase means "a mix of either kind", so the parts are OR-ed. A plain
+    "X and Y" phrase without it is NOT OR-ed: "an Item card and a Pokemon Tool
+    card" asks for one of each and must not collapse into a single filter, so
+    those decline instead.
+    """
+    prefix = "in any combination of "
+    if not text.startswith(prefix):
+        return None
+    parts = [part.strip() for part in text[len(prefix):].split(" and ")]
+    resolved = []
+    for part in parts:
+        expression = None
+        for suffix in ("", " card", " cards"):
+            try:
+                expression = resolve_predicate(part + suffix)
+                break
+            except Unresolved:
+                continue
+        if expression is None:
+            return None
+        if expression != "None":
+            resolved.append(expression)
+    if not resolved:
+        return None
+    return resolved[0] if len(resolved) == 1 else "any_of(%s)" % ", ".join(resolved)
 
 
 def _owned_category(text):
@@ -218,7 +251,7 @@ RULES = [
     # --- Draw -------------------------------------------------------------
     Rule("draw", r"draw (?P<n>\d+) cards?", "draw_n",
          lambda m: [m.group("n")]),
-    Rule("draw-until", r"draw cards? until you have (?P<n>\d+) cards? in your hand",
+    Rule("draw-until", r"draw cards?(?: from your deck)? until you have (?P<n>\d+) cards? in your hand",
          "draw_until_effect", lambda m: [m.group("n")], module="support_common"),
     Rule("discard-hand-draw",
          r"discard your hand and draw (?P<n>\d+) cards?", "discard_hand_draw",
@@ -296,6 +329,11 @@ RULES = [
          r"heal (?P<amount>\d+) damage from (?P<n>\d+) of your pokemon",
          "heal_item", lambda m: ["amount=" + m.group("amount"), 'scope="choice"'],
          module="support_common"),
+    Rule("heal-one-typed",
+         r"heal (?P<amount>\d+) damage from (?P<n>\d+) of your (?P<type>[a-z]+) pokemon",
+         "heal_item",
+         lambda m: ["amount=" + m.group("amount"), 'scope="choice"'],
+         module="support_common"),
     Rule("heal-each-own",
          r"heal (?P<amount>\d+) damage from each of your pokemon",
          "heal_item", lambda m: ["amount=" + m.group("amount"), 'scope="each_own"'],
@@ -353,6 +391,10 @@ RULES = [
          r"discard (?:1 )?energy(?: card)?s? (?:attached to |from )?(?P<n>\d+) of your opponents? "
          r"pokemon",
          "discard_energy_opponent", lambda m: []),
+    Rule("discard-energy-opp-active",
+         r"discard (?P<n>\d+) energy(?: card)?s?(?: attached to| from)? your opponents active "
+         r"pokemon",
+         "discard_energy_opponent", lambda m: ['scope="active"']),
     Rule("discard-energy-opp-flip",
          r"flip 1 coin if heads discard (?:1 )?energy(?: card)?s? (?:attached to |from )?"
          r"(?P<n>\d+) of your opponents? pokemon",
@@ -453,7 +495,8 @@ RULES = [
          "turn_damage_boost", lambda m: [m.group("amount"), "exclude_rule_box=True"]),
     Rule("turn-damage-boost-typed",
          r"during this turn attacks used by your (?P<type>[a-z]+) pokemon do (?P<amount>\d+) "
-         r"more damage to your opponents active pokemon",
+         r"more damage to your opponents active pokemon(?: before applying weakness and "
+         r"resistance)?",
          "turn_damage_boost", lambda m: _typed_boost(m)),
 
     # --- Tool / Stadium continuous effects ---------------------------------
@@ -480,8 +523,8 @@ RULES = [
          r"the pokemon this card is attached to has no weakness",
          "holder_no_weakness", lambda m: [], kind="passive"),
     Rule("tool-retreat-discount",
-         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless(?: "
-         r"colorless)*) less",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>(?:colorless)+) "
+         r"less",
          "holder_retreat_discount", lambda m: [str(_colorless_count(m.group("count")))],
          kind="passive"),
     Rule("stadium-retreat-discount",
@@ -542,6 +585,41 @@ RULES = [
          r"remove all special conditions from each of your active pokemon",
          "cure_conditions_effect", lambda m: ['scope="each_own"'],
          module="support_common"),
+
+    # --- Draw / discard compositions --------------------------------------
+    Rule("draw-then-discard",
+         r"draw (?P<draw>\d+) cards? then discard (?:any )?(?P<discard>\d+) card from your hand",
+         "draw_then_discard", lambda m: [m.group("draw"), m.group("discard")]),
+    Rule("draw-until-unless-owner",
+         r"draw cards? until you have (?P<hand>\d+) cards? in your hand if all of your pokemon "
+         r"in play are (?P<cat>[a-z0-9 ]+?) draw cards? until you have (?P<other>\d+) cards? in "
+         r"your hand instead",
+         "draw_until_unless",
+         lambda m: [m.group("hand"), m.group("other"),
+                    _pred(m.group("cat"))]),
+    Rule("heal-all-own-discard-energy",
+         r"remove all damage counters from all of your own pokemon with damage counters on them "
+         r"then discard all energy cards attached to those pokemon",
+         "heal_all_own_discard_energy", lambda m: []),
+    Rule("discard-tools",
+         r"choose up to (?P<n>\d+) pokemon tools attached to pokemon(?: yours or your "
+         r"opponents)? and discard them",
+         "discard_tools", lambda m: [m.group("n")]),
+    Rule("trade-for-discard",
+         r"trade (?P<n>\d+) of the other cards in your hand for up to (?P<count>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) from your discard pile",
+         "trade_to_hand",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("count")]),
+    Rule("devolve-to-basic",
+         r"choose (?P<n>\d+) of your pokemon in play and return its basic pokemon card to your "
+         r"hand discard all cards attached to that card",
+         "devolve_to_basic", lambda m: []),
+    Rule("tool-attack-discount-prize",
+         r"if you have more prize cards remaining than your opponent attacks used by the pokemon "
+         r"this card is attached to cost (?P<count>(?:colorless)+) less",
+         "holder_attack_discount",
+         lambda m: [str(_colorless_count(m.group("count"))), "prize_behind=True"],
+         kind="passive"),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",

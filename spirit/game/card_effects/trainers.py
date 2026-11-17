@@ -29,6 +29,7 @@ from spirit.game.session.passives import (
     trainer_play_blocked,
 )
 from spirit.game.card_effects.passives_common import (
+    attack_discount_passive,
     hp_bonus_tool,
     no_weakness_passive,
     retreat_discount,
@@ -2153,3 +2154,132 @@ def named(*words):
         name = (getattr(definition, "display_name", "") or "").lower()
         return all(word in name for word in wanted)
     return predicate
+
+
+def excluding(predicate):
+    """Predicate: matches what `predicate` rejects ("Basic Pokemon excluding
+    Pokemon ex")."""
+    def check(card):
+        return not predicate(card)
+    return check
+
+
+def draw_then_discard(draw: int, discard: int):
+    """Draw `draw` cards, then discard `discard` cards from your hand."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        await ctx.discard_from_hand(
+            discard, minimum=discard,
+            prompt=f"Discard {discard} card(s) from your hand")
+    return effect
+
+
+def draw_until_unless(hand_size: int, other_size: int, predicate):
+    """Draw until the hand holds `hand_size`, or `other_size` instead while
+    every one of your Pokemon in play matches `predicate` (Team Rocket's
+    Ariana)."""
+    async def effect(ctx):
+        in_play = ctx.my_pokemon_in_play()
+        matches = bool(in_play) and all(predicate(p) for p in in_play)
+        await ctx.draw_until(other_size if matches else hand_size)
+    return effect
+
+
+def heal_all_own_discard_energy():
+    """Remove all damage from each of your damaged Pokemon, then discard the
+    Energy attached to each one healed that way."""
+    async def effect(ctx):
+        for pokemon in list(ctx.my_pokemon_in_play()):
+            damage = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+            if damage <= 0:
+                continue
+            await ctx.heal(damage, pokemon)
+            await ctx.discard_energy_from(
+                pokemon, len(ctx.attached_energies(pokemon)),
+                prompt="Discard the Energy attached to that Pokémon")
+    return effect
+
+
+def discard_tools(count: int = 1, sides: str = "any"):
+    """Discard up to `count` Pokemon Tools attached to Pokemon in play."""
+    async def effect(ctx):
+        tools = [card for card, holder in ctx.tools_in_play()
+                 if sides == "any"
+                 or (sides == "mine" and card.owning_player_id == ctx.player_id)
+                 or (sides == "theirs" and card.owning_player_id != ctx.player_id)]
+        if not tools:
+            return
+        picks = await ctx.choose_cards(
+            tools, count, minimum=0,
+            prompt="Choose Pokémon Tools to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def trade_to_hand(predicate=None, count: int = 1):
+    """Put a card from your hand on the bottom of your deck to take up to
+    `count` matching cards from your discard pile into your hand."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Choose a card from your hand to shuffle in")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        cards = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+        if not cards:
+            return
+        taken = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose cards from your discard pile")
+        if taken:
+            await ctx.put_in_hand(taken, reveal=True)
+    return effect
+
+
+def devolve_to_basic():
+    """Return the highest evolution card on one of your Pokemon to your hand,
+    discarding everything attached to it (Devolution Spray's older printing)."""
+    async def effect(ctx):
+        evolved = [p for p in ctx.my_pokemon_in_play() if is_evolution_pokemon(p)]
+        if not evolved:
+            return
+        target = await ctx.choose_pokemon(
+            evolved, "Choose a Pokémon to devolve") if len(evolved) > 1 else evolved[0]
+        if target is None:
+            return
+        await ctx.discard_cards(
+            [c for c in full_stack(target) if c is not target])
+        await ctx.devolve_pokemon(target, steps=1, destination="hand")
+    return effect
+
+
+def holder_attack_discount(count: int, prize_behind: bool = False):
+    """The holder's attacks cost `count` Colorless less; prize_behind gates it
+    on having more Prize cards remaining than the opponent."""
+    if not prize_behind:
+        return attack_discount_passive(count)
+    return AttackDiscountPassiveWithGate(count)
+
+
+class AttackDiscountPassiveWithGate(Passive):
+    """Attack cost discount that only applies while behind on Prizes."""
+
+    def __init__(self, count):
+        self.count = count
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is not pokemon:
+            return cost
+        mine = board.find_player_area(pokemon.owning_player_id, "prizePile")
+        theirs = board.find_player_area(
+            next((p for p in board.player_ids
+                  if p != pokemon.owning_player_id), None), "prizePile")
+        if mine is None or theirs is None or len(mine.children) <= len(theirs.children):
+            return cost
+        return max(0, cost - self.count)
