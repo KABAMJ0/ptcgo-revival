@@ -100,7 +100,8 @@ from spirit.game.card_effects.support_common import (
     switch_self_attack,
 )
 from spirit.game.data_utils import (
-    Activations, Attack, EnergyCardDef, PokemonCardDef, def_for, unimplemented,
+    Activations, Attack, EnergyCardDef, PokemonCardDef, Triggers, def_for,
+    unimplemented,
 )
 from spirit.game.session.effects import is_special_energy
 from spirit.game.session.passives import Passive
@@ -2374,6 +2375,659 @@ def _search_supporter_show(m, ability):
     return search_to_hand(_is_supporter, count=1, reveal=True)
 
 
+
+def _lock_this_attack_reversed(m, ability):
+    named = normalize(m.group(1))
+    if named != normalize(getattr(ability, "title", "")):
+        return None
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None and ability.ability_id:
+            ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                               ability.ability_id)
+    return effect
+
+
+def _search_energy_show_any(m, ability):
+    return search_to_hand(is_energy_card, count=1, reveal=True)
+
+
+def _move_energy_between_opponents(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        active = ctx.opponent_active()
+        bench = [pokemon for pokemon in ctx.opponent_bench() if pokemon is not active]
+        if active is None or not bench or ctx.effects_blocked(active):
+            return
+        await ctx.move_energy_freely([active], bench,
+                                     prompt="Choose Energy to move")
+    return effect
+
+
+def _flip_until_tails_draw(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        heads = await ctx.flip_until_tails(getattr(ability, "title", ""))
+        if heads > 0:
+            await ctx.draw_cards(heads)
+    return effect
+
+
+def _discard_defender_trainers(m, ability):
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            from spirit.game.attributes import CardType
+            trainers = [card for card in defender.children
+                        if card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value]
+            if trainers:
+                await ctx.discard_cards(trainers)
+        await ctx.deal_damage()
+    return effect
+
+
+def _move_opponent_counters(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        pool = ctx.opponent_pokemon_in_play()
+        if len(pool) < 2:
+            return
+        source = await ctx.choose_pokemon(pool, "Choose a Pokémon to move counters from")
+        if source is None:
+            return
+        dests = [pokemon for pokemon in pool if pokemon is not source]
+        await ctx.move_damage_counters(source, dests)
+    return effect
+
+
+def _search_energy_each_bench(m, ability):
+    type_word = m.groupdict().get("type")
+    predicate = ((lambda card: is_basic_energy_card(card)
+                  and energy_provides_type(card, TYPE_WORDS[type_word].value))
+                 if type_word else is_basic_energy_card)
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in list(ctx.my_bench()):
+            picks = await ctx.search_deck(predicate, count=1, minimum=0,
+                                          prompt="Choose Energy to attach")
+            if picks:
+                await ctx.attach_energy(picks[0], pokemon)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _copy_own_bench_attack(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = ctx.my_bench()
+        candidates = []
+        from spirit.game.content.definitions import ABILITIES_BY_ID
+        for pokemon in bench:
+            for entry in _attack_entries(pokemon):
+                attack = ABILITIES_BY_ID.get(entry["abilityID"])
+                if attack is not None:
+                    candidates.append((pokemon, attack))
+        if not candidates:
+            return
+        chosen = await ctx.choose_attack_to_copy(candidates,
+                                                 "Choose an attack to use")
+        if chosen is None:
+            return
+        await ctx.use_attack(chosen[1])
+    return effect
+
+
+def _flip_condition_and_discard(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if not (results and results[0]):
+            await ctx.deal_damage()
+            return
+        await ctx.deal_damage()
+        defender = ctx.defender
+        await ctx.apply_special_condition(defender, condition)
+        if defender is not None and not ctx.effects_blocked(defender):
+            await ctx.discard_energy_from(defender, 1)
+    return effect
+
+
+def _search_energy_attach_distributed(m, ability):
+    count = int(m.group(1))
+    return search_attach_energy(is_energy_card, count=count, distribute=True)
+
+
+def _attach_hand_energy_capped(m, ability):
+    cap = int(m.group(1))
+    type_word = m.groupdict().get("type")
+
+    def predicate(card) -> bool:
+        if not is_basic_energy_card(card):
+            return False
+        return type_word is None or energy_provides_type(
+            card, TYPE_WORDS[type_word].value)
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        hand = [card for card in ctx.hand() if predicate(card)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(hand, cap, minimum=0,
+                                       prompt="Choose Energy to attach")
+        candidates = ctx.my_pokemon_in_play()
+        for card in picks:
+            if not candidates:
+                break
+            target = await ctx.choose_pokemon(
+                candidates, "Choose a Pokémon to attach the Energy to")
+            if target is not None:
+                await ctx.attach_energy(card, target)
+    return effect
+
+
+def _smokescreen_use_attack(m, ability):
+    return smokescreen_attack()
+
+
+
+def _switch_self_typed(m, ability):
+    type_word = m.groupdict().get("type")
+    if not type_word:
+        return switch_self_attack()
+    type_value = TYPE_WORDS[type_word].value
+
+    def predicate(pokemon) -> bool:
+        return is_pokemon_of_type(pokemon, type_word)
+    return switch_self_attack(bench_predicate=predicate)
+
+
+def _ultra_beast_count(m, ability):
+    from spirit.game.data_utils import subtypes_for
+
+    def predicate(pokemon) -> bool:
+        return any(subtype.lower() == "ultra beast"
+                   for subtype in subtypes_for(pokemon.archetype_id))
+    return _more(count_in_play("mine", predicate), ability, int(m.group(1)))
+
+
+def _heal_all_own(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.my_pokemon_in_play():
+            damage = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+            if damage > 0:
+                await ctx.heal(damage, pokemon)
+    return effect
+
+
+def _attach_discard_typed_self(m, ability):
+    count = int(m.group(1))
+    type_word = m.groupdict().get("type")
+
+    def predicate(card) -> bool:
+        if not is_energy_card(card):
+            return False
+        return type_word is None or energy_provides_type(
+            card, TYPE_WORDS[type_word].value)
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        cards = [card for card in ctx.discard_pile() if predicate(card)]
+        if not cards or ctx.attacker is None:
+            return
+        picks = await ctx.choose_cards(cards, count, minimum=0,
+                                       prompt="Choose Energy to attach")
+        for card in picks:
+            await ctx.attach_energy(card, ctx.attacker)
+    return effect
+
+
+def _discard_all_typed_self(m, ability):
+    type_word = m.groupdict().get("type")
+    return self_energy_discard_attack(
+        all_energy=True,
+        energy_type=TYPE_WORDS[type_word] if type_word else None)
+
+
+def _move_all_energy_to_bench(m, ability):
+    return energy_move_attack(count=99)
+
+
+def _flip_tails_nothing_else_shield(m, ability):
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if not (results and results[0]):
+            return
+        from spirit.game.card_effects.passives_common import apply_protection
+        await ctx.deal_damage()
+        await apply_protection(ctx, prevent=True)
+    return effect
+
+
+def _lock_opponent_energy_stadium(m, ability):
+    from spirit.game.attributes import CardType, TrainerType
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        ctx.lock_plays(
+            ctx.opponent_id,
+            lambda card: (card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value
+                          and card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value)
+            or (card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value
+                and is_special_energy(card)),)
+    return effect
+
+
+def _flip_recover_up_to_heads(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        heads = await ctx.flip_until_tails(getattr(ability, "title", ""))
+        if heads <= 0:
+            return
+        cards = [card for card in ctx.discard_pile()]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(cards, heads, minimum=0,
+                                       prompt="Choose cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=False)
+    return effect
+
+
+def _ko_if_condition(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        present = condition.name in (
+            defender.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        if present:
+            await ctx.knock_out(defender)
+    return effect
+
+
+def _ko_any_condition(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        if defender.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            await ctx.knock_out(defender)
+    return effect
+
+
+def _gate_if_damaged(m, ability):
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        if ctx.max_hp(defender) > defender.get_attribute(AttrID.HP, 0):
+            await ctx.deal_damage()
+    return effect
+
+
+def _base_plus_if_any_condition(m, ability):
+    from spirit.game.card_effects.attacks_common import defender_has_any_condition
+    return bonus_if(defender_has_any_condition, int(m.group(2)),
+                    base=int(m.group(1)))
+
+
+def _base_plus_if_condition(m, ability):
+    return bonus_if(defender_has_condition(CONDITIONS[m.group(1)]),
+                    int(m.group(3)), base=int(m.group(2)))
+
+
+def _flip_times_heads(m, ability):
+    return flip_damage(coins=_count(m.group(1)), per_heads=int(m.group(2)))
+
+
+def _base_plus_if_hand_equal(m, ability):
+    return bonus_if(hand_sizes_equal, int(m.group(2)), base=int(m.group(1)))
+
+
+def _base_plus_stadium_then_discard(m, ability):
+    async def effect(ctx):
+        base = int(m.group(1)) + int(m.group(2))
+        if ctx.stadium_in_play() is not None:
+            await ctx.deal_damage(base)
+            await ctx.discard_stadium()
+        else:
+            await ctx.deal_damage(int(m.group(1)))
+    return effect
+
+
+def _snipe_undamaged(m, ability):
+    amount, count = int(m.group(2)), _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                      if ctx.max_hp(pokemon) == pokemon.get_attribute(AttrID.HP, 0)]
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _flip_heads_spread_all(m, ability):
+    async def spread(ctx):
+        for pokemon in ctx.opponent_pokemon_in_play():
+            await ctx.deal_damage(int(m.group(1)), target=pokemon,
+                                  apply_modifiers=False)
+    return flip_gate(spread)
+
+
+def _search_evolution_to_hand(m, ability):
+    return search_to_hand(_is_evolution_card, count=1, reveal=True)
+
+
+def _remove_counters_each_bench(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.my_bench():
+            await ctx.heal(count * 10, pokemon)
+    return effect
+
+
+def _base_plus_per_energy_cards_defender(m, ability):
+    return damage_per(count_energy("defender"), int(m.group(2)),
+                      base=int(m.group(1)))
+
+
+def _base_plus_threshold_counters(m, ability):
+    return bonus_if(_defender_counters_at_least(int(m.group(1))),
+                    int(m.group(3)), base=int(m.group(2)))
+
+
+def _search_trainer_show(m, ability):
+    return search_to_hand(_is_trainer_card, count=1, reveal=True)
+
+
+def _is_evolution_card(card) -> bool:
+    from spirit.game.attributes import PokemonStage
+    stage = card.get_attribute(AttrID.STAGE)
+    return stage not in (None, PokemonStage.BASIC.value, PokemonStage.UNSET.value)
+
+
+def _is_trainer_card(card) -> bool:
+    from spirit.game.attributes import CardType
+    return card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value
+
+
+def _counters_on_bench_chosen(m, ability):
+    counters = int(m.group(1))
+    targets = _count(m.group(2)) if m.lastindex and m.lastindex >= 2 else 1
+
+    async def effect(ctx):
+        bench = ctx.opponent_bench()
+        if not bench:
+            return
+        picks = bench if len(bench) <= targets else await ctx.choose_cards(
+            bench, targets, prompt="Choose a Benched Pokémon")
+        for target in picks:
+            await ctx.deal_damage(counters * 10, target=target, as_counters=True)
+    return effect
+
+
+def _lock_until_leaves(m, ability):
+    """'This Pokemon can't use <this attack> again until it leaves the Active
+    spot': attack locks are cleared when the Pokemon leaves the Active spot,
+    so a far turn number is exactly that lifetime."""
+    named = normalize(m.group(1))
+    if named != normalize(getattr(ability, "title", "")):
+        return None
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None and ability.ability_id:
+            state = ctx.session.turn_state
+            state.attack_locks[(ctx.attacker.entity_id,
+                                ability.ability_id)] = state.turn_number + 999
+    return effect
+
+
+def _gate_entered_active(m, ability):
+    async def effect(ctx):
+        if ctx.attacker is not None and ctx.entered_active_this_turn(ctx.attacker):
+            await ctx.deal_damage()
+    return effect
+
+
+def _ko_chosen_basic_non_gx(m, ability):
+    from spirit.game.data_utils import subtypes_for
+    from spirit.game.session.effects import is_basic_pokemon
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                      if is_basic_pokemon(pokemon)
+                      and not any(subtype.lower() == "gx"
+                                  for subtype in subtypes_for(pokemon.archetype_id))
+                      and not ctx.effects_blocked(pokemon)]
+        if not candidates:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates, "Choose a Pokémon to knock out")
+        if target is not None:
+            await ctx.knock_out(target)
+    return effect
+
+
+def _opponent_bench_to_hand(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = ctx.opponent_bench()
+        if not bench:
+            return
+        picks = bench if len(bench) <= count else await ctx.choose_cards(
+            bench, count, prompt="Choose Benched Pokémon to return to hand")
+        for pokemon in picks:
+            await ctx.put_in_hand([pokemon] + list(pokemon.children or []),
+                                  reveal=True)
+    return effect
+
+
+def _evolve_from_deck_any(m, ability):
+    from spirit.game.content.definitions import evolves_from
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = ctx.my_pokemon_in_play()
+        if not candidates:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates, "Choose a Pokémon to evolve")
+        if target is None:
+            return
+        logic_name = target.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        if not logic_name:
+            return
+        picks = await ctx.search_deck(
+            lambda card: evolves_from(getattr(card, "archetype_id", None) or "",
+                                      logic_name),
+            count=1, minimum=0, prompt="Choose an Evolution card")
+        if picks:
+            await ctx.evolve_pokemon(target, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _damage_times_both_actives_energy(m, ability):
+    per = int(m.group(1))
+
+    async def effect(ctx):
+        count = count_energy("my_active")(ctx) + count_energy("defender")(ctx)
+        amount = per * count
+        if amount > 0:
+            await ctx.deal_damage(amount, ignore_weakness=True,
+                                  ignore_resistance=True)
+    return effect
+
+
+def _flip_tails_nothing_heads_shield_all(m, ability):
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if not (results and results[0]):
+            return
+        from spirit.game.card_effects.passives_common import apply_protection
+        await ctx.deal_damage()
+        await apply_protection(ctx, prevent=True, effects_too=True)
+    return effect
+
+
+def _bonus_extra_energy_snipe(m, ability):
+    required = int(m.group(1))
+    type_word = m.groupdict().get("type")
+    amount = int(m.group(3))
+
+    async def effect(ctx):
+        if not _extra_energy_attached(required, type_word)(ctx):
+            return
+        bench = ctx.opponent_bench()
+        if not bench:
+            return
+        target = bench[0] if len(bench) == 1 else await ctx.choose_cards(
+            bench, 1, prompt=f"Choose a Pokémon to take {amount} damage")
+        for pick in (target if isinstance(target, list) else [target]):
+            await ctx.deal_damage(amount, target=pick, apply_modifiers=False)
+    return effect
+
+
+def _attacker_subtypes(calc):
+    from spirit.game.data_utils import subtypes_for
+    if calc.attacker is None:
+        return set()
+    return {subtype.lower() for subtype in subtypes_for(calc.attacker.archetype_id)}
+
+
+def _passive_prevent_from_ex_or_v(m, ability):
+    def pred(calc, carrier) -> bool:
+        return bool(_attacker_subtypes(calc) & {"ex", "v", "vmax", "vstar"})
+    return prevent_damage_when(pred)
+
+
+def _passive_prevent_from_type(m, ability):
+    type_word = m.group(1)
+    type_value = TYPE_WORDS[type_word].value
+
+    def pred(calc, carrier) -> bool:
+        attacker = calc.attacker
+        if attacker is None:
+            return False
+        return is_pokemon_of_type(attacker, type_word)
+    return prevent_damage_when(pred)
+
+
+def _passive_prevent_from_ability_holders(m, ability):
+    def pred(calc, carrier) -> bool:
+        attacker = calc.attacker
+        if attacker is None:
+            return False
+        definition = def_for(getattr(attacker, "archetype_id", None) or "")
+        return any(not isinstance(a, Attack)
+                   for a in getattr(definition, "abilities", []) or [])
+    return prevent_damage_when(pred)
+
+
+def _passive_effect_shield(m, ability):
+    from spirit.game.card_effects.passives_common import attack_effect_shield_passive
+    return attack_effect_shield_passive(protects="carrier")
+
+
+def _passive_effect_shield_no_damage(m, ability):
+    from spirit.game.card_effects.passives_common import attack_effect_shield_passive
+    return attack_effect_shield_passive(protects="carrier")
+
+
+
+def _damaging_attacker(ctx):
+    return getattr(ctx, "damaged_by", None) or getattr(ctx, "ko_attacker", None)
+
+
+def _counters_on_attacker(m, ability):
+    counters = int(m.group(1))
+
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.deal_damage(counters * 10, target=attacker,
+                                  as_counters=True)
+    return effect
+
+
+def _condition_on_attacker(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.apply_special_condition(attacker, condition)
+    return effect
+
+
+def _knock_out_attacker(m, ability):
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.knock_out(attacker)
+    return effect
+
+
+def _passive_takes_less_flat(m, ability):
+    return takes_less_passive(int(m.group(1)))
+
+
+def _passive_flip_prevent_all(m, ability):
+    return flip_prevent_damage_passive()
+
+
+def _passive_basic_free_retreat(m, ability):
+    return retreat_free_when(
+        lambda pokemon, carrier: pokemon.owning_player_id
+        == carrier.owning_player_id
+        and pokemon.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value)
+
+
+def _search_attach_basic_energy_distributed(m, ability):
+    count = int(m.group(1))
+    type_word = m.groupdict().get("type")
+    predicate = (lambda card: is_basic_energy_card(card)
+                 and energy_provides_type(card, TYPE_WORDS[type_word].value)) \
+        if type_word else is_basic_energy_card
+    return search_attach_energy(predicate, count=count, distribute=True)
+
+
+def _counters_on_chosen_opponents(m, ability):
+    targets = _count(m.group(2))
+    counters = int(m.group(3))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt=f"Choose {targets} Pokémon")
+        for target in picks:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(counters * 10, target=target,
+                                      as_counters=True)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -3487,6 +4141,241 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"choose a random card from your opponent's hand\. your "
                 r"opponent reveals that card and shuffles it into his or her "
                 r"deck\."), _random_hand_card_into_deck),
+
+    # -- batch 16: reordered locks, hand reveals, pile movement ------------
+    ("lock.this-attack-next-turn-reversed",
+     re.compile(r"during your next turn, this pokemon can't use (.+?)\."),
+     _lock_this_attack_reversed),
+    ("reveal.opponent-hand-plain",
+     re.compile(r"look at your opponent's hand\."), _reveal_hand),
+    ("search.energy-show-any",
+     re.compile(r"search your deck for an energy card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_energy_show_any),
+    ("energy.move-between-opponents",
+     re.compile(r"move an energy card attached to the defending pokemon to "
+                r"another of your opponent's pokemon\."),
+     _move_energy_between_opponents),
+    ("flip.until-tails-draw",
+     re.compile(r"flip a coin until you get tails\. for each heads, draw a "
+                r"card\."), _flip_until_tails_draw),
+    ("discard.defender-trainers",
+     re.compile(r"before doing damage, discard all trainer cards attached to "
+                r"the defending pokemon\."), _discard_defender_trainers),
+    ("counters.move-between-opponents",
+     re.compile(r"move as many damage counters on your opponent's pokemon as "
+                r"you like to any of your opponent's other pokemon in any way "
+                r"you like\."), _move_opponent_counters),
+    ("search.energy-each-bench",
+     re.compile(r"for each of your benched pokemon, search your deck for a "
+                r"basic (?:(?P<type>" + _TYPE_WORDS + r") )?energy card and "
+                r"attach it to that pokemon\. then, shuffle your deck\."),
+     _search_energy_each_bench),
+    ("copy.own-bench-attack",
+     re.compile(r"choose (an?|\d+) of your benched (.+?)'s attacks and use it "
+                r"as this attack\."), _copy_own_bench_attack),
+    ("flip.condition-and-discard-energy",
+     re.compile(r"flip a coin\. if heads, (?:the defending|your opponent's "
+                r"active) pokemon is now (" + _CONDITION_WORDS + r") and "
+                r"discard an energy (?:card )?attached to the defending "
+                r"pokemon\."), _flip_condition_and_discard),
+    ("search.energy-attach-distributed",
+     re.compile(r"search your deck for up to (\d+) energy cards and attach "
+                r"them to your pokemon in any way you like\. then, shuffle "
+                r"your deck\."), _search_energy_attach_distributed),
+    ("attach.hand-energy-capped-typed",
+     re.compile(r"you may attach up to (\d+) (?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy cards from your hand to your pokemon in any way "
+                r"you like\."), _attach_hand_energy_capped),
+    ("lock.smokescreen-use-attack",
+     re.compile(r"during your opponent's next turn, if the defending pokemon "
+                r"tries to use an attack, your opponent flips a coin\. if "
+                r"tails, that attack doesn't happen\."),
+     _smokescreen_use_attack),
+
+    # -- batch 17: typed switching, typed Energy costs, condition knock-outs
+    ("switch.self-typed-bench",
+     re.compile(r"switch this pokemon with (?:an?|\d+) of your benched ("
+                r"(?P<type>" + _TYPE_WORDS + r") )pokemon\."),
+     _switch_self_typed),
+    ("scale.ultra-beast",
+     re.compile(r"this attack does (\d+) (?:more )?damage for each of your "
+                r"ultra beasts in play\."), _ultra_beast_count),
+    ("heal.all-own-pokemon",
+     re.compile(r"heal all damage from all of your pokemon\."), _heal_all_own),
+    ("attach.discard-typed-self",
+     re.compile(r"attach (\d+) (?:(?P<type>" + _TYPE_WORDS + r") )?energy "
+                r"cards from your discard pile to this pokemon\."),
+     _attach_discard_typed_self),
+    ("discard.self-energy-all-typed",
+     re.compile(r"discard all (?:(?P<type>" + _TYPE_WORDS + r") )?energy from "
+                r"this pokemon\."), _discard_all_typed_self),
+    ("energy.move-all-to-bench",
+     re.compile(r"move all energy from this pokemon to (?:an?|\d+) of your "
+                r"benched pokemon\."), _move_all_energy_to_bench),
+    ("flip.tails-nothing-else-prevent",
+     re.compile(r"flip a coin\. if tails, this attack does nothing\. if heads, "
+                r"during your opponent's next turn, prevent all damage done to "
+                r"this pokemon by attacks\."), _flip_tails_nothing_else_shield),
+    ("lock.opponent-energy-stadium",
+     re.compile(r"during your opponent's next turn, they can't play any special "
+                r"energy or stadium cards from their hand\."),
+     _lock_opponent_energy_stadium),
+    ("recover.flip-up-to-heads",
+     re.compile(r"flip (\d+) coins\. put a number of cards up to the number of "
+                r"heads from your discard pile into your hand\."),
+     _flip_recover_up_to_heads),
+    ("ko.if-defender-has-any-condition",
+     re.compile(r"if (?:your opponent's active|the defending) pokemon is "
+                r"affected by a special condition, that pokemon is knocked "
+                r"out\."), _ko_any_condition),
+    ("gate.defender-undamaged",
+     re.compile(r"if your opponent's active pokemon has no damage counters on "
+                r"it before this attack does damage, this attack does "
+                r"nothing\."), _gate_if_damaged),
+
+    # -- batch 18: old-era wordings for bonuses and searches ----------------
+    ("bonus.base-plus-any-condition",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon is "
+                r"affected by a special condition, this attack does (\d+) "
+                r"damage plus (\d+) more damage\."), _base_plus_if_any_condition),
+    ("bonus.base-plus-condition",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon is ("
+                + _CONDITION_WORDS + r"), this attack does (\d+) damage plus "
+                r"(\d+) more damage\."), _base_plus_if_condition),
+    ("flip.times-heads",
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) times the "
+                r"number of heads\."), _flip_times_heads),
+    ("bonus.base-plus-hand-equal",
+     re.compile(r"if you have the same number of cards in your hand as your "
+                r"opponent, this attack does (\d+) damage plus (\d+) more "
+                r"damage\."), _base_plus_if_hand_equal),
+    ("bonus.base-plus-stadium-discard",
+     re.compile(r"if there is any stadium card in play, this attack does "
+                r"(\d+) damage plus (\d+) more damage\. discard that stadium "
+                r"card\."), _base_plus_stadium_then_discard),
+    ("snipe.undamaged-only",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon that doesn't "
+                r"have any damage counters on it\. this attack does (\d+) "
+                r"damage to that pokemon" + _SNIPE_TAIL), _snipe_undamaged),
+    ("flip.heads-spread-all",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) damage to "
+                r"each of your opponent's pokemon" + _SNIPE_TAIL),
+     _flip_heads_spread_all),
+    ("search.evolution-to-hand",
+     re.compile(r"search your deck for an evolution card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_evolution_to_hand),
+    ("heal.counters-each-bench",
+     re.compile(r"remove (\d+) damage counters from each of your benched "
+                r"pokemon\."), _remove_counters_each_bench),
+    ("bonus.base-plus-per-energy-cards",
+     re.compile(r"this attack does (\d+) damage plus (\d+) more damage for "
+                r"each energy cards? attached to the defending pokemon\."),
+     _base_plus_per_energy_cards_defender),
+    ("bonus.base-plus-threshold-counters",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon already "
+                r"has at least (\d+) damage counters on it, this attack does "
+                r"(\d+) damage plus (\d+) more damage\."),
+     _base_plus_threshold_counters),
+    ("search.trainer-show",
+     re.compile(r"search your deck for a trainer card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_trainer_show),
+
+    # -- batch 19: counters on the bench, self-locks, evolution search -------
+    ("counters.on-bench-chosen",
+     re.compile(r"put (\d+) damage counters on (?:an?|(\d+)) of your "
+                r"opponent's benched pokemon\."), _counters_on_bench_chosen),
+    ("lock.this-attack-until-leaves",
+     re.compile(r"this pokemon can't use (.+?) again until it leaves the active "
+                r"spot\."), _lock_until_leaves),
+    ("gate.must-have-entered-active",
+     re.compile(r"if this pokemon didn't move from the bench to the active spot "
+                r"this turn, this attack does nothing\."), _gate_entered_active),
+    ("ko.chosen-basic-non-gx",
+     re.compile(r"knock out (?:an?|\d+) of your opponent's basic pokemon that "
+                r"isn't a pokemon-gx\."), _ko_chosen_basic_non_gx),
+    ("switch.opponent-bench-to-hand",
+     re.compile(r"put (\d+) of your opponent's benched pokemon and all cards "
+                r"attached to them into your opponent's hand\."),
+     _opponent_bench_to_hand),
+    ("search.evolve-any-own",
+     re.compile(r"search your deck for a card that evolves from (?:an?|\d+) of "
+                r"your pokemon and put it onto that pokemon to evolve it\. "
+                r"then, shuffle your deck\."), _evolve_from_deck_any),
+    ("scale.times-both-actives-energy",
+     re.compile(r"this attack does (\d+) damage times the amount of energy "
+                r"attached to both active pokemon\. this damage isn't affected "
+                r"by weakness or resistance\."), _damage_times_both_actives_energy),
+    ("flip.tails-nothing-heads-shield-all",
+     re.compile(r"flip a coin\. if tails, this attack does nothing\. if heads, "
+                r"during your opponent's next turn, prevent all damage from and "
+                r"effects of attacks done to this pokemon\."),
+     _flip_tails_nothing_heads_shield_all),
+    ("bonus.extra-energy-snipe",
+     re.compile(r"if this pokemon has at least (\d+) extra (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy attached(?: to it)?(?: \(in "
+                r"addition to this attack's cost\))?, this attack does (\d+) "
+                r"damage to (?:an?|\d+) of your opponent's benched pokemon"
+                + _SNIPE_TAIL), _bonus_extra_energy_snipe),
+
+    # -- batch 20: continuous ability protection ---------------------------
+    ("ability.prevent-from-ex-v",
+     re.compile(r"prevent all damage done to this pokemon by attacks from your "
+                r"opponent's pokemon ex and pokemon v\."),
+     _passive_prevent_from_ex_or_v),
+    ("ability.prevent-from-type",
+     re.compile(r"prevent all damage done to this pokemon by attacks from ("
+                + _TYPE_WORDS + r") pokemon\."), _passive_prevent_from_type),
+    ("ability.prevent-from-ability-holders",
+     re.compile(r"prevent all damage from attacks done to this pokemon by your "
+                r"opponent's pokemon that have an ability\."),
+     _passive_prevent_from_ability_holders),
+    ("ability.effect-shield",
+     re.compile(r"prevent all effects of attacks used by your opponent's "
+                r"pokemon done to this pokemon\. \(damage is not an "
+                r"effect\.\)"), _passive_effect_shield),
+    ("ability.effect-shield-except-damage",
+     re.compile(r"prevent all effects of your opponent's attacks, except "
+                r"damage, done to this pokemon\."),
+     _passive_effect_shield_no_damage),
+
+    # -- batch 22: abilities that react to being damaged -------------------
+    ("trigger.counters-on-attacker",
+     re.compile(r"(?:put|place) (\d+) damage counters on the attacking "
+                r"pokemon\."), _counters_on_attacker),
+    ("trigger.condition-on-attacker",
+     re.compile(r"the attacking pokemon is now (" + _CONDITION_WORDS + r")\."),
+     _condition_on_attacker),
+    ("trigger.knock-out-attacker",
+     re.compile(r"the attacking pokemon is knocked out\."), _knock_out_attacker),
+
+    # -- batch 23: flat damage reduction and free basic retreat ------------
+    ("ability.takes-less-flat",
+     re.compile(r"(?:this pokemon takes|any damage done to this pokemon by "
+                r"attacks is reduced by) (\d+) (?:less damage from attacks|"
+                r"\(after applying weakness and resistance\))"
+                r"(?: \(after applying weakness and resistance\))?\."),
+     _passive_takes_less_flat),
+    ("ability.flip-prevent-all-damage",
+     re.compile(r"if any damage is done to this pokemon by attacks, flip a "
+                r"coin\. if heads, prevent that damage\."),
+     _passive_flip_prevent_all),
+    ("ability.basic-free-retreat",
+     re.compile(r"your basic pokemon in play have no retreat cost\."),
+     _passive_basic_free_retreat),
+
+    # -- batch 24: ability-shaped search/attach and counter spreads --------
+    ("ability.search-attach-energy-distributed",
+     re.compile(r"search your deck for up to (\d+) basic (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy cards? and attach them to your "
+                r"pokemon in any way you like\. then,? shuffle your deck\."),
+     _search_attach_basic_energy_distributed),
+    ("ability.counters-chosen-opponents",
+     re.compile(r"choose (?:an?|(\d+)) of your opponent's pokemon and put "
+                r"(\d+) damage counters on each of them\."),
+     _counters_on_chosen_opponents),
 ]
 
 
@@ -3498,14 +4387,29 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 # "Once during your turn (before your attack), you may <effect>": the text
 # itself proves the ability is activated, so binding it also sets the
 # activation the engine needs to offer it at all.
-_ACTIVATION_PREFIXES = (
-    ("once during your turn (before your attack), you may ", Activations.ONCE_PER_TURN),
-    ("once during your turn, you may ", Activations.ONCE_PER_TURN),
-    ("once during your turn (before your attack), ", Activations.ONCE_PER_TURN),
+_ABILITY_PREFIXES = (
+    ("once during your turn (before your attack), you may ",
+     "activation", Activations.ONCE_PER_TURN),
+    ("once during your turn, you may ", "activation", Activations.ONCE_PER_TURN),
+    ("once during your turn (before your attack), ", "activation",
+     Activations.ONCE_PER_TURN),
     ("as often as you like during your turn (before your attack), you may ",
+     "activation", Activations.UNLIMITED),
+    ("as often as you like during your turn, you may ", "activation",
      Activations.UNLIMITED),
-    ("as often as you like during your turn, you may ", Activations.UNLIMITED),
-    ("during your turn (before your attack), you may ", Activations.UNLIMITED),
+    ("during your turn (before your attack), you may ", "activation",
+     Activations.UNLIMITED),
+    # "When you play this Pokemon from your hand ..." fires on an event.
+    ("when you play this pokemon from your hand to evolve 1 of your pokemon "
+     "during your turn, you may ", "trigger", Triggers.ON_EVOLVE),
+    ("when you play this pokemon from your hand onto your bench during your "
+     "turn, you may ", "trigger", Triggers.ON_PLAY),
+    ("if this pokemon is your active pokemon and is damaged by an opponent's "
+     "attack (even if this pokemon is knocked out), ", "trigger",
+     Triggers.ON_DAMAGED_BY_ATTACK),
+    ("if this pokemon is in the active spot and is damaged by an attack from "
+     "your opponent's pokemon (even if this pokemon is knocked out), ",
+     "trigger", Triggers.ON_DAMAGED_BY_ATTACK),
 )
 
 # name -> bind count, for the coverage report.
@@ -3536,17 +4440,17 @@ def bind(ability) -> Optional[str]:
     if not text:
         return None
 
-    activation = None
+    binder = None
     if not isinstance(ability, Attack) and ability.activation is None \
             and ability.trigger is None:
-        # An ability the engine never offers would be a dead bind. The "once
-        # during your turn" wording is itself proof that it is activated, so
-        # strip it here and set the matching activation on the bind below;
-        # continuous passives need no activation and match as written.
-        for prefix, kind in _ACTIVATION_PREFIXES:
+        # An ability the engine never offers would be a dead bind. The wording
+        # itself proves how it is offered ("once during your turn" = activated,
+        # "when you play this Pokemon" = triggered), so strip the prefix here
+        # and set that on the bind below; continuous passives match as written.
+        for prefix, kind, value in _ABILITY_PREFIXES:
             if text.startswith(prefix):
                 text = text[len(prefix):].strip()
-                activation = kind
+                binder = (kind, value)
                 break
     for name, pattern, build in _PATTERNS:
         match = pattern.fullmatch(text)
@@ -3565,9 +4469,14 @@ def bind(ability) -> Optional[str]:
             continue
         if isinstance(effect, Passive):
             pass
-        elif activation is not None:
-            ability.activation = activation
-        elif not isinstance(ability, Attack):
+        elif binder is not None:
+            kind, value = binder
+            if kind == "trigger":
+                ability.trigger = value
+            else:
+                ability.activation = value
+        elif not isinstance(ability, Attack) and ability.activation is None \
+                and ability.trigger is None:
             # An ordinary coroutine on an ability the engine cannot offer.
             continue
         if isinstance(effect, Passive):
