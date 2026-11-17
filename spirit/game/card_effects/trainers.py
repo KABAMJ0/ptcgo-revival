@@ -28,6 +28,13 @@ from spirit.game.session.passives import (
     effective_max_hp,
     trainer_play_blocked,
 )
+from spirit.game.card_effects.passives_common import (
+    hp_bonus_tool,
+    no_weakness_passive,
+    retreat_discount,
+    takes_less_passive,
+    typed_damage_boost_tool,
+)
 
 
 # --- Shared playability predicates -----------------------------------------
@@ -1917,3 +1924,119 @@ def turn_damage_boost(amount: int, pokemon_type=None, exclude_rule_box: bool = F
                     card_text=f"+{amount} damage",
                 )
     return effect
+
+
+# ======================================================================
+# Tool and Stadium stat passives
+# ----------------------------------------------------------------------
+# Thin wrappers over the factories in passives_common so a tool or stadium
+# script can be wired from its printed text (`passive=...`) the same way a
+# trainer is wired from its effect text.
+# ======================================================================
+
+def holder_damage_boost(amount: int, target_pred=None, to_active_only: bool = True):
+    """The attacks of the Pokemon this card is attached to do `amount` more
+    damage to the opponent's Active (or to targets matching `target_pred`)."""
+    return typed_damage_boost_tool(target_pred or (lambda target: True),
+                                   amount, to_active_only)
+
+
+def holder_hp_bonus(amount: int):
+    """The Pokemon this card is attached to gets +`amount` max HP."""
+    return hp_bonus_tool(amount)
+
+
+def holder_retreat_discount(count: int):
+    """The Retreat Cost of the Pokemon this card is attached to is `count`
+    Colorless less."""
+    return retreat_discount(count)
+
+
+def holder_no_weakness():
+    """The Pokemon this card is attached to has no Weakness."""
+    return no_weakness_passive()
+
+
+def holder_takes_less(amount: int, protect_type=None):
+    """The Pokemon this card is attached to takes `amount` less damage from
+    the opponent's attacks. protect_type restricts it to one typed holder."""
+    if protect_type is None:
+        return takes_less_passive(amount)
+    holder_pred = pokemon_of(protect_type)
+    return takes_less_passive(
+        amount, protects=lambda target, carrier: carrier_pokemon(carrier) is target
+        and holder_pred(target))
+
+
+def stadium_retreat_discount(count: int, basic_only: bool = False):
+    """Every (Basic) Pokemon in play has a Retreat Cost `count` Colorless less."""
+    if basic_only:
+        return retreat_discount(
+            count, target_pred=lambda target, carrier: is_basic_pokemon(target))
+    return retreat_discount(count, target_pred=lambda target, carrier: True)
+
+
+def stadium_takes_less(amount: int, protect_type=None):
+    """Pokemon (both sides) take `amount` less damage from opposing attacks,
+    optionally only Pokemon of one type."""
+    if protect_type is None:
+        return takes_less_passive(
+            amount, protects=lambda target, carrier: True)
+    type_pred = pokemon_of(protect_type)
+    return takes_less_passive(
+        amount, protects=lambda target, carrier: type_pred(target))
+
+
+class ToolsSuppressedStadiumPassive(Passive):
+    """Pokemon Tools attached to each Pokemon (both sides) have no effect."""
+
+    def suppresses_tool(self, tool, carrier):
+        return True
+
+
+class AllAbilitiesOffPassive(Passive):
+    """Each Pokemon in play (both sides) has no Abilities."""
+
+    def blocks_abilities(self, pokemon, carrier):
+        return True
+
+
+class CombinedPassive(Passive):
+    """Two continuous effects printed on one card ("... takes 30 less damage
+    and has no Weakness"), each hook forwarded to every part."""
+
+    def __init__(self, *parts):
+        self.parts = parts
+
+    def modify_damage_dealt(self, calc, carrier):
+        for part in self.parts:
+            part.modify_damage_dealt(calc, carrier)
+
+    def modify_weakness(self, calc, carrier):
+        for part in self.parts:
+            part.modify_weakness(calc, carrier)
+
+    def modify_resistance(self, calc, carrier):
+        for part in self.parts:
+            part.modify_resistance(calc, carrier)
+
+    def modify_damage_taken(self, calc, carrier):
+        for part in self.parts:
+            part.modify_damage_taken(calc, carrier)
+
+    def max_hp_bonus(self, pokemon, carrier):
+        return sum(part.max_hp_bonus(pokemon, carrier) for part in self.parts)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        for part in self.parts:
+            cost = part.modify_retreat_cost(cost, pokemon, carrier, board)
+        return cost
+
+    def suppresses_tool(self, tool, carrier):
+        return any(part.suppresses_tool(tool, carrier) for part in self.parts)
+
+
+def combined(*parts):
+    """One passive from several (a tool that both reduces damage and removes
+    Weakness)."""
+    return CombinedPassive(*parts)

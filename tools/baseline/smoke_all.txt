@@ -287,3 +287,230 @@ scripted effects exercised: 0 (PASS 0 / FAIL 0)
 tests: 31  PASS: 31
 scripted effects exercised: 0 (PASS 0 / FAIL 0)
 ### POP7
+tests: 34  PASS: 34
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### POP8
+tests: 31  PASS: 28  UNIMPL: 3
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### POP9
+tests: 33  PASS: 33
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### Promo_BW
+tests: 180  PASS: 172  UNIMPL: 8
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### Promo_SWSH
+tests: 9  FAIL: 5  SKIP: 4
+scripted effects exercised: 4 (PASS 0 / FAIL 4)
+### RSV10PT5
+tests: 290  PASS: 281  SKIP: 2  UNIMPL: 7
+scripted effects exercised: 2 (PASS 2 / FAIL 0)
+### RU1
+tests: 18  PASS: 18
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SI1
+tests: 31  PASS: 31
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SM1
+tests: 307  PASS: 273  SKIP: 15  UNIMPL: 19
+scripted effects exercised: 9 (PASS 9 / FAIL 0)
+### SM10
+tests: 433  PASS: 401  SKIP: 9  UNIMPL: 23
+scripted effects exercised: 10 (PASS 10 / FAIL 0)
+### SM11
+tests: 451  PASS: 409  SKIP: 13  UNIMPL: 29
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SM115
+tests: 102  PASS: 85  UNIMPL: 17
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SM12
+tests: 482  PASS: 439  SKIP: 6  UNIMPL: 37
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SM2
+tests: 349  PASS: 320  SKIP: 6  UNIMPL: 23
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SM3
+tests: 336  PASS: 303  SKIP: 8  UNIMPL: 25
+scripted effects exercised: 2 (PASS 2 / FAIL 0)
+### SM35
+tests: 149  PASS: 139  SKIP: 2  UNIMPL: 8
+scripted effects exercised: 5 (PASS 5 / FAIL 0)
+### SM4
+tests: 234  PASS: 216  SKIP: 8  UNIMPL: 10
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SM5
+tests: 315  PASS: 281  SKIP: 11  UNIMPL: 23
+scripted effects exercised: 7 (PASS 7 / FAIL 0)
+### SM6
+tests: 266  PASS: 239  SKIP: 6  UNIMPL: 21
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SM7
+tests: 328  PASS: 286  SKIP: 4  UNIMPL: 38
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SM75
+tests: 146  PASS: 136  SKIP: 2  UNIMPL: 8
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SM9
+tests: 339  PASS: 296  SKIP: 6  UNIMPL: 37
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SMA
+tests: 207  PASS: 197  UNIMPL: 10
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SMP
+tests: 554  PASS: 550  UNIMPL: 4
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SV1
+tests: 414  PASS: 389  SKIP: 7  UNIMPL: 18
+scripted effects exercised: 24 (PASS 24 / FAIL 0)
+### SV10
+tests: 392  PASS: 363  SKIP: 2  UNIMPL: 27
+scripted effects exercised: 6 (PASS 6 / FAIL 0)
+### SV2
+tests: 464  PASS: 424  SKIP: 8  UNIMPL: 32
+scripted effects exercised: 1 (PASS 1 / FAIL 0)
+### SV3
+tests: 374  PASS: 355  SKIP: 3  UNIMPL: 16
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SV3PT5
+tests: 352  PASS: 333  SKIP: 5  UNIMPL: 14
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SV4
+tests: 435  PASS: 394  SKIP: 12  UNIMPL: 29
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SV4PT5
+tests: 409  PASS: 391  SKIP: 1  UNIMPL: 17
+scripted effects exercised: 8 (PASS 8 / FAIL 0)
+### SV5
+tests: 366  PASS: 336  SKIP: 8  UNIMPL: 22
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SV6
+tests: 380  PASS: 345  SKIP: 7  UNIMPL: 28
+scripted effects exercised: 6 (PASS 6 / FAIL 0)
+### SV6PT5
+tests: 166  PASS: 149  SKIP: 5  UNIMPL: 12
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SV7
+tests: 263  PASS: 244  SKIP: 6  UNIMPL: 13
+scripted effects exercised: 3 (PASS 3 / FAIL 0)
+### SV8
+tests: 397  PASS: 360  SKIP: 9  UNIMPL: 28
+scripted effects exercised: 4 (PASS 4 / FAIL 0)
+### SV8PT5
+tests: 280  PASS: 239  SKIP: 5  UNIMPL: 36
+scripted effects exercised: 15 (PASS 15 / FAIL 0)
+### SV9
+tests: 302  PASS: 281  SKIP: 4  UNIMPL: 17
+scripted effects exercised: 1 (PASS 1 / FAIL 0)
+### SVE
+tests: 16  SKIP: 16
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SVP
+tests: 355  PASS: 351  UNIMPL: 4
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH1
+tests: 346  PASS: 342  SKIP: 4
+scripted effects exercised: 238 (PASS 238 / FAIL 0)
+### SWSH10
+tests: 358  PASS: 345  SKIP: 13
+scripted effects exercised: 263 (PASS 263 / FAIL 0)
+### SWSH10TG
+tests: 54  PASS: 49  UNIMPL: 5
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH11
+tests: 360  PASS: 342  SKIP: 18
+scripted effects exercised: 257 (PASS 257 / FAIL 0)
+### SWSH11TG
+tests: 51  PASS: 45  UNIMPL: 6
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH12
+tests: 356  PASS: 341  SKIP: 15
+scripted effects exercised: 248 (PASS 248 / FAIL 0)
+### SWSH12PT5GG
+tests: 123  PASS: 113  UNIMPL: 10
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH12TG
+tests: 51  PASS: 45  UNIMPL: 6
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH2
+tests: 353  PASS: 345  SKIP: 8
+scripted effects exercised: 257 (PASS 257 / FAIL 0)
+### SWSH3
+tests: 335  PASS: 329  SKIP: 6
+scripted effects exercised: 212 (PASS 212 / FAIL 0)
+### SWSH35
+tests: 124  PASS: 121  SKIP: 3
+scripted effects exercised: 84 (PASS 84 / FAIL 0)
+### SWSH4
+tests: 335  PASS: 326  SKIP: 9
+scripted effects exercised: 231 (PASS 231 / FAIL 0)
+### SWSH45
+tests: 111  PASS: 110  SKIP: 1
+scripted effects exercised: 81 (PASS 81 / FAIL 0)
+### SWSH45SV
+tests: 214  PASS: 214
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### SWSH5
+tests: 298  PASS: 284  SKIP: 14
+scripted effects exercised: 192 (PASS 192 / FAIL 0)
+### SWSH6
+tests: 358  PASS: 332  SKIP: 26
+scripted effects exercised: 268 (PASS 268 / FAIL 0)
+### SWSH7
+tests: 397  PASS: 379  SKIP: 18
+scripted effects exercised: 274 (PASS 274 / FAIL 0)
+### SWSH8
+tests: 462  PASS: 454  SKIP: 8
+scripted effects exercised: 281 (PASS 281 / FAIL 0)
+### SWSH9
+tests: 303  PASS: 290  SKIP: 13
+scripted effects exercised: 208 (PASS 208 / FAIL 0)
+### SWSH9TG
+tests: 54  PASS: 49  UNIMPL: 5
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### TK1A
+tests: 16  PASS: 15  SKIP: 1
+scripted effects exercised: 2 (PASS 2 / FAIL 0)
+### TK1B
+tests: 15  PASS: 14  SKIP: 1
+scripted effects exercised: 2 (PASS 2 / FAIL 0)
+### TK2B
+tests: 19  PASS: 16  SKIP: 2  UNIMPL: 1
+scripted effects exercised: 2 (PASS 2 / FAIL 0)
+### XY0
+tests: 57  PASS: 56  UNIMPL: 1
+scripted effects exercised: 5 (PASS 5 / FAIL 0)
+### XY1
+tests: 240  PASS: 219  SKIP: 13  UNIMPL: 8
+scripted effects exercised: 5 (PASS 5 / FAIL 0)
+### XY10
+tests: 196  PASS: 173  SKIP: 8  UNIMPL: 15
+scripted effects exercised: 6 (PASS 6 / FAIL 0)
+### XY12
+tests: 170  PASS: 148  SKIP: 15  UNIMPL: 7
+scripted effects exercised: 8 (PASS 8 / FAIL 0)
+### XY3
+tests: 193  PASS: 178  SKIP: 4  UNIMPL: 11
+scripted effects exercised: 5 (PASS 5 / FAIL 0)
+### XY4
+tests: 202  PASS: 183  SKIP: 7  UNIMPL: 12
+scripted effects exercised: 6 (PASS 6 / FAIL 0)
+### XY5
+tests: 261  PASS: 237  SKIP: 9  UNIMPL: 15
+scripted effects exercised: 7 (PASS 7 / FAIL 0)
+### XY6
+tests: 182  PASS: 169  SKIP: 6  UNIMPL: 7
+scripted effects exercised: 7 (PASS 7 / FAIL 0)
+### XY7
+tests: 163  PASS: 148  SKIP: 6  UNIMPL: 9
+scripted effects exercised: 4 (PASS 4 / FAIL 0)
+### XY8
+tests: 262  PASS: 245  SKIP: 8  UNIMPL: 9
+scripted effects exercised: 6 (PASS 6 / FAIL 0)
+### XY9
+tests: 195  PASS: 180  SKIP: 5  UNIMPL: 10
+scripted effects exercised: 7 (PASS 7 / FAIL 0)
+### XYP
+tests: 380  PASS: 358  SKIP: 8  UNIMPL: 14
+scripted effects exercised: 0 (PASS 0 / FAIL 0)
+### ZSV10PT5
+tests: 283  PASS: 276  SKIP: 2  UNIMPL: 5
+scripted effects exercised: 4 (PASS 4 / FAIL 0)

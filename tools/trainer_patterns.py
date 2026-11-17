@@ -102,6 +102,22 @@ def _count(value, default=1):
         raise Unresolved(value)
 
 
+def _colorless_count(phrase):
+    """'colorless' -> 1, 'colorless colorless' -> 2 (energy icons concatenate)."""
+    return max(1, phrase.count("colorless"))
+
+
+def _tool_takes_less(match):
+    """Arguments for a typical tool's damage reduction; declines on an
+    owner-specific qualifier it cannot express."""
+    holder_type = match.group("type")
+    if holder_type in (None, "pokemon"):
+        return [match.group("amount")]
+    if holder_type not in TYPE_NAMES.split("|"):
+        raise Unresolved(holder_type)
+    return [match.group("amount"), 'protect_type="%s"' % holder_type]
+
+
 def _typed_boost(match):
     """Arguments for a type-restricted damage boost; declines on a non-type."""
     if match.group("type") not in TYPE_NAMES.split("|"):
@@ -117,10 +133,10 @@ def _pred(phrase):
 # --- Rules ------------------------------------------------------------------
 
 class Rule:
-    __slots__ = ("rule_id", "pattern", "factory", "module", "builder", "bare")
+    __slots__ = ("rule_id", "pattern", "factory", "module", "builder", "bare", "kind")
 
     def __init__(self, rule_id, pattern, factory, builder, module="trainers",
-                 bare=False):
+                 bare=False, kind="effect"):
         self.rule_id = rule_id
         self.pattern = re.compile(pattern + r"\Z")
         self.factory = factory
@@ -129,6 +145,9 @@ class Rule:
         # bare: the factory IS a `async def effect(ctx)` coroutine (Switch),
         # so the script passes it directly instead of calling a factory.
         self.bare = bare
+        # effect: `effect=<factory>(...)`. passive: `passive=<factory>(...)`
+        # for a tool/stadium's continuous stat effect.
+        self.kind = kind
 
     def match(self, text):
         found = self.pattern.match(text)
@@ -142,7 +161,7 @@ class Rule:
             return None
         expression = self.factory if self.bare \
             else "%s(%s)" % (self.factory, ", ".join(args))
-        return {"rule": self.rule_id, "expr": expression,
+        return {"rule": self.rule_id, "expr": expression, "kind": self.kind,
                 "symbols": {self.factory} | _argument_symbols(args)}
 
 
@@ -394,6 +413,63 @@ RULES = [
          r"during this turn attacks used by your (?P<type>[a-z]+) pokemon do (?P<amount>\d+) "
          r"more damage to your opponents active pokemon",
          "turn_damage_boost", lambda m: _typed_boost(m)),
+
+    # --- Tool / Stadium continuous effects ---------------------------------
+    # These wire `passive=`, not `effect=`: the card has no play-time effect,
+    # it changes what happens while it sits attached or next to the Active.
+    Rule("tool-takes-less",
+         r"the (?:(?P<type>[a-z]+) )?pokemon this card is attached to takes (?P<amount>\d+) "
+         r"less damage from attacks from your opponents pokemon(?: after applying weakness and "
+         r"resistance)?",
+         "holder_takes_less", lambda m: _tool_takes_less(m), kind="passive"),
+    Rule("tool-takes-less-opp-attacks",
+         r"the pokemon this card is attached to takes (?P<amount>\d+) less damage from your "
+         r"opponents attacks",
+         "holder_takes_less", lambda m: [m.group("amount")], kind="passive"),
+    Rule("tool-damage-boost",
+         r"the attacks of the pokemon this card is attached to do (?P<amount>\d+) more damage "
+         r"to your opponents active pokemon(?: ex and active pokemon v)?(?: before applying "
+         r"weakness and resistance)?",
+         "holder_damage_boost", lambda m: [m.group("amount")], kind="passive"),
+    Rule("tool-hp-bonus",
+         r"the pokemon this card is attached to gets (?P<amount>\d+) hp",
+         "holder_hp_bonus", lambda m: [m.group("amount")], kind="passive"),
+    Rule("tool-no-weakness",
+         r"the pokemon this card is attached to has no weakness",
+         "holder_no_weakness", lambda m: [], kind="passive"),
+    Rule("tool-retreat-discount",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless(?: "
+         r"colorless)*) less",
+         "holder_retreat_discount", lambda m: [str(_colorless_count(m.group("count")))],
+         kind="passive"),
+    Rule("stadium-retreat-discount",
+         r"the retreat cost of each (?:(?P<basic>basic) )?pokemon in play both yours and your "
+         r"opponents is (?P<count>colorless(?: colorless)*) less",
+         "stadium_retreat_discount",
+         lambda m: [str(_colorless_count(m.group("count"))),
+                    "basic_only=" + ("True" if m.group("basic") else "False")],
+         kind="passive"),
+    Rule("tool-takes-less-and-no-weakness",
+         r"the (?:(?P<type>[a-z]+) )?pokemon this card is attached to takes (?P<amount>\d+) "
+         r"less damage from your opponents attacks(?: after applying weakness and resistance)? "
+         r"and has no weakness",
+         "combined",
+         lambda m: ["combined(holder_takes_less(%s), holder_no_weakness())"
+                    % _tool_takes_less(m)[0]] if True else [], kind="passive"),
+    Rule("tool-boost-and-no-weakness",
+         r"the attacks of the pokemon this card is attached to do (?P<amount>\d+) more damage "
+         r"to your opponents active pokemon(?: before applying weakness and resistance)? and "
+         r"that pokemon has no weakness",
+         "combined",
+         lambda m: ["combined(holder_damage_boost(%s), holder_no_weakness())"
+                    % m.group("amount")], kind="passive"),
+    Rule("stadium-tools-off",
+         r"pokemon tools attached to each pokemon both yours and your opponents have no effect",
+         "ToolsSuppressedStadiumPassive", lambda m: [], kind="passive"),
+    Rule("stadium-takes-less",
+         r"(?P<owner>[a-z]+ )?pokemon both yours and your opponents take (?P<amount>\d+) less "
+         r"damage from attacks from the opponents pokemon",
+         "stadium_takes_less", lambda m: [m.group("amount")], kind="passive"),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",

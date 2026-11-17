@@ -55,12 +55,16 @@ def module_for(symbol):
     raise KeyError(f"{symbol} is not defined in the trainer effect library")
 
 
-def rewrite(source, expr, symbols=None):
-    """The wired script source, or None when the stub marker is missing."""
+def rewrite(source, expr, symbols=None, kind="effect"):
+    """The wired script source, or None when the stub marker is missing.
+
+    kind "passive" rewires a tool/stadium's continuous stat effect, which
+    lives on `passive=` and has no play-time `effect`.
+    """
     if STUB not in source:
         return None
     symbols = symbols if symbols is not None else symbols_in(expr)
-    wired = source.replace(STUB, "effect=" + expr)
+    wired = source.replace(STUB, f"{kind}=" + expr)
     if "unimplemented" not in wired:
         wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
                        r"\1,", wired)
@@ -113,7 +117,7 @@ def main(argv=None):
         path = os.path.join(coverage.REPO_ROOT, script.path)
         with open(path, "r", encoding="utf-8") as handle:
             source = handle.read()
-        wired = rewrite(source, found["expr"])
+        wired = rewrite(source, found["expr"], kind=found.get("kind", "effect"))
         if wired is None:
             skipped.append((script.path, "no stub marker"))
             continue
