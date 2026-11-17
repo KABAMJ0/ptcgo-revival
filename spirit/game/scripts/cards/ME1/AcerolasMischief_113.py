@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import opponent_prizes_at_most, protect_chosen_next_turn
 
 card = SupporterCardDef(
     guid="834663f6-4afc-51e3-b405-d0f2c0a3702c",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=113,
     set_code="ME1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=protect_chosen_next_turn(1), condition=opponent_prizes_at_most(2)
 )

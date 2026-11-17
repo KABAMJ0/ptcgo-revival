@@ -35,6 +35,7 @@ from spirit.game.card_effects.passives_common import (
     attack_discount_passive,
     condition_immunity_passive,
     is_in_active_spot,
+    TempShieldPassive,
     hp_bonus_tool,
     no_resistance_passive,
     retreat_free_when,
@@ -3764,3 +3765,45 @@ def trainer_card_other_than(name: str):
     """Predicate: any Trainer card whose printed name is not `name`."""
     excluded = named_exactly(name)
     return lambda card: is_trainer_card(card) and not excluded(card)
+
+
+def protect_chosen_next_turn(count: int = 1, prevent: bool = True,
+                             effects_too: bool = True):
+    """Choose `count` of your Pokemon; through your opponent's next turn all
+    damage (and effects) done to them by your opponent's Pokemon is prevented."""
+    async def effect(ctx):
+        targets = await ctx.choose_cards(
+            ctx.my_pokemon_in_play(), count, minimum=count,
+            prompt="Choose a Pokémon to protect next turn.")
+        for target in targets:
+            ctx.add_passive_through_opponents_turn(
+                target, TempShieldPassive(prevent=prevent, effects_too=effects_too))
+    return effect
+
+
+def extra_prize_on_ko(attacker, prizes: int = 1):
+    """During this turn, take `prizes` extra Prize cards when `attacker`'s
+    attack knocks out the opponent's Active Pokemon (Briar)."""
+    async def effect(ctx):
+        ctx.add_extra_prize_watcher(attacker_predicate=attacker, prizes=prizes)
+    return effect
+
+
+def tera_attacker():
+    """Predicate: a Tera Pokemon (the attacker that earns Briar's extra Prize)."""
+    return pokemon_of_subtype("Tera")
+
+
+def opponent_prizes_in(low: int, high: int):
+    """Condition: the opponent has between `low` and `high` Prize cards left."""
+    def check(board, player_id):
+        area = board.find_player_area(_opponent_of(board, player_id), "prizePile")
+        if area is None:
+            return False
+        return low <= len(area.children) <= high
+    return check
+
+
+def _opponent_of(board, player_id):
+    players = list(getattr(board, "player_ids", []) or [])
+    return next((p for p in players if p != player_id), None)

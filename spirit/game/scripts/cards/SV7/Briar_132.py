@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import extra_prize_on_ko, opponent_prizes_exactly, tera_attacker
 
 card = SupporterCardDef(
     guid="64af2d92-069c-5587-b8bf-8ba71dedffce",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=132,
     set_code="SV7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=extra_prize_on_ko(tera_attacker(), 1), condition=opponent_prizes_exactly(2)
 )

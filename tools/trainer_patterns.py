@@ -1423,6 +1423,15 @@ RULES = [
                     'predicate=trainer_card_other_than("%s")' % m.group("except"),
                     'rest="shuffle"', "minimum=0"],
          module="support_common"),
+    Rule("protect-chosen-next-turn",
+         r"choose (?P<n>\d+) of your pokemon in play during your opponents next turn prevent all "
+         r"damage from and effects of attacks done to that pokemon(?: by your opponents "
+         r"pokemon(?: ex)?)?",
+         "protect_chosen_next_turn", lambda m: [m.group("n")]),
+    Rule("extra-prize-on-tera-ko",
+         r"during this turn if your opponents active pokemon is knocked out by damage from 1 "
+         r"attack used by your tera pokemon take (?P<n>\d+) more prize cards?",
+         "extra_prize_on_ko", lambda m: ["tera_attacker()", m.group("n")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
