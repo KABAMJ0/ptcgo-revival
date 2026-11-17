@@ -1746,7 +1746,7 @@ RULES = [
          lambda m: [m.group("n"), m.group("take"), "is_pokemon_card"]),
     Rule("search-hand-basic-hp-each",
          r"search your deck for up to (?P<n>\d+) basic pokemon that each has (?P<hp>\d+) hp or less "
-         r"show them to your opponent and put them into your hand shuffle your deck",
+         r"show them to your opponent and put them into your hand" + SHUFFLE_TAIL,
          "search_to_hand",
          lambda m: ["all_of(is_basic_pokemon, pokemon_with_hp_at_most(%s))" % m.group("hp"),
                     "count=" + m.group("n")],
@@ -1858,8 +1858,8 @@ WRAPPERS = [
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) of the other cards (?:from|in) your hand in order to "),
      "with_discard_cost", None),
-    (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
-                r"you cant play this card "), "with_discard_cost", None),
+    (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards? "
+                r"(?:from your hand )?you cant play this card "), "with_discard_cost", None),
     (re.compile(r"^if you go first you may use this card during your first turn "),
      None, None),
 ]
