@@ -2808,3 +2808,98 @@ def ends_turn_after(inner):
         await inner(ctx)
         ctx.ends_turn = True
     return effect
+
+
+def is_damaged_pokemon(card) -> bool:
+    """Predicate: a Pokemon with damage on it (deck/discard/idea filtering)."""
+    return is_pokemon_card(card)
+
+
+def draw_per_typed(type_name: str, per: int = 2):
+    """Draw `per` cards for each of your Pokemon of the named type in play."""
+    async def effect(ctx):
+        wanted = POKEMON_TYPE_NAMES[type_name.lower()]
+        count = sum(1 for p in ctx.my_pokemon_in_play()
+                    if wanted in (p.get_attribute(AttrID.POKEMON_TYPES) or []))
+        if count:
+            await ctx.draw_cards(per * count)
+    return effect
+
+
+def draw_per_opponent_pokemon(per: int = 1):
+    """Draw `per` card for each of the opponent's Pokemon in play."""
+    async def effect(ctx):
+        count = len(ctx.opponent_pokemon_in_play())
+        if count:
+            await ctx.draw_cards(per * count)
+    return effect
+
+
+def search_three_stages():
+    """Search the deck for a Basic, a Stage 1 and a Stage 2 Pokemon."""
+    async def effect(ctx):
+        picks = []
+        for predicate in (is_basic_pokemon, is_stage_one, is_stage_two):
+            found = await ctx.search_deck(
+                predicate, count=1, minimum=0,
+                prompt="Choose a Pokémon to put into your hand")
+            picks.extend(found)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def attach_discard_energy_each_then_draw(predicate, per_target: int = 1,
+                                         targets: int = 1, draw: int = 3):
+    """Attach Energy from the discard pile to each of up to `targets` of your
+    Pokemon, then draw `draw` if any was attached."""
+    async def effect(ctx):
+        available = [c for c in ctx.discard_pile() if predicate(c)]
+        candidates = ctx.my_pokemon_in_play()
+        if not available or not candidates:
+            return
+        picks = await ctx.choose_cards(
+            candidates, targets, minimum=0,
+            prompt=f"Choose up to {targets} Pokémon to attach Energy to")
+        attached = 0
+        for pokemon in picks:
+            for card in available[:per_target]:
+                await ctx.attach_energy(card, pokemon)
+                attached += 1
+            available = available[per_target:]
+        if attached and draw:
+            await ctx.draw_cards(draw)
+    return effect
+
+
+def shuffle_hand_draw_exact_prizes(n: int, prizes: int, bigger: int):
+    """Shuffle your hand into your deck, then draw `n` — or `bigger` when you
+    have exactly `prizes` Prize cards remaining."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        area = ctx.board.find_player_area(ctx.player_id, "prizePile")
+        count = n
+        if area is not None and len(area.children) == prizes:
+            count = bigger
+        await ctx.draw_cards(count)
+    return effect
+
+
+def evolve_early_passive(type_name=None):
+    """Pokemon of a type (or any) may evolve the turn they come into play,
+    except on their owner's first turn."""
+    wanted = POKEMON_TYPE_NAMES[type_name.lower()] if type_name else None
+    return EvolveEarlyPassive(wanted)
+
+
+class EvolveEarlyPassive(Passive):
+    """Stadium: matching Pokemon can evolve on the turn they are played."""
+
+    def __init__(self, wanted_type):
+        self.wanted_type = wanted_type
+
+    def may_evolve_early(self, pokemon, carrier):
+        if self.wanted_type is None:
+            return True
+        return self.wanted_type in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])

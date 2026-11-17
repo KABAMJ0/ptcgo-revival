@@ -38,6 +38,7 @@ SIMPLE_PREDICATES = {
     "stage 2 pokemon": "is_stage_two",
     "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
     "pokemon ex": "is_pokemon_ex",
+    "pokemon that has any damage counters on it": "is_damaged_pokemon",
     "pokemon gx": "is_pokemon_gx",
     "pokemon vstar": "is_pokemon_vstar",
     "item card": "is_item_card",
@@ -253,6 +254,13 @@ def _active_subtype(phrase):
     if not text:
         raise Unresolved(phrase)
     return text.upper()
+
+
+def _typed_or_decline(word):
+    """A Pokemon type name, or the rule declines."""
+    if word not in TYPE_NAMES.split("|"):
+        raise Unresolved(word)
+    return '"%s"' % word
 
 
 def _colorless_count(phrase):
@@ -754,7 +762,7 @@ RULES = [
          r"your opponents active pokemon is now (?P<a>[a-z]+)",
          "condition_opponent_active", lambda m: [_condition(m.group("a"))]),
     Rule("heal-all-then-discard-energy",
-         r"heal all damage from (?P<n>\d+) of your pokemon if you do discard all energy cards? "
+         r"heal all damage from (?P<n>\d+) of your pokemon if you do discard all energy(?: cards?)? "
          r"from that pokemon",
          "heal_all_then_discard_energy", lambda m: []),
     Rule("discard-benched-undamaged",
@@ -840,6 +848,49 @@ RULES = [
          lambda m: [_pred(m.group("cat")), "count=" + m.group("n"),
                     'to="deck_shuffle"'],
          module="support_common"),
+
+    # --- Remaining composed shapes ----------------------------------------
+    Rule("shuffle-hand-draw-exact-prizes",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) cards? if you have exactly "
+         r"(?P<prizes>\d+) prize cards remaining draw (?P<bigger>\d+) cards? instead",
+         "shuffle_hand_draw_exact_prizes",
+         lambda m: [m.group("n"), m.group("prizes"), m.group("bigger")]),
+    Rule("attach-each-then-draw",
+         r"choose up to (?P<targets>\d+) of your " + CAT +
+         r" and attach (?P<per>\d+) (?P<energy>[a-z0-9 ]+?) from your discard pile to each of "
+         r"them if you attached any energy in this way draw (?P<draw>\d+) cards?",
+         "attach_discard_energy_each_then_draw",
+         lambda m: [_pred(m.group("energy")), "per_target=" + m.group("per"),
+                    "targets=" + m.group("targets"), "draw=" + m.group("draw")]),
+    Rule("look-top-choose-back-on-top",
+         r"look at the top (?P<n>\d+) cards (?:of|from) your deck(?: and)? choose (?P<take>\d+) "
+         + CAT + r"(?: from those cards)? show it to your opponent and put it into your hand put "
+         r"the (?:other|\d+ other) cards back on top of your deck(?: in any order)?(?: shuffle "
+         r"your deck afterward)?",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"),
+                    "predicate=" + _pred(m.group("cat")), 'rest="back"'],
+         module="support_common"),
+    Rule("search-three-stages",
+         r"search your deck for (?P<a>\d+) basic pokemon (?P<b>\d+) stage 1 pokemon and "
+         r"(?P<c>\d+) stage 2 pokemon reveal them and put them into your hand then shuffle your "
+         r"deck",
+         "search_three_stages", lambda m: []),
+    Rule("stadium-evolve-early-typed",
+         r"each players (?P<type>[a-z]+) pokemon can evolve into (?P<type2>[a-z]+) pokemon during "
+         r"the turn they play those pokemon except during their first turn",
+         "evolve_early_passive",
+         lambda m: [_typed_or_decline(m.group("type"))], kind="passive"),
+    Rule("opponent-reveals-discard-energy",
+         r"your opponent reveals their hand discard (?P<n>\d+) energy cards? from it",
+         "discard_from_opponent_hand",
+         lambda m: ["predicate=is_energy_card", "count=" + m.group("n")]),
+    Rule("draw-per-typed",
+         r"draw (?P<per>\d+) cards? for each (?P<type>[a-z]+) pokemon you have in play",
+         "draw_per_typed", lambda m: [_typed_or_decline(m.group("type")), m.group("per")]),
+    Rule("draw-per-opponent-pokemon",
+         r"draw (?P<per>\d+) card for each of your opponents pokemon in play",
+         "draw_per_opponent_pokemon", lambda m: [m.group("per")]),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attach_discard_energy_each_then_draw, is_basic_energy_card
 
 card = SupporterCardDef(
     guid="2798e843-b1c5-57a9-9cbb-ea52816aca76",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=239,
     set_code="SV4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=attach_discard_energy_each_then_draw(is_basic_energy_card, per_target=1, targets=2, draw=3)
 )
