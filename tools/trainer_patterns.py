@@ -1657,6 +1657,28 @@ RULES = [
          r"shuffle (?P<n>\d+) of the other cards from your hand into your deck in order to draw "
          r"(?P<draw>\d+) card",
          "shuffle_hand_cards_draw", lambda m: [m.group("n"), m.group("draw")]),
+    Rule("max-potion-then",
+         r"heal all damage from (?P<n>\d+) of your pokemon then discard all energy attached to that "
+         r"pokemon",
+         "heal_all_then_discard_energy", lambda m: []),
+    Rule("super-rod",
+         r"shuffle (?P<n>\d+) in any combination of (?P<a>[a-z ]+?) and (?P<b>[a-z ]+?) from your "
+         r"discard pile back into your deck",
+         "shuffle_discard_combo_into_deck",
+         lambda m: [m.group("n"), _pred(m.group("a")), _pred(m.group("b"))]),
+    Rule("copycat",
+         r"shuffle your hand into your deck then (?:count the number of cards in your opponents hand "
+         r"and )?draw that many cards",
+         "copycat_draw", lambda m: []),
+    Rule("draw-then-bottom",
+         r"draw (?P<n>\d+) cards then choose (?P<k>\d+) card from your hand and put it on the "
+         r"bottom of your deck",
+         "draw_then_bottom", lambda m: [m.group("n"), m.group("k")]),
+    Rule("moo-moo-milk",
+         r"choose (?P<n>\d+) of your pokemon flip (?P<coins>\d+) coins remove (?P<per>\d+) damage "
+         r"counters times the number of heads from that pokemon(?: if the pokemon has fewer damage "
+         r"counters than that remove all of them)?",
+         "flip_heal_chosen", lambda m: [m.group("per"), m.group("coins")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

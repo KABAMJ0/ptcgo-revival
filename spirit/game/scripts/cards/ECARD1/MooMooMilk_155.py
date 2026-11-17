@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import flip_heal_chosen
 
 card = ItemCardDef(
     guid="6a320f3f-f2e9-5e37-8a41-2ef643856749",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=155,
     set_code="ECARD1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=flip_heal_chosen(2, 2)
 )

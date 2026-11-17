@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import is_basic_energy_card, is_pokemon_card, shuffle_discard_combo_into_deck
 
 card = ItemCardDef(
     guid="fc5a47d9-5dfb-5eaa-8c89-eca0cfd3c316",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=20,
     set_code="DV",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=shuffle_discard_combo_into_deck(3, is_pokemon_card, is_basic_energy_card)
 )

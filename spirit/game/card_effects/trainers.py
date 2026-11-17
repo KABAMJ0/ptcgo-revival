@@ -4124,3 +4124,70 @@ def shuffle_hand_cards_draw(cards: int, draw: int):
             await ctx.shuffle_into_deck(picks)
         await ctx.draw_cards(draw)
     return effect
+
+
+def shuffle_discard_combo_into_deck(count: int, *predicates):
+    """Shuffle `count` cards matching any of `predicates` from your discard
+    pile back into your deck (Super Rod)."""
+    def matches(card):
+        return any(pred(card) for pred in predicates)
+
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile() if matches(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt="Choose cards from your discard pile to shuffle back in")
+        if picks:
+            await ctx.shuffle_into_deck(picks)
+    return effect
+
+
+def copycat_draw():
+    """Shuffle your hand into your deck, then draw as many cards as your
+    opponent holds."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        area = ctx.board.find_player_area(ctx.opponent_id, "hand")
+        count = len(area.children) if area is not None else 0
+        if count:
+            await ctx.draw_cards(count)
+    return effect
+
+
+def draw_then_bottom(draw: int, count: int = 1):
+    """Draw `draw` cards, then put `count` card from your hand on the bottom
+    of your deck (Professor Oak's Visit)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        pool = ctx.hand()
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=min(count, len(pool)),
+            prompt="Choose a card to put on the bottom of your deck")
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+    return effect
+
+
+def flip_heal_chosen(counters_per_head: int, coins: int = 2):
+    """Choose one of your Pokemon and flip `coins`; remove
+    `counters_per_head` damage counters for each heads (Moo-Moo Milk)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+        if not pool:
+            return
+        target = (await ctx.choose_pokemon(pool, "Choose a Pokémon to heal")) \
+            if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        results = await ctx.flip_coins(coins)
+        heads = sum(1 for result in results if result)
+        if heads:
+            await ctx.heal(counters_per_head * heads * 10, target)
+    return effect
