@@ -7,6 +7,7 @@ from .base import BaseHandler, handle
 from .shop import build_item
 from spirit.database import economy_data
 from spirit.database.async_utils import run_db
+from spirit.server import activity
 from spirit.database.player_data import get_merged_collection_payload, set_archetype_flag
 from spirit.game.attributes import AttrID
 
@@ -201,6 +202,11 @@ class TradeHandler(BaseHandler):
         if error:
             return await self._send_error(OutboundMsg.ERROR_CREATING_LOT.value, error, request_id)
 
+        if self.client.player:
+            activity.record(
+                "trade_offer", account=self.client.player.username,
+                detail=("private offer" if private_to else "public offer")
+                       + f" · gives {sum(offering.values())} · wants {sum(requesting.values())}")
         await self.send({
             "messageName": OutboundMsg.LOT_CREATED.value,
             "lotID": offer["offer_id"]
@@ -244,6 +250,8 @@ class TradeHandler(BaseHandler):
 
         logging.info(f"[TCP] Trade {lot_id} accepted by {account_id} "
                      f"(from {offer['sender_id']}).")
+        activity.record("trade_accepted", account=self.client.player.username if self.client.player else account_id,
+                        detail=f"lot {str(lot_id)[:8]} from {str(offer['sender_id'])[:8]}")
 
         await self.send({
             "messageName": OutboundMsg.LOT_SOLD.value,

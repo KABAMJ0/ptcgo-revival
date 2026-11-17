@@ -1,4 +1,5 @@
 import logging
+import time
 import uuid
 import asyncio
 
@@ -8,6 +9,7 @@ from spirit.game.attributes import DeckFormat
 from spirit.game.decks.formats import FormatManager
 from spirit.game.decks.validation import DeckValidator
 from spirit.server import metrics
+from spirit.server import activity
 from spirit import config
 from .game_session import GameSession
 
@@ -188,7 +190,9 @@ class GameSessionManager:
                 "client": client,
                 "deck": deck_data,
                 "options": client_options,
-                "tournament_context": tournament_context
+                "tournament_context": tournament_context,
+                # Read by the admin Monitor for queue wait times.
+                "joined_at": time.monotonic(),
             })
             await client.send_packet(entered_packet, request_id)
             self._schedule_bot_fallback(client, queue_name, deck_data,
@@ -512,6 +516,10 @@ class GameSessionManager:
                               on_result=pairing.get("on_result"))
         self.active_sessions[game_id] = session
         metrics.inc("matches_started")
+        names = [getattr(p, "screen_name", None) or getattr(p, "username", "?")
+                 for p in session.players.values()]
+        activity.record("match_start", detail=" vs ".join(names),
+                        queue=pairing.get("queue_name"), game_id=game_id)
         for account_id in session.players:
             self.session_ids_by_player[account_id] = game_id
 

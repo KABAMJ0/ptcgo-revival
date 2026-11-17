@@ -106,8 +106,6 @@ class AuthHandler(BaseHandler):
             return await self._send_auth_failed(request_id, "Incorrect password. Please try again.")
 
         logging.info(f"[TCP] [{self.client.addr}] User '{username}' successfully authenticated.")
-        activity.session_open(account["account_id"], username, addr=str(self.client.addr))
-        activity.record("login", account=username, detail=str(self.client.addr))
         await self._send_auth_success(request_id, account)
 
     @handle(InboundMsg.AUTH_GAS_GUEST)
@@ -185,6 +183,8 @@ class AuthHandler(BaseHandler):
         # Index the authenticated client so presence/challenge/login-guard are O(1).
         self.client.server.register_account(self.client)
         metrics.inc("logins_success")
+        activity.session_open(account_id, username, addr=str(self.client.addr))
+        activity.record("login", account=username, detail=str(self.client.addr))
 
         # Notify friends that we are online
         social_handler = SocialHandler(self.client)

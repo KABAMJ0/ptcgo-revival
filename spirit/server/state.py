@@ -34,3 +34,8 @@ def sweep_expired_tickets():
 
 # The active server host (captured from HTTP config request)
 SERVER_HOST = f"{config.PUBLIC_HOST}:{config.HTTP_PORT}"
+
+# Set by PTCGOServer.start() so the admin API (an HTTP worker thread) can read
+# live connection state without importing the asyncio server module.
+ACTIVE_TCP_SERVER = None
+

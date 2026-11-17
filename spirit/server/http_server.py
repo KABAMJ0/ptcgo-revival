@@ -19,6 +19,7 @@ import spirit.server.state as state
 from spirit.server.state import issue_ticket
 from spirit.database.accounts import get_account_by_username, verify_password, create_account
 from spirit.server import metrics
+from spirit.server import telemetry
 from spirit.server.manifest_manager import ManifestManager
 from spirit.server.bundle_variants import (
     PACKER, DiskBundleCache, android_cache_key, file_crc, retarget_android, trim_textures, variant_cache_key)
@@ -290,6 +291,7 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         logging.debug(f"[HTTP] GET Request received for path: {self.path}")
         metrics.inc("http_requests")
+        telemetry.record_http(self.path)
 
         # Clean the path to ignore query parameters
         parsed_path = urlparse(self.path).path
@@ -436,6 +438,8 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode('utf-8')
         # NEVER log the body: CAS login and /admin POST carry passwords/tickets.
         logging.debug(f"[HTTP] POST path={self.path} ({content_length} bytes)")
+        metrics.inc("http_requests")
+        telemetry.record_http(self.path)
         parsed_path = urlparse(self.path).path
 
         if parsed_path == '/admin' or parsed_path.startswith('/admin/'):
