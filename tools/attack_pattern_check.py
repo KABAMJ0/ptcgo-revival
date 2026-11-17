@@ -331,6 +331,17 @@ CASES = [
     ("poison.checkup-counters", check_defender_condition, (1, 1, 1, 1), 0),
     ("flip.bonus-and-condition", check_defender_condition, (1, 1, 1, 1), 0),
     ("energy-cost-then-condition", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy.attached-to-hand", check_discard_self_energy, (1, 1, 1, 1), 0),
+    ("reorder.either-deck-top", check_check_noop, (1, 1, 1, 1), 0),
+    ("counters.move-bench-to-defender", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("energy.move-opponent-to-bench", check_check_noop, (1, 1, 1, 1), 0),
+    ("attach.hand-energy-one", check_attach_from_discard, (1, 1, 1, 1), 0),
+    ("protect.all-effects-no-flip", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("extra-turn", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.counter-from-chosen", check_heal_self, (1, 1, 1, 1), 60),
+    ("protect.from-evolution", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("discard.each-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("boost.own-next-turn-titled", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
@@ -350,6 +361,11 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
         attacker.set_attribute(AttrID.HP, hp(attacker) - seed_damage)
     if pattern in ("scale.counter-self", "scale.less-per-counter-self"):
         attacker.set_attribute(AttrID.HP, hp(attacker) - 20)
+    if pattern == "counters.move-bench-to-defender":
+        # The rig's bench has no damage to move.
+        bench = rig.board.find_player_area(P1, "bench")
+        for card in list(bench.children)[:1]:
+            card.set_attribute(AttrID.HP, max(10, hp(card) - 30))
     if pattern.startswith("attach."):
         # The rig's discard pile holds no Energy by default.
         for _ in range(2):
