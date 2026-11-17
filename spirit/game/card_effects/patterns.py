@@ -21,7 +21,7 @@ import re
 import unicodedata
 from typing import Callable, List, Optional, Tuple
 
-from spirit.game.attributes import PokemonTypes, SpecialConditions
+from spirit.game.attributes import AttrID, PokemonTypes, SpecialConditions
 from spirit.game.card_effects.attacks_common import (
     bonus_if,
     condition_attack,
@@ -60,17 +60,23 @@ from spirit.game.card_effects.attacks_common import (
     spread_damage,
 )
 from spirit.game.card_effects.passives_common import (
+    debuff_defender_attacks,
     flip_prevent_damage_passive,
     is_in_active_spot,
+    prevent_damage_when,
     flip_protection,
     no_resistance_passive,
     no_weakness_passive,
     protect_next_turn,
     takes_less_passive,
 )
+from spirit.game.card_effects.trainers import is_basic_energy_card
 from spirit.game.card_effects.support_common import (
     attach_from_discard,
     draw_attack,
+    recover_from_discard,
+    search_attach_energy,
+    shuffle_hand_into_deck_draw,
     draw_until_effect,
     gust_attack,
     heal_attack,
@@ -481,9 +487,7 @@ def _energy_move(m, ability):
 
 
 def _is_basic_energy(card) -> bool:
-    definition = def_for(getattr(card, "archetype_id", None) or "")
-    return isinstance(definition, EnergyCardDef) and \
-        not getattr(definition, "is_special", False)
+    return is_basic_energy_card(card)
 
 
 def _is_pokemon_card(card) -> bool:
@@ -589,6 +593,168 @@ def _passive_flip_prevent(m, ability):
     return flip_prevent_damage_passive(title=getattr(ability, "title", ""))
 
 
+
+def _more_times_type_energy(m, ability):
+    return _more(count_energy("self", TYPE_WORDS[m.group(2)]), ability,
+                 int(m.group(1)))
+
+
+def _damage_per_energy_self(m, ability):
+    return damage_per(count_energy("self"), int(m.group(1)), base=0)
+
+
+def _damage_per_bench_opponent(m, ability):
+    return damage_per(count_bench("opponent"), int(m.group(1)), base=0)
+
+
+def _more_per_both_benches(m, ability):
+    return _more(count_bench("both"), ability, int(m.group(1)))
+
+
+def _debuff_defender_attacks(m, ability):
+    return debuff_defender_attacks(int(m.group(1)))
+
+
+def _prevent_from_basic(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is None:
+            return
+        from spirit.game.session.effects import is_basic_pokemon
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker,
+            prevent_damage_when(
+                lambda calc, carrier: calc.attacker is not None
+                and is_basic_pokemon(calc.attacker)))
+    return effect
+
+
+def _snipe_choose_ignore_all(m, ability):
+    amount = int(m.group(2))
+    count = _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else await ctx.choose_cards(
+            candidates, count, prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False,
+                                  ignore_target_effects=True)
+    return effect
+
+
+def _snipe_bench_choose(m, ability):
+    return snipe_attack(int(m.group(2)), pool="bench", count=_count(m.group(1)))
+
+
+def _bonus_evolved(m, ability):
+    return bonus_if(defender_is_evolved, int(m.group(1)))
+
+
+def _random_hand_card_into_deck(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        card = random.choice(hand)
+        await ctx.reveal_cards([card], of_player=ctx.opponent_id)
+        await ctx.shuffle_into_deck([card], ctx.opponent_id)
+    return effect
+
+
+def _bench_snipe_if_any(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = ctx.opponent_bench()
+        if not bench:
+            return
+        amount = int(m.group(1))
+        count = _count(m.group(2)) if m.lastindex and m.lastindex >= 2 else 1
+        picks = bench if len(bench) <= count else await ctx.choose_cards(
+            bench, count, prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target,
+                                  apply_modifiers=False)
+    return effect
+
+
+def _search_one_pokemon(m, ability):
+    return search_to_hand(_is_pokemon_card, count=1, reveal=True)
+
+
+def _search_supporter(m, ability):
+    return search_to_hand(_is_supporter, count=1, reveal=True)
+
+
+def _shuffle_hand_draw(m, ability):
+    return shuffle_hand_into_deck_draw(int(m.group(1)))
+
+
+def _search_energy_attach_any(m, ability):
+    return search_attach_energy(_is_basic_energy, count=_count(m.group(1)),
+                                distribute=True)
+
+
+def _discard_defender_tools(m, ability):
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            from spirit.game.attributes import TrainerType
+            tools = [card for card in defender.children
+                     if card.get_attribute(AttrID.TRAINER_TYPE) in
+                     (TrainerType.POKEMON_TOOL.value,
+                      TrainerType.POKEMON_TOOL_F.value)]
+            if tools:
+                await ctx.discard_cards(tools)
+        await ctx.deal_damage()
+    return effect
+
+
+def _optional_bonus_self_damage(m, ability):
+    bonus, recoil = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        amount = getattr(ability, "damage", 0) or 0
+        if await ctx.ask_yes_no(f"Do {bonus} more damage to this Pokémon "
+                                f"and take {recoil} damage yourself?"):
+            await ctx.deal_damage(amount + bonus)
+            await ctx.deal_damage(recoil, target=ctx.attacker,
+                                  apply_modifiers=False)
+        else:
+            await ctx.deal_damage(amount)
+    return effect
+
+
+def _recover_from_discard(m, ability):
+    return recover_from_discard(count=_count(m.group(1)), minimum=1)
+
+
+def _lock_chosen_attack_opponent_active(m, ability):
+    return lock_chosen_defender_attack()
+
+
+def _base_plus_if_defender_damaged(m, ability):
+    from spirit.game.card_effects.attacks_common import has_damage
+    return bonus_if(has_damage("defender"), int(m.group(2)), base=int(m.group(1)))
+
+
+def _base_plus_per_energy_defender_short(m, ability):
+    return damage_per(count_energy("defender"), int(m.group(2)),
+                      base=int(m.group(1)))
+
+
+def _more_per_energy_defender_short(m, ability):
+    return _more(count_energy("defender"), ability, int(m.group(1)))
+
+
+def _is_supporter(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return type(definition).__name__ == "SupporterCardDef"
+
+
 # ----------------------------------------------------------------------
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
@@ -596,10 +762,10 @@ def _passive_flip_prevent(m, ability):
 _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     # -- coin flips ----------------------------------------------------
     ("flip.damage-times-heads",
-     re.compile(r"flip (a|\d+) coins?\. this attack does (\d+) damage "
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) damage "
                 r"times the number of heads\."), _flip_damage_times_heads),
     ("flip.damage-per-heads",
-     re.compile(r"flip (a|\d+) coins?\. this attack does (\d+) damage "
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) damage "
                 r"for each heads\."), _flip_damage_per_heads),
     ("flip.until-tails-times-heads",
      re.compile(r"flip a coin until you get tails\. this attack does (\d+) "
@@ -610,7 +776,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"more damage (?:times the number of heads|for each heads)\."),
      _flip_until_tails_bonus),
     ("flip.bonus-per-heads",
-     re.compile(r"flip (a|\d+) coins?\. this attack does (\d+) more damage "
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) more damage "
                 r"for each heads\."), _flip_bonus_per_heads),
     ("flip.more-damage",
      re.compile(r"flip a coin\. if heads, this attack does (\d+) more damage\."),
@@ -619,7 +785,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"flip a coin\. if tails, this attack does nothing\."),
      _flip_tails_nothing),
     ("flip.any-tails-nothing",
-     re.compile(r"flip (a|\d+) coins?\. if either of them is tails, this "
+     re.compile(r"flip (an?|\d+) coins?\. if either of them is tails, this "
                 r"attack does nothing\."), _flip_all_heads_nothing),
     ("flip.damage-plus-bonus",
      re.compile(r"flip a coin\. if heads, this attack does (\d+) damage plus "
@@ -629,7 +795,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"(\d+) more damage; if tails, this attack does (\d+) damage\."),
      _flip_choice_damage),
     ("flip.base-plus-bonus-per-heads",
-     re.compile(r"flip (a|\d+) coins?\. this attack does (\d+) damage plus "
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) damage plus "
                 r"(\d+) more damage for each heads\."),
      _flip_heads_plus_bonus_per_heads),
 
@@ -687,11 +853,11 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"discard all energy (?:cards? )?(?:attached )?(?:from|to) "
                 r"this pokemon\."), _self_energy_discard_all),
     ("discard.self-energy-type",
-     re.compile(r"discard (a|\d+) (" + _TYPE_WORDS + r") energy (?:cards? )?"
+     re.compile(r"discard (an?|\d+) (" + _TYPE_WORDS + r") energy (?:cards? )?"
                 r"(?:attached )?(?:from|to) this pokemon\."),
      _self_energy_discard_type),
     ("discard.self-energy",
-     re.compile(r"discard (a|\d+) energy (?:cards? )?(?:attached )?"
+     re.compile(r"discard (an?|\d+) energy (?:cards? )?(?:attached )?"
                 r"(?:from|to) this pokemon\."), _self_energy_discard),
     ("discard.defender-special-energy-flip",
      re.compile(r"flip a coin\. if heads, discard (?:a|an) special energy "
@@ -699,7 +865,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"opponent's active) pokemon\."),
      _flip_defender_special_energy_discard),
     ("discard.defender-energy-flip",
-     re.compile(r"flip a coin\. if heads, discard (a|\d+) energy (?:cards? )?"
+     re.compile(r"flip a coin\. if heads, discard (an?|\d+) energy (?:cards? )?"
                 r"(?:attached to|from) (?:the defending|your opponent's "
                 r"active) pokemon\."), _flip_defender_energy_discard),
     ("discard.defender-special-energy",
@@ -707,24 +873,24 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"from) (?:the defending|your opponent's active) pokemon\."),
      _defender_special_energy_discard),
     ("discard.defender-energy",
-     re.compile(r"discard (a|\d+) energy (?:cards? )?(?:attached to|from) "
+     re.compile(r"discard (an?|\d+) energy (?:cards? )?(?:attached to|from) "
                 r"(?:the defending|your opponent's active) pokemon\."),
      _defender_energy_discard),
 
     # -- snipes and spreads --------------------------------------------
     ("snipe.any",
-     re.compile(r"(?:this attack does|does) (\d+) damage to (a|\d+) of your "
+     re.compile(r"(?:this attack does|does) (\d+) damage to (an?|\d+) of your "
                 r"opponent's pokemon" + _SNIPE_TAIL), _snipe),
     ("snipe.choose-any",
-     re.compile(r"choose (a|\d+) of your opponent's pokemon\. this attack does "
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack does "
                 r"(\d+) damage to that pokemon" + _SNIPE_TAIL),
      _snipe_choose),
     ("snipe.bench-also-base",
-     re.compile(r"this attack also does (\d+) damage to (a|\d+) of your "
+     re.compile(r"this attack also does (\d+) damage to (an?|\d+) of your "
                 r"opponent's benched pokemon" + _SNIPE_TAIL),
      _snipe_bench_also_base),
     ("snipe.bench",
-     re.compile(r"(?:this attack does|does) (\d+) damage to (a|\d+) of your "
+     re.compile(r"(?:this attack does|does) (\d+) damage to (an?|\d+) of your "
                 r"opponent's benched pokemon" + _SNIPE_TAIL), _snipe_bench),
     ("spread.opponent-all",
      re.compile(r"this attack does (\d+) damage to each of your opponent's "
@@ -858,19 +1024,19 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
     # -- switching / utility -------------------------------------------
     ("switch.self",
-     re.compile(r"switch this pokemon with (a|\d+) of your benched pokemon\."),
+     re.compile(r"switch this pokemon with (an?|\d+) of your benched pokemon\."),
      _switch_self),
     ("switch.self-optional",
-     re.compile(r"you may switch this pokemon with (a|\d+) of your benched "
+     re.compile(r"you may switch this pokemon with (an?|\d+) of your benched "
                 r"pokemon\."), _switch_self_optional),
     ("switch.opponent-chooses",
      re.compile(r"(?:your opponent switches (?:the defending|their active) "
-                r"pokemon with (a|\d+) of (?:his or her|their) benched pokemon\.|"
+                r"pokemon with (an?|\d+) of (?:his or her|their) benched pokemon\.|"
                 r"switch out your opponent's active pokemon to the bench\. "
                 r"\(your opponent chooses the new active pokemon\.\))"),
      _gust_opponent_chooses),
     ("discard.random-opponent-hand",
-     re.compile(r"discard (a|\d+) random cards? from your opponent's hand\."),
+     re.compile(r"discard (an?|\d+) random cards? from your opponent's hand\."),
      _discard_random_opponent),
     ("search.basic-to-bench",
      re.compile(r"search your deck for (?:a basic pokemon|up to (\d+) basic "
@@ -880,8 +1046,8 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"put (\d+) damage counters on your opponent's pokemon in any "
                 r"way you like\."), _place_counters_any),
     ("energy.move-to-bench",
-     re.compile(r"move (a|\d+) energy (?:card )?(?:attached )?from this "
-                r"pokemon to (a|\d+) of your benched pokemon\."),
+     re.compile(r"move (an?|\d+) energy (?:card )?(?:attached )?from this "
+                r"pokemon to (an?|\d+) of your benched pokemon\."),
      _energy_move),
 
     # -- deck search / evolution ---------------------------------------
@@ -961,7 +1127,105 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"if any damage is done to this pokemon by attacks, flip a "
                 r"coin\. if heads, prevent that damage\."),
      _passive_flip_prevent),
+
+    # -- batch 3: energy costs, bench placement, conditions, self-locks ----
+    ("scale.more-times-type-energy",
+     re.compile(r"this attack does (\d+) more damage times the amount of ("
+                + _TYPE_WORDS + r") energy attached to this pokemon\."),
+     _more_times_type_energy),
+    ("scale.damage-per-energy-self",
+     re.compile(r"this attack does (\d+) damage for each energy attached to "
+                r"this pokemon\."), _damage_per_energy_self),
+    ("scale.damage-per-bench",
+     re.compile(r"this attack does (\d+) damage for each of your opponent's "
+                r"benched pokemon\."), _damage_per_bench_opponent),
+    ("scale.both-benches",
+     re.compile(r"this attack does (\d+) more damage for each benched pokemon "
+                r"\(both yours and your opponent's\)\."),
+     _more_per_both_benches),
+    ("debuff.defender-attacks",
+     re.compile(r"during your opponent's next turn, (?:any damage done by "
+                r"attacks from the defending pokemon is reduced by|attacks "
+                r"used by the defending pokemon do) (\d+) less? ?"
+                r"(?:damage )?\(before applying weakness and resistance\)\."),
+     _debuff_defender_attacks),
+    ("protect.from-basic",
+     re.compile(r"during your opponent's next turn, prevent all damage done to "
+                r"this pokemon by attacks from basic pokemon\."),
+     _prevent_from_basic),
+    ("snipe.choose-any-ignore-all",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon\. this attack's damage "
+                r"isn't affected by weakness, resistance, poke-powers, "
+                r"poke-bodies, or any other effects on the defending "
+                r"pokemon\."), _snipe_choose_ignore_all),
+    ("snipe.choose-bench",
+     re.compile(r"choose (an?|\d+) of your opponent's benched pokemon\. this "
+                r"attack does (\d+) damage to that pokemon" + _SNIPE_TAIL),
+     _snipe_bench_choose),
+    ("snipe.bench-if-any",
+     re.compile(r"if your opponent has any benched pokemon, choose (an?|\d+) "
+                r"of them and this attack does (\d+) damage to it"
+                + _SNIPE_TAIL), _bench_snipe_if_any),
+    ("bonus.defender-evolved",
+     re.compile(r"if your opponent's active pokemon is an evolution pokemon, "
+                r"this attack does (\d+) more damage\."), _bonus_evolved),
+    ("bonus.base-plus-if-damaged",
+     re.compile(r"if the defending pokemon already has any damage counters on "
+                r"it, this attack does (\d+) damage plus (\d+) more damage\."),
+     _base_plus_if_defender_damaged),
+    ("bonus.base-plus-per-energy-defender-short",
+     re.compile(r"does (\d+) damage plus (\d+) more damage for each energy "
+                r"attached to the defending pokemon\."),
+     _base_plus_per_energy_defender_short),
+    ("scale.more-per-energy-defender-short",
+     re.compile(r"does (\d+) more damage for each energy attached to the "
+                r"defending pokemon\."), _more_per_energy_defender_short),
+    ("spread.opponent-all-short",
+     re.compile(r"does (\d+) damage to each of your opponent's pokemon"
+                + _SNIPE_TAIL), _spread_opponent),
+    ("ignore.all-short",
+     re.compile(r"this attack's damage isn't affected by weakness, resistance, "
+                r"or any other effects on your opponent's active pokemon\."),
+     _ignore_all),
+    ("discard.defender-tools",
+     re.compile(r"before doing damage, discard all pokemon tools from your "
+                r"opponent's active pokemon\."), _discard_defender_tools),
+    ("optional.bonus-self-damage",
+     re.compile(r"you may do (\d+) more damage\. if you do, this pokemon does "
+                r"(\d+) damage to itself\."), _optional_bonus_self_damage),
+    ("recover.from-discard",
+     re.compile(r"put (an?|\d+) cards? from your discard pile into your "
+                r"hand\."), _recover_from_discard),
+    ("lock.defender-chosen-attack-active",
+     re.compile(r"choose (an?|\d+) of your opponent's active pokemon's attacks"
+                r"\. that pokemon can't use that attack during your opponent's "
+                r"next turn\."), _lock_chosen_attack_opponent_active),
+    ("search.pokemon-to-hand-one",
+     re.compile(r"search your deck for a pokemon, reveal it, and put it into "
+                r"your hand\. then, shuffle your deck\."), _search_one_pokemon),
+    ("search.supporter-to-hand",
+     re.compile(r"search your deck for a supporter card, reveal it, and put it "
+                r"into your hand\. then, shuffle your deck\."), _search_supporter),
+    ("shuffle-hand-draw",
+     re.compile(r"shuffle your hand into your deck\. then, draw (\d+) "
+                r"cards?\."), _shuffle_hand_draw),
+    ("attach.search-energy-any",
+     re.compile(r"search your deck for up to (\d+) basic energy cards and "
+                r"attach them to your pokemon in any way you like\. then, "
+                r"shuffle your deck\."), _search_energy_attach_any),
+    ("reveal.opponent-hand-his-her",
+     re.compile(r"your opponent reveals his or her hand\."), _reveal_hand),
+    ("discard.random-hand-into-deck",
+     re.compile(r"choose a random card from your opponent's hand\. your "
+                r"opponent reveals that card and shuffles it into their "
+                r"deck\."), _random_hand_card_into_deck),
+    ("switch.opponent-chooses-his-her",
+     re.compile(r"your opponent switches his or her active pokemon with (an?|"
+                r"\d+) of his or her benched pokemon\."),
+     _gust_opponent_chooses),
 ]
+
 
 
 # name -> bind count, for the coverage report.
@@ -979,6 +1243,10 @@ def bind(ability) -> Optional[str]:
     if ability is None or getattr(ability, "effect", None) is not unimplemented:
         return None
     text = normalize(getattr(ability, "game_text", ""))
+    # "(You can't use more than 1 GX attack in a game.)" is a rule marker on
+    # the attack, not part of its effect text.
+    text = text.replace(
+        "(you can't use more than 1 gx attack in a game.)", "").strip()
     if not text:
         return None
     for name, pattern, build in _PATTERNS:

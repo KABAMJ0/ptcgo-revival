@@ -254,6 +254,13 @@ CASES = [
     ("protect.no-weakness", check_temporary_passive, (1, 1, 1, 1), 0),
     ("scale.less-per-counter-self", check_less_per_counter, (1, 1, 1, 1), 20),
     ("ability.takes-less", check_passive_bound, (1, 1, 1, 1), 0),
+    ("snipe.choose-bench", check_snipe_bench, (1, 1, 1, 1), 0),
+    ("debuff.defender-attacks", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("protect.from-basic", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("recover.from-discard", check_search_hand, (1, 1, 1, 1), 0),
+    ("optional.bonus-self-damage", check_self_damage, (1, 1, 1, 1), 0),
+    ("scale.damage-per-energy-self", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("discard.defender-tools", check_bonus_condition, (1, 1, 1, 1), 0),
 ]
 
 

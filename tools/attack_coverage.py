@@ -176,13 +176,71 @@ def report(entries: List[Entry], totals: Totals, top: int, grep: Optional[str]):
     return ranked
 
 
+def live_remaining(top: int, grep: Optional[str]):
+    """Post-resolution view: what is STILL unimplemented after the wording
+    patterns have run, grouped by normalized text (the next work items)."""
+    from spirit.game.card_effects import patterns
+    from spirit.game.data_utils import CARD_DEFS_BY_GUID, Attack, unimplemented
+    from spirit.game.scripts.cards import loader
+
+    loader.load_all()
+    templated = re.compile(r"\d+")
+    groups: Dict[str, List[str]] = defaultdict(list)
+    totals = Counter()
+    for guid in sorted(CARD_DEFS_BY_GUID):
+        definition = CARD_DEFS_BY_GUID[guid]
+        for ability in getattr(definition, "abilities", None) or []:
+            kind = "Attack" if isinstance(ability, Attack) else "Ability"
+            source = getattr(ability, "effect_source", "")
+            if source.startswith("pattern:"):
+                totals["bound"] += 1
+                continue
+            if ability.effect is not unimplemented and \
+                    getattr(ability, "passive", None) is None:
+                totals["scripted"] += 1
+                continue
+            if getattr(ability, "passive", None) is not None:
+                totals["passive"] += 1
+                continue
+            totals["unimplemented"] += 1
+            text = patterns.normalize(getattr(ability, "game_text", ""))
+            if not text:
+                totals["no-text"] += 1
+                continue
+            groups[templated.sub("N", text)].append(f"{definition.display_name} ({kind})")
+
+    print(f"Pokemon attack/ability entries bound by wording   {totals['bound']}")
+    print(f"Hand-scripted entries                             {totals['scripted']}")
+    print(f"Scripted continuous passives                      {totals['passive']}")
+    print(f"Still unimplemented                               {totals['unimplemented']}"
+          f"  (of which blank text: {totals['no-text']})")
+    print(f"Distinct remaining wordings                       {len(groups)}")
+    print()
+    print(f"{'COUNT':>6}  TEMPLATE")
+    shown = 0
+    for template, cards in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        if grep and grep.lower() not in template:
+            continue
+        shown += 1
+        if shown > top:
+            break
+        print(f"{len(cards):>6}  {template[:120]}")
+    return groups
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--top", type=int, default=25)
     parser.add_argument("--json", help="write every pattern with its cards here")
     parser.add_argument("--set", help="single set code")
     parser.add_argument("--grep", help="only templates containing this text")
+    parser.add_argument("--live", action="store_true",
+                        help="post-resolution report of what is still stubbed")
     args = parser.parse_args()
+
+    if args.live:
+        live_remaining(args.top, args.grep)
+        return
 
     entries, totals = scan(only_set=args.set)
     ranked = report(entries, totals, args.top, args.grep)
