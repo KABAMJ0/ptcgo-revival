@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import search_rule_box_free_plus_students
 
 card = SupporterCardDef(
     guid="20cbf1fa-c75b-5fac-afad-fe3bb0cc586c",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=86,
     set_code="SV4PT5",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=search_rule_box_free_plus_students("paldean student")
 )

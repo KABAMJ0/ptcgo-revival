@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import switch_team_then_gust
 
 card = SupporterCardDef(
     guid="457d07c6-b7a5-542a-9367-be2d158bfe5d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=225,
     set_code="SV10",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=switch_team_then_gust("team rocket")
 )

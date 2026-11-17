@@ -3807,3 +3807,44 @@ def opponent_prizes_in(low: int, high: int):
 def _opponent_of(board, player_id):
     players = list(getattr(board, "player_ids", []) or [])
     return next((p for p in players if p != player_id), None)
+
+
+def search_rule_box_free_plus_students(extra_name: str = "Paldean Student"):
+    """Search for 1 Rule-Box-free Pokemon, plus 1 more for each `extra_name`
+    card in your discard pile (Paldean Student)."""
+    tablet = named_exactly(extra_name)
+
+    async def effect(ctx):
+        extra = sum(1 for card in ctx.discard_pile() if tablet(card))
+        count = 1 + extra
+        picks = await ctx.search_deck(is_rule_box_free_pokemon, count=count,
+                                      minimum=1)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def switch_team_then_gust(owner: str):
+    """Switch your Active <Owner>'s Pokemon with a Benched one of the same
+    owner, then switch 1 of the opponent's Benched Pokemon to their Active."""
+    owner_pred = owned_by(owner)
+
+    async def effect(ctx):
+        active = ctx.my_active()
+        bench = [p for p in ctx.my_bench() if owner_pred(p)]
+        if active is not None and owner_pred(active) and bench:
+            target = await ctx.choose_play_target(
+                bench, "Choose your new Active Pokémon")
+            if target is None:
+                return
+            if not await ctx.switch_active(ctx.player_id, target):
+                return
+        opposing_bench = ctx.opponent_bench()
+        if not opposing_bench:
+            return
+        chosen = await ctx.choose_play_target(
+            opposing_bench, "Choose your opponent's new Active Pokémon")
+        if chosen is not None:
+            await ctx.switch_active(ctx.opponent_id, chosen)
+    return effect

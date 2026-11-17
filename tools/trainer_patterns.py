@@ -421,6 +421,15 @@ def _type_or_predicate(phrase):
     return resolve_predicate(text)
 
 
+def _subtype_literal(phrase):
+    """'ultra beasts' -> '"Ultra Beast"' (the printed subtype name)."""
+    text = re.sub(r"^(\d+ )?", "", phrase.strip())
+    text = re.sub(r"s$", "", text)
+    if not text:
+        raise Unresolved(phrase)
+    return '"%s"' % text.title()
+
+
 def _union(phrase):
     """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
     either, so the parts join with any_of."""
@@ -1432,6 +1441,43 @@ RULES = [
          r"during this turn if your opponents active pokemon is knocked out by damage from 1 "
          r"attack used by your tera pokemon take (?P<n>\d+) more prize cards?",
          "extra_prize_on_ko", lambda m: ["tera_attacker()", m.group("n")]),
+    Rule("look-top-pokemon-or-energy-back",
+         r"look at the top (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) you find there and put it into your hand put the other cards back "
+         r"in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"', "minimum=0"],
+         module="support_common"),
+    Rule("look-top-two-of-back",
+         r"look at the top (?P<n>\d+) cards of your deck and choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) show it to your opponent and put it into your hand put the "
+         r"(?P<rest>\d+) other cards back on top of your deck in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"'],
+         module="support_common"),
+    Rule("beast-ring",
+         r"search your deck for up to (?P<n>\d+) basic energy cards and attach them to "
+         r"(?P<target>\d+) of your (?P<sub>[a-z ]+?) then shuffle your deck",
+         "search_attach_energy",
+         lambda m: ["is_basic_energy_card", "count=" + m.group("n"),
+                    "target_pred=pokemon_of_subtype(%s)" % _subtype_literal(m.group("sub")),
+                    "distribute=False"],
+         module="support_common"),
+    Rule("search-rule-box-free-plus-students",
+         r"search your deck for (?P<n>\d+) pokemon that doesnt have 1 rule box reveal it and put "
+         r"it into your hand for each (?P<extra>[a-z ]+?) card not including this card in your "
+         r"discard pile you may search for (?P<more>\d+) additional pokemon in this way then "
+         r"shuffle your deck",
+         "search_rule_box_free_plus_students",
+         lambda m: ['"%s"' % m.group("extra")]),
+    Rule("switch-team-then-gust",
+         r"switch your active (?P<owner>[a-z ]+?) pokemon with (?P<n>\d+) of your benched "
+         r"(?P=owner) pokemon if you do switch in (?P<gust>\d+) of your opponents benched pokemon "
+         r"to the active spot",
+         "switch_team_then_gust",
+         lambda m: ['"%s"' % OWNER_NAMES.get(m.group("owner"), m.group("owner"))]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1508,6 +1554,8 @@ CONDITION_PREFIXES = [
                 r"prize cards remaining "), "opponent_prizes_at_most"),
     (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<n>\d+) "
                 r"prize cards remaining "), "opponent_prizes_exactly"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<low>\d+) "
+                r"or (?P<high>\d+) prize cards remaining "), "opponent_prizes_in"),
     (re.compile(r"^you can (?:use|play) this card only if you have (?P<n>\d+) or fewer other "
                 r"cards in your hand "), "hand_at_most"),
     (re.compile(r"^you can (?:use|play) this card only when it is the last card in your hand "),
@@ -1565,6 +1613,8 @@ def resolve(text, depth=0):
             condition = '%s("%s")' % (factory, groups["sub"].capitalize())
         elif factory == "opponent_active_has":
             condition = '%s("%s")' % (factory, groups["cond"].upper())
+        elif factory == "opponent_prizes_in":
+            condition = "opponent_prizes_in(%s, %s)" % (groups["low"], groups["high"])
         elif "n" in groups:
             condition = "%s(%s)" % (factory, groups["n"])
         else:
