@@ -53,6 +53,13 @@ REMINDER_PATTERNS = [re.compile(p) for p in (
     r"^put it next to the active spot,? and discard it if another stadium comes into play\.?$",
     r"^a stadium with the same name can'?t be played\.?$",
     r"^attach a pokemon tool to 1 of your pokemon that doesn'?t already have a pokemon tool attached\.?$",
+    # Deck-building and same-name clauses: printed on the card, but they
+    # constrain deck construction or table state, not what playing it does.
+    r"^if another card with the same name is in play,? you can'?t play this card\.?$",
+    r"^you can'?t have more than (1|one) ace spec card in your deck\.?$",
+    r"^you can'?t have more than (1|one) radiant pokemon in your deck\.?$",
+    r"^you can'?t have more than (1|one) ace spec card in your deck,? and you can'?t have more "
+    r"than (1|one) radiant pokemon in your deck\.?$",
 )]
 
 NUMBER_WORDS = {
