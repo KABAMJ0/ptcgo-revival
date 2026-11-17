@@ -1,5 +1,7 @@
 from spirit.game.data_utils import PokemonToolCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import all_of, basic_energy_of
 
 card = PokemonToolCardDef(
     guid="541a075b-eab0-5bc5-bb32-3e079e33ac2d",
@@ -11,5 +13,5 @@ card = PokemonToolCardDef(
     collector_number=126,
     set_code="ME6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=search_to_hand(all_of(basic_energy_of("fire"), basic_energy_of("lightning")), count=1)
 )

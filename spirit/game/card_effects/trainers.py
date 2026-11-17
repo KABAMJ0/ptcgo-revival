@@ -1771,3 +1771,84 @@ def with_discard_cost(n: int, inner):
             return
         await inner(ctx)
     return effect
+
+
+def return_pokemon_to_hand(predicate=None, with_attachments="same", flip: bool = False):
+    """Put 1 of your Pokemon in play into your hand. with_attachments "same"
+    takes the whole stack ("and all cards attached to it"), "discard" leaves
+    the attachments behind in the discard pile. flip pays a coin first
+    (Super Scoop Up)."""
+    async def effect(ctx):
+        if flip and not (await ctx.flip_coins(1, title="Return a Pokémon to your hand"))[0]:
+            return
+        candidates = [p for p in ctx.my_pokemon_in_play()
+                      if predicate is None or predicate(p)]
+        if not candidates:
+            return
+        target = await ctx.choose_pokemon(
+            candidates, "Choose a Pokémon to put into your hand") \
+            if len(candidates) > 1 else candidates[0]
+        if target is None:
+            return
+        if with_attachments == "discard":
+            await ctx.discard_cards([c for c in full_stack(target) if c is not target])
+            await ctx.put_in_hand([target], reveal=False)
+        else:
+            await ctx.put_in_hand(full_stack(target), reveal=False)
+    return effect
+
+
+def each_player_shuffle_draw_per_prize(bottom: bool = False):
+    """Each player shuffles their hand into (or under) their deck, then draws
+    1 card for each of their remaining Prize cards."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            if bottom:
+                await ctx.hand_to_bottom_of_deck(player_id)
+            else:
+                await ctx.shuffle_into_deck(ctx.hand(player_id), player_id)
+        for player_id in ctx.board.player_ids:
+            area = ctx.board.find_player_area(player_id, "prizePile")
+            count = len(area.children) if area else 0
+            if count:
+                await ctx.draw_cards(count, player_id)
+    return effect
+
+
+def first_turn_draw_until(hand_size: int, first_turn_size: int):
+    """Draw until the hand holds `hand_size` cards, or `first_turn_size` when
+    this is your first turn (Lillie)."""
+    async def effect(ctx):
+        turn_state = getattr(ctx.board, "turn_state", None)
+        first_turn = turn_state is not None and turn_state.turn_number <= 2
+        await ctx.draw_until(first_turn_size if first_turn else hand_size)
+    return effect
+
+
+def any_of(*predicates):
+    """Predicate matching a card that satisfies any of `predicates`
+    ("a Pokémon or a Basic Energy card")."""
+    def predicate(card):
+        return any(p(card) for p in predicates)
+    return predicate
+
+
+def all_of(*predicates):
+    """Predicate matching a card that satisfies every one of `predicates`."""
+    def predicate(card):
+        return all(p(card) for p in predicates)
+    return predicate
+
+
+def search_to_top(n: int, predicate=None):
+    """Search the deck for up to `n` cards and put them back on top in any
+    order, then shuffle (the search half resolves like any other search)."""
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            predicate, count=n, minimum=0,
+            prompt="Choose cards to put back on top of your deck.",
+        )
+        await ctx.shuffle_deck()
+        for card in reversed(picks):
+            await ctx.put_on_top_of_deck(card)
+    return effect

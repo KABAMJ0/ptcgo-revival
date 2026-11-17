@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import any_of, is_basic_energy_card, is_pokemon_card
 
 card = ItemCardDef(
     guid="d0a78f84-1b5e-5b93-a6ba-9f6a70bf9548",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=251,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=recover_from_discard(any_of(is_pokemon_card, is_basic_energy_card), count=1, to="hand")
 )

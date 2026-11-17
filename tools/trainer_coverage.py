@@ -96,8 +96,11 @@ def canonical_text(rules) -> str:
     """The card's effect text with class reminder sentences removed, number
     words turned into digits, and whitespace/unicode normalized. Number words
     become digits so a template can capture "draw 3" and "draw two" alike."""
+    PARENTHETICAL = re.compile(
+        r"\s*\((?:pokemon ex, pokemon v[^)]*|you still need[^)]*|before your attack)\)",
+        re.I)
     kept = []
-    for line in rules or []:
+    for line in (PARENTHETICAL.sub("", r) for r in (rules or [])):
         for sentence in _sentences(line):
             probe = re.sub(r"\s+", " ", sentence).strip().lower()
             probe = probe.replace("\u2019", "'").replace("\u00e9", "e")
@@ -117,6 +120,9 @@ def canonical_text(rules) -> str:
     # Patterns are written without punctuation, so the canonical text drops
     # every non-alphanumeric character (quotes included: "opponent's" becomes
     # "opponents"). Cards whose wording differs by a clause still differ.
+    # Apostrophes vanish rather than split a word: "opponent's" is
+    # "opponents", "doesn't" is "doesnt", "it's" is "its".
+    text = text.replace("'", "")
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 

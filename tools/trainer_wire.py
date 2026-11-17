@@ -30,6 +30,21 @@ import trainer_patterns as patterns
 from spirit.game.card_effects import support_common, trainers
 
 STUB = "effect=unimplemented"
+IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+def symbols_in(expr):
+    """Every library name an expression references, nesting included.
+
+    Resolved against the two effect modules rather than parsed out of the
+    argument list, so a predicate built inside a combinator
+    (`any_of(is_pokemon_card, is_basic_energy_card)`) still imports its parts.
+    """
+    names = set()
+    for name in IDENTIFIER.findall(expr):
+        if hasattr(trainers, name) or hasattr(support_common, name):
+            names.add(name)
+    return names
 
 
 def module_for(symbol):
@@ -40,10 +55,11 @@ def module_for(symbol):
     raise KeyError(f"{symbol} is not defined in the trainer effect library")
 
 
-def rewrite(source, expr, symbols):
+def rewrite(source, expr, symbols=None):
     """The wired script source, or None when the stub marker is missing."""
     if STUB not in source:
         return None
+    symbols = symbols if symbols is not None else symbols_in(expr)
     wired = source.replace(STUB, "effect=" + expr)
     if "unimplemented" not in wired:
         wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
@@ -97,7 +113,7 @@ def main(argv=None):
         path = os.path.join(coverage.REPO_ROOT, script.path)
         with open(path, "r", encoding="utf-8") as handle:
             source = handle.read()
-        wired = rewrite(source, found["expr"], found["symbols"])
+        wired = rewrite(source, found["expr"])
         if wired is None:
             skipped.append((script.path, "no stub marker"))
             continue

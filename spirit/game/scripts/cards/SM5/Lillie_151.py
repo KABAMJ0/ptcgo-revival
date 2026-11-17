@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import first_turn_draw_until
 
 card = SupporterCardDef(
     guid="b3b4ff7f-79e7-5f12-8cd6-16476a12de20",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=151,
     set_code="SM5",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=first_turn_draw_until(6, 8)
 )

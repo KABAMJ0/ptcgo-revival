@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
+from spirit.game.card_effects.trainers import all_of, is_pokemon_card, is_trainer_card
 
 card = SupporterCardDef(
     guid="d94af90f-8b18-53ac-80cb-929b06354ea5",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=174,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(7, take=1, predicate=all_of(is_pokemon_card, is_trainer_card))
 )

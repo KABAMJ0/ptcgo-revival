@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_pokemon_card, with_discard_cost
 
 card = ItemCardDef(
     guid="b1e1bab4-fd2a-516f-8fed-22e0d9708638",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=128,
     set_code="ME55",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=with_discard_cost(2, search_to_hand(is_pokemon_card, count=1))
 )

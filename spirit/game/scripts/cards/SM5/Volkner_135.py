@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import all_of, basic_energy_of, is_item_card
 
 card = SupporterCardDef(
     guid="03be53aa-c19f-5a03-b6cf-13c6de2496f4",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=135,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(all_of(is_item_card, basic_energy_of("lightning")), count=1)
 )
