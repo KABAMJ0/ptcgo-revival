@@ -272,6 +272,7 @@
 <nav>
   <button data-tab="overview" class="active">Overview</button>
   <button data-tab="accounts">Accounts</button>
+  <button data-tab="players">Players</button>
   <button data-tab="codes">Redemption Codes</button>
   <button data-tab="versus">Versus Seasons</button>
   <button data-tab="tournaments">Tournaments</button>
@@ -293,6 +294,34 @@
   <div class="card"><h2>Accounts</h2>
     <div class="muted">Debug tools. "Give 4× all cards" grants 4 <b>tradable</b> copies of every card (basic energy excluded) for testing the trade system; "Give 1× all products" grants 1 tradable copy of every product (boosters, decks, coins, sleeves, deck boxes). The player sees them on their next collection refresh / login.</div>
     <table id="accountsTable"><thead><tr><th>Username</th><th>Screen Name</th><th>Account ID</th><th>Admin</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section id="tab-players">
+  <div class="card">
+    <h2>Players</h2>
+    <div class="muted">Every account with what it owns. Inspect a player to see their collection card by card, wipe it, reset their currency, ban them, or delete the account outright.</div>
+    <div style="display:flex;gap:8px;align-items:center;margin:10px 0">
+      <input id="playerSearch" placeholder="Search by username or account id" oninput="renderPlayers()" style="flex:1">
+      <button class="mini" onclick="loadPlayers()">Refresh</button>
+    </div>
+    <table id="playersTable">
+      <thead><tr><th>Username</th><th>Cards</th><th>Distinct</th><th>Decks</th><th>Coins</th><th>State</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="playerDetailCard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h2 id="playerDetailTitle" style="margin:0">Player</h2>
+      <div>
+        <button class="mini" onclick="closePlayer()">Close</button>
+        <button class="mini" onclick="banPlayer()" id="playerBanBtn">Ban</button>
+        <button class="mini" onclick="wipeCollection()">Wipe collection</button>
+        <button class="mini" onclick="deletePlayer()" style="border-color:#c0392b;color:#c0392b">Delete account</button>
+      </div>
+    </div>
+    <div id="playerDetail"></div>
   </div>
 </section>
 
@@ -747,6 +776,7 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   b.classList.add('active');
   $('#tab-' + b.dataset.tab).classList.add('active');
   if (b.dataset.tab === 'pages') { loadPageAssets(); loadPages(); }
+  if (b.dataset.tab === 'players') { loadPlayers(); }
 });
 
 async function loadOverview() {
@@ -831,6 +861,132 @@ async function grantAllProducts(account_id, btn) {
     toast(`Granted 1× of ${d.granted} products`);
   } catch(e) { toast(e.message, true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = 'Give 1× all products'; } }
+}
+
+/* ---------------- Players ---------------- */
+let PLAYERS = [];
+let CURRENT_PLAYER = null;
+
+async function loadPlayers() {
+  try {
+    const d = await api('players');
+    PLAYERS = d.players || [];
+    renderPlayers();
+  } catch(e) { toast('Players: ' + e.message, true); }
+}
+
+function renderPlayers() {
+  const q = ($('#playerSearch').value || '').toLowerCase();
+  const rows = PLAYERS.filter(p => !q
+    || (p.username || '').toLowerCase().includes(q)
+    || (p.screen_name || '').toLowerCase().includes(q)
+    || (p.account_id || '').toLowerCase().includes(q));
+  $('#playersTable tbody').innerHTML = rows.map(p => `
+    <tr>
+      <td>${esc(p.username)}<div class="muted">${esc(p.screen_name || '')}</div></td>
+      <td>${p.cards_owned}</td>
+      <td>${p.distinct_cards}</td>
+      <td>${p.decks}</td>
+      <td>${p.coins}</td>
+      <td>${p.is_banned ? '<span class="pill off">banned</span>' : '<span class="pill on">active</span>'}${p.is_admin ? ' <span class="pill tag">admin</span>' : ''}</td>
+      <td><button class="mini" onclick="openPlayer('${esc(p.account_id)}')">Inspect</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" class="muted">No players match.</td></tr>';
+}
+
+async function openPlayer(account_id) {
+  try {
+    const d = await api('players/detail', {account_id});
+    CURRENT_PLAYER = d;
+    $('#playerDetailCard').style.display = 'block';
+    $('#playerDetailTitle').textContent = `${d.account.username} — ${d.totals.cards_owned} cards across ${d.totals.sets} sets`;
+    $('#playerBanBtn').textContent = d.account.is_banned ? 'Unban' : 'Ban';
+
+    const wallet = `<div class="card" style="margin:12px 0">
+      <h3>Currency</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+        <label>Coins<br><input id="walletCoins" type="number" value="${d.wallet.coins}" style="width:120px"></label>
+        <label>Gems<br><input id="walletGems" type="number" value="${d.wallet.gems}" style="width:120px"></label>
+        <label>Tickets<br><input id="walletTickets" type="number" value="${d.wallet.tickets}" style="width:120px"></label>
+        <button class="mini" onclick="saveWallet()">Save</button>
+      </div></div>`;
+
+    const decks = `<div class="card" style="margin:12px 0"><h3>Decks (${d.decks.length})</h3>
+      <table><thead><tr><th>Name</th><th>Cards</th><th></th></tr></thead><tbody>
+      ${d.decks.map(x => `<tr><td>${esc(x.name)}</td><td>${x.cards}/60</td><td>${x.is_avatar ? '<span class="muted">avatar</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No decks.</td></tr>'}
+      </tbody></table></div>`;
+
+    const sets = d.sets.map(bucket => `
+      <details style="margin:8px 0">
+        <summary><b>${esc(bucket.set)}</b> — ${bucket.cards} cards, ${bucket.distinct} distinct</summary>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+          ${bucket.cards_list.map(c => `
+            <figure style="width:104px;margin:0;text-align:center">
+              ${c.image ? `<img src="${esc(c.image)}" loading="lazy" style="width:100%;border-radius:6px" onerror="this.style.display='none'">` : ''}
+              <figcaption class="muted" style="font-size:11px">${esc(c.name || '')} ×${c.total}</figcaption>
+            </figure>`).join('')}
+        </div>
+      </details>`).join('') || '<div class="muted">This player owns no cards.</div>';
+
+    $('#playerDetail').innerHTML = wallet + decks + `<div class="card"><h3>Collection (${d.totals.distinct_cards} distinct)</h3>${sets}</div>`;
+    $('#playerDetailCard').scrollIntoView({behavior:'smooth', block:'start'});
+  } catch(e) { toast('Player: ' + e.message, true); }
+}
+
+function closePlayer() {
+  CURRENT_PLAYER = null;
+  $('#playerDetailCard').style.display = 'none';
+}
+
+async function saveWallet() {
+  if (!CURRENT_PLAYER) return;
+  try {
+    await api('players/wallet', {
+      account_id: CURRENT_PLAYER.account.account_id,
+      coins: parseInt($('#walletCoins').value || 0),
+      gems: parseInt($('#walletGems').value || 0),
+      tickets: parseInt($('#walletTickets').value || 0)
+    });
+    toast('Currency updated');
+    openPlayer(CURRENT_PLAYER.account.account_id);
+  } catch(e) { toast(e.message, true); }
+}
+
+async function wipeCollection() {
+  if (!CURRENT_PLAYER) return;
+  const name = CURRENT_PLAYER.account.username;
+  if (!confirm(`Remove every card from ${name}'s collection? Their decks stay, but they will not be playable.`)) return;
+  try {
+    const d = await api('players/collection/clear', {account_id: CURRENT_PLAYER.account.account_id});
+    toast(`Removed ${d.removed} collection rows`);
+    openPlayer(CURRENT_PLAYER.account.account_id);
+    loadPlayers();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function banPlayer() {
+  if (!CURRENT_PLAYER) return;
+  const banned = !CURRENT_PLAYER.account.is_banned;
+  const name = CURRENT_PLAYER.account.username;
+  if (!confirm(banned ? `Ban ${name}? They will be refused at login.` : `Unban ${name}?`)) return;
+  try {
+    await api('players/ban', {account_id: CURRENT_PLAYER.account.account_id, banned});
+    toast(banned ? 'Banned' : 'Unbanned');
+    openPlayer(CURRENT_PLAYER.account.account_id);
+    loadPlayers();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deletePlayer() {
+  if (!CURRENT_PLAYER) return;
+  const name = CURRENT_PLAYER.account.username;
+  const typed = prompt(`This deletes ${name} and every row that references them. Type DELETE to confirm.`);
+  if (typed === null) return;
+  try {
+    const d = await api('players/delete', {account_id: CURRENT_PLAYER.account.account_id, confirm: typed});
+    toast(`Deleted ${name} (${Object.values(d.rows || {}).reduce((a,b)=>a+b,0)} rows)`);
+    closePlayer();
+    loadPlayers();
+  } catch(e) { toast(e.message, true); }
 }
 
 /* ---------------- Codes ---------------- */

@@ -14,6 +14,7 @@ _COLUMN_MIGRATIONS = {
     "accounts": {
         "is_admin": "BOOLEAN DEFAULT 0",
         "settings_json": "TEXT",
+        "is_banned": "BOOLEAN DEFAULT 0",
     },
     "daily_login_progress": {
         "activations": "INTEGER DEFAULT 0",

@@ -91,6 +91,12 @@ class AuthHandler(BaseHandler):
             if not account:
                 return await self._send_auth_failed(request_id, "Could not create account. Please try again.")
 
+        # A banned account is refused before the password is even checked, so the
+        # reason cannot be probed by a wrong-password attempt.
+        if account.get('is_banned'):
+            logging.warning(f"[TCP] [{self.client.addr}] Banned account '{username}' attempted login")
+            return await self._send_auth_failed(request_id, "This account is suspended.")
+
         # if account existed or was just created
         if not await run_db(verify_password, account['password_hash'], password):
             logging.warning(f"[TCP] [{self.client.addr}] Failed login attempt for user: {username}")
@@ -104,6 +110,8 @@ class AuthHandler(BaseHandler):
         # Guest Login (Usually auto-creates a temporary account based on device ID)
         device_id = message.get("uniqueID", "guest_unknown")
         account = await run_db(_get_or_create_account, device_id, "guest_password")
+        if account.get('is_banned'):
+            return await self._send_auth_failed(request_id, "This account is suspended.")
         await self._send_auth_success(request_id, account)
 
     @handle(InboundMsg.AUTH_GAS_MOBILE)

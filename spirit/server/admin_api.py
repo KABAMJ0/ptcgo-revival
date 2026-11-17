@@ -23,6 +23,7 @@ from spirit.database import TournamentEntry
 from spirit.database.admin_data import verify_admin_login
 from spirit.shop import shop_manager
 from spirit.database.player_data import grant_all_cards
+from spirit.database import Collection, Deck, Wallet
 from spirit.database.player_data import grant_all_products
 from spirit.database.admin_data import set_admin
 from spirit.game.scripts.cards import loader as card_loader
@@ -150,6 +151,169 @@ def _accounts_summary():
         rows = session.query(Account).all()
         return [{"account_id": a.account_id, "username": a.username,
                  "screen_name": a.screen_name, "is_admin": bool(a.is_admin)} for a in rows]
+
+
+def _players_overview():
+    """Every account with the numbers an operator actually wants at a glance."""
+    with db_session() as session:
+        rows = session.query(Account).all()
+        out = []
+        for a in rows:
+            collection = session.query(func.count(Collection.archetype_id)).filter_by(account_id=a.account_id).scalar() or 0
+            cards_owned = session.query(func.coalesce(func.sum(Collection.tradable_count + Collection.nontradable_count), 0)) \
+                .filter_by(account_id=a.account_id).scalar() or 0
+            decks = session.query(func.count(Deck.id)).filter_by(account_id=a.account_id).scalar() or 0
+            wallet = session.query(Wallet).filter_by(account_id=a.account_id).first()
+            out.append({
+                "account_id": a.account_id,
+                "username": a.username,
+                "screen_name": a.screen_name,
+                "is_admin": bool(a.is_admin),
+                "is_banned": bool(getattr(a, "is_banned", False)),
+                "created_at": a.created_at.isoformat() if a.created_at else None,
+                "distinct_cards": int(collection),
+                "cards_owned": int(cards_owned),
+                "decks": int(decks),
+                "coins": int(wallet.coins) if wallet else 0,
+                "gems": int(wallet.gems) if wallet else 0,
+                "tickets": int(wallet.tickets) if wallet else 0,
+            })
+        out.sort(key=lambda r: (r["is_banned"], -r["cards_owned"], r["username"].lower()))
+        return out
+
+
+def _card_meta_map(guids):
+    """guid -> {name, set, number, image} for the collection viewer."""
+    if not card_loader.cards:
+        card_loader.load_all()
+    wanted = {str(g).lower() for g in guids}
+    meta = {}
+    for card in card_loader.cards:
+        if card.guid.lower() in wanted:
+            number = card.get_attribute_value(AttrID.COLLECTOR_NUMBER)
+            meta[card.guid.lower()] = {
+                "name": card.display_name or card.key,
+                "set": card.key,
+                "number": number,
+                "image": f"/admin/api/card-image/{card.key}/{number}" if number is not None else None,
+            }
+    return meta
+
+
+def _player_detail(account_id):
+    with db_session() as session:
+        account = session.query(Account).filter_by(account_id=account_id).first()
+        if account is None:
+            return _err(404, "account not found")
+        wallet = session.query(Wallet).filter_by(account_id=account_id).first()
+        rows = session.query(Collection).filter_by(account_id=account_id).all()
+        decks = session.query(Deck).filter_by(account_id=account_id).all()
+        deck_rows = []
+        for d in decks:
+            pile = ((d.deck_data or {}).get("piles") or {}).get("deck") or []
+            deck_rows.append({"id": d.id, "name": d.name, "cards": len(pile),
+                              "is_avatar": bool(d.is_avatar)})
+        collection = [{"guid": r.archetype_id, "tradable": r.tradable_count,
+                       "nontradable": r.nontradable_count,
+                       "total": r.tradable_count + r.nontradable_count} for r in rows]
+        wallet_info = {
+            "coins": int(wallet.coins) if wallet else 0,
+            "gems": int(wallet.gems) if wallet else 0,
+            "tickets": int(wallet.tickets) if wallet else 0,
+        }
+        account_info = {
+            "account_id": account.account_id,
+            "username": account.username,
+            "screen_name": account.screen_name,
+            "is_admin": bool(account.is_admin),
+            "is_banned": bool(getattr(account, "is_banned", False)),
+            "created_at": account.created_at.isoformat() if account.created_at else None,
+        }
+
+    meta = _card_meta_map([c["guid"] for c in collection])
+    by_set = {}
+    for entry in collection:
+        info = meta.get(entry["guid"].lower(), {})
+        code = info.get("set") or "UNKNOWN"
+        bucket = by_set.setdefault(code, {"set": code, "cards": 0, "distinct": 0, "cards_list": []})
+        bucket["cards"] += entry["total"]
+        bucket["distinct"] += 1
+        bucket["cards_list"].append({**entry, **info})
+
+    for bucket in by_set.values():
+        bucket["cards_list"].sort(key=lambda c: (str(c.get("number") or ""), c.get("name") or ""))
+
+    return _ok({
+        "account": account_info,
+        "wallet": wallet_info,
+        "decks": deck_rows,
+        "sets": sorted(by_set.values(), key=lambda b: b["set"]),
+        "totals": {
+            "distinct_cards": len(collection),
+            "cards_owned": sum(c["total"] for c in collection),
+            "sets": len(by_set),
+        },
+    })
+
+
+def _clear_collection(account_id):
+    with db_session() as session:
+        if not session.query(Account).filter_by(account_id=account_id).first():
+            return _err(404, "account not found")
+        removed = session.query(Collection).filter_by(account_id=account_id).delete()
+    logging.info(f"[Admin] Cleared collection for {account_id} ({removed} rows)")
+    return _ok({"removed": int(removed)})
+
+
+def _reset_wallet(account_id, coins=None, gems=None, tickets=None):
+    with db_session() as session:
+        wallet = session.query(Wallet).filter_by(account_id=account_id).first()
+        if wallet is None:
+            return _err(404, "wallet not found")
+        if coins is not None:
+            wallet.coins = int(coins)
+        if gems is not None:
+            wallet.gems = int(gems)
+        if tickets is not None:
+            wallet.tickets = int(tickets)
+        snapshot = {"coins": wallet.coins, "gems": wallet.gems, "tickets": wallet.tickets}
+    return _ok({"wallet": snapshot})
+
+
+def _set_banned(account_id, banned):
+    with db_session() as session:
+        account = session.query(Account).filter_by(account_id=account_id).first()
+        if account is None:
+            return _err(404, "account not found")
+        account.is_banned = bool(banned)
+    logging.info(f"[Admin] {'Banned' if banned else 'Unbanned'} account {account_id}")
+    return _ok({"account_id": account_id, "is_banned": bool(banned)})
+
+
+def _delete_account(account_id, confirm):
+    """Removes the account and every row that references it."""
+    if (confirm or "").strip().upper() != "DELETE":
+        return _err(400, 'type DELETE in the confirmation box')
+    from spirit.database.base import Base
+    from sqlalchemy import text
+
+    with db_session() as session:
+        account = session.query(Account).filter_by(account_id=account_id).first()
+        if account is None:
+            return _err(404, "account not found")
+        removed = {}
+        for table in Base.metadata.sorted_tables:
+            if table.name == "accounts":
+                continue
+            if "account_id" not in table.c:
+                continue
+            result = session.execute(
+                table.delete().where(table.c.account_id == account_id))
+            if result.rowcount:
+                removed[table.name] = int(result.rowcount)
+        session.delete(account)
+    logging.warning(f"[Admin] Deleted account {account_id}: {removed}")
+    return _ok({"deleted": account_id, "rows": removed})
 
 
 def _tournament_entry_counts(tournament_ids):
@@ -291,6 +455,40 @@ def _dispatch(method, endpoint, data):
         if not set_admin(account_id, bool(data.get("is_admin"))):
             return _err(404, "account not found")
         return _ok({"account_id": account_id, "is_admin": bool(data.get("is_admin"))})
+
+    # ------------------------------------------------ player management
+    if method == 'GET' and endpoint == 'players':
+        return _ok({"players": _players_overview()})
+
+    if method == 'POST' and endpoint == 'players/detail':
+        account_id = data.get("account_id")
+        if not account_id:
+            return _err(400, "account_id required")
+        return _player_detail(account_id)
+
+    if method == 'POST' and endpoint == 'players/collection/clear':
+        account_id = data.get("account_id")
+        if not account_id:
+            return _err(400, "account_id required")
+        return _clear_collection(account_id)
+
+    if method == 'POST' and endpoint == 'players/wallet':
+        account_id = data.get("account_id")
+        if not account_id:
+            return _err(400, "account_id required")
+        return _reset_wallet(account_id, data.get("coins"), data.get("gems"), data.get("tickets"))
+
+    if method == 'POST' and endpoint == 'players/ban':
+        account_id = data.get("account_id")
+        if not account_id:
+            return _err(400, "account_id required")
+        return _set_banned(account_id, data.get("banned", True))
+
+    if method == 'POST' and endpoint == 'players/delete':
+        account_id = data.get("account_id")
+        if not account_id:
+            return _err(400, "account_id required")
+        return _delete_account(account_id, data.get("confirm"))
 
     if method == 'GET' and endpoint == 'trades':
         return _ok({"trades": _trades_summary()})

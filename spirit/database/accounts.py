@@ -18,6 +18,8 @@ def _account_to_dict(acc):
         "username": acc.username,
         "password_hash": acc.password_hash,
         "screen_name": acc.screen_name,
+        "is_admin": bool(getattr(acc, "is_admin", False)),
+        "is_banned": bool(getattr(acc, "is_banned", False)),
         "created_at": acc.created_at
     }
 

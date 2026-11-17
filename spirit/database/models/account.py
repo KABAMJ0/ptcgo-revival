@@ -13,6 +13,7 @@ class Account(Base):
     password_hash: Mapped[str] = mapped_column(nullable=False)
     screen_name: Mapped[str | None] = mapped_column(nullable=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
+    is_banned: Mapped[bool] = mapped_column(default=False)
     # Client-persisted settings dict {settingNumber: value} (attr 10230)
     settings_json: Mapped[dict] = mapped_column(JSONEncodedDict, default=dict)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
