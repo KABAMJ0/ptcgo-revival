@@ -4191,3 +4191,44 @@ def flip_heal_chosen(counters_per_head: int, coins: int = 2):
         if heads:
             await ctx.heal(counters_per_head * heads * 10, target)
     return effect
+
+
+def look_bottom_to_bench(count: int, predicate):
+    """Look at the bottom `count` cards, put 1 matching Pokemon onto your
+    Bench, then shuffle the rest back into your deck."""
+    async def effect(ctx):
+        deck = ctx.deck()
+        bottom = deck[:count]
+        if not bottom:
+            return
+        matches = [card for card in bottom if predicate(card)]
+        picks = []
+        if matches and len(ctx.my_bench()) < BENCH_CAPACITY:
+            picks = await ctx.choose_cards(
+                matches, 1, minimum=0,
+                prompt="Put a Pokémon found there onto your Bench",
+                display_cards=bottom if len(matches) < len(bottom) else None,
+            )
+        for card in picks:
+            await ctx.bench_pokemon(card)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def look_bottom_to_hand(count: int, take: int, predicate):
+    """Look at the bottom `count` cards, put `take` matching cards into your
+    hand, and leave the rest on the bottom (Dusk Ball)."""
+    async def effect(ctx):
+        deck = ctx.deck()
+        bottom = deck[:count]
+        if not bottom:
+            return
+        matches = [card for card in bottom if predicate(card)]
+        picks = await ctx.choose_cards(
+            matches, take, minimum=0,
+            prompt="Choose a card from the bottom of your deck",
+            display_cards=bottom if len(matches) < len(bottom) else None,
+        )
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect

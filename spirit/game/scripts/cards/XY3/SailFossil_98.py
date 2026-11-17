@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import card_named_contains, look_bottom_to_bench
 
 card = ItemCardDef(
     guid="878bdf8b-e25d-5433-8d07-3715f4cdedf5",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=98,
     set_code="XY3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_bottom_to_bench(7, card_named_contains("amaura"))
 )

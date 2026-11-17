@@ -454,6 +454,18 @@ def _pred_typed_subtype(phrase):
     return 'pokemon_type_subtype("%s", "%s")' % (found.group("type"), found.group("sub"))
 
 
+def _who(phrase):
+    """Predicate source for a named card in a deck-reveal ("1 Tirtouga"):
+    a known category resolves normally, a bare name becomes a name match."""
+    text = phrase.strip()
+    try:
+        return _pred(text)
+    except Unresolved:
+        if not text or " " in text:
+            raise
+        return 'card_named_contains("%s")' % text
+
+
 def _union(phrase):
     """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
     either, so the parts join with any_of."""
@@ -1679,6 +1691,18 @@ RULES = [
          r"counters times the number of heads from that pokemon(?: if the pokemon has fewer damage "
          r"counters than that remove all of them)?",
          "flip_heal_chosen", lambda m: [m.group("per"), m.group("coins")]),
+    Rule("look-bottom-to-bench",
+         r"look at the bottom (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) "
+         r"(?P<who>[a-z0-9 ]+?) you find there and put it onto your bench shuffle the other cards "
+         r"back into your deck",
+         "look_bottom_to_bench",
+         lambda m: [m.group("n"), _who(m.group("who"))]),
+    Rule("look-bottom-to-hand",
+         r"look at the (?P<n>\d+) cards from the bottom of your deck choose (?P<take>\d+) "
+         r"(?P<who>[a-z0-9 ]+?) you find there show it to your opponent and put it into your hand "
+         r"put the other cards back on the bottom of your deck in any order",
+         "look_bottom_to_hand",
+         lambda m: [m.group("n"), m.group("take"), _who(m.group("who"))]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
