@@ -1733,6 +1733,24 @@ RULES = [
          r"those cards put those cards into your hand and put other (?P<rest>\d+) cards on top of "
          r"your deck shuffle your deck afterward",
          "rival_reveal", lambda m: [m.group("n"), m.group("take")]),
+    Rule("look-bottom-to-hand-top",
+         r"look at the (?P<n>\d+) cards from the bottom of your deck choose (?P<take>\d+) pokemon "
+         r"you find there show it to your opponent and put it into your hand put the remaining "
+         r"cards back on top of your deck shuffle your deck afterward",
+         "look_bottom_to_hand",
+         lambda m: [m.group("n"), m.group("take"), "is_pokemon_card"]),
+    Rule("look-bottom-to-hand-shuffle",
+         r"look at the bottom (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) pokemon "
+         r"you find there and put it into your hand shuffle the other cards back into your deck",
+         "look_bottom_to_hand",
+         lambda m: [m.group("n"), m.group("take"), "is_pokemon_card"]),
+    Rule("search-hand-basic-hp-each",
+         r"search your deck for up to (?P<n>\d+) basic pokemon that each has (?P<hp>\d+) hp or less "
+         r"show them to your opponent and put them into your hand shuffle your deck",
+         "search_to_hand",
+         lambda m: ["all_of(is_basic_pokemon, pokemon_with_hp_at_most(%s))" % m.group("hp"),
+                    "count=" + m.group("n")],
+         module="support_common"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
