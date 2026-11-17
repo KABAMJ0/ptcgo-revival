@@ -327,6 +327,10 @@ CASES = [
     ("snipe.damaged-only", check_check_noop, (1, 1, 1, 1), 0),
     ("heal.all-bench-choice", check_check_noop, (1, 1, 1, 1), 0),
     ("discard.all-energy-optional-bonus", check_check_noop, (1, 1, 1, 1), 0),
+    ("defender-two-conditions-flip", check_defender_condition, (1, 1, 1, 1), 0),
+    ("poison.checkup-counters", check_defender_condition, (1, 1, 1, 1), 0),
+    ("flip.bonus-and-condition", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy-cost-then-condition", check_defender_condition, (1, 1, 1, 1), 0),
 ]
 
 

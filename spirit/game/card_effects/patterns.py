@@ -1926,6 +1926,52 @@ def _heal_all_bench_choice(m, ability):
     return effect
 
 
+
+def _flip_two_target_conditions(m, ability):
+    return condition_attack(CONDITIONS[m.group(1)], CONDITIONS[m.group(2)],
+                            flip=True)
+
+
+def _checkup_poison_counters(m, ability):
+    return condition_attack(SpecialConditions.POISONED, counters=int(m.group(1)))
+
+
+def _flip_bonus_and_condition(m, ability):
+    bonus, condition = int(m.group(2)), CONDITIONS[m.group(3)]
+
+    async def effect(ctx):
+        base = getattr(ability, "damage", 0) or 0
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage(base + bonus)
+            await ctx.apply_special_condition(ctx.defender, condition)
+        else:
+            await ctx.deal_damage(base)
+    return effect
+
+
+def _energy_cost_then_condition(m, ability):
+    count, condition = _count(m.group(1)), CONDITIONS[m.group(2)]
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        await ctx.discard_energy_from(
+            ctx.attacker, count,
+            prompt="Choose Energy to discard from this Pokémon")
+        await ctx.apply_special_condition(ctx.defender, condition)
+    return effect
+
+
+def _flip_damage_then_self_condition(m, ability):
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage()
+        await ctx.apply_special_condition(ctx.attacker,
+                                         SpecialConditions.CONFUSED)
+    return effect
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -2847,6 +2893,30 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("heal.all-bench-choice",
      re.compile(r"heal all damage from (an?|\d+) of your benched pokemon\."),
      _heal_all_bench_choice),
+
+    # -- batch 12: condition wordings and their flips ----------------------
+    ("poison.checkup-counters",
+     re.compile(r"your opponent's active pokemon is now poisoned\. during "
+                r"pokemon checkup, (?:put|place) (\d+) damage counters on that "
+                r"pokemon instead of 1\."), _checkup_poison_counters),
+    ("defender-two-conditions-flip",
+     re.compile(r"flip a coin\. if heads, (?:the defending|your opponent's "
+                r"active) pokemon is now (" + _CONDITION_WORDS + r") and ("
+                + _CONDITION_WORDS + r")\."), _flip_two_target_conditions),
+    ("flip.bonus-and-condition",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) damage plus "
+                r"(\d+) more damage and (?:the defending|your opponent's "
+                r"active) pokemon is now (" + _CONDITION_WORDS + r")\."),
+     _flip_bonus_and_condition),
+    ("energy-cost-then-condition",
+     re.compile(r"discard (an?|\d+) (?:" + _TYPE_WORDS + r")? ?energy "
+                r"(?:card )?attached to this pokemon\. (?:the defending|your "
+                r"opponent's active) pokemon is now (" + _CONDITION_WORDS +
+                r")\."), _energy_cost_then_condition),
+    ("flip.damage-then-self-condition",
+     re.compile(r"flip coins?\. this attack does (\d+) damage times the "
+                r"number of heads\. this pokemon is now confused\."),
+     _flip_damage_then_self_condition),
 ]
 
 
