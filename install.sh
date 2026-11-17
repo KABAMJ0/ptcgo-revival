@@ -4,8 +4,8 @@
 #
 #  Run from a checkout of this repository on the machine that will host:
 #
-#      git clone https://github.com/KABAMJ0/spirit-ptcgo-bw-sv.git
-#      cd spirit-ptcgo-bw-sv
+#      git clone https://github.com/KABAMJ0/ptcgo-revival.git
+#      cd ptcgo-revival
 #      sudo ./install.sh --host play.example.com
 #
 #  What it does:

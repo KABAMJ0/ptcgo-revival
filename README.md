@@ -92,8 +92,8 @@ The reason is that the login handshake redirects the client to a follow-up addre
 The one-command installer runs everything the server needs on a Linux box with a public IP:
 
 ```bash
-git clone https://github.com/KABAMJ0/spirit-ptcgo-bw-sv.git
-cd spirit-ptcgo-bw-sv
+git clone https://github.com/KABAMJ0/ptcgo-revival.git
+cd ptcgo-revival
 sudo ./install.sh --host play.example.com
 ```
 
