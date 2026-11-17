@@ -4035,3 +4035,29 @@ def opponent_active_is(pred):
         active = area.children[0] if area is not None and area.children else None
         return active is not None and pred(active)
     return check
+
+
+class TrainerPlayLockPassive(Passive):
+    """`player_id` cannot play any more Trainer cards this turn."""
+
+    def __init__(self, player_id):
+        self.player_id = player_id
+
+    def blocks_trainer_play(self, card, player_id, carrier):
+        return player_id == self.player_id
+
+
+def shuffle_hand_draw_lock_trainers(draw: int):
+    """Shuffle your hand into your deck, draw `draw` cards, then you cannot
+    play any more Trainer cards this turn (Professor Elm)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        await ctx.draw_cards(draw)
+        holder = ctx.my_active() or next(iter(ctx.my_pokemon_in_play()), None)
+        if holder is not None:
+            ctx.add_temporary_passive(
+                holder, TrainerPlayLockPassive(ctx.player_id),
+                expires_after_turn=ctx.session.turn_state.turn_number)
+    return effect

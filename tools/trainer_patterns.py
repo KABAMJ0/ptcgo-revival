@@ -1624,6 +1624,10 @@ RULES = [
                                         _pred_typed_subtype(m.group("b"))),
                     "count=" + m.group("n")],
          module="support_common"),
+    Rule("shuffle-hand-draw-lock-trainers",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) cards you cant play any more "
+         r"trainer cards this turn",
+         "shuffle_hand_draw_lock_trainers", lambda m: [m.group("n")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
