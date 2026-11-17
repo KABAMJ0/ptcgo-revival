@@ -1012,6 +1012,28 @@ RULES = [
          r"(?:basic )?pokemon .*discard this card from play.*",
          "fossil", lambda m: [m.group("hp")], kind="fossil"),
 
+    # --- Typed heals and bench-to-active energy moves ---------------------
+    Rule("heal-each-typed",
+         r"heal (?P<amount>\d+) damage from each of your (?P<type>[a-z]+) pokemon",
+         "heal_each_typed",
+         lambda m: [m.group("amount"), _typed_or_decline(m.group("type"))]),
+    Rule("gust-then-confuse",
+         r"switch in (?P<n>\d+) of your opponents benched basic pokemon to the active spot if "
+         r"you do the new active pokemon is now confused",
+         "gust_then_confuse", lambda m: []),
+    Rule("move-energy-to-active",
+         r"move up to (?P<n>\d+) energy from your benched pokemon to your active pokemon",
+         "move_energy_to_active", lambda m: [m.group("n")]),
+    Rule("discard-stadium-opponent-discards",
+         r"discard any stadium card in play if you do your opponent discards (?P<n>\d+) cards "
+         r"from his or her hand",
+         "discard_stadium_then_opponent_discards", lambda m: [m.group("n")]),
+    Rule("opponent-bench-from-hand",
+         r"your opponent reveals their hand and you put (?P<n>\d+) basic pokemon you find there "
+         r"onto your opponents bench if you put (?P<c>\d+) pokemon onto their bench in this way "
+         r"switch in that pokemon to the active spot",
+         "opponent_bench_from_hand_then_switch", lambda m: []),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "

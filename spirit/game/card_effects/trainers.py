@@ -3094,3 +3094,92 @@ def opponent_active_has(condition_code: str):
         conditions = pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or []
         return wanted in conditions
     return check
+
+
+def heal_each_typed(amount: int, type_name: str):
+    """Heal `amount` from each of your Pokemon of one type."""
+    async def effect(ctx):
+        wanted = POKEMON_TYPE_NAMES[type_name.lower()]
+        for pokemon in ctx.my_pokemon_in_play():
+            if wanted in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or []):
+                missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+                if missing > 0:
+                    await ctx.heal(min(amount, missing), pokemon)
+    return effect
+
+
+def gust_then_confuse():
+    """Switch in one of the opponent's Benched Basic Pokemon; the new Active
+    is now Confused."""
+    async def effect(ctx):
+        bench = [p for p in ctx.opponent_bench() if is_basic_pokemon(p)]
+        if not bench or ctx.opponent_active() is None:
+            return
+        target = await ctx.choose_pokemon(
+            bench, "Choose the opponent's new Active Pokémon") or bench[0]
+        if await ctx.switch_active(ctx.opponent_id, target):
+            await ctx.apply_special_condition(target, SpecialConditions.CONFUSED)
+    return effect
+
+
+def move_energy_to_active(count: int = 2):
+    """Move up to `count` Energy from your Benched Pokemon to your Active."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        if active is None:
+            return
+        sources = [p for p in ctx.my_bench() if ctx.attached_energies(p)]
+        if not sources:
+            return
+        source = await ctx.choose_pokemon(
+            sources, "Choose a Benched Pokémon to move Energy from") \
+            if len(sources) > 1 else sources[0]
+        if source is None:
+            return
+        energies = ctx.attached_energies(source)
+        take = min(count, len(energies))
+        picked = await ctx.choose_cards(
+            energies, take, minimum=1,
+            prompt="Choose Energy to move to your Active") \
+            if len(energies) > 1 else energies[:take]
+        for card in picked:
+            await ctx.move_energy(card, active)
+    return effect
+
+
+def discard_stadium_then_opponent_discards(count: int = 3):
+    """Discard the Stadium in play; if you did, the opponent discards `count`
+    cards from their hand."""
+    async def effect(ctx):
+        stadium = await ctx.discard_stadium()
+        if stadium is None:
+            return
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=min(count, len(hand)),
+            prompt=f"Your opponent discards {count} cards",
+            player_id=ctx.opponent_id)
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def opponent_bench_from_hand_then_switch():
+    """Your opponent reveals their hand; you put a Basic Pokemon from it onto
+    their Bench and switch it into the Active Spot."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        await ctx.reveal_hand(ctx.opponent_id)
+        basics = [c for c in hand if is_basic_pokemon(c)]
+        if not basics:
+            return
+        picks = await ctx.choose_cards(
+            basics, 1, minimum=1,
+            prompt="Choose a Basic Pokémon to put onto their Bench")
+        if not picks:
+            return
+        if await ctx.bench_pokemon(picks[0]):
+            await ctx.switch_active(ctx.opponent_id, picks[0])
+    return effect

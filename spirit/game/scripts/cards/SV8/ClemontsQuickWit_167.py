@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import heal_each_typed
 
 card = SupporterCardDef(
     guid="7fa050f1-4ae2-54a5-ba34-66989c387ef8",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=167,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_each_typed(60, "lightning")
 )
