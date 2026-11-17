@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="760a099c-64af-5e30-a592-dd81967f93b9",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Sandygast.Name",
+    display_name="Sandygast",
+    searchable_by=["Sandygast", "Basic", "Sandygast"],
+    subtypes=["Basic"],
+    collector_number=214,
+    set_code="SV2",
+    rarity=Rarities.Rare,
+    hp=90,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=769,
+    abilities=[
+        Attack(
+            title="Mumble",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+        ),
+        Attack(
+            title="Mud Shot",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
+            damage=40,
+        ),
+    ],
+)

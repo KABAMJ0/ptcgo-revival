@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_then_discard
+
+card = SupporterCardDef(
+    guid="eefe12b7-4df4-53fe-aff7-9c462b993886",
+    key="EX3",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.TVReporter.Name",
+    display_name="TV Reporter",
+    searchable_by=["TV Reporter", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=88,
+    set_code="EX3",
+    rarity=Rarities.Uncommon,
+    effect=draw_then_discard(3, 1)
+)

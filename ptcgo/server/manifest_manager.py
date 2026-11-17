@@ -1,0 +1,371 @@
+import copy
+import os
+import json
+import hashlib
+import gzip
+import logging
+import re
+import zlib
+import UnityPy
+
+from ptcgo import config
+from ptcgo.server.bundle_variants import (
+    SPLIT_TYPES, android_version, asset_number, card_partitions, content_version, file_crc, variant_cache_key, variant_version)
+
+class ManifestManager:
+    """
+    Dynamic Asset Manifest Generator.
+    Scans multiple directories and builds a versioned manifest for the Unity client.
+    """
+    def __init__(self, asset_dirs: list):
+        self.asset_dirs = asset_dirs
+        self.manifest_cache = None
+        self.manifest_version = 0
+        # Variant cache key -> content version of its prepared bytes.
+        self.content_versions = {}
+
+        self.asset_map = {}
+        map_path = os.path.join(os.path.dirname(__file__), "asset_map.json")
+        if os.path.exists(map_path):
+            try:
+                with open(map_path, "r") as f:
+                    self.asset_map = json.load(f)
+                logging.info(f"[Manifest] Loaded asset_map.json with {len(self.asset_map)} bundles.")
+            except Exception as e:
+                logging.error(f"[Manifest] Failed to load asset_map.json: {e}")
+
+        for d in self.asset_dirs:
+            if not os.path.exists(d):
+                os.makedirs(d, exist_ok=True)
+                logging.info(f"[Manifest] Created asset directory: {d}")
+
+        # Initial scan
+        self.generate_manifest(force_refresh=True)
+
+    def _calculate_md5(self, filepath: str) -> str:
+        hash_md5 = hashlib.md5()
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def _calculate_crc(self, filepath: str) -> int:
+        """Calculates CRC32 of a file, ensuring it fits in a uint32."""
+        try:
+            return file_crc(filepath)
+        except Exception as e:
+            logging.error(f"CRC calculation error: {e}")
+            return 0
+
+    def generate_manifest(self, force_refresh: bool = False) -> bytes:
+        """Generates a GZipped manifest JSON for the client in the proprietary V3 format."""
+        if self.manifest_cache and not force_refresh:
+            return self.manifest_cache
+
+        logging.info(f"[Manifest] Generating V3 Manifest (Version: {self.manifest_version})...")
+
+        # Preload bundles: critical for scene loading
+        # The client explicitly requests these by name.
+        preload_names = ["LandingPage", "Logos", "Login", "lobby", "Background", "Localization", "ali"]
+
+        # Dictionary to store unique descriptors by their logical name
+        unique_descriptors = {}
+        partitions = card_partitions()
+        self.card_partitions = partitions
+        self.variant_sources = {}
+
+        # Walk through all registered asset directories
+        for asset_dir in self.asset_dirs:
+            if not os.path.exists(asset_dir):
+                continue
+            
+            entries = sorted(os.listdir(asset_dir))
+            for entry in entries:
+                entry_path = os.path.join(asset_dir, entry)
+                bundle_file_path = None
+                bundle_name_raw = entry.replace(".unity3d", "")
+                
+                if os.path.isfile(entry_path) and entry.endswith(".unity3d"):
+                    bundle_file_path = entry_path
+                elif os.path.isdir(entry_path):
+                    for root, _, files in os.walk(entry_path):
+                        if "__data" in files:
+                            bundle_file_path = os.path.join(root, "__data")
+                            break
+                
+                if not bundle_file_path:
+                    continue
+
+                logical_name = bundle_name_raw
+                if logical_name.startswith("en_US_"):
+                    logical_name = logical_name[6:]
+                
+                if logical_name in unique_descriptors:
+                    continue
+
+                # Version is in the client's cache URL: content-derived so identical rebuilds stay cached.
+                bundle_version = content_version(self._calculate_crc(bundle_file_path))
+
+                asset_names = []
+                aliases = {bundle_name_raw, logical_name}
+                lower_entry = entry.lower()
+                if "landingpage" in lower_entry:
+                    aliases.add("LandingPage")
+                if "logos" in lower_entry: aliases.add("Logos")
+                if "login" in lower_entry: aliases.add("Login")
+                if "lobby" in lower_entry: aliases.add("lobby")
+                if "background" in lower_entry: aliases.add("Background")
+                if "ali_" in lower_entry: 
+                    aliases.add("ali")
+                    aliases.add("Localization")
+
+                set_code = None
+                map_lookup_name = bundle_name_raw
+                if map_lookup_name.startswith("en_US_"):
+                    map_lookup_name = map_lookup_name[6:]
+                map_lookup_name = re.sub(r'_\d+$', '', map_lookup_name)
+                
+                exact_assets = self.asset_map.get(bundle_name_raw) or \
+                               self.asset_map.get(f"en_US_{map_lookup_name}") or \
+                               self.asset_map.get(map_lookup_name)
+
+                # Dynamically load assets for cosmetic/product and landing-page
+                # bundles if they are not in asset_map.  Dynamic pages request
+                # artwork as ``LandingPage/<texture>``; without that prefixed
+                # manifest key the client rejects the request before opening
+                # the selected Unity bundle.
+                dynamic_texture_patterns = [
+                    "cardsleeves", "coins", "deckboxes", "deckboxflats", "packs", "pcdboxes",
+                    "avatar", "gxtoken", "vstartoken", "landingpage", "logos"
+                ]
+                if not exact_assets and any(pat in lower_entry for pat in dynamic_texture_patterns):
+                    try:
+                        env = UnityPy.load(bundle_file_path)
+                        exact_assets = []
+                        prefix = ""
+                        if "cardSleeves" in bundle_name_raw:
+                            prefix = "cardSleeves"
+                        elif "coins" in bundle_name_raw:
+                            prefix = "coins"
+                        elif "deckBoxes" in bundle_name_raw:
+                            prefix = "deckBoxes"
+                        elif "deckboxFlats" in bundle_name_raw:
+                            prefix = "deckboxFlats"
+                        elif "packs" in bundle_name_raw:
+                            prefix = "packs"
+                        elif "pcdBoxes" in bundle_name_raw:
+                            prefix = "pcdBoxes"
+                        elif "avatar_thumbs" in bundle_name_raw:
+                            prefix = "avatar_thumbs"
+                        elif "avatar" in bundle_name_raw:
+                            prefix = "avatar"
+                        elif "GXToken" in bundle_name_raw:
+                            prefix = "gxtoken"
+                        elif "VSTARToken" in bundle_name_raw:
+                            prefix = "vstartoken"
+                        elif "landingpage" in lower_entry:
+                            prefix = "LandingPage"
+                        elif "logos" in lower_entry:
+                            prefix = "Logos"
+
+                        exported_texture_ids = None
+                        if "landingpage" in lower_entry:
+                            for obj in env.objects:
+                                if obj.type.name != "AssetBundle":
+                                    continue
+                                try:
+                                    bundle = obj.read()
+                                    exported_texture_ids = {
+                                        int(info.asset.m_PathID)
+                                        for _, info in bundle.m_Container
+                                    }
+                                except Exception:
+                                    exported_texture_ids = None
+                                break
+
+                        for obj in env.objects:
+                            if obj.type.name == "Texture2D":
+                                if (
+                                    exported_texture_ids is not None
+                                    and int(obj.path_id) not in exported_texture_ids
+                                ):
+                                    continue
+                                tex_raw = obj.read().m_Name
+                                tex_name = tex_raw.lower()
+                                if prefix == "deckboxFlats":
+                                    # Flats share names with deckBoxes/pcdBoxes icons; prefixed key only.
+                                    exact_assets.append(f"{prefix}/{tex_name}")
+                                    continue
+                                exact_assets.append(tex_name)
+                                if prefix:
+                                    exact_assets.append(f"{prefix}/{tex_name}")
+                                    if prefix == "Logos":
+                                        # NGUI nav logo loader looks up the EXACT-case key "Logos/globalNavLogo"
+                                        exact_assets.append(tex_raw)
+                                        exact_assets.append(f"{prefix}/{tex_raw}")
+                                    else:
+                                        # Add full URL-mode manifest mapping keys to satisfy client-side LoadTextureFromAssetBundle lookups
+                                        url_route = f"{config.HTTP_BASE_URL}/products/{tex_name}.png"
+                                        exact_assets.append(url_route)
+                                        exact_assets.append(f"{prefix}/{url_route}")
+                        logging.info(f"[Manifest] Dynamically loaded {len(exact_assets)} cosmetic/product assets with prefix '{prefix}' for {bundle_name_raw}")
+                    except Exception as e:
+                        logging.error(f"[Manifest] Failed to dynamically load cosmetic/product assets for {bundle_name_raw}: {e}")
+
+                if exact_assets:
+                    # Extract set code more reliably
+                    set_code = None
+                    if bundle_name_raw.startswith("en_US_"):
+                        set_code = bundle_name_raw[6:]
+                        # Remove versioning or collector number suffix (e.g., _1, _138)
+                        # but keep set-internal underscores (e.g., Free_Energy)
+                        # We only strip if it's a trailing number
+                        set_code = re.sub(r'_\d+$', '', set_code)
+                    else:
+                        # Fallback for bundles without en_US prefix
+                        parts = bundle_name_raw.split('_')
+                        # Find the first part that isn't a known prefix or small version/locale
+                        for part in parts:
+                            if part not in ["en", "US", "CR", "CRR", "wp"] and len(part) >= 2:
+                                set_code = part
+                                break
+
+                    for asset_key in exact_assets:
+                        asset_names.append({"name": asset_key})
+
+                        if set_code:
+                            asset_names.append({"name": f"{set_code}/{asset_key}"})
+                            asset_names.append({"name": f"{set_code}_{asset_key}"})
+
+                            # Publish the bundle's unpadded card/icon aliases too.
+                            num_match = re.match(r'^(foil_)?(\d+)(_energypip|_energyicon|_toolpip)?$', asset_key)
+                            if num_match:
+                                short_num = num_match.group(2).lstrip("0") or "0"
+                                if short_num != num_match.group(2):
+                                    short_key = (f"{num_match.group(1) or ''}{short_num}"
+                                                 f"{num_match.group(3) or ''}")
+                                    asset_names.append({"name": f"{set_code}/{short_key}"})
+                                    asset_names.append({"name": f"{set_code}_{short_key}"})
+                        
+                # Final asset list includes all aliases
+                final_assets = asset_names + [{"name": a} for a in aliases]
+                
+                # Determine the 'best' name for the bundle descriptor
+                # Special names like LandingPage must be UNIQUE in the manifest
+                descriptor_name = logical_name
+                for special in ["LandingPage", "Logos", "Login", "lobby", "Background", "Localization"]:
+                    if special in aliases:
+                        # Check if this special name is already taken
+                        if not any(b['name'] == special for b in unique_descriptors.values()):
+                            descriptor_name = special
+                        break
+
+                descriptor = {
+                    "name": descriptor_name,
+                    "assets": final_assets,
+                    "versionings": [
+                        {
+                            "platform": "pc",
+                            "locale": "en_US",
+                            "version": bundle_version,
+                            "alt_version": 0,
+                            "CRC": 0 # Force CRC 0 for custom bundles to prevent crashes
+                        }
+                    ],
+                    "precached": [],
+                    "timesensitive": 0,
+                    "WebPath": f"en_US/{bundle_name_raw}.unity3d"
+                }
+                unique_descriptors[logical_name] = descriptor
+
+                # If this is a card set bundle, dynamically generate virtual type-split bundle descriptors
+                # so the client can resolve things like "SWSH12_water" to this same physical bundle file.
+                if set_code and exact_assets and not any(
+                    pat in lower_entry
+                    for pat in ["cardsleeves", "coins", "deckboxes", "deckboxflats", "packs", "pcdboxes", "avatar", "landingpage", "_wp_"]
+                ):
+                    card_types = [
+                        "grass", "fire", "water", "lightning", "psychic", "fighting",
+                        "darkness", "metal", "fairy", "dragon", "colorless", "trainer"
+                    ]
+                    for t_name in card_types:
+                        virtual_name = f"{set_code}_{t_name}"
+                        # Ensure we don't overwrite if physical file already exists
+                        if virtual_name not in unique_descriptors:
+                            unique_descriptors[virtual_name] = {
+                                "name": virtual_name,
+                                "assets": [{"name": virtual_name}],
+                                "versionings": [
+                                    {
+                                        "platform": "pc",
+                                        "locale": "en_US",
+                                        "version": bundle_version,
+                                        "alt_version": 0,
+                                        "CRC": 0
+                                    }
+                                ],
+                                "precached": [],
+                                "timesensitive": 0,
+                                "WebPath": f"en_US/{bundle_name_raw}.unity3d"
+                            }
+
+                    membership = partitions.get(set_code, {})
+                    if membership:
+                        fallback_version = variant_version(bundle_file_path, membership)
+                        routed = []
+                        for item in descriptor["assets"]:
+                            number = asset_number(item["name"], set_code)
+                            if number not in membership:
+                                routed.append(item)
+                                continue
+                            kind = sorted(membership[number])[0]
+                            unique_descriptors[f"{set_code}_{kind}"]["assets"].append(item)
+                        descriptor["assets"] = routed
+                        for kind in SPLIT_TYPES:
+                            name = f"{set_code}_{kind}"
+                            key = variant_cache_key(bundle_file_path, name, membership)
+                            version = self.content_versions.get(key, fallback_version)
+                            unique_descriptors[name]["versionings"][0]["version"] = version
+                            self.variant_sources[name] = bundle_file_path
+
+        bundle_descriptors = list(unique_descriptors.values())
+        actual_preloads = [n for n in preload_names if any(b['name'] == n for b in bundle_descriptors)]
+
+        logging.info(f"[Manifest] Generated {len(bundle_descriptors)} bundle descriptors. Preloading: {actual_preloads}")
+
+        # Clients keep the last manifest on disk keyed by this version; only content changes bump it.
+        self.manifest_version = content_version(zlib.crc32(
+            json.dumps([bundle_descriptors, actual_preloads], sort_keys=True).encode('utf-8')))
+        manifest_data = {
+            "platform": "pc",
+            "version": self.manifest_version,
+            "bundles": bundle_descriptors,
+            "preloadBundles": actual_preloads,
+            "forceloadBundles": []
+        }
+
+        json_data = json.dumps(manifest_data).encode('utf-8')
+        self.manifest_cache = gzip.compress(json_data)
+        self._build_android_manifest(manifest_data)
+        return self.manifest_cache
+
+    def _build_android_manifest(self, manifest_data):
+        android = copy.deepcopy(manifest_data)
+        android["platform"] = "android"
+        for bundle in android["bundles"]:
+            for versioning in bundle["versionings"]:
+                versioning["platform"] = "android"
+                versioning["version"] = android_version(versioning["version"])
+        android["version"] = android_version(manifest_data["version"])
+        self.android_manifest_version = android["version"]
+        self.android_manifest_cache = gzip.compress(json.dumps(android).encode('utf-8'))
+
+    def manifest_for(self, android):
+        return self.android_manifest_cache if android else self.manifest_cache
+
+    def version_for(self, android):
+        return self.android_manifest_version if android else self.manifest_version
+
+    def refresh(self):
+        """Rescans assets; the manifest version changes only when its content does."""
+        self.generate_manifest(force_refresh=True)

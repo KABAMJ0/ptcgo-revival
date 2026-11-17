@@ -1,11 +1,11 @@
 import unittest
 import uuid
 
-from spirit.game.attributes import AttrID, CardType, DeckFormat, PokemonStage
-from spirit.game import rules
-from spirit.game.scripts.cards import loader as card_loader
-from spirit.game.tournament_manager import TournamentDef
-from spirit.packets.handlers.tournaments import validate_tournament_deck
+from ptcgo.game.attributes import AttrID, CardType, DeckFormat, PokemonStage
+from ptcgo.game import rules
+from ptcgo.game.scripts.cards import loader as card_loader
+from ptcgo.game.tournament_manager import TournamentDef
+from ptcgo.packets.handlers.tournaments import validate_tournament_deck
 
 
 class TournamentDeckValidationTests(unittest.TestCase):

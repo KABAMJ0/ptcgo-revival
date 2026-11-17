@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import EnergyCardDef
+from ptcgo.game.attributes import PokemonTypes, Rarities
+
+card = EnergyCardDef(
+    guid="5ae60ef7-09e1-5e28-add4-8ad286bbdfef",
+    key="EX9",
+    name="Darkness Energy",
+    display_name="Darkness Energy",
+    searchable_by=["Darkness Energy", "Special"],
+    subtypes=["Special"],
+    collector_number=86,
+    set_code="EX9",
+    rarity=Rarities.Rare,
+    energy_type=PokemonTypes.COLORLESS,
+    is_special=True
+)

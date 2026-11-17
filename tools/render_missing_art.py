@@ -16,8 +16,8 @@ import re
 
 from PIL import Image, ImageDraw, ImageFont
 
-CARDS_DIR = "spirit/game/scripts/cards"
-ASSETS_DIR = "spirit/assets/cards"
+CARDS_DIR = "ptcgo/game/scripts/cards"
+ASSETS_DIR = "ptcgo/assets/cards"
 TYPE_COLORS = {
     "Grass": (60, 140, 70), "Fire": (170, 60, 40), "Water": (40, 100, 170),
     "Lightning": (190, 160, 40), "Psychic": (120, 60, 150), "Fighting": (150, 100, 60),

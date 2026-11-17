@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="3bfe4892-0393-5ce6-ad48-70de22aef49f",
+    key="DP7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Charmander.Name",
+    display_name="Charmander",
+    searchable_by=["Charmander", "Basic", "Charmander"],
+    subtypes=["Basic"],
+    collector_number=101,
+    set_code="DP7",
+    rarity=Rarities.RareSecret,
+    hp=50,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.WATER,
+    family_id=4,
+    abilities=[
+        Attack(
+            title="Scratch",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=10,
+        ),
+        Attack(
+            title="Ember",
+            game_text="Discard a Fire Energy attached to Charmander.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+    ],
+)

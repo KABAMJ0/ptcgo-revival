@@ -17,7 +17,7 @@ import urllib.error
 import urllib.request
 
 BASE = "http://127.0.0.1:8000"
-META_PATH = "spirit/database/json_data/set_meta.json"
+META_PATH = "ptcgo/database/json_data/set_meta.json"
 
 
 def call(path, payload=None, cookie=None):

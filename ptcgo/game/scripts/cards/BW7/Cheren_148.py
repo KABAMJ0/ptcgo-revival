@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_n
+
+card = SupporterCardDef(
+    guid="7bc7295f-d685-5dec-bd72-24d31c38f2cd",
+    key="BW7",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Cheren.Name",
+    display_name="Cheren",
+    searchable_by=["Cheren", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=148,
+    set_code="BW7",
+    rarity=Rarities.RareUltra,
+    effect=draw_n(3)
+)

@@ -19,10 +19,10 @@ import json
 import os
 import sys
 
-SETS_JSON = os.path.join("spirit", "database", "json_data", "sets.json")
-META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
-FORMATS_JSON = os.path.join("spirit", "database", "json_data", "formats.json")
-CARDS = os.path.join("spirit", "game", "scripts", "cards")
+SETS_JSON = os.path.join("ptcgo", "database", "json_data", "sets.json")
+META_PATH = os.path.join("ptcgo", "database", "json_data", "set_meta.json")
+FORMATS_JSON = os.path.join("ptcgo", "database", "json_data", "formats.json")
+CARDS = os.path.join("ptcgo", "game", "scripts", "cards")
 
 # pokemontcg.io series -> (client block code, era key used by formats)
 SERIES_BLOCK = {

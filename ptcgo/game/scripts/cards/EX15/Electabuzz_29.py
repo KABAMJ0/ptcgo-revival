@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="4db56075-9493-55ee-87e0-4d7a66867f1f",
+    key="EX15",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Electabuzz.Name",
+    display_name="Electabuzz δ",
+    searchable_by=["Electabuzz \u03b4", "Basic", "Electabuzz"],
+    subtypes=["Basic"],
+    collector_number=29,
+    set_code="EX15",
+    rarity=Rarities.Uncommon,
+    hp=60,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=125,
+    abilities=[
+        Ability(
+            title="Power of Evolution",
+            game_text="Once during your turn (before your attack), if Electabuzz is an Evolved Pok\u00e9mon, you may draw a card from the bottom of your deck. This power can't be used if Electabuzz is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Swift",
+            game_text="This attack's damage isn't affected by Weakness, Resistance, Pok\u00e9-Powers, Pok\u00e9-Bodies, or any other effects on the Defending Pok\u00e9mon.",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+    ],
+)

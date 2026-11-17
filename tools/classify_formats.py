@@ -18,9 +18,9 @@ import json
 import os
 import sys
 
-FORMATS_PATH = os.path.join("spirit", "database", "json_data", "formats.json")
-META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
-CARDS_DIR = os.path.join("spirit", "game", "scripts", "cards")
+FORMATS_PATH = os.path.join("ptcgo", "database", "json_data", "formats.json")
+META_PATH = os.path.join("ptcgo", "database", "json_data", "set_meta.json")
+CARDS_DIR = os.path.join("ptcgo", "game", "scripts", "cards")
 
 ERA_AGNOSTIC = {"FREE_ENERGY", "CUSTOM"}
 SV_SERIES = {"scarlet & violet"}

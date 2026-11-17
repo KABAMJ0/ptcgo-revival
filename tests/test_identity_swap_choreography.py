@@ -2,15 +2,15 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from spirit.game.attributes import AttrID, GameSequence
-from spirit.game.models.board import (
+from ptcgo.game.attributes import AttrID, GameSequence
+from ptcgo.game.models.board import (
     BoardEntity,
     BoardState,
     CardEntity,
     PokemonEntity,
 )
-from spirit.game.session.game_session import GameSession, NestedSequence
-from spirit.network.message_names import OutboundMsg
+from ptcgo.game.session.game_session import GameSession, NestedSequence
+from ptcgo.network.message_names import OutboundMsg
 
 
 class RecordingContext:
@@ -95,7 +95,7 @@ class IdentitySwapChoreographyTests(unittest.IsolatedAsyncioTestCase):
                 ctx = RecordingContext()
 
                 with patch(
-                    "spirit.game.session.game_session.effective_max_hp",
+                    "ptcgo.game.session.game_session.effective_max_hp",
                     side_effect=lambda board, pokemon: pokemon.attribute_originals[
                         AttrID.HP.value
                     ],

@@ -5,7 +5,7 @@ Card PNGs (~14 GB) are gitignored, so a fresh checkout has scripts but no art.
 For every card script without a texture this tries, in order:
 
   1. the official scan from pokemontcg.io, matched by name and number
-  2. the upstream SpiritPTCGO repository, for Spirit's own SWSH-era scripts
+  2. the upstream project this was forked from, for its own SWSH-era scripts
      whose file names do not follow the API's naming
   3. tools/render_missing_art.py, which draws a face from the card's data
 
@@ -27,8 +27,8 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-CARDS = os.path.join("spirit", "game", "scripts", "cards")
-ASSETS = os.path.join("spirit", "assets", "cards")
+CARDS = os.path.join("ptcgo", "game", "scripts", "cards")
+ASSETS = os.path.join("ptcgo", "assets", "cards")
 API = "https://api.pokemontcg.io/v2/cards?q={q}&pageSize=250&page={page}"
 UPSTREAM = "https://raw.githubusercontent.com/Bratah123/Spirit-PTCGO/main/spirit/assets/cards/{code}/{stem}.png"
 

@@ -4,7 +4,7 @@ The card pool repeats itself: "Draw 3 cards." is printed in four sets, "Search
 your deck for a Basic Pokemon..." in a dozen wordings across twenty years of
 type names. This table turns that repetition into one wired implementation per
 SHAPE, with the card's own numbers and type names as arguments, so a script
-stays data and the behaviour lives in spirit/game/card_effects/trainers.py and
+stays data and the behaviour lives in ptcgo/game/card_effects/trainers.py and
 support_common.py.
 
 Every pattern is anchored at both ends against `trainer_coverage.canonical_text`:
@@ -28,7 +28,7 @@ class Unresolved(Exception):
 
 # --- Phrase -> predicate ----------------------------------------------------
 
-# Predicate names are all importable from spirit.game.card_effects.trainers.
+# Predicate names are all importable from ptcgo.game.card_effects.trainers.
 SIMPLE_PREDICATES = {
     "pokemon": "is_pokemon_card",
     "basic pokemon": "is_basic_pokemon",

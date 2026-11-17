@@ -1,0 +1,15 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="af9cff4b-a4ad-533d-8618-170449b8f35e",
+    key="GYM1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Brock.Name",
+    display_name="Brock",
+    searchable_by=["Brock"],
+    subtypes=[],
+    collector_number=15,
+    set_code="GYM1",
+    rarity=Rarities.RareHolo,
+    effect=unimplemented
+)

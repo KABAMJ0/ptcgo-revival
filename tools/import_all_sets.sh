@@ -38,9 +38,9 @@ for pair in $ALL; do
   code="${pair##*:}"
   echo "=== $id -> $code"
   python3 tools/fetch_set.py "$id" "$code" || { echo "fetch failed: $id"; continue; }
-  $PY spirit/tools/import_set.py "spirit/game/scripts/cards/$code/$id.json" --set-code "$code" \
+  $PY ptcgo/tools/import_set.py "ptcgo/game/scripts/cards/$code/$id.json" --set-code "$code" \
     2>&1 | grep -E 'Processing|Starting download|Error|Traceback' | tail -2
   python3 tools/fix_collector_numbers.py "$code"
-  echo "scripts: $(ls spirit/game/scripts/cards/$code/*.py 2>/dev/null | wc -l) images: $(ls spirit/assets/cards/$code/*.png 2>/dev/null | wc -l)"
+  echo "scripts: $(ls ptcgo/game/scripts/cards/$code/*.py 2>/dev/null | wc -l) images: $(ls ptcgo/assets/cards/$code/*.png 2>/dev/null | wc -l)"
 done
 echo "done"

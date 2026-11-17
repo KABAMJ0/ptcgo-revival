@@ -17,13 +17,13 @@ import re
 import sys
 from contextlib import contextmanager
 
-from spirit.game.attributes import AttrID
-from spirit.game.models.board import EnergyEntity
-from spirit.game.data_utils import Attack, CARD_DEFS_BY_GUID
-from spirit.game.scripts.cards import loader as card_loader
-from spirit.game.session import passives
-from spirit.game.session.effects import resolve_attack
-from spirit.tools.effect_smoke import (
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.models.board import EnergyEntity
+from ptcgo.game.data_utils import Attack, CARD_DEFS_BY_GUID
+from ptcgo.game.scripts.cards import loader as card_loader
+from ptcgo.game.session import passives
+from ptcgo.game.session.effects import resolve_attack
+from ptcgo.tools.effect_smoke import (
     P1, P2, Rig, basic_energy_guids, pick_filler_basic, pick_filler_item,
 )
 

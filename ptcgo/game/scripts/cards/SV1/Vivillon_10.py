@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="745afa28-9a03-5265-bef3-af08d9730f63",
+    key="SV1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Vivillon.Name",
+    display_name="Vivillon",
+    searchable_by=["Vivillon", "Stage 2", "Vivillon"],
+    subtypes=["Stage 2"],
+    collector_number=10,
+    set_code="SV1",
+    rarity=Rarities.Uncommon,
+    hp=120,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Spewpa.Name",
+    family_id=664,
+    abilities=[
+        Attack(
+            title="Miracle Powder",
+            game_text="Flip a coin. If heads, choose a Special Condition. Your opponent's Active Pok\u00e9mon is now affected by that Special Condition.",
+            cost={PokemonTypes.GRASS: 1},
+            damage=50,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Bug Buzz",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
+            damage=110,
+        ),
+    ],
+)

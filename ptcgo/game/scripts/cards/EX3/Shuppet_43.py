@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="f7441372-0478-532b-95ea-d5a08163394d",
+    key="EX3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Shuppet.Name",
+    display_name="Shuppet",
+    searchable_by=["Shuppet", "Basic", "Shuppet"],
+    subtypes=["Basic"],
+    collector_number=43,
+    set_code="EX3",
+    rarity=Rarities.Uncommon,
+    hp=50,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=353,
+    abilities=[
+        Attack(
+            title="Hypnosis",
+            game_text="The Defending Pok\u00e9mon is now Asleep.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Night Attack",
+            game_text="Put 1 damage counter on 1 of your opponent's Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,4 +1,4 @@
-"""Point the Android PTCGO APK + OBB at a Spirit server and re-sign the APK for sideloading."""
+"""Point the Android PTCGO APK + OBB at a PTCGO Revival server and re-sign the APK for sideloading."""
 
 import argparse
 import os

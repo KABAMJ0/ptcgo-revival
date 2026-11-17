@@ -12,7 +12,7 @@ It derives everything from pokemontcg.io's set list:
 
     ./venv/bin/python tools/build_set_catalog.py
 
-Writes spirit/database/json_data/set_meta.json (code -> name, abbreviation,
+Writes ptcgo/database/json_data/set_meta.json (code -> name, abbreviation,
 release date, series, order), rewrites sets.json, and generates a
 BoosterPackDef product script for every set that lacks one.
 """
@@ -25,12 +25,12 @@ import urllib.request
 import uuid
 
 SETS_API = "https://api.pokemontcg.io/v2/sets?pageSize=250"
-META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
-SETS_JSON = os.path.join("spirit", "database", "json_data", "sets.json")
-FORMATS_JSON = os.path.join("spirit", "database", "json_data", "formats.json")
-CARDS_DIR = os.path.join("spirit", "game", "scripts", "cards")
-PRODUCTS_DIR = os.path.join("spirit", "game", "scripts", "products")
-PACKS_DIR = os.path.join("spirit", "assets", "products", "custom_packs")
+META_PATH = os.path.join("ptcgo", "database", "json_data", "set_meta.json")
+SETS_JSON = os.path.join("ptcgo", "database", "json_data", "sets.json")
+FORMATS_JSON = os.path.join("ptcgo", "database", "json_data", "formats.json")
+CARDS_DIR = os.path.join("ptcgo", "game", "scripts", "cards")
+PRODUCTS_DIR = os.path.join("ptcgo", "game", "scripts", "products")
+PACKS_DIR = os.path.join("ptcgo", "assets", "products", "custom_packs")
 
 # Our set code -> pokemontcg.io set id, where they differ.
 API_ID_OVERRIDES = {
@@ -202,7 +202,7 @@ def main():
         name = meta[code]["name"]
         with open(target, "w") as f:
             f.write(
-                "from spirit.game.data_utils import BoosterPackDef\n\n"
+                "from ptcgo.game.data_utils import BoosterPackDef\n\n"
                 f'product = BoosterPackDef(\n'
                 f'    guid="{guid}",\n'
                 f'    key="{code}",\n'

@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="41d7efa0-40ad-5d70-b2bd-ffccad65cd8b",
+    key="ME6",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Morpeko.Name",
+    display_name="Morpeko",
+    searchable_by=["Morpeko", "Basic", "Morpeko"],
+    subtypes=["Basic"],
+    collector_number=70,
+    set_code="ME6",
+    rarity=Rarities.Uncommon,
+    hp=80,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.GRASS,
+    family_id=877,
+    abilities=[
+        Attack(
+            title="Call for Family",
+            game_text="Search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Slap",
+            cost={PokemonTypes.DARKNESS: 1},
+            damage=30,
+        ),
+    ],
+)

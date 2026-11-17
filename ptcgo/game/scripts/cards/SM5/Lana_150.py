@@ -1,0 +1,15 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="26e358be-9513-5754-b607-ed8ce789deaf",
+    key="SM5",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Lana.Name",
+    display_name="Lana",
+    searchable_by=["Lana", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=150,
+    set_code="SM5",
+    rarity=Rarities.RareUltra,
+    effect=unimplemented
+)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  SpiritPTCGO server installer (Linux)
+#  PTCGO Revival server installer (Linux)
 #
 #  Run from a checkout of this repository on the machine that will host:
 #
@@ -63,11 +63,11 @@ as_user env VIRTUAL_ENV="$ROOT/venv" "$UV" pip install -q -r requirements.txt
 PY="$ROOT/venv/bin/python"
 
 step "TLS certificate for $HOST"
-as_user env SPIRIT_PUBLIC_HOST="$HOST" PYTHONPATH="$ROOT" "$PY" spirit/network/generate_cert.py
+as_user env PTCGO_PUBLIC_HOST="$HOST" PYTHONPATH="$ROOT" "$PY" ptcgo/network/generate_cert.py
 
 step "Database"
 if [ ! -f ptcgo_server.db ]; then
-  as_user env PYTHONPATH="$ROOT" "$PY" spirit/database/setup_db.py
+  as_user env PYTHONPATH="$ROOT" "$PY" ptcgo/database/setup_db.py
   echo "Admin login: brandon / password  -- change it in the dashboard."
 else
   echo "ptcgo_server.db already exists, keeping it."
@@ -82,11 +82,11 @@ if [ "$SERVICE" = 1 ]; then
   step "systemd service"
   if [ "$(id -u)" -ne 0 ]; then
     echo "not root: skipping the system service. Re-run with sudo, or start manually:"
-    echo "  SPIRIT_PUBLIC_HOST=$HOST PYTHONPATH=$ROOT $PY -m spirit.main"
+    echo "  PTCGO_PUBLIC_HOST=$HOST PYTHONPATH=$ROOT $PY -m ptcgo.main"
   else
     cat > /etc/systemd/system/spirit-ptcgo.service <<UNIT
 [Unit]
-Description=SpiritPTCGO server
+Description=PTCGO Revival server
 After=network-online.target
 Wants=network-online.target
 
@@ -94,9 +94,9 @@ Wants=network-online.target
 User=$RUN_USER
 WorkingDirectory=$ROOT
 Environment=PYTHONPATH=$ROOT
-Environment=SPIRIT_PUBLIC_HOST=$HOST
-Environment=SPIRIT_LOG_LEVEL=INFO
-ExecStart=$PY -m spirit.main
+Environment=PTCGO_PUBLIC_HOST=$HOST
+Environment=PTCGO_LOG_LEVEL=INFO
+ExecStart=$PY -m ptcgo.main
 Restart=on-failure
 RestartSec=5
 

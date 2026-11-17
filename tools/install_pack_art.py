@@ -5,7 +5,7 @@ Takes a folder of images named by set code (SWSH6.png, bw2.jpg, SV3PT5.webp ...)
 and does the three things that make them show up in the shop:
 
   1. normalises each to the 512x512 transparent square the client renders
-  2. writes it as spirit/assets/products/custom_packs/<code>_booster.png
+  2. writes it as ptcgo/assets/products/custom_packs/<code>_booster.png
   3. points that set's BoosterPackDef at it
 
     ./venv/bin/python tools/install_pack_art.py ~/Downloads/packs [--dry-run]
@@ -19,13 +19,13 @@ import sys
 
 from PIL import Image
 
-OUT_DIR = os.path.join("spirit", "assets", "products", "custom_packs")
-PRODUCTS = os.path.join("spirit", "game", "scripts", "products")
-CARDS = os.path.join("spirit", "game", "scripts", "cards")
+OUT_DIR = os.path.join("ptcgo", "assets", "products", "custom_packs")
+PRODUCTS = os.path.join("ptcgo", "game", "scripts", "products")
+CARDS = os.path.join("ptcgo", "game", "scripts", "cards")
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".avif"}
 
 
-META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
+META_PATH = os.path.join("ptcgo", "database", "json_data", "set_meta.json")
 
 
 def known_codes():

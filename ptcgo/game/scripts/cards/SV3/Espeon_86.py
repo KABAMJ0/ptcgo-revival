@@ -1,0 +1,39 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="22052419-0a41-5041-a32b-6081e74998aa",
+    key="SV3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Espeon.Name",
+    display_name="Espeon",
+    searchable_by=["Espeon", "Stage 1", "Espeon"],
+    subtypes=["Stage 1"],
+    collector_number=86,
+    set_code="SV3",
+    rarity=Rarities.Uncommon,
+    hp=110,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Eevee.Name",
+    family_id=133,
+    abilities=[
+        Attack(
+            title="Psychic Assault",
+            game_text="This attack does 10 more damage for each damage counter on your opponent's Active Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 1},
+            damage=30,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Psy Bolt",
+            game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
+            damage=60,
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,17 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import is_basic_pokemon
+
+card = ItemCardDef(
+    guid="65a24798-8212-55c9-81dc-3a6ebdd89e6f",
+    key="SM1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.NestBall.Name",
+    display_name="Nest Ball",
+    searchable_by=["Nest Ball", "Item"],
+    subtypes=["Item"],
+    collector_number=158,
+    set_code="SM1",
+    rarity=Rarities.RareSecret,
+    effect=search_to_bench(is_basic_pokemon, 1)
+)

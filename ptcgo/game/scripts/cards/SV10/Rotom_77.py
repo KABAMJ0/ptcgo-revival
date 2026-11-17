@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="568e4cd0-abd1-5400-9f8e-a2ee4ab2a0ef",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Rotom.Name",
+    display_name="Rotom",
+    searchable_by=["Rotom", "Basic", "Rotom"],
+    subtypes=["Basic"],
+    collector_number=77,
+    set_code="SV10",
+    rarity=Rarities.Common,
+    hp=60,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=479,
+    abilities=[
+        Attack(
+            title="Astonish",
+            game_text="Choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into their deck.",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Gadget Show",
+            game_text="This attack does 30 damage for each Pok\u00e9mon Tool attached to all of your Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=30,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

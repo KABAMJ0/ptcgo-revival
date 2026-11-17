@@ -1,0 +1,32 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="c3ff6d4c-779c-5706-9662-ba1a8cf9ffa0",
+    key="SV1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Stonjourner.Name",
+    display_name="Stonjourner",
+    searchable_by=["Stonjourner", "Basic", "Stonjourner"],
+    subtypes=["Basic"],
+    collector_number=121,
+    set_code="SV1",
+    rarity=Rarities.Uncommon,
+    hp=130,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.GRASS,
+    family_id=874,
+    abilities=[
+        Ability(
+            title="Exoskeleton",
+            game_text="This Pok\u00e9mon takes 20 less damage from attacks (after applying Weakness and Resistance).",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Mega Kick",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
+            damage=100,
+        ),
+    ],
+)

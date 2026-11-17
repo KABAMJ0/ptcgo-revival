@@ -1,0 +1,15 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="c0b3a52a-81b9-55bf-bee9-03d6d5214416",
+    key="XY3",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.BattleReporter.Name",
+    display_name="Battle Reporter",
+    searchable_by=["Battle Reporter", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=109,
+    set_code="XY3",
+    rarity=Rarities.RareUltra,
+    effect=unimplemented
+)

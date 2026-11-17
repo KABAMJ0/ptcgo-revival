@@ -1,0 +1,38 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="627d19c1-9950-5fc1-9a6f-fdc9f7c9879e",
+    key="Promo_XY",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.YveltalEX.Name",
+    display_name="Yveltal-EX",
+    searchable_by=["Yveltal-EX", "Basic", "EX", "YveltalEX"],
+    subtypes=["Basic", "EX"],
+    collector_number=150,
+    set_code="Promo_XY",
+    rarity=Rarities.RarePromo,
+    hp=170,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.LIGHTNING,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=717,
+    abilities=[
+        Attack(
+            title="Evil Ball",
+            game_text="This attack does 20 more damage times the amount of Energy attached to both Active Pok\u00e9mon.",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Y Cyclone",
+            game_text="Move an Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
+            damage=90,
+            effect=unimplemented,
+        ),
+    ],
+)

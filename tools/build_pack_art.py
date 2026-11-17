@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Give every set a booster pack sleeve.
 
-Spirit ships artwork for about twenty sets; everything else falls back to
+The upstream project ships artwork for about twenty sets; everything else falls back to
 `booster_generic.png`, so the shop shows a wall of identical packs. This pulls
 each set's official logo from pokemontcg.io and composes a 512x512 pack sleeve
 in the client's expected layout (square, transparent, art centred): an era
@@ -21,9 +21,9 @@ import urllib.request
 from PIL import Image, ImageDraw, ImageFont
 
 SETS_API = "https://api.pokemontcg.io/v2/sets?pageSize=250"
-OUT_DIR = os.path.join("spirit", "assets", "products", "custom_packs")
-CARDS_DIR = os.path.join("spirit", "game", "scripts", "cards")
-META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
+OUT_DIR = os.path.join("ptcgo", "assets", "products", "custom_packs")
+CARDS_DIR = os.path.join("ptcgo", "game", "scripts", "cards")
+META_PATH = os.path.join("ptcgo", "database", "json_data", "set_meta.json")
 
 # How each era's sleeve is tinted.
 ERA_PALETTE = {

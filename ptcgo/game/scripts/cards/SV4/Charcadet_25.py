@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="c90e24bf-a7c4-5ac6-9dc9-c5213a78ce6d",
+    key="SV4",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Charcadet.Name",
+    display_name="Charcadet",
+    searchable_by=["Charcadet", "Basic", "Charcadet"],
+    subtypes=["Basic"],
+    collector_number=25,
+    set_code="SV4",
+    rarity=Rarities.Common,
+    hp=60,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.WATER,
+    family_id=935,
+    abilities=[
+        Attack(
+            title="Protect",
+            game_text="Flip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Magma Punch",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+        ),
+    ],
+)

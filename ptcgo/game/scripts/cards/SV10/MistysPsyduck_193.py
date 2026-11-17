@@ -1,0 +1,32 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a9bbe264-f50a-5e6e-a486-eff31a941dfb",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.MistysPsyduck.Name",
+    display_name="Misty's Psyduck",
+    searchable_by=["Misty's Psyduck", "Basic", "MistysPsyduck"],
+    subtypes=["Basic"],
+    collector_number=193,
+    set_code="SV10",
+    rarity=Rarities.Rare,
+    hp=70,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.LIGHTNING,
+    family_id=54,
+    abilities=[
+        Ability(
+            title="Flustered Leap",
+            game_text="Once during your turn, if this Pok\u00e9mon is on your Bench, you may discard the bottom card of your deck. If you do, discard all cards from this Pok\u00e9mon and put this Pok\u00e9mon on top of your deck.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sprinkle Water",
+            cost={PokemonTypes.WATER: 1},
+            damage=30,
+        ),
+    ],
+)

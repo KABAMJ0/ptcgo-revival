@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="0e53d49c-dee5-520e-8de4-c4cb5fa5dc2e",
+    key="SV1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Koraidon.Name",
+    display_name="Koraidon",
+    searchable_by=["Koraidon", "Basic", "Koraidon"],
+    subtypes=["Basic"],
+    collector_number=124,
+    set_code="SV1",
+    rarity=Rarities.Rare,
+    hp=130,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.PSYCHIC,
+    family_id=1007,
+    abilities=[
+        Attack(
+            title="Claw Slash",
+            cost={PokemonTypes.COLORLESS: 3},
+            damage=70,
+        ),
+        Attack(
+            title="Rampaging Fang",
+            game_text="Discard 3 Energy from this Pok\u00e9mon.",
+            cost={PokemonTypes.FIGHTING: 3, PokemonTypes.COLORLESS: 1},
+            damage=190,
+            effect=unimplemented,
+        ),
+    ],
+)
