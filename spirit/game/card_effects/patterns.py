@@ -17,6 +17,7 @@ collapsed whitespace), so a text that merely contains a familiar phrase can
 never be bound to the wrong shape.
 """
 
+import json
 import re
 import unicodedata
 from typing import Callable, List, Optional, Tuple
@@ -26,7 +27,11 @@ from spirit.game.card_effects.attacks_common import (
     bonus_if,
     condition_attack,
     count_bench,
+    count_discard,
     count_energy,
+    count_hand,
+    count_in_play,
+    count_prizes_remaining,
     count_prizes_taken,
     damage_all_opponents,
     defender_is_evolved,
@@ -47,6 +52,7 @@ from spirit.game.card_effects.attacks_common import (
     flip_defender_lock_attack,
     flip_gate,
     flip_or_nothing,
+    hand_sizes_equal,
     heal_dealt_attack,
     ignore_modifier_attack,
     lock_self_attack,
@@ -1001,6 +1007,295 @@ def _bonus_healed_this_turn(m, ability):
     return bonus_if(cond, int(m.group(1)))
 
 
+
+# ----------------------------------------------------------------------
+# Phrase tables: the long tail of "for each <phrase>" and "if <phrase>"
+# wordings, resolved by exact phrase so an unknown phrase is never guessed.
+# ----------------------------------------------------------------------
+
+def _energy_attached(scope: str, type_word: Optional[str] = None):
+    energy_type = TYPE_WORDS[type_word] if type_word else None
+    return count_energy(scope, energy_type)
+
+
+COUNT_PHRASES = {}
+
+
+def _register_counts():
+    from spirit.game.card_effects.attacks_common import (
+        bench_has_damage_counters, has_tool,
+    )
+
+    def tools_in_play(ctx) -> int:
+        return len(ctx.tools_in_play())
+
+    def conditions_on_defender(ctx) -> int:
+        defender = ctx.defender
+        return len(defender.get_attribute(AttrID.SPECIAL_CONDITIONS) or []) \
+            if defender is not None else 0
+
+    def bench_types(ctx) -> int:
+        types = {pokemon.get_attribute(AttrID.POKEMON_TYPES)
+                 for pokemon in ctx.my_bench()}
+        return len(types)
+
+    def discard_matching(pred):
+        return count_discard("mine", pred)
+
+    def in_play_with_ability(side: str):
+        def count(ctx) -> int:
+            pool = ctx.opponent_pokemon_in_play() if side == "opponent" \
+                else ctx.my_pokemon_in_play()
+            total = 0
+            for pokemon in pool:
+                definition = def_for(pokemon.archetype_id)
+                if any(getattr(ability, "ability_type", None) != 2
+                       and not hasattr(ability, "damage")
+                       for ability in getattr(definition, "abilities", []) or []):
+                    total += 1
+            return total
+        return count
+
+    COUNT_PHRASES.update({
+        "energy attached to both active pokemon":
+            lambda ctx: count_energy("my_active")(ctx)
+            + count_energy("defender")(ctx),
+        "energy attached to this pokemon and the defending pokemon":
+            lambda ctx: count_energy("self")(ctx)
+            + count_energy("defender")(ctx),
+        "energy attached to all of your pokemon": _energy_attached("mine"),
+        "energy attached to all of your opponent's pokemon":
+            _energy_attached("opponent"),
+        "energy attached to your opponent's active pokemon":
+            _energy_attached("defender"),
+        "energy attached to the defending pokemon": _energy_attached("defender"),
+        "energy attached to this pokemon": _energy_attached("self"),
+        "damage counter on your opponent's active pokemon":
+            damage_counters_on("defender"),
+        "damage counter on this pokemon": damage_counters_on("self"),
+        "damage counter on the defending pokemon": damage_counters_on("defender"),
+        "of your benched pokemon": count_bench("mine"),
+        "of your pokemon in play": count_in_play("mine"),
+        "of your remaining prize cards": count_prizes_remaining("mine"),
+        "prize card your opponent has taken": count_prizes_taken("opponent"),
+        "prize card you have taken": count_prizes_taken("mine"),
+        "card in your opponent's hand": count_hand("opponent"),
+        "card in your hand": count_hand("mine"),
+        "special condition affecting your opponent's active pokemon":
+            conditions_on_defender,
+        "pokemon tool attached to all of your pokemon": tools_in_play,
+        "pokemon tool attached to your pokemon": tools_in_play,
+        "pokemon on your bench": count_bench("mine"),
+        "different type of pokemon on your bench": bench_types,
+        "pokemon in your discard pile": discard_matching(_is_pokemon_card),
+        "energy card in your discard pile": discard_matching(_is_basic_energy),
+        "card in your discard pile": count_discard("mine"),
+        "card in the lost zone": lambda ctx: ctx.lost_zone_count(ctx.player_id),
+        "card in your opponent's lost zone":
+            lambda ctx: ctx.lost_zone_count(ctx.opponent_id),
+    })
+    for word in TYPE_WORDS:
+        COUNT_PHRASES[f"{word} energy attached to all of your pokemon"] = \
+            _energy_attached("mine", word)
+        COUNT_PHRASES[f"{word} energy attached to this pokemon"] = \
+            _energy_attached("self", word)
+        COUNT_PHRASES[f"{word} pokemon in your discard pile"] = \
+            discard_matching(lambda card, w=word: is_pokemon_of_type(card, w))
+        COUNT_PHRASES[f"{word} pokemon on your bench"] = \
+            count_bench("mine", lambda p, w=word: is_pokemon_of_type(p, w))
+    COUNT_PHRASES["pokemon in play that has the round attack"] = \
+        lambda ctx: 0  # needs per-card attack inspection; left unbound
+
+
+CONDITION_PHRASES = {}
+
+
+def _register_conditions():
+    from spirit.game.card_effects.attacks_common import (
+        defender_has_any_condition, defender_has_condition, defender_is_ex,
+        defender_is_v, has_damage, has_tool, stadium_in_play_cond,
+    )
+
+    def played_supporter(ctx) -> bool:
+        return ctx.supporters_played_this_turn() > 0
+
+    def opponent_one_prize(ctx) -> bool:
+        return count_prizes_remaining("opponent")(ctx) == 1
+
+    def self_condition(ctx) -> bool:
+        attacker = ctx.attacker
+        return attacker is not None and \
+            bool(attacker.get_attribute(AttrID.SPECIAL_CONDITIONS))
+
+    def self_has_special_energy(ctx) -> bool:
+        attacker = ctx.attacker
+        if attacker is None:
+            return False
+        return any(is_special_energy(energy)
+                   for energy in ctx.attached_energies(attacker))
+
+    def self_has_tool(ctx) -> bool:
+        return ctx.attacker is not None and has_tool(ctx.attacker)
+
+    def self_has_special_energy_too(ctx) -> bool:
+        return self_has_special_energy(ctx)
+
+    def entered_active(ctx) -> bool:
+        return ctx.attacker is not None and \
+            ctx.entered_active_this_turn(ctx.attacker)
+
+    CONDITION_PHRASES.update({
+        "this pokemon has any special energy attached to it":
+            self_has_special_energy_too,
+        "this pokemon was on the bench and became your active pokemon this turn":
+            entered_active,
+        "any of your pokemon were knocked out by damage from an opponent's "
+        "attack during their last turn":
+            lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0,
+        "any of your pokemon were knocked out by damage from an opponent's "
+        "attack during his or her last turn":
+            lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0,
+        "you have the same number of cards in your hand as your opponent":
+            hand_sizes_equal,
+        "you have more prize cards remaining than your opponent":
+            _prize_comparison("more"),
+        "you have fewer prize cards remaining than your opponent":
+            _prize_comparison("fewer"),
+        "your opponent has exactly 1 prize card remaining":
+            lambda ctx: count_prizes_remaining("opponent")(ctx) == 1,
+        "there is any stadium card in play": stadium_in_play_cond,
+        "you played a supporter card from your hand during this turn":
+            played_supporter,
+        "the defending pokemon is affected by a special condition":
+            defender_has_any_condition,
+        "the defending pokemon already has any damage counters on it":
+            has_damage("defender"),
+        "this pokemon has any damage counters on it": has_damage("self"),
+        "this pokemon is affected by a special condition": self_condition,
+        "your opponent's active pokemon is affected by a special condition":
+            defender_has_any_condition,
+        "your opponent has only 1 prize card left": opponent_one_prize,
+        "this pokemon has a pokemon tool attached": self_has_tool,
+        "this pokemon has any special energy attached": self_has_special_energy,
+        "your opponent's active pokemon is a pokemon v": defender_is_v,
+        "your opponent's active pokemon is a pokemon-ex": defender_is_ex,
+        "the defending pokemon is a pokemon-ex": defender_is_ex,
+    })
+    for word in TYPE_WORDS:
+        CONDITION_PHRASES[f"your opponent's active pokemon is a {word} pokemon"] = \
+            _defender_of_type(word)
+        CONDITION_PHRASES[f"the defending pokemon is a {word} pokemon"] = \
+            _defender_of_type(word)
+    for word, condition in CONDITIONS.items():
+        CONDITION_PHRASES[f"the defending pokemon is {word}"] = \
+            defender_has_condition(condition)
+        CONDITION_PHRASES[f"your opponent's active pokemon is {word}"] = \
+            defender_has_condition(condition)
+
+
+def is_pokemon_of_type(card_or_pokemon, type_word: str) -> bool:
+    type_value = TYPE_WORDS[type_word].value
+    raw = card_or_pokemon.get_attribute(AttrID.POKEMON_TYPES)
+    if isinstance(raw, str):
+        try:
+            values = json.loads(raw)
+        except (TypeError, ValueError):
+            return False
+    else:
+        values = raw or []
+    return type_value in values
+
+
+
+def _defender_of_type(type_word: str):
+    def cond(ctx) -> bool:
+        defender = ctx.defender
+        return defender is not None and is_pokemon_of_type(defender, type_word)
+    return cond
+
+
+def _defender_counters_at_least(count: int):
+    def cond(ctx) -> bool:
+        return damage_counters_on("defender")(ctx) >= count
+    return cond
+
+
+def _extra_energy_attached(required: int, type_word: Optional[str]):
+    """"At least N extra [type] Energy attached (in addition to this attack's
+    cost)": attached minus what the attack itself costs."""
+    type_value = TYPE_WORDS[type_word].value if type_word else None
+
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        if attacker is None:
+            return False
+        attached = 0
+        for energy in ctx.attached_energies(attacker):
+            if type_value is None or energy_provides_type(energy, type_value):
+                attached += 1
+        cost = 0
+        for cost_type, count in (getattr(ctx.ability, "cost", None) or {}).items():
+            value = getattr(cost_type, "value", cost_type)
+            if value in (PokemonTypes.COLORLESS.value,
+                         PokemonTypes.UNSET.value) or value == type_value:
+                cost += count
+        return attached - cost >= required
+    return cond
+
+
+def _prize_comparison(kind: str):
+    def cond(ctx) -> bool:
+        mine = count_prizes_remaining("mine")(ctx)
+        theirs = count_prizes_remaining("opponent")(ctx)
+        if kind == "more":
+            return mine > theirs
+        if kind == "fewer":
+            return mine < theirs
+        return mine == theirs
+    return cond
+
+
+def _entered_active_condition(ctx) -> bool:
+    from spirit.game.card_effects.attacks_common import entered_active_cond
+    return entered_active_cond(ctx)
+
+
+def _kos_last_turn_condition(ctx) -> bool:
+    return ctx.kos_suffered_last_turn(ctx.player_id) > 0
+
+
+def _bonus_threshold_counters(m, ability):
+    return bonus_if(_defender_counters_at_least(int(m.group(1))),
+                    int(m.group(2)))
+
+
+def _bonus_extra_energy(m, ability):
+    return bonus_if(_extra_energy_attached(int(m.group(1)), m.group(2)),
+                    int(m.group(3)))
+
+
+def _bonus_prize_comparison(m, ability):
+    kind = "more" if "more" in m.group(1) else (
+        "fewer" if "fewer" in m.group(1) else "equal")
+    return bonus_if(_prize_comparison(kind), int(m.group(2)))
+
+
+def _scale_from_phrase(m, ability):
+    phrase = m.group(2).strip()
+    counter = COUNT_PHRASES.get(phrase)
+    if counter is None:
+        return None
+    return _more(counter, ability, int(m.group(1)))
+
+
+def _bonus_from_phrase(m, ability):
+    phrase = m.group(1).strip()
+    condition = CONDITION_PHRASES.get(phrase)
+    if condition is None:
+        return None
+    return bonus_if(condition, _count(m.group(2)))
+
+
 # ----------------------------------------------------------------------
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
@@ -1592,7 +1887,32 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("bonus.healed-this-turn",
      re.compile(r"if this pokemon was healed during this turn, this attack does "
                 r"(\d+) more damage\."), _bonus_healed_this_turn),
+
+    # -- batch 6: generic phrase lookups (count + condition tails) --------
+    ("scale.phrase", re.compile(r"(?:this attack does|does) (\d+) (?:more )?"
+                                r"damage (?:times the amount of|for each) (.+)\."),
+     _scale_from_phrase),
+    ("bonus.phrase", re.compile(r"if (.+?), (?:this attack does|does) (\d+) "
+                                r"(?:more |extra )?damage\."),
+     _bonus_from_phrase),
+
+    ("bonus.counter-threshold",
+     re.compile(r"if the defending pokemon already has (\d+) or more damage "
+                r"counters on it, this attack does (\d+) more damage\."),
+     _bonus_threshold_counters),
+    ("bonus.extra-energy-attached",
+     re.compile(r"if this pokemon has at least (\d+) extra (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy attached(?: to it)?"
+                r"(?: \(in addition to this attack's cost\))?, this attack "
+                r"does (\d+) more damage\."),
+     _bonus_extra_energy),
+    ("bonus.prize-comparison",
+     re.compile(r"if you have (more|fewer|the same number of) prize cards? "
+                r"remaining than your opponent, this attack does (\d+) more "
+                r"damage\."), _bonus_prize_comparison),
 ]
+
+
 
 
 
@@ -1631,7 +1951,9 @@ def bind(ability) -> Optional[str]:
             BIND_ERRORS[name] = BIND_ERRORS.get(name, 0) + 1
             return None
         if effect is None:
-            return None
+            # The builder declined (an unknown phrase in a generic pattern):
+            # keep looking, a later, more specific pattern may still apply.
+            continue
         if isinstance(effect, Passive):
             # Continuous abilities ("this Pokemon takes 20 less damage"):
             # the passive rides the Ability, there is no coroutine to run.
@@ -1642,6 +1964,10 @@ def bind(ability) -> Optional[str]:
         BIND_COUNTS[name] = BIND_COUNTS.get(name, 0) + 1
         return name
     return None
+
+
+_register_counts()
+_register_conditions()
 
 
 def bind_definition(definition) -> int:

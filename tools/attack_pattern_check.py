@@ -285,6 +285,9 @@ CASES = [
     ("switch.in-opponent-bench", check_defender_switched, (1, 1, 1, 1), 0),
     ("counters.place-active", check_bonus_condition, (1, 1, 1, 1), 0),
     ("heal.bench-choice", check_check_noop, (1, 1, 1, 1), 0),
+    ("scale.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("bonus.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("bonus.extra-energy-attached", check_bonus_condition, (1, 1, 1, 1), 0),
 ]
 
 
