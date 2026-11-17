@@ -17,6 +17,7 @@ collapsed whitespace), so a text that merely contains a familiar phrase can
 never be bound to the wrong shape.
 """
 
+import random
 import re
 import unicodedata
 from typing import Callable, List, Optional, Tuple
@@ -662,7 +663,7 @@ def _random_hand_card_into_deck(m, ability):
         if not hand:
             return
         card = random.choice(hand)
-        await ctx.reveal_cards([card], of_player=ctx.opponent_id)
+        await ctx.reveal_cards([card], to_player=ctx.player_id)
         await ctx.shuffle_into_deck([card], ctx.opponent_id)
     return effect
 
