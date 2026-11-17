@@ -3028,6 +3028,57 @@ def _counters_on_chosen_opponents(m, ability):
                                       as_counters=True)
     return effect
 
+
+def _reorder_own_top(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        await ctx.reorder_deck_top(count, ctx.player_id,
+                                   "Put the top cards back in any order")
+    return effect
+
+
+def _raise_defender_retreat(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from spirit.game.card_effects.passives_common import (
+            apply_defender_retreat_cost_raise,
+        )
+        await apply_defender_retreat_cost_raise(ctx, extra=1)
+    return effect
+
+
+def _bonus_if_opponent_prizes_at_most(m, ability):
+    limit, bonus = int(m.group(1)), int(m.group(2))
+    return bonus_if(
+        lambda ctx: count_prizes_remaining("opponent")(ctx) <= limit, bonus)
+
+
+def _less_per_defender_retreat_colorless(m, ability):
+    per = int(m.group(1))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        amount = max(0, printed - per * defender_retreat_cost(ctx))
+        await ctx.deal_damage(amount)
+    return effect
+
+
+def _switch_active_with_bench(m, ability):
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        if not bench:
+            return
+        if len(bench) == 1:
+            target = bench[0]
+        else:
+            target = await ctx.choose_pokemon(
+                bench, "Choose a Benched Pokémon to switch in")
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4376,6 +4427,25 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"choose (?:an?|(\d+)) of your opponent's pokemon and put "
                 r"(\d+) damage counters on each of them\."),
      _counters_on_chosen_opponents),
+
+    # -- batch 25: deck-top order, retreat-cost taxes, prize gates ---------
+    ("reorder.top-own",
+     re.compile(r"look at the top (\d+) cards of your deck and put them back "
+                r"on top of your deck in any order\."), _reorder_own_top),
+    ("debuff.defender-retreat-cost-up",
+     re.compile(r"your opponent's active pokemon's retreat cost is colorless "
+                r"more\."), _raise_defender_retreat),
+    ("bonus.opponent-prizes-at-most",
+     re.compile(r"if your opponent has (\d+) or fewer prize cards remaining, "
+                r"this attack does (\d+) more damage\."),
+     _bonus_if_opponent_prizes_at_most),
+    ("scale.less-per-defender-retreat",
+     re.compile(r"this attack does (\d+) less damage for each colorless in "
+                r"your opponent's active pokemon's retreat cost\."),
+     _less_per_defender_retreat_colorless),
+    ("ability.switch-active-with-bench",
+     re.compile(r"switch your active pokemon with (?:an?|\d+) of your benched "
+                r"pokemon\."), _switch_active_with_bench),
 ]
 
 
