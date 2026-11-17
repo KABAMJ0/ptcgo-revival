@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="$height" viewBox="0 0 840 $height" role="img" aria-label="Spirit-PTCGO card support: $done of $total cards implemented">
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="$height" viewBox="0 0 840 $height" role="img" aria-label="PTCGO Revival card support: $done of $total cards implemented">
 <style>
 .t{fill:#1f2328}.m{fill:#59636e}.trk{fill:#eaeef2}.bd{stroke:#d1d9e0}.bg{fill:#ffffff}
 @media (prefers-color-scheme:dark){.t{fill:#f0f6fc}.m{fill:#9198a1}.trk{fill:#262c36}.bd{stroke:#3d444d}.bg{fill:#0d1117}}
