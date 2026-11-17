@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import attacker_has_ability, takes_less_from
 
 card = PokemonToolCardDef(
     guid="ff2e0a0e-57fa-557c-87f8-021a590af7b1",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=122,
     set_code="ME2",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=takes_less_from(30, None, attacker_has_ability())
 )

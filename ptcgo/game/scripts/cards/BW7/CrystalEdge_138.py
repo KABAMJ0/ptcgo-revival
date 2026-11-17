@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_damage_boost, named_rule_box
 
 card = PokemonToolCardDef(
     guid="72d126ec-bc95-5c63-a4ee-2094d119d97a",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=138,
     set_code="BW7",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=gated_damage_boost(50, named_rule_box("white kyurem", "ex"))
 )

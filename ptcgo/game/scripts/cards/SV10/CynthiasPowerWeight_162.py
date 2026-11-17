@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, gated_hp_bonus, is_pokemon_card, owned_by
 
 card = PokemonToolCardDef(
     guid="56e19ace-78e5-5789-a0a5-e04be86659b6",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=162,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_hp_bonus(70, all_of(is_pokemon_card, owned_by("cynthia")))
 )

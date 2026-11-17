@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import attacker_of_types, takes_less_from
 
 card = PokemonToolCardDef(
     guid="1c19d36e-c7e3-51ac-8a80-4fe600bbc298",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=140,
     set_code="SV7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=takes_less_from(60, None, attacker_of_types("fire"))
 )

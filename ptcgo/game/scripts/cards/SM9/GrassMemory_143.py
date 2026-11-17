@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_type, named_rule_box
 
 card = PokemonToolCardDef(
     guid="de58d6a0-2a29-5daf-8613-9034f83579e3",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=143,
     set_code="SM9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_type("grass", named_rule_box("silvally", "gx"))
 )

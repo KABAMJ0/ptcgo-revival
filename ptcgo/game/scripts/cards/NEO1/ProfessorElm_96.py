@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import shuffle_hand_draw_lock_trainers
 
 card = ItemCardDef(
     guid="270bdfe3-71b0-5f30-b9eb-90f6792edff9",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=96,
     set_code="NEO1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=shuffle_hand_draw_lock_trainers(7)
 )

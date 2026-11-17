@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_stage_one, stadium_damage_boost
 
 card = StadiumCardDef(
     guid="9a22b83b-1602-5a98-9ecd-6d55c80164dd",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=186,
     set_code="SV2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_damage_boost(10, is_stage_one, target=None)
 )

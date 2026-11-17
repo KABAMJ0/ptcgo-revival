@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, stadium_ability, with_discard_cost
 
 card = StadiumCardDef(
     guid="097a3578-7537-511d-b4ac-5993524d7b23",
@@ -11,5 +13,5 @@ card = StadiumCardDef(
     collector_number=256,
     set_code="SM11",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    ability=stadium_ability('Viridian Forest', with_discard_cost(1, search_to_hand(is_basic_energy_card, count=1)))
 )

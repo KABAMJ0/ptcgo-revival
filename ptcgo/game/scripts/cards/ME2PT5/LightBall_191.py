@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_damage_boost, is_pokemon_ex, named_rule_box
 
 card = PokemonToolCardDef(
     guid="44d6411a-7ebc-54b5-b590-8ce237cc822b",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=191,
     set_code="ME2PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_damage_boost(50, named_rule_box("pikachu", "ex"), target=is_pokemon_ex)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_until_per_typed_pokemon, stadium_ability, with_discard_cost
 
 card = StadiumCardDef(
     guid="242afd0a-05d4-5ab4-be56-29ca112022f3",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=122,
     set_code="ME1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Mystery Garden', with_discard_cost(1, draw_until_per_typed_pokemon("psychic")))
 )

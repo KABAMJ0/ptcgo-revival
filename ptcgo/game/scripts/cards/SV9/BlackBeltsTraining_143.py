@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import turn_damage_boost
+from ptcgo.game.card_effects.trainers import is_pokemon_ex, turn_damage_boost_vs
 
 card = SupporterCardDef(
     guid="815e0848-49ef-511b-b614-fceb0ae0a41b",
@@ -12,5 +12,5 @@ card = SupporterCardDef(
     collector_number=143,
     set_code="SV9",
     rarity=Rarities.Common,
-    effect=turn_damage_boost(40)
+    effect=turn_damage_boost_vs(40, is_pokemon_ex)
 )

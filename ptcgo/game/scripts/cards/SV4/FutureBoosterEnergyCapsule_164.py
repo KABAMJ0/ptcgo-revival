@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import combined, gated_damage_boost, gated_retreat_free, pokemon_of_subtype
 
 card = PokemonToolCardDef(
     guid="c3997836-3522-5fc5-9669-dfcbf0d4b1c7",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=164,
     set_code="SV4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=combined(gated_retreat_free(pokemon_of_subtype("Future")), gated_damage_boost(20, pokemon_of_subtype("Future")))
 )

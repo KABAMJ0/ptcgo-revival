@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_named, stadium_retreat_shift
 
 card = StadiumCardDef(
     guid="482c957e-2f65-50de-9818-40fdfe298843",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=150,
     set_code="SVP",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    passive=stadium_retreat_shift(-1, pokemon_named("psyduck"))
 )

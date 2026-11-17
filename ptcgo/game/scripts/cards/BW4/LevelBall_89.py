@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import all_of, is_pokemon_card, pokemon_with_hp_at_most
 
 card = ItemCardDef(
     guid="57ab581f-a00e-56c7-a5b4-a6372eab281e",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=89,
     set_code="BW4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(all_of(is_pokemon_card, pokemon_with_hp_at_most(90)), count=1)
 )

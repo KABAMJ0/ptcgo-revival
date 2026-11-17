@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_no_weakness, is_basic_pokemon
 
 card = PokemonToolCardDef(
     guid="c5db833a-f6e7-5921-bb4f-e42d5ad70b6c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=164,
     set_code="SV3PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_no_weakness(is_basic_pokemon)
 )

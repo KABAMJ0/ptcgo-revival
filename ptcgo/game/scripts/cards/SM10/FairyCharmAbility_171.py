@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import attacker_has_ability, pokemon_of, prevents_all_from
 
 card = PokemonToolCardDef(
     guid="e55c142b-4b16-53ba-9e76-27371d728790",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=171,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=prevents_all_from(pokemon_of("fairy"), attacker_has_ability())
 )

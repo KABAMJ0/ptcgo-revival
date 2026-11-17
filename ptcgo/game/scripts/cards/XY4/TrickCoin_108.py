@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holder_coin_reroll
 
 card = PokemonToolCardDef(
     guid="7e429de7-9066-542d-b839-6c7e4177b718",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=108,
     set_code="XY4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_coin_reroll(None)
 )

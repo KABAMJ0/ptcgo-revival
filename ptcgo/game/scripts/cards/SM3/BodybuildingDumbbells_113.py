@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_hp_bonus, is_stage_one
 
 card = PokemonToolCardDef(
     guid="cf91b818-3007-5cb6-ae83-b961cf0135b2",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=113,
     set_code="SM3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_hp_bonus(40, is_stage_one)
 )

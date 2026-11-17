@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holder_retreat_discount
 
 card = PokemonToolCardDef(
     guid="8fdf4d41-7ae5-509e-80f3-d5ff1c04528c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=255,
     set_code="SM11",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    passive=holder_retreat_discount(1)
 )

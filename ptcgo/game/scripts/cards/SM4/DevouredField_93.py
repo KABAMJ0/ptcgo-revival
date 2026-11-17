@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, pokemon_of, stadium_damage_boost
 
 card = StadiumCardDef(
     guid="e0b9123a-cf4c-5030-a17e-c52760d66796",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=93,
     set_code="SM4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_damage_boost(10, any_of(pokemon_of("darkness"), pokemon_of("dragon")), target=None)
 )

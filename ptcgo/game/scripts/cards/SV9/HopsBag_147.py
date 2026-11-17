@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import ItemCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
-from ptcgo.game.card_effects.trainers import all_of, hop, is_basic_pokemon, named
+from ptcgo.game.card_effects.trainers import all_of, hop, is_basic_pokemon, owned_by
 
 card = ItemCardDef(
     guid="2fbdb90b-a0ef-5d6c-822e-3aeee11b7e8e",
@@ -13,5 +13,5 @@ card = ItemCardDef(
     collector_number=147,
     set_code="SV9",
     rarity=Rarities.Uncommon,
-    effect=search_to_bench(all_of(is_basic_pokemon, named("hop")), 2)
+    effect=search_to_bench(all_of(is_basic_pokemon, owned_by("hop")), 2)
 )

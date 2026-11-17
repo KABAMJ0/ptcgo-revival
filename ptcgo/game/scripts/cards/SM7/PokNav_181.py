@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.card_effects.trainers import any_of, is_energy_card, is_pokemon_card
 
 card = ItemCardDef(
     guid="457c7e1e-431b-5ea9-a9a2-aafba43a9d11",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=181,
     set_code="SM7",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=look_at_top(3, take=1, predicate=any_of(is_pokemon_card, is_energy_card), rest="back", minimum=0)
 )

@@ -1,5 +1,7 @@
 """Behaviors for the Trainer cards of the Lugia VSTAR and Mew VMAX decks."""
 
+import re
+
 from ptcgo.game.attributes import (
     AttrID, CardType, CLIENT_POKEMON_TYPE_NAMES, PokemonStage, PokemonTypes,
     SpecialConditions, TrainerType,
@@ -31,7 +33,11 @@ from ptcgo.game.session.passives import (
 )
 from ptcgo.game.card_effects.passives_common import (
     attack_discount_passive,
+    condition_immunity_passive,
+    is_in_active_spot,
+    TempShieldPassive,
     hp_bonus_tool,
+    no_resistance_passive,
     retreat_free_when,
     no_weakness_passive,
     retreat_discount,
@@ -1484,7 +1490,8 @@ def basic_energy_of(type_name: str):
 
 
 def is_rule_box_free_pokemon(card) -> bool:
-    return is_pokemon_card(card) and not has_rule_box(card.archetype_id)
+    return (is_pokemon_card(card) and not has_rule_box(card.archetype_id)
+            and "ex" not in subtypes_for(card.archetype_id))
 
 
 def is_basic_pokemon_with_hp_at_most(limit: int):
@@ -2040,6 +2047,11 @@ class CombinedPassive(Passive):
 
     def suppresses_tool(self, tool, carrier):
         return any(part.suppresses_tool(tool, carrier) for part in self.parts)
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        for part in self.parts:
+            count = part.modify_prizes_for_knockout(pokemon, ctx, count, carrier)
+        return count
 
 
 def combined(*parts):
@@ -2701,12 +2713,13 @@ def flip_search_basic():
     return effect
 
 
-def heal_all_then_energy_to_hand():
-    """Heal all damage from 1 of your Pokemon, then put all Energy attached to
-    it into your hand."""
+def heal_all_then_energy_to_hand(predicate=None):
+    """Heal all damage from 1 of your (matching) Pokemon, then put all Energy
+    attached to it into your hand."""
     async def effect(ctx):
         damaged = [p for p in ctx.my_pokemon_in_play()
-                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)
+                   and (predicate is None or predicate(p))]
         if not damaged:
             return
         target = await ctx.choose_pokemon(
@@ -2918,7 +2931,7 @@ def switch_then_heal_ex(amount: int = 80):
         if target is None or not await ctx.switch_active(ctx.player_id, target):
             return
         if is_pokemon_ex(old_active):
-            await ctx.heal(amount, target)
+            await ctx.heal(amount, old_active)
     return effect
 
 
@@ -3241,3 +3254,840 @@ def holder_damage_boost_vs(amount: int, kind: str = "ex"):
         "gx": is_pokemon_gx,
     }.get(kind, lambda card: True)
     return typed_damage_boost_tool(target_pred, amount)
+
+
+
+# --- Holder-gated tools, both-sides stadiums, stadium abilities -------------
+
+def owned_by(owner: str):
+    """Predicate: a card printed as "<Owner>'s ..." (Hop's Wooloo). A short
+    owner like N or Hop never matches an unrelated name (Hoppip, Snorlax)."""
+    prefix = owner.lower() + "'s "
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name = (getattr(definition, "display_name", "") or "").lower()
+        return name.replace("\u2019", "'").startswith(prefix)
+    return predicate
+
+
+def _holds(holder):
+    """(target, carrier) pred: target is the tool's holder and matches holder."""
+    def protects(target, carrier):
+        return carrier_pokemon(carrier) is target and (holder is None or holder(target))
+    return protects
+
+
+def gated_hp_bonus(amount: int, holder=None):
+    """The <holder> this card is attached to gets +amount HP."""
+    return hp_bonus_tool(amount, holder)
+
+
+def gated_no_weakness(holder=None):
+    """The <holder> this card is attached to has no Weakness."""
+    return no_weakness_passive(_holds(holder))
+
+
+def gated_retreat_free(holder=None):
+    """The <holder> this card is attached to has no Retreat Cost."""
+    return retreat_free_when(_holds(holder))
+
+
+def gated_takes_less(amount: int, holder=None, attacker=None):
+    """The <holder> this card is attached to takes amount less damage from
+    attacks of the opponent's <attacker> Pokemon."""
+    return takes_less_passive(amount, protects=_holds(holder), attacker_pred=attacker)
+
+
+class GatedDamageBoostPassive(Passive):
+    """The holder's attacks do +amount to the opponent's Active Pokemon, when
+    the holder matches `holder` and the Active matches `target`."""
+
+    def __init__(self, amount, holder=None, target=None):
+        self.amount = amount
+        self.holder = holder
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        if carrier_pokemon(carrier) is not attacker:
+            return
+        if self.holder is not None and not self.holder(attacker):
+            return
+        if self.target is not None and not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def gated_damage_boost(amount: int, holder=None, target=None):
+    """Attacks used by the <holder> this card is attached to do +amount to
+    the opponent's Active (<target>) Pokemon."""
+    return GatedDamageBoostPassive(amount, holder, target)
+
+
+class EveryoneDamageBoostPassive(Passive):
+    """Stadium: attacks of matching Pokemon (both sides) do +amount to the
+    opponent's Active (matching `target`) Pokemon."""
+
+    def __init__(self, amount, attacker, target=None):
+        self.amount = amount
+        self.attacker = attacker
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        if not self.attacker(calc.attacker):
+            return
+        if self.target is not None and not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def stadium_damage_boost(amount: int, attacker, target=None):
+    """The attacks of <attacker> Pokemon (both yours and your opponent's) do
+    +amount to the opponent's Active Pokemon."""
+    return EveryoneDamageBoostPassive(amount, attacker, target)
+
+
+def stadium_takes_less_for(amount: int, protects):
+    """<protects> Pokemon (both sides) take amount less damage from the
+    opponent's attacks."""
+    return takes_less_passive(amount, protects=lambda target, carrier: protects(target))
+
+
+def stadium_no_retreat(pred):
+    """<pred> Pokemon in play (both sides) have no Retreat Cost."""
+    return retreat_free_when(lambda pokemon, carrier: pred(pokemon))
+
+
+class RetreatShiftPassive(Passive):
+    """Retreat Cost of matching Pokemon (both sides) shifts by delta."""
+
+    def __init__(self, delta, pred):
+        self.delta = delta
+        self.pred = pred
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if not self.pred(pokemon):
+            return cost
+        return max(0, cost + self.delta)
+
+
+def stadium_retreat_shift(delta: int, pred):
+    """The Retreat Cost of each <pred> Pokemon (both sides) is |delta|
+    Colorless more (delta > 0) or less (delta < 0)."""
+    return RetreatShiftPassive(delta, pred)
+
+
+def stadium_no_resistance():
+    """Each Pokemon in play has no Resistance."""
+    return no_resistance_passive(when=lambda calc, carrier: True)
+
+
+def stadium_ability(title: str, effect):
+    """"Once during each player's turn, that player may ..." on a Stadium."""
+    return Ability(title=title, activation=Activations.ONCE_PER_TURN, effect=effect)
+
+
+
+def is_pokemon_EX(card) -> bool:
+    """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
+    Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
+    return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)
+
+
+# --- Bespoke tool shapes on existing engine hooks ---------------------------
+
+def named_rule_box(name: str, suffix: str):
+    """Predicate: the named Pokemon with a printed rule-box suffix ("pikachu",
+    "ex" matches Pikachu ex; "ex" also covers the older Pokemon-EX)."""
+    name_pred = named(*name.split())
+    suffix_pred = {"ex": any_of(is_pokemon_ex, is_pokemon_EX), "gx": is_pokemon_gx,
+                   "v": lambda card: is_pokemon_v(card.archetype_id)}[suffix]
+    return lambda card: is_pokemon_card(card) and name_pred(card) and suffix_pred(card)
+
+
+class GatedTypePassive(Passive):
+    """The <holder> this card is attached to is a <type> Pokemon."""
+
+    def __init__(self, type_name, holder=None):
+        self.value = POKEMON_TYPE_NAMES[type_name]
+        self.holder = holder
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return types
+        if self.holder is not None and not self.holder(pokemon):
+            return types
+        return [self.value]
+
+
+def gated_type(type_name: str, holder=None):
+    return GatedTypePassive(type_name, holder)
+
+
+class LowHpRetreatPassive(Passive):
+    """Rescue Board: the holder retreats for [C] less, or for free while its
+    remaining HP is `threshold` or less."""
+
+    def __init__(self, count, threshold):
+        self.count = count
+        self.threshold = threshold
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        if pokemon.get_attribute(AttrID.HP, 0) <= self.threshold:
+            return 0
+        return max(0, cost - self.count)
+
+
+def low_hp_retreat(count: int, threshold: int):
+    return LowHpRetreatPassive(count, threshold)
+
+
+class ActiveHolderRetreatTaxPassive(Passive):
+    """Gravity Gemstone: while the holder is Active, both Active Pokemon's
+    Retreat Cost is `count` more."""
+
+    def __init__(self, count):
+        self.count = count
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder) or not is_in_active_spot(pokemon):
+            return cost
+        return cost + self.count
+
+
+def active_holder_retreat_tax(count: int):
+    return ActiveHolderRetreatTaxPassive(count)
+
+
+class HolderAbilityShieldPassive(Passive):
+    """Prevent all effects of the opponent's Abilities done to the holder."""
+
+    def blocks_ability_effects(self, target, carrier):
+        return carrier_pokemon(carrier) is target
+
+
+def holder_ability_shield():
+    return HolderAbilityShieldPassive()
+
+
+class HolderCoinRerollPassive(Passive):
+    """Trick Coin: once during your turn, after flipping coins for an attack
+    of the holder, ignore them and flip again. The engine asks per player, so
+    the offer stands while the holder is that player's Active Pokemon, which
+    is the Pokemon attacking."""
+
+    def __init__(self, holder=None):
+        self.holder = holder
+
+    def offers_attack_coin_reroll(self, player_id, carrier):
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is None or pokemon.owning_player_id != player_id:
+            return False
+        if not is_in_active_spot(pokemon):
+            return False
+        return self.holder is None or self.holder(pokemon)
+
+
+def holder_coin_reroll(holder=None):
+    return HolderCoinRerollPassive(holder)
+
+
+
+class TargetedTurnBoostPassive(Passive):
+    """Rides each opposing Pokemon for one turn: attacks by `player_id`'s
+    Pokemon do +amount to it while it is the Active and matches `target`."""
+
+    def __init__(self, amount, player_id, target):
+        self.amount = amount
+        self.player_id = player_id
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.to_active and attacker is not None):
+            return
+        if attacker.owning_player_id != self.player_id:
+            return
+        if carrier_pokemon(carrier) is not calc.target or not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def turn_damage_boost_vs(amount: int, target):
+    """During this turn, attacks used by your Pokemon do +amount to the
+    opponent's Active Pokemon matching `target` (Black Belt's Training)."""
+    async def effect(ctx):
+        turn = ctx.session.turn_state.turn_number
+        for pokemon in ctx.opponent_pokemon_in_play():
+            ctx.add_temporary_passive(
+                pokemon, TargetedTurnBoostPassive(amount, ctx.player_id, target),
+                expires_after_turn=turn)
+    return effect
+
+
+
+def named_exactly(name: str):
+    """Predicate: a card whose printed name is exactly `name` ("Judge", not
+    "Judge Whistle"); punctuation and spacing are ignored, because canonical
+    rules text has already dropped apostrophes."""
+    wanted = re.sub(r"[^a-z0-9]", "", name.lower())
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name_now = re.sub(r"[^a-z0-9]", "",
+                          (getattr(definition, "display_name", "") or "").lower())
+        return name_now == wanted
+    return predicate
+
+
+def is_pokemon_v_card(card) -> bool:
+    """Predicate: a Pokemon V of any kind (V, VSTAR, VMAX, V-UNION)."""
+    return is_pokemon_card(card) and is_pokemon_v(card.archetype_id)
+
+
+def _attack_ko_by_opponent(pokemon, ctx):
+    """Whether `pokemon` was knocked out by damage from the opponent's attack."""
+    if ctx is None or not ctx.is_attack_effect():
+        return False
+    attacker = getattr(ctx, "attacker", None)
+    if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+        return False
+    return pokemon.entity_id in getattr(ctx, "attack_damage", {})
+
+
+class KnockoutPrizeShiftPassive(Passive):
+    """The opponent takes `delta` more (or fewer) Prize cards when the holder
+    (holder_only) or any matching Pokemon (stadium) is knocked out."""
+
+    def __init__(self, delta, pred=None, holder_only=True, attack_only=True):
+        self.delta = delta
+        self.pred = pred
+        self.holder_only = holder_only
+        self.attack_only = attack_only
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        if self.holder_only and carrier_pokemon(carrier) is not pokemon:
+            return count
+        if self.pred is not None and not self.pred(pokemon):
+            return count
+        if self.attack_only and not _attack_ko_by_opponent(pokemon, ctx):
+            return count
+        return max(0, count + self.delta)
+
+
+def holder_prize_shift(delta: int, holder=None, attack_only: bool = True):
+    """If the <holder> this card is attached to is Knocked Out (by damage from
+    an opponent's attack), the opponent takes |delta| more/fewer Prize cards."""
+    return KnockoutPrizeShiftPassive(delta, holder, True, attack_only)
+
+
+def stadium_prize_shift(delta: int, pred):
+    """Whenever a <pred> Pokemon (both sides) is Knocked Out by damage from an
+    opponent's attack, that player takes |delta| more/fewer Prize cards."""
+    return KnockoutPrizeShiftPassive(delta, pred, False, True)
+
+
+
+def named_one_of(*names):
+    """Predicate: a card whose printed name is one of `names` ("Regirock",
+    ...), allowing a printed suffix."""
+    wanted = tuple(name.lower() for name in names)
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name = (getattr(definition, "display_name", "") or "").lower()
+        return any(name == w or name.startswith(w + " ") for w in wanted)
+    return predicate
+
+
+def _attacker_energy_count(attacker):
+    special = basic = 0
+    stack = list(attacker.children)
+    while stack:
+        entity = stack.pop()
+        stack.extend(getattr(entity, "children", []) or [])
+        if entity.get_attribute(AttrID.IS_SPECIAL_ENERGY):
+            special += 1
+        elif entity.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value:
+            basic += 1
+    return special, basic
+
+
+def attacker_has_special_energy():
+    """Attacker predicate: the attacker has Special Energy attached."""
+    return lambda attacker: _attacker_energy_count(attacker)[0] > 0
+
+
+def attacker_has_ability():
+    """Attacker predicate: the attacker prints at least one Ability."""
+    def predicate(attacker):
+        definition = def_for(attacker.archetype_id)
+        return bool(getattr(definition, "abilities", None))
+    return predicate
+
+
+def attacker_of_types(*type_names):
+    """Attacker predicate: the attacker is one of the named types."""
+    values = {POKEMON_TYPE_NAMES[name] for name in type_names}
+
+    def predicate(attacker):
+        return bool(values & set(attacker.get_attribute(AttrID.POKEMON_TYPES) or []))
+    return predicate
+
+
+def attacker_has_subtypes(*subtypes, exclude=()):
+    """Attacker predicate: the attacker prints one of `subtypes` (lowercase
+    compare, so "ex" matches both Pokemon ex and the older Pokemon-EX) and
+    none of `exclude`."""
+    wanted = [s.lower() for s in subtypes]
+    banned = [s.lower() for s in exclude]
+
+    def predicate(attacker):
+        names = [s.lower() for s in subtypes_for(attacker.archetype_id)]
+        if not any(w in names for w in wanted):
+            return False
+        return not any(b in names for b in banned)
+    return predicate
+
+
+class AttackerGatedPassive(Passive):
+    """The holder takes `amount` less damage (or none at all) from attacks by
+    attackers matching `attacker`; `holder` gates which Pokemon it protects
+    and `effects_too` also shields it from the attack's effects."""
+
+    def __init__(self, amount, holder=None, attacker=None, prevent=False,
+                 effects_too=False):
+        self.amount = amount
+        self.holder = holder
+        self.attacker = attacker
+        self.prevent = prevent
+        self.effects_too = effects_too
+
+    def _applies(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return False
+        if carrier_pokemon(carrier) is not calc.target:
+            return False
+        if self.holder is not None and not self.holder(calc.target):
+            return False
+        if self.attacker is None:
+            return calc.attacker is not None
+        return calc.attacker is not None and self.attacker(calc.attacker)
+
+    def modify_damage_taken(self, calc, carrier):
+        if self.amount and self._applies(calc, carrier):
+            calc.amount = max(0, calc.amount - self.amount)
+
+    def prevents_damage(self, calc, carrier):
+        return bool(self.prevent and self._applies(calc, carrier))
+
+    def blocks_attack_effects(self, target, carrier):
+        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+
+
+def takes_less_from(amount: int, holder=None, attacker=None):
+    """The holder takes `amount` less damage from attacks by `attacker`."""
+    return AttackerGatedPassive(amount, holder, attacker)
+
+
+def prevents_all_from(holder=None, attacker=None, effects_too=False):
+    """Prevent all damage (and effects) done to the holder by `attacker`."""
+    return AttackerGatedPassive(0, holder, attacker, prevent=True,
+                                effects_too=effects_too)
+
+
+def holder_condition_immunity(holder=None):
+    """The holder can't be affected by any Special Condition."""
+    return condition_immunity_passive(None, protects=_holds(holder))
+
+
+
+class EveryoneHpBonusPassive(Passive):
+    """Stadium: every in-play Pokemon matching `pred` gets +amount max HP."""
+
+    def __init__(self, amount, pred):
+        self.amount = amount
+        self.pred = pred
+
+    def max_hp_bonus(self, pokemon, carrier):
+        return self.amount if self.pred(pokemon) else 0
+
+
+def stadium_hp_bonus(amount: int, pred):
+    """<pred> Pokemon in play (both sides) get +amount max HP."""
+    return EveryoneHpBonusPassive(amount, pred)
+
+
+def has_energy_of(*type_names):
+    """Pokemon predicate: any attached Energy is one of the named types."""
+    values = {POKEMON_TYPE_NAMES[name] for name in type_names}
+
+    def predicate(pokemon):
+        stack = list(pokemon.children)
+        while stack:
+            entity = stack.pop()
+            stack.extend(getattr(entity, "children", []) or [])
+            if entity.get_attribute(AttrID.CARD_TYPE) != CardType.ENERGY.value:
+                continue
+            if values & set(entity.get_attribute(AttrID.POKEMON_TYPES) or []):
+                return True
+        return False
+    return predicate
+
+
+def pokemon_named(word: str):
+    """Pokemon predicate: the printed name contains `word` ("Psyduck")."""
+    wanted = word.lower()
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        return is_pokemon_card(card) and wanted in (
+            getattr(definition, "display_name", "") or "").lower()
+    return predicate
+
+
+def attacker_named_team(phrase: str):
+    """Attacker predicate: the printed name contains `phrase` and the attacker
+    is not a Pokemon ex (Team Plasma's Pokemon)."""
+    named_pred = pokemon_named(phrase)
+    return lambda attacker: named_pred(attacker) and not is_pokemon_ex(attacker)
+
+
+def trainer_card_other_than(name: str):
+    """Predicate: any Trainer card whose printed name is not `name`."""
+    excluded = named_exactly(name)
+    return lambda card: is_trainer_card(card) and not excluded(card)
+
+
+def protect_chosen_next_turn(count: int = 1, prevent: bool = True,
+                             effects_too: bool = True):
+    """Choose `count` of your Pokemon; through your opponent's next turn all
+    damage (and effects) done to them by your opponent's Pokemon is prevented."""
+    async def effect(ctx):
+        targets = await ctx.choose_cards(
+            ctx.my_pokemon_in_play(), count, minimum=count,
+            prompt="Choose a Pokémon to protect next turn.")
+        for target in targets:
+            ctx.add_passive_through_opponents_turn(
+                target, TempShieldPassive(prevent=prevent, effects_too=effects_too))
+    return effect
+
+
+def extra_prize_on_ko(attacker, prizes: int = 1):
+    """During this turn, take `prizes` extra Prize cards when `attacker`'s
+    attack knocks out the opponent's Active Pokemon (Briar)."""
+    async def effect(ctx):
+        ctx.add_extra_prize_watcher(attacker_predicate=attacker, prizes=prizes)
+    return effect
+
+
+def tera_attacker():
+    """Predicate: a Tera Pokemon (the attacker that earns Briar's extra Prize)."""
+    return pokemon_of_subtype("Tera")
+
+
+def opponent_prizes_in(low: int, high: int):
+    """Condition: the opponent has between `low` and `high` Prize cards left."""
+    def check(board, player_id):
+        area = board.find_player_area(_opponent_of(board, player_id), "prizePile")
+        if area is None:
+            return False
+        return low <= len(area.children) <= high
+    return check
+
+
+def _opponent_of(board, player_id):
+    players = list(getattr(board, "player_ids", []) or [])
+    return next((p for p in players if p != player_id), None)
+
+
+def search_rule_box_free_plus_students(extra_name: str = "Paldean Student"):
+    """Search for 1 Rule-Box-free Pokemon, plus 1 more for each `extra_name`
+    card in your discard pile (Paldean Student)."""
+    tablet = named_exactly(extra_name)
+
+    async def effect(ctx):
+        extra = sum(1 for card in ctx.discard_pile() if tablet(card))
+        count = 1 + extra
+        picks = await ctx.search_deck(is_rule_box_free_pokemon, count=count,
+                                      minimum=1)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def switch_team_then_gust(owner: str):
+    """Switch your Active <Owner>'s Pokemon with a Benched one of the same
+    owner, then switch 1 of the opponent's Benched Pokemon to their Active."""
+    owner_pred = owned_by(owner)
+
+    async def effect(ctx):
+        active = ctx.my_active()
+        bench = [p for p in ctx.my_bench() if owner_pred(p)]
+        if active is not None and owner_pred(active) and bench:
+            target = await ctx.choose_play_target(
+                bench, "Choose your new Active Pokémon")
+            if target is None:
+                return
+            if not await ctx.switch_active(ctx.player_id, target):
+                return
+        opposing_bench = ctx.opponent_bench()
+        if not opposing_bench:
+            return
+        chosen = await ctx.choose_play_target(
+            opposing_bench, "Choose your opponent's new Active Pokémon")
+        if chosen is not None:
+            await ctx.switch_active(ctx.opponent_id, chosen)
+    return effect
+
+
+def draw_until_per_typed_pokemon(type_name: str):
+    """Draw until your hand holds as many cards as you have Pokemon of
+    `type_name` in play."""
+    type_pred = pokemon_of(type_name)
+
+    async def effect(ctx):
+        wanted = sum(1 for p in ctx.my_pokemon_in_play() if type_pred(p))
+        hand = len(ctx.hand())
+        if wanted > hand:
+            await ctx.draw_cards(wanted - hand)
+    return effect
+
+
+def card_named_contains(word: str):
+    """Predicate: any card whose printed name contains `word`."""
+    wanted = word.lower()
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        return wanted in (getattr(definition, "display_name", "") or "").lower()
+    return predicate
+
+
+def shuffle_hand_flip_draw(heads: int, tails: int):
+    """Shuffle your hand into your deck, flip a coin: heads draws `heads`,
+    tails draws `tails` (Gambler)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        if await ctx.flip_coins(1):
+            await ctx.draw_cards(heads)
+        else:
+            await ctx.draw_cards(tails)
+    return effect
+
+
+def flip_search_basic_count(count: int, avoid_baby: bool = True):
+    """Flip `count` coins; for each heads, search the deck for a Basic Pokemon
+    and put it into your hand (Dual Ball)."""
+    async def effect(ctx):
+        heads = await ctx.flip_coins(count)
+        wanted = sum(1 for result in heads if result)
+        if wanted <= 0:
+            return
+        def eligible(card):
+            if not is_basic_pokemon(card):
+                return False
+            return not (avoid_baby and "Baby" in subtypes_for(card.archetype_id))
+        picks = await ctx.search_deck(eligible, count=wanted, minimum=0)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+class RetaliateOnAttackPassive(Passive):
+    """Rocky Helmet: while the holder is Active and was damaged by the
+    opponent's attack, put `counters` damage counters on the attacker."""
+
+    def __init__(self, counters: int):
+        self.counters = counters
+        self.attack_followup = self._followup
+
+    async def _followup(self, ctx, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return
+        entry = getattr(ctx, "attack_damage", {}).get(holder.entity_id)
+        if not entry or entry[0] <= 0:
+            return
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == holder.owning_player_id:
+            return
+        await ctx.set_damage_counters(attacker, self.counters)
+
+
+def retaliate_on_attack(counters: int = 2):
+    return RetaliateOnAttackPassive(counters)
+
+
+def look_top_reorder(count: int):
+    """Look at the top `count` cards and put them back on top in any order."""
+    async def effect(ctx):
+        await ctx.reorder_deck_top(count)
+    return effect
+
+
+def look_top_peek(count: int):
+    """Look at the top `count` cards and put them back in the same order."""
+    async def effect(ctx):
+        ctx.deck_top(count)
+    return effect
+
+
+def pokemon_with_hp_at_most(limit: int):
+    """Predicate: a Pokemon card whose printed HP is `limit` or less."""
+    def predicate(card):
+        return is_pokemon_card(card) and (card.get_attribute(AttrID.HP, 0) or 0) <= limit
+    return predicate
+
+
+def pokemon_with_retreat_at_least(minimum: int):
+    """Predicate: a Pokemon card with a printed Retreat Cost of `minimum`+."""
+    def predicate(card):
+        return is_pokemon_card(card) and \
+            (card.get_attribute(AttrID.RETREAT_COST, 0) or 0) >= minimum
+    return predicate
+
+
+def recycle_from_discard(count: int = 1):
+    """Put `count` cards from your discard pile on top of your deck."""
+    async def effect(ctx):
+        cards = ctx.discard_pile()
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose card(s) from your discard pile to put on top of your deck")
+        for card in picks:
+            await ctx.put_on_top_of_deck(card)
+    return effect
+
+
+def devolve_stage(stage: str = "stage 1"):
+    """Choose one of your evolved Pokemon and discard its highest evolution
+    card (devolve it one stage)."""
+    async def effect(ctx):
+        evolved = [p for p in ctx.my_pokemon_in_play()
+                   if ctx.evolutions_of(p)] if hasattr(ctx, "evolutions_of") else []
+        target = None
+        if evolved:
+            target = await ctx.choose_pokemon(
+                evolved, "Choose a Pokémon to devolve") if len(evolved) > 1 else evolved[0]
+        if target is None:
+            return
+        await ctx.devolve_pokemon(target, steps=1, destination="discard")
+    return effect
+
+
+class RetaliatePoisonPassive(Passive):
+    """Poison Barb: while the holder is Active and was damaged by the
+    opponent's attack, the attacking Pokemon is now Poisoned."""
+
+    def __init__(self):
+        self.attack_followup = self._followup
+
+    async def _followup(self, ctx, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return
+        entry = getattr(ctx, "attack_damage", {}).get(holder.entity_id)
+        if not entry or entry[0] <= 0:
+            return
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == holder.owning_player_id:
+            return
+        await ctx.apply_special_condition(attacker, SpecialConditions.POISONED)
+
+
+def retaliate_poison():
+    return RetaliatePoisonPassive()
+
+
+def pokemon_type_subtype(type_name: str, subtype: str):
+    """Predicate: a Pokemon of `type_name` with the printed `subtype`
+    ("lightning pokemon gx")."""
+    type_pred = pokemon_of(type_name)
+    if subtype.lower() == "ex":
+        suffix = any_of(is_pokemon_ex, is_pokemon_EX)
+    elif subtype.lower() == "gx":
+        suffix = is_pokemon_gx
+    else:
+        suffix = pokemon_of_subtype(subtype)
+    return lambda card: type_pred(card) and suffix(card)
+
+
+def opponent_active_is(pred):
+    """Condition: the opponent's Active Pokemon matches `pred`."""
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        area = board.find_player_area(opponent, "activePokemonArea") if opponent else None
+        active = area.children[0] if area is not None and area.children else None
+        return active is not None and pred(active)
+    return check
+
+
+class TrainerPlayLockPassive(Passive):
+    """`player_id` cannot play any more Trainer cards this turn."""
+
+    def __init__(self, player_id):
+        self.player_id = player_id
+
+    def blocks_trainer_play(self, card, player_id, carrier):
+        return player_id == self.player_id
+
+
+def shuffle_hand_draw_lock_trainers(draw: int):
+    """Shuffle your hand into your deck, draw `draw` cards, then you cannot
+    play any more Trainer cards this turn (Professor Elm)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        await ctx.draw_cards(draw)
+        holder = ctx.my_active() or next(iter(ctx.my_pokemon_in_play()), None)
+        if holder is not None:
+            ctx.add_temporary_passive(
+                holder, TrainerPlayLockPassive(ctx.player_id),
+                expires_after_turn=ctx.session.turn_state.turn_number)
+    return effect
+
+
+def discard_typed_pokemon_to_bench_then_draw(type_name: str, draw: int):
+    """Put a matching Pokemon from your discard pile onto your Bench, then
+    draw `draw` cards."""
+    type_pred = pokemon_of(type_name)
+
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile() if type_pred(card)]
+        if pool and len(ctx.my_bench()) < BENCH_CAPACITY:
+            picks = await ctx.choose_cards(
+                pool, 1, minimum=0,
+                prompt="Choose a Pokémon from your discard pile to put on your Bench")
+            for card in picks:
+                await ctx.bench_pokemon(card)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def colress_draw():
+    """Shuffle your hand into your deck, then draw 1 card for each Benched
+    Pokemon, yours and your opponent's."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        count = len(ctx.my_bench()) + len(ctx.opponent_bench())
+        if count > 0:
+            await ctx.draw_cards(count)
+    return effect

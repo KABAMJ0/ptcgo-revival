@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import colress_draw
 
 card = SupporterCardDef(
     guid="5a2ed0ca-d5bf-55bb-aa66-5924901e2bc3",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=135,
     set_code="BW8",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=colress_draw()
 )

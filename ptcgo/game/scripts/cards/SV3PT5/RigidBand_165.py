@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_takes_less, is_stage_one
 
 card = PokemonToolCardDef(
     guid="06e9fae0-f868-50ec-9137-71fdb4fe5738",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=165,
     set_code="SV3PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_takes_less(30, is_stage_one, attacker=None)
 )

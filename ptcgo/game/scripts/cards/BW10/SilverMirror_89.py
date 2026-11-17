@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import attacker_named_team, prevents_all_from
 
 card = PokemonToolCardDef(
     guid="7a83f869-5312-5620-9eae-23541a0161fd",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=89,
     set_code="BW10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=prevents_all_from(None, attacker_named_team("team plasma"), effects_too=True)
 )

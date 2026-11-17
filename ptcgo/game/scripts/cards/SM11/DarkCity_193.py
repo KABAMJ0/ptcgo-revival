@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, is_basic_pokemon, pokemon_of, stadium_no_retreat
 
 card = StadiumCardDef(
     guid="514ebc7f-bc7d-5240-ae25-3bfb27344360",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=193,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_no_retreat(all_of(is_basic_pokemon, pokemon_of("darkness")))
 )

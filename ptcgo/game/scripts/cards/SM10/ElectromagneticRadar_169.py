@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import any_of, pokemon_type_subtype, with_discard_cost
 
 card = ItemCardDef(
     guid="ec5d5ca1-5657-5a33-9f80-59e78075246c",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=169,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=with_discard_cost(2, search_to_hand(any_of(pokemon_type_subtype("lightning", "gx"), pokemon_type_subtype("lightning", "ex")), count=2))
 )

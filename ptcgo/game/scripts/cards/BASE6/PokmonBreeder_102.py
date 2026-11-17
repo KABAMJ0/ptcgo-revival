@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import rare_candy
 
 card = ItemCardDef(
     guid="97b3209d-3558-5ab8-bc27-7be68c60dcd2",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=102,
     set_code="BASE6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=rare_candy()
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gated_hp_bonus, is_basic_pokemon
 
 card = PokemonToolCardDef(
     guid="7922e84a-8cc7-5815-b52d-5939f3419606",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=173,
     set_code="SV2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_hp_bonus(50, is_basic_pokemon)
 )

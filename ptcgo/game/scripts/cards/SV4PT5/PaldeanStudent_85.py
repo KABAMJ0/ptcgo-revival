@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_rule_box_free_plus_students
 
 card = SupporterCardDef(
     guid="9442ddba-0723-53bb-91d6-77bd4d8c4e5b",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=85,
     set_code="SV4PT5",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=search_rule_box_free_plus_students("paldean student")
 )

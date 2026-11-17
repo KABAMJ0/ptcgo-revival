@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import switch_team_then_gust
 
 card = SupporterCardDef(
     guid="1d21c21f-ec82-513a-8b41-7e4ec93cc7e9",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=174,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=switch_team_then_gust("team rocket")
 )

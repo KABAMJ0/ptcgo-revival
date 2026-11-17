@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import low_hp_retreat
 
 card = PokemonToolCardDef(
     guid="eae6b14f-10f1-514c-8d68-c52845b1dc83",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=159,
     set_code="SV5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=low_hp_retreat(1, 30)
 )

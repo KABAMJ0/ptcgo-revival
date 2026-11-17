@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_prizes_at_most, protect_chosen_next_turn
 
 card = SupporterCardDef(
     guid="e60eb2c5-f2aa-5eaf-bcc1-d82908b62a2e",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=183,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=protect_chosen_next_turn(1), condition=opponent_prizes_at_most(2)
 )

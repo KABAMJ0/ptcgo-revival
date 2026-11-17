@@ -3012,8 +3012,8 @@ def _search_attach_basic_energy_distributed(m, ability):
 
 
 def _counters_on_chosen_opponents(m, ability):
-    targets = _count(m.group(2))
-    counters = int(m.group(3))
+    targets = _count(m.group(1)) if m.group(1) else 1
+    counters = int(m.group(2))
 
     async def effect(ctx):
         candidates = ctx.opponent_pokemon_in_play()
@@ -3027,6 +3027,90 @@ def _counters_on_chosen_opponents(m, ability):
                 await ctx.deal_damage(counters * 10, target=target,
                                       as_counters=True)
     return effect
+
+
+def _reorder_own_top(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        await ctx.reorder_deck_top(count, ctx.player_id,
+                                   "Put the top cards back in any order")
+    return effect
+
+
+def _raise_defender_retreat(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from ptcgo.game.card_effects.passives_common import (
+            apply_defender_retreat_cost_raise,
+        )
+        await apply_defender_retreat_cost_raise(ctx, extra=1)
+    return effect
+
+
+def _bonus_if_opponent_prizes_at_most(m, ability):
+    limit, bonus = int(m.group(1)), int(m.group(2))
+    return bonus_if(
+        lambda ctx: count_prizes_remaining("opponent")(ctx) <= limit, bonus)
+
+
+def _less_per_defender_retreat_colorless(m, ability):
+    per = int(m.group(1))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        amount = max(0, printed - per * defender_retreat_cost(ctx))
+        await ctx.deal_damage(amount)
+    return effect
+
+
+def _switch_active_with_bench(m, ability):
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        if not bench:
+            return
+        if len(bench) == 1:
+            target = bench[0]
+        else:
+            target = await ctx.choose_pokemon(
+                bench, "Choose a Benched Pokémon to switch in")
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+    return effect
+
+
+def _flip_bonus_and_heal_self(m, ability):
+    bonus, heal = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage(printed + bonus)
+            if ctx.attacker is not None:
+                await ctx.heal(heal, ctx.attacker)
+        else:
+            await ctx.deal_damage(printed)
+    return effect
+
+
+def _own_next_turn_all_boost(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from ptcgo.game.card_effects.passives_common import (
+            apply_own_next_turn_boost,
+        )
+        await apply_own_next_turn_boost(ctx, amount)
+    return effect
+
+
+def _passive_survive_full_hp(m, ability):
+    from ptcgo.game.card_effects.passives_common import guts_survive_passive
+    return guts_survive_passive(hp_floor=int(m.group(1)), flip=False,
+                                require_full_hp=True)
 
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
@@ -4376,6 +4460,40 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"choose (?:an?|(\d+)) of your opponent's pokemon and put "
                 r"(\d+) damage counters on each of them\."),
      _counters_on_chosen_opponents),
+
+    # -- batch 25: deck-top order, retreat-cost taxes, prize gates ---------
+    ("reorder.top-own",
+     re.compile(r"look at the top (\d+) cards of your deck and put them back "
+                r"on top of your deck in any order\."), _reorder_own_top),
+    ("debuff.defender-retreat-cost-up",
+     re.compile(r"your opponent's active pokemon's retreat cost is colorless "
+                r"more\."), _raise_defender_retreat),
+    ("bonus.opponent-prizes-at-most",
+     re.compile(r"if your opponent has (\d+) or fewer prize cards remaining, "
+                r"this attack does (\d+) more damage\."),
+     _bonus_if_opponent_prizes_at_most),
+    ("scale.less-per-defender-retreat",
+     re.compile(r"this attack does (\d+) less damage for each colorless in "
+                r"your opponent's active pokemon's retreat cost\."),
+     _less_per_defender_retreat_colorless),
+    ("ability.switch-active-with-bench",
+     re.compile(r"switch your active pokemon with (?:an?|\d+) of your benched "
+                r"pokemon\."), _switch_active_with_bench),
+
+    # -- batch 26: flip bonus with self-heal, next-turn team boost ---------
+    ("flip.bonus-and-heal-self",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) more damage "
+                r"and heal (\d+) damage from this pokemon\."),
+     _flip_bonus_and_heal_self),
+    ("boost.own-next-turn-all",
+     re.compile(r"during your next turn, each of this pokemon's attacks does "
+                r"(\d+) more damage(?: \(before applying weakness and "
+                r"resistance\))?\."), _own_next_turn_all_boost),
+    ("ability.survive-at-full-hp",
+     re.compile(r"if this pokemon has full hp and would be knocked out by "
+                r"damage from an attack, it is not knocked out, and its "
+                r"remaining hp becomes (\d+)\."),
+     _passive_survive_full_hp),
 ]
 
 

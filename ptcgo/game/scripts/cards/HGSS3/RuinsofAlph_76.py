@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import stadium_no_resistance
 
 card = StadiumCardDef(
     guid="1779582d-7441-57d7-bb84-662f9d817aba",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=76,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_no_resistance()
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import any_of, is_basic_pokemon, pokemon_of_subtype
 
 card = SupporterCardDef(
     guid="7799c6ef-fa02-552d-8547-50e3be4db7b0",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=130,
     set_code="ECARD2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_bench(any_of(pokemon_of_subtype("Baby"), is_basic_pokemon), 2)
 )

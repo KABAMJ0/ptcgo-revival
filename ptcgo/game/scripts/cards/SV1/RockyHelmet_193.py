@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import retaliate_on_attack
 
 card = PokemonToolCardDef(
     guid="fe9ff5ee-f9ae-5247-afb2-4b36739661a2",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=193,
     set_code="SV1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=retaliate_on_attack(2)
 )

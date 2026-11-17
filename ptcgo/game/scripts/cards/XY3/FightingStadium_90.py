@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_EX, pokemon_of, stadium_damage_boost
 
 card = StadiumCardDef(
     guid="d32c8e6b-3a8f-5b02-a431-15c3145fa013",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=90,
     set_code="XY3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_damage_boost(20, pokemon_of("fighting"), target=is_pokemon_EX)
 )

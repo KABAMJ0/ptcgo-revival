@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype, stadium_retreat_shift
 
 card = StadiumCardDef(
     guid="32ae71dd-dc45-5e5a-88d8-870437cc1c25",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=135,
     set_code="PL3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_retreat_shift(-1, pokemon_of_subtype("SP"))
 )
