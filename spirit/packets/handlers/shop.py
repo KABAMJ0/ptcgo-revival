@@ -15,11 +15,18 @@ from spirit.database.deck_products import open_products
 from spirit.database.async_utils import run_db
 from spirit.database.player_data import add_to_collection, get_decks_by_account_id
 from spirit.database.economy_data import purchase_products
+from spirit.server import activity
 
 # ProductPurchaseFailure texts; unknown loc keys render verbatim in the failure dialog.
 PURCHASE_ERROR_SIGN_IN = "Sign in to buy products."
 PURCHASE_ERROR_UNAVAILABLE = "This product is no longer available. Please reopen the shop."
 PURCHASE_ERROR_GENERIC = "Your purchase could not be completed. You have not been charged."
+
+_CURRENCY_NAMES = {
+    AttrID.TRAINER_TOKENS: "coins",
+    AttrID.REAL_CURRENCY: "gems",
+    AttrID.EVENT_TICKETS: "tickets",
+}
 
 def build_item(owner_id: str, archetype_id: str, is_tradable: bool = False) -> dict:
     """Builds the client's Item JSON shape (shared with the trade lots protocol)."""
@@ -86,6 +93,10 @@ class ShopHandler(BaseHandler):
                 "error": {"id": "Unable to open these products. Please try again."},
             }, request_id)
             return
+        if self.client.player:
+            activity.record("pack_open", account=self.client.player.username,
+                            detail=f"opened {len(product_ids)} product(s)"
+                                   + (" (purchased)" if purchased else ""))
 
         opened = {
             "accountID": self._owner_id(),
@@ -128,6 +139,10 @@ class ShopHandler(BaseHandler):
             if not await run_db(self.client.player.wallet.deduct_currency, used_currency, total_cost):
                 logging.warning(f"[Shop] Player {self.client.player.username} has insufficient funds for {context}.")
                 return False
+            currency = _CURRENCY_NAMES.get(used_currency, "currency")
+            activity.record("purchase", account=self.client.player.username,
+                            detail=f"{total_cost} {currency} · {context}",
+                            amount=total_cost)
         return True
 
     @handle(InboundMsg.PURCHASE_AND_OPEN_PRODUCTS)

@@ -11,6 +11,7 @@ from spirit.game.session.manager import GameSessionManager
 from spirit.game.session.constants import GamePhase
 from spirit.packets.handlers.social import SocialHandler
 from spirit.server import metrics
+from spirit.server import activity
 from spirit.game.tournaments.live import LiveTournamentManager
 
 _log = logging.getLogger(__name__)
@@ -25,6 +26,10 @@ class ClientHandler:
         self.router = PacketRouter(self)
         self.session_id = str(uuid.uuid4()) # Must be a valid Guid string for C# parsing
         self.player: Player | None = None  # Populated post-auth
+        # Live-session telemetry the admin Monitor reads (never used by gameplay).
+        self.connected_at = time.time()
+        self.last_packet_at = time.monotonic()
+        self.last_scene = None
         self.sent_archetypes = set() # Track GUIDs sent to client to prevent duplicates crash
         self.sent_archetype_keys = set() # Track catalog keys already served (byte-cache dedup)
         # Inbound token bucket (abuse guard); refilled lazily in _rate_ok.
@@ -86,6 +91,7 @@ class ClientHandler:
 
                 message = WargProtocol.decode_body(body_data, flags)
                 metrics.inc("packets_in")
+                self.last_packet_at = time.monotonic()
 
                 if _log.isEnabledFor(logging.DEBUG):
                     self._log_packet("Received", message, request_id, flags)
@@ -213,6 +219,8 @@ class ClientHandler:
                         logging.error(f"[TCP] [{self.addr}] Error broadcasting offline presence: {e}")
 
         finally:
+            if self.player:
+                activity.session_close(self.player.account_id, reason="socket closed")
             self.writer.close()
             try:
                 await asyncio.wait_for(self.writer.wait_closed(), timeout=5)

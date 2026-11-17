@@ -4,6 +4,7 @@ from spirit.network.message_names import InboundMsg, OutboundMsg
 from .base import BaseHandler, handle
 from spirit.database import economy_data
 from spirit.database.async_utils import run_db
+from spirit.server import activity
 
 
 class RedemptionHandler(BaseHandler):
@@ -67,6 +68,7 @@ class RedemptionHandler(BaseHandler):
                     "code": code
                 }, request_id)
                 logging.info(f"[TCP] Code {code} redeemed by {account_id}: {reward}")
+                activity.record("code_redeemed", account=self.client.player.username, detail=code)
             else:
                 await self._send_invalid(code, reason, request_id,
                                          message_name=OutboundMsg.CODE_REDEMPTION_FAILURE.value)

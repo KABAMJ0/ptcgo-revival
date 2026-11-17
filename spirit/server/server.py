@@ -7,6 +7,7 @@ from spirit import config
 from .client_handler import ClientHandler
 from spirit.database.db_manager import db_manager
 from spirit.server import metrics
+from spirit.server import state
 
 class PTCGOServer:
     def __init__(self, host='0.0.0.0', port=config.TCP_PORT, use_ssl=True):
@@ -51,6 +52,7 @@ class PTCGOServer:
             ssl=self.context
         )
         self.running = True
+        state.ACTIVE_TCP_SERVER = self
 
         db_manager.start_writer()
 

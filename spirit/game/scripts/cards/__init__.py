@@ -17,6 +17,10 @@ class ScriptLoader:
         self.cards_by_stem: Dict[str, str] = {}
         self.definitions = {}
         self.last_errors = []
+        # Per-set effect coverage (the admin Coverage view reads it): how many
+        # attack/ability entries exist and how many still carry the
+        # `unimplemented` marker.
+        self.coverage = {}
 
     def load_all(self, force=False):
         """Loads all card scripts once; cached thereafter unless force=True.
@@ -32,7 +36,8 @@ class ScriptLoader:
         self.cards_by_stem = {}
         self.definitions = {}
         self.last_errors = []
-        
+        self.coverage = {}
+
         logging.info(f"[Scripts] Loading card scripts from {self.scripts_dir}...")
         
         for root, dirs, files in os.walk(self.scripts_dir):
@@ -62,6 +67,7 @@ class ScriptLoader:
                 try:
                     self.pattern_bound += patterns.bind_definition(card_def)
                     self._add_card(reference, card_def)
+                    self._count_coverage(reference, card_def)
                 except Exception as error:
                     self.last_errors.append(f"{reference}: {error}")
                     logging.error("[Scripts] Failed to publish card %s: %s", reference, error)
@@ -142,6 +148,27 @@ class ScriptLoader:
             definition = definition.resolve(parent)
         resolved[reference] = definition
         return definition
+
+    def _count_coverage(self, reference, card_def):
+        """Tallies one published card's attack/ability entries by how they run."""
+        from spirit.game.data_utils import unimplemented
+        row = self.coverage.setdefault(reference.split("/", 1)[0], {
+            "cards": 0, "entries": 0, "stubbed": 0,
+            "wording": 0, "scripted": 0, "plain": 0,
+        })
+        row["cards"] += 1
+        for ability in getattr(card_def, "abilities", None) or []:
+            row["entries"] += 1
+            effect = getattr(ability, "effect", None)
+            if effect is unimplemented:
+                row["stubbed"] += 1
+            elif str(getattr(ability, "effect_source", "") or "").startswith("pattern:"):
+                row["wording"] += 1
+            elif (effect is not None or getattr(ability, "passive", None) is not None
+                  or getattr(ability, "trigger", None) or getattr(ability, "activation", None)):
+                row["scripted"] += 1
+            else:
+                row["plain"] += 1
 
     def _add_card(self, reference, card_def):
         """Publish a resolved definition as a server card model."""

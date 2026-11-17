@@ -99,6 +99,7 @@ from spirit.game.data_utils import (
 from spirit.database.player_data import COINS_PER_WIN, COINS_PER_LOSS, grant_coins
 from spirit.database.versus_data import award_match_points, get_progress
 from spirit.database.async_utils import run_db
+from spirit.server import activity
 
 
 def _persist_match_result(account_id: str, coins: int, is_winner: bool):
@@ -2999,6 +3000,12 @@ class GameSession:
         logging.info(
             f"[Session {self.game_id}] Game over: "
             f"{self.players[winner_id].screen_name} wins ({reason})."
+        )
+        activity.record(
+            "match_end",
+            account=self.players[winner_id].screen_name,
+            detail=f"beat {self.players[loser_id].screen_name} ({reason})",
+            game_id=self.game_id,
         )
         for pid, player in self._unique_recipients():
             coins = COINS_PER_WIN if pid == winner_id else COINS_PER_LOSS

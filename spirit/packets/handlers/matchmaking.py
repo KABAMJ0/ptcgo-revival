@@ -57,6 +57,8 @@ class MatchmakingHandler(BaseHandler):
         # Delegate to Matchmaking Manager
         manager = GameSessionManager()
         await manager.remove_from_queue(self.client, send_left_packet=True)
+        if self.client.player:
+            activity.record("queue_cancel", account=self.client.player.username)
 
     @handle(InboundMsg.REQUEST_MATCH_WITH_SPECIFIC_CLIENT)
     async def handle_request_match_with_specific_client(self, message, request_id, flags):

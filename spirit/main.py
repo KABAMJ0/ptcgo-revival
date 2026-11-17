@@ -36,6 +36,7 @@ from spirit.server.http_server import (  # noqa: E402
 from spirit.server.bundle_variants import strip_stale_bundles  # noqa: E402
 from spirit.server.auto_bundle import check_and_generate_bundles  # noqa: E402
 from spirit.server import metrics  # noqa: E402
+from spirit.server import telemetry  # noqa: E402
 from spirit.database import Base, engine  # noqa: E402
 from spirit.database.migrations import run_light_migrations  # noqa: E402
 from spirit.database.admin_data import bootstrap_admins_from_env  # noqa: E402
@@ -58,6 +59,7 @@ async def run_server():
         await tcp_server.stop()
 
 def main():
+    telemetry.install_log_capture()
     logging.info(f"[Main] Public host: {config.PUBLIC_HOST} (HTTP {config.HTTP_PORT}, TCP {config.TCP_PORT})")
     if config.PUBLIC_HOST == "127.0.0.1":
         logging.warning("[Main] PUBLIC_HOST is 127.0.0.1 — remote clients will fail to log in. "
