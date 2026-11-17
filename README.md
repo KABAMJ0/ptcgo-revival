@@ -87,9 +87,20 @@ The reason is that the login handshake redirects the client to a follow-up addre
 > **Hosting on a VPS?** Follow the [nginx deployment guide](deploy/README.md).
 > nginx is not needed for local development.
 
-## Hosting it for other people
+## Installing the server
 
-The one-command installer runs everything the server needs on a Linux box with a public IP:
+### What you need
+
+A Linux box with a public IP that can answer on **two ports**:
+
+| Port | What it carries |
+|---|---|
+| `8000/tcp` | config, patch manifest, card art, admin panel |
+| `39389/tcp` | the game socket |
+
+Sizing: 2 vCPU, 4 GB RAM and 80 GB of disk. The disk holds about 26 GB of card art and generated bundles; 4 GB of RAM only matters while it is packing. Open both ports in the OS firewall *and* in any cloud security group.
+
+### Install
 
 ```bash
 git clone https://github.com/KABAMJ0/ptcgo-revival.git
@@ -97,19 +108,33 @@ cd ptcgo-revival
 sudo ./install.sh --host play.example.com
 ```
 
-It creates the Python environment, generates a TLS certificate for `--host`, builds the database (admin login `brandon` / `password` — change it), downloads about 14 GB of card art, installs a systemd service that starts on boot and restarts on failure, and opens the firewall. Options: `--no-art` (fetch later with `tools/fetch_art.py`), `--no-service`, `--user`.
+`--host` is the name players will dial and it must be the real public hostname, because the TLS certificate is generated with that name in its CN and the client validates it.
 
-**The first start packs card bundles for 45–60 minutes** before the ports open. Restarts after that take about a minute.
+The script creates a Python 3.12 environment and installs the dependencies, generates the certificate, builds the database, downloads about 14 GB of card art, installs a systemd service that starts on boot and restarts on failure, and opens the firewall. Options: `--no-art` (fetch later with `tools/fetch_art.py`), `--no-service` (start it by hand), `--user NAME` (account the service runs as).
 
-### The client always dials port 39389
+### First start
 
-`cake.cfg` carries a hostname and no port, so the client'\''s first connection is always to `<hostname>:39389`. That single constraint rules out most cheap hosting: a reverse proxy, a random-port tunnel, or a domain pointing at a shared IP will connect and then hang at login. The host needs **TCP 39389** reachable and **TCP 8000** for config, manifests and card art. The second connection is a full `host:port` sent by the server, so only that first hop is constrained.
+**It takes 45–60 minutes** before the ports open, because it packs card bundles for about 180 sets. Nothing answers until that finishes. Watch it:
 
-Once HTTP works, put the panel behind something that is not open to the internet, or at least change the seeded admin password.
+```bash
+journalctl -u ptcgo -f
+```
 
-### What players change
+Later restarts take about a minute, since the bundles are cached. Only a change to card art makes it pack again.
 
-Three lines in `Pokemon Trading Card Game Online_Data/cake.cfg` (next to the .exe), leaving the `*AppSecret` lines alone:
+### Check it is alive
+
+```bash
+systemctl status ptcgo                                  # active (running)
+ss -ltn | grep -E '8000|39389'                          # both listening
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8000/admin   # 200
+```
+
+The dashboard is at `http://play.example.com:8000/admin`. The seeded admin account is **brandon / password** — change it before anyone else can reach the panel. The Players tab lets you inspect collections, wipe them, edit currency, ban and delete accounts.
+
+### Pointing players at it
+
+In `Pokemon Trading Card Game Online_Data/cake.cfg`, in the folder beside the game's `.exe`, change the top three lines and leave the `*AppSecret` lines alone:
 
 ```ini
 hostname=play.example.com
@@ -117,15 +142,27 @@ versionURL=http://play.example.com:8000/
 assetURL=http://play.example.com:8000/
 ```
 
-Nothing else to install. The client validates the certificate against the name it dialled, so the cert'\''s CN must be `play.example.com` — `PTCGO_PUBLIC_HOST` drives both that and the mid-login redirect.
+There is nothing else to install. The first login pulls the card art: slow once, cached after.
 
-### Card art is not in git
+### Updating
 
-About 14 GB of scans stay out of the repository. A fresh clone has every card script but no textures; `tools/fetch_art.py` fills them in (official scans, then upstream PTCGO Revival art, then a rendered face). It is resumable and skips anything already present.
+```bash
+git pull
+sudo systemctl restart ptcgo
+```
 
-### Hosting behind a home connection
+The database, card art and bundles are untouched by a pull. If the update changed card scripts the restart picks them up; if it changed art, expect a longer boot.
 
-No public IP means no public port 39389, which this client cannot work around. Tunnels that assign a random port (ngrok free TCP, playit shared IP) will not work. Options that do: a small VPS relay forwarding 39389 and 8000 to the machine running the server, or running the server on the VPS itself.
+### Backups
+
+Two files matter. `ptcgo_server.db` holds every account, collection, deck and trade, and `server.crt` / `server.key` are the identity clients already trust. Copy them somewhere on a schedule. Everything else — code, art, bundles — can be rebuilt.
+
+### Things that catch people out
+
+- **The client only ever dials port 39389.** `cake.cfg` carries a hostname and no port, so a reverse proxy or a random-port tunnel logs in and then hangs. That one constraint rules out most cheap tunnel hosting.
+- **`PTCGO_PUBLIC_HOST` must match the certificate's name.** It also drives the mid-login redirect, so a mismatch means clients connect and then drop.
+- **Do not install the certificate into a client machine's trust store.** The client's validator rejects a certificate it trusts, which is why the server ships a self-signed one.
+- **A fresh clone has no card art.** `tools/fetch_art.py` fills it in from pokemontcg.io, then from the upstream project for its own Sword & Shield scans, then by drawing a face from the card's data. It is resumable.
 
 ## Custom Card Creation
 
