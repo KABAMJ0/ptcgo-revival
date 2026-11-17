@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import recover_basic_to_bench
 
 card = ItemCardDef(
     guid="b5ed74e1-7938-5542-83a5-ec04d5bf4aa0",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=85,
     set_code="XY12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=recover_basic_to_bench(1)
 )

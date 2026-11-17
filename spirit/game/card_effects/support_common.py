@@ -610,3 +610,19 @@ def requires_damaged_pokemon(side="mine"):
                    for pid in _side_player_ids(board, player_id, side)
                    for p in board.pokemon_in_play(pid))
     return check
+
+
+def heal_all_from_one():
+    """Heal all damage from 1 of your Pokemon (pick the damaged one)."""
+    async def effect(ctx):
+        await _deal_printed(ctx)
+        damaged = [p for p in ctx.my_pokemon_in_play() if _is_damaged(ctx.board, p)]
+        if not damaged:
+            return
+        target = await ctx.choose_pokemon(damaged, "Choose a Pokémon to heal")
+        if target is None:
+            return
+        amount = ctx.max_hp(target) - target.get_attribute(AttrID.HP, 0)
+        if amount > 0:
+            await ctx.heal(amount, target)
+    return effect

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
 
 card = SupporterCardDef(
     guid="13382a32-89f2-5e13-9806-632e8f8689c6",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=200,
     set_code="SV5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=look_at_top(6, take=2)
 )

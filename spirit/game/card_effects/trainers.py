@@ -5,8 +5,8 @@ from spirit.game.attributes import (
 )
 from spirit.game.models.board import PokemonEntity
 from spirit.game.data_utils import (
-    Ability, Activations, Attack, def_for, has_rule_box, is_pokemon_v,
-    subtypes_for, VisualizationArrow, VisualizationType,
+    Ability, Activations, Attack, def_for, evolves_from, has_rule_box,
+    is_pokemon_v, subtypes_for, VisualizationArrow, VisualizationType,
 )
 from spirit.game.session.constants import BENCH_CAPACITY
 from spirit.game.session.effects import (
@@ -17,6 +17,7 @@ from spirit.game.session.effects import (
     is_pokemon_card,
     is_special_energy,
     is_supporter_card,
+    is_trainer_card,
     is_water_pokemon,
 )
 from spirit.game.session.passives import (
@@ -26,6 +27,13 @@ from spirit.game.session.passives import (
     effective_bench_capacity,
     effective_max_hp,
     trainer_play_blocked,
+)
+from spirit.game.card_effects.passives_common import (
+    hp_bonus_tool,
+    no_weakness_passive,
+    retreat_discount,
+    takes_less_passive,
+    typed_damage_boost_tool,
 )
 
 
@@ -1407,4 +1415,729 @@ def fossil_search(fossil_predicate, count: int = 2,
         for card in picks:
             await ctx.bench_pokemon(card)
         await ctx.shuffle_deck()
+    return effect
+
+
+# ======================================================================
+# Parametric effects
+# ----------------------------------------------------------------------
+# One factory per recurring printed-text shape. A card script keeps its own
+# data and wires `effect=<factory>(...)` instead of carrying a copy of the
+# logic, so a wording that appears in twenty sets is implemented once.
+# tools/trainer_coverage.py is the audit that decides what belongs here.
+# ======================================================================
+
+def is_stadium_card(card) -> bool:
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value
+
+
+def is_tool_card(card) -> bool:
+    return card.get_attribute(AttrID.TRAINER_TYPE) in (
+        TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
+
+
+def is_stage_one(card) -> bool:
+    return is_evolution_pokemon(card) \
+        and card.get_attribute(AttrID.STAGE) == PokemonStage.STAGE1.value
+
+
+def is_stage_two(card) -> bool:
+    return is_evolution_pokemon(card) \
+        and card.get_attribute(AttrID.STAGE) == PokemonStage.STAGE2.value
+
+
+def is_pokemon_ex(card) -> bool:
+    return is_pokemon_card(card) and "ex" in " ".join(subtypes_for(card.archetype_id))
+
+
+def is_rule_box_pokemon(card) -> bool:
+    return is_pokemon_card(card) and has_rule_box(card.archetype_id)
+
+
+POKEMON_TYPE_NAMES = {
+    name.lower(): member.value for name, member in PokemonTypes.__members__.items()
+    if name not in ("NO_COLOR", "STRONG", "HERBAL", "UNSET")
+}
+
+
+def pokemon_of(type_name: str):
+    """Predicate: a Pokemon of the named type ("water", "psychic", ...)."""
+    value = POKEMON_TYPE_NAMES[type_name.lower()]
+
+    def predicate(card):
+        return is_pokemon_card(card) \
+            and value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return predicate
+
+
+def basic_energy_of(type_name: str):
+    """Predicate: a Basic Energy card of the named type."""
+    value = POKEMON_TYPE_NAMES[type_name.lower()]
+
+    def predicate(card):
+        return is_basic_energy_card(card) \
+            and value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return predicate
+
+
+def is_rule_box_free_pokemon(card) -> bool:
+    return is_pokemon_card(card) and not has_rule_box(card.archetype_id)
+
+
+def is_basic_pokemon_with_hp_at_most(limit: int):
+    """Deck-search filter: Basic Pokemon with printed HP <= limit."""
+    def predicate(card):
+        return is_basic_pokemon(card) and card.get_attribute(AttrID.HP, 0) <= limit
+    return predicate
+
+
+# --- Draw ------------------------------------------------------------------
+
+def draw_n(n: int):
+    """Draw `n` cards."""
+    async def effect(ctx):
+        await ctx.draw_cards(n)
+    return effect
+
+
+def discard_hand_draw(n: int):
+    """Discard your whole hand, then draw `n` (Professor's Research shape)."""
+    async def effect(ctx):
+        await ctx.discard_cards(ctx.hand())
+        await ctx.draw_cards(n)
+    return effect
+
+
+def shuffle_hand_draw(n: int, opponent_prizes_low=None):
+    """Shuffle your hand into your deck, then draw `n`. With
+    opponent_prizes_low=(threshold, n_low) the draw becomes `n_low` once the
+    opponent has that many Prize cards or fewer remaining."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        count = n
+        if opponent_prizes_low is not None:
+            opponent = next((p for p in ctx.board.player_ids
+                             if p != ctx.player_id), None)
+            area = ctx.board.find_player_area(opponent, "prizePile") if opponent else None
+            if area is not None and len(area.children) <= opponent_prizes_low[0]:
+                count = opponent_prizes_low[1]
+        await ctx.draw_cards(count)
+    return effect
+
+
+def each_player_shuffle_draw(n: int):
+    """Both players shuffle their hand into their deck and draw `n` (Judge)."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        await ctx.draw_cards(n)
+        await ctx.shuffle_into_deck(ctx.hand(ctx.opponent_id), ctx.opponent_id)
+        await ctx.draw_cards(n, ctx.opponent_id)
+    return effect
+
+
+# --- Discard from the opponent's side ---------------------------------------
+
+def discard_energy_opponent(count: int = 1, flip: bool = False,
+                            scope: str = "any", energy_pred=None):
+    """Discard up to `count` Energy from the opponent's Pokemon; `scope` is
+    'any' (choose the holder) or 'active'. flip=True pays a coin first
+    ("Flip a coin. If heads, discard an Energy...")."""
+    async def effect(ctx):
+        if flip and not (await ctx.flip_coins(1, title="Discard an Energy"))[0]:
+            return
+        if scope == "active":
+            pool = [ctx.opponent_active()]
+        else:
+            pool = ctx.opponent_pokemon_in_play()
+        eligible = [p for p in pool if p is not None
+                    and ctx.attached_energies(p)
+                    and any(energy_pred is None or energy_pred(e)
+                            for e in ctx.attached_energies(p))]
+        if not eligible:
+            return
+        if len(eligible) == 1:
+            holder = eligible[0]
+        else:
+            holder = await ctx.choose_pokemon(
+                eligible, "Choose a Pokémon to discard an Energy from") or eligible[0]
+        if holder is not None:
+            await ctx.discard_energy_from(
+                holder, count, predicate=energy_pred,
+                prompt="Choose an Energy to discard")
+    return effect
+
+
+def discard_energy_each_opponent(predicate=None):
+    """Discard one matching Energy from every one of the opponent's Pokemon
+    that has one (Crushing Hammer's "each of your opponent's Pokemon"
+    shape; Maiden's... 'Discard a Special Energy from each')."""
+    async def effect(ctx):
+        for pokemon in ctx.opponent_pokemon_in_play():
+            energies = [e for e in ctx.attached_energies(pokemon)
+                        if predicate is None or predicate(e)]
+            if energies:
+                await ctx.discard_energy_from(pokemon, 1, predicate=predicate)
+    return effect
+
+
+# --- Gusting ---------------------------------------------------------------
+
+def opponent_bench_to_active(flip: bool = False, opponent_chooses: bool = False):
+    """Switch one of the opponent's Benched Pokemon into the Active Spot
+    ('Switch in 1 of your opponent's Benched Pokemon'). flip pays a coin
+    first (Pokemon Catcher); opponent_chooses lets them pick (Escape Rope
+    wording)."""
+    async def effect(ctx):
+        if flip and not (await ctx.flip_coins(1, title="Switch in a Benched Pokémon"))[0]:
+            return
+        active = ctx.opponent_active()
+        bench = ctx.opponent_bench()
+        if active is None or not bench or ctx.effects_blocked(active):
+            return
+        if opponent_chooses:
+            target = await ctx.choose_pokemon(
+                bench, "Choose your new Active Pokémon", player_id=ctx.opponent_id
+            ) or bench[0]
+        else:
+            target = await ctx.choose_pokemon(
+                bench, "Choose the opponent's new Active Pokémon") or bench[0]
+        await ctx.switch_active(ctx.opponent_id, target)
+    return effect
+
+
+# --- Crooked deck searches -------------------------------------------------
+
+def search_two_kinds(first, first_count: int, second, second_count: int):
+    """Search the deck for up to `first_count` matches of `first` and
+    `second_count` of `second`, reveal them, put them into hand, shuffle
+    (Arven: an Item card and a Pokemon Tool card)."""
+    async def effect(ctx):
+        picks = []
+        for predicate, count in ((first, first_count), (second, second_count)):
+            found = [c for c in ctx.deck() if predicate(c)]
+            if not found:
+                continue
+            picks.extend(await ctx.search_deck(
+                predicate, count=count, minimum=0,
+                prompt="Choose a card to put into your hand.",
+            ))
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+# --- Energy movement -------------------------------------------------------
+
+def move_basic_energy(predicate=None):
+    """Move a Basic Energy from one of your Pokemon to another (Energy
+    Switch). The player picks the source, then the energy, then the target."""
+    async def effect(ctx):
+        fitted = [p for p in ctx.my_pokemon_in_play() if ctx.attached_energies(p)]
+        if not fitted:
+            return
+        source = await ctx.choose_pokemon(
+            fitted, "Choose a Pokémon to move an Energy from") if len(fitted) > 1 \
+            else fitted[0]
+        if source is None:
+            return
+        energies = [e for e in ctx.attached_energies(source)
+                    if predicate is None or predicate(e)]
+        if not energies:
+            return
+        picked = await ctx.choose_cards(
+            energies, 1, minimum=1,
+            prompt="Choose an Energy to move") if len(energies) > 1 else energies[:1]
+        if not picked:
+            return
+        targets = [p for p in ctx.my_pokemon_in_play() if p is not source]
+        if not targets:
+            return
+        target = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        if target is not None:
+            await ctx.move_energy(picked[0], target)
+    return effect
+
+
+# --- Evolution shortcuts ---------------------------------------------------
+
+def rare_candy():
+    """Evolve a Basic in play straight into a Stage 2 from hand, skipping
+    Stage 1 (not on your first turn; the script's `condition` covers that
+    half of the printed restriction)."""
+    async def effect(ctx):
+        basics = [p for p in ctx.my_pokemon_in_play()
+                  if p.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value]
+        stages = [c for c in ctx.hand() if is_stage_two(c)]
+        if not basics or not stages:
+            return
+        pairs = []
+        for basic in basics:
+            logic_name = basic.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+            if not logic_name:
+                continue
+            for card in stages:
+                if evolves_from(card.archetype_id, logic_name):
+                    pairs.append((basic, card))
+        if not pairs:
+            return
+        picked = await ctx.choose(
+            "Choose the Pokémon to evolve",
+            [f"{def_for(card.archetype_id).display_name} on "
+             f"{def_for(basic.archetype_id).display_name}"
+             for basic, card in pairs],
+        )
+        if picked is None or not 0 <= picked < len(pairs):
+            return
+        basic, card = pairs[picked]
+        await ctx.evolve_pokemon(basic, card)
+    return effect
+
+
+def opponent_shuffle_hand_draw(n: int):
+    """The opponent shuffles their hand into their deck and draws `n`
+    (Marnie's opponent half, Team Rocket's Admin shape)."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(ctx.opponent_id), ctx.opponent_id)
+        await ctx.draw_cards(n, ctx.opponent_id)
+    return effect
+
+
+def discard_hand_n(n: int, minimum=None):
+    """Discard `n` cards from your hand ("Discard 2 cards from your hand").
+    minimum defaults to the full `n`: the printed text is a cost, so the pick
+    is not optional."""
+    async def effect(ctx):
+        await ctx.discard_from_hand(
+            n, minimum=n if minimum is None else minimum,
+            prompt=f"Discard {n} card(s) from your hand",
+        )
+    return effect
+
+
+def recover_then_draw(predicate=None, count: int = 1, draw: int = 3):
+    """Shuffle up to `count` matching discard-pile cards back into the deck,
+    then draw `draw` if any went in (Miriam)."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose cards from your discard pile to shuffle into your deck",
+        )
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def switch_then_draw_until(hand_size: int):
+    """Switch your Active with a Benched Pokemon, then draw until the hand
+    holds `hand_size` cards."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        if bench:
+            target = await ctx.choose_play_target(bench, "Choose your new Active Pokémon")
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
+        await ctx.draw_until(hand_size)
+    return effect
+
+
+def discard_stadium_card():
+    """Discard the Stadium in play (if any)."""
+    async def effect(ctx):
+        await ctx.discard_stadium()
+    return effect
+
+
+# --- Effect combinators ----------------------------------------------------
+# A printing may put a requirement or a coin flip in front of an effect that
+# is otherwise a shape the library already knows; these wrap the inner one.
+
+def if_heads(inner):
+    """Run `inner` only when a coin flip comes up heads."""
+    async def effect(ctx):
+        if (await ctx.flip_coins(1, title="Flip a coin"))[0]:
+            await inner(ctx)
+    return effect
+
+
+def with_discard_cost(n: int, inner):
+    """Discard `n` other cards from your hand as the card's cost, then run
+    `inner` (declines when the hand cannot pay)."""
+    async def effect(ctx):
+        discarded = await ctx.discard_from_hand(
+            n, minimum=n, prompt=f"Discard {n} card(s) from your hand",
+        )
+        if len(discarded) < n:
+            return
+        await inner(ctx)
+    return effect
+
+
+def return_pokemon_to_hand(predicate=None, with_attachments="same", flip: bool = False):
+    """Put 1 of your Pokemon in play into your hand. with_attachments "same"
+    takes the whole stack ("and all cards attached to it"), "discard" leaves
+    the attachments behind in the discard pile. flip pays a coin first
+    (Super Scoop Up)."""
+    async def effect(ctx):
+        if flip and not (await ctx.flip_coins(1, title="Return a Pokémon to your hand"))[0]:
+            return
+        candidates = [p for p in ctx.my_pokemon_in_play()
+                      if predicate is None or predicate(p)]
+        if not candidates:
+            return
+        target = await ctx.choose_pokemon(
+            candidates, "Choose a Pokémon to put into your hand") \
+            if len(candidates) > 1 else candidates[0]
+        if target is None:
+            return
+        if with_attachments == "discard":
+            await ctx.discard_cards([c for c in full_stack(target) if c is not target])
+            await ctx.put_in_hand([target], reveal=False)
+        else:
+            await ctx.put_in_hand(full_stack(target), reveal=False)
+    return effect
+
+
+def each_player_shuffle_draw_per_prize(bottom: bool = False):
+    """Each player shuffles their hand into (or under) their deck, then draws
+    1 card for each of their remaining Prize cards."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            if bottom:
+                await ctx.hand_to_bottom_of_deck(player_id)
+            else:
+                await ctx.shuffle_into_deck(ctx.hand(player_id), player_id)
+        for player_id in ctx.board.player_ids:
+            area = ctx.board.find_player_area(player_id, "prizePile")
+            count = len(area.children) if area else 0
+            if count:
+                await ctx.draw_cards(count, player_id)
+    return effect
+
+
+def first_turn_draw_until(hand_size: int, first_turn_size: int):
+    """Draw until the hand holds `hand_size` cards, or `first_turn_size` when
+    this is your first turn (Lillie)."""
+    async def effect(ctx):
+        turn_state = getattr(ctx.board, "turn_state", None)
+        first_turn = turn_state is not None and turn_state.turn_number <= 2
+        await ctx.draw_until(first_turn_size if first_turn else hand_size)
+    return effect
+
+
+def any_of(*predicates):
+    """Predicate matching a card that satisfies any of `predicates`
+    ("a Pokémon or a Basic Energy card")."""
+    def predicate(card):
+        return any(p(card) for p in predicates)
+    return predicate
+
+
+def all_of(*predicates):
+    """Predicate matching a card that satisfies every one of `predicates`."""
+    def predicate(card):
+        return all(p(card) for p in predicates)
+    return predicate
+
+
+def search_to_top(n: int, predicate=None):
+    """Search the deck for up to `n` cards and put them back on top in any
+    order, then shuffle (the search half resolves like any other search)."""
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            predicate, count=n, minimum=0,
+            prompt="Choose cards to put back on top of your deck.",
+        )
+        await ctx.shuffle_deck()
+        for card in reversed(picks):
+            await ctx.put_on_top_of_deck(card)
+    return effect
+
+
+async def _evolve_in_play(ctx, evolution_cards):
+    """Offer every (Basic in play, matching evolution in hand) pair and evolve
+    the one the player picks. Shared by the Rare Candy / Evosoda shapes."""
+    pairs = []
+    for basic in ctx.my_pokemon_in_play():
+        if basic.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+            continue
+        logic_name = basic.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        if not logic_name:
+            continue
+        for card in evolution_cards:
+            if evolves_from(card.archetype_id, logic_name):
+                pairs.append((basic, card))
+    if not pairs:
+        return False
+    if len(pairs) == 1:
+        basic, card = pairs[0]
+    else:
+        picked = await ctx.choose(
+            "Choose the Pokémon to evolve",
+            [f"{def_for(card.archetype_id).display_name} on "
+             f"{def_for(basic.archetype_id).display_name}"
+             for basic, card in pairs],
+        )
+        if picked is None or not 0 <= picked < len(pairs):
+            return False
+        basic, card = pairs[picked]
+    return await ctx.evolve_pokemon(basic, card)
+
+
+def evolve_from_hand():
+    """Choose 1 of your Basic Pokemon in play and put a card from your hand
+    that evolves from it onto it (Evosoda shape); counts as evolving."""
+    async def effect(ctx):
+        await _evolve_in_play(ctx, [c for c in ctx.hand() if is_evolution_pokemon(c)])
+    return effect
+
+
+def turn_damage_boost(amount: int, pokemon_type=None, exclude_rule_box: bool = False):
+    """During this turn, attacks used by your Pokemon do `amount` more damage
+    to the opponent's Active Pokemon (before Weakness and Resistance).
+    pokemon_type narrows the boost to one type; exclude_rule_box skips
+    Rule Box Pokemon."""
+    async def effect(ctx):
+        def qualifies(entity):
+            if exclude_rule_box and has_rule_box(entity.archetype_id):
+                return False
+            if pokemon_type is not None:
+                types = entity.get_attribute(AttrID.POKEMON_TYPES) or []
+                if POKEMON_TYPE_NAMES[pokemon_type] not in types:
+                    return False
+            return True
+
+        ctx.add_turn_damage_modifier(TurnDamageModifier(
+            amount, ctx.player_id, source_predicate=qualifies))
+        for pokemon in ctx.my_pokemon_in_play():
+            if qualifies(pokemon):
+                await ctx.add_stat_visualization(
+                    pokemon, VisualizationArrow.POSITIVE,
+                    VisualizationType.DAMAGE_DEALT_INCREASED,
+                    card_text=f"+{amount} damage",
+                )
+    return effect
+
+
+# ======================================================================
+# Tool and Stadium stat passives
+# ----------------------------------------------------------------------
+# Thin wrappers over the factories in passives_common so a tool or stadium
+# script can be wired from its printed text (`passive=...`) the same way a
+# trainer is wired from its effect text.
+# ======================================================================
+
+def holder_damage_boost(amount: int, target_pred=None, to_active_only: bool = True):
+    """The attacks of the Pokemon this card is attached to do `amount` more
+    damage to the opponent's Active (or to targets matching `target_pred`)."""
+    return typed_damage_boost_tool(target_pred or (lambda target: True),
+                                   amount, to_active_only)
+
+
+def holder_hp_bonus(amount: int):
+    """The Pokemon this card is attached to gets +`amount` max HP."""
+    return hp_bonus_tool(amount)
+
+
+def holder_retreat_discount(count: int):
+    """The Retreat Cost of the Pokemon this card is attached to is `count`
+    Colorless less."""
+    return retreat_discount(count)
+
+
+def holder_no_weakness():
+    """The Pokemon this card is attached to has no Weakness."""
+    return no_weakness_passive()
+
+
+def holder_takes_less(amount: int, protect_type=None):
+    """The Pokemon this card is attached to takes `amount` less damage from
+    the opponent's attacks. protect_type restricts it to one typed holder."""
+    if protect_type is None:
+        return takes_less_passive(amount)
+    holder_pred = pokemon_of(protect_type)
+    return takes_less_passive(
+        amount, protects=lambda target, carrier: carrier_pokemon(carrier) is target
+        and holder_pred(target))
+
+
+def stadium_retreat_discount(count: int, basic_only: bool = False):
+    """Every (Basic) Pokemon in play has a Retreat Cost `count` Colorless less."""
+    if basic_only:
+        return retreat_discount(
+            count, target_pred=lambda target, carrier: is_basic_pokemon(target))
+    return retreat_discount(count, target_pred=lambda target, carrier: True)
+
+
+def stadium_takes_less(amount: int, protect_type=None):
+    """Pokemon (both sides) take `amount` less damage from opposing attacks,
+    optionally only Pokemon of one type."""
+    if protect_type is None:
+        return takes_less_passive(
+            amount, protects=lambda target, carrier: True)
+    type_pred = pokemon_of(protect_type)
+    return takes_less_passive(
+        amount, protects=lambda target, carrier: type_pred(target))
+
+
+class ToolsSuppressedStadiumPassive(Passive):
+    """Pokemon Tools attached to each Pokemon (both sides) have no effect."""
+
+    def suppresses_tool(self, tool, carrier):
+        return True
+
+
+class AllAbilitiesOffPassive(Passive):
+    """Each Pokemon in play (both sides) has no Abilities."""
+
+    def blocks_abilities(self, pokemon, carrier):
+        return True
+
+
+class CombinedPassive(Passive):
+    """Two continuous effects printed on one card ("... takes 30 less damage
+    and has no Weakness"), each hook forwarded to every part."""
+
+    def __init__(self, *parts):
+        self.parts = parts
+
+    def modify_damage_dealt(self, calc, carrier):
+        for part in self.parts:
+            part.modify_damage_dealt(calc, carrier)
+
+    def modify_weakness(self, calc, carrier):
+        for part in self.parts:
+            part.modify_weakness(calc, carrier)
+
+    def modify_resistance(self, calc, carrier):
+        for part in self.parts:
+            part.modify_resistance(calc, carrier)
+
+    def modify_damage_taken(self, calc, carrier):
+        for part in self.parts:
+            part.modify_damage_taken(calc, carrier)
+
+    def max_hp_bonus(self, pokemon, carrier):
+        return sum(part.max_hp_bonus(pokemon, carrier) for part in self.parts)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        for part in self.parts:
+            cost = part.modify_retreat_cost(cost, pokemon, carrier, board)
+        return cost
+
+    def suppresses_tool(self, tool, carrier):
+        return any(part.suppresses_tool(tool, carrier) for part in self.parts)
+
+
+def combined(*parts):
+    """One passive from several (a tool that both reduces damage and removes
+    Weakness)."""
+    return CombinedPassive(*parts)
+
+
+# --- Composed shapes -------------------------------------------------------
+
+def draw_n_prize_bonus(base: int, bonus: int, threshold: int):
+    """Draw `base` cards; draw `bonus` more once the opponent holds
+    `threshold` Prize cards or fewer."""
+    async def effect(ctx):
+        await ctx.draw_cards(base)
+        area = ctx.board.find_player_area(ctx.opponent_id, "prizePile")
+        if area is not None and len(area.children) <= threshold:
+            await ctx.draw_cards(bonus)
+    return effect
+
+
+def shuffle_one_hand_draw(n: int):
+    """Shuffle 1 card from your hand into your deck, then draw `n`; declines
+    an empty hand ("If you have any cards in your hand...")."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1,
+            prompt="Choose a card from your hand to shuffle into your deck")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        await ctx.draw_cards(n)
+    return effect
+
+
+def flip_recover_basic_energy(maximum: int):
+    """Flip a coin per card and put a Basic Energy from the discard pile into
+    your hand for each heads (up to `maximum`)."""
+    async def effect(ctx):
+        heads = sum(1 for result in
+                    await ctx.flip_coins(maximum, title="Recover Energy")
+                    if result)
+        cards = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+        take = min(heads, len(cards))
+        if take <= 0:
+            return
+        picks = await ctx.choose_cards(
+            cards, take, minimum=take,
+            prompt="Choose Basic Energy cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def recover_basic_to_bench(count: int = 1):
+    """Put Basic Pokemon from your discard pile onto your Bench."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile() if is_basic_pokemon(c)]
+        space = BENCH_CAPACITY - len(ctx.my_bench())
+        take = min(count, len(cards), max(0, space))
+        if take <= 0:
+            return
+        picks = await ctx.choose_cards(
+            cards, take, minimum=0,
+            prompt="Choose a Basic Pokémon to put onto your Bench")
+        for card in picks:
+            await ctx.bench_pokemon(card)
+    return effect
+
+
+def reveal_until_supporter():
+    """Reveal cards from the top of your deck until a Supporter appears, put
+    it into your hand, and shuffle the rest back in."""
+    async def effect(ctx):
+        revealed = []
+        found = None
+        for card in ctx.deck_top(len(ctx.deck())):
+            revealed.append(card)
+            if is_supporter_card(card):
+                found = card
+                break
+        if revealed:
+            await ctx.reveal_cards(revealed)
+        if found is not None:
+            await ctx.put_in_hand([found], reveal=False)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def devolve_one(count: int = 1):
+    """Devolve `count` of your evolved Pokemon once each, putting the removed
+    evolution card into your hand."""
+    async def effect(ctx):
+        evolved = [p for p in ctx.my_pokemon_in_play()
+                   if is_evolution_pokemon(p)]
+        if not evolved:
+            return
+        target = await ctx.choose_pokemon(
+            evolved, "Choose an evolved Pokémon to devolve") \
+            if len(evolved) > 1 else evolved[0]
+        if target is None:
+            return
+        await ctx.devolve_pokemon(target, steps=count, destination="hand")
     return effect

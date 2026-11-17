@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import discard_energy_opponent
 
 card = ItemCardDef(
     guid="b4de586b-4dbf-5e31-9769-5b02ee5f6266",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=105,
     set_code="ME5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=discard_energy_opponent(flip=True)
 )

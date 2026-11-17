@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import opponent_bench_to_active
 
 card = ItemCardDef(
     guid="89ab3190-09fc-5c8d-b62e-c630ec13da46",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=129,
     set_code="ME6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=opponent_bench_to_active(flip=True)
 )

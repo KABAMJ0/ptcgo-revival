@@ -1,5 +1,6 @@
 from spirit.game.data_utils import PokemonToolCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import combined, holder_no_weakness, holder_takes_less
 
 card = PokemonToolCardDef(
     guid="45cc47dd-b2fb-5fdb-8661-6da8390e7a9c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=112,
     set_code="SM6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=combined(combined(holder_takes_less(30), holder_no_weakness()))
 )

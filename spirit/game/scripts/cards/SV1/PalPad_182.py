@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import is_supporter_card
 
 card = ItemCardDef(
     guid="0b83cf15-1302-5b47-aa39-9fd803d5e895",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=182,
     set_code="SV1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=recover_from_discard(is_supporter_card, count=2, to="deck_shuffle")
 )

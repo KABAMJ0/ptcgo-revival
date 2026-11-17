@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import all_of, is_basic_energy_card, is_pokemon_card
 
 card = SupporterCardDef(
     guid="9a9ff7e9-7328-5ce7-b42d-a99100c931d3",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=53,
     set_code="SM115",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=recover_from_discard(all_of(is_pokemon_card, is_basic_energy_card), count=6, to="deck_shuffle")
 )

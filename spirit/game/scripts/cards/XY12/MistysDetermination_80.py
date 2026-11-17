@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
+from spirit.game.card_effects.trainers import with_discard_cost
 
 card = SupporterCardDef(
     guid="63afda62-82d4-572b-87d4-2b9ade7723d9",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=80,
     set_code="XY12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=with_discard_cost(1, look_at_top(8, take=1))
 )

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import StadiumCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import ToolsSuppressedStadiumPassive
 
 card = StadiumCardDef(
     guid="e4926507-cd67-5452-bc47-efd70153bb9c",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=243,
     set_code="SV10",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=ToolsSuppressedStadiumPassive()
 )

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import heal_item
 
 card = ItemCardDef(
     guid="b4f031af-021c-55f2-b952-0223a54becbb",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=92,
     set_code="DP7",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=heal_item(amount=20, scope="choice")
 )

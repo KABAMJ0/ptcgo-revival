@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import pokemon_of
 
 card = ItemCardDef(
     guid="6adcfc8e-7875-5de9-b36d-8f7b2ea10fb6",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=161,
     set_code="XY5",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=search_to_hand(pokemon_of("water"), count=1)
 )

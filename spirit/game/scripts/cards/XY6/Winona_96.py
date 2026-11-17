@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import pokemon_of
 
 card = SupporterCardDef(
     guid="2d508c1f-20bd-592d-a839-2043f63b4385",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=96,
     set_code="XY6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(pokemon_of("colorless"), count=3)
 )

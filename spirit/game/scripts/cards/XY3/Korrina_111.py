@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import all_of, is_item_card, pokemon_of
 
 card = SupporterCardDef(
     guid="0a884062-fb4e-5970-ba25-7ae0834d6dd3",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=111,
     set_code="XY3",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_to_hand(all_of(pokemon_of("fighting"), is_item_card), count=1)
 )

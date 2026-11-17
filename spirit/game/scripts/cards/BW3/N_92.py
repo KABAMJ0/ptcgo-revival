@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import each_player_shuffle_draw_per_prize
 
 card = SupporterCardDef(
     guid="756b655b-6fd0-5e82-bb50-842c0931a35b",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=92,
     set_code="BW3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=each_player_shuffle_draw_per_prize()
 )

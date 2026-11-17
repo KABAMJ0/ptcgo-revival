@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import devolve_one
 
 card = ItemCardDef(
     guid="fffc7ce3-749f-5fa5-94d5-c39526977302",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=76,
     set_code="XY12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=devolve_one(1)
 )

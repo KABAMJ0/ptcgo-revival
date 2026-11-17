@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import return_pokemon_to_hand
 
 card = SupporterCardDef(
     guid="5aba40ac-f97f-591b-a9b7-7425a4d5ad63",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=257,
     set_code="SV4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=return_pokemon_to_hand(with_attachments="discard")
 )
