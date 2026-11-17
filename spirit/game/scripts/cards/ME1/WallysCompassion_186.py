@@ -1,6 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
-from spirit.game.card_effects.trainers import heal_all_then_energy_to_hand
+from spirit.game.card_effects.trainers import heal_all_then_energy_to_hand, pokemon_of_subtype
 
 card = SupporterCardDef(
     guid="5558a073-548d-5de6-bf25-fe6dfa55acfa",
@@ -12,5 +12,5 @@ card = SupporterCardDef(
     collector_number=186,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=heal_all_then_energy_to_hand()
+    effect=heal_all_then_energy_to_hand(pokemon_of_subtype("MEGA"))
 )

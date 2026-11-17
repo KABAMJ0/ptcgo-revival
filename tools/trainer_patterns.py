@@ -910,7 +910,7 @@ RULES = [
     Rule("heal-all-then-energy-to-hand",
          r"heal all damage from (?P<n>\d+) of your mega evolution pokemon ex if you healed any "
          r"damage in this way put all energy attached to that pokemon into your hand",
-         "heal_all_then_energy_to_hand", lambda m: []),
+         "heal_all_then_energy_to_hand", lambda m: ['pokemon_of_subtype("MEGA")']),
     Rule("trade-pokemon",
          r"trade (?P<n>\d+) of the basic pokemon or evolution cards in your hand for (?P<c>\d+) "
          r"of the basic pokemon or evolution cards from your deck.*",

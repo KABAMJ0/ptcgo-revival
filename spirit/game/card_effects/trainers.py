@@ -2704,12 +2704,13 @@ def flip_search_basic():
     return effect
 
 
-def heal_all_then_energy_to_hand():
-    """Heal all damage from 1 of your Pokemon, then put all Energy attached to
-    it into your hand."""
+def heal_all_then_energy_to_hand(predicate=None):
+    """Heal all damage from 1 of your (matching) Pokemon, then put all Energy
+    attached to it into your hand."""
     async def effect(ctx):
         damaged = [p for p in ctx.my_pokemon_in_play()
-                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)
+                   and (predicate is None or predicate(p))]
         if not damaged:
             return
         target = await ctx.choose_pokemon(
@@ -2921,7 +2922,7 @@ def switch_then_heal_ex(amount: int = 80):
         if target is None or not await ctx.switch_active(ctx.player_id, target):
             return
         if is_pokemon_ex(old_active):
-            await ctx.heal(amount, target)
+            await ctx.heal(amount, old_active)
     return effect
 
 
