@@ -2044,6 +2044,11 @@ class CombinedPassive(Passive):
     def suppresses_tool(self, tool, carrier):
         return any(part.suppresses_tool(tool, carrier) for part in self.parts)
 
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        for part in self.parts:
+            count = part.modify_prizes_for_knockout(pokemon, ctx, count, carrier)
+        return count
+
 
 def combined(*parts):
     """One passive from several (a tool that both reduces damage and removes
@@ -3539,3 +3544,46 @@ def named_exactly(name: str):
 def is_pokemon_v_card(card) -> bool:
     """Predicate: a Pokemon V of any kind (V, VSTAR, VMAX, V-UNION)."""
     return is_pokemon_card(card) and is_pokemon_v(card.archetype_id)
+
+
+def _attack_ko_by_opponent(pokemon, ctx):
+    """Whether `pokemon` was knocked out by damage from the opponent's attack."""
+    if ctx is None or not ctx.is_attack_effect():
+        return False
+    attacker = getattr(ctx, "attacker", None)
+    if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+        return False
+    return pokemon.entity_id in getattr(ctx, "attack_damage", {})
+
+
+class KnockoutPrizeShiftPassive(Passive):
+    """The opponent takes `delta` more (or fewer) Prize cards when the holder
+    (holder_only) or any matching Pokemon (stadium) is knocked out."""
+
+    def __init__(self, delta, pred=None, holder_only=True, attack_only=True):
+        self.delta = delta
+        self.pred = pred
+        self.holder_only = holder_only
+        self.attack_only = attack_only
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        if self.holder_only and carrier_pokemon(carrier) is not pokemon:
+            return count
+        if self.pred is not None and not self.pred(pokemon):
+            return count
+        if self.attack_only and not _attack_ko_by_opponent(pokemon, ctx):
+            return count
+        return max(0, count + self.delta)
+
+
+def holder_prize_shift(delta: int, holder=None, attack_only: bool = True):
+    """If the <holder> this card is attached to is Knocked Out (by damage from
+    an opponent's attack), the opponent takes |delta| more/fewer Prize cards."""
+    return KnockoutPrizeShiftPassive(delta, holder, True, attack_only)
+
+
+def stadium_prize_shift(delta: int, pred):
+    """Whenever a <pred> Pokemon (both sides) is Knocked Out by damage from an
+    opponent's attack, that player takes |delta| more/fewer Prize cards."""
+    return KnockoutPrizeShiftPassive(delta, pred, False, True)
+

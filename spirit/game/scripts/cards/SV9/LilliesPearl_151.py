@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import all_of, holder_prize_shift, is_pokemon_card, owned_by
 
 card = PokemonToolCardDef(
     guid="f2c517b6-f0d5-5886-9b0b-79fed97bd954",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=151,
     set_code="SV9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_prize_shift(-1, all_of(is_pokemon_card, owned_by("lillie")))
 )

@@ -73,7 +73,7 @@ OWNER_NAMES = {
     "giovannis": "giovanni", "surges": "surge", "lanas": "lana",
     "guzmas": "guzma", "lusamines": "lusamine", "sadas": "sada",
     "turos": "turo", "nemonas": "nemona", "kukuis": "kukui", "draytons": "drayton",
-    "cyllenes": "cyllene", "colresss": "colress", "klaras": "klara",
+    "cyllenes": "cyllene", "colresss": "colress", "klaras": "klara", "lillies": "lillie",
 }
 
 _TYPED_ENERGY = re.compile(
@@ -1193,6 +1193,39 @@ RULES = [
          r"before applying weakness and resistance",
          "gated_damage_boost",
          lambda m: [m.group("amount"), _holder(m.group("holder"))], kind="passive"),
+
+    # --- Prize count on Knock Out ---------------------------------------
+    Rule("holder-prize-fewer-any-ko",
+         r"if the pokemon this card is attached to is knocked out your opponent takes "
+         r"(?P<n>\d+) fewer prize cards?",
+         "holder_prize_shift", lambda m: ["-" + m.group("n"), "None", "attack_only=False"],
+         kind="passive"),
+    Rule("holder-prize-fewer",
+         r"if the (?P<holder>[a-z0-9 ]+?) this card is attached to is knocked out by damage from "
+         r"1 attack from your opponents pokemon that player takes (?P<n>\d+) fewer prize cards?",
+         "holder_prize_shift", lambda m: ["-" + m.group("n"), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("amulet-hp-and-prize-fewer",
+         r"the pokemon gx or pokemon ex this card is attached to gets (?P<hp>\d+) hp and when it "
+         r"is knocked out by damage from 1 opponents attack that player takes (?P<n>\d+) fewer "
+         r"prize cards?",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, any_of(is_pokemon_gx, is_pokemon_EX))" % m.group("hp"),
+                    "holder_prize_shift(-%s, any_of(is_pokemon_gx, is_pokemon_EX))" % m.group("n")],
+         kind="passive"),
+    Rule("cape-hp-and-prize-more",
+         r"if the pokemon this card is attached to doesnt have 1 rule box it gets (?P<hp>\d+) hp "
+         r"and if it is knocked out by damage from 1 attack from your opponents pokemon that "
+         r"player takes (?P<n>\d+) more prize cards?",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, is_rule_box_free_pokemon)" % m.group("hp"),
+                    "holder_prize_shift(%s, is_rule_box_free_pokemon)" % m.group("n")],
+         kind="passive"),
+    Rule("stadium-prize-fewer",
+         r"whenever 1 (?P<cat>[a-z0-9 ]+?) yours or your opponents is knocked out by damage from "
+         r"1 attack from the opponents pokemon that player takes (?P<n>\d+) fewer prize cards?",
+         "stadium_prize_shift", lambda m: ["-" + m.group("n"), _union(m.group("cat"))],
+         kind="passive"),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
