@@ -55,6 +55,18 @@ HIDDEN_FROM_FILTER = {
     "Base", "Neo", "E-Card", "Gym", "EX", "Diamond & Pearl", "Platinum", "POP Series",
 }
 
+# The client builds the filter's label key from the block string itself:
+# block "SM" looks up "collection.filter.series.sm". That is why the shipped set
+# table uses short codes, and why a block called "Mega Evolution" rendered as a
+# raw key -- its key became "collection.filter.series.mega evolution".
+SLUG_FOR_LABEL = {
+    "Base": "base", "Neo": "neo", "E-Card": "ecard", "Gym": "gym", "EX": "ex",
+    "Diamond & Pearl": "dp", "Platinum": "pl", "HeartGold & SoulSilver": "hgss",
+    "Black & White": "bw", "XY": "xy", "Sun & Moon": "sm",
+    "Sword & Shield": "swsh", "Scarlet & Violet": "sv", "Mega Evolution": "me",
+    "POP Series": "pop", "Promos": "promos", "Custom": "custom",
+}
+
 # the filter's own order, oldest era to newest, promos next to last
 BLOCK_ORDER = [
     "Base", "Neo", "E-Card", "Gym", "EX", "Diamond & Pearl", "Platinum",
@@ -92,7 +104,7 @@ def main():
         label = label_for(entry, meta)
         if entry.get("block") != label:
             changed += 1
-        entry["block"] = label
+        entry["block"] = SLUG_FOR_LABEL.get(label, label.lower())
         entry["filter"] = label not in HIDDEN_FROM_FILTER
         # a set with no cards at all should not advertise itself in the picker
         code = entry.get("name", "")
