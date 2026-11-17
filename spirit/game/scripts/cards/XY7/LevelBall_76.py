@@ -1,5 +1,7 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import all_of, is_pokemon_card, pokemon_with_hp_at_most
 
 card = ItemCardDef(
     guid="543b23c8-9679-5054-a8c6-3f96358f1781",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=76,
     set_code="XY7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(all_of(is_pokemon_card, pokemon_with_hp_at_most(90)), count=1)
 )

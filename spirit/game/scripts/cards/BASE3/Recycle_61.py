@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import recycle_from_discard
 
 card = ItemCardDef(
     guid="dc249005-d213-5514-864f-90704c0ca770",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=61,
     set_code="BASE3",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=recycle_from_discard(1)
 )

@@ -1541,6 +1541,43 @@ RULES = [
     Rule("look-top-same-order",
          r"look at the top (?P<n>\d+) cards of your deck and put them back in the same order",
          "look_top_peek", lambda m: [m.group("n")]),
+    Rule("search-hand-hp-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) with (?P<hp>\d+) hp or "
+         r"less (?:reveal|show) (?:it|them)(?: to your opponent)? and put (?:it|them) into your "
+         r"hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, pokemon_with_hp_at_most(%s))"
+                    % (_pred(m.group("cat")), m.group("hp")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-retreat-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) with (?P<n2>\d+) retreat "
+         r"cost of (?P<cost>\d+) or more (?:reveal|show) (?:it|them)(?: to your opponent)? and put "
+         r"(?:it|them) into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, pokemon_with_retreat_at_least(%s))"
+                    % (_pred(m.group("cat")), m.group("cost")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-word-in-name",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) that have the word "
+         r"(?P<word>[a-z]+) in their name (?:reveal|show) (?:it|them) and put (?:it|them) into "
+         r"your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, card_named_contains(\"%s\"))"
+                    % (_pred(m.group("cat")), m.group("word")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("recycle-from-discard",
+         r"flip (?P<coins>\d+) coin if heads put (?P<n>\d+) card in your discard pile on top of "
+         r"your deck",
+         "recycle_from_discard", lambda m: [m.group("n")]),
+    Rule("look-top-two-take-one-bottom",
+         r"look at the top (?P<n>\d+) cards of your deck choose (?P<take>\d+) of them and put it "
+         r"into your hand put the other card on the bottom of your deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="bottom"', "minimum=0"],
+         module="support_common"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1641,6 +1678,8 @@ WRAPPERS = [
     (re.compile(r"^you can (?:use|play) this card only if you discard another card from your "
                 r"hand "), "with_discard_cost", "1"),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you do "),
+     "with_discard_cost", None),
+    (re.compile(r"^discard (?P<n>\d+) card from your hand in order to play this card "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
                 r"you cant play this card "), "with_discard_cost", None),

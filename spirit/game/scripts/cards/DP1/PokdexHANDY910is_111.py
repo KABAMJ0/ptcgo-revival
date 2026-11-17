@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
 
 card = ItemCardDef(
     guid="5d41809b-f503-5ebc-a5db-8d07eb58bfea",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=111,
     set_code="DP1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(2, take=1, rest="bottom", minimum=0)
 )

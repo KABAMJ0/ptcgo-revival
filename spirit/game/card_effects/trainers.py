@@ -3943,3 +3943,48 @@ def look_top_peek(count: int):
     async def effect(ctx):
         ctx.deck_top(count)
     return effect
+
+
+def pokemon_with_hp_at_most(limit: int):
+    """Predicate: a Pokemon card whose printed HP is `limit` or less."""
+    def predicate(card):
+        return is_pokemon_card(card) and (card.get_attribute(AttrID.HP, 0) or 0) <= limit
+    return predicate
+
+
+def pokemon_with_retreat_at_least(minimum: int):
+    """Predicate: a Pokemon card with a printed Retreat Cost of `minimum`+."""
+    def predicate(card):
+        return is_pokemon_card(card) and \
+            (card.get_attribute(AttrID.RETREAT_COST, 0) or 0) >= minimum
+    return predicate
+
+
+def recycle_from_discard(count: int = 1):
+    """Put `count` cards from your discard pile on top of your deck."""
+    async def effect(ctx):
+        cards = ctx.discard_pile()
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose card(s) from your discard pile to put on top of your deck")
+        for card in picks:
+            await ctx.put_on_top_of_deck(card)
+    return effect
+
+
+def devolve_stage(stage: str = "stage 1"):
+    """Choose one of your evolved Pokemon and discard its highest evolution
+    card (devolve it one stage)."""
+    async def effect(ctx):
+        evolved = [p for p in ctx.my_pokemon_in_play()
+                   if ctx.evolutions_of(p)] if hasattr(ctx, "evolutions_of") else []
+        target = None
+        if evolved:
+            target = await ctx.choose_pokemon(
+                evolved, "Choose a Pokémon to devolve") if len(evolved) > 1 else evolved[0]
+        if target is None:
+            return
+        await ctx.devolve_pokemon(target, steps=1, destination="discard")
+    return effect
