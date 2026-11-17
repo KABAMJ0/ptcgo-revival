@@ -1,341 +1,11 @@
 [
   {
-    "name": "HGSS_Energy",
-    "externalId": "HSEnergy",
-    "number": 429,
-    "count": 9,
-    "filter": false,
-    "block": "HGSS",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK5A",
-    "externalId": "TK-Zoroark",
-    "number": 475,
-    "count": 30,
-    "filter": true,
-    "block": "BW",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK5B",
-    "externalId": "TK-Excadrill",
-    "number": 476,
-    "count": 30,
-    "filter": true,
-    "block": "BW",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "BW_Energy",
-    "externalId": "BLWEnergy",
-    "number": 479,
-    "count": 9,
-    "filter": false,
-    "block": "BW",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK6A",
-    "externalId": "TK-Noivern",
-    "number": 582,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK6B",
-    "externalId": "TK-Sylveon",
-    "number": 583,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK7A",
-    "externalId": "TK-Bisharp",
-    "number": 584,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK7B",
-    "externalId": "TK-Wigglytuff",
-    "number": 585,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK8A",
-    "externalId": "TK-Latios",
-    "number": 586,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK8B",
-    "externalId": "TK-Latias",
-    "number": 587,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK9A",
-    "externalId": "TK-PikachuLibre",
-    "number": 588,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK9B",
-    "externalId": "TK-Suicune",
-    "number": 589,
-    "count": 30,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY_Energy",
-    "externalId": "XYEnergy",
-    "number": 591,
-    "count": 9,
-    "filter": false,
-    "block": "XY",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY2",
-    "externalId": "FLF",
-    "number": 600,
-    "count": 106,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "a32d53bd-0b6c-4d0a-b0f3-a5d217c40067",
-      "186f10f1-ab34-44b9-b7ae-a8bcede77b0a",
-      "20168ca6-9df9-4c28-81f8-3867123e7820"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "RSP",
-    "externalId": "RSP",
-    "number": 620,
-    "count": 13,
-    "filter": true,
-    "block": "RSP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
-  },
-  {
-    "name": "XY11",
-    "externalId": "STS",
-    "number": 720,
-    "count": 114,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "426e8b06-2f70-48b4-9574-6a40f32954d4",
-      "b27273cc-f7b5-4888-8766-8fdb6a7413c7",
-      "17a306c7-89fd-4164-8166-5716c0eb5a3b"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK10A",
-    "externalId": "TK-Lycanroc",
-    "number": 738,
-    "count": 30,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "TK10B",
-    "externalId": "TK-AlolanRaichu",
-    "number": 739,
-    "count": 30,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM_Energy",
-    "externalId": "SMEnergy",
-    "number": 741,
-    "count": 9,
-    "filter": false,
-    "block": "SM",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "McDonalds",
-    "externalId": "MCD",
-    "number": 781,
-    "count": 0,
-    "filter": false,
-    "block": "NONE",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM8",
-    "externalId": "LOT",
-    "number": 850,
-    "count": 214,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "d5f17596-a2c2-4841-a28c-f355ee3ac4a6",
-      "15e538de-7882-481f-9920-0364eb477e13",
-      "0dba63e9-c97c-4451-acba-d276b28e6522"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SWSH_Energy",
-    "externalId": "SWSHEnergy",
-    "number": 921,
-    "count": 9,
-    "filter": false,
-    "block": "SWSH",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "BASE1",
     "externalId": "BS",
     "number": 1000,
     "count": 102,
     "filter": true,
-    "block": "BASE",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -347,7 +17,7 @@
     "number": 1001,
     "count": 64,
     "filter": true,
-    "block": "BASE",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -359,7 +29,7 @@
     "number": 1002,
     "count": 53,
     "filter": true,
-    "block": "BASE",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -371,7 +41,7 @@
     "number": 1003,
     "count": 62,
     "filter": true,
-    "block": "BASE",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -383,7 +53,7 @@
     "number": 1004,
     "count": 130,
     "filter": true,
-    "block": "BASE",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -395,31 +65,7 @@
     "number": 1005,
     "count": 83,
     "filter": true,
-    "block": "BASE",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "GYM1",
-    "externalId": "G1",
-    "number": 1006,
-    "count": 132,
-    "filter": true,
-    "block": "GYM",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "GYM2",
-    "externalId": "G2",
-    "number": 1007,
-    "count": 132,
-    "filter": true,
-    "block": "GYM",
+    "block": "Base",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -431,7 +77,7 @@
     "number": 1008,
     "count": 111,
     "filter": true,
-    "block": "NEO",
+    "block": "Neo",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -443,19 +89,7 @@
     "number": 1009,
     "count": 75,
     "filter": true,
-    "block": "NEO",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SI1",
-    "externalId": "SI1",
-    "number": 1010,
-    "count": 18,
-    "filter": true,
-    "block": "OTHER",
+    "block": "Neo",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -467,7 +101,7 @@
     "number": 1011,
     "count": 66,
     "filter": true,
-    "block": "NEO",
+    "block": "Neo",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -479,19 +113,7 @@
     "number": 1012,
     "count": 113,
     "filter": true,
-    "block": "NEO",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "BASE6",
-    "externalId": "LC",
-    "number": 1013,
-    "count": 110,
-    "filter": true,
-    "block": "OTHER",
+    "block": "Neo",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -503,19 +125,7 @@
     "number": 1014,
     "count": 165,
     "filter": true,
-    "block": "ECARD",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "BP",
-    "externalId": "BP",
-    "number": 1015,
-    "count": 9,
-    "filter": true,
-    "block": "OTHER",
+    "block": "E-Card",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -527,7 +137,7 @@
     "number": 1016,
     "count": 182,
     "filter": true,
-    "block": "ECARD",
+    "block": "E-Card",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -539,7 +149,31 @@
     "number": 1017,
     "count": 182,
     "filter": true,
-    "block": "ECARD",
+    "block": "E-Card",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "GYM1",
+    "externalId": "G1",
+    "number": 1006,
+    "count": 132,
+    "filter": true,
+    "block": "Gym",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "GYM2",
+    "externalId": "G2",
+    "number": 1007,
+    "count": 132,
+    "filter": true,
+    "block": "Gym",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -552,18 +186,6 @@
     "count": 109,
     "filter": true,
     "block": "EX",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "NP",
-    "externalId": "PR-NP",
-    "number": 1019,
-    "count": 40,
-    "filter": true,
-    "block": "PROMO",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -642,18 +264,6 @@
     "promo": false
   },
   {
-    "name": "POP1",
-    "externalId": "POP1",
-    "number": 1026,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "EX8",
     "externalId": "DX",
     "number": 1027,
@@ -672,18 +282,6 @@
     "count": 107,
     "filter": true,
     "block": "EX",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP2",
-    "externalId": "POP2",
-    "number": 1029,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -726,18 +324,6 @@
     "promo": false
   },
   {
-    "name": "POP3",
-    "externalId": "POP3",
-    "number": 1033,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "EX13",
     "externalId": "HP",
     "number": 1034,
@@ -756,18 +342,6 @@
     "count": 100,
     "filter": true,
     "block": "EX",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP4",
-    "externalId": "POP4",
-    "number": 1036,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -798,36 +372,12 @@
     "promo": false
   },
   {
-    "name": "POP5",
-    "externalId": "POP5",
-    "number": 1039,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "DP1",
     "externalId": "DP",
     "number": 1040,
     "count": 130,
     "filter": true,
-    "block": "DP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "DPP",
-    "externalId": "PR-DPP",
-    "number": 1041,
-    "count": 56,
-    "filter": true,
-    "block": "DP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -839,19 +389,7 @@
     "number": 1042,
     "count": 124,
     "filter": true,
-    "block": "DP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP6",
-    "externalId": "POP6",
-    "number": 1043,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -863,7 +401,7 @@
     "number": 1044,
     "count": 132,
     "filter": true,
-    "block": "DP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -875,19 +413,7 @@
     "number": 1045,
     "count": 106,
     "filter": true,
-    "block": "DP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP7",
-    "externalId": "POP7",
-    "number": 1046,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -899,7 +425,7 @@
     "number": 1047,
     "count": 100,
     "filter": true,
-    "block": "DP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -911,19 +437,7 @@
     "number": 1048,
     "count": 146,
     "filter": true,
-    "block": "DP",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP8",
-    "externalId": "POP8",
-    "number": 1049,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -935,7 +449,7 @@
     "number": 1050,
     "count": 106,
     "filter": true,
-    "block": "DP",
+    "block": "Diamond & Pearl",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -947,19 +461,7 @@
     "number": 1051,
     "count": 133,
     "filter": true,
-    "block": "PL",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "POP9",
-    "externalId": "POP9",
-    "number": 1052,
-    "count": 17,
-    "filter": true,
-    "block": "POP",
+    "block": "Platinum",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -971,7 +473,7 @@
     "number": 1053,
     "count": 120,
     "filter": true,
-    "block": "PL",
+    "block": "Platinum",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -983,7 +485,7 @@
     "number": 1054,
     "count": 153,
     "filter": true,
-    "block": "PL",
+    "block": "Platinum",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -995,19 +497,7 @@
     "number": 1055,
     "count": 111,
     "filter": true,
-    "block": "PL",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "RU1",
-    "externalId": "RU1",
-    "number": 1056,
-    "count": 16,
-    "filter": true,
-    "block": "OTHER",
+    "block": "Platinum",
     "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
@@ -1019,7 +509,7 @@
     "number": 1057,
     "count": 124,
     "filter": true,
-    "block": "HGSS",
+    "block": "HeartGold & SoulSilver",
     "legalFormats": [],
     "featuredArchetypes": [
       "ac14e591-d717-4ab8-bda0-6b9a2a0ba0da",
@@ -1030,24 +520,12 @@
     "promo": false
   },
   {
-    "name": "Promo_HGSS",
-    "externalId": "PR-HS",
-    "number": 1058,
-    "count": 25,
-    "filter": true,
-    "block": "HGSS",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
-  },
-  {
     "name": "HGSS2",
     "externalId": "UL",
     "number": 1059,
     "count": 96,
     "filter": true,
-    "block": "HGSS",
+    "block": "HeartGold & SoulSilver",
     "legalFormats": [],
     "featuredArchetypes": [
       "e9a9112e-5766-11e1-81f9-782bcb9e3ead",
@@ -1063,7 +541,7 @@
     "number": 1060,
     "count": 91,
     "filter": true,
-    "block": "HGSS",
+    "block": "HeartGold & SoulSilver",
     "legalFormats": [],
     "featuredArchetypes": [
       "f11f2691-5da3-11e1-8852-d9628f8696f0",
@@ -1079,7 +557,7 @@
     "number": 1061,
     "count": 103,
     "filter": true,
-    "block": "HGSS",
+    "block": "HeartGold & SoulSilver",
     "legalFormats": [],
     "featuredArchetypes": [
       "f140439c-5da3-11e1-883c-d9628f8696f0",
@@ -1095,7 +573,7 @@
     "number": 1062,
     "count": 106,
     "filter": true,
-    "block": "HGSS",
+    "block": "HeartGold & SoulSilver",
     "legalFormats": [],
     "featuredArchetypes": [
       "f20bb468-4639-472a-b3f2-73dacc1db5f8",
@@ -1106,27 +584,12 @@
     "promo": false
   },
   {
-    "name": "Promo_BW",
-    "externalId": "PR-BLW",
-    "number": 1063,
-    "count": 101,
-    "filter": true,
-    "block": "BW",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
-  },
-  {
     "name": "BW1",
     "externalId": "BLW",
     "number": 1064,
     "count": 115,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1140,40 +603,12 @@
     "promo": false
   },
   {
-    "name": "Free_Energy",
-    "externalId": "ENERGY",
-    "number": 1065,
-    "count": 9,
-    "filter": true,
-    "block": "BW",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "MCD11",
-    "externalId": "MCD11",
-    "number": 1066,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "BW2",
     "externalId": "EPO",
     "number": 1067,
     "count": 98,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1192,7 +627,7 @@
     "number": 1068,
     "count": 102,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1211,7 +646,7 @@
     "number": 1069,
     "count": 103,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1230,7 +665,7 @@
     "number": 1070,
     "count": 111,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1244,24 +679,12 @@
     "promo": false
   },
   {
-    "name": "MCD12",
-    "externalId": "MCD12",
-    "number": 1071,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "BW6",
     "externalId": "DRX",
     "number": 1072,
     "count": 128,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1280,7 +703,7 @@
     "number": 1073,
     "count": 21,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1299,7 +722,7 @@
     "number": 1074,
     "count": 153,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1318,7 +741,7 @@
     "number": 1075,
     "count": 138,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1337,7 +760,7 @@
     "number": 1076,
     "count": 122,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1356,7 +779,7 @@
     "number": 1077,
     "count": 105,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1370,26 +793,12 @@
     "promo": false
   },
   {
-    "name": "Promo_XY",
-    "externalId": "PR-XY",
-    "number": 1078,
-    "count": 216,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
-  },
-  {
     "name": "BW11",
     "externalId": "LTR",
     "number": 1079,
     "count": 140,
     "filter": true,
-    "block": "BW",
+    "block": "Black & White",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25",
       "6b33d420-73cc-40d4-ada5-88a7d68063a9"
@@ -1431,18 +840,6 @@
       "7c2d4c41-da8c-4f0e-b28e-fdd93fa83bba",
       "3b44805e-5e32-4c3c-be2d-9ebd4db6ba8b"
     ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "MCD14",
-    "externalId": "MCD14",
-    "number": 1082,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
   },
@@ -1573,18 +970,6 @@
     "promo": false
   },
   {
-    "name": "MCD15",
-    "externalId": "MCD15",
-    "number": 1090,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "XY9",
     "externalId": "BKP",
     "number": 1091,
@@ -1639,18 +1024,6 @@
     "promo": false
   },
   {
-    "name": "MCD16",
-    "externalId": "MCD16",
-    "number": 1094,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "XY12",
     "externalId": "EVO",
     "number": 1095,
@@ -1669,18 +1042,168 @@
     "promo": false
   },
   {
-    "name": "Promo_SM",
-    "externalId": "PR-SM",
-    "number": 1096,
-    "count": 251,
+    "name": "TK6A",
+    "externalId": "TK-Noivern",
+    "number": 582,
+    "count": 30,
     "filter": true,
-    "block": "SM",
+    "block": "XY",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
-    "promo": true
+    "promo": false
+  },
+  {
+    "name": "TK6B",
+    "externalId": "TK-Sylveon",
+    "number": 583,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK7A",
+    "externalId": "TK-Bisharp",
+    "number": 584,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK7B",
+    "externalId": "TK-Wigglytuff",
+    "number": 585,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK8A",
+    "externalId": "TK-Latios",
+    "number": 586,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK8B",
+    "externalId": "TK-Latias",
+    "number": 587,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK9A",
+    "externalId": "TK-PikachuLibre",
+    "number": 588,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK9B",
+    "externalId": "TK-Suicune",
+    "number": 589,
+    "count": 30,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY11",
+    "externalId": "STS",
+    "number": 720,
+    "count": 114,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [
+      "426e8b06-2f70-48b4-9574-6a40f32954d4",
+      "b27273cc-f7b5-4888-8766-8fdb6a7413c7",
+      "17a306c7-89fd-4164-8166-5716c0eb5a3b"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY2",
+    "externalId": "FLF",
+    "number": 600,
+    "count": 106,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [
+      "a32d53bd-0b6c-4d0a-b0f3-a5d217c40067",
+      "186f10f1-ab34-44b9-b7ae-a8bcede77b0a",
+      "20168ca6-9df9-4c28-81f8-3867123e7820"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY_Energy",
+    "externalId": "XYEnergy",
+    "number": 591,
+    "count": 9,
+    "filter": true,
+    "block": "XY",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
   },
   {
     "name": "SM1",
@@ -1688,7 +1211,7 @@
     "number": 1097,
     "count": 173,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1706,7 +1229,7 @@
     "number": 1098,
     "count": 180,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1724,7 +1247,7 @@
     "number": 1099,
     "count": 177,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1742,7 +1265,7 @@
     "number": 1100,
     "count": 81,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1756,7 +1279,7 @@
     "number": 1101,
     "count": 126,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1769,24 +1292,12 @@
     "promo": false
   },
   {
-    "name": "MCD17",
-    "externalId": "MCD17",
-    "number": 1102,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "SM5",
     "externalId": "UPR",
     "number": 1103,
     "count": 178,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1804,7 +1315,7 @@
     "number": 1104,
     "count": 150,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1822,7 +1333,7 @@
     "number": 1105,
     "count": 187,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1840,22 +1351,10 @@
     "number": 1106,
     "count": 80,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "MCD18",
-    "externalId": "MCD18",
-    "number": 1107,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
@@ -1866,7 +1365,7 @@
     "number": 1108,
     "count": 198,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1884,7 +1383,7 @@
     "number": 1109,
     "count": 18,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1898,7 +1397,7 @@
     "number": 1110,
     "count": 238,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1916,7 +1415,7 @@
     "number": 1111,
     "count": 261,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1934,7 +1433,7 @@
     "number": 1112,
     "count": 69,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1948,22 +1447,10 @@
     "number": 1113,
     "count": 94,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "MCD19",
-    "externalId": "MCD19",
-    "number": 1114,
-    "count": 12,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
@@ -1974,7 +1461,7 @@
     "number": 1115,
     "count": 272,
     "filter": true,
-    "block": "SM",
+    "block": "Sun & Moon",
     "legalFormats": [
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
@@ -1987,27 +1474,12 @@
     "promo": false
   },
   {
-    "name": "Promo_SWSH",
-    "externalId": "PR-SW",
-    "number": 1116,
-    "count": 5,
-    "filter": true,
-    "block": "SWSH",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
-  },
-  {
     "name": "SWSH1",
     "externalId": "SSH",
     "number": 1117,
     "count": 216,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2026,7 +1498,7 @@
     "number": 1118,
     "count": 209,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2045,7 +1517,7 @@
     "number": 1119,
     "count": 201,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2059,24 +1531,12 @@
     "promo": false
   },
   {
-    "name": "FUT20",
-    "externalId": "FUT20",
-    "number": 1120,
-    "count": 5,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "SWSH35",
     "externalId": "CPA",
     "number": 1121,
     "count": 80,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2091,7 +1551,7 @@
     "number": 1122,
     "count": 203,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2105,24 +1565,12 @@
     "promo": false
   },
   {
-    "name": "MCD21",
-    "externalId": "MCD21",
-    "number": 1123,
-    "count": 25,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "SWSH45",
     "externalId": "SHF",
     "number": 1124,
     "count": 73,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2137,7 +1585,7 @@
     "number": 1125,
     "count": 122,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2152,7 +1600,7 @@
     "number": 1126,
     "count": 183,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2171,7 +1619,7 @@
     "number": 1127,
     "count": 233,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2190,7 +1638,7 @@
     "number": 1128,
     "count": 237,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2209,7 +1657,7 @@
     "number": 1129,
     "count": 25,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2224,7 +1672,7 @@
     "number": 1130,
     "count": 25,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2239,7 +1687,7 @@
     "number": 1131,
     "count": 284,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2258,7 +1706,7 @@
     "number": 1132,
     "count": 186,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2277,7 +1725,7 @@
     "number": 1133,
     "count": 30,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2292,7 +1740,7 @@
     "number": 1134,
     "count": 216,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2311,7 +1759,7 @@
     "number": 1135,
     "count": 30,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2326,23 +1774,11 @@
     "number": 1136,
     "count": 88,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "MCD22",
-    "externalId": "MCD22",
-    "number": 1137,
-    "count": 15,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
@@ -2353,7 +1789,7 @@
     "number": 1138,
     "count": 217,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2372,7 +1808,7 @@
     "number": 1139,
     "count": 30,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2387,7 +1823,7 @@
     "number": 1140,
     "count": 215,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2406,22 +1842,7 @@
     "number": 1141,
     "count": 30,
     "filter": true,
-    "block": "SWSH",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SVP",
-    "externalId": "PR-SV",
-    "number": 1142,
-    "count": 200,
-    "filter": true,
-    "block": "SV",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2436,7 +1857,7 @@
     "number": 1143,
     "count": 160,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2451,7 +1872,7 @@
     "number": 1144,
     "count": 70,
     "filter": true,
-    "block": "SWSH",
+    "block": "Sword & Shield",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2466,22 +1887,7 @@
     "number": 1145,
     "count": 258,
     "filter": true,
-    "block": "SV",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SVE",
-    "externalId": "SVE",
-    "number": 1146,
-    "count": 16,
-    "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2496,7 +1902,7 @@
     "number": 1147,
     "count": 279,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2511,7 +1917,7 @@
     "number": 1148,
     "count": 230,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2526,7 +1932,7 @@
     "number": 1149,
     "count": 207,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2541,7 +1947,7 @@
     "number": 1150,
     "count": 266,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2556,7 +1962,7 @@
     "number": 1151,
     "count": 245,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2571,7 +1977,7 @@
     "number": 1152,
     "count": 218,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2586,7 +1992,7 @@
     "number": 1153,
     "count": 226,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2601,7 +2007,7 @@
     "number": 1154,
     "count": 99,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2616,7 +2022,7 @@
     "number": 1155,
     "count": 175,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2631,7 +2037,7 @@
     "number": 1156,
     "count": 252,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2646,7 +2052,7 @@
     "number": 1157,
     "count": 180,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2661,7 +2067,7 @@
     "number": 1158,
     "count": 190,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2676,7 +2082,7 @@
     "number": 1159,
     "count": 244,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2691,7 +2097,7 @@
     "number": 1160,
     "count": 173,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2706,7 +2112,7 @@
     "number": 1161,
     "count": 172,
     "filter": true,
-    "block": "SV",
+    "block": "Scarlet & Violet",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2721,7 +2127,7 @@
     "number": 1162,
     "count": 188,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2736,7 +2142,7 @@
     "number": 1163,
     "count": 130,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2746,32 +2152,12 @@
     "promo": false
   },
   {
-    "name": "CUSTOM",
-    "externalId": "CUSTOM",
-    "number": 1164,
-    "count": 2,
-    "filter": true,
-    "block": "OTHER",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [
-      "1bba7b69-6088-40da-8d06-419860d57bee",
-      "20df1ec9-8b25-43fb-9671-999308e3685c",
-      "8cbda4f4-f511-46a2-97ab-59cdfba803e6"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "ME2PT5",
     "externalId": "ASC",
     "number": 1165,
     "count": 250,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2786,7 +2172,7 @@
     "number": 1166,
     "count": 124,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2801,7 +2187,7 @@
     "number": 1167,
     "count": 122,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2816,7 +2202,7 @@
     "number": 1168,
     "count": 120,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2831,7 +2217,7 @@
     "number": 1169,
     "count": 161,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2846,7 +2232,7 @@
     "number": 1170,
     "count": 30,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
@@ -2861,12 +2247,626 @@
     "number": 1171,
     "count": 141,
     "filter": true,
-    "block": "ME",
+    "block": "Mega Evolution",
     "legalFormats": [
       "6402e830-7fed-4cd1-b172-2a320047c2bb",
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
     "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP1",
+    "externalId": "POP1",
+    "number": 1026,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP2",
+    "externalId": "POP2",
+    "number": 1029,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP3",
+    "externalId": "POP3",
+    "number": 1033,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP4",
+    "externalId": "POP4",
+    "number": 1036,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP5",
+    "externalId": "POP5",
+    "number": 1039,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP6",
+    "externalId": "POP6",
+    "number": 1043,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP7",
+    "externalId": "POP7",
+    "number": 1046,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP8",
+    "externalId": "POP8",
+    "number": 1049,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP9",
+    "externalId": "POP9",
+    "number": 1052,
+    "count": 17,
+    "filter": true,
+    "block": "POP Series",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SI1",
+    "externalId": "SI1",
+    "number": 1010,
+    "count": 18,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE6",
+    "externalId": "LC",
+    "number": 1013,
+    "count": 110,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BP",
+    "externalId": "BP",
+    "number": 1015,
+    "count": 9,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NP",
+    "externalId": "PR-NP",
+    "number": 1019,
+    "count": 40,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DPP",
+    "externalId": "PR-DPP",
+    "number": 1041,
+    "count": 56,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "RU1",
+    "externalId": "RU1",
+    "number": 1056,
+    "count": 16,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Promo_HGSS",
+    "externalId": "PR-HS",
+    "number": 1058,
+    "count": 25,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "Promo_BW",
+    "externalId": "PR-BLW",
+    "number": 1063,
+    "count": 101,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "MCD11",
+    "externalId": "MCD11",
+    "number": 1066,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD12",
+    "externalId": "MCD12",
+    "number": 1071,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Promo_XY",
+    "externalId": "PR-XY",
+    "number": 1078,
+    "count": 216,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "MCD14",
+    "externalId": "MCD14",
+    "number": 1082,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD15",
+    "externalId": "MCD15",
+    "number": 1090,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD16",
+    "externalId": "MCD16",
+    "number": 1094,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Promo_SM",
+    "externalId": "PR-SM",
+    "number": 1096,
+    "count": 251,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "MCD17",
+    "externalId": "MCD17",
+    "number": 1102,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD18",
+    "externalId": "MCD18",
+    "number": 1107,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD19",
+    "externalId": "MCD19",
+    "number": 1114,
+    "count": 12,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Promo_SWSH",
+    "externalId": "PR-SW",
+    "number": 1116,
+    "count": 5,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "FUT20",
+    "externalId": "FUT20",
+    "number": 1120,
+    "count": 5,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD21",
+    "externalId": "MCD21",
+    "number": 1123,
+    "count": 25,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD22",
+    "externalId": "MCD22",
+    "number": 1137,
+    "count": 15,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SVP",
+    "externalId": "PR-SV",
+    "number": 1142,
+    "count": 200,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SVE",
+    "externalId": "SVE",
+    "number": 1146,
+    "count": 16,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BW_Energy",
+    "externalId": "BLWEnergy",
+    "number": 479,
+    "count": 9,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HGSS_Energy",
+    "externalId": "HSEnergy",
+    "number": 429,
+    "count": 9,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "McDonalds",
+    "externalId": "MCD",
+    "number": 781,
+    "count": 0,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "RSP",
+    "externalId": "RSP",
+    "number": 620,
+    "count": 13,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": true
+  },
+  {
+    "name": "SM8",
+    "externalId": "LOT",
+    "number": 850,
+    "count": 214,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [
+      "d5f17596-a2c2-4841-a28c-f355ee3ac4a6",
+      "15e538de-7882-481f-9920-0364eb477e13",
+      "0dba63e9-c97c-4451-acba-d276b28e6522"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM_Energy",
+    "externalId": "SMEnergy",
+    "number": 741,
+    "count": 9,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SWSH_Energy",
+    "externalId": "SWSHEnergy",
+    "number": 921,
+    "count": 9,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK10A",
+    "externalId": "TK-Lycanroc",
+    "number": 738,
+    "count": 30,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK10B",
+    "externalId": "TK-AlolanRaichu",
+    "number": 739,
+    "count": 30,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK5A",
+    "externalId": "TK-Zoroark",
+    "number": 475,
+    "count": 30,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK5B",
+    "externalId": "TK-Excadrill",
+    "number": 476,
+    "count": 30,
+    "filter": true,
+    "block": "Promos",
+    "legalFormats": [
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Free_Energy",
+    "externalId": "ENERGY",
+    "number": 1065,
+    "count": 9,
+    "filter": true,
+    "block": "Custom",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "CUSTOM",
+    "externalId": "CUSTOM",
+    "number": 1164,
+    "count": 2,
+    "filter": true,
+    "block": "Custom",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25",
+      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
+    ],
+    "featuredArchetypes": [
+      "1bba7b69-6088-40da-8d06-419860d57bee",
+      "20df1ec9-8b25-43fb-9671-999308e3685c",
+      "8cbda4f4-f511-46a2-97ab-59cdfba803e6"
+    ],
     "visibleUnfilterable": false,
     "promo": false
   }
