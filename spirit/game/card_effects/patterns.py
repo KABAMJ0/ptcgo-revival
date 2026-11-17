@@ -2986,6 +2986,21 @@ def _knock_out_attacker(m, ability):
             await ctx.knock_out(attacker)
     return effect
 
+
+def _passive_takes_less_flat(m, ability):
+    return takes_less_passive(int(m.group(1)))
+
+
+def _passive_flip_prevent_all(m, ability):
+    return flip_prevent_damage_passive()
+
+
+def _passive_basic_free_retreat(m, ability):
+    return retreat_free_when(
+        lambda pokemon, carrier: pokemon.owning_player_id
+        == carrier.owning_player_id
+        and pokemon.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4308,6 +4323,21 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      _condition_on_attacker),
     ("trigger.knock-out-attacker",
      re.compile(r"the attacking pokemon is knocked out\."), _knock_out_attacker),
+
+    # -- batch 23: flat damage reduction and free basic retreat ------------
+    ("ability.takes-less-flat",
+     re.compile(r"(?:this pokemon takes|any damage done to this pokemon by "
+                r"attacks is reduced by) (\d+) (?:less damage from attacks|"
+                r"\(after applying weakness and resistance\))"
+                r"(?: \(after applying weakness and resistance\))?\."),
+     _passive_takes_less_flat),
+    ("ability.flip-prevent-all-damage",
+     re.compile(r"if any damage is done to this pokemon by attacks, flip a "
+                r"coin\. if heads, prevent that damage\."),
+     _passive_flip_prevent_all),
+    ("ability.basic-free-retreat",
+     re.compile(r"your basic pokemon in play have no retreat cost\."),
+     _passive_basic_free_retreat),
 ]
 
 
@@ -4407,7 +4437,8 @@ def bind(ability) -> Optional[str]:
                 ability.trigger = value
             else:
                 ability.activation = value
-        elif not isinstance(ability, Attack):
+        elif not isinstance(ability, Attack) and ability.activation is None \
+                and ability.trigger is None:
             # An ordinary coroutine on an ability the engine cannot offer.
             continue
         if isinstance(effect, Passive):
