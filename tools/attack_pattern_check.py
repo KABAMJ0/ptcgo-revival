@@ -342,6 +342,14 @@ CASES = [
     ("protect.from-evolution", check_temporary_passive, (1, 1, 1, 1), 0),
     ("discard.each-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
     ("boost.own-next-turn-titled", check_check_noop, (1, 1, 1, 1), 0),
+    ("snipe.ignore-weakness-or-resistance", check_snipe_any, (1, 1, 1, 1), 0),
+    ("flip.tails-nothing-heads-shield", check_check_noop, (1, 1, 1, 1), 0),
+    ("discard.all-defender-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("ko.defender-self-damage", check_check_noop, (1, 1, 1, 1), 0),
+    ("energy.shuffle-opponent-into-deck", check_check_noop, (1, 1, 1, 1), 0),
+    ("flip.tails-named-self-damage", check_self_damage, (0, 0, 0, 0), 0),
+    ("recover.item-card", check_search_hand, (1, 1, 1, 1), 0),
+    ("lock.smokescreen-worded", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
@@ -366,6 +374,10 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
         bench = rig.board.find_player_area(P1, "bench")
         for card in list(bench.children)[:1]:
             card.set_attribute(AttrID.HP, max(10, hp(card) - 30))
+    if pattern in ("recover.item-card", "recover.from-discard"):
+        # The rig's discard pile holds no Item by default.
+        if fillers.get("item") is not None:
+            rig.to_area(rig.pull_guid(P1, fillers["item"].guid), P1, "discard")
     if pattern.startswith("attach."):
         # The rig's discard pile holds no Energy by default.
         for _ in range(2):

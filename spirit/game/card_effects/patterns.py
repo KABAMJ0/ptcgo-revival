@@ -2220,6 +2220,79 @@ def _is_stadium(card) -> bool:
     return type(definition).__name__ == "StadiumCardDef"
 
 
+
+def _snipe_ignore_weakness_or_resistance(m, ability):
+    amount, count = int(m.group(2)), _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _flip_tails_nothing_heads_shield(m, ability):
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if not (results and results[0]):
+            return
+        from spirit.game.card_effects.passives_common import apply_protection
+        await ctx.deal_damage()
+        await apply_protection(ctx, prevent=True, effects_too=True)
+    return effect
+
+
+def _discard_all_defender_energy(m, ability):
+    return discard_opponent_energy_attack(count=99)
+
+
+def _ko_defender_self_damage(m, ability):
+    recoil = int(m.group(1))
+
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        await ctx.knock_out(defender)
+        if ctx.attacker is not None:
+            await ctx.deal_damage(recoil, target=ctx.attacker,
+                                  apply_modifiers=False)
+    return effect
+
+
+def _shuffle_opponent_energy_into_deck(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if ctx.effects_blocked(pokemon):
+                continue
+            energies = list(ctx.attached_energies(pokemon))
+            if energies:
+                await ctx.shuffle_into_deck(energies, ctx.opponent_id)
+    return effect
+
+
+def _flip_tails_named_self_damage(m, ability):
+    return flip_damage(tails_self_damage=int(m.group(1)))
+
+
+def _recover_item(m, ability):
+    return recover_from_discard(predicate=_is_item, count=1, minimum=0)
+
+
+def _smokescreen_worded(m, ability):
+    return smokescreen_attack()
+
+
+def _lock_opponent_items_v2(m, ability):
+    return _lock_opponent_items(m, ability)
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -3243,6 +3316,54 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("recover.any-one-card",
      re.compile(r"put any (an?|\d+) cards? from your discard pile into your "
                 r"hand\."), _recover_from_discard),
+
+    # -- batch 14: fills the gaps the tail still shows ---------------------
+    ("snipe.ignore-weakness-or-resistance",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon\. this attack's damage "
+                r"isn't affected by weakness or resistance\."),
+     _snipe_ignore_weakness_or_resistance),
+    ("ignore.pokemon-powers",
+     re.compile(r"this attack's damage isn't affected by weakness, resistance, "
+                r"pokemon powers, or any other effects on the defending "
+                r"pokemon\."), _ignore_all),
+    ("discard.stadium-any-optional",
+     re.compile(r"you may discard (?:any )?stadium(?: card)? in play\."),
+     _discard_stadium_optional),
+    ("flip.tails-nothing-heads-shield",
+     re.compile(r"flip a coin\. if tails, this attack does nothing\. if "
+                r"heads, prevent all effects of attacks, including damage, "
+                r"done to this pokemon during your opponent's next turn\."),
+     _flip_tails_nothing_heads_shield),
+    ("discard.all-defender-energy",
+     re.compile(r"discard all energy (?:cards? )?(?:attached )?from your "
+                r"opponent's active pokemon\."), _discard_all_defender_energy),
+    ("ko.defender-self-damage",
+     re.compile(r"knock out your opponent's active pokemon\. if your "
+                r"opponent's active pokemon is knocked out in this way, this "
+                r"pokemon does (\d+) damage to itself\."),
+     _ko_defender_self_damage),
+    ("energy.shuffle-opponent-into-deck",
+     re.compile(r"shuffle all energy from each of your opponent's pokemon into "
+                r"their deck\."), _shuffle_opponent_energy_into_deck),
+    ("flip.tails-named-self-damage",
+     re.compile(r"flip a coin\. if tails, \w+ does (\d+) damage to itself\."),
+     _flip_tails_named_self_damage),
+    ("recover.item-card",
+     re.compile(r"put an item card from your discard pile into your hand\."),
+     _recover_item),
+    ("lock.smokescreen-worded",
+     re.compile(r"during your opponent's next turn, if the defending pokemon "
+                r"tries to attack, your opponent flips a coin\. if tails, that "
+                r"attack doesn't happen\."), _smokescreen_worded),
+    ("lock.opponent-items-their-turn",
+     re.compile(r"your opponent can't play any item cards from their hand "
+                r"during their next turn\."), _lock_opponent_items_v2),
+    ("discard.peek-opponent-hand-that-card",
+     re.compile(r"choose (an?|\d+) card from your opponent's hand without "
+                r"looking\. look at that card you chose, then have your "
+                r"opponent shuffle that card into his or her deck\."),
+     _peek_opponent_hand_card),
 ]
 
 
@@ -3283,6 +3404,12 @@ def bind(ability) -> Optional[str]:
     # the attack, not part of its effect text.
     text = text.replace(
         "(you can't use more than 1 gx attack in a game.)", "").strip()
+    # Rule markers that gate the attack, not part of what it does.
+    for marker in ("if you go second, you can't use this attack during your "
+                   "first turn. ",):
+        if text.startswith(marker):
+            text = text[len(marker):].strip()
+            ability.usable_first_turn = False
     if not text:
         return None
 
