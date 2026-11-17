@@ -73,8 +73,23 @@ def main():
         )
         added += 1
 
+    # Disable any shop item whose product no longer exists (e.g. a set that was
+    # merged into the client's own code), so the shop lists each set once.
     items, _ = call("/admin/api/shop", cookie=cookie)
-    print(f"shop items seeded: {added} | in shop now: {len(items.get('items', []))}")
+    live_guids = set(by_key.values())
+    stale = 0
+    for item in items.get("items", []):
+        if item.get("product_guid") not in live_guids and item.get("enabled"):
+            call("/admin/api/shop", {
+                "product_guid": item["product_guid"],
+                "display_name": item.get("display_name") or "",
+                "price": item.get("price", 200),
+                "enabled": False,
+                "sort_order": item.get("sort_order", 0),
+            }, cookie=cookie)
+            stale += 1
+    items, _ = call("/admin/api/shop", cookie=cookie)
+    print(f"shop items seeded: {added} | stale disabled: {stale} | in shop now: {len(items.get('items', []))}")
     for item in items.get("items", [])[:5]:
         print(f"  {item.get('sort_order'):>3}  {item.get('display_name')}")
 
