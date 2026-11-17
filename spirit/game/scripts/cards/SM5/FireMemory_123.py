@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import gated_type, named_rule_box
 
 card = PokemonToolCardDef(
     guid="8afdad31-00e1-5bda-8783-d78c6d984f70",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=123,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_type("fire", named_rule_box("silvally", "gx"))
 )

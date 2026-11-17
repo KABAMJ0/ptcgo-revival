@@ -31,6 +31,7 @@ from spirit.game.session.passives import (
 )
 from spirit.game.card_effects.passives_common import (
     attack_discount_passive,
+    is_in_active_spot,
     hp_bonus_tool,
     no_resistance_passive,
     retreat_free_when,
@@ -3386,3 +3387,105 @@ def is_pokemon_EX(card) -> bool:
     """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
     Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
     return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)
+
+
+# --- Bespoke tool shapes on existing engine hooks ---------------------------
+
+def named_rule_box(name: str, suffix: str):
+    """Predicate: the named Pokemon with a printed rule-box suffix ("pikachu",
+    "ex" matches Pikachu ex; "ex" also covers the older Pokemon-EX)."""
+    name_pred = named(*name.split())
+    suffix_pred = {"ex": any_of(is_pokemon_ex, is_pokemon_EX), "gx": is_pokemon_gx,
+                   "v": lambda card: is_pokemon_v(card.archetype_id)}[suffix]
+    return lambda card: is_pokemon_card(card) and name_pred(card) and suffix_pred(card)
+
+
+class GatedTypePassive(Passive):
+    """The <holder> this card is attached to is a <type> Pokemon."""
+
+    def __init__(self, type_name, holder=None):
+        self.value = POKEMON_TYPE_NAMES[type_name]
+        self.holder = holder
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return types
+        if self.holder is not None and not self.holder(pokemon):
+            return types
+        return [self.value]
+
+
+def gated_type(type_name: str, holder=None):
+    return GatedTypePassive(type_name, holder)
+
+
+class LowHpRetreatPassive(Passive):
+    """Rescue Board: the holder retreats for [C] less, or for free while its
+    remaining HP is `threshold` or less."""
+
+    def __init__(self, count, threshold):
+        self.count = count
+        self.threshold = threshold
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        if pokemon.get_attribute(AttrID.HP, 0) <= self.threshold:
+            return 0
+        return max(0, cost - self.count)
+
+
+def low_hp_retreat(count: int, threshold: int):
+    return LowHpRetreatPassive(count, threshold)
+
+
+class ActiveHolderRetreatTaxPassive(Passive):
+    """Gravity Gemstone: while the holder is Active, both Active Pokemon's
+    Retreat Cost is `count` more."""
+
+    def __init__(self, count):
+        self.count = count
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder) or not is_in_active_spot(pokemon):
+            return cost
+        return cost + self.count
+
+
+def active_holder_retreat_tax(count: int):
+    return ActiveHolderRetreatTaxPassive(count)
+
+
+class HolderAbilityShieldPassive(Passive):
+    """Prevent all effects of the opponent's Abilities done to the holder."""
+
+    def blocks_ability_effects(self, target, carrier):
+        return carrier_pokemon(carrier) is target
+
+
+def holder_ability_shield():
+    return HolderAbilityShieldPassive()
+
+
+class HolderCoinRerollPassive(Passive):
+    """Trick Coin: once during your turn, after flipping coins for an attack
+    of the holder, ignore them and flip again. The engine asks per player, so
+    the offer stands while the holder is that player's Active Pokemon, which
+    is the Pokemon attacking."""
+
+    def __init__(self, holder=None):
+        self.holder = holder
+
+    def offers_attack_coin_reroll(self, player_id, carrier):
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is None or pokemon.owning_player_id != player_id:
+            return False
+        if not is_in_active_spot(pokemon):
+            return False
+        return self.holder is None or self.holder(pokemon)
+
+
+def holder_coin_reroll(holder=None):
+    return HolderCoinRerollPassive(holder)
+

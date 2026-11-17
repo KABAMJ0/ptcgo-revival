@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import holder_coin_reroll, pokemon_of
 
 card = PokemonToolCardDef(
     guid="158f69a0-9205-528b-a4bc-464c562c0af9",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=74,
     set_code="ME5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_coin_reroll(pokemon_of("colorless"))
 )

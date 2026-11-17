@@ -335,12 +335,22 @@ def _pred(phrase):
     return resolve_predicate(phrase)
 
 
+_NAMED_RULE_BOX = re.compile(r"^(?P<name>[a-z][a-z ]*?) (?P<suffix>ex|gx)$")
+
+
 def _holder(phrase):
-    """Predicate source for a tool's holder phrase; plain "pokemon" is any."""
+    """Predicate source for a tool's holder phrase; plain "pokemon" is any,
+    and a named "<pokemon> ex/gx" holder matches that Pokemon by name."""
     text = phrase.strip()
     if text == "pokemon":
         return "None"
-    resolved = resolve_predicate(text)
+    try:
+        resolved = resolve_predicate(text)
+    except Unresolved:
+        named = _NAMED_RULE_BOX.match(text)
+        if named is None or named.group("name") in ("pokemon", "ultra beast"):
+            raise
+        return 'named_rule_box("%s", "%s")' % (named.group("name"), named.group("suffix"))
     if resolved == "None":
         raise Unresolved(phrase)
     return resolved
@@ -1141,6 +1151,40 @@ RULES = [
          "gated_damage_boost",
          lambda m: [m.group("amount"), "excluding(is_pokemon_EX)", "target=is_pokemon_EX"],
          kind="passive"),
+
+    Rule("gated-type",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to is 1 (?P<type>[a-z]+) pokemon",
+         "gated_type",
+         lambda m: [_typed_or_decline(m.group("type")), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("low-hp-retreat",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless(?: "
+         r"?colorless)*) less if that pokemons remaining hp is (?P<hp>\d+) or less it has no "
+         r"retreat cost",
+         "low_hp_retreat",
+         lambda m: [str(_colorless_count(m.group("count"))), m.group("hp")], kind="passive"),
+    Rule("active-holder-retreat-tax",
+         r"as long as the pokemon this card is attached to is in the active spot the retreat "
+         r"cost of both active pokemon is (?P<count>colorless(?: ?colorless)*) more",
+         "active_holder_retreat_tax",
+         lambda m: [str(_colorless_count(m.group("count")))], kind="passive"),
+    Rule("tool-reduced-by-opponents-attack",
+         r"any damage done to the pokemon this card is attached to by 1 opponents attack is "
+         r"reduced by (?P<amount>\d+) after applying weakness and resistance",
+         "holder_takes_less", lambda m: [m.group("amount")], kind="passive"),
+    Rule("holder-coin-reroll",
+         r"once during your turn after you flip any coins for 1 attack of the "
+         r"(?P<holder>[a-z0-9 ]+?) this card is attached to you may ignore all (?:results|"
+         r"effects) of those coin flips and begin flipping those coins again(?: you may only "
+         r"use effects that let you flip coins again including effects from other cards once "
+         r"during your turn)?",
+         "holder_coin_reroll", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("if-attached-boost",
+         r"if this card is attached to (?:1 )?(?P<holder>[a-z0-9 ]+?) each of (?:its attacks|the "
+         r"attacks of that pokemon) does (?P<amount>\d+) more damage to the active pokemon "
+         r"before applying weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), _holder(m.group("holder"))], kind="passive"),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
