@@ -75,6 +75,7 @@ from spirit.game.card_effects.trainers import is_basic_energy_card
 from spirit.game.card_effects.support_common import (
     attach_from_discard,
     draw_attack,
+    remove_self_from_play,
     recover_from_discard,
     search_attach_energy,
     shuffle_hand_into_deck_draw,
@@ -823,6 +824,183 @@ def _no_retreat_passive_team(m, ability):
     return retreat_free_when(pred)
 
 
+
+def _snipe_choose_ignore_two(m, ability):
+    """'... isn't affected by weakness and resistance.' / '... or any other
+    effects on the Defending Pokemon.' -- both need their own damage flags."""
+    amount, count = int(m.group(2)), _count(m.group(1))
+    ignore_effects = "effects" in m.string
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else await ctx.choose_cards(
+            candidates, count, prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False,
+                                  ignore_target_effects=ignore_effects)
+    return effect
+
+
+def _copy_defender_attack(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        from spirit.game.content.definitions import ABILITIES_BY_ID
+        choices = [ABILITIES_BY_ID.get(entry["abilityID"])
+                   for entry in _attack_entries(defender)]
+        choices = [choice for choice in choices if choice is not None]
+        if not choices:
+            return
+        chosen = await ctx.choose_attack_to_copy(
+            [(defender, choice) for choice in choices],
+            "Choose an attack to use")
+        if chosen is None:
+            return
+        await ctx.use_attack(chosen[1])
+
+
+def _attack_entries(pokemon) -> list:
+    return [entry for entry in (pokemon.get_attribute(AttrID.PIE_ABILITIES) or [])
+            if isinstance(entry, dict) and entry.get("abilityType") == "Attack"
+            and entry.get("abilityID")]
+
+
+def _energy_discard_then_snipe(m, ability):
+    discard_count = _count(m.group(1))
+    amount, targets = int(m.group(3)), _count(m.group(2))
+
+    async def effect(ctx):
+        await ctx.discard_energy_from(
+            ctx.attacker, discard_count,
+            prompt="Choose Energy to discard from this Pokémon")
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(
+                candidates, targets,
+                prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _heal_bench_choice(m, ability):
+    return heal_targets(int(m.group(1)), scope="bench_choice")
+
+
+def _more_per_both_actives_energy(m, ability):
+    def count(ctx) -> int:
+        return count_energy("my_active")(ctx) + count_energy("defender")(ctx)
+    return _more(count, ability, int(m.group(1)))
+
+
+def _counters_active(m, ability):
+    return place_counters(int(m.group(1)), target="opponent_active")
+
+
+def _flip_two_heads_bonus(m, ability):
+    return flip_bonus(int(m.group(1)), coins=2)
+
+
+def _lock_defender_attacks_plain(m, ability):
+    """'During your opponent's next turn, the Defending Pokemon can't use
+    attacks' (no flip, no coin)."""
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from spirit.game.card_effects.attacks_common import lock_defender_attacks
+        lock_defender_attacks(ctx)
+    return effect
+
+
+def _ignore_resistance_is_not(m, ability):
+    return ignore_modifier_attack(ignore_resistance=True)
+
+
+def _three_conditions(m, ability):
+    return condition_attack(CONDITIONS[m.group(1)], CONDITIONS[m.group(2)],
+                            CONDITIONS[m.group(3)])
+
+
+def _switch_in_opponent_bench(m, ability):
+    return gust_attack()
+
+
+def _lock_basic_defender(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        from spirit.game.session.effects import is_basic_pokemon
+        if is_basic_pokemon(defender):
+            from spirit.game.card_effects.attacks_common import lock_defender_attacks
+            lock_defender_attacks(ctx)
+    return effect
+
+
+def _return_self_to_hand(m, ability):
+    return remove_self_from_play(destination="hand")
+
+
+def _shuffle_self_into_deck(m, ability):
+    return remove_self_from_play(destination="deck", optional=True)
+
+
+def _bonus_then_discard_stadium(m, ability):
+    async def effect(ctx):
+        amount = getattr(ability, "damage", 0) or 0
+        if ctx.stadium_in_play() is not None:
+            await ctx.deal_damage(amount + int(m.group(1)))
+            await ctx.discard_stadium()
+        else:
+            await ctx.deal_damage(amount)
+    return effect
+
+
+def _ignore_all_plain(m, ability):
+    return ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True)
+
+
+def _discard_top_attach_energy(m, ability):
+    async def effect(ctx):
+        cards = ctx.deck_top(_count(m.group(1)))
+        await ctx.discard_cards(cards)
+        energies = [card for card in cards if is_basic_energy_card(card)]
+        for card in energies:
+            if ctx.attacker is not None:
+                await ctx.attach_energy(card, ctx.attacker)
+    return effect
+
+
+def _reveal_hand_per_trainer(m, ability):
+    async def effect(ctx):
+        cards = await ctx.reveal_hand(ctx.opponent_id)
+        from spirit.game.card_effects.trainers import is_trainer_card
+        amount = int(m.group(1)) * sum(1 for card in cards
+                                       if is_trainer_card(card))
+        if amount > 0:
+            await ctx.deal_damage(amount)
+    return effect
+
+
+def _bonus_kos_last_turn(m, ability):
+    return bonus_if(lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0,
+                    int(m.group(1)))
+
+
+def _bonus_healed_this_turn(m, ability):
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        return attacker is not None and \
+            attacker.entity_id in ctx.session.turn_state.healed_entities
+    return bonus_if(cond, int(m.group(1)))
+
+
 # ----------------------------------------------------------------------
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
@@ -1343,7 +1521,79 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("ability.basic-no-retreat",
      re.compile(r"your basic pokemon in play have no retreat cost\."),
      _no_retreat_passive_team),
+
+    # -- batch 5: remaining repeat wordings ------------------------------
+    ("snipe.choose-any-ignore-two",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon\. this attack's damage "
+                r"isn't affected by (?:weakness and resistance|weakness, "
+                r"resistance, or any other effects on the defending pokemon)\."),
+     _snipe_choose_ignore_two),
+    ("copy.defender-attack",
+     re.compile(r"choose (an?|\d+) of your opponent's active pokemon's attacks "
+                r"and use it as this attack\."), _copy_defender_attack),
+    ("energy-discard-then-snipe",
+     re.compile(r"discard (an?|\d+) energy from this pokemon\. this attack "
+                r"does (\d+) damage to (an?|\d+) of your opponent's pokemon"
+                + _SNIPE_TAIL), _energy_discard_then_snipe),
+    ("heal.bench-choice",
+     re.compile(r"heal (\d+) damage from (an?|\d+) of your benched pokemon\."),
+     _heal_bench_choice),
+    ("scale.both-actives-energy",
+     re.compile(r"this attack does (\d+) more damage for each energy attached "
+                r"to both active pokemon\."), _more_per_both_actives_energy),
+    ("counters.place-active",
+     re.compile(r"put (\d+) damage counters on your opponent's active "
+                r"pokemon\."), _counters_active),
+    ("flip.two-heads-bonus",
+     re.compile(r"flip (\d+) coins\. if both of them are heads, this attack "
+                r"does (\d+) more damage\."), _flip_two_heads_bonus),
+    ("lock.defender-cannot-use-attacks",
+     re.compile(r"during your opponent's next turn, the defending pokemon "
+                r"can't use attacks\."), _lock_defender_attacks_plain),
+    ("ignore.resistance-is-not",
+     re.compile(r"this attack's damage is not affected by resistance\."),
+     _ignore_resistance_is_not),
+    ("defender-three-conditions",
+     re.compile(r"your opponent's active pokemon is now (" + _CONDITION_WORDS +
+                r"), (" + _CONDITION_WORDS + r"), and (" + _CONDITION_WORDS +
+                r")\."), _three_conditions),
+    ("switch.in-opponent-bench",
+     re.compile(r"switch in (an?|\d+) of your opponent's benched pokemon to "
+                r"the active spot\."), _switch_in_opponent_bench),
+    ("lock.basic-defender-attacks",
+     re.compile(r"if the defending pokemon is a basic pokemon, it can't attack "
+                r"during your opponent's next turn\."), _lock_basic_defender),
+    ("remove.self-to-hand",
+     re.compile(r"put this pokemon and all (?:attached )?cards into your "
+                r"hand\."), _return_self_to_hand),
+    ("remove.self-to-deck",
+     re.compile(r"you may shuffle this pokemon and all cards attached to it "
+                r"into your deck\."), _shuffle_self_into_deck),
+    ("bonus.stadium-then-discard",
+     re.compile(r"if there is any stadium card in play, this attack does (\d+) "
+                r"more damage\. then, discard that stadium card\."),
+     _bonus_then_discard_stadium),
+    ("ignore.weakness-resistance-plain",
+     re.compile(r"don't apply weakness and resistance for this attack\."),
+     _ignore_all_plain),
+    ("mill.own-attach-energy",
+     re.compile(r"discard the top (\d+) cards? of your deck\. if any of those "
+                r"cards are energy cards, attach them to this pokemon\."),
+     _discard_top_attach_energy),
+    ("reveal.hand-per-trainer",
+     re.compile(r"your opponent reveals their hand\. this attack does (\d+) "
+                r"damage for each trainer card you find there\."),
+     _reveal_hand_per_trainer),
+    ("bonus.ko-last-turn",
+     re.compile(r"if any of your pokemon were knocked out by damage from an "
+                r"attack during (?:your opponent's|his or her) last turn, this "
+                r"attack does (\d+) more damage\."), _bonus_kos_last_turn),
+    ("bonus.healed-this-turn",
+     re.compile(r"if this pokemon was healed during this turn, this attack does "
+                r"(\d+) more damage\."), _bonus_healed_this_turn),
 ]
+
 
 
 

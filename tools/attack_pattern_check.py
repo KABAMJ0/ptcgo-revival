@@ -77,6 +77,7 @@ def snapshot(rig):
         "attached": {p.entity_id: len(p.children or [])
                      for pid in (P1, P2) for p in board.pokemon_in_play(pid)},
         "active1": board.active_pokemon(P1),
+        "active2": board.active_pokemon(P2),
     }
 
 
@@ -225,6 +226,22 @@ def check_less_per_counter(before, after, rig, ability, entities):
     return dealt == expected, f"dealt {dealt} (expected {expected}: printed - 10 x 2)"
 
 
+def check_lock_defender(before, after, rig, ability, entities):
+    locks = getattr(rig.session.turn_state, "attack_locks", {})
+    theirs = [key for key in locks
+              if key[0] == entities["p2_active"].entity_id]
+    return bool(theirs), f"defender attack locks={len(theirs)}"
+
+
+def check_defender_switched(before, after, rig, ability, entities):
+    changed = after["active2"] is not before["active2"]
+    return changed, f"opposing Active changed={changed}"
+
+
+def check_check_noop(before, after, rig, ability, entities):
+    return True, "runs without raising"
+
+
 def check_passive_bound(before, after, rig, ability, entities):
     return getattr(ability, "passive", None) is not None, \
         f"passive={type(getattr(ability, 'passive', None)).__name__}"
@@ -264,6 +281,10 @@ CASES = [
     ("bonus.entered-active-this-turn", check_bonus_condition, (1, 1, 1, 1), 0),
     ("scale.damage-per-energy-opponent", check_bonus_condition, (1, 1, 1, 1), 0),
     ("ability.basic-no-retreat", check_passive_bound, (1, 1, 1, 1), 0),
+    ("lock.defender-cannot-use-attacks", check_lock_defender, (1, 1, 1, 1), 0),
+    ("switch.in-opponent-bench", check_defender_switched, (1, 1, 1, 1), 0),
+    ("counters.place-active", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("heal.bench-choice", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
