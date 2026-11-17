@@ -96,7 +96,9 @@ from spirit.game.card_effects.support_common import (
     search_to_hand,
     switch_self_attack,
 )
-from spirit.game.data_utils import EnergyCardDef, PokemonCardDef, def_for, unimplemented
+from spirit.game.data_utils import (
+    Activations, Attack, EnergyCardDef, PokemonCardDef, def_for, unimplemented,
+)
 from spirit.game.session.effects import is_special_energy
 from spirit.game.session.passives import Passive
 
@@ -2477,6 +2479,19 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+# "Once during your turn (before your attack), you may <effect>": the text
+# itself proves the ability is activated, so binding it also sets the
+# activation the engine needs to offer it at all.
+_ACTIVATION_PREFIXES = (
+    ("once during your turn (before your attack), you may ", Activations.ONCE_PER_TURN),
+    ("once during your turn, you may ", Activations.ONCE_PER_TURN),
+    ("once during your turn (before your attack), ", Activations.ONCE_PER_TURN),
+    ("as often as you like during your turn (before your attack), you may ",
+     Activations.UNLIMITED),
+    ("as often as you like during your turn, you may ", Activations.UNLIMITED),
+    ("during your turn (before your attack), you may ", Activations.UNLIMITED),
+)
+
 # name -> bind count, for the coverage report.
 BIND_COUNTS = {}
 # name -> builder failures (a pattern must never fail silently unnoticed).
@@ -2498,6 +2513,19 @@ def bind(ability) -> Optional[str]:
         "(you can't use more than 1 gx attack in a game.)", "").strip()
     if not text:
         return None
+
+    activation = None
+    if not isinstance(ability, Attack) and ability.activation is None \
+            and ability.trigger is None:
+        # An ability the engine never offers would be a dead bind. The "once
+        # during your turn" wording is itself proof that it is activated, so
+        # strip it here and set the matching activation on the bind below;
+        # continuous passives need no activation and match as written.
+        for prefix, kind in _ACTIVATION_PREFIXES:
+            if text.startswith(prefix):
+                text = text[len(prefix):].strip()
+                activation = kind
+                break
     for name, pattern, build in _PATTERNS:
         match = pattern.fullmatch(text)
         if match is None:
@@ -2512,6 +2540,13 @@ def bind(ability) -> Optional[str]:
         if effect is None:
             # The builder declined (an unknown phrase in a generic pattern):
             # keep looking, a later, more specific pattern may still apply.
+            continue
+        if isinstance(effect, Passive):
+            pass
+        elif activation is not None:
+            ability.activation = activation
+        elif not isinstance(ability, Attack):
+            # An ordinary coroutine on an ability the engine cannot offer.
             continue
         if isinstance(effect, Passive):
             # Continuous abilities ("this Pokemon takes 20 less damage"):
