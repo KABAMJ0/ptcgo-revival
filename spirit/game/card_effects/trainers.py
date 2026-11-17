@@ -2608,3 +2608,136 @@ def opponent_switch_then_self_switch():
             if target is not None:
                 await ctx.switch_active(ctx.player_id, target)
     return effect
+
+
+def pokemon_of_subtype(subtype: str):
+    """Predicate: a Pokemon with the named printed subtype ("Ancient",
+    "Future", "MEGA")."""
+    wanted = subtype.lower()
+
+    def predicate(card):
+        if not is_pokemon_card(card):
+            return False
+        return any(wanted in name.lower()
+                   for name in subtypes_for(card.archetype_id))
+    return predicate
+
+
+def shuffle_hand_n_draw(count: int, draw: int = 1):
+    """Shuffle `count` cards from your hand into your deck, then draw `draw`."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=min(count, len(hand)),
+            prompt=f"Choose {count} card(s) to shuffle into your deck")
+        if len(picks) < count:
+            return
+        await ctx.shuffle_into_deck(picks)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def reveal_pokemon_then_search():
+    """Reveal a Pokemon from your hand and put it into your deck; then search
+    the deck for a Pokemon and put it into your hand."""
+    async def effect(ctx):
+        pokemon = [c for c in ctx.hand() if is_pokemon_card(c)]
+        if not pokemon:
+            return
+        picks = await ctx.choose_cards(
+            pokemon, 1, minimum=1,
+            prompt="Choose a Pokémon from your hand to put into your deck")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        found = await ctx.search_deck(
+            is_pokemon_card, count=1, minimum=0,
+            prompt="Choose a Pokémon to put into your hand")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def hand_to_top_then_search():
+    """Put a card from your hand on top of your deck, then search the deck for
+    a Pokemon and put it into your hand."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if len(hand) <= 1:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1,
+            prompt="Choose a card from your hand to put on top of your deck")
+        if not picks:
+            return
+        await ctx.put_on_top_of_deck(picks[0])
+        found = await ctx.search_deck(
+            is_pokemon_card, count=1, minimum=0,
+            prompt="Choose a Pokémon to put into your hand")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def flip_search_basic():
+    """Flip a coin per card; each heads searches the deck for a Basic Pokemon
+    into your hand."""
+    async def effect(ctx):
+        heads = sum(1 for result in
+                    await ctx.flip_coins(2, title="Flip 2 coins") if result)
+        if heads <= 0:
+            return
+        found = await ctx.search_deck(
+            is_basic_pokemon, count=heads, minimum=0,
+            prompt="Choose a Basic Pokémon to put into your hand")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def heal_all_then_energy_to_hand():
+    """Heal all damage from 1 of your Pokemon, then put all Energy attached to
+    it into your hand."""
+    async def effect(ctx):
+        damaged = [p for p in ctx.my_pokemon_in_play()
+                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+        if not damaged:
+            return
+        target = await ctx.choose_pokemon(
+            damaged, "Choose a Pokémon to heal") if len(damaged) > 1 else damaged[0]
+        if target is None:
+            return
+        missing = ctx.max_hp(target) - target.get_attribute(AttrID.HP, 0)
+        if missing > 0:
+            await ctx.heal(missing, target)
+        energies = ctx.attached_energies(target)
+        if energies:
+            await ctx.put_in_hand(energies, reveal=False)
+    return effect
+
+
+def trade_pokemon():
+    """Trade a Basic Pokemon or Evolution card from your hand for one from
+    your deck."""
+    async def effect(ctx):
+        pool = [c for c in ctx.hand() if is_pokemon_card(c)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Pokémon from your hand to trade")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        found = await ctx.search_deck(
+            is_pokemon_card, count=1, minimum=0,
+            prompt="Choose a Pokémon from your deck")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect

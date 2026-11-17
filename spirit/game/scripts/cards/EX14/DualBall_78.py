@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import flip_search_basic
 
 card = ItemCardDef(
     guid="acabb243-f3f0-555a-adfa-68dda60907c8",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=78,
     set_code="EX14",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_search_basic()
 )

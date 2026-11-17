@@ -74,6 +74,8 @@ _TYPED_ENERGY = re.compile(
     r"^(?:1 |up to )?basic (?P<type>%s) energy cards?$" % TYPE_NAMES)
 _TYPED_ENERGY_ANY = re.compile(r"^(?:1 )?(?P<type>%s) energy cards?$" % TYPE_NAMES)
 _TYPED_POKEMON = re.compile(r"^(?:1 )?(?P<type>%s) pokemon$" % TYPE_NAMES)
+_BASIC_TYPED_POKEMON = re.compile(
+    r"^(?:1 )?basic (?P<type>%s) pokemon$" % TYPE_NAMES)
 
 
 def resolve_predicate(phrase):
@@ -102,6 +104,15 @@ def resolve_predicate(phrase):
     match = _TYPED_POKEMON.match(text)
     if match:
         return 'pokemon_of("%s")' % match.group("type")
+    match = _BASIC_TYPED_POKEMON.match(text)
+    if match:
+        return 'all_of(is_basic_pokemon, pokemon_of("%s"))' % match.group("type")
+    excluded = _excluding(text)
+    if excluded is not None:
+        return excluded
+    subtype = _subtype_category(text)
+    if subtype is not None:
+        return subtype
     owned = _owned_category(text)
     if owned is not None:
         return owned
@@ -152,6 +163,45 @@ def _any_combination(text):
     if not resolved:
         return None
     return resolved[0] if len(resolved) == 1 else "any_of(%s)" % ", ".join(resolved)
+
+
+def _excluding(text):
+    """"basic pokemon excluding pokemon ex" -> all_of(category, excluding(ex))."""
+    if " excluding " not in text:
+        return None
+    base, _, excluded = text.partition(" excluding ")
+    try:
+        category = resolve_predicate(base)
+        rejection = resolve_predicate(excluded)
+    except Unresolved:
+        return None
+    if rejection == "None":
+        return None
+    return "all_of(%s, excluding(%s))" % (category, rejection)
+
+
+SUBTYPE_PHRASES = {
+    "mega evolution pokemon ex": "MEGA",
+    "ancient pokemon": "Ancient",
+    "future pokemon": "Future",
+    "tera pokemon": "Tera",
+    "ultra beast": "Ultra Beast",
+}
+
+
+def _subtype_category(text):
+    """Subtypes whose printed name is not a type or stage word."""
+    for phrase, subtype in SUBTYPE_PHRASES.items():
+        if phrase == text or text.endswith(phrase):
+            prefix = text[:-len(phrase)].strip()
+            if not prefix:
+                return 'pokemon_of_subtype("%s")' % subtype
+            try:
+                category = resolve_predicate(prefix)
+            except Unresolved:
+                return None
+            return "all_of(%s, pokemon_of_subtype(%s))" % (category, '"%s"' % subtype)
+    return None
 
 
 def _owned_category(text):
@@ -746,6 +796,49 @@ RULES = [
          "search_to_hand",
          lambda m: ["retreat_cost_is(%s)" % m.group("cost"),
                     "count=" + m.group("n")],
+         module="support_common"),
+
+    # --- More composed shapes ---------------------------------------------
+    Rule("flip-discard-opponent-energy",
+         r"flip 1 coin if heads choose (?P<n>\d+) energy card attached to (?P<which>\d+) of your "
+         r"opponents pokemon and discard it",
+         "discard_energy_opponent", lambda m: ["flip=True"]),
+    Rule("evade-rope-classic",
+         r"your opponent switches (?P<n>\d+) of (?:his or her|their) defending pokemon with "
+         r"(?P<m>\d+) of (?:his or her|their) benched pokemon if any you switch (?P<k>\d+) of "
+         r"your active pokemon with (?P<j>\d+) of your benched pokemon if any",
+         "opponent_switch_then_self_switch", lambda m: []),
+    Rule("reveal-pokemon-then-search",
+         r"reveal (?P<n>\d+) pokemon from your hand and put it into your deck if you do search "
+         r"your deck for (?P<c>\d+) pokemon reveal it and put it into your hand then shuffle "
+         r"your deck",
+         "reveal_pokemon_then_search", lambda m: []),
+    Rule("hand-to-top-then-search",
+         r"choose (?P<n>\d+) card from your hand and put it on top of your deck search your deck "
+         r"for (?P<c>\d+) pokemon show it to your opponent and put it into your hand.*",
+         "hand_to_top_then_search", lambda m: []),
+    Rule("flip-search-basic",
+         r"flip (?P<n>\d+) coins for each heads search your deck for (?P<c>\d+) basic pokemon "
+         r"card show it to your opponent and put it into your hand.*",
+         "flip_search_basic", lambda m: []),
+    Rule("heal-all-then-energy-to-hand",
+         r"heal all damage from (?P<n>\d+) of your mega evolution pokemon ex if you healed any "
+         r"damage in this way put all energy attached to that pokemon into your hand",
+         "heal_all_then_energy_to_hand", lambda m: []),
+    Rule("trade-pokemon",
+         r"trade (?P<n>\d+) of the basic pokemon or evolution cards in your hand for (?P<c>\d+) "
+         r"of the basic pokemon or evolution cards from your deck.*",
+         "trade_pokemon", lambda m: []),
+    Rule("shuffle-hand-n-draw",
+         r"shuffle (?P<n>\d+) cards from your hand into your deck(?: if you cant shuffle \d+ "
+         r"cards into your deck you cant play this card)?(?: then)? draw (?P<draw>\d+) card",
+         "shuffle_hand_n_draw", lambda m: [m.group("n"), "draw=" + m.group("draw")]),
+    Rule("recover-combination-to-deck",
+         r"search your discard pile for up to (?P<n>\d+) " + CAT +
+         r" show them? to your opponent and shuffle them? into your deck",
+         "recover_from_discard",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"),
+                    'to="deck_shuffle"'],
          module="support_common"),
 
     # --- Evolution shortcuts ---------------------------------------------
