@@ -4078,3 +4078,16 @@ def discard_typed_pokemon_to_bench_then_draw(type_name: str, draw: int):
                 await ctx.bench_pokemon(card)
         await ctx.draw_cards(draw)
     return effect
+
+
+def colress_draw():
+    """Shuffle your hand into your deck, then draw 1 card for each Benched
+    Pokemon, yours and your opponent's."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        count = len(ctx.my_bench()) + len(ctx.opponent_bench())
+        if count > 0:
+            await ctx.draw_cards(count)
+    return effect

@@ -1638,6 +1638,10 @@ RULES = [
          r"can only play this card when you would be allowed to evolve that pokemon anyway| you "
          r"can play this card only when you would be allowed to evolve that pokemon anyway)",
          "rare_candy", lambda m: []),
+    Rule("colress-draw",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) number of cards equal to the "
+         r"number of benched pokemon both yours and your opponents",
+         "colress_draw", lambda m: []),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
