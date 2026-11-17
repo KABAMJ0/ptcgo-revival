@@ -57,6 +57,7 @@ SIMPLE_PREDICATES = {
     "special energy": "is_special_energy",
     "card": "None",
     "baby pokemon": 'pokemon_of_subtype("Baby")',
+    "any card": "None",
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
 }
@@ -1713,6 +1714,16 @@ RULES = [
          r"opponent and put it into your hand if you search your deck shuffle your deck afterward",
          "search_deck_or_discard_to_hand",
          lambda m: ["pokemon_lv_x()", "count=" + m.group("n")]),
+    Rule("professor-oak",
+         r"discard your hand then draw (?P<n>\d+) cards",
+         "discard_hand_draw", lambda m: [m.group("n")]),
+    Rule("pokedex-rearrange",
+         r"look at up to (?P<n>\d+) cards from the top of your deck and rearrange them as you like",
+         "look_top_reorder", lambda m: [m.group("n")]),
+    Rule("quick-ball",
+         r"reveal cards from your deck until you reveal (?P<n>\d+) pokemon show that pokemon to your "
+         r"opponent and put it into your hand shuffle the other cards back into your deck",
+         "reveal_until_pokemon_to_hand", lambda m: []),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1818,7 +1829,7 @@ WRAPPERS = [
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) card from your hand in order to play this card "),
      "with_discard_cost", None),
-    (re.compile(r"^discard (?P<n>\d+) of the other cards in your hand in order to "),
+    (re.compile(r"^discard (?P<n>\d+) of the other cards (?:from|in) your hand in order to "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
                 r"you cant play this card "), "with_discard_cost", None),

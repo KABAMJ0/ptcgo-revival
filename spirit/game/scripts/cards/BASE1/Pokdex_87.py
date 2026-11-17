@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import look_top_reorder
 
 card = ItemCardDef(
     guid="32acf046-cf2f-527e-9d42-a512df600cee",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=87,
     set_code="BASE1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_top_reorder(5)
 )

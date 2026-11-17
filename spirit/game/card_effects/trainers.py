@@ -4258,3 +4258,26 @@ def search_deck_or_discard_to_hand(predicate=None, count: int = 1):
 def pokemon_lv_x():
     """Predicate: a Pokemon LV.X."""
     return pokemon_of_subtype("LV.X")
+
+
+def discard_hand_draw(draw: int = 7):
+    """Discard your whole hand, then draw `draw` cards (Professor Oak)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.discard_cards(hand)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def reveal_until_pokemon_to_hand():
+    """Reveal cards from the top of your deck until a Pokemon appears, put it
+    into your hand, then shuffle the rest (Quick Ball)."""
+    async def effect(ctx):
+        deck = ctx.deck()
+        for card in reversed(deck):
+            if is_pokemon_card(card):
+                await ctx.put_in_hand([card], reveal=True)
+                break
+        await ctx.shuffle_deck()
+    return effect
