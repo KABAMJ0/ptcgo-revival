@@ -37,7 +37,11 @@ def coins(values):
     queue = list(values)
 
     def choice(seq):
-        # effects.flip_coins maps 0 -> heads, 1 -> tails.
+        # Only coin flips (seq == [0, 1]) are forced; effects.flip_coins maps
+        # 0 -> heads and 1 -> tails. Every other random.choice (a card from a
+        # hand, an AI pick) keeps its real behaviour.
+        if list(seq) != [0, 1]:
+            return original(seq)
         wanted = queue.pop(0) if queue else 1
         return 0 if wanted else 1
     random.choice = choice
@@ -153,6 +157,12 @@ def check_discard_self_energy(before, after, rig, ability, entities):
     gone = before["attached"][attacker] - after["attached"][attacker]
     return gone > 0, f"attached Energy {before['attached'][attacker]} -> " \
                      f"{after['attached'][attacker]}"
+
+
+def check_snipe_any(before, after, rig, ability, entities):
+    damaged = [pid for pid, before_hp in before["hp"].items()
+               if after["hp"].get(pid, before_hp) < before_hp]
+    return bool(damaged), f"{len(damaged)} opposing Pokemon damaged"
 
 
 def check_snipe_bench(before, after, rig, ability, entities):
@@ -285,6 +295,65 @@ CASES = [
     ("switch.in-opponent-bench", check_defender_switched, (1, 1, 1, 1), 0),
     ("counters.place-active", check_bonus_condition, (1, 1, 1, 1), 0),
     ("heal.bench-choice", check_check_noop, (1, 1, 1, 1), 0),
+    ("scale.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("bonus.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("bonus.extra-energy-attached", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("discard.up-to-for-damage", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("discard.all-for-damage", check_discard_self_energy, (1, 1, 1, 1), 0),
+    ("counters.chosen-target", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("heal.all-self", check_heal_self, (1, 1, 1, 1), 60),
+    ("lock.this-attack-next-turn", check_lock_self, (1, 1, 1, 1), 0),
+    ("discard.peek-opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
+    ("scale.round-attack", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("copy.defender-attack-short", check_check_noop, (1, 1, 1, 1), 0),
+    ("snipe.choose-any-ignore-that", check_snipe_any, (1, 1, 1, 1), 0),
+    ("flip.heads-tails-conditions", check_defender_condition, (1, 1, 1, 1), 0),
+    ("lock.opponent-items", check_check_noop, (1, 1, 1, 1), 0),
+    ("bonus.extra-prize-on-ko", check_check_noop, (1, 1, 1, 1), 0),
+    ("mill.by-heads", check_mill_opponent, (1, 1, 1, 1), 0),
+    ("discard.any-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("protect.from-basic-noncolorless", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("discard.opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.remove-counter-each", check_heal_self, (1, 1, 1, 1), 60),
+    ("condition.both-actives", check_defender_condition, (1, 1, 1, 1), 0),
+    ("search.energy-attach-self-typed", check_attach_from_discard, (1, 1, 1, 1), 0),
+    ("discard.hand-draw-n", check_check_noop, (1, 1, 1, 1), 0),
+    ("switch.both-actives", check_switch_self, (1, 1, 1, 1), 0),
+    ("lock.defender-cannot-attack", check_lock_defender, (1, 1, 1, 1), 0),
+    ("lock.defender-flip-attack-retreat", check_lock_defender, (1, 1, 1, 1), 0),
+    ("flip.spread-opponent-bench", check_snipe_any, (1, 1, 1, 1), 0),
+    ("self-condition-then-heal", check_self_condition, (1, 1, 1, 1), 60),
+    ("flip.paralyze-else-nothing", check_defender_condition, (1, 1, 1, 1), 0),
+    ("snipe.damaged-only", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.all-bench-choice", check_check_noop, (1, 1, 1, 1), 0),
+    ("discard.all-energy-optional-bonus", check_check_noop, (1, 1, 1, 1), 0),
+    ("defender-two-conditions-flip", check_defender_condition, (1, 1, 1, 1), 0),
+    ("poison.checkup-counters", check_defender_condition, (1, 1, 1, 1), 0),
+    ("flip.bonus-and-condition", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy-cost-then-condition", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy.attached-to-hand", check_discard_self_energy, (1, 1, 1, 1), 0),
+    ("reorder.either-deck-top", check_check_noop, (1, 1, 1, 1), 0),
+    ("counters.move-bench-to-defender", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("energy.move-opponent-to-bench", check_check_noop, (1, 1, 1, 1), 0),
+    ("attach.hand-energy-one", check_attach_from_discard, (1, 1, 1, 1), 0),
+    ("protect.all-effects-no-flip", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("extra-turn", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.counter-from-chosen", check_heal_self, (1, 1, 1, 1), 60),
+    ("protect.from-evolution", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("discard.each-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("boost.own-next-turn-titled", check_check_noop, (1, 1, 1, 1), 0),
+    ("snipe.ignore-weakness-or-resistance", check_snipe_any, (1, 1, 1, 1), 0),
+    ("flip.tails-nothing-heads-shield", check_check_noop, (1, 1, 1, 1), 0),
+    ("discard.all-defender-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("ko.defender-self-damage", check_check_noop, (1, 1, 1, 1), 0),
+    ("energy.shuffle-opponent-into-deck", check_check_noop, (1, 1, 1, 1), 0),
+    ("flip.tails-named-self-damage", check_self_damage, (0, 0, 0, 0), 0),
+    ("recover.item-card", check_search_hand, (1, 1, 1, 1), 0),
+    ("lock.smokescreen-worded", check_check_noop, (1, 1, 1, 1), 0),
+    ("condition.gate-not-present", check_check_noop, (1, 1, 1, 1), 0),
+    ("condition.both-this-and-defender", check_defender_condition, (1, 1, 1, 1), 0),
+    ("energy.move-own-around", check_check_noop, (1, 1, 1, 1), 0),
+    ("ignore.defending-effects-long", check_bonus_condition, (1, 1, 1, 1), 0),
 ]
 
 
@@ -304,6 +373,15 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
         attacker.set_attribute(AttrID.HP, hp(attacker) - seed_damage)
     if pattern in ("scale.counter-self", "scale.less-per-counter-self"):
         attacker.set_attribute(AttrID.HP, hp(attacker) - 20)
+    if pattern == "counters.move-bench-to-defender":
+        # The rig's bench has no damage to move.
+        bench = rig.board.find_player_area(P1, "bench")
+        for card in list(bench.children)[:1]:
+            card.set_attribute(AttrID.HP, max(10, hp(card) - 30))
+    if pattern in ("recover.item-card", "recover.from-discard"):
+        # The rig's discard pile holds no Item by default.
+        if fillers.get("item") is not None:
+            rig.to_area(rig.pull_guid(P1, fillers["item"].guid), P1, "discard")
     if pattern.startswith("attach."):
         # The rig's discard pile holds no Energy by default.
         for _ in range(2):
@@ -331,13 +409,16 @@ async def main_async(args):
             continue
         ran += 1
         try:
-            status, detail = await run_case(pattern, check, coin_values,
-                                            seed_damage, fillers)
+            status, detail = await asyncio.wait_for(
+                run_case(pattern, check, coin_values, seed_damage, fillers),
+                timeout=args.timeout)
+        except asyncio.TimeoutError:
+            status, detail = FAIL, f"{pattern:<30} timed out"
         except Exception as exc:  # a raise is a failed check, not a crash
             status, detail = FAIL, f"{pattern:<30} raised {type(exc).__name__}: {exc}"
         if status == FAIL:
             failures += 1
-        print(f"{status:<5}{detail}")
+        print(f"{status:<5}{detail}", flush=True)
     print(f"\n{ran - failures}/{ran} pattern behaviours verified")
     return 1 if failures else 0
 
@@ -346,6 +427,8 @@ def main():
     logging.disable(logging.CRITICAL)
     parser = argparse.ArgumentParser(description="Verify bound attack patterns.")
     parser.add_argument("-k", dest="pattern", help="only cases matching this name")
+    parser.add_argument("--timeout", type=float, default=45.0,
+                        help="seconds per case before it counts as a failure")
     args = parser.parse_args()
     sys.exit(asyncio.run(main_async(args)))
 
