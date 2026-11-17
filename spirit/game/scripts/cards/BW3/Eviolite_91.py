@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import holder_takes_less_basic
 
 card = PokemonToolCardDef(
     guid="f975ed78-41cc-5739-9a23-c063368516d7",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=91,
     set_code="BW3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_takes_less_basic(20)
 )

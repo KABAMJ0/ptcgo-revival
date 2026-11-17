@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attach_discard_energy_to_each, has_subtype_in_play, is_basic_energy_card
 
 card = ItemCardDef(
     guid="a2533e87-2539-5c66-81a2-6eccc494a6ad",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=110,
     set_code="SV8PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=attach_discard_energy_to_each(is_basic_energy_card, per_target=1, targets=2), condition=has_subtype_in_play("Tera")
 )

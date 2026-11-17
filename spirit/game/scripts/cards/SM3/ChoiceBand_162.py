@@ -1,5 +1,6 @@
 from spirit.game.data_utils import PokemonToolCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import any_of, holder_damage_boost, is_pokemon_ex, is_pokemon_gx
 
 card = PokemonToolCardDef(
     guid="6b20d3a2-dbad-5db0-b917-83445ba707f0",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=162,
     set_code="SM3",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    passive=holder_damage_boost(30, target_pred=any_of(is_pokemon_gx, is_pokemon_ex))
 )

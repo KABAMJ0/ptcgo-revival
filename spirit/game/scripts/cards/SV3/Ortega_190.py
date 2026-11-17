@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import opponent_hand_to_bottom
 
 card = SupporterCardDef(
     guid="54dd38fe-89c1-57a0-a37d-f46b92270c16",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=190,
     set_code="SV3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_hand_to_bottom()
 )

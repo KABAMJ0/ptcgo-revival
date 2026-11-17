@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import draw_n_if_active
 
 card = SupporterCardDef(
     guid="0697d68b-a1f8-5182-bc75-290b5d6428f6",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=192,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_n_if_active("TAG TEAM", 2, 2)
 )

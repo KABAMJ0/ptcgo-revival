@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import move_counters_between_opponents
 
 card = SupporterCardDef(
     guid="ce0ad422-0c2b-5809-b9ef-7dcbaa198c04",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=234,
     set_code="SM11",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=move_counters_between_opponents(3)
 )

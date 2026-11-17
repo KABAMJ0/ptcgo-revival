@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_bench
+from spirit.game.card_effects.trainers import all_of, hop, is_basic_pokemon, named
 
 card = ItemCardDef(
     guid="2fbdb90b-a0ef-5d6c-822e-3aeee11b7e8e",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=147,
     set_code="SV9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_bench(all_of(is_basic_pokemon, named("hop")), 2)
 )

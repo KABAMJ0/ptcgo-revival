@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import draw_per_opponent_pokemon, hand_at_most
 
 card = SupporterCardDef(
     guid="3ab9af14-c5d5-5b86-8d07-acbc15d60217",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=174,
     set_code="SM9",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=draw_per_opponent_pokemon(1), condition=hand_at_most(4)
 )

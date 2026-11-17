@@ -1,5 +1,6 @@
 from spirit.game.data_utils import StadiumCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import evolve_early_passive
 
 card = StadiumCardDef(
     guid="fa8d1716-d7af-566e-87de-0d3735575c1f",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=188,
     set_code="ME2PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=evolve_early_passive("grass")
 )

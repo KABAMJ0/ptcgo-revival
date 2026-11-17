@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_pokemon_gx
 
 card = ItemCardDef(
     guid="e4c3219c-86a4-5916-b99c-b1f96a23f8a8",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=191,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(is_pokemon_gx, count=1)
 )

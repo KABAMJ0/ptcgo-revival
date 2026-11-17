@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import search_split_energy_to_hand_and_attach
 
 card = SupporterCardDef(
     guid="a5d8e7c6-f866-5f5f-ba84-da93fe203975",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=105,
     set_code="SV8PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_split_energy_to_hand_and_attach()
 )

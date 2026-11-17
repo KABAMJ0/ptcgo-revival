@@ -53,6 +53,13 @@ REMINDER_PATTERNS = [re.compile(p) for p in (
     r"^put it next to the active spot,? and discard it if another stadium comes into play\.?$",
     r"^a stadium with the same name can'?t be played\.?$",
     r"^attach a pokemon tool to 1 of your pokemon that doesn'?t already have a pokemon tool attached\.?$",
+    # Deck-building and same-name clauses: printed on the card, but they
+    # constrain deck construction or table state, not what playing it does.
+    r"^if another card with the same name is in play,? you can'?t play this card\.?$",
+    r"^you can'?t have more than (1|one) ace spec card in your deck\.?$",
+    r"^you can'?t have more than (1|one) radiant pokemon in your deck\.?$",
+    r"^you can'?t have more than (1|one) ace spec card in your deck,? and you can'?t have more "
+    r"than (1|one) radiant pokemon in your deck\.?$",
 )]
 
 NUMBER_WORDS = {
@@ -96,11 +103,12 @@ def canonical_text(rules) -> str:
     """The card's effect text with class reminder sentences removed, number
     words turned into digits, and whitespace/unicode normalized. Number words
     become digits so a template can capture "draw 3" and "draw two" alike."""
+    rules = [re.sub(r"\u00e9", "e", r or "") for r in (rules or [])]
     PARENTHETICAL = re.compile(
         r"\s*\((?:pokemon ex, pokemon v[^)]*|you still need[^)]*|before your attack)\)",
         re.I)
     kept = []
-    for line in (PARENTHETICAL.sub("", r) for r in (rules or [])):
+    for line in (PARENTHETICAL.sub("", r) for r in rules):
         for sentence in _sentences(line):
             probe = re.sub(r"\s+", " ", sentence).strip().lower()
             probe = probe.replace("\u2019", "'").replace("\u00e9", "e")
@@ -142,7 +150,7 @@ def family_of(signature: str) -> str:
 
 class CardScript:
     __slots__ = ("path", "set_code", "display_name", "number", "card_class",
-                 "effect_name", "game_text")
+                 "effect_name", "game_text", "raw_text")
 
     def __init__(self, path, set_code, display_name, number, card_class,
                  effect_name, game_text):
@@ -153,6 +161,9 @@ class CardScript:
         self.card_class = card_class
         self.effect_name = effect_name
         self.game_text = game_text
+        # The printed wording with its punctuation and bullets intact; the
+        # modal "Choose 1" cards can only be split on their bullets here.
+        self.raw_text = ""
 
     @property
     def is_stub(self):
@@ -262,6 +273,12 @@ def collect():
                 continue
             rules = rules_table.get(script.number) if isinstance(script.number, int) else None
             script.game_text = canonical_text(rules or []) or script.game_text
+            script.raw_text = " ".join(
+                sentence for line in (rules or [])
+                for sentence in _sentences(line)
+                if not any(p.match(re.sub(r"\s+", " ", sentence).strip().lower()
+                                   .replace("\u2019", "'").replace("\u00e9", "e"))
+                           for p in REMINDER_PATTERNS))
             scripts.append(script)
     return scripts
 

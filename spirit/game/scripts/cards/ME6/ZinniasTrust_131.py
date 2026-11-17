@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import switch_then_move_energy
 
 card = SupporterCardDef(
     guid="34a3e023-83f1-5945-a97b-44cda41465d9",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=131,
     set_code="ME6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=switch_then_move_energy()
 )

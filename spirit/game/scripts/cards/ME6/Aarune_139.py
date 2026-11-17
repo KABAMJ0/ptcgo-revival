@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import any_of, is_stadium_card, is_supporter_card
 
 card = SupporterCardDef(
     guid="8053a651-4579-549a-9a0c-2ae9834eae5f",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=139,
     set_code="ME6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=search_to_hand(any_of(is_supporter_card, is_stadium_card), count=3)
 )

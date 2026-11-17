@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import gust_then_confuse
 
 card = SupporterCardDef(
     guid="5de96907-7489-5581-b925-9b16fa643150",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=246,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=gust_then_confuse()
 )
