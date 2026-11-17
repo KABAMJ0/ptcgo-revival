@@ -3012,8 +3012,8 @@ def _search_attach_basic_energy_distributed(m, ability):
 
 
 def _counters_on_chosen_opponents(m, ability):
-    targets = _count(m.group(2))
-    counters = int(m.group(3))
+    targets = _count(m.group(1)) if m.group(1) else 1
+    counters = int(m.group(2))
 
     async def effect(ctx):
         candidates = ctx.opponent_pokemon_in_play()
