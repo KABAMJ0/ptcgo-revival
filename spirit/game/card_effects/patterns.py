@@ -100,7 +100,8 @@ from spirit.game.card_effects.support_common import (
     switch_self_attack,
 )
 from spirit.game.data_utils import (
-    Activations, Attack, EnergyCardDef, PokemonCardDef, def_for, unimplemented,
+    Activations, Attack, EnergyCardDef, PokemonCardDef, Triggers, def_for,
+    unimplemented,
 )
 from spirit.game.session.effects import is_special_energy
 from spirit.game.session.passives import Passive
@@ -4275,14 +4276,23 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 # "Once during your turn (before your attack), you may <effect>": the text
 # itself proves the ability is activated, so binding it also sets the
 # activation the engine needs to offer it at all.
-_ACTIVATION_PREFIXES = (
-    ("once during your turn (before your attack), you may ", Activations.ONCE_PER_TURN),
-    ("once during your turn, you may ", Activations.ONCE_PER_TURN),
-    ("once during your turn (before your attack), ", Activations.ONCE_PER_TURN),
+_ABILITY_PREFIXES = (
+    ("once during your turn (before your attack), you may ",
+     "activation", Activations.ONCE_PER_TURN),
+    ("once during your turn, you may ", "activation", Activations.ONCE_PER_TURN),
+    ("once during your turn (before your attack), ", "activation",
+     Activations.ONCE_PER_TURN),
     ("as often as you like during your turn (before your attack), you may ",
+     "activation", Activations.UNLIMITED),
+    ("as often as you like during your turn, you may ", "activation",
      Activations.UNLIMITED),
-    ("as often as you like during your turn, you may ", Activations.UNLIMITED),
-    ("during your turn (before your attack), you may ", Activations.UNLIMITED),
+    ("during your turn (before your attack), you may ", "activation",
+     Activations.UNLIMITED),
+    # "When you play this Pokemon from your hand ..." fires on an event.
+    ("when you play this pokemon from your hand to evolve 1 of your pokemon "
+     "during your turn, you may ", "trigger", Triggers.ON_EVOLVE),
+    ("when you play this pokemon from your hand onto your bench during your "
+     "turn, you may ", "trigger", Triggers.ON_PLAY),
 )
 
 # name -> bind count, for the coverage report.
@@ -4313,17 +4323,17 @@ def bind(ability) -> Optional[str]:
     if not text:
         return None
 
-    activation = None
+    binder = None
     if not isinstance(ability, Attack) and ability.activation is None \
             and ability.trigger is None:
-        # An ability the engine never offers would be a dead bind. The "once
-        # during your turn" wording is itself proof that it is activated, so
-        # strip it here and set the matching activation on the bind below;
-        # continuous passives need no activation and match as written.
-        for prefix, kind in _ACTIVATION_PREFIXES:
+        # An ability the engine never offers would be a dead bind. The wording
+        # itself proves how it is offered ("once during your turn" = activated,
+        # "when you play this Pokemon" = triggered), so strip the prefix here
+        # and set that on the bind below; continuous passives match as written.
+        for prefix, kind, value in _ABILITY_PREFIXES:
             if text.startswith(prefix):
                 text = text[len(prefix):].strip()
-                activation = kind
+                binder = (kind, value)
                 break
     for name, pattern, build in _PATTERNS:
         match = pattern.fullmatch(text)
@@ -4342,8 +4352,12 @@ def bind(ability) -> Optional[str]:
             continue
         if isinstance(effect, Passive):
             pass
-        elif activation is not None:
-            ability.activation = activation
+        elif binder is not None:
+            kind, value = binder
+            if kind == "trigger":
+                ability.trigger = value
+            else:
+                ability.activation = value
         elif not isinstance(ability, Attack):
             # An ordinary coroutine on an ability the engine cannot offer.
             continue
