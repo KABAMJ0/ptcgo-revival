@@ -4091,3 +4091,36 @@ def colress_draw():
         if count > 0:
             await ctx.draw_cards(count)
     return effect
+
+
+def discard_opponent_energy(count: int = 1):
+    """Choose an Energy card attached to one of your opponent's Pokemon and
+    discard it (Energy Removal)."""
+    async def effect(ctx):
+        candidates = [p for p in ctx.opponent_pokemon_in_play()
+                      if ctx.attached_energies(p)]
+        if not candidates:
+            return
+        target = (await ctx.choose_pokemon(
+            candidates, "Choose an opponent's Pokémon with Energy")) if len(candidates) > 1 \
+            else candidates[0]
+        if target is None:
+            return
+        await ctx.discard_energy_from(target, count, minimum=count)
+    return effect
+
+
+def shuffle_hand_cards_draw(cards: int, draw: int):
+    """Shuffle `cards` other cards from your hand into your deck, then draw
+    `draw` (Maintenance)."""
+    async def effect(ctx):
+        pool = ctx.hand()
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, cards, minimum=min(cards, len(pool)),
+            prompt="Choose cards to shuffle into your deck")
+        if picks:
+            await ctx.shuffle_into_deck(picks)
+        await ctx.draw_cards(draw)
+    return effect

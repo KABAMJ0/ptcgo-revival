@@ -1642,6 +1642,21 @@ RULES = [
          r"shuffle your hand into your deck then draw (?P<n>\d+) number of cards equal to the "
          r"number of benched pokemon both yours and your opponents",
          "colress_draw", lambda m: []),
+    Rule("full-heal",
+         r"your active pokemon is no longer asleep confused paralyzed or poisoned",
+         "cure_conditions_effect", lambda m: [], module="support_common"),
+    Rule("gust-of-wind",
+         r"choose (?P<n>\d+) of your opponents benched pokemon and switch it with his or her "
+         r"active pokemon",
+         "opponent_bench_to_active", lambda m: []),
+    Rule("energy-removal",
+         r"choose (?P<n>\d+) energy card attached to (?P<target>\d+) of your opponents pokemon and "
+         r"discard it",
+         "discard_opponent_energy", lambda m: [m.group("n")]),
+    Rule("maintenance",
+         r"shuffle (?P<n>\d+) of the other cards from your hand into your deck in order to draw "
+         r"(?P<draw>\d+) card",
+         "shuffle_hand_cards_draw", lambda m: [m.group("n"), m.group("draw")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1746,6 +1761,8 @@ WRAPPERS = [
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you do "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) card from your hand in order to play this card "),
+     "with_discard_cost", None),
+    (re.compile(r"^discard (?P<n>\d+) of the other cards in your hand in order to "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
                 r"you cant play this card "), "with_discard_cost", None),
