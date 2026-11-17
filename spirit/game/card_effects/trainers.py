@@ -3848,3 +3848,16 @@ def switch_team_then_gust(owner: str):
         if chosen is not None:
             await ctx.switch_active(ctx.opponent_id, chosen)
     return effect
+
+
+def draw_until_per_typed_pokemon(type_name: str):
+    """Draw until your hand holds as many cards as you have Pokemon of
+    `type_name` in play."""
+    type_pred = pokemon_of(type_name)
+
+    async def effect(ctx):
+        wanted = sum(1 for p in ctx.my_pokemon_in_play() if type_pred(p))
+        hand = len(ctx.hand())
+        if wanted > hand:
+            await ctx.draw_cards(wanted - hand)
+    return effect

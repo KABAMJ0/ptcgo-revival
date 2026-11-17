@@ -1486,6 +1486,12 @@ RULES = [
          r"to the active spot",
          "switch_team_then_gust",
          lambda m: ['"%s"' % OWNER_NAMES.get(m.group("owner"), m.group("owner"))]),
+    Rule("discard-energy-draw-per-typed",
+         r"discard (?P<n>\d+) energy card from your hand in order to draw cards until you have as "
+         r"many cards in your hand as you have (?P<type>[a-z]+) pokemon in play",
+         "with_discard_cost",
+         lambda m: [m.group("n"),
+                    'draw_until_per_typed_pokemon("%s")' % m.group("type")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1730,6 +1736,8 @@ def resolve_stadium_ability(text):
         return None
     inner = inner.replace("then that player shuffles their deck", "then shuffle your deck")
     inner = inner.replace("and shuffle their deck", "then shuffle your deck")
+    inner = inner.replace("they have", "you have").replace("they do", "you do")
+    inner = inner.replace("he or she", "you").replace("his or her", "your")
     inner = inner.replace("their", "your")
     found = resolve(inner)
     if found is None or found.get("kind", "effect") != "effect" or found.get("condition"):

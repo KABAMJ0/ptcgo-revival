@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import draw_until_per_typed_pokemon, stadium_ability, with_discard_cost
 
 card = StadiumCardDef(
     guid="12beb776-fac9-5a2d-939e-22666eab1187",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=172,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    ability=stadium_ability('Mystery Garden', with_discard_cost(1, draw_until_per_typed_pokemon("psychic")))
 )
