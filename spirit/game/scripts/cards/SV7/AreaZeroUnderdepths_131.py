@@ -1,0 +1,15 @@
+from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = StadiumCardDef(
+    guid="5a29f77d-a55a-5428-96d9-9feaab82c8f3",
+    key="SV7",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.AreaZeroUnderdepths.Name",
+    display_name="Area Zero Underdepths",
+    searchable_by=["Area Zero Underdepths", "Stadium"],
+    subtypes=["Stadium"],
+    collector_number=131,
+    set_code="SV7",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

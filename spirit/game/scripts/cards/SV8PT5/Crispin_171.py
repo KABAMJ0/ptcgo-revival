@@ -1,0 +1,15 @@
+from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="4fcffa86-30b9-5b92-8334-557280907be9",
+    key="SV8PT5",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Crispin.Name",
+    display_name="Crispin",
+    searchable_by=["Crispin", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=171,
+    set_code="SV8PT5",
+    rarity=Rarities.Rare,
+    effect=unimplemented
+)

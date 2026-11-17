@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="8a40e14d-565a-5073-8f97-ad3faba79cbc",
+    key="SV8",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Archaludonex.Name",
+    display_name="Archaludon ex",
+    searchable_by=["Archaludon ex", "Stage 1", "ex", "Archaludonex"],
+    subtypes=["Stage 1", "ex"],
+    collector_number=224,
+    set_code="SV8",
+    rarity=Rarities.Rare,
+    hp=300,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Duraludon.Name",
+    family_id=884,
+    abilities=[
+        Ability(
+            title="Assemble Alloy",
+            game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may attach up to 2 Basic Metal Energy cards from your discard pile to your Metal Pok\u00e9mon in any way you like.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Metal Defender",
+            game_text="During your opponent's next turn, this Pok\u00e9mon has no Weakness.",
+            cost={PokemonTypes.METAL: 3},
+            damage=220,
+            effect=unimplemented,
+        ),
+    ],
+)

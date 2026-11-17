@@ -1,0 +1,37 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="cbc16b35-1645-5ae4-abab-e57a0705dd49",
+    key="SV4PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Kirlia.Name",
+    display_name="Kirlia",
+    searchable_by=["Kirlia", "Stage 1", "Kirlia"],
+    subtypes=["Stage 1"],
+    collector_number=28,
+    set_code="SV4PT5",
+    rarity=Rarities.Uncommon,
+    hp=90,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Ralts.Name",
+    family_id=280,
+    abilities=[
+        Attack(
+            title="Magical Shot",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+        ),
+        Attack(
+            title="Psychic",
+            game_text="This attack does 20 more damage for each Energy attached to your opponent's Active Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
+            damage=60,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

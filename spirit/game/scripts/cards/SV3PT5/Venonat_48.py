@@ -1,0 +1,32 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="f3115655-af8a-5d1b-88f1-711234e63164",
+    key="SV3PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Venonat.Name",
+    display_name="Venonat",
+    searchable_by=["Venonat", "Basic", "Venonat"],
+    subtypes=["Basic"],
+    collector_number=48,
+    set_code="SV3PT5",
+    rarity=Rarities.Common,
+    hp=70,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=48,
+    abilities=[
+        Attack(
+            title="Gnaw",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=10,
+        ),
+        Attack(
+            title="Beam",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
+            damage=40,
+        ),
+    ],
+)

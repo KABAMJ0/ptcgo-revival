@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a80c64a9-305f-5859-8fa2-2d5e45fd4fa0",
+    key="SV8",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Miloticex.Name",
+    display_name="Milotic ex",
+    searchable_by=["Milotic ex", "Stage 1", "ex", "Miloticex"],
+    subtypes=["Stage 1", "ex"],
+    collector_number=217,
+    set_code="SV8",
+    rarity=Rarities.Rare,
+    hp=270,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.LIGHTNING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Feebas.Name",
+    family_id=349,
+    abilities=[
+        Ability(
+            title="Sparkling Scales",
+            game_text="Prevent all damage from and effects of attacks from your opponent's Tera Pok\u00e9mon done to this Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Hypno Splash",
+            game_text="Your opponent's Active Pok\u00e9mon is now Asleep.",
+            cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
+            damage=160,
+            effect=unimplemented,
+        ),
+    ],
+)

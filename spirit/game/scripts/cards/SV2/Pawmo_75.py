@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="fd997e15-a4d3-5f44-8323-5b4a8c6f4223",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Pawmo.Name",
+    display_name="Pawmo",
+    searchable_by=["Pawmo", "Stage 1", "Pawmo"],
+    subtypes=["Stage 1"],
+    collector_number=75,
+    set_code="SV2",
+    rarity=Rarities.Uncommon,
+    hp=80,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Pawmi.Name",
+    family_id=921,
+    abilities=[
+        Attack(
+            title="Static Shock",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=20,
+        ),
+        Attack(
+            title="Electrobullet",
+            game_text="This attack also does 30 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.LIGHTNING: 2},
+            damage=50,
+            effect=unimplemented,
+        ),
+    ],
+)

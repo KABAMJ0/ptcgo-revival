@@ -1,0 +1,33 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="3b3bffb3-3741-5b60-80a5-356acb1105cd",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Rapidash.Name",
+    display_name="Rapidash",
+    searchable_by=["Rapidash", "Stage 1", "Rapidash"],
+    subtypes=["Stage 1"],
+    collector_number=189,
+    set_code="SV10",
+    rarity=Rarities.Rare,
+    hp=110,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Ponyta.Name",
+    family_id=77,
+    abilities=[
+        Ability(
+            title="Hurried Gait",
+            game_text="Once during your turn, you may draw a card.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Fire Mane",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
+            damage=60,
+        ),
+    ],
+)

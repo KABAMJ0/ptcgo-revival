@@ -1,0 +1,15 @@
+from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="5ffe3b73-78a8-595c-9bbc-6e3b9f7192c2",
+    key="SV4",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.ParasolLady.Name",
+    display_name="Parasol Lady",
+    searchable_by=["Parasol Lady", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=255,
+    set_code="SV4",
+    rarity=Rarities.Rare,
+    effect=unimplemented
+)

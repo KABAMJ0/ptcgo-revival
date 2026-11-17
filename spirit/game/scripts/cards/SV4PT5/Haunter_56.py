@@ -1,0 +1,30 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="5157b5a1-6039-54ad-a7ad-e49ced03397d",
+    key="SV4PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Haunter.Name",
+    display_name="Haunter",
+    searchable_by=["Haunter", "Stage 1", "Haunter"],
+    subtypes=["Stage 1"],
+    collector_number=56,
+    set_code="SV4PT5",
+    rarity=Rarities.Common,
+    hp=80,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Gastly.Name",
+    family_id=92,
+    abilities=[
+        Attack(
+            title="Dark Slumber",
+            game_text="Your opponent's Active Pok\u00e9mon is now Asleep.",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
+            damage=40,
+            effect=unimplemented,
+        ),
+    ],
+)

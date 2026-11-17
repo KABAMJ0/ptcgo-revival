@@ -1,0 +1,38 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e3a8ca49-e66b-5488-8844-0d0f8b4f5516",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Dondozoex.Name",
+    display_name="Dondozo ex",
+    searchable_by=["Dondozo ex", "Basic", "ex", "Dondozoex"],
+    subtypes=["Basic", "ex"],
+    collector_number=211,
+    set_code="SV10",
+    rarity=Rarities.Rare,
+    hp=260,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.BASIC,
+    retreat_cost=4,
+    weakness_type=PokemonTypes.LIGHTNING,
+    family_id=977,
+    abilities=[
+        Attack(
+            title="Avenging Billow",
+            game_text="This attack does 10 more damage for each damage counter on this Pok\u00e9mon.",
+            cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Dynamic Dive",
+            game_text="You may do 120 more damage. If you do, this Pok\u00e9mon also does 50 damage to itself.",
+            cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
+            damage=120,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="b05b39a5-17cb-5eab-a5ab-cc9abbb37d99",
+    key="SV4PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Drifloon.Name",
+    display_name="Drifloon",
+    searchable_by=["Drifloon", "Basic", "Drifloon"],
+    subtypes=["Basic"],
+    collector_number=155,
+    set_code="SV4PT5",
+    rarity=Rarities.Rare,
+    hp=70,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=425,
+    abilities=[
+        Attack(
+            title="Gust",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=10,
+        ),
+        Attack(
+            title="Balloon Blast",
+            game_text="This attack does 30 damage for each damage counter on this Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 2},
+            damage=30,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

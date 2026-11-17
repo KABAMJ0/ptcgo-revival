@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a8b5182e-86c7-5baa-a91f-da6138656b67",
+    key="SV8PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Fezandipiti.Name",
+    display_name="Fezandipiti",
+    searchable_by=["Fezandipiti", "Basic", "Fezandipiti"],
+    subtypes=["Basic"],
+    collector_number=45,
+    set_code="SV8PT5",
+    rarity=Rarities.Rare,
+    hp=120,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.METAL,
+    family_id=1016,
+    abilities=[
+        Ability(
+            title="Adrena-Pheromone",
+            game_text="If this Pok\u00e9mon has any Darkness Energy attached and is damaged by an attack, flip a coin. If heads, prevent that damage.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Energy Feather",
+            game_text="This attack does 30 damage for each Energy attached to this Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 1},
+            damage=30,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

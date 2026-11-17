@@ -1,0 +1,38 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="eba08337-e47b-59a4-b2b7-6016ec54260c",
+    key="SV8PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Leafeonex.Name",
+    display_name="Leafeon ex",
+    searchable_by=["Leafeon ex", "Stage 1", "Tera", "ex", "Leafeonex"],
+    subtypes=["Stage 1", "Tera", "ex"],
+    collector_number=144,
+    set_code="SV8PT5",
+    rarity=Rarities.Rare,
+    hp=270,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Eevee.Name",
+    family_id=133,
+    abilities=[
+        Attack(
+            title="Verdant Storm",
+            game_text="This attack does 60 damage for each Energy attached to all of your opponent's Pok\u00e9mon.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
+            damage=60,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Moss Agate",
+            game_text="Heal 100 damage from each of your Benched Pok\u00e9mon.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1},
+            damage=230,
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="de4db5a5-c283-52a4-ae60-ff45a37b7375",
+    key="SV4",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Armarougeex.Name",
+    display_name="Armarouge ex",
+    searchable_by=["Armarouge ex", "Stage 1", "ex", "Armarougeex"],
+    subtypes=["Stage 1", "ex"],
+    collector_number=218,
+    set_code="SV4",
+    rarity=Rarities.Rare,
+    hp=260,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Charcadet.Name",
+    family_id=935,
+    abilities=[
+        Ability(
+            title="Crimson Armor",
+            game_text="If this Pok\u00e9mon has full HP, it takes 80 less damage from attacks from your opponent's Pok\u00e9mon (after applying Weakness and Resistance).",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Scorching Bazooka",
+            game_text="This attack does 40 more damage for each Fire Energy attached to this Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=40,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

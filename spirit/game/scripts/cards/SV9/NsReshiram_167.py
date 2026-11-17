@@ -1,0 +1,34 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="3ba2a715-7cc7-5002-bace-b4d237e39c77",
+    key="SV9",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.NsReshiram.Name",
+    display_name="N's Reshiram",
+    searchable_by=["N's Reshiram", "Basic", "NsReshiram"],
+    subtypes=["Basic"],
+    collector_number=167,
+    set_code="SV9",
+    rarity=Rarities.Rare,
+    hp=130,
+    elements=[PokemonTypes.DRAGON],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    family_id=643,
+    abilities=[
+        Attack(
+            title="Powerful Rage",
+            game_text="This attack does 20 damage for each damage counter on this Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.LIGHTNING: 1},
+            damage=20,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Virtuous Flame",
+            cost={PokemonTypes.FIRE: 2, PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
+            damage=170,
+        ),
+    ],
+)

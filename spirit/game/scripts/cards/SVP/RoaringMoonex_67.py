@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="7405a6ff-5d9b-5a60-8fdf-06815e5e57e2",
+    key="SVP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.RoaringMoonex.Name",
+    display_name="Roaring Moon ex",
+    searchable_by=["Roaring Moon ex", "Basic", "ex", "Ancient", "RoaringMoonex"],
+    subtypes=["Basic", "ex", "Ancient"],
+    collector_number=67,
+    set_code="SVP",
+    rarity=Rarities.RarePromo,
+    hp=230,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.GRASS,
+    family_id=1005,
+    abilities=[
+        Attack(
+            title="Frenzied Gouging",
+            game_text="Knock Out your opponent's Active Pok\u00e9mon. If your opponent's Active Pok\u00e9mon is Knocked Out in this way, this Pok\u00e9mon does 200 damage to itself.",
+            cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Calamity Storm",
+            game_text="You may discard a Stadium in play. If you do, this attack does 120 more damage.",
+            cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
+            damage=100,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="6344c42a-21a3-5d40-8dbb-8a4c66a6d829",
+    key="SV3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Absolex.Name",
+    display_name="Absol ex",
+    searchable_by=["Absol ex", "Basic", "ex", "Absolex"],
+    subtypes=["Basic", "ex"],
+    collector_number=214,
+    set_code="SV3",
+    rarity=Rarities.Rare,
+    hp=210,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.GRASS,
+    family_id=359,
+    abilities=[
+        Attack(
+            title="Future Sight",
+            game_text="Look at the top 3 cards of either player's deck and put them back in any order.",
+            cost={PokemonTypes.DARKNESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Cursed Slug",
+            game_text="If your opponent has 3 or fewer cards in their hand, this attack does 120 more damage.",
+            cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
+            damage=100,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

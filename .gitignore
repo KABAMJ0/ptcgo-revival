@@ -1,0 +1,25 @@
+# Virtualenv and caches
+venv/
+__pycache__/
+*.pyc
+
+# Generated asset bundles and card art
+# Art is ~5 GB of official card scans downloaded by spirit/tools/import_set.py.
+# Everything here is reproducible with tools/import_all_sets.sh
+spirit/assets/bundleCache/
+spirit/assets/cards/*/*.png
+spirit/assets/cards/*/*.jpg
+
+# Local database and TLS material
+ptcgo_server.db
+ptcgo_server.db-shm
+ptcgo_server.db-wal
+server.crt
+server.key
+
+# Build / tooling leftovers
+*.log
+.DS_Store
+
+# Generated bundle cache
+spirit/assets/generatedBundleCache/

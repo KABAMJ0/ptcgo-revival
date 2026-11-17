@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="9443de55-1da5-5714-a61a-4de6cabbe2bb",
+    key="SV1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.EnergySwitch.Name",
+    display_name="Energy Switch",
+    searchable_by=["Energy Switch", "Item"],
+    subtypes=["Item"],
+    collector_number=173,
+    set_code="SV1",
+    rarity=Rarities.Common,
+    effect=unimplemented
+)

@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e3f6d835-ad4e-5c0a-a32b-377dffaee6f9",
+    key="SV5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Wugtrioex.Name",
+    display_name="Wugtrio ex",
+    searchable_by=["Wugtrio ex", "Stage 1", "Tera", "ex", "Wugtrioex"],
+    subtypes=["Stage 1", "Tera", "ex"],
+    collector_number=190,
+    set_code="SV5",
+    rarity=Rarities.Rare,
+    hp=250,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Wiglett.Name",
+    family_id=960,
+    abilities=[
+        Attack(
+            title="Tricolor Pump",
+            game_text="Discard up to 3 Energy cards from your hand. This attack does 60 damage to 1 of your opponent's Pok\u00e9mon for each Energy card you discarded in this way. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.WATER: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Numbing Hold",
+            game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
+            cost={PokemonTypes.WATER: 2},
+            damage=120,
+            effect=unimplemented,
+        ),
+    ],
+)

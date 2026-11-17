@@ -1,0 +1,29 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="0d32bead-bc98-5711-b531-935febd287e3",
+    key="SV3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Surskit.Name",
+    display_name="Surskit",
+    searchable_by=["Surskit", "Basic", "Surskit"],
+    subtypes=["Basic"],
+    collector_number=6,
+    set_code="SV3",
+    rarity=Rarities.Common,
+    hp=60,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=283,
+    abilities=[
+        Attack(
+            title="Lunge",
+            game_text="Flip a coin. If tails, this attack does nothing.",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,30 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e3ac78a2-b8e4-5769-9f27-7fcfcca9a697",
+    key="SV4",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Miltank.Name",
+    display_name="Miltank",
+    searchable_by=["Miltank", "Basic", "Miltank"],
+    subtypes=["Basic"],
+    collector_number=147,
+    set_code="SV4",
+    rarity=Rarities.Common,
+    hp=120,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=241,
+    abilities=[
+        Attack(
+            title="Lively Tackle",
+            game_text="If this Pok\u00e9mon was healed during this turn, this attack does 90 more damage.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=60,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)
