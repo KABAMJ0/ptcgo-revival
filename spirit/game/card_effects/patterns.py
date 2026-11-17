@@ -2905,6 +2905,53 @@ def _bonus_extra_energy_snipe(m, ability):
             await ctx.deal_damage(amount, target=pick, apply_modifiers=False)
     return effect
 
+
+def _attacker_subtypes(calc):
+    from spirit.game.data_utils import subtypes_for
+    if calc.attacker is None:
+        return set()
+    return {subtype.lower() for subtype in subtypes_for(calc.attacker.archetype_id)}
+
+
+def _passive_prevent_from_ex_or_v(m, ability):
+    def pred(calc, carrier) -> bool:
+        return bool(_attacker_subtypes(calc) & {"ex", "v", "vmax", "vstar"})
+    return prevent_damage_when(pred)
+
+
+def _passive_prevent_from_type(m, ability):
+    type_word = m.group(1)
+    type_value = TYPE_WORDS[type_word].value
+
+    def pred(calc, carrier) -> bool:
+        attacker = calc.attacker
+        if attacker is None:
+            return False
+        return is_pokemon_of_type(attacker, type_word)
+    return prevent_damage_when(pred)
+
+
+def _passive_prevent_from_ability_holders(m, ability):
+    def pred(calc, carrier) -> bool:
+        attacker = calc.attacker
+        if attacker is None:
+            return False
+        definition = def_for(getattr(attacker, "archetype_id", None) or "")
+        return any(not isinstance(a, Attack)
+                   for a in getattr(definition, "abilities", []) or [])
+    return prevent_damage_when(pred)
+
+
+def _passive_effect_shield(m, ability):
+    from spirit.game.card_effects.passives_common import attack_effect_shield_passive
+    return attack_effect_shield_passive(protects="carrier")
+
+
+def _passive_effect_shield_no_damage(m, ability):
+    from spirit.game.card_effects.passives_common import attack_effect_shield_passive
+    return attack_effect_shield_passive(protects="carrier")
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4196,6 +4243,27 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"addition to this attack's cost\))?, this attack does (\d+) "
                 r"damage to (?:an?|\d+) of your opponent's benched pokemon"
                 + _SNIPE_TAIL), _bonus_extra_energy_snipe),
+
+    # -- batch 20: continuous ability protection ---------------------------
+    ("ability.prevent-from-ex-v",
+     re.compile(r"prevent all damage done to this pokemon by attacks from your "
+                r"opponent's pokemon ex and pokemon v\."),
+     _passive_prevent_from_ex_or_v),
+    ("ability.prevent-from-type",
+     re.compile(r"prevent all damage done to this pokemon by attacks from ("
+                + _TYPE_WORDS + r") pokemon\."), _passive_prevent_from_type),
+    ("ability.prevent-from-ability-holders",
+     re.compile(r"prevent all damage from attacks done to this pokemon by your "
+                r"opponent's pokemon that have an ability\."),
+     _passive_prevent_from_ability_holders),
+    ("ability.effect-shield",
+     re.compile(r"prevent all effects of attacks used by your opponent's "
+                r"pokemon done to this pokemon\. \(damage is not an "
+                r"effect\.\)"), _passive_effect_shield),
+    ("ability.effect-shield-except-damage",
+     re.compile(r"prevent all effects of your opponent's attacks, except "
+                r"damage, done to this pokemon\."),
+     _passive_effect_shield_no_damage),
 ]
 
 
