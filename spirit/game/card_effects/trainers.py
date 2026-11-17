@@ -2741,3 +2741,70 @@ def trade_pokemon():
             await ctx.put_in_hand(found, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+# --- Playability conditions ------------------------------------------------
+# Each takes (board, player_id) and answers "may this card be played at all",
+# matching the contract TrainerCardDef.condition documents.
+
+def opponent_prizes_at_most(n: int):
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        area = board.find_player_area(opponent, "prizePile") if opponent else None
+        return bool(area) and len(area.children) <= n
+    return check
+
+
+def opponent_prizes_exactly(n: int):
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        area = board.find_player_area(opponent, "prizePile") if opponent else None
+        return bool(area) and len(area.children) == n
+    return check
+
+
+def hand_at_most(n: int):
+    """The hand holds at most `n` cards besides this one."""
+    def check(board, player_id):
+        hand = board.find_player_area(player_id, "hand")
+        return bool(hand) and len(hand.children) - 1 <= n
+    return check
+
+
+def hand_is_last():
+    """This is the only card in hand."""
+    def check(board, player_id):
+        hand = board.find_player_area(player_id, "hand")
+        return bool(hand) and len(hand.children) <= 1
+    return check
+
+
+def behind_on_prizes():
+    """You have more Prize cards remaining than the opponent."""
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        mine = board.find_player_area(player_id, "prizePile")
+        theirs = board.find_player_area(opponent, "prizePile") if opponent else None
+        if not mine or not theirs:
+            return False
+        return len(mine.children) > len(theirs.children)
+    return check
+
+
+def has_subtype_in_play(subtype: str):
+    """A Pokemon of the named subtype is in play on your side."""
+    wanted = subtype.lower()
+
+    def check(board, player_id):
+        return any(wanted in name.lower()
+                   for pokemon in board.pokemon_in_play(player_id)
+                   for name in subtypes_for(pokemon.archetype_id))
+    return check
+
+
+def ends_turn_after(inner):
+    """Run `inner`, then end the turn ("Your turn ends")."""
+    async def effect(ctx):
+        await inner(ctx)
+        ctx.ends_turn = True
+    return effect

@@ -878,6 +878,26 @@ def _argument_symbols(args):
 # that is otherwise a shape this table already knows. Each entry maps the
 # leading clause onto a combinator in trainers.py and keeps the remainder as
 # the inner effect.
+# Prefix (or, for " your turn ends", suffix) clauses that only gate or finish
+# the card rather than changing the effect: they land on condition= or wrap
+# the effect in ends_turn_after.
+CONDITION_PREFIXES = [
+    (re.compile(r"^you can (?:use|play) this card only if your opponent has (?P<n>\d+) or fewer "
+                r"prize cards remaining "), "opponent_prizes_at_most"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<n>\d+) "
+                r"prize cards remaining "), "opponent_prizes_exactly"),
+    (re.compile(r"^you can (?:use|play) this card only if you have (?P<n>\d+) or fewer other "
+                r"cards in your hand "), "hand_at_most"),
+    (re.compile(r"^you can (?:use|play) this card only when it is the last card in your hand "),
+     "hand_is_last"),
+    (re.compile(r"^you can (?:use|play) this card only if you have more prize cards remaining "
+                r"than your opponent "), "behind_on_prizes"),
+    (re.compile(r"^you can (?:use|play) this card only if you have any (?P<sub>[a-z]+) pokemon "
+                r"in play "), "has_subtype_in_play"),
+]
+
+ENDS_TURN = re.compile(r" your turn ends$")
+
 WRAPPERS = [
     (re.compile(r"^flip 1 coin if heads "), "if_heads", None),
     (re.compile(r"^you can (?:use|play) this card only if you discard (?P<n>\d+) other cards? "
@@ -909,6 +929,32 @@ def resolve(text, depth=0):
         found = rule.match(text)
         if found is not None:
             return found
+    for pattern, factory in CONDITION_PREFIXES:
+        found = pattern.match(text)
+        if not found:
+            continue
+        inner = resolve(text[found.end():], depth + 1)
+        if inner is None:
+            continue
+        groups = found.groupdict()
+        if factory == "has_subtype_in_play":
+            condition = '%s("%s")' % (factory, groups["sub"].capitalize())
+        elif "n" in groups:
+            condition = "%s(%s)" % (factory, groups["n"])
+        else:
+            condition = "%s()" % factory
+        return dict(inner, condition=condition)
+
+    match = ENDS_TURN.search(text)
+    if match:
+        inner = resolve(text[:match.start()], depth + 1)
+        if inner is not None:
+            return {
+                "rule": "ends-turn+" + inner["rule"],
+                "expr": "ends_turn_after(%s)" % inner["expr"],
+                "symbols": inner["symbols"] | {"ends_turn_after"},
+            }
+
     for pattern, combinator, cost in WRAPPERS:
         found = pattern.match(text)
         if not found:
