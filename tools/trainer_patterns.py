@@ -54,6 +54,20 @@ SIMPLE_PREDICATES = {
 
 TYPE_NAMES = "grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless"
 
+# Possessive trainer names that appear inside a card category
+# ("Team Rocket's Pokemon", "Ethan's Pokemon"). Canonical text drops the
+# apostrophe, so the key is the printed name without it.
+OWNER_NAMES = {
+    "team rockets": "team rocket", "ethans": "ethan", "cynthias": "cynthia",
+    "stevens": "steven", "marnies": "marnie", "arvens": "arven", "hops": "hop",
+    "ns": "n", "ionos": "iono", "mistys": "misty", "brocks": "brock",
+    "erikas": "erika", "sabrinas": "sabrina", "blaines": "blaine",
+    "giovannis": "giovanni", "surges": "surge", "lanas": "lana",
+    "guzmas": "guzma", "lusamines": "lusamine", "sadas": "sada",
+    "turos": "turo", "nemonas": "nemona", "kukuis": "kukui", "draytons": "drayton",
+    "cyllenes": "cyllene", "colresss": "colress", "klaras": "klara",
+}
+
 _TYPED_ENERGY = re.compile(
     r"^(?:1 |up to )?basic (?P<type>%s) energy cards?$" % TYPE_NAMES)
 _TYPED_ENERGY_ANY = re.compile(r"^(?:1 )?(?P<type>%s) energy cards?$" % TYPE_NAMES)
@@ -83,6 +97,9 @@ def resolve_predicate(phrase):
     match = _TYPED_POKEMON.match(text)
     if match:
         return 'pokemon_of("%s")' % match.group("type")
+    owned = _owned_category(text)
+    if owned is not None:
+        return owned
     for joiner, combinator in ((" or ", "any_of"), (" and ", "all_of")):
         if joiner in text:
             parts = [resolve_predicate(part) for part in text.split(joiner)]
@@ -100,6 +117,31 @@ def _count(value, default=1):
         return int(value)
     except ValueError:
         raise Unresolved(value)
+
+
+def _owned_category(text):
+    """'evolution team rockets pokemon' -> all_of(is_evolution_pokemon,
+    named("team rocket")); None when the phrase is not owner-qualified."""
+    tokens = text.split()
+    for owner_form, owner_word in OWNER_NAMES.items():
+        wanted = owner_form.split()
+        span = len(wanted)
+        start = next((i for i in range(len(tokens) - span + 1)
+                      if tokens[i:i + span] == wanted), None)
+        if start is None:
+            continue
+        remainder = " ".join(tokens[:start] + tokens[start + span:])
+        if not remainder:
+            raise Unresolved(text)
+        owner = 'named("%s")' % owner_word
+        try:
+            category = resolve_predicate(remainder)
+        except Unresolved:
+            return None
+        if category == "None":
+            return owner
+        return "all_of(%s, %s)" % (category, owner)
+    return None
 
 
 def _colorless_count(phrase):

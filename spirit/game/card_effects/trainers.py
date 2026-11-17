@@ -2141,3 +2141,15 @@ def devolve_one(count: int = 1):
             return
         await ctx.devolve_pokemon(target, steps=count, destination="hand")
     return effect
+
+
+def named(*words):
+    """Predicate: a card whose printed name contains every one of `words`
+    ("Team Rocket's Pokemon", "Ethan's Adventure")."""
+    wanted = [word.lower() for word in words]
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name = (getattr(definition, "display_name", "") or "").lower()
+        return all(word in name for word in wanted)
+    return predicate
