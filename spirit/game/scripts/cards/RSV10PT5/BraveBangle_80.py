@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import gated_damage_boost, is_pokemon_ex, is_rule_box_free_pokemon
 
 card = PokemonToolCardDef(
     guid="5c528680-2b43-5eb1-9abf-e1a3fa2073ef",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=80,
     set_code="RSV10PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_damage_boost(30, is_rule_box_free_pokemon, target=is_pokemon_ex)
 )

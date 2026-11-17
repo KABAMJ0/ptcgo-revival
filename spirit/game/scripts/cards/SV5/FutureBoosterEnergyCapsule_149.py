@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import combined, gated_damage_boost, gated_retreat_free, pokemon_of_subtype
 
 card = PokemonToolCardDef(
     guid="26ce9eed-2c87-5aac-8c4d-308d00cac054",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=149,
     set_code="SV5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=combined(gated_retreat_free(pokemon_of_subtype("Future")), gated_damage_boost(20, pokemon_of_subtype("Future")))
 )

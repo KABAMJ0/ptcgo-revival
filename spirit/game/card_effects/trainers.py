@@ -1485,7 +1485,8 @@ def basic_energy_of(type_name: str):
 
 
 def is_rule_box_free_pokemon(card) -> bool:
-    return is_pokemon_card(card) and not has_rule_box(card.archetype_id)
+    return (is_pokemon_card(card) and not has_rule_box(card.archetype_id)
+            and "ex" not in subtypes_for(card.archetype_id))
 
 
 def is_basic_pokemon_with_hp_at_most(limit: int):
@@ -3379,3 +3380,9 @@ def stadium_ability(title: str, effect):
     """"Once during each player's turn, that player may ..." on a Stadium."""
     return Ability(title=title, activation=Activations.ONCE_PER_TURN, effect=effect)
 
+
+
+def is_pokemon_EX(card) -> bool:
+    """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
+    Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
+    return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)

@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import gated_retreat_free, is_stage_two
 
 card = PokemonToolCardDef(
     guid="6f33598d-f004-59d4-b0e4-39ad40a09bea",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=155,
     set_code="SV3PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=gated_retreat_free(is_stage_two)
 )

@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import all_of, is_pokemon_card, owned_by, stadium_takes_less_for
 
 card = StadiumCardDef(
     guid="0ae9dcf7-9f11-584a-95d1-171e08b5a36f",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=166,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_takes_less_for(30, all_of(is_pokemon_card, owned_by("steven")))
 )

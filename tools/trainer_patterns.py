@@ -37,6 +37,7 @@ SIMPLE_PREDICATES = {
     "stage 1 pokemon": "is_stage_one",
     "stage 2 pokemon": "is_stage_two",
     "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
+    "basic pokemon that doesnt have 1 rule box": "all_of(is_basic_pokemon, is_rule_box_free_pokemon)",
     "pokemon ex": "is_pokemon_ex",
     "pokemon that has any damage counters on it": "is_damaged_pokemon",
     "pokemon that dont have 1 rule box": "is_rule_box_free_pokemon",
@@ -332,6 +333,29 @@ def _typed_boost(match):
 def _pred(phrase):
     """Predicate source for a captured category phrase; Unresolved declines."""
     return resolve_predicate(phrase)
+
+
+def _holder(phrase):
+    """Predicate source for a tool's holder phrase; plain "pokemon" is any."""
+    text = phrase.strip()
+    if text == "pokemon":
+        return "None"
+    resolved = resolve_predicate(text)
+    if resolved == "None":
+        raise Unresolved(phrase)
+    return resolved
+
+
+def _union(phrase):
+    """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
+    either, so the parts join with any_of."""
+    text = phrase.strip()
+    if text == "pokemon":
+        return "is_pokemon_card"
+    parts = [resolve_predicate(part) for part in text.split(" and ")]
+    if "None" in parts:
+        raise Unresolved(phrase)
+    return parts[0] if len(parts) == 1 else "any_of(%s)" % ", ".join(parts)
 
 
 # --- Rules ------------------------------------------------------------------
@@ -1056,6 +1080,97 @@ RULES = [
     Rule("tool-hp-more",
          r"the pokemon this card is attached to has (?P<amount>\d+) more hp",
          "holder_hp_bonus", lambda m: [m.group("amount")], kind="passive"),
+
+    # --- Holder-gated tools ---------------------------------------------
+    Rule("gated-hp",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to gets (?P<amount>\d+) hp"
+         r"(?: ace spec you cant have more than 1 ace spec card in your deck)?",
+         "gated_hp_bonus", lambda m: [m.group("amount"), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("gated-no-weakness",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no weakness",
+         "gated_no_weakness", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("gated-no-retreat",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no retreat cost",
+         "gated_retreat_free", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("gated-takes-less",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less "
+         r"damage from attacks from your opponents (?P<attacker>[a-z0-9 ]*?)pokemon after "
+         r"applying weakness and resistance",
+         "gated_takes_less",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    "attacker=" + _holder((m.group("attacker") + "pokemon").strip())],
+         kind="passive"),
+    Rule("gated-damage-boost",
+         r"(?:attacks used by|the attacks of) the (?P<holder>[a-z0-9 ]+?) this card is attached "
+         r"to do (?P<amount>\d+) more damage to your opponents active pokemon(?P<ex> ex)? "
+         r"before applying weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    "target=" + ("is_pokemon_ex" if m.group("ex") else "None")],
+         kind="passive"),
+    Rule("gated-hp-and-boost",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to gets (?P<hp>\d+) hp and its "
+         r"attacks do (?P<amount>\d+) more damage to your opponents active pokemon before "
+         r"applying weakness and resistance",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, %s)" % (m.group("hp"), _holder(m.group("holder"))),
+                    "gated_damage_boost(%s, %s)" % (m.group("amount"),
+                                                    _holder(m.group("holder")))],
+         kind="passive"),
+    Rule("gated-no-retreat-and-boost",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no retreat cost and the "
+         r"attacks it uses do (?P<amount>\d+) more damage to your opponents active pokemon "
+         r"before applying weakness and resistance",
+         "combined",
+         lambda m: ["gated_retreat_free(%s)" % _holder(m.group("holder")),
+                    "gated_damage_boost(%s, %s)" % (m.group("amount"),
+                                                    _holder(m.group("holder")))],
+         kind="passive"),
+    Rule("gated-boost-rule-box-free",
+         r"if the pokemon this card is attached to doesnt have 1 rule box the attacks it uses "
+         r"do (?P<amount>\d+) more damage to your opponents active pokemon ex before applying "
+         r"weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), "is_rule_box_free_pokemon", "target=is_pokemon_ex"],
+         kind="passive"),
+    Rule("gated-boost-non-ex",
+         r"the attacks of the pokemon this card is attached to excluding pokemon ex do "
+         r"(?P<amount>\d+) more damage to active pokemon ex before applying weakness and "
+         r"resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), "excluding(is_pokemon_EX)", "target=is_pokemon_EX"],
+         kind="passive"),
+
+    # --- Both-sides stadiums -------------------------------------------
+    Rule("stadium-boost",
+         r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
+         r"yours and your opponents do (?P<amount>\d+) more damage to the (?:opponents active "
+         r"pokemon|defending pokemon(?P<ex> ex)?) before applying weakness and resistance",
+         "stadium_damage_boost",
+         lambda m: [m.group("amount"), _union(m.group("cat")),
+                    "target=" + ("is_pokemon_EX" if m.group("ex") else "None")],
+         kind="passive"),
+    Rule("stadium-takes-less-for",
+         r"(?P<cat>[a-z0-9 ]+?) both yours and your opponents take (?P<amount>\d+) less damage "
+         r"from (?:attacks from the opponents pokemon|the opponents attacks) after applying "
+         r"weakness and resistance",
+         "stadium_takes_less_for",
+         lambda m: [m.group("amount"), _union(m.group("cat"))], kind="passive"),
+    Rule("stadium-no-retreat",
+         r"(?P<cat>[a-z0-9 ]+?) in play both yours and your opponents (?:have|has) no retreat "
+         r"cost",
+         "stadium_no_retreat", lambda m: [_union(m.group("cat"))], kind="passive"),
+    Rule("stadium-retreat-shift",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: (?:in|is) play)?(?: both "
+         r"yours and your opponents)? is (?P<count>colorless(?: ?colorless)*) (?P<dir>less|more)",
+         "stadium_retreat_shift",
+         lambda m: [("-" if m.group("dir") == "less" else "")
+                    + str(_colorless_count(m.group("count"))), _union(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-no-resistance",
+         r"each pokemon in play has no resistance",
+         "stadium_no_resistance", lambda m: [], kind="passive"),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
