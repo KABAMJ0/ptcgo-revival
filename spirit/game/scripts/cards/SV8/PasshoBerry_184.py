@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attacker_of_types, takes_less_from
 
 card = PokemonToolCardDef(
     guid="cd78f22b-da75-5f9d-87da-25c8876359b3",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=184,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=takes_less_from(60, None, attacker_of_types("water"))
 )

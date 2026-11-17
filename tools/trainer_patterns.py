@@ -443,6 +443,17 @@ def _subtype_literal(phrase):
     return '"%s"' % text.title()
 
 
+_TYPED_SUBTYPE = re.compile(r"^(?P<type>[a-z]+) pokemon (?P<sub>gx|ex|v|vmax|vstar)$")
+
+
+def _pred_typed_subtype(phrase):
+    """'lightning pokemon gx' -> type + subtype predicate; else Unresolved."""
+    found = _TYPED_SUBTYPE.match(phrase.strip())
+    if found is None:
+        raise Unresolved(phrase)
+    return 'pokemon_type_subtype("%s", "%s")' % (found.group("type"), found.group("sub"))
+
+
 def _union(phrase):
     """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
     either, so the parts join with any_of."""
@@ -1578,6 +1589,41 @@ RULES = [
          "look_at_top",
          lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="bottom"', "minimum=0"],
          module="support_common"),
+    Rule("tool-takes-less-from-typed-attacker",
+         r"if the pokemon this card is attached to is damaged by (?P<n>\d+) attack from your "
+         r"opponents (?P<type>[a-z]+) pokemon it takes (?P<amount>\d+) less damage after applying "
+         r"weakness and resistance(?: and discard this card)?",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None",
+                    'attacker_of_types("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("tool-retreat-discount-and-return",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless) less "
+         r"if this card is discarded from play put it into your hand instead of the discard pile",
+         "holder_retreat_discount",
+         lambda m: [str(_colorless_count(m.group("count")))], kind="passive"),
+    Rule("retaliate-poison",
+         r"if the pokemon this card is attached to is your active pokemon and is damaged by "
+         r"(?P<n>\d+) opponents attack even if this pokemon is knocked out the attacking pokemon "
+         r"is now poisoned",
+         "retaliate_poison", lambda m: [], kind="passive"),
+    Rule("tool-takes-less-metal-holder",
+         r"if this card is attached to (?P<n>\d+) of your pokemon discard it at the end of your "
+         r"opponents turn the (?P<type>[a-z]+) pokemon this card is attached to takes "
+         r"(?P<amount>\d+) less damage from your opponents attacks after applying weakness and "
+         r"resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), 'pokemon_of("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("search-any-combination-of-two",
+         r"search your deck for up to (?P<n>\d+) in any combination of (?P<a>[a-z0-9 ]+?) and "
+         r"(?P<b>[a-z0-9 ]+?) (?:reveal|show) (?:it|them) and put (?:it|them) into your hand" +
+         SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["any_of(%s, %s)" % (_pred_typed_subtype(m.group("a")),
+                                        _pred_typed_subtype(m.group("b"))),
+                    "count=" + m.group("n")],
+         module="support_common"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1666,6 +1712,8 @@ CONDITION_PREFIXES = [
                 r"in play "), "has_subtype_in_play"),
     (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
                 r"(?P<cond>[a-z]+) "), "opponent_active_has"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
+                r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
 ENDS_TURN = re.compile(r" your turn ends$")
@@ -1716,6 +1764,10 @@ def resolve(text, depth=0):
             condition = '%s("%s")' % (factory, groups["sub"].capitalize())
         elif factory == "opponent_active_has":
             condition = '%s("%s")' % (factory, groups["cond"].upper())
+        elif factory == "opponent_active_is":
+            stage_pred = {"stage 1": "is_stage_one", "stage 2": "is_stage_two",
+                          "basic": "is_basic_pokemon"}[groups["stage"]]
+            condition = "opponent_active_is(%s)" % stage_pred
         elif factory == "opponent_prizes_in":
             condition = "opponent_prizes_in(%s, %s)" % (groups["low"], groups["high"])
         elif "n" in groups:
@@ -1844,9 +1896,20 @@ def resolve_stadium_ability(text):
         inner = inner.replace("that player " + third, "you " + base)
         inner = inner.replace("you " + third, "you " + base)
     inner = inner.replace("if heads you ", "if heads ")
+    ends_turn = False
+    tail = re.search(r" if \d+ player searches (?:their|your) deck in this way "
+                    r"(?:their|your) turn ends$", inner)
+    if tail is not None:
+        inner = inner[:tail.start()]
+        ends_turn = True
     found = resolve(inner)
     if found is None or found.get("kind", "effect") != "effect" or found.get("condition"):
         return None
-    return {"rule": "stadium-ability:" + found["rule"], "expr": found["expr"],
-            "symbols": found["symbols"] | {"stadium_ability"}, "kind": "ability"}
+    expr = found["expr"]
+    symbols = found["symbols"] | {"stadium_ability"}
+    if ends_turn:
+        expr = "ends_turn_after(%s)" % expr
+        symbols.add("ends_turn_after")
+    return {"rule": "stadium-ability:" + found["rule"], "expr": expr,
+            "symbols": symbols, "kind": "ability"}
 

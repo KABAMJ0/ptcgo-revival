@@ -3988,3 +3988,50 @@ def devolve_stage(stage: str = "stage 1"):
             return
         await ctx.devolve_pokemon(target, steps=1, destination="discard")
     return effect
+
+
+class RetaliatePoisonPassive(Passive):
+    """Poison Barb: while the holder is Active and was damaged by the
+    opponent's attack, the attacking Pokemon is now Poisoned."""
+
+    def __init__(self):
+        self.attack_followup = self._followup
+
+    async def _followup(self, ctx, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return
+        entry = getattr(ctx, "attack_damage", {}).get(holder.entity_id)
+        if not entry or entry[0] <= 0:
+            return
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == holder.owning_player_id:
+            return
+        await ctx.apply_special_condition(attacker, SpecialConditions.POISONED)
+
+
+def retaliate_poison():
+    return RetaliatePoisonPassive()
+
+
+def pokemon_type_subtype(type_name: str, subtype: str):
+    """Predicate: a Pokemon of `type_name` with the printed `subtype`
+    ("lightning pokemon gx")."""
+    type_pred = pokemon_of(type_name)
+    if subtype.lower() == "ex":
+        suffix = any_of(is_pokemon_ex, is_pokemon_EX)
+    elif subtype.lower() == "gx":
+        suffix = is_pokemon_gx
+    else:
+        suffix = pokemon_of_subtype(subtype)
+    return lambda card: type_pred(card) and suffix(card)
+
+
+def opponent_active_is(pred):
+    """Condition: the opponent's Active Pokemon matches `pred`."""
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        area = board.find_player_area(opponent, "activePokemonArea") if opponent else None
+        active = area.children[0] if area is not None and area.children else None
+        return active is not None and pred(active)
+    return check
