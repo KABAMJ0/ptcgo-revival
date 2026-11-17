@@ -3001,6 +3001,33 @@ def _passive_basic_free_retreat(m, ability):
         == carrier.owning_player_id
         and pokemon.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value)
 
+
+def _search_attach_basic_energy_distributed(m, ability):
+    count = int(m.group(1))
+    type_word = m.groupdict().get("type")
+    predicate = (lambda card: is_basic_energy_card(card)
+                 and energy_provides_type(card, TYPE_WORDS[type_word].value)) \
+        if type_word else is_basic_energy_card
+    return search_attach_energy(predicate, count=count, distribute=True)
+
+
+def _counters_on_chosen_opponents(m, ability):
+    targets = _count(m.group(2))
+    counters = int(m.group(3))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt=f"Choose {targets} Pokémon")
+        for target in picks:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(counters * 10, target=target,
+                                      as_counters=True)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4338,6 +4365,17 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("ability.basic-free-retreat",
      re.compile(r"your basic pokemon in play have no retreat cost\."),
      _passive_basic_free_retreat),
+
+    # -- batch 24: ability-shaped search/attach and counter spreads --------
+    ("ability.search-attach-energy-distributed",
+     re.compile(r"search your deck for up to (\d+) basic (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy cards? and attach them to your "
+                r"pokemon in any way you like\. then,? shuffle your deck\."),
+     _search_attach_basic_energy_distributed),
+    ("ability.counters-chosen-opponents",
+     re.compile(r"choose (?:an?|(\d+)) of your opponent's pokemon and put "
+                r"(\d+) damage counters on each of them\."),
+     _counters_on_chosen_opponents),
 ]
 
 
