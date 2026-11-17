@@ -1,5 +1,7 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import basic_energy_of, stadium_ability
 
 card = StadiumCardDef(
     guid="a5e0c70a-ae34-542b-bbab-8a774b4b9348",
@@ -11,5 +13,5 @@ card = StadiumCardDef(
     collector_number=130,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Mt. Coronet', recover_from_discard(basic_energy_of("metal"), count=2, to="hand"))
 )

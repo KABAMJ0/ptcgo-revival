@@ -124,6 +124,11 @@ def main(argv=None):
         if found is None:
             # Modal cards keep their shape only in the printed bullets.
             found = patterns.resolve_modal(script.raw_text)
+        if found is None and script.card_class == "StadiumCardDef":
+            found = patterns.resolve_stadium_ability(script.game_text)
+            if found is not None:
+                found = dict(found, expr="stadium_ability(%r, %s)"
+                             % (script.display_name, found["expr"]))
         if found is None:
             continue
         if rule_filter and not rule_filter.search(found["rule"]):

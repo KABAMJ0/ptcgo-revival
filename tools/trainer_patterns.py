@@ -1365,3 +1365,27 @@ def canonicalize(text):
     """Same normalization trainer_coverage applies, for bullet sub-text."""
     import trainer_coverage
     return trainer_coverage.canonical_text([text])
+
+
+STADIUM_ABILITY_HEAD = "once during each players turn that player may "
+
+
+def resolve_stadium_ability(text):
+    """A Stadium's "Once during each player's turn, that player may <X>":
+    <X> is worded for "that player", so it is rewritten in the second person
+    and resolved like any trainer effect. Text that also names the opponent
+    is declined, because "their" can no longer be told apart."""
+    if not text.startswith(STADIUM_ABILITY_HEAD):
+        return None
+    inner = text[len(STADIUM_ABILITY_HEAD):]
+    if "opponent" in inner or "player" in inner.replace("that player shuffles", ""):
+        return None
+    inner = inner.replace("then that player shuffles their deck", "then shuffle your deck")
+    inner = inner.replace("and shuffle their deck", "then shuffle your deck")
+    inner = inner.replace("their", "your")
+    found = resolve(inner)
+    if found is None or found.get("kind", "effect") != "effect" or found.get("condition"):
+        return None
+    return {"rule": "stadium-ability:" + found["rule"], "expr": found["expr"],
+            "symbols": found["symbols"] | {"stadium_ability"}, "kind": "ability"}
+
