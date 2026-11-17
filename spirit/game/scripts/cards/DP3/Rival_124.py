@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import rival_reveal
 
 card = SupporterCardDef(
     guid="7469ca89-93f5-564b-9dc6-e2edd08045ca",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=124,
     set_code="DP3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=rival_reveal(5, 3)
 )

@@ -4281,3 +4281,34 @@ def reveal_until_pokemon_to_hand():
                 break
         await ctx.shuffle_deck()
     return effect
+
+
+def turn_damage_boost_per_prize(per: int):
+    """During this turn, your Pokemon's attacks do `per` more damage to the
+    opponent's Active for each Prize card the opponent has already taken
+    (Iris)."""
+    async def effect(ctx):
+        area = ctx.board.find_player_area(ctx.opponent_id, "prizePile")
+        remaining = len(area.children) if area is not None else 6
+        taken = max(0, 6 - remaining)
+        if taken <= 0:
+            return
+        ctx.add_turn_damage_modifier(TurnDamageModifier(
+            per * taken, ctx.player_id, source_predicate=None))
+    return effect
+
+
+def rival_reveal(count: int = 5, take: int = 3):
+    """Reveal the top `count` cards of your deck; your opponent chooses
+    `take` of them for your hand, the rest go back on top (Rival)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        picks = await ctx.choose_cards(
+            top, take, minimum=take, player_id=ctx.opponent_id,
+            prompt="Choose cards for your opponent's hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect

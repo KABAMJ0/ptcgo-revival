@@ -1724,6 +1724,15 @@ RULES = [
          r"reveal cards from your deck until you reveal (?P<n>\d+) pokemon show that pokemon to your "
          r"opponent and put it into your hand shuffle the other cards back into your deck",
          "reveal_until_pokemon_to_hand", lambda m: []),
+    Rule("iris-prize-boost",
+         r"during this turn your pokemons attacks do (?P<per>\d+) more damage to the active pokemon "
+         r"for each prize card your opponent has taken before applying weakness and resistance",
+         "turn_damage_boost_per_prize", lambda m: [m.group("per")]),
+    Rule("rival",
+         r"reveal the top (?P<n>\d+) cards of your deck your opponent chooses (?P<take>\d+) of "
+         r"those cards put those cards into your hand and put other (?P<rest>\d+) cards on top of "
+         r"your deck shuffle your deck afterward",
+         "rival_reveal", lambda m: [m.group("n"), m.group("take")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
