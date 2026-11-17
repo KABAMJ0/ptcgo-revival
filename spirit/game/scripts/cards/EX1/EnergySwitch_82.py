@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import is_basic_energy_card, move_basic_energy
 
 card = ItemCardDef(
     guid="98d907b6-dfad-554c-9368-8a3c1788d7a9",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=82,
     set_code="EX1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=move_basic_energy(predicate=is_basic_energy_card)
 )

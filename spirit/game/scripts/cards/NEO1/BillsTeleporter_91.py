@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import draw_n, if_heads
 
 card = ItemCardDef(
     guid="47e96095-de5b-5f8d-8798-45ccfed56b02",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=91,
     set_code="NEO1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=if_heads(draw_n(4))
 )

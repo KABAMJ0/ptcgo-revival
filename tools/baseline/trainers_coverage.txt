@@ -1,0 +1,35 @@
+trainer scripts parsed : 2686
+already implemented    : 523
+stubs                  : 2163 (2072 with rules text, 91 without)
+distinct texts         : 1224
+distinct card names    : 1140
+
+FAMILY                  SCRIPTS   GROUPS
+discard                     675      470
+search-hand                 360      196
+other                       357      143
+draw                        239      106
+tool-passive                 95       79
+heal                         67       36
+damage-mod                   66       41
+look-top                     61       32
+prizes                       60       28
+switch-self                  37       11
+coin-flip                    33       19
+status-condition             27       16
+lock                         23        9
+gust                         18        7
+stadium-passive              12        8
+energy-accel                 11        7
+damage-counters              11        9
+retreat                       6        4
+shuffle-hand-draw             4        2
+lost-zone                     1        1
+
+TOP TEXT GROUPS (largest first, 1 shown)
+
+[  91] <no rules text>
+       Gym Badge x8, Champions Festival x7, Alph Lithograph x4
+wrote 2686 script fingerprints to tools/baseline/trainers_fingerprint.json
+
+wrote 1224 groups to tools/baseline/trainers_stubs.json

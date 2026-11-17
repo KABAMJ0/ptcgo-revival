@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
+from spirit.game.card_effects.trainers import is_pokemon_card
 
 card = ItemCardDef(
     guid="c83cff56-2d11-5c3f-b62f-ad5e30308098",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=100,
     set_code="XY9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(7, take=1, predicate=is_pokemon_card)
 )

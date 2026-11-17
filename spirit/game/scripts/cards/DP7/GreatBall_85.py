@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_bench
+from spirit.game.card_effects.trainers import is_basic_pokemon
 
 card = ItemCardDef(
     guid="7e1b1b8d-6dad-565c-8eb1-5eb1f2c56ecd",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=85,
     set_code="DP7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_bench(is_basic_pokemon, 1)
 )

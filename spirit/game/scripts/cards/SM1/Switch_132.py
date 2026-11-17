@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import switch
 
 card = ItemCardDef(
     guid="f04559ee-2cb6-526e-bfa0-5a52d71cf868",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=132,
     set_code="SM1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=switch
 )

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import discard_hand_draw
 
 card = SupporterCardDef(
     guid="aa616cba-591d-50b8-bde4-e926885932c5",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=84,
     set_code="BW10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_hand_draw(7)
 )

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import rare_candy
 
 card = ItemCardDef(
     guid="03a6ed5f-004e-5eaa-bdaa-a7a15255bdda",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=175,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=rare_candy()
 )

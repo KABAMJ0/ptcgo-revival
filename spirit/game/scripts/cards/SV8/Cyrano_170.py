@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_pokemon_ex
 
 card = SupporterCardDef(
     guid="6dac3731-b1e4-5c98-bc9f-33229a0c158e",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=170,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(is_pokemon_ex, count=3)
 )

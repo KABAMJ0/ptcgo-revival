@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_basic_pokemon
 
 card = SupporterCardDef(
     guid="2eea6736-f3b1-5c8f-abcc-8ee163897512",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=155,
     set_code="SM5",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_to_hand(is_basic_pokemon, count=2)
 )

@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import recover_from_discard
+from spirit.game.card_effects.trainers import pokemon_of
 
 card = ItemCardDef(
     guid="973254e4-58c2-502b-96d2-2ce49008a4bb",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=70,
     set_code="G1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=recover_from_discard(pokemon_of("grass"), count=2, to="hand")
 )
