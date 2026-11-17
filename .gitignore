@@ -23,3 +23,6 @@ server.key
 
 # Generated bundle cache
 spirit/assets/generatedBundleCache/
+
+# Local baselines / scratch
+baseline/

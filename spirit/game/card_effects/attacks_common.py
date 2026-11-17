@@ -710,3 +710,170 @@ async def discard_random_from_hand(ctx, player_id: Optional[str] = None,
     picks = random.sample(hand, min(count, len(hand)))
     await ctx.discard_cards(picks)
     return picks
+
+
+# ----------------------------------------------------------------------
+# Damage-pipeline riders (need their own deal_damage flags)
+# ----------------------------------------------------------------------
+
+def ignore_modifier_attack(ignore_weakness: bool = False,
+                           ignore_resistance: bool = False,
+                           ignore_target_effects: bool = False,
+                           damage: Optional[int] = None):
+    """"This attack's damage isn't affected by <weakness/resistance/effects>":
+    printed (or damage) damage with the named pipeline stages skipped."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage, ignore_weakness=ignore_weakness,
+                              ignore_resistance=ignore_resistance,
+                              ignore_target_effects=ignore_target_effects)
+    return effect
+
+
+def lock_self_attack(damage: Optional[int] = None):
+    """"During your next turn, this Pokemon can't attack" (also "can't use
+    attacks"): printed damage, then every printed attack on the user locks."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if ctx.attacker is not None:
+            lock_all_attacks(ctx, ctx.attacker)
+    return effect
+
+
+def no_retreat_attack(damage: Optional[int] = None, also=None):
+    """"The Defending Pokemon can't retreat during your opponent's next
+    turn": printed damage plus the retreat lock."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            ctx.lock_retreat(defender)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def flip_defender_lock_attack(damage: Optional[int] = None, coins: int = 1):
+    """Printed damage; flip -- all heads locks the Defending Pokemon's
+    attacks through its next turn."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if results and all(results):
+            lock_defender_attacks(ctx)
+    return effect
+
+
+def heal_dealt_attack(damage: Optional[int] = None):
+    """"Heal from this Pokemon the same amount of damage you did to your
+    opponent's Active Pokemon"."""
+    async def effect(ctx):
+        dealt = await ctx.deal_damage(damage)
+        if dealt > 0 and ctx.attacker is not None:
+            await ctx.heal(dealt, ctx.attacker)
+    return effect
+
+
+def energy_move_attack(count: int = 1, energy_type=None,
+                       damage: Optional[int] = None):
+    """"Move an Energy from this Pokemon to N of your Benched Pokemon":
+    printed damage, then relocate up to `count` attached Energy."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+        pool = [energy for energy in ctx.attached_energies(attacker)
+                if type_value is None or energy_provides_type(energy, type_value)]
+        if not pool:
+            return
+        picks = pool if len(pool) <= count else await ctx.choose_cards(
+            pool, count, prompt="Choose Energy to move to your Benched Pokémon")
+        for energy in picks:
+            bench = ctx.my_bench()
+            if not bench:
+                return
+            target = await ctx.choose_pokemon(
+                bench, "Choose a Pokémon to move the Energy to")
+            if target is not None:
+                await ctx.move_energy(energy, target)
+    return effect
+
+
+def discard_random_hand_attack(count: int = 1, opponent: bool = True,
+                               damage: Optional[int] = None):
+    """Printed damage, then discard `count` random cards from a hand."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        pid = ctx.opponent_id if opponent else ctx.player_id
+        await discard_random_from_hand(ctx, pid, count)
+    return effect
+
+
+# ----------------------------------------------------------------------
+# Flip gates (riders with no damage of their own)
+# ----------------------------------------------------------------------
+
+def flip_gate(then, coins: int = 1):
+    """Flip `coins`; on all heads run `then(ctx)` (a following rider)."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if results and all(results):
+            await then(ctx)
+    return effect
+
+
+def flip_choice(heads: int, tails: int):
+    """Flip a coin: heads deals `heads`, tails deals `tails`."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, _title(ctx))
+        amount = heads if (results and results[0]) else tails
+        if amount > 0:
+            await ctx.deal_damage(amount)
+    return effect
+
+
+# ----------------------------------------------------------------------
+# Extra predicates for conditional bonuses
+# ----------------------------------------------------------------------
+
+def stadium_in_play_cond(ctx) -> bool:
+    return ctx.stadium_in_play() is not None
+
+
+def hand_sizes_equal(ctx) -> bool:
+    return ctx.hand_size(ctx.player_id) == ctx.hand_size(ctx.opponent_id)
+
+
+def defender_has_any_condition(ctx) -> bool:
+    defender = ctx.defender
+    return defender is not None and \
+        bool(defender.get_attribute(AttrID.SPECIAL_CONDITIONS))
+
+
+def defender_is_ex(ctx) -> bool:
+    defender = ctx.defender
+    return defender is not None and "ex" in subtypes_for(defender.archetype_id)
+
+
+def defender_is_ex_or_v(ctx) -> bool:
+    return defender_is_v(ctx) or defender_is_ex(ctx)
+
+
+def self_has_energy_of_type(energy_type):
+    """cond_fn: the attacker has an attached Energy providing that type."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        if attacker is None:
+            return False
+        return any(energy_provides_type(energy, type_value)
+                   for energy in ctx.attached_energies(attacker))
+    return cond
+
+
+def bench_has_damage_counters(ctx) -> bool:
+    return any(ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0) > 0
+               for pokemon in ctx.my_bench())

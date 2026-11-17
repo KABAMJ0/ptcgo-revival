@@ -52,9 +52,15 @@ class ScriptLoader:
                 logging.error("[Scripts] Failed to resolve card %s", error)
 
         invalid = self._resolve_legends(resolved) | self._resolve_vunions(resolved)
+        # Wording-driven effects bind here, once, after every definition is
+        # resolved: card_effects imports this module indirectly, so the
+        # resolver cannot be imported at module scope.
+        from spirit.game.card_effects import patterns
+        self.pattern_bound = 0
         for reference, card_def in resolved.items():
             if reference not in invalid and not getattr(card_def, "runtime_only", False):
                 try:
+                    self.pattern_bound += patterns.bind_definition(card_def)
                     self._add_card(reference, card_def)
                 except Exception as error:
                     self.last_errors.append(f"{reference}: {error}")
