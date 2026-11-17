@@ -104,8 +104,17 @@ def get_wallet_by_account_id(account_id):
         logging.error(f"Error getting/creating wallet for {account_id}: {e}")
         return None
 
+# The client deserialises wallet amounts as 32-bit ints; anything larger throws
+# "Failed to deserialize CurrentWallet" at the login scene and the player lands
+# in the game with no currency at all. Clamp to int32 on every write.
+WALLET_MAX = 2_000_000_000
+
+
 def update_wallet(account_id, coins, gems, tickets):
-    """Updates an account's wallet."""
+    """Updates an account's wallet, clamped to what the client can parse."""
+    coins = max(0, min(int(coins), WALLET_MAX))
+    gems = max(0, min(int(gems), WALLET_MAX))
+    tickets = max(0, min(int(tickets), WALLET_MAX))
     try:
         with db_session() as session:
             w = session.query(Wallet).filter_by(account_id=account_id).first()
@@ -140,7 +149,7 @@ def grant_coins(account_id, amount):
                     tickets=STARTING_TICKETS
                 )
                 session.add(w)
-            w.coins = (w.coins or 0) + amount
+            w.coins = max(0, min((w.coins or 0) + amount, WALLET_MAX))
             session.flush()
             return w.coins
     except Exception as e:
