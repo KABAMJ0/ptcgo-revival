@@ -159,6 +159,12 @@ def check_discard_self_energy(before, after, rig, ability, entities):
                      f"{after['attached'][attacker]}"
 
 
+def check_snipe_any(before, after, rig, ability, entities):
+    damaged = [pid for pid, before_hp in before["hp"].items()
+               if after["hp"].get(pid, before_hp) < before_hp]
+    return bool(damaged), f"{len(damaged)} opposing Pokemon damaged"
+
+
 def check_snipe_bench(before, after, rig, ability, entities):
     damaged = [pid for pid, before_hp in before["hp"].items()
                if pid != entities["p2_active"].entity_id
@@ -300,13 +306,19 @@ CASES = [
     ("discard.peek-opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
     ("scale.round-attack", check_bonus_condition, (1, 1, 1, 1), 0),
     ("copy.defender-attack-short", check_check_noop, (1, 1, 1, 1), 0),
-    ("snipe.choose-any-ignore-that", check_snipe_bench, (1, 1, 1, 1), 0),
+    ("snipe.choose-any-ignore-that", check_snipe_any, (1, 1, 1, 1), 0),
     ("flip.heads-tails-conditions", check_defender_condition, (1, 1, 1, 1), 0),
     ("lock.opponent-items", check_check_noop, (1, 1, 1, 1), 0),
     ("bonus.extra-prize-on-ko", check_check_noop, (1, 1, 1, 1), 0),
     ("mill.by-heads", check_mill_opponent, (1, 1, 1, 1), 0),
     ("discard.any-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
     ("protect.from-basic-noncolorless", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("discard.opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.remove-counter-each", check_heal_self, (1, 1, 1, 1), 60),
+    ("condition.both-actives", check_defender_condition, (1, 1, 1, 1), 0),
+    ("search.energy-attach-self-typed", check_attach_from_discard, (1, 1, 1, 1), 0),
+    ("discard.hand-draw-n", check_check_noop, (1, 1, 1, 1), 0),
+    ("switch.both-actives", check_switch_self, (1, 1, 1, 1), 0),
 ]
 
 
@@ -353,13 +365,16 @@ async def main_async(args):
             continue
         ran += 1
         try:
-            status, detail = await run_case(pattern, check, coin_values,
-                                            seed_damage, fillers)
+            status, detail = await asyncio.wait_for(
+                run_case(pattern, check, coin_values, seed_damage, fillers),
+                timeout=args.timeout)
+        except asyncio.TimeoutError:
+            status, detail = FAIL, f"{pattern:<30} timed out"
         except Exception as exc:  # a raise is a failed check, not a crash
             status, detail = FAIL, f"{pattern:<30} raised {type(exc).__name__}: {exc}"
         if status == FAIL:
             failures += 1
-        print(f"{status:<5}{detail}")
+        print(f"{status:<5}{detail}", flush=True)
     print(f"\n{ran - failures}/{ran} pattern behaviours verified")
     return 1 if failures else 0
 
@@ -368,6 +383,8 @@ def main():
     logging.disable(logging.CRITICAL)
     parser = argparse.ArgumentParser(description="Verify bound attack patterns.")
     parser.add_argument("-k", dest="pattern", help="only cases matching this name")
+    parser.add_argument("--timeout", type=float, default=45.0,
+                        help="seconds per case before it counts as a failure")
     args = parser.parse_args()
     sys.exit(asyncio.run(main_async(args)))
 

@@ -82,6 +82,8 @@ from spirit.game.card_effects.passives_common import (
 from spirit.game.card_effects.trainers import is_basic_energy_card, is_energy_card
 from spirit.game.card_effects.support_common import (
     cure_conditions_effect,
+    opponent_switches,
+    discard_then_draw,
     attach_from_discard,
     draw_attack,
     remove_self_from_play,
@@ -1668,6 +1670,119 @@ def _prevent_from_basic_noncolorless(m, ability):
     return effect
 
 
+
+def _opponent_discards(m, ability):
+    count = _count(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        await ctx.discard_from_hand(count, minimum=0, player_id=ctx.opponent_id,
+                                    prompt="Choose cards to discard")
+    return effect
+
+
+def _remove_counter_each_own(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.my_pokemon_in_play():
+            await ctx.heal(count * 10, pokemon)
+    return effect
+
+
+def _flip_tails_self_lock(m, ability):
+    async def lock(ctx):
+        from spirit.game.card_effects.attacks_common import lock_all_attacks
+        if ctx.attacker is not None:
+            lock_all_attacks(ctx, ctx.attacker)
+    return flip_gate(lock)
+
+
+def _switch_both_actives(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = ctx.my_bench()
+        if bench:
+            target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
+        await opponent_switches(ctx)
+    return effect
+
+
+def _discard_hand_draw_n(m, ability):
+    return discard_then_draw(0, int(m.group(1)), whole_hand=True)
+
+
+def _search_any_card_old(m, ability):
+    return search_to_hand(None, count=1, reveal=False)
+
+
+def _search_item_to_hand(m, ability):
+    return search_to_hand(_is_item, count=1, reveal=True)
+
+
+def _search_basic_energy_show(m, ability):
+    return search_to_hand(_is_basic_energy, count=1, reveal=True)
+
+
+def _search_energy_attach_self(m, ability):
+    type_word = m.groupdict().get("type")
+    predicate = _is_basic_energy if type_word is None else (
+        lambda card, word=type_word: is_basic_energy_card(card)
+        and energy_provides_type(card, TYPE_WORDS[word].value))
+    return search_attach_energy(predicate, count=1, to_self=True)
+
+
+def _attach_discard_plain(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        cards = [card for card in ctx.discard_pile()
+                 if is_basic_energy_card(card)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(cards, count, minimum=0,
+                                       prompt="Choose Energy to attach")
+        bench = ctx.my_bench()
+        if not picks or not bench:
+            return
+        target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+            bench, "Choose a Pokémon to attach the Energy to")
+        if target is None:
+            return
+        for card in picks:
+            await ctx.attach_energy(card, target)
+    return effect
+
+
+def _flip_random_discard(m, ability):
+    async def discard(ctx):
+        from spirit.game.card_effects.attacks_common import discard_random_from_hand
+        await discard_random_from_hand(ctx, ctx.opponent_id, 1)
+    return flip_gate(discard)
+
+
+def _both_actives_condition(m, ability):
+    return condition_attack(CONDITIONS[m.group(1)], both_actives=True)
+
+
+def _spread_own_bench_plain(m, ability):
+    return spread_damage(int(m.group(1)), side="mine")
+
+
+def _flip_confused_poisoned(m, ability):
+    return condition_attack(SpecialConditions.CONFUSED,
+                            SpecialConditions.POISONED, flip=True)
+
+
+def _is_item(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return type(definition).__name__ == "ItemCardDef"
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -2471,6 +2586,76 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"during your opponent's next turn, prevent all damage done to "
                 r"this pokemon by attacks from basic non-colorless pokemon\."),
      _prevent_from_basic_noncolorless),
+
+    # -- batch 10: last of the repeated wordings ---------------------------
+    ("ignore.dont-apply-annotated",
+     re.compile(r"don't apply weakness and resistance for this attack\. "
+                r"\(any other effects[^)]*\)"), _ignore_all_plain),
+    ("lock.defender-chosen-attack-worded",
+     re.compile(r"choose (an?|\d+) of your opponent's active pokemon's "
+                r"attacks\. during your opponent's next turn, that pokemon "
+                r"can't use that attack\."),
+     _lock_chosen_attack_opponent_active),
+    ("lock.self-flip-tails",
+     re.compile(r"flip a coin\. if tails, during your next turn, this pokemon "
+                r"can't attack\."), _flip_tails_self_lock),
+    ("switch.self-then-opponent",
+     re.compile(r"switch this pokemon with (an?|\d+) of your benched pokemon\."
+                r" if you do, switch out your opponent's active pokemon to the "
+                r"bench\. \(your opponent chooses the new active pokemon\.\)"),
+     _switch_both_actives),
+    ("attach.discard-plain",
+     re.compile(r"attach up to (\d+) basic energy cards from your discard pile "
+                r"to (?:an?|\d+) of your benched pokemon\."),
+     _attach_discard_plain),
+    ("search.energy-attach-self-old",
+     re.compile(r"search your deck for (?:an? )?basic (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy card,? and attach it to this "
+                r"pokemon\. (?:then, )?shuffle your deck(?: afterward)?\."),
+     _search_energy_attach_self),
+    ("search.energy-attach-self-typed",
+     re.compile(r"search your deck for (?:an? )?(?P<type>" + _TYPE_WORDS +
+                r") energy card and attach it to this pokemon\. (?:then, )?"
+                r"shuffle your deck(?: afterward)?\."),
+     _search_energy_attach_self),
+    ("flip.random-discard",
+     re.compile(r"flip a coin\. if heads, discard a random card from your "
+                r"opponent's hand\."), _flip_random_discard),
+    ("search.basic-energy-show",
+     re.compile(r"search your deck for a basic energy card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_basic_energy_show),
+    ("search.item-to-hand",
+     re.compile(r"search your deck for an item card, reveal it, and put it into "
+                r"your hand\. then, shuffle your deck\."), _search_item_to_hand),
+    ("search.any-card-old",
+     re.compile(r"search your deck for a card and put it into your hand\. "
+                r"shuffle your deck afterward\."), _search_any_card_old),
+    ("search.basic-to-bench-old",
+     re.compile(r"search your deck for (\d+) basic pokemon and put them onto "
+                r"your bench\. shuffle your deck afterward\."),
+     _search_basic_to_bench),
+    ("heal.remove-counter-each",
+     re.compile(r"remove (\d+) damage counters? from each of your pokemon\."),
+     _remove_counter_each_own),
+    ("condition.both-actives",
+     re.compile(r"both active pokemon are now (" + _CONDITION_WORDS + r")\."),
+     _both_actives_condition),
+    ("flip.confused-and-poisoned",
+     re.compile(r"flip a coin\. if heads, the defending pokemon is now confused "
+                r"and poisoned\."), _flip_confused_poisoned),
+    ("spread.own-bench-plain",
+     re.compile(r"does (\d+) damage to each of your own benched pokemon"
+                + _BENCH_SPREAD_TAIL), _spread_own_bench_plain),
+    ("switch.opponent-bench-to-active",
+     re.compile(r"switch (an?|\d+) of your opponent's benched pokemon with "
+                r"their active pokemon\."), _switch_in_opponent_bench),
+    ("discard.opponent-hand",
+     re.compile(r"your opponent discards (an?|\d+) cards? from their hand\."),
+     _opponent_discards),
+    ("discard.hand-draw-n",
+     re.compile(r"discard your hand and draw (\d+) cards\."),
+     _discard_hand_draw_n),
 ]
 
 
