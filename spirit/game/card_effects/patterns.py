@@ -2953,6 +2953,39 @@ def _passive_effect_shield_no_damage(m, ability):
     return attack_effect_shield_passive(protects="carrier")
 
 
+
+def _damaging_attacker(ctx):
+    return getattr(ctx, "damaged_by", None) or getattr(ctx, "ko_attacker", None)
+
+
+def _counters_on_attacker(m, ability):
+    counters = int(m.group(1))
+
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.deal_damage(counters * 10, target=attacker,
+                                  as_counters=True)
+    return effect
+
+
+def _condition_on_attacker(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.apply_special_condition(attacker, condition)
+    return effect
+
+
+def _knock_out_attacker(m, ability):
+    async def effect(ctx):
+        attacker = _damaging_attacker(ctx)
+        if attacker is not None:
+            await ctx.knock_out(attacker)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4265,6 +4298,16 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"prevent all effects of your opponent's attacks, except "
                 r"damage, done to this pokemon\."),
      _passive_effect_shield_no_damage),
+
+    # -- batch 22: abilities that react to being damaged -------------------
+    ("trigger.counters-on-attacker",
+     re.compile(r"(?:put|place) (\d+) damage counters on the attacking "
+                r"pokemon\."), _counters_on_attacker),
+    ("trigger.condition-on-attacker",
+     re.compile(r"the attacking pokemon is now (" + _CONDITION_WORDS + r")\."),
+     _condition_on_attacker),
+    ("trigger.knock-out-attacker",
+     re.compile(r"the attacking pokemon is knocked out\."), _knock_out_attacker),
 ]
 
 
@@ -4293,6 +4336,12 @@ _ABILITY_PREFIXES = (
      "during your turn, you may ", "trigger", Triggers.ON_EVOLVE),
     ("when you play this pokemon from your hand onto your bench during your "
      "turn, you may ", "trigger", Triggers.ON_PLAY),
+    ("if this pokemon is your active pokemon and is damaged by an opponent's "
+     "attack (even if this pokemon is knocked out), ", "trigger",
+     Triggers.ON_DAMAGED_BY_ATTACK),
+    ("if this pokemon is in the active spot and is damaged by an attack from "
+     "your opponent's pokemon (even if this pokemon is knocked out), ",
+     "trigger", Triggers.ON_DAMAGED_BY_ATTACK),
 )
 
 # name -> bind count, for the coverage report.
