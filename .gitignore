@@ -29,3 +29,6 @@ baseline/
 
 # Runtime activity archive written by the admin monitor
 logs/
+
+# Custom cards are hand-made, not downloadable: keep their art
+!spirit/assets/cards/CUSTOM/*.png
