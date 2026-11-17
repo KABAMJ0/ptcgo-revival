@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import evolve_from_hand
 
 card = ItemCardDef(
     guid="4ee0212e-9995-5ac9-9e28-d8182150eb5a",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=100,
     set_code="BW5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=evolve_from_hand()
 )

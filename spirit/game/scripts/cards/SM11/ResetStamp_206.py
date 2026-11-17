@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import opponent_shuffle_draw_per_prize
 
 card = ItemCardDef(
     guid="3e8493ff-cb8a-56ea-9246-910bd2e970ad",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=206,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_shuffle_draw_per_prize()
 )

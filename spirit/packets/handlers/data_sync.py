@@ -13,6 +13,7 @@ from spirit.database.player_data import merge_account_settings
 from spirit.game.progression.account import build_account_attributes
 from spirit.network.protocol import WargFlags, WargProtocol
 from spirit.network.message_names import InboundMsg, OutboundMsg
+from spirit.server import activity
 from spirit.database.economy_data import list_dynamic_pages
 from .base import BaseHandler, handle
 
@@ -311,6 +312,9 @@ class DataSyncHandler(BaseHandler):
     async def handle_user_has_visited_scene(self, message, request_id, flags):
         scene_name = message.get("sceneName")
         logging.info(f"[TCP] [{self.client.addr}] Client visited scene: {scene_name}")
+        self.client.last_scene = scene_name
+        if self.client.player:
+            activity.session_update(self.client.player.account_id, scene=scene_name)
 
     @handle(InboundMsg.SET_ACCOUNT_SETTINGS)
     async def handle_set_account_settings(self, message, request_id, flags):

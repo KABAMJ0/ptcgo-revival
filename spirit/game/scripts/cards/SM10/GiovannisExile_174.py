@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import discard_benched_undamaged
 
 card = SupporterCardDef(
     guid="2463937d-37d6-5657-aa43-c6195cfa6a5d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=174,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_benched_undamaged(2)
 )

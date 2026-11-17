@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attach_hand_then_draw, basic_energy_of
 
 card = SupporterCardDef(
     guid="11313ba3-eb2d-50d4-ae61-7eb950f59c85",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=189,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=attach_hand_then_draw(basic_energy_of("fire"), count=2, draw=3)
 )

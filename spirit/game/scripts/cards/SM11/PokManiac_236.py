@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import retreat_cost_is
 
 card = SupporterCardDef(
     guid="74871db2-cdb1-5dfe-b660-698657ac5808",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=236,
     set_code="SM11",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_to_hand(retreat_cost_is(4), count=3)
 )

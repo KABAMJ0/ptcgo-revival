@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import ends_turn_after
 
 card = SupporterCardDef(
     guid="4fd6fca6-1def-5d7a-9eb1-45de50325b0b",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=165,
     set_code="SM7",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=ends_turn_after(search_to_hand(None, count=3))
 )

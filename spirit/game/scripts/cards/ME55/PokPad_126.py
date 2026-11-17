@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_rule_box_free_pokemon
 
 card = ItemCardDef(
     guid="125fcf49-3e84-5628-bdbf-e839c713e2c1",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=126,
     set_code="ME55",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=search_to_hand(is_rule_box_free_pokemon, count=1)
 )

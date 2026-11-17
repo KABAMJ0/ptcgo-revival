@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import all_of, draw_until_unless, is_pokemon_card, named
 
 card = SupporterCardDef(
     guid="4b5a9d80-e5ae-53ea-ad15-1c9cbe6dbc45",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=224,
     set_code="SV10",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=draw_until_unless(5, 8, all_of(is_pokemon_card, named("team rocket")))
 )

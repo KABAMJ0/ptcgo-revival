@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import trade_pokemon
 
 card = ItemCardDef(
     guid="b3553020-045b-563b-b097-f23232244309",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=77,
     set_code="BASE1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=trade_pokemon()
 )

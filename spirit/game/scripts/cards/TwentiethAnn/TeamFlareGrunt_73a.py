@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import discard_energy_opponent
 
 card = SupporterCardDef(
     guid="17dd5516-3efc-5923-b693-7b8f83aaef09",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=73,
     set_code="TwentiethAnn",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=discard_energy_opponent(scope="active")
 )

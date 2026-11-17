@@ -26,6 +26,8 @@ ERA_AGNOSTIC = {"FREE_ENERGY", "CUSTOM"}
 SV_SERIES = {"scarlet & violet"}
 SWSH_SERIES = {"sword & shield"}
 BW_SERIES = {"black & white"}
+# Real Expanded starts at Black & White, so XY and Sun & Moon belong there too.
+EXPANDED_SERIES = BW_SERIES | SWSH_SERIES | SV_SERIES | {"xy", "sun & moon"}
 
 
 def era_of(code, meta):
@@ -39,6 +41,8 @@ def era_of(code, meta):
         return "SWSH"
     if series in BW_SERIES or c.startswith("BW") or c in {"DV", "PROMO_BW"}:
         return "BW"
+    if series in EXPANDED_SERIES or c.startswith(("XY", "SM", "TK")):
+        return "EXPANDED"
     return "CLASSIC"  # Base, Neo, E-Card, EX, DP, Platinum, HGSS, POP, McDonald's
 
 
@@ -59,6 +63,7 @@ def main():
     meta = json.load(open(META_PATH)) if os.path.exists(META_PATH) else {}
 
     sv = [s for s in sets if era_of(s, meta) == "SV"]
+    expanded_extra = [s for s in sets if era_of(s, meta) == "EXPANDED"]
     swsh = [s for s in sets if era_of(s, meta) == "SWSH"]
     bw = [s for s in sets if era_of(s, meta) == "BW"]
     agnostic = [s for s in sets if era_of(s, meta) == "AGNOSTIC"]
@@ -66,7 +71,7 @@ def main():
 
     mapping = {
         "Standard": sorted(sv + swsh + agnostic),
-        "Expanded": sorted(bw + swsh + sv + agnostic),
+        "Expanded": sorted(bw + swsh + sv + expanded_extra + agnostic + ["SVAULT", "HF"] if "SVAULT" in sets else bw + swsh + sv + expanded_extra + agnostic),
         "Legacy": sorted(bw + agnostic),
     }
 

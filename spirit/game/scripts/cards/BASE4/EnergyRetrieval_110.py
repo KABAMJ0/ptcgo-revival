@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import is_basic_energy_card, trade_to_hand
 
 card = ItemCardDef(
     guid="14f2bf5e-bc6c-5c61-b75d-69544763092f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=110,
     set_code="BASE4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=trade_to_hand(is_basic_energy_card, count=2)
 )

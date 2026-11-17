@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import reveal_then_search_same
 
 card = SupporterCardDef(
     guid="0c970ad8-4028-577a-9ff6-6109fc15ad27",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=209,
     set_code="SV6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=reveal_then_search_same()
 )

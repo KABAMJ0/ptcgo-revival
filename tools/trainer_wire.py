@@ -55,7 +55,7 @@ def module_for(symbol):
     raise KeyError(f"{symbol} is not defined in the trainer effect library")
 
 
-def rewrite(source, expr, symbols=None, kind="effect"):
+def rewrite(source, expr, symbols=None, kind="effect", condition=None):
     """The wired script source, or None when the stub marker is missing.
 
     kind "passive" rewires a tool/stadium's continuous stat effect, which
@@ -63,12 +63,33 @@ def rewrite(source, expr, symbols=None, kind="effect"):
     """
     if STUB not in source:
         return None
-    symbols = symbols if symbols is not None else symbols_in(expr)
-    wired = source.replace(STUB, f"{kind}=" + expr)
-    if "unimplemented" not in wired:
-        wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
-                       r"\1,", wired)
-        wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented, )", "", wired)
+    if kind == "fossil":
+        # A fossil is a Trainer-Item played as a Basic: the definition class
+        # has to change, not just the effect slot.
+        wired = source.replace("ItemCardDef", "FossilItemCardDef")
+        hp = re.search(r"\d+", expr)
+        if hp is None:
+            return None
+        marker = ("hp=" + hp.group(0) + ", passive=FossilBodyPassive(), "
+                  "abilities=[fossil_discard_ability()]")
+        wired = wired.replace(STUB, marker)
+        symbols = {"FossilBodyPassive", "fossil_discard_ability"}
+        return _finish(wired, symbols)
+    marker = f"{kind}=" + expr
+    if condition:
+        marker += ", condition=" + condition
+    wired = source.replace(STUB, marker)
+    if symbols is None:
+        symbols = symbols_in(expr + (" " + condition if condition else ""))
+    return _finish(wired, symbols)
+
+
+def _finish(wired, symbols):
+    # The stub marker is gone by now, so drop the unused import too.
+    wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
+                   r"\1", wired)
+    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented, )", "", wired)
+    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented)", "", wired)
     by_module = {}
     for symbol in symbols:
         by_module.setdefault(module_for(symbol), []).append(symbol)
@@ -101,6 +122,9 @@ def main(argv=None):
     for script in stubs:
         found = patterns.resolve(script.game_text)
         if found is None:
+            # Modal cards keep their shape only in the printed bullets.
+            found = patterns.resolve_modal(script.raw_text)
+        if found is None:
             continue
         if rule_filter and not rule_filter.search(found["rule"]):
             continue
@@ -117,7 +141,8 @@ def main(argv=None):
         path = os.path.join(coverage.REPO_ROOT, script.path)
         with open(path, "r", encoding="utf-8") as handle:
             source = handle.read()
-        wired = rewrite(source, found["expr"], kind=found.get("kind", "effect"))
+        wired = rewrite(source, found["expr"], kind=found.get("kind", "effect"),
+                        condition=found.get("condition"))
         if wired is None:
             skipped.append((script.path, "no stub marker"))
             continue

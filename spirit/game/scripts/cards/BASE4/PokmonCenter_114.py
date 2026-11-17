@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import heal_all_own_discard_energy
 
 card = ItemCardDef(
     guid="e54f6176-665d-5446-bb35-ed5e01b0b3cd",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=114,
     set_code="BASE4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_all_own_discard_energy()
 )

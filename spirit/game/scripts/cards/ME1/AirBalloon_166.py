@@ -1,5 +1,6 @@
 from spirit.game.data_utils import PokemonToolCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import holder_retreat_discount
 
 card = PokemonToolCardDef(
     guid="87091492-b9f6-5319-952e-756ea13aa0e2",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=166,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=holder_retreat_discount(2)
 )

@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_attach_energy
+from spirit.game.card_effects.trainers import basic_energy_of, ends_turn_after
 
 card = SupporterCardDef(
     guid="760aaaff-5595-5285-9b77-e4236bdfaf99",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=144,
     set_code="SM3",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=ends_turn_after(search_attach_energy(basic_energy_of("fire"), count=4))
 )

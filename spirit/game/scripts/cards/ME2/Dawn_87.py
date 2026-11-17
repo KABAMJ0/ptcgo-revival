@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import search_three_stages
 
 card = SupporterCardDef(
     guid="cdcb61ab-7c9b-5c5b-abcd-b28d55b971b5",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=87,
     set_code="ME2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_three_stages()
 )

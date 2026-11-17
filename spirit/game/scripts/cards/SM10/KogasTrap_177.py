@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import SpecialConditions, condition_opponent_active
 
 card = SupporterCardDef(
     guid="fe0d8b54-8354-5e00-b2bc-14ee250a1450",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=177,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=condition_opponent_active(SpecialConditions.CONFUSED, SpecialConditions.POISONED)
 )

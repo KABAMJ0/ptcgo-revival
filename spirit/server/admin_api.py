@@ -1,9 +1,11 @@
 import base64
 import binascii
 import json
+from urllib.parse import parse_qs
 import logging
 import os
 import re
+import time
 
 from urllib.parse import unquote
 from spirit.server import http_server
@@ -16,7 +18,9 @@ from spirit.game.models.versus import VersusSeason
 from spirit.game.content.sets import card_script_counts, eligible_booster_sets
 from spirit.server import admin_auth
 from spirit.server import dynamic_pages
+from spirit.server import activity
 from spirit.server import metrics
+from spirit.server import telemetry
 from spirit.game.scripts.products import loader as product_loader
 from sqlalchemy import func
 from spirit.database import TournamentEntry
@@ -153,6 +157,152 @@ def _accounts_summary():
                  "screen_name": a.screen_name, "is_admin": bool(a.is_admin)} for a in rows]
 
 
+def _coverage_by_set():
+    """Implemented vs stubbed attack/ability entries per set.
+
+    Counted from the loaded card definitions after wording binding, so a card
+    whose effect was bound from its printed text counts as implemented — the
+    same semantics the tools/*_coverage.py audits report, but post-resolution.
+    """
+    if not card_loader.cards:
+        card_loader.load_all()
+    rows = []
+    for code, row in sorted(getattr(card_loader, "coverage", {}).items()):
+        rows.append({**row, "set": code, "implemented": row["entries"] - row["stubbed"]})
+    rows.sort(key=lambda r: (-r["stubbed"], r["set"]))
+    keys = ("cards", "entries", "stubbed", "wording", "scripted", "plain")
+    totals = {k: sum(r[k] for r in rows) for k in keys}
+    totals["implemented"] = totals["entries"] - totals["stubbed"]
+    totals["sets"] = len(rows)
+    try:
+        from spirit.game.card_effects import patterns
+        pattern_stats = {
+            "bound": int(getattr(card_loader, "pattern_bound", 0)),
+            "kinds": len(patterns.BIND_COUNTS),
+            "errors": sum(patterns.BIND_ERRORS.values()),
+        }
+    except Exception:
+        pattern_stats = {"bound": 0, "kinds": 0, "errors": 0}
+    return {"sets": rows, "totals": totals, "patterns": pattern_stats}
+
+
+def _live_state():
+    """Everything the Monitor view polls: presence, queues, matches, health."""
+    from spirit.server import state as server_state
+    from spirit.game.session.manager import GameSessionManager
+    from spirit import config
+
+    manager = GameSessionManager()
+    server = server_state.ACTIVE_TCP_SERVER
+    now = time.time()
+    mono = time.monotonic()
+
+    queued = {}
+    queues = []
+    for name, entries in list(manager.queues.items()):
+        entries = list(entries or [])
+        if not entries:
+            continue
+        waiters = []
+        oldest = None
+        for entry in entries:
+            client = entry.get("client")
+            player = getattr(client, "player", None)
+            label = (getattr(player, "screen_name", None) or getattr(player, "username", None)
+                     or str(getattr(client, "addr", "?")[0]))
+            joined = entry.get("joined_at")
+            waited = int(mono - joined) if joined else None
+            if player is not None:
+                queued[player.account_id] = name
+            waiters.append({"account": label, "wait_seconds": waited})
+            if waited is not None:
+                oldest = max(oldest or 0, waited)
+        waiters.sort(key=lambda w: -(w["wait_seconds"] or 0))
+        queues.append({"name": name, "depth": len(entries),
+                       "oldest_wait_seconds": oldest, "waiters": waiters})
+    queues.sort(key=lambda q: -q["depth"])
+
+    matches = []
+    in_match = {}
+    for game_id, session in list(manager.active_sessions.items()):
+        names = []
+        for account_id, player in list(getattr(session, "players", {}).items()):
+            in_match[account_id] = game_id
+            names.append(getattr(player, "screen_name", None)
+                         or getattr(player, "username", None) or account_id[:8])
+        turn_state = getattr(session, "turn_state", None)
+        matches.append({
+            "game_id": game_id,
+            "players": names,
+            "phase": str(getattr(session, "game_phase", "")),
+            "turn": getattr(turn_state, "turn_number", None) or getattr(turn_state, "turn", None),
+        })
+
+    sessions = []
+    if server is not None:
+        for client in list(getattr(server, "clients", []) or []):
+            player = getattr(client, "player", None)
+            address = getattr(client, "addr", None)
+            ip = address[0] if isinstance(address, (tuple, list)) and address else str(address or "")
+            account_id = getattr(player, "account_id", None)
+            if account_id in in_match:
+                where = "in match"
+            elif account_id in queued:
+                where = f"queued: {queued[account_id]}"
+            elif player is not None:
+                where = "in menu"
+            else:
+                where = "authenticating"
+            sessions.append({
+                "account_id": account_id,
+                "account": (getattr(player, "screen_name", None)
+                            or getattr(player, "username", None) or "(unauthenticated)"),
+                "addr": ip,
+                "since": getattr(client, "connected_at", now),
+                "scene": getattr(client, "last_scene", None),
+                "state": where,
+                "idle_seconds": int(mono - getattr(client, "last_packet_at", mono)),
+                "connected_seconds": int(now - getattr(client, "connected_at", now)),
+                "_sort": getattr(client, "last_packet_at", mono),
+            })
+        sessions.sort(key=lambda s: s.pop("_sort"))
+    else:
+        for row in activity.sessions():
+            sessions.append({**row, "since": row.get("since")})
+
+    snapshot = metrics.snapshot()
+    cache = telemetry.asset_cache_stats(getattr(http_server, "ASSET_PATHS", []))
+    return {
+        "now": now,
+        "server": {
+            "public_host": config.PUBLIC_HOST,
+            "http_port": config.HTTP_PORT,
+            "tcp_port": config.TCP_PORT,
+            "max_connections": config.MAX_CONNECTIONS,
+            "boot_time": telemetry.STARTED_AT,
+            "tcp_running": bool(getattr(server, "running", False)),
+        },
+        "sessions": sessions,
+        "queues": queues,
+        "matches": matches,
+        "counters": snapshot["counters"],
+        "gauges": snapshot["gauges"],
+        "loop_lag": snapshot["event_loop_lag"],
+        "traffic": telemetry.http_shape(),
+        "errors": telemetry.errors_snapshot(),
+        "cache": cache,
+        "disk": telemetry.disk_stats(),
+        "process": telemetry.process_stats(),
+        "activity": activity.events_since(limit=120),
+        "activity_counts": {"last_hour": activity.counts(3600)},
+    }
+
+
+def _audit(action, detail=""):
+    """Records one admin mutation for the activity feed."""
+    activity.record(action, detail=detail)
+
+
 def _players_overview():
     """Every account with the numbers an operator actually wants at a glance."""
     with db_session() as session:
@@ -262,6 +412,7 @@ def _clear_collection(account_id):
             return _err(404, "account not found")
         removed = session.query(Collection).filter_by(account_id=account_id).delete()
     logging.info(f"[Admin] Cleared collection for {account_id} ({removed} rows)")
+    activity.record("admin_wipe_collection", detail=f"{account_id} rows={removed}")
     return _ok({"removed": int(removed)})
 
 
@@ -287,6 +438,7 @@ def _set_banned(account_id, banned):
             return _err(404, "account not found")
         account.is_banned = bool(banned)
     logging.info(f"[Admin] {'Banned' if banned else 'Unbanned'} account {account_id}")
+    activity.record("admin_ban" if banned else "admin_unban", detail=account_id)
     return _ok({"account_id": account_id, "is_banned": bool(banned)})
 
 
@@ -313,6 +465,7 @@ def _delete_account(account_id, confirm):
                 removed[table.name] = int(result.rowcount)
         session.delete(account)
     logging.warning(f"[Admin] Deleted account {account_id}: {removed}")
+    activity.record("admin_delete_account", detail=account_id)
     return _ok({"deleted": account_id, "rows": removed})
 
 
@@ -349,6 +502,7 @@ def _login(data):
     if not admin:
         return _err(401, "invalid credentials or not an admin account")
     token = admin_auth.create_session(admin["account_id"], admin["username"])
+    _audit("admin_login", admin["username"])
     status, payload, ctype = _ok({"username": admin["username"]})
     return status, payload, ctype, [("Set-Cookie", admin_auth.session_cookie(token))]
 
@@ -404,6 +558,7 @@ def route_admin(method, path, body, headers=None):
 
 
 def _dispatch(method, endpoint, data):
+    endpoint, _, query_string = endpoint.partition("?")
     # ------------------------------------------------ metrics (ops observability)
     if method == 'GET' and endpoint == 'metrics':
         return _json(200, metrics.snapshot())
@@ -435,6 +590,7 @@ def _dispatch(method, endpoint, data):
                 return _err(404, "account not found")
         count = max(1, int(data.get("count") or 4))
         granted = grant_all_cards(account_id, count=count, is_tradable=True)
+        _audit("admin_grant", f"all cards x{count} -> {account_id}")
         return _ok({"granted": granted, "count": count})
 
     if method == 'POST' and endpoint == 'accounts/grant-all-products':
@@ -446,6 +602,7 @@ def _dispatch(method, endpoint, data):
                 return _err(404, "account not found")
         count = max(1, int(data.get("count") or 1))
         granted = grant_all_products(account_id, count=count, is_tradable=True)
+        _audit("admin_grant", f"all products x{count} -> {account_id}")
         return _ok({"granted": granted, "count": count})
 
     if method == 'POST' and endpoint == 'accounts/set-admin':
@@ -454,7 +611,30 @@ def _dispatch(method, endpoint, data):
             return _err(400, "account_id required")
         if not set_admin(account_id, bool(data.get("is_admin"))):
             return _err(404, "account not found")
+        _audit("admin_rights", f"{account_id} admin={bool(data.get('is_admin'))}")
         return _ok({"account_id": account_id, "is_admin": bool(data.get("is_admin"))})
+
+    # ------------------------------------------------ monitoring
+    if method == 'GET' and endpoint == 'monitor/activity':
+        query = parse_qs(query_string)
+        return _ok(activity.events_since(
+            cursor=(query.get("since") or [None])[0],
+            limit=int((query.get("limit") or [200])[0]),
+            kind=(query.get("kind") or [None])[0],
+            account=(query.get("account") or [None])[0],
+        ))
+
+    if method == 'GET' and endpoint == 'monitor/sessions':
+        return _ok({"sessions": activity.sessions()})
+
+    if method == 'GET' and endpoint == 'monitor/counters':
+        return _ok({"last_hour": activity.counts(3600), "last_day": activity.counts(86400)})
+
+    if method == 'GET' and endpoint == 'monitor/coverage':
+        return _ok(_coverage_by_set())
+
+    if method == 'GET' and endpoint == 'monitor/live':
+        return _ok(_live_state())
 
     # ------------------------------------------------ player management
     if method == 'GET' and endpoint == 'players':
@@ -560,6 +740,7 @@ def _dispatch(method, endpoint, data):
             with open(SEASONS_PATH, 'w', encoding='utf-8') as f:
                 json.dump(normalized, f, indent=2)
             VersusSeasonManager().load_seasons()
+            _audit("admin_config", f"versus seasons ({len(normalized)})")
             return _ok({"seasons": normalized})
 
     # ------------------------------------------------ play formats
@@ -579,6 +760,7 @@ def _dispatch(method, endpoint, data):
             FormatManager().load_formats()
             # Re-derive set legalFormats and drop cached format-legality payloads
             data_sync.reload_sets()
+            _audit("admin_config", f"play formats ({len(normalized)})")
             return _ok({"formats": normalized})
 
     # ------------------------------------------------ async tournaments

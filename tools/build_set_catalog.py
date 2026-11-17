@@ -40,6 +40,18 @@ API_ID_OVERRIDES = {
     "SVP": "svp",
     "SVE": "sve",
     "DV": "dv1",
+    # Sets renamed onto the client's own codes (see merge_duplicate_sets.py):
+    "COL": "col1",
+    "TATM": "dc1",
+    "TWENTIETHANN": "g1",
+    "SL": "sm35",
+    "DM": "sm75",
+    "GUM": "det1",
+    "HF": "sm115",
+    "SVAULT": "sma",
+    "PROMO_HGSS": "hsp",
+    "PROMO_XY": "xyp",
+    "PROMO_SM": "smp",
 }
 
 # Sets we built ourselves; they have no upstream record.

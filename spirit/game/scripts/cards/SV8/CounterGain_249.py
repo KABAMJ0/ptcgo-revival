@@ -1,5 +1,6 @@
 from spirit.game.data_utils import PokemonToolCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import holder_attack_discount
 
 card = PokemonToolCardDef(
     guid="6b322b64-e418-57c9-9fda-e6e71425d449",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=249,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=holder_attack_discount(1, prize_behind=True)
 )

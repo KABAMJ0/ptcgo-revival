@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attach_darkness_to_each_poison
 
 card = SupporterCardDef(
     guid="b0de01c2-33d8-5916-b6c3-8051490abd27",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=88,
     set_code="SV6PT5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=attach_darkness_to_each_poison()
 )

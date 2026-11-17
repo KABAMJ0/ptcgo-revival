@@ -2,6 +2,7 @@ import logging
 
 from spirit.network.protocol import WargFlags
 from spirit.network.message_names import InboundMsg, OutboundMsg
+from spirit.server import activity
 from spirit.database.accounts import get_account_by_username, create_account, verify_password
 from spirit.game.attributes import AttrID
 from spirit.game.progression.account import (
@@ -95,11 +96,13 @@ class AuthHandler(BaseHandler):
         # reason cannot be probed by a wrong-password attempt.
         if account.get('is_banned'):
             logging.warning(f"[TCP] [{self.client.addr}] Banned account '{username}' attempted login")
+            activity.record("login_blocked", account=username, detail="banned account")
             return await self._send_auth_failed(request_id, "This account is suspended.")
 
         # if account existed or was just created
         if not await run_db(verify_password, account['password_hash'], password):
             logging.warning(f"[TCP] [{self.client.addr}] Failed login attempt for user: {username}")
+            activity.record("login_failed", account=username, detail=str(self.client.addr))
             return await self._send_auth_failed(request_id, "Incorrect password. Please try again.")
 
         logging.info(f"[TCP] [{self.client.addr}] User '{username}' successfully authenticated.")
@@ -180,6 +183,8 @@ class AuthHandler(BaseHandler):
         # Index the authenticated client so presence/challenge/login-guard are O(1).
         self.client.server.register_account(self.client)
         metrics.inc("logins_success")
+        activity.session_open(account_id, username, addr=str(self.client.addr))
+        activity.record("login", account=username, detail=str(self.client.addr))
 
         # Notify friends that we are online
         social_handler = SocialHandler(self.client)

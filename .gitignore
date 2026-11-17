@@ -26,3 +26,6 @@ spirit/assets/generatedBundleCache/
 
 # Local baselines / scratch
 baseline/
+
+# Runtime activity archive written by the admin monitor
+logs/

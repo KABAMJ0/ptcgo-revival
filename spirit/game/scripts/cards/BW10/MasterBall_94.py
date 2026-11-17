@@ -1,5 +1,7 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import search_to_hand
+from spirit.game.card_effects.trainers import is_pokemon_card
 
 card = ItemCardDef(
     guid="c44dca6a-27da-56f3-89bc-3e49607496ea",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=94,
     set_code="BW10",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=search_to_hand(is_pokemon_card, count=1)
 )
