@@ -81,6 +81,7 @@ from spirit.game.card_effects.passives_common import (
 )
 from spirit.game.card_effects.trainers import is_basic_energy_card, is_energy_card
 from spirit.game.card_effects.support_common import (
+    cure_conditions_effect,
     attach_from_discard,
     draw_attack,
     remove_self_from_play,
@@ -869,6 +870,7 @@ def _copy_defender_attack(m, ability):
         if chosen is None:
             return
         await ctx.use_attack(chosen[1])
+    return effect
 
 
 def _attack_entries(pokemon) -> list:
@@ -1341,6 +1343,200 @@ def _discard_for_damage(m, ability):
         amount = base + per * len(picks)
         if amount > 0:
             await ctx.deal_damage(amount)
+    return effect
+
+
+
+def _peek_opponent_hand_card(m, ability):
+    """'Choose a card from your opponent's hand without looking, then have
+    them shuffle it into their deck.'"""
+    async def effect(ctx):
+        await ctx.deal_damage()
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        picked = random.choice(hand)
+        await ctx.reveal_cards([picked], to_player=ctx.player_id)
+        await ctx.shuffle_into_deck([picked], ctx.opponent_id)
+    return effect
+
+
+def _flip_bonus_or_self_damage(m, ability):
+    bonus, recoil = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        base = getattr(ability, "damage", 0) or 0
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage(base + bonus)
+        else:
+            await ctx.deal_damage(base)
+            await ctx.deal_damage(recoil, target=ctx.attacker,
+                                  apply_modifiers=False)
+    return effect
+
+
+def _attach_from_discard_distributed(m, ability):
+    count = int(m.group(1))
+    type_word = m.group(2)
+
+    def predicate(card) -> bool:
+        if not is_basic_energy_card(card):
+            return False
+        return type_word is None or energy_provides_type(
+            card, TYPE_WORDS[type_word].value)
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        cards = [card for card in ctx.discard_pile() if predicate(card)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(cards, count, minimum=0,
+                                       prompt="Choose Energy to attach")
+        candidates = [pokemon for pokemon in ctx.my_pokemon_in_play()]
+        for card in picks:
+            if not candidates:
+                break
+            target = await ctx.choose_pokemon(
+                candidates, "Choose a Pokémon to attach the Energy to")
+            if target is not None:
+                await ctx.attach_energy(card, target)
+    return effect
+
+
+def _flip_draw_one(m, ability):
+    async def draw(ctx):
+        await ctx.draw_cards(1)
+    return flip_gate(draw)
+
+
+def _heal_each_bench(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.my_bench():
+            await ctx.heal(amount, pokemon)
+    return effect
+
+
+def _counters_on_chosen(m, ability):
+    counters, targets = int(m.group(1)), _count(m.group(2))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt="Choose a Pokémon to put damage counters on")
+        for target in picks:
+            await ctx.deal_damage(counters * 10, target=target, as_counters=True)
+    return effect
+
+
+def _spread_over_chosen(m, ability):
+    amount, targets = int(m.group(2)), _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt=f"Choose up to {targets} Pokémon")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _spread_opponent_bench_damaged(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        for pokemon in ctx.opponent_bench():
+            if ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0) > 0:
+                await ctx.deal_damage(amount, target=pokemon,
+                                      apply_modifiers=False)
+    return effect
+
+
+def _snipe_own_bench(m, ability):
+    amount, targets = int(m.group(1)), _count(m.group(2))
+
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        if not bench:
+            return
+        picks = bench if len(bench) <= targets else await ctx.choose_cards(
+            bench, targets, prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _discard_attack_title_count(attack_title: str, side: str = "discard"):
+    """'... for each Pokemon in your discard pile that has the <attack> attack'."""
+    from spirit.game.card_effects.attacks_common import has_attack_titled
+    predicate = has_attack_titled(attack_title)
+
+    def count(ctx) -> int:
+        return sum(1 for card in ctx.discard_pile() if predicate(card))
+    return count
+
+
+def _scale_united_wings(m, ability):
+    return _more(_discard_attack_title_count("United Wings"), ability,
+                 int(m.group(1)))
+
+
+def _scale_round_attack(m, ability):
+    from spirit.game.card_effects.attacks_common import has_attack_titled
+    predicate = has_attack_titled("Round")
+
+    def count(ctx) -> int:
+        return sum(1 for pokemon in ctx.my_pokemon_in_play()
+                   if predicate(pokemon))
+    return damage_per(count, int(m.group(1)), base=0)
+
+
+def _shuffle_hand_draw_opponent_size(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        await ctx.shuffle_into_deck(list(ctx.hand()), ctx.player_id)
+        await ctx.draw_cards(ctx.hand_size(ctx.opponent_id))
+    return effect
+
+
+def _gust_damage_new_active(m, ability):
+    return gust_attack(damage_before=0, damage_to_new_active=int(m.group(2)))
+
+
+def _discard_stadium_optional(m, ability):
+    return discard_stadium_attack(optional=True)
+
+
+def _heal_all_self(m, ability):
+    return heal_attack(all_damage=True, target="self")
+
+
+def _cure_self_conditions(m, ability):
+    return cure_conditions_effect(scope="active")
+
+
+def _lock_this_attack(m, ability):
+    """'This Pokemon can't use <this attack> during your next turn.' -- the
+    named attack must be the one being resolved, or nothing is bound."""
+    named = normalize(m.group(1))
+    title = normalize(getattr(ability, "title", ""))
+    if named != title:
+        return None
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None and ability.ability_id:
+            ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                               ability.ability_id)
     return effect
 
 
@@ -2002,6 +2198,101 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"if you have (more|fewer|the same number of) prize cards? "
                 r"remaining than your opponent, this attack does (\d+) more "
                 r"damage\."), _bonus_prize_comparison),
+    # -- batch 8: remaining generic riders ---------------------------------
+    ("copy.defender-attack-short",
+     re.compile(r"choose (an?|\d+) of the defending pokemon's attacks and use "
+                r"it as this attack\."), _copy_defender_attack),
+    ("lock.defender-chosen-attack-short",
+     re.compile(r"choose (an?|\d+) of the defending pokemon's attacks\. that "
+                r"pokemon can't use that attack during your opponent's next "
+                r"turn\."), _lock_chosen_attack_opponent_active),
+    ("snipe.choose-any-ignore-effects",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon\. this attack's damage "
+                r"isn't affected by any effects on the defending pokemon\."),
+     _snipe_choose_ignore_two),
+    ("switch.opponent-chooses-annotated",
+     re.compile(r"(?:if your opponent has any benched pokemon, he or she "
+                r"chooses (?:an?|\d+) of them and switches it with the defending "
+                r"pokemon|your opponent switches the defending pokemon with "
+                r"(?:an?|\d+) of his or her benched pokemon, if any)\."
+                r"(?: \(do the damage before switching the pokemon\.\))?"),
+     _gust_opponent_chooses),
+    ("switch.defender-with-opponent-bench",
+     re.compile(r"switch the defending pokemon with (an?|\d+) of your "
+                r"opponent's benched pokemon\."), _switch_in_opponent_bench),
+    ("gust.damage-new-active",
+     re.compile(r"switch in (an?|\d+) of your opponent's benched pokemon to the "
+                r"active spot\. this attack does (\d+) damage to the new "
+                r"active pokemon\."), _gust_damage_new_active),
+    ("discard.peek-opponent-hand",
+     re.compile(r"choose (an?|\d+) cards? from your opponent's hand without "
+                r"looking\. look at the card you chose, then have your opponent "
+                r"shuffle that card into (?:his or her|their) deck\."),
+     _peek_opponent_hand_card),
+    ("flip.bonus-else-self-damage",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) more damage\. "
+                r"if tails, this pokemon does (\d+) damage to itself\."),
+     _flip_bonus_or_self_damage),
+    ("ignore.defending-effects",
+     re.compile(r"this attack's damage isn't affected by any effects on the "
+                r"defending pokemon\."), _ignore_target_effects),
+    ("discard.stadium-optional",
+     re.compile(r"you may discard any stadium card in play\."),
+     _discard_stadium_optional),
+    ("attach.discard-distributed",
+     re.compile(r"attach up to (\d+) basic (?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy cards? from your discard pile to your benched "
+                r"pokemon in any way you like\."),
+     _attach_from_discard_distributed),
+    ("discard.defender-chosen-energy",
+     re.compile(r"if the defending pokemon has any energy cards attached to it, "
+                r"choose (an?|\d+) of them and discard it(?: or them)?\."),
+     _defender_energy_discard),
+    ("flip.draw-one",
+     re.compile(r"flip a coin\. if heads, draw a card\."), _flip_draw_one),
+    ("heal.dealt-defending",
+     re.compile(r"heal from this pokemon the same amount of damage you did to "
+                r"the defending pokemon\."), _heal_dealt),
+    ("heal.each-bench",
+     re.compile(r"heal (\d+) damage from each of your benched pokemon\."),
+     _heal_each_bench),
+    ("attach.discard-to-self",
+     re.compile(r"attach (an?|\d+) energy cards? from your discard pile to "
+                r"this pokemon\."), _attach_energy_from_discard),
+    ("counters.chosen-target",
+     re.compile(r"put (\d+) damage counters? on (an?|\d+) of your opponent's "
+                r"pokemon\."), _counters_on_chosen),
+    ("spread.over-chosen",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to each of them" + _SNIPE_TAIL),
+     _spread_over_chosen),
+    ("spread.opponent-bench-damaged",
+     re.compile(r"does (\d+) damage to each of your opponent's benched pokemon "
+                r"that has any damage counters on it" + _SNIPE_TAIL),
+     _spread_opponent_bench_damaged),
+    ("heal.all-self",
+     re.compile(r"heal all damage from this pokemon\."), _heal_all_self),
+    ("cure.all-conditions-self",
+     re.compile(r"this pokemon recovers from all special conditions\."),
+     _cure_self_conditions),
+    ("snipe.own-bench",
+     re.compile(r"this attack does (\d+) damage to (an?|\d+) of your benched "
+                r"pokemon" + _SNIPE_TAIL), _snipe_own_bench),
+    ("scale.united-wings",
+     re.compile(r"this attack does (\d+) damage for each pokemon in your "
+                r"discard pile that has the united wings attack\."),
+     _scale_united_wings),
+    ("scale.round-attack",
+     re.compile(r"does (\d+) damage times the number of your pokemon that "
+                r"have the round attack\."), _scale_round_attack),
+    ("shuffle-hand-draw-opponent-size",
+     re.compile(r"shuffle your hand into your deck\. then, draw a number of "
+                r"cards equal to the number of cards in your opponent's "
+                r"hand\."), _shuffle_hand_draw_opponent_size),
+    ("lock.this-attack-next-turn",
+     re.compile(r"this pokemon can't use (.+) during your next turn\."),
+     _lock_this_attack),
 ]
 
 

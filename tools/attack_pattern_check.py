@@ -37,7 +37,11 @@ def coins(values):
     queue = list(values)
 
     def choice(seq):
-        # effects.flip_coins maps 0 -> heads, 1 -> tails.
+        # Only coin flips (seq == [0, 1]) are forced; effects.flip_coins maps
+        # 0 -> heads and 1 -> tails. Every other random.choice (a card from a
+        # hand, an AI pick) keeps its real behaviour.
+        if list(seq) != [0, 1]:
+            return original(seq)
         wanted = queue.pop(0) if queue else 1
         return 0 if wanted else 1
     random.choice = choice
@@ -290,6 +294,12 @@ CASES = [
     ("bonus.extra-energy-attached", check_bonus_condition, (1, 1, 1, 1), 0),
     ("discard.up-to-for-damage", check_bonus_condition, (1, 1, 1, 1), 0),
     ("discard.all-for-damage", check_discard_self_energy, (1, 1, 1, 1), 0),
+    ("counters.chosen-target", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("heal.all-self", check_heal_self, (1, 1, 1, 1), 60),
+    ("lock.this-attack-next-turn", check_lock_self, (1, 1, 1, 1), 0),
+    ("discard.peek-opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
+    ("scale.round-attack", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("copy.defender-attack-short", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 

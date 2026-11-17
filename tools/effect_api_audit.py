@@ -117,10 +117,53 @@ def audit(path: str, methods: Dict[str, inspect.Signature]) -> List[str]:
     return problems
 
 
+def audit_pattern_table(path: str) -> List[str]:
+    """Pattern-table sanity: every builder must exist and must actually return
+    its effect (a builder ending without `return effect` silently binds
+    nothing, which looks identical to "no card uses this wording")."""
+    problems: List[str] = []
+    tree = ast.parse(open(path, encoding="utf-8").read(), filename=path)
+    builders = {}
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            builders[node.name] = node
+    table = None
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and \
+                any(getattr(t, "id", "") == "_PATTERNS" for t in node.targets):
+            table = node.value
+        elif isinstance(node, ast.AnnAssign) and \
+                getattr(node.target, "id", "") == "_PATTERNS":
+            table = node.value
+    if table is None:
+        return [f"{path}: no _PATTERNS table found"]
+    seen = set()
+    for element in getattr(table, "elts", []):
+        if not isinstance(element, ast.Tuple) or len(element.elts) != 3:
+            continue
+        name_node, _, builder_node = element.elts
+        name = getattr(name_node, "value", None)
+        if name in seen:
+            problems.append(f"{path}: duplicate pattern name '{name}'")
+        seen.add(name)
+        builder = getattr(builder_node, "id", None)
+        if builder not in builders:
+            problems.append(f"{path}: pattern '{name}' uses unknown builder "
+                            f"'{builder}'")
+            continue
+        body = builders[builder].body
+        if not body or not isinstance(body[-1], ast.Return):
+            problems.append(f"{path}: builder '{builder}' (pattern '{name}') "
+                            f"never returns its effect")
+    return problems
+
+
 def main():
     paths = sys.argv[1:] or DEFAULT_PATHS
     methods = effect_context_methods()
     total: List[str] = []
+    if not sys.argv[1:]:
+        total.extend(audit_pattern_table("spirit/game/card_effects/patterns.py"))
     for path in paths:
         try:
             total.extend(audit(path, methods))
