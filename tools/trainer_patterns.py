@@ -1810,7 +1810,12 @@ def canonicalize(text):
     return trainer_coverage.canonical_text([text])
 
 
-STADIUM_ABILITY_HEAD = "once during each players turn that player may "
+STADIUM_ABILITY_HEADS = (
+    "once during each players turn that player may ",
+    "once during each players turn the player may ",
+    "once during each players turn before attacking that player may ",
+    "once during each players turn before attacking the player may ",
+)
 
 
 def resolve_stadium_ability(text):
@@ -1818,16 +1823,27 @@ def resolve_stadium_ability(text):
     <X> is worded for "that player", so it is rewritten in the second person
     and resolved like any trainer effect. Text that also names the opponent
     is declined, because "their" can no longer be told apart."""
-    if not text.startswith(STADIUM_ABILITY_HEAD):
+    head = next((h for h in STADIUM_ABILITY_HEADS if text.startswith(h)), None)
+    if head is None:
         return None
-    inner = text[len(STADIUM_ABILITY_HEAD):]
-    if "opponent" in inner or "player" in inner.replace("that player shuffles", ""):
+    inner = text[len(head):]
+    if "opponent" in inner:
         return None
     inner = inner.replace("then that player shuffles their deck", "then shuffle your deck")
     inner = inner.replace("and shuffle their deck", "then shuffle your deck")
     inner = inner.replace("they have", "you have").replace("they do", "you do")
-    inner = inner.replace("he or she", "you").replace("his or her", "your")
-    inner = inner.replace("their", "your")
+    inner = (inner.replace("he or she", "you").replace("his or her", "your")
+             .replace("that player", "you").replace("the player", "you")
+             .replace("their", "your"))
+    for third, base in (("draws", "draw"), ("searches", "search"),
+                        ("chooses", "choose"), ("discards", "discard"),
+                        ("flips", "flip"), ("puts", "put"), ("shuffles", "shuffle"),
+                        ("removes", "remove"), ("heals", "heal"),
+                        ("attaches", "attach"), ("reveals", "reveal"),
+                        ("takes", "take"), ("shows", "show")):
+        inner = inner.replace("that player " + third, "you " + base)
+        inner = inner.replace("you " + third, "you " + base)
+    inner = inner.replace("if heads you ", "if heads ")
     found = resolve(inner)
     if found is None or found.get("kind", "effect") != "effect" or found.get("condition"):
         return None

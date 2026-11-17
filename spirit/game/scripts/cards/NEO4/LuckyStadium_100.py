@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import draw_n, if_heads, stadium_ability
 
 card = StadiumCardDef(
     guid="53558e57-a4d1-5d49-bf3f-af31b2fa8a88",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=100,
     set_code="NEO4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Lucky Stadium', if_heads(draw_n(1)))
 )

@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import look_top_peek, stadium_ability
 
 card = StadiumCardDef(
     guid="895f22af-3f5c-50da-96c1-2dcf5ad8327e",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=95,
     set_code="NEO4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    ability=stadium_ability('Radio Tower', look_top_peek(2))
 )
