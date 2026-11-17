@@ -1891,15 +1891,15 @@ def resolve_stadium_ability(text):
     inner = (inner.replace("he or she", "you").replace("his or her", "your")
              .replace("that player", "you").replace("the player", "you")
              .replace("their", "your"))
-    for third, base in (("draws", "draw"), ("searches", "search"),
-                        ("chooses", "choose"), ("discards", "discard"),
-                        ("flips", "flip"), ("puts", "put"), ("shuffles", "shuffle"),
-                        ("removes", "remove"), ("heals", "heal"),
-                        ("attaches", "attach"), ("reveals", "reveal"),
-                        ("takes", "take"), ("shows", "show")):
-        inner = inner.replace("that player " + third, "you " + base)
-        inner = inner.replace("you " + third, "you " + base)
+    THIRD_PERSON = {"draws": "draw", "searches": "search", "chooses": "choose",
+                    "discards": "discard", "flips": "flip", "puts": "put",
+                    "shuffles": "shuffle", "removes": "remove", "heals": "heal",
+                    "attaches": "attach", "reveals": "reveal", "takes": "take",
+                    "shows": "show", "places": "place"}
+    inner = re.sub(r"\b(%s)\b" % "|".join(THIRD_PERSON),
+                   lambda m: THIRD_PERSON[m.group(1)], inner)
     inner = inner.replace("if heads you ", "if heads ")
+    inner = inner.replace("if you do you ", "if you do ")
     ends_turn = False
     tail = re.search(r" if \d+ player searches (?:their|your) deck in this way "
                     r"(?:their|your) turn ends$", inner)
