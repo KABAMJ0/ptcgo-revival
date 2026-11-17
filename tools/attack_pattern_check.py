@@ -300,6 +300,13 @@ CASES = [
     ("discard.peek-opponent-hand", check_check_noop, (1, 1, 1, 1), 0),
     ("scale.round-attack", check_bonus_condition, (1, 1, 1, 1), 0),
     ("copy.defender-attack-short", check_check_noop, (1, 1, 1, 1), 0),
+    ("snipe.choose-any-ignore-that", check_snipe_bench, (1, 1, 1, 1), 0),
+    ("flip.heads-tails-conditions", check_defender_condition, (1, 1, 1, 1), 0),
+    ("lock.opponent-items", check_check_noop, (1, 1, 1, 1), 0),
+    ("bonus.extra-prize-on-ko", check_check_noop, (1, 1, 1, 1), 0),
+    ("mill.by-heads", check_mill_opponent, (1, 1, 1, 1), 0),
+    ("discard.any-opponent-energy", check_check_noop, (1, 1, 1, 1), 0),
+    ("protect.from-basic-noncolorless", check_temporary_passive, (1, 1, 1, 1), 0),
 ]
 
 

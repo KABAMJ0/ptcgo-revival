@@ -322,6 +322,10 @@ def _spread_opponent(m, ability):
     return damage_all_opponents(int(m.group(1)))
 
 
+def _spread_opponent_bench_also_base(m, ability):
+    return spread_damage(int(m.group(1)), side="opponent", also_base=True)
+
+
 def _spread_opponent_bench(m, ability):
     return spread_damage(int(m.group(1)), side="opponent")
 
@@ -1039,8 +1043,11 @@ def _register_counts():
             if defender is not None else 0
 
     def bench_types(ctx) -> int:
-        types = {pokemon.get_attribute(AttrID.POKEMON_TYPES)
-                 for pokemon in ctx.my_bench()}
+        types = set()
+        for pokemon in ctx.my_bench():
+            raw = pokemon.get_attribute(AttrID.POKEMON_TYPES)
+            values = json.loads(raw) if isinstance(raw, str) else (raw or [])
+            types.update(tuple(value for value in values))
         return len(types)
 
     def discard_matching(pred):
@@ -1537,6 +1544,125 @@ def _lock_this_attack(m, ability):
         if ctx.attacker is not None and ability.ability_id:
             ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
                                                ability.ability_id)
+    return effect
+
+
+
+def _mill_by_heads(m, ability):
+    """'Flip a coin until you get tails. For each heads, discard the top card
+    of your opponent's deck.'"""
+    async def effect(ctx):
+        await ctx.deal_damage()
+        heads = await ctx.flip_until_tails(getattr(ability, "title", ""))
+        if heads > 0:
+            await ctx.discard_cards(ctx.deck_top(heads, player_id=ctx.opponent_id))
+    return effect
+
+
+def _peek_opponent_hand_discard(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        picked = random.choice(hand)
+        await ctx.reveal_cards([picked], to_player=ctx.player_id)
+        await ctx.discard_cards([picked])
+    return effect
+
+
+def _flip_two_conditions(m, ability):
+    heads_condition = CONDITIONS[m.group(1)]
+    tails_condition = CONDITIONS[m.group(2)]
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        condition = heads_condition if (results and results[0])             else tails_condition
+        await ctx.apply_special_condition(ctx.defender, condition)
+    return effect
+
+
+def _damage_per_round_in_play(m, ability):
+    from spirit.game.card_effects.attacks_common import has_attack_titled
+    predicate = has_attack_titled("Round")
+
+    def count(ctx) -> int:
+        return sum(1 for pokemon in ctx.my_pokemon_in_play()
+                   if predicate(pokemon))
+    return damage_per(count, int(m.group(1)), base=0)
+
+
+def _lock_opponent_items(m, ability):
+    from spirit.game.attributes import CardType, TrainerType
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        ctx.lock_plays(
+            ctx.opponent_id,
+            lambda card: card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value
+            and card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.ITEM.value)
+    return effect
+
+
+def _extra_prize_on_ko(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        ctx.add_extra_prize_watcher(prizes=int(m.group(1)))
+    return effect
+
+
+def _snipe_bench_damaged_also_base(m, ability):
+    amount, targets = int(m.group(1)), _count(m.group(2))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = [pokemon for pokemon in ctx.opponent_bench()
+                      if ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0) > 0]
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _discard_any_opponent_energy(m, ability):
+    count = _count(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                      if ctx.attached_energies(pokemon)
+                      and not ctx.effects_blocked(pokemon)]
+        if not candidates:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates,
+                                     "Choose a Pokémon to discard Energy from")
+        if target is not None:
+            await ctx.discard_energy_from(target, count)
+    return effect
+
+
+def _prevent_from_basic_noncolorless(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is None:
+            return
+        from spirit.game.session.effects import is_basic_pokemon
+        from spirit.game.session.passives import effective_pokemon_types
+
+        def pred(calc, carrier) -> bool:
+            attacker = calc.attacker
+            if attacker is None or not is_basic_pokemon(attacker):
+                return False
+            types = effective_pokemon_types(ctx.board, attacker)
+            return bool(types) and types[0] != PokemonTypes.COLORLESS.value
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, prevent_damage_when(pred))
     return effect
 
 
@@ -2293,6 +2419,56 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("lock.this-attack-next-turn",
      re.compile(r"this pokemon can't use (.+) during your next turn\."),
      _lock_this_attack),
+
+    # -- batch 9: remaining repeat wordings --------------------------------
+    ("snipe.choose-any-ignore-that",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon\. this attack's damage "
+                r"isn't affected by weakness, resistance, poke-powers, "
+                r"poke-bodies, or any other effects on that pokemon\."),
+     _snipe_choose_ignore_all),
+    ("ignore.dont-apply-both",
+     re.compile(r"don't apply weakness and resistance for this attack\.(?: "
+                r"\(any other effects that would happen after applying "
+                r"weakness and resistance are still applied\.\))?"),
+     _ignore_all_plain),
+    ("ignore.dont-apply-resistance",
+     re.compile(r"don't apply resistance\."), _ignore_resistance_is_not),
+    ("spread.opponent-bench-also-base",
+     re.compile(r"this attack also does (\d+) damage to each of your "
+                r"opponent's benched pokemon" + _BENCH_SPREAD_TAIL),
+     _spread_opponent_bench_also_base),
+    ("mill.by-heads",
+     re.compile(r"flip a coin until you get tails\. for each heads, discard "
+                r"the top card of your opponent's deck\."), _mill_by_heads),
+    ("discard.peek-opponent-hand-discard",
+     re.compile(r"choose (an?|\d+) cards? from your opponent's hand without "
+                r"looking and discard it\."), _peek_opponent_hand_discard),
+    ("flip.heads-tails-conditions",
+     re.compile(r"flip a coin\. if heads, the defending pokemon is now (" +
+                _CONDITION_WORDS + r")\. if tails, the defending pokemon is now ("
+                + _CONDITION_WORDS + r")\."), _flip_two_conditions),
+    ("scale.round-in-play",
+     re.compile(r"this attack does (\d+) damage for each of your pokemon in "
+                r"play that has the round attack\."), _damage_per_round_in_play),
+    ("lock.opponent-items",
+     re.compile(r"during your opponent's next turn, they can't play any item "
+                r"cards from their hand\."), _lock_opponent_items),
+    ("bonus.extra-prize-on-ko",
+     re.compile(r"if your opponent's pokemon is knocked out by damage from "
+                r"this attack, take (\d+) more prize card(?:s)?\."),
+     _extra_prize_on_ko),
+    ("snipe.bench-damaged-also-base",
+     re.compile(r"this attack also does (\d+) damage to (an?|\d+) of your "
+                r"opponent's benched pokemon that has any damage counters on it"
+                + _SNIPE_TAIL), _snipe_bench_damaged_also_base),
+    ("discard.any-opponent-energy",
+     re.compile(r"discard (an?|\d+) energy from your opponent's pokemon\."),
+     _discard_any_opponent_energy),
+    ("protect.from-basic-noncolorless",
+     re.compile(r"during your opponent's next turn, prevent all damage done to "
+                r"this pokemon by attacks from basic non-colorless pokemon\."),
+     _prevent_from_basic_noncolorless),
 ]
 
 
