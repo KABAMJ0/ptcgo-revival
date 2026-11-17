@@ -1,5 +1,7 @@
 """Behaviors for the Trainer cards of the Lugia VSTAR and Mew VMAX decks."""
 
+import re
+
 from spirit.game.attributes import (
     AttrID, CardType, CLIENT_POKEMON_TYPE_NAMES, PokemonStage, PokemonTypes,
     SpecialConditions, TrainerType,
@@ -3533,12 +3535,15 @@ def turn_damage_boost_vs(amount: int, target):
 
 def named_exactly(name: str):
     """Predicate: a card whose printed name is exactly `name` ("Judge", not
-    "Judge Whistle")."""
-    wanted = name.lower()
+    "Judge Whistle"); punctuation and spacing are ignored, because canonical
+    rules text has already dropped apostrophes."""
+    wanted = re.sub(r"[^a-z0-9]", "", name.lower())
 
     def predicate(card):
         definition = def_for(card.archetype_id)
-        return (getattr(definition, "display_name", "") or "").lower() == wanted
+        name_now = re.sub(r"[^a-z0-9]", "",
+                          (getattr(definition, "display_name", "") or "").lower())
+        return name_now == wanted
     return predicate
 
 
@@ -3753,3 +3758,9 @@ def attacker_named_team(phrase: str):
     is not a Pokemon ex (Team Plasma's Pokemon)."""
     named_pred = pokemon_named(phrase)
     return lambda attacker: named_pred(attacker) and not is_pokemon_ex(attacker)
+
+
+def trainer_card_other_than(name: str):
+    """Predicate: any Trainer card whose printed name is not `name`."""
+    excluded = named_exactly(name)
+    return lambda card: is_trainer_card(card) and not excluded(card)

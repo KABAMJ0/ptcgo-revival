@@ -1,5 +1,7 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import look_at_top
+from spirit.game.card_effects.trainers import trainer_card_other_than
 
 card = ItemCardDef(
     guid="9b0e3c49-0f2a-546b-bbcb-2811bc706407",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=92,
     set_code="XY6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(4, take=1, predicate=trainer_card_other_than("trainers mail"), rest="shuffle", minimum=0)
 )

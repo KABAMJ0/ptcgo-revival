@@ -1397,6 +1397,32 @@ RULES = [
          lambda m: ["gated_hp_bonus(%s, pokemon_of_subtype(\"Ancient\"))" % m.group("hp"),
                     'holder_condition_immunity(pokemon_of_subtype("Ancient"))'],
          kind="passive"),
+    Rule("look-top-one-of-shuffle",
+         r"look at the top (?P<n>\d+) cards from your deck choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) from those cards show it to your opponent and put it into your "
+         r"hand put the other (?P<rest>\d+) cards back on top of your deck shuffle your deck "
+         r"afterward",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="shuffle"'],
+         module="support_common"),
+    Rule("look-top-one-of-back",
+         r"look at the top (?P<n>\d+) cards of your deck and choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) show it to your opponent and put it into your hand put the "
+         r"(?P<rest>\d+) other cards back on top of your deck in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"'],
+         module="support_common"),
+    Rule("look-top-trainer-except",
+         r"look at the top (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) trainer card "
+         r"you find there except (?P<except>[a-z0-9 ]+?) and put it into your hand shuffle the "
+         r"other cards back into your deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"),
+                    'predicate=trainer_card_other_than("%s")' % m.group("except"),
+                    'rest="shuffle"', "minimum=0"],
+         module="support_common"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
