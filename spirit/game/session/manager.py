@@ -8,6 +8,7 @@ from spirit.game.attributes import DeckFormat
 from spirit.game.decks.formats import FormatManager
 from spirit.game.decks.validation import DeckValidator
 from spirit.server import metrics
+from spirit import config
 from .game_session import GameSession
 
 # A client-supplied queueName longer than this is rejected (abuse: the queues dict
@@ -186,6 +187,8 @@ class GameSessionManager:
                 "tournament_context": tournament_context
             })
             await client.send_packet(entered_packet, request_id)
+            self._schedule_bot_fallback(client, queue_name, deck_data,
+                                        client_options, tournament_context)
 
     async def start_solo_match(self, client, deck_data: dict, solitaire_id: str, match_options: dict, request_id: int = 0):
         """Starts a local/offline single player practice match against an AI opponent."""
@@ -383,6 +386,73 @@ class GameSessionManager:
                     await party.send_packet(cancelled_packet, 0)
                 except Exception as e:
                     logging.error(f"[Matchmaking] Error notifying challenge cancellation for {path}: {e}")
+
+    # --- versus queue bot fallback -------------------------------------------------
+    # A player who sits alone in a queue gets paired with the built-in AI after
+    # config.BOT_QUEUE_DELAY_SECONDS, so versus is playable on a server with one
+    # human on it. Set SPIRIT_BOT_QUEUE_DELAY=0 to wait for a real opponent.
+
+    _bot_deck_cache: Optional[dict] = None
+
+    def _bot_deck(self) -> dict:
+        """A real 60-card deck for the bot, resolved from the starter decklists."""
+        if GameSessionManager._bot_deck_cache is None:
+            from spirit.game.content.starter import STARTER_DECKS, build_deck_data
+            deck_data = {}
+            for name, decklist in STARTER_DECKS:
+                candidate = build_deck_data(name, decklist)
+                if len(candidate["piles"]["deck"]) == 60:
+                    deck_data = candidate
+                    break
+            GameSessionManager._bot_deck_cache = deck_data
+        return GameSessionManager._bot_deck_cache
+
+    def _schedule_bot_fallback(self, client, queue_name: str, deck_data: dict,
+                               client_options: dict, tournament_context: dict = None):
+        """Arms the bot fallback for a player who just joined an empty queue."""
+        delay = getattr(config, "BOT_QUEUE_DELAY_SECONDS", 0)
+        if not delay or delay <= 0 or tournament_context:
+            return
+        self._spawn(self._bot_fallback(client, queue_name, deck_data,
+                                       client_options, delay))
+
+    async def _bot_fallback(self, client, queue_name: str, deck_data: dict,
+                            client_options: dict, delay: float):
+        await asyncio.sleep(delay)
+
+        entries = self.queues.get(queue_name, [])
+        if not any(entry["client"] is client for entry in entries):
+            return  # matched with a human, cancelled, or queued elsewhere
+        if getattr(client, "player", None) is None:
+            return
+
+        await self.remove_from_queue(client, send_left_packet=False)
+
+        game_id = str(uuid.uuid4())
+        logging.info(
+            f"[Matchmaking] Queue '{queue_name}' empty after {delay:.0f}s - pairing "
+            f"{client.player.username} with the AI bot (game {game_id})"
+        )
+
+        self.pending_pairings[game_id] = {
+            "players": {
+                client.player.account_id: {
+                    "client": client,
+                    "deck": deck_data,
+                    "ready": False
+                },
+                "mock_ai_bot": {
+                    "client": None,
+                    "deck": self._bot_deck(),
+                    "ready": True
+                }
+            },
+            "is_solo": True,
+            "solitaire_id": "basic_bot_id",
+            "options": client_options,
+            "queue_name": queue_name
+        }
+        self._dispatch_ready_check(game_id, queue_name, [client], delay=0.2)
 
     async def remove_from_queue(self, client, send_left_packet: bool = True):
         """Removes a client from all format queues."""

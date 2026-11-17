@@ -32,6 +32,10 @@ PREAUTH_TIMEOUT_SECONDS = float(os.environ.get("SPIRIT_PREAUTH_TIMEOUT", "60"))
 
 # Max bytes an inbound zlib body may expand to (decompression-bomb guard). Legit
 # client-originated compressed payloads are decks/telemetry, well under 1 MB.
+# Seconds a player may sit alone in a versus queue before the server pairs them
+# with the built-in AI bot. 0 disables the fallback (queue waits for a human).
+BOT_QUEUE_DELAY_SECONDS = float(os.environ.get("SPIRIT_BOT_QUEUE_DELAY", "6"))
+
 MAX_DECOMPRESSED_BYTES = int(os.environ.get("SPIRIT_MAX_DECOMPRESSED", str(16 * 1024 * 1024)))
 
 # Hard cap on simultaneous TCP connections (0 = unlimited). Excess accepts are
