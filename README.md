@@ -87,6 +87,46 @@ The reason is that the login handshake redirects the client to a follow-up addre
 > **Hosting on a VPS?** Follow the [nginx deployment guide](deploy/README.md).
 > nginx is not needed for local development.
 
+## Hosting it for other people
+
+The one-command installer runs everything the server needs on a Linux box with a public IP:
+
+```bash
+git clone https://github.com/KABAMJ0/spirit-ptcgo-bw-sv.git
+cd spirit-ptcgo-bw-sv
+sudo ./install.sh --host play.example.com
+```
+
+It creates the Python environment, generates a TLS certificate for `--host`, builds the database (admin login `brandon` / `password` — change it), downloads about 14 GB of card art, installs a systemd service that starts on boot and restarts on failure, and opens the firewall. Options: `--no-art` (fetch later with `tools/fetch_art.py`), `--no-service`, `--user`.
+
+**The first start packs card bundles for 45–60 minutes** before the ports open. Restarts after that take about a minute.
+
+### The client always dials port 39389
+
+`cake.cfg` carries a hostname and no port, so the client'\''s first connection is always to `<hostname>:39389`. That single constraint rules out most cheap hosting: a reverse proxy, a random-port tunnel, or a domain pointing at a shared IP will connect and then hang at login. The host needs **TCP 39389** reachable and **TCP 8000** for config, manifests and card art. The second connection is a full `host:port` sent by the server, so only that first hop is constrained.
+
+Once HTTP works, put the panel behind something that is not open to the internet, or at least change the seeded admin password.
+
+### What players change
+
+Three lines in `Pokemon Trading Card Game Online_Data/cake.cfg` (next to the .exe), leaving the `*AppSecret` lines alone:
+
+```ini
+hostname=play.example.com
+versionURL=http://play.example.com:8000/
+assetURL=http://play.example.com:8000/
+```
+
+Nothing else to install. The client validates the certificate against the name it dialled, so the cert'\''s CN must be `play.example.com` — `SPIRIT_PUBLIC_HOST` drives both that and the mid-login redirect.
+
+### Card art is not in git
+
+About 14 GB of scans stay out of the repository. A fresh clone has every card script but no textures; `tools/fetch_art.py` fills them in (official scans, then upstream SpiritPTCGO art, then a rendered face). It is resumable and skips anything already present.
+
+### Hosting behind a home connection
+
+No public IP means no public port 39389, which this client cannot work around. Tunnels that assign a random port (ngrok free TCP, playit shared IP) will not work. Options that do: a small VPS relay forwarding 39389 and 8000 to the machine running the server, or running the server on the VPS itself.
+
 ## Custom Card Creation
 
 SpiritPTCGO supports a modular card injection system. You add a custom card by dropping an image and a python script into the designated folders, and the server handles the Unity AssetBundle generation automatically on startup. A card is two things: a **data definition** (its name, HP, cost, weakness, etc.) and, if you want it to actually *do* something in a match, a bit of **scripted behavior**. We'll cover both.

@@ -46,7 +46,10 @@ def subtypes_for(archetype_id: Optional[str]) -> List[str]:
 
 
 # Rule-box subtypes and the prizes an attacker takes for knocking one out.
-_MULTI_PRIZE_SUBTYPES = {"V": 2, "VSTAR": 2, "V-UNION": 3, "VMAX": 3, "GX": 2, "EX": 2}
+# The Scarlet & Violet era prints "ex" in lower case; older EX and GX are upper.
+# Missing the lower-case form made every Pokemon ex in the pool give up 1 prize
+# instead of 2 (939 cards).
+_MULTI_PRIZE_SUBTYPES = {"V": 2, "VSTAR": 2, "V-UNION": 3, "VMAX": 3, "GX": 2, "EX": 2, "ex": 2}
 _RULE_BOX_SUBTYPES = set(_MULTI_PRIZE_SUBTYPES) | {"Radiant"}
 
 
