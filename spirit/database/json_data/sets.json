@@ -30,78 +30,6 @@
     "promo": false
   },
   {
-    "name": "HGSS1",
-    "externalId": "HS",
-    "number": 430,
-    "count": 123,
-    "filter": true,
-    "block": "HGSS",
-    "legalFormats": [
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [
-      "ac14e591-d717-4ab8-bda0-6b9a2a0ba0da",
-      "e9877f6e-5766-11e1-81f9-782bcb9e3ead",
-      "2bc0568a-5491-42ac-89c7-48b12e458b29"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "HGSS2",
-    "externalId": "UL",
-    "number": 440,
-    "count": 95,
-    "filter": true,
-    "block": "HGSS",
-    "legalFormats": [
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [
-      "e9a9112e-5766-11e1-81f9-782bcb9e3ead",
-      "e99b7c9e-5766-11e1-81f9-782bcb9e3ead",
-      "ef9dd0c2-41c6-483d-a203-4a31c1402d2e"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "HGSS3",
-    "externalId": "UD",
-    "number": 450,
-    "count": 90,
-    "filter": true,
-    "block": "HGSS",
-    "legalFormats": [
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [
-      "f11f2691-5da3-11e1-8852-d9628f8696f0",
-      "f1254128-5da3-11e1-87b0-d9628f8696f0",
-      "de237c84-a219-4033-a3a8-4b2bf3ad589b"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "HGSS4",
-    "externalId": "TM",
-    "number": 460,
-    "count": 102,
-    "filter": true,
-    "block": "HGSS",
-    "legalFormats": [
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [
-      "f140439c-5da3-11e1-883c-d9628f8696f0",
-      "f13e95eb-5da3-11e1-9ecf-d9628f8696f0",
-      "fdd2f237-268d-4905-b72e-0babb8da6c81"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "COL",
     "externalId": "CL",
     "number": 470,
@@ -148,21 +76,6 @@
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
-  },
-  {
-    "name": "Promo_BW",
-    "externalId": "PR-BLW",
-    "number": 478,
-    "count": 37,
-    "filter": true,
-    "block": "BW",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25",
-      "6b33d420-73cc-40d4-ada5-88a7d68063a9"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": true
   },
   {
     "name": "BW_Energy",
@@ -323,38 +236,6 @@
     "promo": false
   },
   {
-    "name": "XY0",
-    "externalId": "KSS",
-    "number": 592,
-    "count": 39,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY1",
-    "externalId": "XY",
-    "number": 593,
-    "count": 146,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "f25e3351-0456-4ed5-a4d2-e1a6d9195991",
-      "7c2d4c41-da8c-4f0e-b28e-fdd93fa83bba",
-      "3b44805e-5e32-4c3c-be2d-9ebd4db6ba8b"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "XY2",
     "externalId": "FLF",
     "number": 600,
@@ -373,24 +254,6 @@
     "promo": false
   },
   {
-    "name": "XY3",
-    "externalId": "FFI",
-    "number": 610,
-    "count": 111,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "b12ae887-df56-4cf4-92bc-1848a909d017",
-      "0202c8b1-84b1-4b82-ba97-4ca8a2d1d839",
-      "184dcdb5-979b-4d55-98ee-04ea71bee2af"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "RSP",
     "externalId": "RSP",
     "number": 620,
@@ -401,42 +264,6 @@
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": true
-  },
-  {
-    "name": "XY4",
-    "externalId": "PHF",
-    "number": 630,
-    "count": 119,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "9c15a7d5-ad93-4451-9bfb-22964e79c28d",
-      "1e6bd4af-4b0d-4d8f-ad4d-de62bfc14ef2",
-      "418670f1-f5ba-427f-a248-a9623f2cabae"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY5",
-    "externalId": "PRC",
-    "number": 640,
-    "count": 160,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "24409e90-7cba-49b4-9dd1-0a019aaa6233",
-      "6f59ff37-d6c9-4b0b-9613-371a3f4643b0",
-      "e7185f51-11f3-4598-b6af-8dfa94731bf1"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
   },
   {
     "name": "TATM",
@@ -452,78 +279,6 @@
       "13dd6c58-d504-4221-a9ad-e85f63bc4a95",
       "075d5c69-3d85-4b02-a165-6c30289e221c",
       "2ffd3a88-a5fa-446c-888d-e7c90d53cd33"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY6",
-    "externalId": "ROS",
-    "number": 650,
-    "count": 108,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "da2e77f4-790a-406d-b5e8-256ef08ee15c",
-      "cdacbad0-5d11-4abf-b582-89085b1aa29e",
-      "f270f8c8-37cb-492e-ad42-c3d4b1cf555d"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY7",
-    "externalId": "AOR",
-    "number": 660,
-    "count": 98,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "33792f9a-4414-4410-aab6-4eedfec262e4",
-      "ff70bb66-88b3-43b0-afa5-10e68ef7c951",
-      "92bf2550-806b-4259-a987-eb4859d62490"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY8",
-    "externalId": "BKT",
-    "number": 680,
-    "count": 162,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "8fc50987-32fe-4600-9320-36d172c4c391",
-      "4bb07f27-8a1c-444e-bdc2-cd59637fcb05",
-      "f2fefccc-85d2-4f88-89e9-6a2443cbad6d"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY9",
-    "externalId": "BKP",
-    "number": 690,
-    "count": 122,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "079b1e97-7101-42c1-b656-0bc883ad3349",
-      "3077c328-e0ce-4467-a4bb-394665d56a46",
-      "723e4fb5-927e-4657-a541-660449b30710"
     ],
     "visibleUnfilterable": false,
     "promo": false
@@ -547,24 +302,6 @@
     "promo": false
   },
   {
-    "name": "XY10",
-    "externalId": "FCO",
-    "number": 710,
-    "count": 124,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "7805b4f3-f704-4089-bf90-3a7d9f139560",
-      "faf513d3-cf82-42b1-b637-559649e1885b",
-      "c0d81c25-5e40-4538-9ca1-d0e73d728ab6"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "XY11",
     "externalId": "STS",
     "number": 720,
@@ -578,24 +315,6 @@
       "426e8b06-2f70-48b4-9574-6a40f32954d4",
       "b27273cc-f7b5-4888-8766-8fdb6a7413c7",
       "17a306c7-89fd-4164-8166-5716c0eb5a3b"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "XY12",
-    "externalId": "EVO",
-    "number": 730,
-    "count": 108,
-    "filter": true,
-    "block": "XY",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "263b9074-9eee-4ec2-9b66-5a796c60a59c",
-      "0be682f5-eecb-4226-afb7-7d0fd2cbc65f",
-      "b835737d-5bb2-474b-901e-b2ac6a0e420f"
     ],
     "visibleUnfilterable": false,
     "promo": false
@@ -659,60 +378,6 @@
     "promo": false
   },
   {
-    "name": "SM1",
-    "externalId": "SUM",
-    "number": 750,
-    "count": 149,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "1bba7b69-6088-40da-8d06-419860d57bee",
-      "20df1ec9-8b25-43fb-9671-999308e3685c",
-      "8cbda4f4-f511-46a2-97ab-59cdfba803e6"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM2",
-    "externalId": "GRI",
-    "number": 760,
-    "count": 145,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "5bf33781-2d3b-436f-b64a-c443a881e2d5",
-      "b1812a7e-33b2-4b75-8784-b6c314ed6579",
-      "d2bc5cf7-0424-40f4-9538-5efb8d711bc1"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM3",
-    "externalId": "BUS",
-    "number": 780,
-    "count": 147,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "28b445dc-ad0a-4e7c-96f3-94eb4c5400d9",
-      "69857e66-336d-4297-8987-00591d5dd054",
-      "ced342d9-686a-464d-a073-66194b6a8c69"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "McDonalds",
     "externalId": "MCD",
     "number": 781,
@@ -737,78 +402,6 @@
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
     "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM4",
-    "externalId": "CIN",
-    "number": 800,
-    "count": 111,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "fbbc62e7-e44d-4c75-bb56-f466e814c0dd",
-      "2aed77ae-ce74-4b54-8913-80d1b804da83",
-      "9a89a445-e9f2-49d9-b930-87708e8e9727"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM5",
-    "externalId": "UPR",
-    "number": 810,
-    "count": 156,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "37f42e65-ec42-4efe-9504-d5711dab7e44",
-      "806d55e6-09b5-422f-9b70-4283b9df2b68",
-      "60b2c9b6-85af-49ef-9c4e-66ab3d5798f7"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM6",
-    "externalId": "FLI",
-    "number": 820,
-    "count": 131,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "fa4e63cd-60fb-47a5-82e0-dbdbe730fb8f",
-      "f2450fcb-855f-4679-ae86-feccbf015dad",
-      "b95130dc-68ca-48c1-a346-ffdbab512659"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM7",
-    "externalId": "CES",
-    "number": 830,
-    "count": 168,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "7a170647-29cf-437b-b76c-84924ee95615",
-      "6a23d54e-afc8-4eb2-82ec-5c00daf164e5",
-      "69589189-3eb1-4135-9295-36766395a182"
-    ],
     "visibleUnfilterable": false,
     "promo": false
   },
@@ -845,24 +438,6 @@
     "promo": false
   },
   {
-    "name": "SM9",
-    "externalId": "TEU",
-    "number": 860,
-    "count": 181,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "3e339fb7-edf8-4ea8-9ccd-220129a65bc0",
-      "50891cc1-5708-4fd7-aabc-4c00b7d9b38b",
-      "a9bcfb59-2a51-4721-8b1a-f444aa1208c5"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "GUM",
     "externalId": "DET",
     "number": 870,
@@ -877,42 +452,6 @@
     "promo": false
   },
   {
-    "name": "SM10",
-    "externalId": "UNB",
-    "number": 880,
-    "count": 214,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "52d0fa9f-01eb-400e-9b05-79bd8f38f68f",
-      "0e06358b-d8f1-46c9-b015-a7257656d400",
-      "ba320888-0bce-4b0f-b620-e29c79f48572"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM11",
-    "externalId": "UNM",
-    "number": 890,
-    "count": 236,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "faaf247b-f482-447c-8b7a-7c6141e34a37",
-      "26679751-3462-4e3d-a10c-59608ba57d12",
-      "66b6bf79-40eb-412b-bb08-e6c8ae1217f5"
-    ],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
     "name": "HF",
     "externalId": "HIF",
     "number": 900,
@@ -923,24 +462,6 @@
       "98c83df9-ec82-4193-84a8-104115ce4e25"
     ],
     "featuredArchetypes": [],
-    "visibleUnfilterable": false,
-    "promo": false
-  },
-  {
-    "name": "SM12",
-    "externalId": "CEC",
-    "number": 910,
-    "count": 236,
-    "filter": true,
-    "block": "SM",
-    "legalFormats": [
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
-    "featuredArchetypes": [
-      "57994dfb-5d40-48b2-b12f-fc830ac97466",
-      "9a954124-39ec-4a08-9230-146641281fe7",
-      "9664c6c3-5361-4b4f-985a-b84650c9cd6c"
-    ],
     "visibleUnfilterable": false,
     "promo": false
   },
@@ -961,9 +482,781 @@
     "promo": false
   },
   {
-    "name": "PROMO_BW",
-    "externalId": "PR-BLW",
+    "name": "BASE1",
+    "externalId": "BS",
     "number": 1000,
+    "count": 102,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE2",
+    "externalId": "JU",
+    "number": 1001,
+    "count": 64,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASEP",
+    "externalId": "PR",
+    "number": 1002,
+    "count": 53,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE3",
+    "externalId": "FO",
+    "number": 1003,
+    "count": 62,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE4",
+    "externalId": "B2",
+    "number": 1004,
+    "count": 130,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE5",
+    "externalId": "TR",
+    "number": 1005,
+    "count": 83,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "GYM1",
+    "externalId": "G1",
+    "number": 1006,
+    "count": 132,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "GYM2",
+    "externalId": "G2",
+    "number": 1007,
+    "count": 132,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NEO1",
+    "externalId": "N1",
+    "number": 1008,
+    "count": 111,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NEO2",
+    "externalId": "N2",
+    "number": 1009,
+    "count": 75,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SI1",
+    "externalId": "SI1",
+    "number": 1010,
+    "count": 18,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NEO3",
+    "externalId": "N3",
+    "number": 1011,
+    "count": 66,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NEO4",
+    "externalId": "N4",
+    "number": 1012,
+    "count": 113,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BASE6",
+    "externalId": "LC",
+    "number": 1013,
+    "count": 110,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ECARD1",
+    "externalId": "EX",
+    "number": 1014,
+    "count": 165,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "BP",
+    "externalId": "BP",
+    "number": 1015,
+    "count": 9,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ECARD2",
+    "externalId": "AQ",
+    "number": 1016,
+    "count": 182,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ECARD3",
+    "externalId": "SK",
+    "number": 1017,
+    "count": 182,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX1",
+    "externalId": "RS",
+    "number": 1018,
+    "count": 109,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "NP",
+    "externalId": "PR-NP",
+    "number": 1019,
+    "count": 40,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX3",
+    "externalId": "DR",
+    "number": 1020,
+    "count": 100,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX4",
+    "externalId": "MA",
+    "number": 1021,
+    "count": 97,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX5",
+    "externalId": "HL",
+    "number": 1022,
+    "count": 102,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK1A",
+    "externalId": "TK1A",
+    "number": 1023,
+    "count": 10,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK1B",
+    "externalId": "TK1B",
+    "number": 1024,
+    "count": 10,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX6",
+    "externalId": "RG",
+    "number": 1025,
+    "count": 116,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP1",
+    "externalId": "POP1",
+    "number": 1026,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX8",
+    "externalId": "DX",
+    "number": 1027,
+    "count": 108,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX9",
+    "externalId": "EM",
+    "number": 1028,
+    "count": 107,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP2",
+    "externalId": "POP2",
+    "number": 1029,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX11",
+    "externalId": "DS",
+    "number": 1030,
+    "count": 114,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX12",
+    "externalId": "LM",
+    "number": 1031,
+    "count": 93,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "TK2B",
+    "externalId": "TK2B",
+    "number": 1032,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP3",
+    "externalId": "POP3",
+    "number": 1033,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX13",
+    "externalId": "HP",
+    "number": 1034,
+    "count": 111,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX14",
+    "externalId": "CG",
+    "number": 1035,
+    "count": 100,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP4",
+    "externalId": "POP4",
+    "number": 1036,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX15",
+    "externalId": "DF",
+    "number": 1037,
+    "count": 101,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "EX16",
+    "externalId": "PK",
+    "number": 1038,
+    "count": 108,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP5",
+    "externalId": "POP5",
+    "number": 1039,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP1",
+    "externalId": "DP",
+    "number": 1040,
+    "count": 130,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DPP",
+    "externalId": "PR-DPP",
+    "number": 1041,
+    "count": 56,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP2",
+    "externalId": "MT",
+    "number": 1042,
+    "count": 124,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP6",
+    "externalId": "POP6",
+    "number": 1043,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP3",
+    "externalId": "SW",
+    "number": 1044,
+    "count": 132,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP4",
+    "externalId": "GE",
+    "number": 1045,
+    "count": 106,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP7",
+    "externalId": "POP7",
+    "number": 1046,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP5",
+    "externalId": "MD",
+    "number": 1047,
+    "count": 100,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP6",
+    "externalId": "LA",
+    "number": 1048,
+    "count": 146,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP8",
+    "externalId": "POP8",
+    "number": 1049,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DP7",
+    "externalId": "SF",
+    "number": 1050,
+    "count": 106,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "PL1",
+    "externalId": "PL",
+    "number": 1051,
+    "count": 133,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "POP9",
+    "externalId": "POP9",
+    "number": 1052,
+    "count": 17,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "PL2",
+    "externalId": "RR",
+    "number": 1053,
+    "count": 120,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "PL3",
+    "externalId": "SV",
+    "number": 1054,
+    "count": 153,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "PL4",
+    "externalId": "AR",
+    "number": 1055,
+    "count": 111,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "RU1",
+    "externalId": "RU1",
+    "number": 1056,
+    "count": 16,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HGSS1",
+    "externalId": "HS",
+    "number": 1057,
+    "count": 124,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "ac14e591-d717-4ab8-bda0-6b9a2a0ba0da",
+      "e9877f6e-5766-11e1-81f9-782bcb9e3ead",
+      "2bc0568a-5491-42ac-89c7-48b12e458b29"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HSP",
+    "externalId": "PR-HS-HSP",
+    "number": 1058,
+    "count": 25,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HGSS2",
+    "externalId": "UL",
+    "number": 1059,
+    "count": 96,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "e9a9112e-5766-11e1-81f9-782bcb9e3ead",
+      "e99b7c9e-5766-11e1-81f9-782bcb9e3ead",
+      "ef9dd0c2-41c6-483d-a203-4a31c1402d2e"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HGSS3",
+    "externalId": "UD",
+    "number": 1060,
+    "count": 91,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "f11f2691-5da3-11e1-8852-d9628f8696f0",
+      "f1254128-5da3-11e1-87b0-d9628f8696f0",
+      "de237c84-a219-4033-a3a8-4b2bf3ad589b"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "HGSS4",
+    "externalId": "TM",
+    "number": 1061,
+    "count": 103,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "f140439c-5da3-11e1-883c-d9628f8696f0",
+      "f13e95eb-5da3-11e1-9ecf-d9628f8696f0",
+      "fdd2f237-268d-4905-b72e-0babb8da6c81"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "COL1",
+    "externalId": "CL-COL1",
+    "number": 1062,
+    "count": 106,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "Promo_BW",
+    "externalId": "PR-BLW",
+    "number": 1063,
     "count": 101,
     "filter": true,
     "block": "BW",
@@ -978,7 +1271,7 @@
   {
     "name": "BW1",
     "externalId": "BLW",
-    "number": 1001,
+    "number": 1064,
     "count": 115,
     "filter": true,
     "block": "BW",
@@ -997,7 +1290,7 @@
   {
     "name": "Free_Energy",
     "externalId": "ENERGY",
-    "number": 1002,
+    "number": 1065,
     "count": 9,
     "filter": true,
     "block": "UNLIMITED",
@@ -1011,9 +1304,21 @@
     "promo": false
   },
   {
+    "name": "MCD11",
+    "externalId": "MCD11",
+    "number": 1066,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "BW2",
     "externalId": "EPO",
-    "number": 1003,
+    "number": 1067,
     "count": 98,
     "filter": true,
     "block": "BW",
@@ -1032,7 +1337,7 @@
   {
     "name": "BW3",
     "externalId": "NVI",
-    "number": 1004,
+    "number": 1068,
     "count": 102,
     "filter": true,
     "block": "BW",
@@ -1051,7 +1356,7 @@
   {
     "name": "BW4",
     "externalId": "NXD",
-    "number": 1005,
+    "number": 1069,
     "count": 103,
     "filter": true,
     "block": "BW",
@@ -1070,7 +1375,7 @@
   {
     "name": "BW5",
     "externalId": "DEX",
-    "number": 1006,
+    "number": 1070,
     "count": 111,
     "filter": true,
     "block": "BW",
@@ -1087,9 +1392,21 @@
     "promo": false
   },
   {
+    "name": "MCD12",
+    "externalId": "MCD12",
+    "number": 1071,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "BW6",
     "externalId": "DRX",
-    "number": 1007,
+    "number": 1072,
     "count": 128,
     "filter": true,
     "block": "BW",
@@ -1108,7 +1425,7 @@
   {
     "name": "DV",
     "externalId": "DRV",
-    "number": 1008,
+    "number": 1073,
     "count": 21,
     "filter": true,
     "block": "BW",
@@ -1127,7 +1444,7 @@
   {
     "name": "BW7",
     "externalId": "BCR",
-    "number": 1009,
+    "number": 1074,
     "count": 153,
     "filter": true,
     "block": "BW",
@@ -1146,7 +1463,7 @@
   {
     "name": "BW8",
     "externalId": "PLS",
-    "number": 1010,
+    "number": 1075,
     "count": 138,
     "filter": true,
     "block": "BW",
@@ -1165,7 +1482,7 @@
   {
     "name": "BW9",
     "externalId": "PLF",
-    "number": 1011,
+    "number": 1076,
     "count": 122,
     "filter": true,
     "block": "BW",
@@ -1184,7 +1501,7 @@
   {
     "name": "BW10",
     "externalId": "PLB",
-    "number": 1012,
+    "number": 1077,
     "count": 105,
     "filter": true,
     "block": "BW",
@@ -1201,9 +1518,21 @@
     "promo": false
   },
   {
+    "name": "XYP",
+    "externalId": "PR-XY-XYP",
+    "number": 1078,
+    "count": 216,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "BW11",
     "externalId": "LTR",
-    "number": 1013,
+    "number": 1079,
     "count": 140,
     "filter": true,
     "block": "BW",
@@ -1220,9 +1549,525 @@
     "promo": false
   },
   {
+    "name": "XY0",
+    "externalId": "KSS",
+    "number": 1080,
+    "count": 39,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY1",
+    "externalId": "XY",
+    "number": 1081,
+    "count": 146,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "f25e3351-0456-4ed5-a4d2-e1a6d9195991",
+      "7c2d4c41-da8c-4f0e-b28e-fdd93fa83bba",
+      "3b44805e-5e32-4c3c-be2d-9ebd4db6ba8b"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD14",
+    "externalId": "MCD14",
+    "number": 1082,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY3",
+    "externalId": "FFI",
+    "number": 1083,
+    "count": 114,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "b12ae887-df56-4cf4-92bc-1848a909d017",
+      "0202c8b1-84b1-4b82-ba97-4ca8a2d1d839",
+      "184dcdb5-979b-4d55-98ee-04ea71bee2af"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY4",
+    "externalId": "PHF",
+    "number": 1084,
+    "count": 124,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "9c15a7d5-ad93-4451-9bfb-22964e79c28d",
+      "1e6bd4af-4b0d-4d8f-ad4d-de62bfc14ef2",
+      "418670f1-f5ba-427f-a248-a9623f2cabae"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY5",
+    "externalId": "PRC",
+    "number": 1085,
+    "count": 164,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "24409e90-7cba-49b4-9dd1-0a019aaa6233",
+      "6f59ff37-d6c9-4b0b-9613-371a3f4643b0",
+      "e7185f51-11f3-4598-b6af-8dfa94731bf1"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DC1",
+    "externalId": "DCR-DC1",
+    "number": 1086,
+    "count": 34,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY6",
+    "externalId": "ROS",
+    "number": 1087,
+    "count": 112,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "da2e77f4-790a-406d-b5e8-256ef08ee15c",
+      "cdacbad0-5d11-4abf-b582-89085b1aa29e",
+      "f270f8c8-37cb-492e-ad42-c3d4b1cf555d"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY7",
+    "externalId": "AOR",
+    "number": 1088,
+    "count": 101,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "33792f9a-4414-4410-aab6-4eedfec262e4",
+      "ff70bb66-88b3-43b0-afa5-10e68ef7c951",
+      "92bf2550-806b-4259-a987-eb4859d62490"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY8",
+    "externalId": "BKT",
+    "number": 1089,
+    "count": 165,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "8fc50987-32fe-4600-9320-36d172c4c391",
+      "4bb07f27-8a1c-444e-bdc2-cd59637fcb05",
+      "f2fefccc-85d2-4f88-89e9-6a2443cbad6d"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD15",
+    "externalId": "MCD15",
+    "number": 1090,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY9",
+    "externalId": "BKP",
+    "number": 1091,
+    "count": 126,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "079b1e97-7101-42c1-b656-0bc883ad3349",
+      "3077c328-e0ce-4467-a4bb-394665d56a46",
+      "723e4fb5-927e-4657-a541-660449b30710"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "G1",
+    "externalId": "GEN-G1",
+    "number": 1092,
+    "count": 117,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY10",
+    "externalId": "FCO",
+    "number": 1093,
+    "count": 129,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "7805b4f3-f704-4089-bf90-3a7d9f139560",
+      "faf513d3-cf82-42b1-b637-559649e1885b",
+      "c0d81c25-5e40-4538-9ca1-d0e73d728ab6"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD16",
+    "externalId": "MCD16",
+    "number": 1094,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "XY12",
+    "externalId": "EVO",
+    "number": 1095,
+    "count": 113,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "263b9074-9eee-4ec2-9b66-5a796c60a59c",
+      "0be682f5-eecb-4226-afb7-7d0fd2cbc65f",
+      "b835737d-5bb2-474b-901e-b2ac6a0e420f"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM1",
+    "externalId": "SUM",
+    "number": 1096,
+    "count": 173,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "1bba7b69-6088-40da-8d06-419860d57bee",
+      "20df1ec9-8b25-43fb-9671-999308e3685c",
+      "8cbda4f4-f511-46a2-97ab-59cdfba803e6"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SMP",
+    "externalId": "PR-SM-SMP",
+    "number": 1097,
+    "count": 251,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM2",
+    "externalId": "GRI",
+    "number": 1098,
+    "count": 180,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "5bf33781-2d3b-436f-b64a-c443a881e2d5",
+      "b1812a7e-33b2-4b75-8784-b6c314ed6579",
+      "d2bc5cf7-0424-40f4-9538-5efb8d711bc1"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM3",
+    "externalId": "BUS",
+    "number": 1099,
+    "count": 177,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "28b445dc-ad0a-4e7c-96f3-94eb4c5400d9",
+      "69857e66-336d-4297-8987-00591d5dd054",
+      "ced342d9-686a-464d-a073-66194b6a8c69"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM35",
+    "externalId": "SLG-SM35",
+    "number": 1100,
+    "count": 81,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM4",
+    "externalId": "CIN",
+    "number": 1101,
+    "count": 126,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "fbbc62e7-e44d-4c75-bb56-f466e814c0dd",
+      "2aed77ae-ce74-4b54-8913-80d1b804da83",
+      "9a89a445-e9f2-49d9-b930-87708e8e9727"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD17",
+    "externalId": "MCD17",
+    "number": 1102,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM5",
+    "externalId": "UPR",
+    "number": 1103,
+    "count": 178,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "37f42e65-ec42-4efe-9504-d5711dab7e44",
+      "806d55e6-09b5-422f-9b70-4283b9df2b68",
+      "60b2c9b6-85af-49ef-9c4e-66ab3d5798f7"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM6",
+    "externalId": "FLI",
+    "number": 1104,
+    "count": 150,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "fa4e63cd-60fb-47a5-82e0-dbdbe730fb8f",
+      "f2450fcb-855f-4679-ae86-feccbf015dad",
+      "b95130dc-68ca-48c1-a346-ffdbab512659"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM7",
+    "externalId": "CES",
+    "number": 1105,
+    "count": 187,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "7a170647-29cf-437b-b76c-84924ee95615",
+      "6a23d54e-afc8-4eb2-82ec-5c00daf164e5",
+      "69589189-3eb1-4135-9295-36766395a182"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM75",
+    "externalId": "DRM-SM75",
+    "number": 1106,
+    "count": 80,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD18",
+    "externalId": "MCD18",
+    "number": 1107,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM9",
+    "externalId": "TEU",
+    "number": 1108,
+    "count": 198,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "3e339fb7-edf8-4ea8-9ccd-220129a65bc0",
+      "50891cc1-5708-4fd7-aabc-4c00b7d9b38b",
+      "a9bcfb59-2a51-4721-8b1a-f444aa1208c5"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "DET1",
+    "externalId": "DET-DET1",
+    "number": 1109,
+    "count": 18,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM10",
+    "externalId": "UNB",
+    "number": 1110,
+    "count": 238,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "52d0fa9f-01eb-400e-9b05-79bd8f38f68f",
+      "0e06358b-d8f1-46c9-b015-a7257656d400",
+      "ba320888-0bce-4b0f-b620-e29c79f48572"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM11",
+    "externalId": "UNM",
+    "number": 1111,
+    "count": 261,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "faaf247b-f482-447c-8b7a-7c6141e34a37",
+      "26679751-3462-4e3d-a10c-59608ba57d12",
+      "66b6bf79-40eb-412b-bb08-e6c8ae1217f5"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM115",
+    "externalId": "HIF-SM115",
+    "number": 1112,
+    "count": 69,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SMA",
+    "externalId": "HIF-SMA",
+    "number": 1113,
+    "count": 94,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "MCD19",
+    "externalId": "MCD19",
+    "number": 1114,
+    "count": 12,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SM12",
+    "externalId": "CEC",
+    "number": 1115,
+    "count": 272,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [
+      "57994dfb-5d40-48b2-b12f-fc830ac97466",
+      "9a954124-39ec-4a08-9230-146641281fe7",
+      "9664c6c3-5361-4b4f-985a-b84650c9cd6c"
+    ],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "Promo_SWSH",
     "externalId": "PR-SW",
-    "number": 1014,
+    "number": 1116,
     "count": 5,
     "filter": true,
     "block": "SWSH",
@@ -1237,7 +2082,7 @@
   {
     "name": "SWSH1",
     "externalId": "SSH",
-    "number": 1015,
+    "number": 1117,
     "count": 216,
     "filter": true,
     "block": "SWSH",
@@ -1256,7 +2101,7 @@
   {
     "name": "SWSH2",
     "externalId": "RCL",
-    "number": 1016,
+    "number": 1118,
     "count": 209,
     "filter": true,
     "block": "SWSH",
@@ -1275,7 +2120,7 @@
   {
     "name": "SWSH3",
     "externalId": "DAA",
-    "number": 1017,
+    "number": 1119,
     "count": 201,
     "filter": true,
     "block": "SWSH",
@@ -1292,9 +2137,21 @@
     "promo": false
   },
   {
+    "name": "FUT20",
+    "externalId": "FUT20",
+    "number": 1120,
+    "count": 5,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH35",
     "externalId": "CPA",
-    "number": 1018,
+    "number": 1121,
     "count": 80,
     "filter": true,
     "block": "SWSH",
@@ -1309,7 +2166,7 @@
   {
     "name": "SWSH4",
     "externalId": "VIV",
-    "number": 1019,
+    "number": 1122,
     "count": 203,
     "filter": true,
     "block": "SWSH",
@@ -1326,9 +2183,21 @@
     "promo": false
   },
   {
+    "name": "MCD21",
+    "externalId": "MCD21",
+    "number": 1123,
+    "count": 25,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH45",
     "externalId": "SHF",
-    "number": 1020,
+    "number": 1124,
     "count": 73,
     "filter": true,
     "block": "SWSH",
@@ -1341,13 +2210,16 @@
     "promo": false
   },
   {
-    "name": "Ann25thR",
-    "externalId": "N/A",
-    "number": 1020,
-    "count": 25,
+    "name": "SWSH45SV",
+    "externalId": "SHF-SWSH45SV",
+    "number": 1125,
+    "count": 122,
     "filter": true,
     "block": "SWSH",
-    "legalFormats": [],
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
     "featuredArchetypes": [],
     "visibleUnfilterable": false,
     "promo": false
@@ -1355,7 +2227,7 @@
   {
     "name": "SWSH5",
     "externalId": "BST",
-    "number": 1021,
+    "number": 1126,
     "count": 183,
     "filter": true,
     "block": "SWSH",
@@ -1374,7 +2246,7 @@
   {
     "name": "SWSH6",
     "externalId": "CRE",
-    "number": 1022,
+    "number": 1127,
     "count": 233,
     "filter": true,
     "block": "SWSH",
@@ -1393,7 +2265,7 @@
   {
     "name": "SWSH7",
     "externalId": "EVS",
-    "number": 1023,
+    "number": 1128,
     "count": 237,
     "filter": true,
     "block": "SWSH",
@@ -1412,7 +2284,7 @@
   {
     "name": "CEL25",
     "externalId": "CEL",
-    "number": 1024,
+    "number": 1129,
     "count": 25,
     "filter": true,
     "block": "SWSH",
@@ -1425,9 +2297,24 @@
     "promo": false
   },
   {
+    "name": "CEL25C",
+    "externalId": "CEL-CEL25C",
+    "number": 1130,
+    "count": 25,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH8",
     "externalId": "FST",
-    "number": 1025,
+    "number": 1131,
     "count": 284,
     "filter": true,
     "block": "SWSH",
@@ -1446,7 +2333,7 @@
   {
     "name": "SWSH9",
     "externalId": "BRS",
-    "number": 1026,
+    "number": 1132,
     "count": 186,
     "filter": true,
     "block": "SWSH",
@@ -1463,9 +2350,24 @@
     "promo": false
   },
   {
+    "name": "SWSH9TG",
+    "externalId": "BRS-SWSH9TG",
+    "number": 1133,
+    "count": 30,
+    "filter": true,
+    "block": "SWSH",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH10",
     "externalId": "ASR",
-    "number": 1027,
+    "number": 1134,
     "count": 216,
     "filter": true,
     "block": "SWSH",
@@ -1482,9 +2384,24 @@
     "promo": false
   },
   {
+    "name": "SWSH10TG",
+    "externalId": "ASR-SWSH10TG",
+    "number": 1135,
+    "count": 30,
+    "filter": true,
+    "block": "SWSH",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "PGO",
     "externalId": "PGO",
-    "number": 1028,
+    "number": 1136,
     "count": 88,
     "filter": true,
     "block": "SWSH",
@@ -1497,9 +2414,21 @@
     "promo": false
   },
   {
+    "name": "MCD22",
+    "externalId": "MCD22",
+    "number": 1137,
+    "count": 15,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH11",
     "externalId": "LOR",
-    "number": 1029,
+    "number": 1138,
     "count": 217,
     "filter": true,
     "block": "SWSH",
@@ -1516,9 +2445,24 @@
     "promo": false
   },
   {
+    "name": "SWSH11TG",
+    "externalId": "LOR-SWSH11TG",
+    "number": 1139,
+    "count": 30,
+    "filter": true,
+    "block": "SWSH",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SWSH12",
     "externalId": "SIT",
-    "number": 1030,
+    "number": 1140,
     "count": 215,
     "filter": true,
     "block": "SWSH",
@@ -1535,9 +2479,24 @@
     "promo": false
   },
   {
+    "name": "SWSH12TG",
+    "externalId": "SIT-SWSH12TG",
+    "number": 1141,
+    "count": 30,
+    "filter": true,
+    "block": "SWSH",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "SVP",
     "externalId": "PR-SV",
-    "number": 1031,
+    "number": 1142,
     "count": 200,
     "filter": true,
     "block": "SV",
@@ -1552,8 +2511,23 @@
   {
     "name": "CZ",
     "externalId": "CRZ",
-    "number": 1032,
+    "number": 1143,
     "count": 160,
+    "filter": true,
+    "block": "SWSH",
+    "legalFormats": [
+      "6402e830-7fed-4cd1-b172-2a320047c2bb",
+      "98c83df9-ec82-4193-84a8-104115ce4e25"
+    ],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "SWSH12PT5GG",
+    "externalId": "CRZ-SWSH12PT5GG",
+    "number": 1144,
+    "count": 70,
     "filter": true,
     "block": "SWSH",
     "legalFormats": [
@@ -1567,7 +2541,7 @@
   {
     "name": "SV1",
     "externalId": "SVI",
-    "number": 1033,
+    "number": 1145,
     "count": 258,
     "filter": true,
     "block": "SV",
@@ -1582,7 +2556,7 @@
   {
     "name": "SVE",
     "externalId": "SVE",
-    "number": 1034,
+    "number": 1146,
     "count": 16,
     "filter": true,
     "block": "SV",
@@ -1597,7 +2571,7 @@
   {
     "name": "SV2",
     "externalId": "PAL",
-    "number": 1035,
+    "number": 1147,
     "count": 279,
     "filter": true,
     "block": "SV",
@@ -1612,7 +2586,7 @@
   {
     "name": "SV3",
     "externalId": "OBF",
-    "number": 1036,
+    "number": 1148,
     "count": 230,
     "filter": true,
     "block": "SV",
@@ -1627,7 +2601,7 @@
   {
     "name": "SV3PT5",
     "externalId": "MEW",
-    "number": 1037,
+    "number": 1149,
     "count": 207,
     "filter": true,
     "block": "SV",
@@ -1642,7 +2616,7 @@
   {
     "name": "SV4",
     "externalId": "PAR",
-    "number": 1038,
+    "number": 1150,
     "count": 266,
     "filter": true,
     "block": "SV",
@@ -1657,7 +2631,7 @@
   {
     "name": "SV4PT5",
     "externalId": "PAF",
-    "number": 1039,
+    "number": 1151,
     "count": 245,
     "filter": true,
     "block": "SV",
@@ -1672,7 +2646,7 @@
   {
     "name": "SV5",
     "externalId": "TEF",
-    "number": 1040,
+    "number": 1152,
     "count": 218,
     "filter": true,
     "block": "SV",
@@ -1687,7 +2661,7 @@
   {
     "name": "SV6",
     "externalId": "TWM",
-    "number": 1041,
+    "number": 1153,
     "count": 226,
     "filter": true,
     "block": "SV",
@@ -1702,7 +2676,7 @@
   {
     "name": "SV6PT5",
     "externalId": "SFA",
-    "number": 1042,
+    "number": 1154,
     "count": 99,
     "filter": true,
     "block": "SV",
@@ -1717,7 +2691,7 @@
   {
     "name": "SV7",
     "externalId": "SCR",
-    "number": 1043,
+    "number": 1155,
     "count": 175,
     "filter": true,
     "block": "SV",
@@ -1732,7 +2706,7 @@
   {
     "name": "SV8",
     "externalId": "SSP",
-    "number": 1044,
+    "number": 1156,
     "count": 252,
     "filter": true,
     "block": "SV",
@@ -1747,7 +2721,7 @@
   {
     "name": "SV8PT5",
     "externalId": "PRE",
-    "number": 1045,
+    "number": 1157,
     "count": 180,
     "filter": true,
     "block": "SV",
@@ -1762,7 +2736,7 @@
   {
     "name": "SV9",
     "externalId": "JTG",
-    "number": 1046,
+    "number": 1158,
     "count": 190,
     "filter": true,
     "block": "SV",
@@ -1777,7 +2751,7 @@
   {
     "name": "SV10",
     "externalId": "DRI",
-    "number": 1047,
+    "number": 1159,
     "count": 244,
     "filter": true,
     "block": "SV",
@@ -1792,7 +2766,7 @@
   {
     "name": "RSV10PT5",
     "externalId": "WHT",
-    "number": 1048,
+    "number": 1160,
     "count": 173,
     "filter": true,
     "block": "SV",
@@ -1807,7 +2781,7 @@
   {
     "name": "ZSV10PT5",
     "externalId": "BLK",
-    "number": 1049,
+    "number": 1161,
     "count": 172,
     "filter": true,
     "block": "SV",
@@ -1820,9 +2794,33 @@
     "promo": false
   },
   {
+    "name": "ME1",
+    "externalId": "MEG",
+    "number": 1162,
+    "count": 188,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME2",
+    "externalId": "PFL",
+    "number": 1163,
+    "count": 130,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
     "name": "CUSTOM",
     "externalId": "CUSTOM",
-    "number": 1050,
+    "number": 1164,
     "count": 2,
     "filter": true,
     "block": "UNLIMITED",
@@ -1840,18 +2838,87 @@
     "promo": false
   },
   {
-    "name": "Promo_SV",
-    "externalId": "SVP",
-    "number": 1110,
-    "count": 3,
-    "filter": false,
-    "block": "SV",
-    "legalFormats": [
-      "6402e830-7fed-4cd1-b172-2a320047c2bb",
-      "98c83df9-ec82-4193-84a8-104115ce4e25"
-    ],
+    "name": "ME2PT5",
+    "externalId": "ASC",
+    "number": 1165,
+    "count": 250,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
     "featuredArchetypes": [],
-    "visibleUnfilterable": true,
-    "promo": true
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME3",
+    "externalId": "POR",
+    "number": 1166,
+    "count": 124,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME4",
+    "externalId": "CRI",
+    "number": 1167,
+    "count": 122,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME5",
+    "externalId": "PBL",
+    "number": 1168,
+    "count": 120,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME55",
+    "externalId": "30C",
+    "number": 1169,
+    "count": 161,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME55C",
+    "externalId": "30C-ME55C",
+    "number": 1170,
+    "count": 30,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
+  },
+  {
+    "name": "ME6",
+    "externalId": "DLR",
+    "number": 1171,
+    "count": 141,
+    "filter": true,
+    "block": "OTHER",
+    "legalFormats": [],
+    "featuredArchetypes": [],
+    "visibleUnfilterable": false,
+    "promo": false
   }
 ]

@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e2588676-6eb2-58ac-b215-12f7cfdeaa93",
+    key="ME3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Tyrantrum.Name",
+    display_name="Tyrantrum",
+    searchable_by=["Tyrantrum", "Stage 2", "Tyrantrum"],
+    subtypes=["Stage 2"],
+    collector_number=45,
+    set_code="ME3",
+    rarity=Rarities.Rare,
+    hp=180,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Tyrunt.Name",
+    family_id=696,
+    abilities=[
+        Ability(
+            title="Tyrannically Gutsy",
+            game_text="If this Pok\u00e9mon has any Special Energy attached, it gets +150 HP.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Wreak Havoc",
+            game_text="Flip a coin until you get tails. For each heads, discard the top card of your opponent's deck.",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
+            damage=160,
+            effect=unimplemented,
+        ),
+    ],
+)

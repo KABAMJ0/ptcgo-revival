@@ -1,0 +1,33 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="b1ac1cda-832a-5ba3-9613-e98f6a8ad264",
+    key="G1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Diglett.Name",
+    display_name="Diglett",
+    searchable_by=["Diglett", "Basic", "Diglett"],
+    subtypes=["Basic"],
+    collector_number=38,
+    set_code="G1",
+    rarity=Rarities.Common,
+    hp=50,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.GRASS,
+    family_id=50,
+    abilities=[
+        Attack(
+            title="Mine",
+            game_text="Look at the top card of your opponent's deck. Then, you may have your opponent shuffle his or her deck.",
+            cost={PokemonTypes.FIGHTING: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Mud-Slap",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+        ),
+    ],
+)

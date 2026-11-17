@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="6dea3f2c-dac3-5b88-ab90-b6d0ad542c16",
+    key="XY12",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Pokdex.Name",
+    display_name="Pokédex",
+    searchable_by=["Pok\u00e9dex", "Item"],
+    subtypes=["Item"],
+    collector_number=82,
+    set_code="XY12",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

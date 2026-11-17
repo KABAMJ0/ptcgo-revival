@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="b4de586b-4dbf-5e31-9769-5b02ee5f6266",
+    key="ME5",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.CrushingHammer.Name",
+    display_name="Crushing Hammer",
+    searchable_by=["Crushing Hammer", "Item"],
+    subtypes=["Item"],
+    collector_number=105,
+    set_code="ME5",
+    rarity=Rarities.Rare,
+    effect=unimplemented
+)

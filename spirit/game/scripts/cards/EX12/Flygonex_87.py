@@ -1,0 +1,42 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="21694fe4-a170-5ac3-95b0-baae1f1d699e",
+    key="EX12",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Flygonex.Name",
+    display_name="Flygon ex",
+    searchable_by=["Flygon ex", "Stage 2", "ex", "Flygonex"],
+    subtypes=["Stage 2", "ex"],
+    collector_number=87,
+    set_code="EX12",
+    rarity=Rarities.RareHolo,
+    hp=150,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.COLORLESS,
+    resistance_type=PokemonTypes.LIGHTNING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Vibrava.Name",
+    family_id=328,
+    abilities=[
+        Ability(
+            title="Emerge Charge",
+            game_text="Once during your turn, when you play Flygon ex from your hand to evolve 1 of your Pok\u00e9mon, you may search your discard pile for up to 2 Energy cards and attach them to Flygon ex.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Reactive Blast",
+            game_text="You may discard any number of React Energy cards attached to Flygon ex. If you do, this attack does 40 damage plus 30 more damage for each Energy card you discarded.",
+            cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
+            damage=40,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Dragon Claw",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
+            damage=100,
+        ),
+    ],
+)

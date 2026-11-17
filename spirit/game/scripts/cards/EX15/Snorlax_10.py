@@ -1,0 +1,32 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e02e9b67-fa5b-52df-a557-eb6c70d13cad",
+    key="EX15",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Snorlax.Name",
+    display_name="Snorlax δ",
+    searchable_by=["Snorlax \u03b4", "Basic", "Snorlax"],
+    subtypes=["Basic"],
+    collector_number=10,
+    set_code="EX15",
+    rarity=Rarities.RareHolo,
+    hp=80,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=143,
+    abilities=[
+        Ability(
+            title="Bedhead",
+            game_text="As long as Snorlax remains Asleep between turns, put 2 damage counters on 1 of the Defending Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Ability(
+            title="Dozing",
+            game_text="Once during your turn (before your attack), if Snorlax is your Active Pok\u00e9mon, you may remove 2 damage counters from Snorlax and Snorlax is now Asleep. This power can't be used if Snorlax is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+    ],
+)

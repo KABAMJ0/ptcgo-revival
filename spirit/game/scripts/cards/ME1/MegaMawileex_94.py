@@ -1,0 +1,38 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="778951a6-f7ce-5d18-a075-e5a024c5963d",
+    key="ME1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.MegaMawileex.Name",
+    display_name="Mega Mawile ex",
+    searchable_by=["Mega Mawile ex", "Basic", "MEGA", "ex", "MegaMawileex"],
+    subtypes=["Basic", "MEGA", "ex"],
+    collector_number=94,
+    set_code="ME1",
+    rarity=Rarities.Rare,
+    hp=270,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.GRASS,
+    family_id=303,
+    abilities=[
+        Attack(
+            title="Gobble Down",
+            game_text="This attack does 80 damage for each Prize card you have taken.",
+            cost={PokemonTypes.METAL: 2},
+            damage=80,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Huge Bite",
+            game_text="If your opponent's Active Pok\u00e9mon already has any damage counters on it, this attack's base damage is 30.",
+            cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
+            damage=260,
+            effect=unimplemented,
+        ),
+    ],
+)

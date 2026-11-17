@@ -1,0 +1,30 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="214a3761-b83e-54f2-b3ad-200c72895ba1",
+    key="ME4",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Claydol.Name",
+    display_name="Claydol",
+    searchable_by=["Claydol", "Stage 1", "Claydol"],
+    subtypes=["Stage 1"],
+    collector_number=92,
+    set_code="ME4",
+    rarity=Rarities.Rare,
+    hp=120,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Baltoy.Name",
+    family_id=343,
+    abilities=[
+        Attack(
+            title="Devolution Ray",
+            game_text="If your opponent's Active Pok\u00e9mon is an evolved Pok\u00e9mon, devolve it by putting the highest Stage Evolution card on it into your opponent's hand.",
+            cost={PokemonTypes.FIGHTING: 1},
+            damage=50,
+            effect=unimplemented,
+        ),
+    ],
+)

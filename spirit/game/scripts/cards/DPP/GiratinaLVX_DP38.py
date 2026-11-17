@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a5cf91ab-5065-5640-9735-84b5ba48c56e",
+    key="DPP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.GiratinaLVX.Name",
+    display_name="Giratina LV.X",
+    searchable_by=["Giratina LV.X", "Level-Up", "GiratinaLVX"],
+    subtypes=["Level-Up"],
+    collector_number=38,
+    set_code="DPP",
+    rarity=Rarities.RarePromo,
+    hp=130,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.COLORLESS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Giratina.Name",
+    family_id=487,
+    abilities=[
+        Ability(
+            title="Invisible Tentacles",
+            game_text="Whenever your opponent's Pok\u00e9mon tries to attack, your opponent discards 1 card from his or her hand. (If your opponent can't discard 1 card, your opponent's Pok\u00e9mon can't attack.) You can't use more than 1 Invisible Tentacles Pok\u00e9-Body each turn.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Darkness Lost",
+            game_text="This attack does 30 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) If any of your opponent's Pok\u00e9mon would be Knocked Out by damage from this attack, put that Pok\u00e9mon and all cards attached to it in the Lost Zone instead of discarding it.",
+            cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 2},
+            effect=unimplemented,
+        ),
+    ],
+)

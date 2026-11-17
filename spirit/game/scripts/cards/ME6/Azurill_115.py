@@ -1,0 +1,28 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="79116988-9fa1-51b5-b4fb-440eabb204ce",
+    key="ME6",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Azurill.Name",
+    display_name="Azurill",
+    searchable_by=["Azurill", "Basic", "Azurill"],
+    subtypes=["Basic"],
+    collector_number=115,
+    set_code="ME6",
+    rarity=Rarities.Rare,
+    hp=30,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=0,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=298,
+    abilities=[
+        Attack(
+            title="Bouncy-Bounce Charge",
+            game_text="Search your deck for an Energy card and attach it to 1 of your Benched Pok\u00e9mon. Then, shuffle your deck.",
+            cost={},
+            effect=unimplemented,
+        ),
+    ],
+)

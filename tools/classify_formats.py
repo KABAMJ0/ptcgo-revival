@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 """Assign every loaded set to the right play formats.
 
-Spirit's shipped formats.json only knew the Sword & Shield block, so after
-importing Black & White or Scarlet & Violet those sets were legal in Expanded
-(which is "every loaded set") and nowhere else -- no Standard badge on SV cards,
-no Legacy badge on BW cards.
+Real-era rules:
+    Standard  = Scarlet & Violet + Sword & Shield + basic energies + custom
+    Expanded  = Black & White and later (the real Expanded cutoff)
+    Legacy    = the Black & White block
+    Unlimited = everything, which is where pre-BW sets are legal
 
-The rules here follow the real era split:
+Era comes from the set's series in set_meta.json (written by
+tools/build_set_catalog.py), falling back to the set code.
 
-    Standard  = SV block + SWSH block + basic energies + custom cards
-    Expanded  = BW block and later + basic energies + custom cards
-    Legacy    = BW block + basic energies + custom cards
-    Unlimited = everything (allSets)
-
-    python3 tools/classify_formats.py           # rewrite formats.json
-    python3 tools/classify_formats.py --print   # show the mapping only
+    ./venv/bin/python tools/classify_formats.py [--print]
 """
 
 import glob
@@ -23,30 +19,30 @@ import os
 import sys
 
 FORMATS_PATH = os.path.join("spirit", "database", "json_data", "formats.json")
+META_PATH = os.path.join("spirit", "database", "json_data", "set_meta.json")
 CARDS_DIR = os.path.join("spirit", "game", "scripts", "cards")
 
-# Sets that carry no era marker but belong to one.
-SV_ONLY = {"ZSV10PT5", "RSV10PT5", "SVP", "SVE"}
-SWSH_ONLY = {"CEL25", "PGO", "CZ", "PROMO_SWSH"}
-BW_ONLY = {"DV", "PROMO_BW"}
 ERA_AGNOSTIC = {"FREE_ENERGY", "CUSTOM"}
+SV_SERIES = {"scarlet & violet"}
+SWSH_SERIES = {"sword & shield"}
+BW_SERIES = {"black & white"}
 
 
-def era_of(code: str) -> str:
+def era_of(code, meta):
     c = code.upper()
     if c in ERA_AGNOSTIC:
         return "AGNOSTIC"
-    if c.startswith("SV") or c in SV_ONLY:
+    series = (meta.get(code, {}).get("series") or "").lower()
+    if series in SV_SERIES or c.startswith("SV") or c in {"ZSV10PT5", "RSV10PT5", "SVP", "SVE"}:
         return "SV"
-    if c.startswith("SWSH") or c in SWSH_ONLY:
+    if series in SWSH_SERIES or c.startswith("SWSH") or c in {"CEL25", "PGO", "CZ", "PROMO_SWSH"}:
         return "SWSH"
-    if c.startswith("BW") or c in BW_ONLY:
+    if series in BW_SERIES or c.startswith("BW") or c in {"DV", "PROMO_BW"}:
         return "BW"
-    return "OTHER"
+    return "CLASSIC"  # Base, Neo, E-Card, EX, DP, Platinum, HGSS, POP, McDonald's
 
 
 def loaded_sets():
-    """Set folders that actually contain card scripts (skips __pycache__ and friends)."""
     found = []
     for path in glob.glob(os.path.join(CARDS_DIR, "*")):
         if not os.path.isdir(path) or os.path.basename(path).startswith("__"):
@@ -60,24 +56,24 @@ def main():
     sets = loaded_sets()
     if not sets:
         raise SystemExit("no card sets found -- run the importer first")
+    meta = json.load(open(META_PATH)) if os.path.exists(META_PATH) else {}
 
-    sv = [s for s in sets if era_of(s) == "SV"]
-    swsh = [s for s in sets if era_of(s) == "SWSH"]
-    bw = [s for s in sets if era_of(s) == "BW"]
-    agnostic = [s for s in sets if era_of(s) == "AGNOSTIC"]
-    other = [s for s in sets if era_of(s) == "OTHER"]
-    if other:
-        print(f"unclassified sets (left in Expanded only): {other}")
+    sv = [s for s in sets if era_of(s, meta) == "SV"]
+    swsh = [s for s in sets if era_of(s, meta) == "SWSH"]
+    bw = [s for s in sets if era_of(s, meta) == "BW"]
+    agnostic = [s for s in sets if era_of(s, meta) == "AGNOSTIC"]
+    classic = [s for s in sets if era_of(s, meta) == "CLASSIC"]
 
     mapping = {
         "Standard": sorted(sv + swsh + agnostic),
-        "Expanded": sorted(bw + swsh + sv + agnostic + other),
-        "Legacy": sorted(bw + agnostic + other),
+        "Expanded": sorted(bw + swsh + sv + agnostic),
+        "Legacy": sorted(bw + agnostic),
     }
 
     if "--print" in sys.argv:
         for key, val in mapping.items():
-            print(f"{key} ({len(val)}): {', '.join(val)}")
+            print(f"{key} ({len(val)}): {', '.join(val[:12])} ...")
+        print(f"Unlimited only ({len(classic)}): {', '.join(classic[:12])} ...")
         return
 
     data = json.load(open(FORMATS_PATH))
@@ -87,7 +83,8 @@ def main():
             fmt["sets"] = mapping[key]
             fmt["allSets"] = False
     json.dump(data, open(FORMATS_PATH, "w"), indent=2)
-    print("formats.json updated: " + ", ".join(f"{k}={len(v)}" for k, v in mapping.items()))
+    print("formats.json updated: " + ", ".join(f"{k}={len(v)}" for k, v in mapping.items())
+          + f" | unlimited-only={len(classic)}")
 
 
 if __name__ == "__main__":

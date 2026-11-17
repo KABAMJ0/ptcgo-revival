@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="cd2fcc11-8baa-51d5-85f6-bf0a040fd933",
+    key="ME2PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Kingambit.Name",
+    display_name="Kingambit",
+    searchable_by=["Kingambit", "Stage 2", "Kingambit"],
+    subtypes=["Stage 2"],
+    collector_number=148,
+    set_code="ME2PT5",
+    rarity=Rarities.Rare,
+    hp=170,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Bisharp.Name",
+    family_id=624,
+    abilities=[
+        Ability(
+            title="Supreme Overlord",
+            game_text="Attacks used by this Pok\u00e9mon do 30 more damage to your opponent's Active Pok\u00e9mon for each Prize card your opponent has taken (before applying Weakness and Resistance).",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Double-Edged Slash",
+            game_text="This Pok\u00e9mon also does 50 damage to itself.",
+            cost={PokemonTypes.METAL: 2},
+            damage=180,
+            effect=unimplemented,
+        ),
+    ],
+)

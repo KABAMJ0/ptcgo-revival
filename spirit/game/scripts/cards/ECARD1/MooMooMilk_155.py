@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="6a320f3f-f2e9-5e37-8a41-2ef643856749",
+    key="ECARD1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.MooMooMilk.Name",
+    display_name="Moo-Moo Milk",
+    searchable_by=["Moo-Moo Milk"],
+    subtypes=[],
+    collector_number=155,
+    set_code="ECARD1",
+    rarity=Rarities.Common,
+    effect=unimplemented
+)

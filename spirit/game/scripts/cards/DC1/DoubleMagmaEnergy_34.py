@@ -1,0 +1,16 @@
+from spirit.game.data_utils import EnergyCardDef
+from spirit.game.attributes import PokemonTypes, Rarities
+
+card = EnergyCardDef(
+    guid="cf3d6a67-253e-5727-b284-ce8ba6540fb8",
+    key="DC1",
+    name="Double Magma Energy",
+    display_name="Double Magma Energy",
+    searchable_by=["Double Magma Energy", "Special"],
+    subtypes=["Special"],
+    collector_number=34,
+    set_code="DC1",
+    rarity=Rarities.Uncommon,
+    energy_type=PokemonTypes.COLORLESS,
+    is_special=True
+)

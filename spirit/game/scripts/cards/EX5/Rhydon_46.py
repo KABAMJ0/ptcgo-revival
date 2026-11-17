@@ -1,0 +1,41 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="7cc0ac6f-203c-50f9-9ce3-de81a1fa4958",
+    key="EX5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Rhydon.Name",
+    display_name="Rhydon",
+    searchable_by=["Rhydon", "Stage 1", "Rhydon"],
+    subtypes=["Stage 1"],
+    collector_number=46,
+    set_code="EX5",
+    rarity=Rarities.Uncommon,
+    hp=90,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Rhyhorn.Name",
+    family_id=111,
+    abilities=[
+        Ability(
+            title="Power Diffusion",
+            game_text="As long as Rhydon is your Active Pok\u00e9mon, prevent all damage done by attacks to all of your Benched Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Horn Drill",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=20,
+        ),
+        Attack(
+            title="Hyper Tail",
+            game_text="If the Defending Pok\u00e9mon has any Pok\u00e9-Powers or Pok\u00e9-Bodies, this attack does 50 damage plus 20 more damage.",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
+            damage=50,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

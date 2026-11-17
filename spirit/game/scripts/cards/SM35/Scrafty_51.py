@@ -1,0 +1,37 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="5e1be38a-8ddb-543c-bad9-279ad9385437",
+    key="SM35",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Scrafty.Name",
+    display_name="Scrafty",
+    searchable_by=["Scrafty", "Stage 1", "Scrafty"],
+    subtypes=["Stage 1"],
+    collector_number=51,
+    set_code="SM35",
+    rarity=Rarities.Uncommon,
+    hp=110,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIGHTING,
+    resistance_type=PokemonTypes.PSYCHIC,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Scraggy.Name",
+    family_id=559,
+    abilities=[
+        Attack(
+            title="Dangerous Head",
+            game_text="If your opponent's Active Pok\u00e9mon is a Basic Pok\u00e9mon, this attack does 50 more damage.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Hammer In",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
+            damage=90,
+        ),
+    ],
+)

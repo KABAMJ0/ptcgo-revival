@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="6e0cb3ea-0956-54bb-98d2-4eddf01be725",
+    key="SMP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Mimikyu.Name",
+    display_name="Mimikyu",
+    searchable_by=["Mimikyu", "Basic", "Mimikyu"],
+    subtypes=["Basic"],
+    collector_number=163,
+    set_code="SMP",
+    rarity=Rarities.RarePromo,
+    hp=70,
+    elements=[PokemonTypes.FAIRY],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    family_id=778,
+    abilities=[
+        Attack(
+            title="Mimic",
+            game_text="Shuffle your hand into your deck. Then, draw a card for each card in your opponent's hand.",
+            cost={PokemonTypes.FAIRY: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Play Rough",
+            game_text="Flip a coin. If heads, this attack does 20 more damage.",
+            cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

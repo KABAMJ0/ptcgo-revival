@@ -1,0 +1,35 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a5ecebce-7b59-5315-b72e-c281697fcea4",
+    key="XY7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Kirlia.Name",
+    display_name="Kirlia",
+    searchable_by=["Kirlia", "Stage 1", "Kirlia"],
+    subtypes=["Stage 1"],
+    collector_number=53,
+    set_code="XY7",
+    rarity=Rarities.Uncommon,
+    hp=80,
+    elements=[PokemonTypes.FAIRY],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.METAL,
+    resistance_type=PokemonTypes.DARKNESS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Ralts.Name",
+    family_id=280,
+    abilities=[
+        Attack(
+            title="Calm Mind",
+            game_text="Heal 30 damage from this Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Magical Shot",
+            cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
+            damage=50,
+        ),
+    ],
+)

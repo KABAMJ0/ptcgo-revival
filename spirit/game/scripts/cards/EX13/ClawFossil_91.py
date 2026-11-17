@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="485a4037-00be-58f1-b7c9-8e5915b3ccf4",
+    key="EX13",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.ClawFossil.Name",
+    display_name="Claw Fossil",
+    searchable_by=["Claw Fossil", "Item"],
+    subtypes=["Item"],
+    collector_number=91,
+    set_code="EX13",
+    rarity=Rarities.Common,
+    effect=unimplemented
+)

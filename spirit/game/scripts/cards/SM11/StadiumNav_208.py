@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="154d1a24-64b1-55eb-bddb-17570ccfe640",
+    key="SM11",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.StadiumNav.Name",
+    display_name="Stadium Nav",
+    searchable_by=["Stadium Nav", "Item"],
+    subtypes=["Item"],
+    collector_number=208,
+    set_code="SM11",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

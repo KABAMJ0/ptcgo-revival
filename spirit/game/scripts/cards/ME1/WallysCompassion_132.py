@@ -1,0 +1,15 @@
+from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="b5b6f139-5b2a-588b-9fe9-dac5663ec536",
+    key="ME1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.WallysCompassion.Name",
+    display_name="Wally's Compassion",
+    searchable_by=["Wally's Compassion", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=132,
+    set_code="ME1",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

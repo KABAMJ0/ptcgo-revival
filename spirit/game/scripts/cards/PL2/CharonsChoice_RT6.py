@@ -1,0 +1,15 @@
+from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="4d8245da-5d38-5ab9-a6ee-2e55d1bc4c61",
+    key="PL2",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.CharonsChoice.Name",
+    display_name="Charon's Choice",
+    searchable_by=["Charon's Choice", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=6,
+    set_code="PL2",
+    rarity=Rarities.Rare,
+    effect=unimplemented
+)

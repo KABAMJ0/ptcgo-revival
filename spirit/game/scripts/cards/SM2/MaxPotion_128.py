@@ -1,0 +1,15 @@
+from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.attributes import Rarities
+
+card = ItemCardDef(
+    guid="b2dcfc2b-bf83-51aa-8674-1b9090ea73f2",
+    key="SM2",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.MaxPotion.Name",
+    display_name="Max Potion",
+    searchable_by=["Max Potion", "Item"],
+    subtypes=["Item"],
+    collector_number=128,
+    set_code="SM2",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

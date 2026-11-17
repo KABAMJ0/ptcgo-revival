@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="19b17af1-c167-55dd-8cbe-638aeb83debf",
+    key="DP2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Tropius.Name",
+    display_name="Tropius",
+    searchable_by=["Tropius", "Basic", "Tropius"],
+    subtypes=["Basic"],
+    collector_number=64,
+    set_code="DP2",
+    rarity=Rarities.Uncommon,
+    hp=80,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=357,
+    abilities=[
+        Attack(
+            title="Bonus Leaf",
+            game_text="Remove 3 damage counters from each of your Benched Pok\u00e9mon that has any Grass Energy attached to it.",
+            cost={PokemonTypes.GRASS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Whirlwind",
+            game_text="Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+    ],
+)

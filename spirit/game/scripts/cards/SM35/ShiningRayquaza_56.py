@@ -1,0 +1,36 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="fcf07ba2-2279-55cc-9eb1-7621f3edb783",
+    key="SM35",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.ShiningRayquaza.Name",
+    display_name="Shining Rayquaza",
+    searchable_by=["Shining Rayquaza", "Basic", "ShiningRayquaza"],
+    subtypes=["Basic"],
+    collector_number=56,
+    set_code="SM35",
+    rarity=Rarities.Rare,
+    hp=120,
+    elements=[PokemonTypes.DRAGON],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FAIRY,
+    family_id=384,
+    abilities=[
+        Attack(
+            title="Dragon Pulse",
+            game_text="Discard the top 2 cards of your deck.",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=40,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sky Judgment",
+            game_text="Discard 3 Energy from this Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
+            damage=190,
+            effect=unimplemented,
+        ),
+    ],
+)

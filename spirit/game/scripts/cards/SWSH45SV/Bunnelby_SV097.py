@@ -1,0 +1,30 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="4595c6f6-482a-5ed6-aca6-0be73f4e19d3",
+    key="SWSH45SV",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Bunnelby.Name",
+    display_name="Bunnelby",
+    searchable_by=["Bunnelby", "Basic", "Bunnelby"],
+    subtypes=["Basic"],
+    collector_number=97,
+    set_code="SWSH45SV",
+    rarity=Rarities.Rare,
+    hp=40,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=659,
+    abilities=[
+        Attack(
+            title="Mad Party",
+            game_text="This attack does 20 damage for each Pok\u00e9mon in your discard pile that has the Mad Party attack.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

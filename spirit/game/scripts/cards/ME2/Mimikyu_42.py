@@ -1,0 +1,33 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="06bfef1c-674b-51ad-802a-ede559f6f495",
+    key="ME2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Mimikyu.Name",
+    display_name="Mimikyu",
+    searchable_by=["Mimikyu", "Basic", "Mimikyu"],
+    subtypes=["Basic"],
+    collector_number=42,
+    set_code="ME2",
+    rarity=Rarities.Common,
+    hp=70,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.METAL,
+    family_id=778,
+    abilities=[
+        Attack(
+            title="Call for Family",
+            game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Scratch",
+            cost={PokemonTypes.PSYCHIC: 1},
+            damage=20,
+        ),
+    ],
+)

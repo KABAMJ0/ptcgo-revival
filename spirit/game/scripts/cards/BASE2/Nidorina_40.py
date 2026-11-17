@@ -1,0 +1,37 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="8a5aa0dc-1460-5f34-b12a-6acaf0053737",
+    key="BASE2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Nidorina.Name",
+    display_name="Nidorina",
+    searchable_by=["Nidorina", "Stage 1", "Nidorina"],
+    subtypes=["Stage 1"],
+    collector_number=40,
+    set_code="BASE2",
+    rarity=Rarities.Uncommon,
+    hp=70,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.PSYCHIC,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Nidoran.Name",
+    family_id=29,
+    abilities=[
+        Attack(
+            title="Supersonic",
+            game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
+            cost={PokemonTypes.GRASS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Double Kick",
+            game_text="Flip 2 coins. This attack does 30 damage times the number of heads.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
+            damage=30,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

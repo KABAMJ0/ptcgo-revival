@@ -1,0 +1,42 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="3f656f8b-9821-5a61-82d7-d331cf032f8c",
+    key="SMP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.GarchompGiratinaGX.Name",
+    display_name="Garchomp & Giratina-GX",
+    searchable_by=["Garchomp & Giratina-GX", "Basic", "TAG TEAM", "GX", "GarchompGiratinaGX"],
+    subtypes=["Basic", "TAG TEAM", "GX"],
+    collector_number=193,
+    set_code="SMP",
+    rarity=Rarities.RarePromo,
+    hp=270,
+    elements=[PokemonTypes.DRAGON],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FAIRY,
+    family_id=445,
+    abilities=[
+        Attack(
+            title="Linear Attack",
+            game_text="This attack does 40 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Calamitous Slash",
+            game_text="If your opponent's Active Pok\u00e9mon already has any damage counters on it, this attack does 80 more damage.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
+            damage=160,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="GG End-GX",
+            game_text="Discard 1 of your opponent's Pok\u00e9mon and all cards attached to it. If this Pok\u00e9mon has at least 3 extra Fighting Energy attached to it (in addition to this attack's cost), discard 2 of your opponent's Pok\u00e9mon instead. (You can't use more than 1 GX attack in a game.)",
+            cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.FIGHTING: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

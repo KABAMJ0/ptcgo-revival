@@ -1,0 +1,32 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="bea04285-4d3f-56f1-8db9-7a002344c168",
+    key="SWSH12PT5GG",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.HisuianGoodra.Name",
+    display_name="Hisuian Goodra",
+    searchable_by=["Hisuian Goodra", "Stage 2", "HisuianGoodra"],
+    subtypes=["Stage 2"],
+    collector_number=21,
+    set_code="SWSH12PT5GG",
+    rarity=Rarities.RareHolo,
+    hp=160,
+    elements=[PokemonTypes.DRAGON],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.HisuianSliggoo.Name",
+    family_id=706,
+    abilities=[
+        Ability(
+            title="Metal Lodging",
+            game_text="Prevent all damage done to each of your Basic Pok\u00e9mon that has any Metal Energy attached by attacks from your opponent's Pok\u00e9mon V.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Heavy Impact",
+            cost={PokemonTypes.WATER: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
+            damage=140,
+        ),
+    ],
+)

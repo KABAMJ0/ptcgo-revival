@@ -137,6 +137,10 @@ def main():
 
     # --- sets.json: name, block, chronological number, format legality
     existing = {entry["name"]: entry for entry in json.load(open(SETS_JSON))}
+    # Drop stale entries we generated earlier for sets that no longer exist
+    # (our numbering block starts at 1000; upstream entries sit below it).
+    for stale in [k for k, v in existing.items() if k not in codes and v.get("number", 0) >= 1000]:
+        existing.pop(stale)
     for code in ordered:
         record = meta[code]
         legal = []
@@ -161,6 +165,17 @@ def main():
         })
         existing[code] = entry
     ordered_entries = sorted(existing.values(), key=lambda e: e.get("number", 0))
+
+    # The client keys its set table by abbreviation and throws on duplicates, so
+    # any of our generated entries that collides with one of its own gets a
+    # suffix derived from its set code.
+    seen = {}
+    for entry in ordered_entries:
+        abbr = entry.get("externalId") or entry["name"]
+        if abbr in seen:
+            entry["externalId"] = f"{abbr}-{entry['name'].upper()[:12]}"
+        else:
+            seen[abbr] = entry["name"]
     json.dump(ordered_entries, open(SETS_JSON, "w"), indent=2)
 
     # --- one BoosterPackDef script per set, named properly

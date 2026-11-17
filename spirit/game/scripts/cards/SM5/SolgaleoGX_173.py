@@ -1,0 +1,42 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="9c73b1ce-a8e0-5249-97a0-146515847faa",
+    key="SM5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.SolgaleoGX.Name",
+    display_name="Solgaleo-GX",
+    searchable_by=["Solgaleo-GX", "Stage 2", "GX", "SolgaleoGX"],
+    subtypes=["Stage 2", "GX"],
+    collector_number=173,
+    set_code="SM5",
+    rarity=Rarities.RareSecret,
+    hp=250,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.PSYCHIC,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Cosmoem.Name",
+    family_id=789,
+    abilities=[
+        Ability(
+            title="Ultra Road",
+            game_text="Once during your turn (before your attack), you may switch your Active Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sunsteel Strike",
+            game_text="Discard all Energy from this Pok\u00e9mon.",
+            cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
+            damage=230,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sol Burst-GX",
+            game_text="Search your deck for up to 5 Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
+            cost={PokemonTypes.METAL: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

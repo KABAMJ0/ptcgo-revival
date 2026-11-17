@@ -1,0 +1,34 @@
+from spirit.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="94e3c942-5e13-5633-ab50-a6a6213200d3",
+    key="XYP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Volcanion.Name",
+    display_name="Volcanion",
+    searchable_by=["Volcanion", "Basic", "Volcanion"],
+    subtypes=["Basic"],
+    collector_number=145,
+    set_code="XYP",
+    rarity=Rarities.RarePromo,
+    hp=130,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.WATER,
+    family_id=721,
+    abilities=[
+        Attack(
+            title="Power Heater",
+            game_text="Choose 2 of your Benched Pok\u00e9mon. Attach a Fire Energy card from your discard pile to each of those Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Steam Artillery",
+            cost={PokemonTypes.FIRE: 3},
+            damage=100,
+        ),
+    ],
+)
