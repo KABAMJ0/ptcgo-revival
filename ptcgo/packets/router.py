@@ -16,6 +16,7 @@ from .handlers.gameplay import GameplayHandler
 from .handlers.tournaments import TournamentHandler
 from .handlers.quests import QuestHandler
 from .handlers.league import LeagueHandler
+from .handlers.tutorial import TutorialHandler
 
 HANDLER_CLASSES = [
     HandshakeHandler,
@@ -31,6 +32,7 @@ HANDLER_CLASSES = [
     TournamentHandler,
     QuestHandler,
     LeagueHandler,
+    TutorialHandler,
 ]
 
 class PacketRouter:
