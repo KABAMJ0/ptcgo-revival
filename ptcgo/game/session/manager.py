@@ -215,7 +215,7 @@ class GameSessionManager:
                 },
                 BOT_ACCOUNT_ID: {
                     "client": None, # No TCP client connection
-                    "deck": {},    # Standard bot deck
+                    "deck": self._bot_deck(),  # the AI needs real cards to play
                     "ready": True  # AI is instantly ready
                 }
             },
