@@ -48,6 +48,13 @@ PROMO_PREFIXES = ("MCD", "PROMO", "PR-", "NP", "RSP", "FUT", "SVP", "SVE")
 PROMO_NAMES = {"BP", "SI1", "RU1", "NPC", "DPP"}
 CUSTOM_NAMES = {"CUSTOM", "FREE_ENERGY"}
 
+# Series the 2020 client's collection filter was never built for. The sets stay
+# owned and playable -- they simply do not appear in a picker whose vocabulary is
+# Black & White through Sword & Shield.
+HIDDEN_FROM_FILTER = {
+    "Base", "Neo", "E-Card", "Gym", "EX", "Diamond & Pearl", "Platinum", "POP Series",
+}
+
 # the filter's own order, oldest era to newest, promos next to last
 BLOCK_ORDER = [
     "Base", "Neo", "E-Card", "Gym", "EX", "Diamond & Pearl", "Platinum",
@@ -86,7 +93,7 @@ def main():
         if entry.get("block") != label:
             changed += 1
         entry["block"] = label
-        entry["filter"] = True
+        entry["filter"] = label not in HIDDEN_FROM_FILTER
         # a set with no cards at all should not advertise itself in the picker
         code = entry.get("name", "")
         has_cards = bool(glob.glob(os.path.join(ROOT, "ptcgo", "game", "scripts", "cards", code, "*.py")))
