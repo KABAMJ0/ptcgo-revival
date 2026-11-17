@@ -358,6 +358,11 @@ CASES = [
     ("copy.own-bench-attack", check_check_noop, (1, 1, 1, 1), 0),
     ("flip.until-tails-draw", check_draw, (1, 1, 1, 1), 0),
     ("reveal.opponent-hand-plain", check_check_noop, (1, 1, 1, 1), 0),
+    ("counters.on-bench-chosen", check_snipe_bench, (1, 1, 1, 1), 0),
+    ("lock.this-attack-until-leaves", check_lock_self, (1, 1, 1, 1), 0),
+    ("scale.times-both-actives-energy", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("search.evolve-any-own", check_check_noop, (1, 1, 1, 1), 0),
+    ("ko.chosen-basic-non-gx", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
