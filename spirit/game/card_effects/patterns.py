@@ -18,11 +18,13 @@ never be bound to the wrong shape.
 """
 
 import json
+import random
 import re
 import unicodedata
 from typing import Callable, List, Optional, Tuple
 
 from spirit.game.attributes import AttrID, PokemonTypes, SpecialConditions
+from spirit.game.card_effects.pokemon import energy_provides_type
 from spirit.game.card_effects.attacks_common import (
     bonus_if,
     condition_attack,
@@ -77,7 +79,7 @@ from spirit.game.card_effects.passives_common import (
     protect_next_turn,
     takes_less_passive,
 )
-from spirit.game.card_effects.trainers import is_basic_energy_card
+from spirit.game.card_effects.trainers import is_basic_energy_card, is_energy_card
 from spirit.game.card_effects.support_common import (
     attach_from_discard,
     draw_attack,
@@ -668,7 +670,7 @@ def _random_hand_card_into_deck(m, ability):
         if not hand:
             return
         card = random.choice(hand)
-        await ctx.reveal_cards([card], of_player=ctx.opponent_id)
+        await ctx.reveal_cards([card], to_player=ctx.player_id)
         await ctx.shuffle_into_deck([card], ctx.opponent_id)
     return effect
 
@@ -1278,6 +1280,68 @@ def _bonus_prize_comparison(m, ability):
     kind = "more" if "more" in m.group(1) else (
         "fewer" if "fewer" in m.group(1) else "equal")
     return bonus_if(_prize_comparison(kind), int(m.group(2)))
+
+
+
+def _energy_pools(kind: str):
+    if kind == "self":
+        return lambda ctx: list(ctx.attached_energies(ctx.attacker)) \
+            if ctx.attacker is not None else []
+    if kind == "bench":
+        return lambda ctx: [energy for pokemon in ctx.my_bench()
+                            for energy in ctx.attached_energies(pokemon)]
+    if kind == "mine":
+        return lambda ctx: [energy for pokemon in ctx.my_pokemon_in_play()
+                            for energy in ctx.attached_energies(pokemon)]
+    return lambda ctx: list(ctx.hand())
+
+
+def _discard_for_damage(m, ability):
+    """'Discard <any amount|all|up to N> of <cards> from <zone>. This attack
+    does N damage for each card you discarded in this way.'"""
+    text = m.string
+    base = getattr(ability, "damage", 0) or 0 if "more damage" in text else 0
+    per = int(m.group(m.lastindex))
+    cap = int(m.group(1)) if m.group(1) and m.group(1).isdigit() else None
+    if "from your hand" in text:
+        pool = _energy_pools("hand")
+        if "supporter" in text:
+            predicate = _is_supporter
+        elif "basic energy" in text:
+            predicate = _is_basic_energy
+        else:
+            predicate = is_energy_card
+    else:
+        pool = _energy_pools("bench" if "benched pokemon" in text else
+                             ("self" if "from this pokemon" in text and
+                              "your pokemon" not in text else "mine"))
+        type_word = m.group("type") if "type" in (m.re.groupindex or {}) else None
+        type_value = TYPE_WORDS[type_word].value if type_word else None
+        basic_only = "basic energy" in text
+
+        def predicate(card, _type=type_value, _basic=basic_only) -> bool:
+            if _basic and not is_basic_energy_card(card):
+                return False
+            return _type is None or energy_provides_type(card, _type)
+
+    everything = " all " in f" {text} " or text.startswith("discard all ")
+
+    async def effect(ctx):
+        candidates = [card for card in pool(ctx) if predicate(card)]
+        if everything:
+            picks = candidates
+        elif candidates:
+            picks = await ctx.choose_cards(
+                candidates, cap or 99, minimum=0,
+                prompt="Choose cards to discard")
+        else:
+            picks = []
+        if picks:
+            await ctx.discard_cards(picks)
+        amount = base + per * len(picks)
+        if amount > 0:
+            await ctx.deal_damage(amount)
+    return effect
 
 
 def _scale_from_phrase(m, ability):
@@ -1896,6 +1960,34 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                                 r"(?:more |extra )?damage\."),
      _bonus_from_phrase),
 
+    # -- batch 7: discard-for-damage composites --------------------------
+    ("discard.all-for-damage",
+     re.compile(r"discard all (?:(?P<type>" + _TYPE_WORDS + r") )?(?:basic )?"
+                r"energy from this pokemon\. this attack does (\d+) (?:more )?"
+                r"damage for each card you discarded in this way\."),
+     _discard_for_damage),
+    ("discard.any-for-damage",
+     re.compile(r"you may discard any (?:amount|number) of (?:(?P<type>"
+                + _TYPE_WORDS + r") )?(?:basic )?energy from (?:this pokemon|"
+                r"your pokemon|your benched pokemon)\. this attack does "
+                r"(\d+) (?:more )?damage for each card you discarded in this "
+                r"way\."), _discard_for_damage),
+    ("discard.up-to-for-damage",
+     re.compile(r"(?:you may )?discard up to (\d+) (?:(?P<type>"
+                + _TYPE_WORDS + r") )?(?:basic )?(?:energy|energy cards?) from "
+                r"(?:this pokemon|your pokemon|your benched pokemon|your hand)\."
+                r" this attack does (\d+) (?:more )?damage for each card you "
+                r"discarded in this way\."), _discard_for_damage),
+    ("discard.hand-cards-for-damage",
+     re.compile(r"discard any (?:amount|number) of (supporter cards|basic "
+                r"energy cards|energy cards|cards) from your hand\. this "
+                r"attack does (\d+) (?:more )?damage for each card you "
+                r"discarded in this way\."), _discard_for_damage),
+    ("discard.any-energy-among-for-damage",
+     re.compile(r"discard any amount of (?:(?P<type>" + _TYPE_WORDS +
+                r") )?(?:basic )?energy from among your pokemon,? and this "
+                r"attack does (\d+) (?:more )?damage for each card you "
+                r"discarded in this way\."), _discard_for_damage),
     ("bonus.counter-threshold",
      re.compile(r"if the defending pokemon already has (\d+) or more damage "
                 r"counters on it, this attack does (\d+) more damage\."),

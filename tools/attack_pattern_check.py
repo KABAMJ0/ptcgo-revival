@@ -288,6 +288,8 @@ CASES = [
     ("scale.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
     ("bonus.phrase", check_bonus_condition, (1, 1, 1, 1), 0),
     ("bonus.extra-energy-attached", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("discard.up-to-for-damage", check_bonus_condition, (1, 1, 1, 1), 0),
+    ("discard.all-for-damage", check_discard_self_energy, (1, 1, 1, 1), 0),
 ]
 
 
