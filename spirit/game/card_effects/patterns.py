@@ -2671,6 +2671,99 @@ def _gate_if_damaged(m, ability):
             await ctx.deal_damage()
     return effect
 
+
+def _base_plus_if_any_condition(m, ability):
+    from spirit.game.card_effects.attacks_common import defender_has_any_condition
+    return bonus_if(defender_has_any_condition, int(m.group(2)),
+                    base=int(m.group(1)))
+
+
+def _base_plus_if_condition(m, ability):
+    return bonus_if(defender_has_condition(CONDITIONS[m.group(1)]),
+                    int(m.group(3)), base=int(m.group(2)))
+
+
+def _flip_times_heads(m, ability):
+    return flip_damage(coins=_count(m.group(1)), per_heads=int(m.group(2)))
+
+
+def _base_plus_if_hand_equal(m, ability):
+    return bonus_if(hand_sizes_equal, int(m.group(2)), base=int(m.group(1)))
+
+
+def _base_plus_stadium_then_discard(m, ability):
+    async def effect(ctx):
+        base = int(m.group(1)) + int(m.group(2))
+        if ctx.stadium_in_play() is not None:
+            await ctx.deal_damage(base)
+            await ctx.discard_stadium()
+        else:
+            await ctx.deal_damage(int(m.group(1)))
+    return effect
+
+
+def _snipe_undamaged(m, ability):
+    amount, count = int(m.group(2)), _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                      if ctx.max_hp(pokemon) == pokemon.get_attribute(AttrID.HP, 0)]
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose a Pokémon to take {amount} damage")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _flip_heads_spread_all(m, ability):
+    async def spread(ctx):
+        for pokemon in ctx.opponent_pokemon_in_play():
+            await ctx.deal_damage(int(m.group(1)), target=pokemon,
+                                  apply_modifiers=False)
+    return flip_gate(spread)
+
+
+def _search_evolution_to_hand(m, ability):
+    return search_to_hand(_is_evolution_card, count=1, reveal=True)
+
+
+def _remove_counters_each_bench(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.my_bench():
+            await ctx.heal(count * 10, pokemon)
+    return effect
+
+
+def _base_plus_per_energy_cards_defender(m, ability):
+    return damage_per(count_energy("defender"), int(m.group(2)),
+                      base=int(m.group(1)))
+
+
+def _base_plus_threshold_counters(m, ability):
+    return bonus_if(_defender_counters_at_least(int(m.group(1))),
+                    int(m.group(3)), base=int(m.group(2)))
+
+
+def _search_trainer_show(m, ability):
+    return search_to_hand(_is_trainer_card, count=1, reveal=True)
+
+
+def _is_evolution_card(card) -> bool:
+    from spirit.game.attributes import PokemonStage
+    stage = card.get_attribute(AttrID.STAGE)
+    return stage not in (None, PokemonStage.BASIC.value, PokemonStage.UNSET.value)
+
+
+def _is_trainer_card(card) -> bool:
+    from spirit.game.attributes import CardType
+    return card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -3876,6 +3969,55 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"if your opponent's active pokemon has no damage counters on "
                 r"it before this attack does damage, this attack does "
                 r"nothing\."), _gate_if_damaged),
+
+    # -- batch 18: old-era wordings for bonuses and searches ----------------
+    ("bonus.base-plus-any-condition",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon is "
+                r"affected by a special condition, this attack does (\d+) "
+                r"damage plus (\d+) more damage\."), _base_plus_if_any_condition),
+    ("bonus.base-plus-condition",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon is ("
+                + _CONDITION_WORDS + r"), this attack does (\d+) damage plus "
+                r"(\d+) more damage\."), _base_plus_if_condition),
+    ("flip.times-heads",
+     re.compile(r"flip (an?|\d+) coins?\. this attack does (\d+) times the "
+                r"number of heads\."), _flip_times_heads),
+    ("bonus.base-plus-hand-equal",
+     re.compile(r"if you have the same number of cards in your hand as your "
+                r"opponent, this attack does (\d+) damage plus (\d+) more "
+                r"damage\."), _base_plus_if_hand_equal),
+    ("bonus.base-plus-stadium-discard",
+     re.compile(r"if there is any stadium card in play, this attack does "
+                r"(\d+) damage plus (\d+) more damage\. discard that stadium "
+                r"card\."), _base_plus_stadium_then_discard),
+    ("snipe.undamaged-only",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon that doesn't "
+                r"have any damage counters on it\. this attack does (\d+) "
+                r"damage to that pokemon" + _SNIPE_TAIL), _snipe_undamaged),
+    ("flip.heads-spread-all",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) damage to "
+                r"each of your opponent's pokemon" + _SNIPE_TAIL),
+     _flip_heads_spread_all),
+    ("search.evolution-to-hand",
+     re.compile(r"search your deck for an evolution card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_evolution_to_hand),
+    ("heal.counters-each-bench",
+     re.compile(r"remove (\d+) damage counters from each of your benched "
+                r"pokemon\."), _remove_counters_each_bench),
+    ("bonus.base-plus-per-energy-cards",
+     re.compile(r"this attack does (\d+) damage plus (\d+) more damage for "
+                r"each energy cards? attached to the defending pokemon\."),
+     _base_plus_per_energy_cards_defender),
+    ("bonus.base-plus-threshold-counters",
+     re.compile(r"if (?:the defending|your opponent's active) pokemon already "
+                r"has at least (\d+) damage counters on it, this attack does "
+                r"(\d+) damage plus (\d+) more damage\."),
+     _base_plus_threshold_counters),
+    ("search.trainer-show",
+     re.compile(r"search your deck for a trainer card, show it to your "
+                r"opponent, and put it into your hand\. shuffle your deck "
+                r"afterward\."), _search_trainer_show),
 ]
 
 
