@@ -1,0 +1,461 @@
+{
+  "BW1": {
+    "count": 115,
+    "era": "BW",
+    "name": "Black & White",
+    "order": 1,
+    "ptcgoCode": "BLW",
+    "releaseDate": "2011/04/25",
+    "series": "Black & White"
+  },
+  "BW10": {
+    "count": 105,
+    "era": "BW",
+    "name": "Plasma Blast",
+    "order": 12,
+    "ptcgoCode": "PLB",
+    "releaseDate": "2013/08/14",
+    "series": "Black & White"
+  },
+  "BW11": {
+    "count": 140,
+    "era": "BW",
+    "name": "Legendary Treasures",
+    "order": 13,
+    "ptcgoCode": "LTR",
+    "releaseDate": "2013/11/06",
+    "series": "Black & White"
+  },
+  "BW2": {
+    "count": 98,
+    "era": "BW",
+    "name": "Emerging Powers",
+    "order": 3,
+    "ptcgoCode": "EPO",
+    "releaseDate": "2011/08/31",
+    "series": "Black & White"
+  },
+  "BW3": {
+    "count": 102,
+    "era": "BW",
+    "name": "Noble Victories",
+    "order": 4,
+    "ptcgoCode": "NVI",
+    "releaseDate": "2011/11/16",
+    "series": "Black & White"
+  },
+  "BW4": {
+    "count": 103,
+    "era": "BW",
+    "name": "Next Destinies",
+    "order": 5,
+    "ptcgoCode": "NXD",
+    "releaseDate": "2012/02/08",
+    "series": "Black & White"
+  },
+  "BW5": {
+    "count": 111,
+    "era": "BW",
+    "name": "Dark Explorers",
+    "order": 6,
+    "ptcgoCode": "DEX",
+    "releaseDate": "2012/05/09",
+    "series": "Black & White"
+  },
+  "BW6": {
+    "count": 128,
+    "era": "BW",
+    "name": "Dragons Exalted",
+    "order": 7,
+    "ptcgoCode": "DRX",
+    "releaseDate": "2012/08/15",
+    "series": "Black & White"
+  },
+  "BW7": {
+    "count": 153,
+    "era": "BW",
+    "name": "Boundaries Crossed",
+    "order": 9,
+    "ptcgoCode": "BCR",
+    "releaseDate": "2012/11/07",
+    "series": "Black & White"
+  },
+  "BW8": {
+    "count": 138,
+    "era": "BW",
+    "name": "Plasma Storm",
+    "order": 10,
+    "ptcgoCode": "PLS",
+    "releaseDate": "2013/02/06",
+    "series": "Black & White"
+  },
+  "BW9": {
+    "count": 122,
+    "era": "BW",
+    "name": "Plasma Freeze",
+    "order": 11,
+    "ptcgoCode": "PLF",
+    "releaseDate": "2013/05/08",
+    "series": "Black & White"
+  },
+  "CEL25": {
+    "count": 25,
+    "era": "SWSH",
+    "name": "Celebrations",
+    "order": 24,
+    "ptcgoCode": "CEL",
+    "releaseDate": "2021/10/08",
+    "series": "Sword & Shield"
+  },
+  "CUSTOM": {
+    "count": 2,
+    "era": "UNLIMITED",
+    "name": "Custom Cards",
+    "order": 50,
+    "ptcgoCode": "CUSTOM",
+    "releaseDate": "2026/01/01",
+    "series": "Custom"
+  },
+  "CZ": {
+    "count": 160,
+    "era": "SWSH",
+    "name": "Crown Zenith",
+    "order": 32,
+    "ptcgoCode": "CRZ",
+    "releaseDate": "2023/01/20",
+    "series": "Sword & Shield"
+  },
+  "DV": {
+    "count": 21,
+    "era": "BW",
+    "name": "Dragon Vault",
+    "order": 8,
+    "ptcgoCode": "DRV",
+    "releaseDate": "2012/10/05",
+    "series": "Black & White"
+  },
+  "Free_Energy": {
+    "count": 9,
+    "era": "UNLIMITED",
+    "name": "Basic Energy",
+    "order": 2,
+    "ptcgoCode": "ENERGY",
+    "releaseDate": "2011/04/25",
+    "series": "Black & White"
+  },
+  "PGO": {
+    "count": 88,
+    "era": "SWSH",
+    "name": "Pok\u00e9mon GO",
+    "order": 28,
+    "ptcgoCode": "PGO",
+    "releaseDate": "2022/07/01",
+    "series": "Sword & Shield"
+  },
+  "PROMO_BW": {
+    "count": 101,
+    "era": "BW",
+    "name": "BW Black Star Promos",
+    "order": 0,
+    "ptcgoCode": "PR-BLW",
+    "releaseDate": "2011/03/01",
+    "series": "Black & White"
+  },
+  "Promo_SWSH": {
+    "count": 5,
+    "era": "SWSH",
+    "name": "SWSH Black Star Promos",
+    "order": 14,
+    "ptcgoCode": "PR-SW",
+    "releaseDate": "2019/11/15",
+    "series": "Sword & Shield"
+  },
+  "RSV10PT5": {
+    "count": 173,
+    "era": "SV",
+    "name": "White Flare",
+    "order": 48,
+    "ptcgoCode": "WHT",
+    "releaseDate": "2025/07/18",
+    "series": "Scarlet & Violet"
+  },
+  "SV1": {
+    "count": 258,
+    "era": "SV",
+    "name": "Scarlet & Violet",
+    "order": 33,
+    "ptcgoCode": "SVI",
+    "releaseDate": "2023/03/31",
+    "series": "Scarlet & Violet"
+  },
+  "SV10": {
+    "count": 244,
+    "era": "SV",
+    "name": "Destined Rivals",
+    "order": 47,
+    "ptcgoCode": "DRI",
+    "releaseDate": "2025/05/30",
+    "series": "Scarlet & Violet"
+  },
+  "SV2": {
+    "count": 279,
+    "era": "SV",
+    "name": "Paldea Evolved",
+    "order": 35,
+    "ptcgoCode": "PAL",
+    "releaseDate": "2023/06/09",
+    "series": "Scarlet & Violet"
+  },
+  "SV3": {
+    "count": 230,
+    "era": "SV",
+    "name": "Obsidian Flames",
+    "order": 36,
+    "ptcgoCode": "OBF",
+    "releaseDate": "2023/08/11",
+    "series": "Scarlet & Violet"
+  },
+  "SV3PT5": {
+    "count": 207,
+    "era": "SV",
+    "name": "151",
+    "order": 37,
+    "ptcgoCode": "MEW",
+    "releaseDate": "2023/09/22",
+    "series": "Scarlet & Violet"
+  },
+  "SV4": {
+    "count": 266,
+    "era": "SV",
+    "name": "Paradox Rift",
+    "order": 38,
+    "ptcgoCode": "PAR",
+    "releaseDate": "2023/11/03",
+    "series": "Scarlet & Violet"
+  },
+  "SV4PT5": {
+    "count": 245,
+    "era": "SV",
+    "name": "Paldean Fates",
+    "order": 39,
+    "ptcgoCode": "PAF",
+    "releaseDate": "2024/01/26",
+    "series": "Scarlet & Violet"
+  },
+  "SV5": {
+    "count": 218,
+    "era": "SV",
+    "name": "Temporal Forces",
+    "order": 40,
+    "ptcgoCode": "TEF",
+    "releaseDate": "2024/03/22",
+    "series": "Scarlet & Violet"
+  },
+  "SV6": {
+    "count": 226,
+    "era": "SV",
+    "name": "Twilight Masquerade",
+    "order": 41,
+    "ptcgoCode": "TWM",
+    "releaseDate": "2024/05/24",
+    "series": "Scarlet & Violet"
+  },
+  "SV6PT5": {
+    "count": 99,
+    "era": "SV",
+    "name": "Shrouded Fable",
+    "order": 42,
+    "ptcgoCode": "SFA",
+    "releaseDate": "2024/08/02",
+    "series": "Scarlet & Violet"
+  },
+  "SV7": {
+    "count": 175,
+    "era": "SV",
+    "name": "Stellar Crown",
+    "order": 43,
+    "ptcgoCode": "SCR",
+    "releaseDate": "2024/09/13",
+    "series": "Scarlet & Violet"
+  },
+  "SV8": {
+    "count": 252,
+    "era": "SV",
+    "name": "Surging Sparks",
+    "order": 44,
+    "ptcgoCode": "SSP",
+    "releaseDate": "2024/11/08",
+    "series": "Scarlet & Violet"
+  },
+  "SV8PT5": {
+    "count": 180,
+    "era": "SV",
+    "name": "Prismatic Evolutions",
+    "order": 45,
+    "ptcgoCode": "PRE",
+    "releaseDate": "2025/01/17",
+    "series": "Scarlet & Violet"
+  },
+  "SV9": {
+    "count": 190,
+    "era": "SV",
+    "name": "Journey Together",
+    "order": 46,
+    "ptcgoCode": "JTG",
+    "releaseDate": "2025/03/28",
+    "series": "Scarlet & Violet"
+  },
+  "SVE": {
+    "count": 16,
+    "era": "SV",
+    "name": "Scarlet & Violet Energies",
+    "order": 34,
+    "ptcgoCode": "SVE",
+    "releaseDate": "2023/03/31",
+    "series": "Scarlet & Violet"
+  },
+  "SVP": {
+    "count": 200,
+    "era": "SV",
+    "name": "Scarlet & Violet Black Star Promos",
+    "order": 31,
+    "ptcgoCode": "PR-SV",
+    "releaseDate": "2023/01/01",
+    "series": "Scarlet & Violet"
+  },
+  "SWSH1": {
+    "count": 216,
+    "era": "SWSH",
+    "name": "Sword & Shield",
+    "order": 15,
+    "ptcgoCode": "SSH",
+    "releaseDate": "2020/02/07",
+    "series": "Sword & Shield"
+  },
+  "SWSH10": {
+    "count": 216,
+    "era": "SWSH",
+    "name": "Astral Radiance",
+    "order": 27,
+    "ptcgoCode": "ASR",
+    "releaseDate": "2022/05/27",
+    "series": "Sword & Shield"
+  },
+  "SWSH11": {
+    "count": 217,
+    "era": "SWSH",
+    "name": "Lost Origin",
+    "order": 29,
+    "ptcgoCode": "LOR",
+    "releaseDate": "2022/09/09",
+    "series": "Sword & Shield"
+  },
+  "SWSH12": {
+    "count": 215,
+    "era": "SWSH",
+    "name": "Silver Tempest",
+    "order": 30,
+    "ptcgoCode": "SIT",
+    "releaseDate": "2022/11/11",
+    "series": "Sword & Shield"
+  },
+  "SWSH2": {
+    "count": 209,
+    "era": "SWSH",
+    "name": "Rebel Clash",
+    "order": 16,
+    "ptcgoCode": "RCL",
+    "releaseDate": "2020/05/01",
+    "series": "Sword & Shield"
+  },
+  "SWSH3": {
+    "count": 201,
+    "era": "SWSH",
+    "name": "Darkness Ablaze",
+    "order": 17,
+    "ptcgoCode": "DAA",
+    "releaseDate": "2020/08/14",
+    "series": "Sword & Shield"
+  },
+  "SWSH35": {
+    "count": 80,
+    "era": "SWSH",
+    "name": "Champion's Path",
+    "order": 18,
+    "ptcgoCode": "CPA",
+    "releaseDate": "2020/09/25",
+    "series": "Sword & Shield"
+  },
+  "SWSH4": {
+    "count": 203,
+    "era": "SWSH",
+    "name": "Vivid Voltage",
+    "order": 19,
+    "ptcgoCode": "VIV",
+    "releaseDate": "2020/11/13",
+    "series": "Sword & Shield"
+  },
+  "SWSH45": {
+    "count": 73,
+    "era": "SWSH",
+    "name": "Shining Fates",
+    "order": 20,
+    "ptcgoCode": "SHF",
+    "releaseDate": "2021/02/19",
+    "series": "Sword & Shield"
+  },
+  "SWSH5": {
+    "count": 183,
+    "era": "SWSH",
+    "name": "Battle Styles",
+    "order": 21,
+    "ptcgoCode": "BST",
+    "releaseDate": "2021/03/19",
+    "series": "Sword & Shield"
+  },
+  "SWSH6": {
+    "count": 233,
+    "era": "SWSH",
+    "name": "Chilling Reign",
+    "order": 22,
+    "ptcgoCode": "CRE",
+    "releaseDate": "2021/06/18",
+    "series": "Sword & Shield"
+  },
+  "SWSH7": {
+    "count": 237,
+    "era": "SWSH",
+    "name": "Evolving Skies",
+    "order": 23,
+    "ptcgoCode": "EVS",
+    "releaseDate": "2021/08/27",
+    "series": "Sword & Shield"
+  },
+  "SWSH8": {
+    "count": 284,
+    "era": "SWSH",
+    "name": "Fusion Strike",
+    "order": 25,
+    "ptcgoCode": "FST",
+    "releaseDate": "2021/11/12",
+    "series": "Sword & Shield"
+  },
+  "SWSH9": {
+    "count": 186,
+    "era": "SWSH",
+    "name": "Brilliant Stars",
+    "order": 26,
+    "ptcgoCode": "BRS",
+    "releaseDate": "2022/02/25",
+    "series": "Sword & Shield"
+  },
+  "ZSV10PT5": {
+    "count": 172,
+    "era": "SV",
+    "name": "Black Bolt",
+    "order": 49,
+    "ptcgoCode": "BLK",
+    "releaseDate": "2025/07/18",
+    "series": "Scarlet & Violet"
+  }
+}
