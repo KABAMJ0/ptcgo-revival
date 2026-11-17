@@ -1,7 +1,8 @@
 """Behaviors for the Trainer cards of the Lugia VSTAR and Mew VMAX decks."""
 
 from spirit.game.attributes import (
-    AttrID, CardType, CLIENT_POKEMON_TYPE_NAMES, PokemonStage, PokemonTypes, TrainerType,
+    AttrID, CardType, CLIENT_POKEMON_TYPE_NAMES, PokemonStage, PokemonTypes,
+    SpecialConditions, TrainerType,
 )
 from spirit.game.models.board import PokemonEntity
 from spirit.game.data_utils import (
@@ -2427,4 +2428,183 @@ def discard_from_opponent_hand(predicate=None, count: int = 1):
             prompt=f"Choose up to {count} card(s) to discard from their hand")
         if picks:
             await ctx.discard_cards(picks)
+    return effect
+
+
+def is_pokemon_gx(card) -> bool:
+    return is_pokemon_card(card) and "GX" in subtypes_for(card.archetype_id)
+
+
+def is_pokemon_vstar(card) -> bool:
+    return is_pokemon_card(card) and "VSTAR" in subtypes_for(card.archetype_id)
+
+
+def retreat_cost_is(cost: int):
+    """Predicate: a Pokemon whose printed Retreat Cost is exactly `cost`."""
+    def predicate(card):
+        return is_pokemon_card(card) \
+            and card.get_attribute(AttrID.RETREAT_COST) == cost
+    return predicate
+
+
+def condition_opponent_active(*conditions):
+    """Put Special Conditions on the opponent's Active Pokemon
+    ("Your opponent's Active Pokemon is now Confused and Poisoned")."""
+    async def effect(ctx):
+        target = ctx.opponent_active()
+        if target is None:
+            return
+        for condition in conditions:
+            await ctx.apply_special_condition(target, condition)
+    return effect
+
+
+def heal_all_then_discard_energy():
+    """Heal all damage from 1 of your Pokemon, then discard all Energy from
+    it (Max Potion)."""
+    async def effect(ctx):
+        damaged = [p for p in ctx.my_pokemon_in_play()
+                   if ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+        if not damaged:
+            return
+        target = await ctx.choose_pokemon(
+            damaged, "Choose a Pokémon to heal") if len(damaged) > 1 else damaged[0]
+        if target is None:
+            return
+        missing = ctx.max_hp(target) - target.get_attribute(AttrID.HP, 0)
+        if missing > 0:
+            await ctx.heal(missing, target)
+        attachments = ctx.attached_energies(target)
+        if attachments:
+            await ctx.discard_energy_from(
+                target, len(attachments),
+                prompt="Discard all Energy from that Pokémon")
+    return effect
+
+
+def discard_benched_undamaged(count: int = 2):
+    """Discard up to `count` of your Benched Pokemon that have no damage
+    counters on them, with everything attached."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_bench()
+                if p.get_attribute(AttrID.HP, 0) == ctx.max_hp(p)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt=f"Discard up to {count} Benched Pokémon")
+        for pokemon in picks:
+            await ctx.discard_cards(full_stack(pokemon))
+    return effect
+
+
+def discard_in_play(predicates, count: int = 2):
+    """Discard up to `count` matching cards from play (tools/stadiums on
+    either side)."""
+    async def effect(ctx):
+        pool = []
+        for card, _holder in ctx.tools_in_play():
+            if any(check(card) for check in predicates):
+                pool.append(card)
+        stadium = ctx.stadium_in_play()
+        if stadium is not None and any(check(stadium) for check in predicates):
+            pool.append(stadium)
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt=f"Choose up to {count} card(s) to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def opponent_shuffle_draw_per_prize():
+    """The opponent shuffles their hand into their deck and draws 1 card for
+    each of their remaining Prize cards."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(ctx.opponent_id), ctx.opponent_id)
+        area = ctx.board.find_player_area(ctx.opponent_id, "prizePile")
+        count = len(area.children) if area else 0
+        if count:
+            await ctx.draw_cards(count, ctx.opponent_id)
+    return effect
+
+
+def draw_n_if_active(subtype: str, base: int, bonus: int):
+    """Draw `base` cards, or `base + bonus` while your Active Pokemon has the
+    given subtype ("if your Active Pokemon is a TAG TEAM")."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        matches = active is not None and subtype in subtypes_for(active.archetype_id)
+        await ctx.draw_cards(base + (bonus if matches else 0))
+    return effect
+
+
+def attach_hand_then_draw(predicate, count: int = 1, draw: int = 3):
+    """Attach up to `count` matching Energy cards from your hand to 1 of your
+    Pokemon, then draw `draw` cards if any were attached."""
+    async def effect(ctx):
+        cards = [c for c in ctx.hand() if predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt=f"Choose up to {count} Energy cards to attach")
+        if not picks:
+            return
+        targets = ctx.my_pokemon_in_play()
+        if not targets:
+            return
+        target = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to attach the Energy to") \
+            if len(targets) > 1 else targets[0]
+        if target is None:
+            return
+        for card in picks:
+            await ctx.attach_energy(card, target)
+        if draw:
+            await ctx.draw_cards(draw)
+    return effect
+
+
+def move_counters_between_opponents(max_count: int = 2, source_side: str = "opponent"):
+    """Move up to `max_count` damage counters from one of the opponent's
+    Pokemon to another of their Pokemon."""
+    async def effect(ctx):
+        pool = ctx.opponent_pokemon_in_play()
+        damaged = [p for p in pool if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+        if not damaged:
+            return
+        source = await ctx.choose_pokemon(
+            damaged, "Choose a Pokémon to move damage from") \
+            if len(damaged) > 1 else damaged[0]
+        if source is None:
+            return
+        targets = [p for p in pool if p is not source]
+        if not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the damage to") or targets[0]
+        if dest is not None:
+            await ctx.move_damage_counters(source, [dest], max_count=max_count)
+    return effect
+
+
+def opponent_switch_then_self_switch():
+    """The opponent switches their Active for a Benched Pokemon, then you
+    switch yours (Escape Rope)."""
+    async def effect(ctx):
+        bench = ctx.opponent_bench()
+        if bench:
+            target = await ctx.choose_pokemon(
+                bench, "Choose your new Active Pokémon", player_id=ctx.opponent_id
+            ) or bench[0]
+            await ctx.switch_active(ctx.opponent_id, target)
+        mine = ctx.my_bench()
+        if mine:
+            target = await ctx.choose_play_target(
+                mine, "Choose your new Active Pokémon")
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
     return effect

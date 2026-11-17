@@ -38,6 +38,8 @@ SIMPLE_PREDICATES = {
     "stage 2 pokemon": "is_stage_two",
     "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
     "pokemon ex": "is_pokemon_ex",
+    "pokemon gx": "is_pokemon_gx",
+    "pokemon vstar": "is_pokemon_vstar",
     "item card": "is_item_card",
     "supporter card": "is_supporter_card",
     "stadium card": "is_stadium_card",
@@ -175,6 +177,32 @@ def _owned_category(text):
             return owner
         return "all_of(%s, %s)" % (category, owner)
     return None
+
+
+_CONDITIONS = {
+    "asleep": "SpecialConditions.ASLEEP", "burned": "SpecialConditions.BURNED",
+    "confused": "SpecialConditions.CONFUSED",
+    "paralyzed": "SpecialConditions.PARALYZED",
+    "poisoned": "SpecialConditions.POISONED",
+}
+
+
+def _condition(word):
+    """Source for a SpecialConditions member; declines on anything else."""
+    try:
+        return _CONDITIONS[word]
+    except KeyError:
+        raise Unresolved(word)
+
+
+def _active_subtype(phrase):
+    """'1 tag team pokemon' -> 'TAG TEAM' (the printed subtype name)."""
+    text = re.sub(r"\s+", " ", phrase.strip().lower())
+    text = re.sub(r"^(1 )?", "", text)
+    text = re.sub(r" pokemon$", "", text)
+    if not text:
+        raise Unresolved(phrase)
+    return text.upper()
 
 
 def _colorless_count(phrase):
@@ -666,6 +694,59 @@ RULES = [
          r"switch your active pokemon with (?P<n>\d+) of your benched pokemon if you do move "
          r"(?P<c>\d+) energy from the pokemon you moved to your bench to the new active pokemon",
          "switch_then_move_energy", lambda m: []),
+
+    # --- Conditions / discard / switching compositions --------------------
+    Rule("two-conditions-opponent-active",
+         r"your opponents active pokemon is now (?P<a>[a-z]+) and (?P<b>[a-z]+)",
+         "condition_opponent_active",
+         lambda m: [_condition(m.group("a")), _condition(m.group("b"))]),
+    Rule("condition-opponent-active",
+         r"your opponents active pokemon is now (?P<a>[a-z]+)",
+         "condition_opponent_active", lambda m: [_condition(m.group("a"))]),
+    Rule("heal-all-then-discard-energy",
+         r"heal all damage from (?P<n>\d+) of your pokemon if you do discard all energy cards? "
+         r"from that pokemon",
+         "heal_all_then_discard_energy", lambda m: []),
+    Rule("discard-benched-undamaged",
+         r"discard up to (?P<n>\d+) of your benched pokemon that have no damage counters on them "
+         r"and all cards attached to them",
+         "discard_benched_undamaged", lambda m: [m.group("n")]),
+    Rule("discard-tools-and-stadiums",
+         r"choose up to (?P<n>\d+) in any combination of pokemon tool cards and stadium cards in "
+         r"play(?: yours or your opponents)? and discard them",
+         "discard_in_play",
+         lambda m: ["[is_tool_card, is_stadium_card]", "count=" + m.group("n")]),
+    Rule("opponent-draw-per-prize",
+         r"your opponent shuffles their hand into their deck and draws (?P<n>\d+) card for each "
+         r"of their remaining prize cards",
+         "opponent_shuffle_draw_per_prize", lambda m: []),
+    Rule("draw-if-active-subtype",
+         r"draw (?P<base>\d+) cards? if your active pokemon is (?P<cat>[a-z0-9 ]+?) draw "
+         r"(?P<bonus>\d+) more cards?",
+         "draw_n_if_active",
+         lambda m: ['"%s"' % _active_subtype(m.group("cat")),
+                    m.group("base"), m.group("bonus")]),
+    Rule("attach-hand-then-draw",
+         r"attach up to (?P<n>\d+) " + CAT +
+         r" from your hand to (?P<target>\d+) of your pokemon if you do draw (?P<draw>\d+) cards?",
+         "attach_hand_then_draw",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"),
+                    "draw=" + m.group("draw")]),
+    Rule("move-counters-between-opponents",
+         r"move up to (?P<n>\d+) damage counters? from (?P<src>\d+) of your opponents pokemon to "
+         r"another of their pokemon",
+         "move_counters_between_opponents", lambda m: [m.group("n")]),
+    Rule("escape-rope-composite",
+         r"switch (?P<n>\d+) of your opponents benched pokemon with their active pokemon if you do "
+         r"switch your active pokemon with (?P<m>\d+) of your benched pokemon",
+         "opponent_switch_then_self_switch", lambda m: []),
+    Rule("search-retreat-cost",
+         r"search your deck for up to (?P<n>\d+) pokemon that have (?P<rc>\d+) retreat cost of "
+         r"exactly (?P<cost>\d+) reveal them and put them into your hand then shuffle your deck",
+         "search_to_hand",
+         lambda m: ["retreat_cost_is(%s)" % m.group("cost"),
+                    "count=" + m.group("n")],
+         module="support_common"),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
