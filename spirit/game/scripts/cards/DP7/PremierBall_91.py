@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import pokemon_lv_x, search_deck_or_discard_to_hand
 
 card = ItemCardDef(
     guid="949300da-ddee-5966-92e3-cdc060912465",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=91,
     set_code="DP7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_deck_or_discard_to_hand(pokemon_lv_x(), count=1)
 )

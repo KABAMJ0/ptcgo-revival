@@ -4232,3 +4232,29 @@ def look_bottom_to_hand(count: int, take: int, predicate):
         if picks:
             await ctx.put_in_hand(picks, reveal=True)
     return effect
+
+
+def search_deck_or_discard_to_hand(predicate=None, count: int = 1):
+    """Search your deck or your discard pile for up to `count` matching cards
+    and put them into your hand."""
+    async def effect(ctx):
+        deck_matches = await ctx.search_deck(predicate, count=count, minimum=0,
+                                             prompt="Choose cards from your deck")
+        if deck_matches:
+            await ctx.put_in_hand(deck_matches, reveal=True)
+            await ctx.shuffle_deck()
+        pool = [card for card in ctx.discard_pile()
+                if predicate is None or predicate(card)]
+        remaining = count - len(deck_matches)
+        if pool and remaining > 0:
+            picks = await ctx.choose_cards(
+                pool, remaining, minimum=0,
+                prompt="Choose cards from your discard pile")
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def pokemon_lv_x():
+    """Predicate: a Pokemon LV.X."""
+    return pokemon_of_subtype("LV.X")

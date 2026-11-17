@@ -1703,6 +1703,16 @@ RULES = [
          r"put the other cards back on the bottom of your deck in any order",
          "look_bottom_to_hand",
          lambda m: [m.group("n"), m.group("take"), _who(m.group("who"))]),
+    Rule("escape-rope",
+         r"each player switches (?:his or her|their) active pokemon with (?P<n>\d+) of (?:his or "
+         r"her|their) benched pokemon your opponent switches first if (?P<x>\d+) player does not "
+         r"have (?P<same>\d+) benched pokemon (?:he or she|that player) doesnt switch pokemon",
+         "escape_rope", lambda m: [], bare=True),
+    Rule("search-deck-or-discard-lv-x",
+         r"search your deck or your discard pile for (?P<n>\d+) pokemon lv x show it to your "
+         r"opponent and put it into your hand if you search your deck shuffle your deck afterward",
+         "search_deck_or_discard_to_hand",
+         lambda m: ["pokemon_lv_x()", "count=" + m.group("n")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
