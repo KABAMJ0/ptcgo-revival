@@ -130,7 +130,15 @@ def resolve_predicate(phrase):
             pass
     for joiner, combinator in ((" or ", "any_of"),):
         if joiner in text:
-            parts = [resolve_predicate(part) for part in text.split(joiner)]
+            # "Basic Pokemon, Evolution card, or Energy card" loses its comma,
+            # so the first choice still reads "basic pokemon evolution card".
+            expanded = []
+            for part in text.split(joiner):
+                if part.startswith("basic pokemon ") and part != "basic pokemon":
+                    expanded.extend(["basic pokemon", part[len("basic pokemon "):]])
+                else:
+                    expanded.append(part)
+            parts = [resolve_predicate(part) for part in expanded]
             parts = [part for part in parts if part != "None"]
             if len(parts) > 1:
                 return "%s(%s)" % (combinator, ", ".join(parts))
