@@ -358,6 +358,26 @@ def _holder(phrase):
     return resolved
 
 
+def _attacker_types(phrase):
+    """Attacker-type list ("grass fire water or lightning") -> predicate."""
+    words = [word for word in phrase.replace(" or ", " ").split() if word]
+    if not words or any(word not in TYPE_NAMES.split("|") for word in words):
+        raise Unresolved(phrase)
+    return "attacker_of_types(%s)" % ", ".join('"%s"' % word for word in words)
+
+
+def _name_choice(phrase):
+    """A printed "A or B" choice of Pokemon names -> a name predicate.
+
+    Canonical text turns the printed commas into spaces, so a list of three or
+    more names is indistinguishable from a multi-word name: only a single
+    "or" resolves."""
+    parts = [part.strip() for part in phrase.split(" or ")]
+    if len(parts) != 2 or any(" " in part or not part for part in parts):
+        raise Unresolved(phrase)
+    return "named_one_of(%s)" % ", ".join('"%s"' % part for part in parts)
+
+
 def _union(phrase):
     """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
     either, so the parts join with any_of."""
@@ -1227,6 +1247,37 @@ RULES = [
          "stadium_prize_shift", lambda m: ["-" + m.group("n"), _union(m.group("cat"))],
          kind="passive"),
 
+    Rule("tool-takes-less-special-energy-attacker",
+         r"any damage done to the pokemon this card is attached to by attacks from your opponents "
+         r"pokemon that have any special energy attached to them is reduced by (?P<amount>\d+) "
+         r"after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None", "attacker_has_special_energy()"],
+         kind="passive"),
+    Rule("tool-takes-less-ability-attacker",
+         r"the pokemon this card is attached to takes (?P<amount>\d+) less damage from attacks "
+         r"from your opponents pokemon that have 1 ability after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None", "attacker_has_ability()"], kind="passive"),
+    Rule("tool-takes-less-typed-attacker",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less damage "
+         r"from attacks from your opponents (?P<types>[a-z ]+?) pokemon after applying weakness "
+         r"and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    _attacker_types(m.group("types"))], kind="passive"),
+    Rule("tool-takes-less-named-holder",
+         r"the (?P<names>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less damage "
+         r"from your opponents attacks after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), _name_choice(m.group("names"))], kind="passive"),
+    Rule("tool-takes-less-from-mega",
+         r"if the pokemon this card is attached to isnt 1 mega evolution pokemon ex it takes "
+         r"(?P<amount>\d+) less damage from attacks from your opponents mega evolution pokemon ex "
+         r"after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "excluding(pokemon_of_subtype(\"MEGA\"))",
+                    'attacker_has_subtypes("MEGA", "ex")'], kind="passive"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

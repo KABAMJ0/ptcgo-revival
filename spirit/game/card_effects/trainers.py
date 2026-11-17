@@ -31,6 +31,7 @@ from spirit.game.session.passives import (
 )
 from spirit.game.card_effects.passives_common import (
     attack_discount_passive,
+    condition_immunity_passive,
     is_in_active_spot,
     hp_bonus_tool,
     no_resistance_passive,
@@ -3586,4 +3587,118 @@ def stadium_prize_shift(delta: int, pred):
     """Whenever a <pred> Pokemon (both sides) is Knocked Out by damage from an
     opponent's attack, that player takes |delta| more/fewer Prize cards."""
     return KnockoutPrizeShiftPassive(delta, pred, False, True)
+
+
+
+def named_one_of(*names):
+    """Predicate: a card whose printed name is one of `names` ("Regirock",
+    ...), allowing a printed suffix."""
+    wanted = tuple(name.lower() for name in names)
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name = (getattr(definition, "display_name", "") or "").lower()
+        return any(name == w or name.startswith(w + " ") for w in wanted)
+    return predicate
+
+
+def _attacker_energy_count(attacker):
+    special = basic = 0
+    stack = list(attacker.children)
+    while stack:
+        entity = stack.pop()
+        stack.extend(getattr(entity, "children", []) or [])
+        if entity.get_attribute(AttrID.IS_SPECIAL_ENERGY):
+            special += 1
+        elif entity.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value:
+            basic += 1
+    return special, basic
+
+
+def attacker_has_special_energy():
+    """Attacker predicate: the attacker has Special Energy attached."""
+    return lambda attacker: _attacker_energy_count(attacker)[0] > 0
+
+
+def attacker_has_ability():
+    """Attacker predicate: the attacker prints at least one Ability."""
+    def predicate(attacker):
+        definition = def_for(attacker.archetype_id)
+        return bool(getattr(definition, "abilities", None))
+    return predicate
+
+
+def attacker_of_types(*type_names):
+    """Attacker predicate: the attacker is one of the named types."""
+    values = {POKEMON_TYPE_NAMES[name] for name in type_names}
+
+    def predicate(attacker):
+        return bool(values & set(attacker.get_attribute(AttrID.POKEMON_TYPES) or []))
+    return predicate
+
+
+def attacker_has_subtypes(*subtypes, exclude=()):
+    """Attacker predicate: the attacker prints one of `subtypes` (lowercase
+    compare, so "ex" matches both Pokemon ex and the older Pokemon-EX) and
+    none of `exclude`."""
+    wanted = [s.lower() for s in subtypes]
+    banned = [s.lower() for s in exclude]
+
+    def predicate(attacker):
+        names = [s.lower() for s in subtypes_for(attacker.archetype_id)]
+        if not any(w in names for w in wanted):
+            return False
+        return not any(b in names for b in banned)
+    return predicate
+
+
+class AttackerGatedPassive(Passive):
+    """The holder takes `amount` less damage (or none at all) from attacks by
+    attackers matching `attacker`; `holder` gates which Pokemon it protects
+    and `effects_too` also shields it from the attack's effects."""
+
+    def __init__(self, amount, holder=None, attacker=None, prevent=False,
+                 effects_too=False):
+        self.amount = amount
+        self.holder = holder
+        self.attacker = attacker
+        self.prevent = prevent
+        self.effects_too = effects_too
+
+    def _applies(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return False
+        if carrier_pokemon(carrier) is not calc.target:
+            return False
+        if self.holder is not None and not self.holder(calc.target):
+            return False
+        if self.attacker is None:
+            return calc.attacker is not None
+        return calc.attacker is not None and self.attacker(calc.attacker)
+
+    def modify_damage_taken(self, calc, carrier):
+        if self.amount and self._applies(calc, carrier):
+            calc.amount = max(0, calc.amount - self.amount)
+
+    def prevents_damage(self, calc, carrier):
+        return bool(self.prevent and self._applies(calc, carrier))
+
+    def blocks_attack_effects(self, target, carrier):
+        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+
+
+def takes_less_from(amount: int, holder=None, attacker=None):
+    """The holder takes `amount` less damage from attacks by `attacker`."""
+    return AttackerGatedPassive(amount, holder, attacker)
+
+
+def prevents_all_from(holder=None, attacker=None, effects_too=False):
+    """Prevent all damage (and effects) done to the holder by `attacker`."""
+    return AttackerGatedPassive(0, holder, attacker, prevent=True,
+                                effects_too=effects_too)
+
+
+def holder_condition_immunity(holder=None):
+    """The holder can't be affected by any Special Condition."""
+    return condition_immunity_passive(None, protects=_holds(holder))
 

@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import attacker_of_types, pokemon_of, takes_less_from
 
 card = PokemonToolCardDef(
     guid="cb29cdbd-6fc3-5402-b2d3-4a58351f626d",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=211,
     set_code="ME2PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=takes_less_from(50, pokemon_of("dragon"), attacker_of_types("grass", "fire", "water", "lightning"))
 )
