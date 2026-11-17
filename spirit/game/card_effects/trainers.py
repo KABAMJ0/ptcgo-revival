@@ -3183,3 +3183,34 @@ def opponent_bench_from_hand_then_switch():
         if await ctx.bench_pokemon(picks[0]):
             await ctx.switch_active(ctx.opponent_id, picks[0])
     return effect
+
+
+def choose_one(options):
+    """Offer the card's printed "Choose 1" bullets and run the picked one.
+
+    `options` is a list of (label, effect) pairs, built from the printed text
+    so the player sees the card's own wording."""
+    async def effect(ctx):
+        if not options:
+            return
+        picked = await ctx.choose("Choose 1", [label for label, _ in options])
+        if picked is None or not 0 <= picked < len(options):
+            return
+        await options[picked][1](ctx)
+    return effect
+
+
+def choose_any(options):
+    """"Choose 1 or both": offer every option plus a combined choice."""
+    async def effect(ctx):
+        labels = [label for label, _ in options] + ["Both"]
+        picked = await ctx.choose("Choose 1 or both", labels)
+        if picked is None:
+            return
+        if picked == len(options):
+            for _label, inner in options:
+                await inner(ctx)
+            return
+        if 0 <= picked < len(options):
+            await options[picked][1](ctx)
+    return effect

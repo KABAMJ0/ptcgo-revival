@@ -150,7 +150,7 @@ def family_of(signature: str) -> str:
 
 class CardScript:
     __slots__ = ("path", "set_code", "display_name", "number", "card_class",
-                 "effect_name", "game_text")
+                 "effect_name", "game_text", "raw_text")
 
     def __init__(self, path, set_code, display_name, number, card_class,
                  effect_name, game_text):
@@ -161,6 +161,9 @@ class CardScript:
         self.card_class = card_class
         self.effect_name = effect_name
         self.game_text = game_text
+        # The printed wording with its punctuation and bullets intact; the
+        # modal "Choose 1" cards can only be split on their bullets here.
+        self.raw_text = ""
 
     @property
     def is_stub(self):
@@ -270,6 +273,12 @@ def collect():
                 continue
             rules = rules_table.get(script.number) if isinstance(script.number, int) else None
             script.game_text = canonical_text(rules or []) or script.game_text
+            script.raw_text = " ".join(
+                sentence for line in (rules or [])
+                for sentence in _sentences(line)
+                if not any(p.match(re.sub(r"\s+", " ", sentence).strip().lower()
+                                   .replace("\u2019", "'").replace("\u00e9", "e"))
+                           for p in REMINDER_PATTERNS))
             scripts.append(script)
     return scripts
 

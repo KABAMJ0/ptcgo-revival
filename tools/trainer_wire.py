@@ -85,10 +85,11 @@ def rewrite(source, expr, symbols=None, kind="effect", condition=None):
 
 
 def _finish(wired, symbols):
-    if "unimplemented" not in wired:
-        wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
-                       r"\1,", wired)
-        wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented, )", "", wired)
+    # The stub marker is gone by now, so drop the unused import too.
+    wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
+                   r"\1", wired)
+    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented, )", "", wired)
+    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented)", "", wired)
     by_module = {}
     for symbol in symbols:
         by_module.setdefault(module_for(symbol), []).append(symbol)
@@ -120,6 +121,9 @@ def main(argv=None):
     plan = []
     for script in stubs:
         found = patterns.resolve(script.game_text)
+        if found is None:
+            # Modal cards keep their shape only in the printed bullets.
+            found = patterns.resolve_modal(script.raw_text)
         if found is None:
             continue
         if rule_filter and not rule_filter.search(found["rule"]):

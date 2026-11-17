@@ -1175,3 +1175,55 @@ def resolve(text, depth=0):
             "symbols": inner["symbols"] | {combinator},
         }
     return None
+
+
+# --- Modal cards ------------------------------------------------------------
+
+MODAL_HEAD = re.compile(r"^\s*choose (1|one|1 or both)(?:\s+of the following)?\s*:?\s*", re.I)
+
+
+def resolve_modal(raw_text):
+    """Wire a "Choose 1: A / B" card from its printed bullets.
+
+    Both the bullets and the head come from the raw rules text, because the
+    canonical form has lost the bullet separators. Every bullet has to resolve
+    to a known shape: a modal card wired with one option missing would let the
+    player pick something that does nothing.
+    """
+    if not raw_text or "\u2022" not in raw_text:
+        return None
+    head = MODAL_HEAD.match(raw_text)
+    if head is None:
+        return None
+    body = raw_text[head.end():]
+    bullets = [part.strip(" .") for part in body.split("\u2022") if part.strip(" .")]
+    if len(bullets) < 2:
+        return None
+    options = []
+    for bullet in bullets:
+        inner = resolve(canonicalize(bullet))
+        if inner is None or inner.get("kind") != "effect":
+            return None
+        label = _label(bullet)
+        options.append((label, inner))
+    expression = "%s([%s])" % (
+        "choose_any" if "both" in head.group(1).lower() else "choose_one",
+        ", ".join('("%s", %s)' % (label, inner["expr"]) for label, inner in options),
+    )
+    symbols = set()
+    for _option_label, inner in options:
+        symbols |= inner["symbols"]
+    symbols.add("choose_any" if "both" in head.group(1).lower() else "choose_one")
+    return {"rule": "modal", "expr": expression, "symbols": symbols}
+
+
+def _label(bullet):
+    """A short button label from a printed bullet."""
+    text = re.sub(r"\s+", " ", bullet).strip()
+    return text[:70].replace('"', "'").replace("\\", "/")
+
+
+def canonicalize(text):
+    """Same normalization trainer_coverage applies, for bullet sub-text."""
+    import trainer_coverage
+    return trainer_coverage.canonical_text([text])

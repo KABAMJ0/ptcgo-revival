@@ -1,5 +1,6 @@
-from spirit.game.data_utils import SupporterCardDef, unimplemented
+from spirit.game.data_utils import SupporterCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import choose_one, shuffle_hand_draw, switch
 
 card = SupporterCardDef(
     guid="31fad7d0-76ee-5722-9734-f5dededecf30",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=166,
     set_code="SM7",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=choose_one([("Shuffle your hand into your deck then draw 5 cards", shuffle_hand_draw(5)), ("Switch your Active Pokémon with 1 of your Benched Pokémon", switch)])
 )
