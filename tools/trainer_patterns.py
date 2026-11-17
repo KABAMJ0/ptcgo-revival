@@ -1534,6 +1534,13 @@ RULES = [
          r"pokemon) even if (?:that pokemon|it) is knocked out put (?P<counters>\d+) damage "
          r"counters? on the attacking pokemon",
          "retaliate_on_attack", lambda m: [m.group("counters")], kind="passive"),
+    Rule("look-top-reorder",
+         r"look at the top (?P<n>\d+) cards of your deck and put them back on top of your deck in "
+         r"any order",
+         "look_top_reorder", lambda m: [m.group("n")]),
+    Rule("look-top-same-order",
+         r"look at the top (?P<n>\d+) cards of your deck and put them back in the same order",
+         "look_top_peek", lambda m: [m.group("n")]),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

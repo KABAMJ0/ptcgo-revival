@@ -3929,3 +3929,17 @@ class RetaliateOnAttackPassive(Passive):
 
 def retaliate_on_attack(counters: int = 2):
     return RetaliateOnAttackPassive(counters)
+
+
+def look_top_reorder(count: int):
+    """Look at the top `count` cards and put them back on top in any order."""
+    async def effect(ctx):
+        await ctx.reorder_deck_top(count)
+    return effect
+
+
+def look_top_peek(count: int):
+    """Look at the top `count` cards and put them back in the same order."""
+    async def effect(ctx):
+        ctx.deck_top(count)
+    return effect
