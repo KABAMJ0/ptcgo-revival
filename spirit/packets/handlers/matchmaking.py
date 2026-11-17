@@ -1,4 +1,5 @@
 import logging
+from spirit.server import activity
 from spirit.network.message_names import InboundMsg
 from spirit.game.session.manager import GameSessionManager
 from .base import BaseHandler, handle
@@ -28,6 +29,7 @@ class MatchmakingHandler(BaseHandler):
         client_options = message.get("clientOptions", {})
 
         logging.info(f"[TCP] [{self.client.addr}] Player {self.client.player.username} requesting queue entry for '{queue_name}'")
+        activity.record("queue", account=self.client.player.username, detail=queue_name)
         
         # Cleanly complete the RequestQueueMatch RPC first by returning an empty packet
         await self.client.send_packet({}, request_id)

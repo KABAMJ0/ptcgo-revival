@@ -1,6 +1,8 @@
 import base64
 import binascii
+import glob
 import json
+from urllib.parse import parse_qs, urlparse
 import logging
 import os
 import re
@@ -16,6 +18,7 @@ from spirit.game.models.versus import VersusSeason
 from spirit.game.content.sets import card_script_counts, eligible_booster_sets
 from spirit.server import admin_auth
 from spirit.server import dynamic_pages
+from spirit.server import activity
 from spirit.server import metrics
 from spirit.game.scripts.products import loader as product_loader
 from sqlalchemy import func
@@ -153,6 +156,42 @@ def _accounts_summary():
                  "screen_name": a.screen_name, "is_admin": bool(a.is_admin)} for a in rows]
 
 
+_COVERAGE_CACHE = {"at": 0.0, "data": None}
+
+
+def _coverage_by_set():
+    """Implemented vs stubbed effect counts per set.
+
+    Files are read rather than definitions imported, so this is cheap enough to
+    call from a polling dashboard and cannot disturb a loaded game state.
+    """
+    import time as _time
+    if _COVERAGE_CACHE["data"] is not None and _time.time() - _COVERAGE_CACHE["at"] < 120:
+        return _COVERAGE_CACHE["data"]
+    rows = []
+    for set_dir in sorted(glob.glob(os.path.join(CARDS_IMG_DIR, "..", "..", "game", "scripts", "cards", "*"))):
+        if not os.path.isdir(set_dir):
+            continue
+        code = os.path.basename(set_dir)
+        total = stub = 0
+        for path in glob.glob(os.path.join(set_dir, "*.py")):
+            if os.path.basename(path) == "__init__.py":
+                continue
+            try:
+                body = open(path, encoding="utf-8").read()
+            except OSError:
+                continue
+            total += 1
+            if "unimplemented" in body or "effect=None" in body:
+                stub += 1
+        rows.append({"set": code, "cards": total, "stubbed": stub,
+                     "implemented": total - stub})
+    rows.sort(key=lambda r: (-r["stubbed"], r["set"]))
+    _COVERAGE_CACHE["data"] = rows
+    _COVERAGE_CACHE["at"] = _time.time()
+    return rows
+
+
 def _players_overview():
     """Every account with the numbers an operator actually wants at a glance."""
     with db_session() as session:
@@ -262,6 +301,7 @@ def _clear_collection(account_id):
             return _err(404, "account not found")
         removed = session.query(Collection).filter_by(account_id=account_id).delete()
     logging.info(f"[Admin] Cleared collection for {account_id} ({removed} rows)")
+    activity.record("admin_wipe_collection", detail=f"{account_id} rows={removed}")
     return _ok({"removed": int(removed)})
 
 
@@ -287,6 +327,7 @@ def _set_banned(account_id, banned):
             return _err(404, "account not found")
         account.is_banned = bool(banned)
     logging.info(f"[Admin] {'Banned' if banned else 'Unbanned'} account {account_id}")
+    activity.record("admin_ban" if banned else "admin_unban", detail=account_id)
     return _ok({"account_id": account_id, "is_banned": bool(banned)})
 
 
@@ -313,6 +354,7 @@ def _delete_account(account_id, confirm):
                 removed[table.name] = int(result.rowcount)
         session.delete(account)
     logging.warning(f"[Admin] Deleted account {account_id}: {removed}")
+    activity.record("admin_delete_account", detail=account_id)
     return _ok({"deleted": account_id, "rows": removed})
 
 
@@ -404,6 +446,7 @@ def route_admin(method, path, body, headers=None):
 
 
 def _dispatch(method, endpoint, data):
+    endpoint, _, query_string = endpoint.partition("?")
     # ------------------------------------------------ metrics (ops observability)
     if method == 'GET' and endpoint == 'metrics':
         return _json(200, metrics.snapshot())
@@ -455,6 +498,25 @@ def _dispatch(method, endpoint, data):
         if not set_admin(account_id, bool(data.get("is_admin"))):
             return _err(404, "account not found")
         return _ok({"account_id": account_id, "is_admin": bool(data.get("is_admin"))})
+
+    # ------------------------------------------------ monitoring
+    if method == 'GET' and endpoint == 'monitor/activity':
+        query = parse_qs(query_string)
+        return _ok(activity.events_since(
+            cursor=(query.get("since") or [None])[0],
+            limit=int((query.get("limit") or [200])[0]),
+            kind=(query.get("kind") or [None])[0],
+            account=(query.get("account") or [None])[0],
+        ))
+
+    if method == 'GET' and endpoint == 'monitor/sessions':
+        return _ok({"sessions": activity.sessions()})
+
+    if method == 'GET' and endpoint == 'monitor/counters':
+        return _ok({"last_hour": activity.counts(3600), "last_day": activity.counts(86400)})
+
+    if method == 'GET' and endpoint == 'monitor/coverage':
+        return _ok({"sets": _coverage_by_set()})
 
     # ------------------------------------------------ player management
     if method == 'GET' and endpoint == 'players':
