@@ -13,7 +13,8 @@ CACHE="$ROOT/ptcgo/assets/bundleCache"
 
 packed=$(find "$CACHE" -mindepth 1 -maxdepth 1 -type d -name 'en_US_*' 2>/dev/null | wc -l)
 latest=$(grep -oE "Generating bundle 'en_US_[A-Za-z0-9_]*'" "$LOG" 2>/dev/null | tail -1 | grep -oE 'en_US_[A-Za-z0-9_]*')
-errors=$(grep -cE 'ERROR|Traceback' "$LOG" 2>/dev/null || echo 0)
+errors=$(grep -cE 'ERROR|Traceback' "$LOG" 2>/dev/null | head -1)
+case "$errors" in ''|*[!0-9]*) errors=0 ;; esac
 ports=$(ss -ltn 2>/dev/null | grep -cE ':8000|:39389')
 
 printf 'packed sets : %s of about 190\n' "$packed"
