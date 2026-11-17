@@ -70,6 +70,8 @@ def resolve_predicate(phrase):
     text = re.sub(r"\s+", " ", (phrase or "").strip().lower())
     text = re.sub(r"^(up to|any number of) ", "", text)
     text = re.sub(r"^(1|a|an) ", "", text)
+    text = re.sub(r"^in any combination of ", "", text)
+    text = re.sub(r" in any combination$", "", text)
     if text in SIMPLE_PREDICATES:
         return SIMPLE_PREDICATES[text]
     singular = re.sub(r"(?:es|s)$", "", text)
@@ -98,6 +100,13 @@ def _count(value, default=1):
         return int(value)
     except ValueError:
         raise Unresolved(value)
+
+
+def _typed_boost(match):
+    """Arguments for a type-restricted damage boost; declines on a non-type."""
+    if match.group("type") not in TYPE_NAMES.split("|"):
+        raise Unresolved(match.group("type"))
+    return [match.group("amount"), 'pokemon_type="%s"' % match.group("type")]
 
 
 def _pred(phrase):
@@ -367,7 +376,32 @@ RULES = [
          lambda m: [_pred(m.group("cat")), "count=" + m.group("n")],
          module="support_common"),
 
+    # --- Damage modifiers -------------------------------------------------
+    Rule("turn-damage-boost",
+         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon(?: ex| v| vstar| gx)?(?: before applying weakness and "
+         r"resistance)?",
+         "turn_damage_boost", lambda m: [m.group("amount")]),
+    Rule("turn-damage-boost-ex",
+         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon ex",
+         "turn_damage_boost", lambda m: [m.group("amount")]),
+    Rule("turn-damage-boost-no-rule-box",
+         r"during this turn attacks used by your pokemon that dont have 1 rule box do "
+         r"(?P<amount>\d+) more damage to your opponents active pokemon",
+         "turn_damage_boost", lambda m: [m.group("amount"), "exclude_rule_box=True"]),
+    Rule("turn-damage-boost-typed",
+         r"during this turn attacks used by your (?P<type>[a-z]+) pokemon do (?P<amount>\d+) "
+         r"more damage to your opponents active pokemon",
+         "turn_damage_boost", lambda m: _typed_boost(m)),
+
     # --- Evolution shortcuts ---------------------------------------------
+    Rule("evolve-from-hand",
+         r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "
+         r"stage 2 card|1 stage 1 card|1 stage 2 card) that evolves from that pokemon"
+         r"(?: in your hand)? put that card on the basic pokemon"
+         r"(?: this counts as evolving that pokemon)?",
+         "evolve_from_hand", lambda m: []),
     Rule("rare-candy",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have 1 stage 2 card in your "
          r"hand that evolves from that pokemon put that card onto the basic pokemon to evolve "

@@ -1852,3 +1852,68 @@ def search_to_top(n: int, predicate=None):
         for card in reversed(picks):
             await ctx.put_on_top_of_deck(card)
     return effect
+
+
+async def _evolve_in_play(ctx, evolution_cards):
+    """Offer every (Basic in play, matching evolution in hand) pair and evolve
+    the one the player picks. Shared by the Rare Candy / Evosoda shapes."""
+    pairs = []
+    for basic in ctx.my_pokemon_in_play():
+        if basic.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+            continue
+        logic_name = basic.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        if not logic_name:
+            continue
+        for card in evolution_cards:
+            if evolves_from(card.archetype_id, logic_name):
+                pairs.append((basic, card))
+    if not pairs:
+        return False
+    if len(pairs) == 1:
+        basic, card = pairs[0]
+    else:
+        picked = await ctx.choose(
+            "Choose the Pokémon to evolve",
+            [f"{def_for(card.archetype_id).display_name} on "
+             f"{def_for(basic.archetype_id).display_name}"
+             for basic, card in pairs],
+        )
+        if picked is None or not 0 <= picked < len(pairs):
+            return False
+        basic, card = pairs[picked]
+    return await ctx.evolve_pokemon(basic, card)
+
+
+def evolve_from_hand():
+    """Choose 1 of your Basic Pokemon in play and put a card from your hand
+    that evolves from it onto it (Evosoda shape); counts as evolving."""
+    async def effect(ctx):
+        await _evolve_in_play(ctx, [c for c in ctx.hand() if is_evolution_pokemon(c)])
+    return effect
+
+
+def turn_damage_boost(amount: int, pokemon_type=None, exclude_rule_box: bool = False):
+    """During this turn, attacks used by your Pokemon do `amount` more damage
+    to the opponent's Active Pokemon (before Weakness and Resistance).
+    pokemon_type narrows the boost to one type; exclude_rule_box skips
+    Rule Box Pokemon."""
+    async def effect(ctx):
+        def qualifies(entity):
+            if exclude_rule_box and has_rule_box(entity.archetype_id):
+                return False
+            if pokemon_type is not None:
+                types = entity.get_attribute(AttrID.POKEMON_TYPES) or []
+                if POKEMON_TYPE_NAMES[pokemon_type] not in types:
+                    return False
+            return True
+
+        ctx.add_turn_damage_modifier(TurnDamageModifier(
+            amount, ctx.player_id, source_predicate=qualifies))
+        for pokemon in ctx.my_pokemon_in_play():
+            if qualifies(pokemon):
+                await ctx.add_stat_visualization(
+                    pokemon, VisualizationArrow.POSITIVE,
+                    VisualizationType.DAMAGE_DEALT_INCREASED,
+                    card_text=f"+{amount} damage",
+                )
+    return effect
