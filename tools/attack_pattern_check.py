@@ -319,6 +319,14 @@ CASES = [
     ("search.energy-attach-self-typed", check_attach_from_discard, (1, 1, 1, 1), 0),
     ("discard.hand-draw-n", check_check_noop, (1, 1, 1, 1), 0),
     ("switch.both-actives", check_switch_self, (1, 1, 1, 1), 0),
+    ("lock.defender-cannot-attack", check_lock_defender, (1, 1, 1, 1), 0),
+    ("lock.defender-flip-attack-retreat", check_lock_defender, (1, 1, 1, 1), 0),
+    ("flip.spread-opponent-bench", check_snipe_any, (1, 1, 1, 1), 0),
+    ("self-condition-then-heal", check_self_condition, (1, 1, 1, 1), 60),
+    ("flip.paralyze-else-nothing", check_defender_condition, (1, 1, 1, 1), 0),
+    ("snipe.damaged-only", check_check_noop, (1, 1, 1, 1), 0),
+    ("heal.all-bench-choice", check_check_noop, (1, 1, 1, 1), 0),
+    ("discard.all-energy-optional-bonus", check_check_noop, (1, 1, 1, 1), 0),
 ]
 
 
