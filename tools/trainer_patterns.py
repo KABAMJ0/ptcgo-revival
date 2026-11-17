@@ -1528,6 +1528,12 @@ RULES = [
          "look_at_top",
          lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="discard"', "minimum=0"],
          module="support_common"),
+    Rule("retaliate-on-attack",
+         r"if the pokemon this card is attached to is (?:your active pokemon|in the active spot) "
+         r"and is damage(?:d)? by (?P<n>\d+) (?:opponents attack|attack from your opponents "
+         r"pokemon) even if (?:that pokemon|it) is knocked out put (?P<counters>\d+) damage "
+         r"counters? on the attacking pokemon",
+         "retaliate_on_attack", lambda m: [m.group("counters")], kind="passive"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

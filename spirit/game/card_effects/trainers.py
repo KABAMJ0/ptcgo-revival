@@ -3904,3 +3904,28 @@ def flip_search_basic_count(count: int, avoid_baby: bool = True):
             await ctx.put_in_hand(picks, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+class RetaliateOnAttackPassive(Passive):
+    """Rocky Helmet: while the holder is Active and was damaged by the
+    opponent's attack, put `counters` damage counters on the attacker."""
+
+    def __init__(self, counters: int):
+        self.counters = counters
+        self.attack_followup = self._followup
+
+    async def _followup(self, ctx, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return
+        entry = getattr(ctx, "attack_damage", {}).get(holder.entity_id)
+        if not entry or entry[0] <= 0:
+            return
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == holder.owning_player_id:
+            return
+        await ctx.set_damage_counters(attacker, self.counters)
+
+
+def retaliate_on_attack(counters: int = 2):
+    return RetaliateOnAttackPassive(counters)

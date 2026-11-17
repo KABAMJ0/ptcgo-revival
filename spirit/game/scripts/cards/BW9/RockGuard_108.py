@@ -1,5 +1,6 @@
-from spirit.game.data_utils import PokemonToolCardDef, unimplemented
+from spirit.game.data_utils import PokemonToolCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import retaliate_on_attack
 
 card = PokemonToolCardDef(
     guid="7c2465fb-3fe7-5bb8-9f47-13dac29ad29b",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=108,
     set_code="BW9",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=retaliate_on_attack(6)
 )
