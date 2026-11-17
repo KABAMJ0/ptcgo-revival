@@ -32,6 +32,7 @@ from spirit.game.session.passives import (
 from spirit.game.card_effects.passives_common import (
     attack_discount_passive,
     hp_bonus_tool,
+    no_resistance_passive,
     retreat_free_when,
     no_weakness_passive,
     retreat_discount,
@@ -3241,3 +3242,140 @@ def holder_damage_boost_vs(amount: int, kind: str = "ex"):
         "gx": is_pokemon_gx,
     }.get(kind, lambda card: True)
     return typed_damage_boost_tool(target_pred, amount)
+
+
+
+# --- Holder-gated tools, both-sides stadiums, stadium abilities -------------
+
+def owned_by(owner: str):
+    """Predicate: a card printed as "<Owner>'s ..." (Hop's Wooloo). A short
+    owner like N or Hop never matches an unrelated name (Hoppip, Snorlax)."""
+    prefix = owner.lower() + "'s "
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        name = (getattr(definition, "display_name", "") or "").lower()
+        return name.replace("\u2019", "'").startswith(prefix)
+    return predicate
+
+
+def _holds(holder):
+    """(target, carrier) pred: target is the tool's holder and matches holder."""
+    def protects(target, carrier):
+        return carrier_pokemon(carrier) is target and (holder is None or holder(target))
+    return protects
+
+
+def gated_hp_bonus(amount: int, holder=None):
+    """The <holder> this card is attached to gets +amount HP."""
+    return hp_bonus_tool(amount, holder)
+
+
+def gated_no_weakness(holder=None):
+    """The <holder> this card is attached to has no Weakness."""
+    return no_weakness_passive(_holds(holder))
+
+
+def gated_retreat_free(holder=None):
+    """The <holder> this card is attached to has no Retreat Cost."""
+    return retreat_free_when(_holds(holder))
+
+
+def gated_takes_less(amount: int, holder=None, attacker=None):
+    """The <holder> this card is attached to takes amount less damage from
+    attacks of the opponent's <attacker> Pokemon."""
+    return takes_less_passive(amount, protects=_holds(holder), attacker_pred=attacker)
+
+
+class GatedDamageBoostPassive(Passive):
+    """The holder's attacks do +amount to the opponent's Active Pokemon, when
+    the holder matches `holder` and the Active matches `target`."""
+
+    def __init__(self, amount, holder=None, target=None):
+        self.amount = amount
+        self.holder = holder
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        if carrier_pokemon(carrier) is not attacker:
+            return
+        if self.holder is not None and not self.holder(attacker):
+            return
+        if self.target is not None and not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def gated_damage_boost(amount: int, holder=None, target=None):
+    """Attacks used by the <holder> this card is attached to do +amount to
+    the opponent's Active (<target>) Pokemon."""
+    return GatedDamageBoostPassive(amount, holder, target)
+
+
+class EveryoneDamageBoostPassive(Passive):
+    """Stadium: attacks of matching Pokemon (both sides) do +amount to the
+    opponent's Active (matching `target`) Pokemon."""
+
+    def __init__(self, amount, attacker, target=None):
+        self.amount = amount
+        self.attacker = attacker
+        self.target = target
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        if not self.attacker(calc.attacker):
+            return
+        if self.target is not None and not self.target(calc.target):
+            return
+        calc.amount += self.amount
+
+
+def stadium_damage_boost(amount: int, attacker, target=None):
+    """The attacks of <attacker> Pokemon (both yours and your opponent's) do
+    +amount to the opponent's Active Pokemon."""
+    return EveryoneDamageBoostPassive(amount, attacker, target)
+
+
+def stadium_takes_less_for(amount: int, protects):
+    """<protects> Pokemon (both sides) take amount less damage from the
+    opponent's attacks."""
+    return takes_less_passive(amount, protects=lambda target, carrier: protects(target))
+
+
+def stadium_no_retreat(pred):
+    """<pred> Pokemon in play (both sides) have no Retreat Cost."""
+    return retreat_free_when(lambda pokemon, carrier: pred(pokemon))
+
+
+class RetreatShiftPassive(Passive):
+    """Retreat Cost of matching Pokemon (both sides) shifts by delta."""
+
+    def __init__(self, delta, pred):
+        self.delta = delta
+        self.pred = pred
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if not self.pred(pokemon):
+            return cost
+        return max(0, cost + self.delta)
+
+
+def stadium_retreat_shift(delta: int, pred):
+    """The Retreat Cost of each <pred> Pokemon (both sides) is |delta|
+    Colorless more (delta > 0) or less (delta < 0)."""
+    return RetreatShiftPassive(delta, pred)
+
+
+def stadium_no_resistance():
+    """Each Pokemon in play has no Resistance."""
+    return no_resistance_passive(when=lambda calc, carrier: True)
+
+
+def stadium_ability(title: str, effect):
+    """"Once during each player's turn, that player may ..." on a Stadium."""
+    return Ability(title=title, activation=Activations.ONCE_PER_TURN, effect=effect)
+

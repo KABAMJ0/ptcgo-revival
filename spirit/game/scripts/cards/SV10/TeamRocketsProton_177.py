@@ -1,7 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
 from spirit.game.card_effects.support_common import search_to_hand
-from spirit.game.card_effects.trainers import all_of, is_basic_pokemon, named
+from spirit.game.card_effects.trainers import all_of, is_basic_pokemon, owned_by
 
 card = SupporterCardDef(
     guid="71411299-4113-5009-9616-0e69285014cf",
@@ -13,5 +13,5 @@ card = SupporterCardDef(
     collector_number=177,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=search_to_hand(all_of(is_basic_pokemon, named("team rocket")), count=3)
+    effect=search_to_hand(all_of(is_basic_pokemon, owned_by("team rocket")), count=3)
 )

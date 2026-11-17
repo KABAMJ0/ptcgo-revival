@@ -262,7 +262,7 @@ def _owned_category(text):
         remainder = " ".join(tokens[:start] + tokens[start + span:])
         if not remainder:
             raise Unresolved(text)
-        owner = 'named("%s")' % owner_word
+        owner = 'owned_by("%s")' % owner_word
         try:
             category = resolve_predicate(remainder)
         except Unresolved:
