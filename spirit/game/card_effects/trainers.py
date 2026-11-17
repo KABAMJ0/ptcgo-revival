@@ -1630,9 +1630,9 @@ def search_two_kinds(first, first_count: int, second, second_count: int):
 
 # --- Energy movement -------------------------------------------------------
 
-def move_basic_energy(predicate=None):
-    """Move a Basic Energy from one of your Pokemon to another (Energy
-    Switch). The player picks the source, then the energy, then the target."""
+def move_basic_energy(predicate=None, count: int = 1):
+    """Move `count` Energy from one of your Pokemon to another (Energy
+    Switch). The player picks the source, then the Energy, then the target."""
     async def effect(ctx):
         fitted = [p for p in ctx.my_pokemon_in_play() if ctx.attached_energies(p)]
         if not fitted:
@@ -1646,9 +1646,10 @@ def move_basic_energy(predicate=None):
                     if predicate is None or predicate(e)]
         if not energies:
             return
+        take = min(count, len(energies))
         picked = await ctx.choose_cards(
-            energies, 1, minimum=1,
-            prompt="Choose an Energy to move") if len(energies) > 1 else energies[:1]
+            energies, take, minimum=1,
+            prompt="Choose Energy to move") if len(energies) > 1 else energies[:take]
         if not picked:
             return
         targets = [p for p in ctx.my_pokemon_in_play() if p is not source]
@@ -1656,8 +1657,10 @@ def move_basic_energy(predicate=None):
             return
         target = await ctx.choose_pokemon(
             targets, "Choose a Pokémon to move the Energy to") or targets[0]
-        if target is not None:
-            await ctx.move_energy(picked[0], target)
+        if target is None:
+            return
+        for card in picked:
+            await ctx.move_energy(card, target)
     return effect
 
 
@@ -2283,3 +2286,145 @@ class AttackDiscountPassiveWithGate(Passive):
         if mine is None or theirs is None or len(mine.children) <= len(theirs.children):
             return cost
         return max(0, cost - self.count)
+
+
+def heal_chosen(amount: int, count: int = 1, hp_at_most=None):
+    """Heal `amount` from up to `count` of your Pokemon, chosen; a negative
+    amount means "heal all damage", and hp_at_most filters the eligible
+    Pokemon by remaining HP."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if hp_at_most is None or p.get_attribute(AttrID.HP, 0) <= hp_at_most]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0, prompt="Choose a Pokémon to heal")
+        for pokemon in picks:
+            missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+            if missing <= 0:
+                continue
+            heal = missing if amount < 0 else min(amount, missing)
+            await ctx.heal(heal, pokemon)
+    return effect
+
+
+def attach_discard_energy_to_each(predicate, per_target: int = 1, targets: int = 1):
+    """Attach `per_target` matching Energy from the discard pile to each of up
+    to `targets` of your Pokemon."""
+    async def effect(ctx):
+        available = [c for c in ctx.discard_pile()
+                     if predicate is None or predicate(c)]
+        candidates = ctx.my_pokemon_in_play()
+        if not available or not candidates:
+            return
+        picks = await ctx.choose_cards(
+            candidates, targets, minimum=0,
+            prompt=f"Choose up to {targets} Pokémon to attach Energy to")
+        for pokemon in picks:
+            take = available[:per_target]
+            available = available[per_target:]
+            for card in take:
+                await ctx.attach_energy(card, pokemon)
+    return effect
+
+
+def switch_then_move_energy():
+    """Switch your Active with a Benched Pokemon, then move an Energy from the
+    Pokemon that went to the Bench onto the new Active."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        old_active = ctx.my_active()
+        if not bench or old_active is None:
+            return
+        target = await ctx.choose_play_target(bench, "Choose your new Active Pokémon")
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        energies = ctx.attached_energies(old_active)
+        if not energies or target is None:
+            return
+        picked = await ctx.choose_cards(
+            energies, 1, minimum=1,
+            prompt="Choose an Energy to move to the new Active") \
+            if len(energies) > 1 else energies[:1]
+        if picked:
+            await ctx.move_energy(picked[0], target)
+    return effect
+
+
+def hand_to_bottom_draw_until(hand_size: int):
+    """Put 1 card from your hand on the bottom of your deck, then draw until
+    the hand holds `hand_size` cards."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1,
+            prompt="Choose a card to put on the bottom of your deck")
+        if picks:
+            await ctx.put_on_bottom_of_deck(picks[0])
+        await ctx.draw_until(hand_size)
+    return effect
+
+
+def draw_until_unless_energy(hand_size: int, other_size: int):
+    """Draw until the hand holds `hand_size`, or `other_size` when none of
+    your Pokemon has any Energy attached."""
+    async def effect(ctx):
+        fitted = any(ctx.attached_energies(p) for p in ctx.my_pokemon_in_play())
+        await ctx.draw_until(other_size if not fitted else hand_size)
+    return effect
+
+
+def discard_hand_no_rule_box_draw_per_card(draw_per_card: int, count: int = 2):
+    """Discard up to `count` Rule-Box-free Pokemon from your hand and draw
+    `draw_per_card` cards for each one discarded."""
+    async def effect(ctx):
+        pool = [c for c in ctx.hand()
+                if is_rule_box_free_pokemon(c)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt=f"Discard up to {count} Pokémon to draw cards")
+        if not picks:
+            return
+        await ctx.discard_cards(picks)
+        await ctx.draw_cards(draw_per_card * len(picks))
+    return effect
+
+
+def opponent_energy_to_deck_top(scope: str = "active"):
+    """Put an Energy attached to the opponent's Active Pokemon on top of their
+    deck (Team Star Grunt)."""
+    async def effect(ctx):
+        holder = ctx.opponent_active()
+        if holder is None or not ctx.attached_energies(holder):
+            return
+        energies = ctx.attached_energies(holder)
+        picked = await ctx.choose_cards(
+            energies, 1, minimum=1,
+            prompt="Choose an Energy to put on top of their deck") \
+            if len(energies) > 1 else energies[:1]
+        if picked:
+            await ctx.put_on_top_of_deck(picked[0])
+    return effect
+
+
+def discard_from_opponent_hand(predicate=None, count: int = 1):
+    """Your opponent reveals their hand; you discard up to `count` matching
+    cards from it."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        cards = [c for c in hand if predicate is None or predicate(c)]
+        await ctx.reveal_hand(ctx.opponent_id)
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt=f"Choose up to {count} card(s) to discard from their hand")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect

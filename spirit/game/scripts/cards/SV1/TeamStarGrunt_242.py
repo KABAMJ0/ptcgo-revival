@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import opponent_energy_to_deck_top
 
 card = SupporterCardDef(
     guid="ea2787c7-5c64-5d32-b47e-6eb3f9a3be41",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=242,
     set_code="SV1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=opponent_energy_to_deck_top()
 )

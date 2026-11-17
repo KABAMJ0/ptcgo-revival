@@ -428,7 +428,7 @@ RULES = [
          module="support_common"),
     Rule("return-pokemon-to-hand",
          r"put (?P<n>\d+) of your (?P<cat>[a-z0-9 ]*?)pokemon (?:in play )?and all "
-         r"(?:cards )?attached(?: cards)? to it into your hand",
+         r"(?:cards )?attached(?: cards)?(?: to it)? into your hand",
          "return_pokemon_to_hand",
          lambda m: ["predicate=" + _pred(m.group("cat") + "pokemon")]),
     Rule("return-pokemon-to-hand-discard-attachments",
@@ -462,9 +462,10 @@ RULES = [
 
     # --- Energy -----------------------------------------------------------
     Rule("move-basic-energy",
-         r"move (?:1 )?basic energy(?: card)?s? (?:attached to |from )?(?P<n>\d+) of your pokemon "
-         r"to another of your pokemon",
-         "move_basic_energy", lambda m: ["predicate=is_basic_energy_card"]),
+         r"move (?:up to )?(?P<count>\d+) (?:basic )?energy(?: card)?s? (?:attached to |from )?"
+         r"(?P<n>\d+) of your pokemon to another of your pokemon",
+         "move_basic_energy",
+         lambda m: ["predicate=is_basic_energy_card", "count=" + m.group("count")]),
     Rule("attach-discard-energy",
          r"attach (?:up to )?(?P<n>\d+) " + CAT +
          r" from your discard pile to (?P<target>\d+) of your pokemon",
@@ -621,6 +622,51 @@ RULES = [
          lambda m: [str(_colorless_count(m.group("count"))), "prize_behind=True"],
          kind="passive"),
 
+    # --- Heal / draw / discard compositions -------------------------------
+    Rule("heal-chosen",
+         r"choose up to (?P<count>\d+) of your pokemon and heal (?P<amount>\d+) damage from "
+         r"each of them",
+         "heal_chosen", lambda m: [m.group("amount"), "count=" + m.group("count")]),
+    Rule("heal-all-chosen-low-hp",
+         r"heal all damage from (?P<n>\d+) of your pokemon that has (?P<hp>\d+) hp or less "
+         r"remaining",
+         "heal_chosen",
+         lambda m: ["-1", "count=" + m.group("n"), "hp_at_most=" + m.group("hp")]),
+    Rule("draw-until-unless-energy",
+         r"draw cards? until you have (?P<hand>\d+) cards? in your hand if none of your pokemon "
+         r"have any energy attached draw cards? until you have (?P<other>\d+) cards? in your "
+         r"hand instead",
+         "draw_until_unless_energy",
+         lambda m: [m.group("hand"), m.group("other")]),
+    Rule("hand-to-bottom-draw-until",
+         r"put (?P<n>\d+) card from your hand on the bottom of your deck if you do draw cards? "
+         r"until you have (?P<hand>\d+) cards? in your hand.*",
+         "hand_to_bottom_draw_until", lambda m: [m.group("hand")]),
+    Rule("discard-no-rule-box-draw",
+         r"discard up to (?P<count>\d+) pokemon that dont have 1 rule box from your hand and "
+         r"draw (?P<per>\d+) cards? for each card you discarded in this way",
+         "discard_hand_no_rule_box_draw_per_card",
+         lambda m: [m.group("per"), "count=" + m.group("count")]),
+    Rule("opponent-energy-to-deck-top",
+         r"put (?P<n>\d+) energy attached to your opponents active pokemon on top of their deck",
+         "opponent_energy_to_deck_top", lambda m: []),
+    Rule("discard-from-opponent-hand",
+         r"your opponent reveals their hand and you discard up to (?P<count>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) you find there",
+         "discard_from_opponent_hand",
+         lambda m: ["predicate=" + _pred(m.group("cat")),
+                    "count=" + m.group("count")]),
+    Rule("attach-discard-energy-each",
+         r"choose up to (?P<targets>\d+) of your (?P<cat>[a-z0-9 ]*?)pokemon and attach "
+         r"(?P<per>\d+) (?P<energy>[a-z0-9 ]+?) from your discard pile to each of them",
+         "attach_discard_energy_to_each",
+         lambda m: [_pred(m.group("energy")), "per_target=" + m.group("per"),
+                    "targets=" + m.group("targets")]),
+    Rule("switch-then-move-energy",
+         r"switch your active pokemon with (?P<n>\d+) of your benched pokemon if you do move "
+         r"(?P<c>\d+) energy from the pokemon you moved to your bench to the new active pokemon",
+         "switch_then_move_energy", lambda m: []),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "
@@ -662,6 +708,8 @@ WRAPPERS = [
     (re.compile(r"^flip 1 coin if heads "), "if_heads", None),
     (re.compile(r"^you can (?:use|play) this card only if you discard (?P<n>\d+) other cards? "
                 r"from your hand "), "with_discard_cost", None),
+    (re.compile(r"^you can (?:use|play) this card only if you discard another card from your "
+                r"hand "), "with_discard_cost", "1"),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you do "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
