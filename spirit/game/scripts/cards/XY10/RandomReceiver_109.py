@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import reveal_until_supporter
 
 card = ItemCardDef(
     guid="86e2527a-3144-5882-8aeb-902e28be98c8",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=109,
     set_code="XY10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=reveal_until_supporter()
 )

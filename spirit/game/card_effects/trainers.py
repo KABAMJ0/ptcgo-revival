@@ -2040,3 +2040,104 @@ def combined(*parts):
     """One passive from several (a tool that both reduces damage and removes
     Weakness)."""
     return CombinedPassive(*parts)
+
+
+# --- Composed shapes -------------------------------------------------------
+
+def draw_n_prize_bonus(base: int, bonus: int, threshold: int):
+    """Draw `base` cards; draw `bonus` more once the opponent holds
+    `threshold` Prize cards or fewer."""
+    async def effect(ctx):
+        await ctx.draw_cards(base)
+        area = ctx.board.find_player_area(ctx.opponent_id, "prizePile")
+        if area is not None and len(area.children) <= threshold:
+            await ctx.draw_cards(bonus)
+    return effect
+
+
+def shuffle_one_hand_draw(n: int):
+    """Shuffle 1 card from your hand into your deck, then draw `n`; declines
+    an empty hand ("If you have any cards in your hand...")."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1,
+            prompt="Choose a card from your hand to shuffle into your deck")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        await ctx.draw_cards(n)
+    return effect
+
+
+def flip_recover_basic_energy(maximum: int):
+    """Flip a coin per card and put a Basic Energy from the discard pile into
+    your hand for each heads (up to `maximum`)."""
+    async def effect(ctx):
+        heads = sum(1 for result in
+                    await ctx.flip_coins(maximum, title="Recover Energy")
+                    if result)
+        cards = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+        take = min(heads, len(cards))
+        if take <= 0:
+            return
+        picks = await ctx.choose_cards(
+            cards, take, minimum=take,
+            prompt="Choose Basic Energy cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def recover_basic_to_bench(count: int = 1):
+    """Put Basic Pokemon from your discard pile onto your Bench."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile() if is_basic_pokemon(c)]
+        space = BENCH_CAPACITY - len(ctx.my_bench())
+        take = min(count, len(cards), max(0, space))
+        if take <= 0:
+            return
+        picks = await ctx.choose_cards(
+            cards, take, minimum=0,
+            prompt="Choose a Basic Pokémon to put onto your Bench")
+        for card in picks:
+            await ctx.bench_pokemon(card)
+    return effect
+
+
+def reveal_until_supporter():
+    """Reveal cards from the top of your deck until a Supporter appears, put
+    it into your hand, and shuffle the rest back in."""
+    async def effect(ctx):
+        revealed = []
+        found = None
+        for card in ctx.deck_top(len(ctx.deck())):
+            revealed.append(card)
+            if is_supporter_card(card):
+                found = card
+                break
+        if revealed:
+            await ctx.reveal_cards(revealed)
+        if found is not None:
+            await ctx.put_in_hand([found], reveal=False)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def devolve_one(count: int = 1):
+    """Devolve `count` of your evolved Pokemon once each, putting the removed
+    evolution card into your hand."""
+    async def effect(ctx):
+        evolved = [p for p in ctx.my_pokemon_in_play()
+                   if is_evolution_pokemon(p)]
+        if not evolved:
+            return
+        target = await ctx.choose_pokemon(
+            evolved, "Choose an evolved Pokémon to devolve") \
+            if len(evolved) > 1 else evolved[0]
+        if target is None:
+            return
+        await ctx.devolve_pokemon(target, steps=count, destination="hand")
+    return effect

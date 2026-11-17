@@ -262,7 +262,7 @@ RULES = [
          r"heal all damage from (?P<n>\d+) of your pokemon",
          "heal_all_from_one", lambda m: [], module="support_common"),
     Rule("remove-counters",
-         r"remove (?P<counters>\d+) damage counters? from (?P<n>\d+) of your pokemon"
+         r"remove (?:up to )?(?P<counters>\d+) damage counters? from (?P<n>\d+) of your pokemon"
          r"(?: remove \d+ damage counters? if that pokemon has only \d+)?",
          "heal_item",
          lambda m: ["amount=" + str(int(m.group("counters")) * 10), 'scope="choice"'],
@@ -344,7 +344,7 @@ RULES = [
          module="support_common"),
     Rule("return-pokemon-to-hand",
          r"put (?P<n>\d+) of your (?P<cat>[a-z0-9 ]*?)pokemon (?:in play )?and all "
-         r"(?:cards )?attached to it into your hand",
+         r"(?:cards )?attached(?: cards)? to it into your hand",
          "return_pokemon_to_hand",
          lambda m: ["predicate=" + _pred(m.group("cat") + "pokemon")]),
     Rule("return-pokemon-to-hand-discard-attachments",
@@ -368,7 +368,7 @@ RULES = [
     Rule("each-draw-per-prize",
          r"each player shuffles (?:their|his or her) hand(?: and puts it on the bottom of "
          r"(?:their|his or her) deck| into (?:their|his or her) deck)(?: if either player put "
-         r"any cards on the bottom of their deck in this way)? then each player draws "
+         r"any cards on the bottom of their deck in this way)?(?: then)? each player draws "
          r"(?P<n>\d+) cards? for each of (?:their|his or her) remaining prize cards",
          "each_player_shuffle_draw_per_prize", lambda m: []),
     Rule("draw-until-first-turn",
@@ -470,6 +470,36 @@ RULES = [
          r"(?P<owner>[a-z]+ )?pokemon both yours and your opponents take (?P<amount>\d+) less "
          r"damage from attacks from the opponents pokemon",
          "stadium_takes_less", lambda m: [m.group("amount")], kind="passive"),
+
+    # --- Composed shapes --------------------------------------------------
+    Rule("draw-prize-bonus",
+         r"draw (?P<base>\d+) cards? if your opponent has (?P<threshold>\d+) or fewer prize "
+         r"cards remaining draw (?P<bonus>\d+) more cards?",
+         "draw_n_prize_bonus",
+         lambda m: [m.group("base"), m.group("bonus"), m.group("threshold")]),
+    Rule("shuffle-one-hand-draw",
+         r"if you have any cards in your hand shuffle (?P<n>\d+) of them into your deck then "
+         r"draw (?P<draw>\d+) cards?",
+         "shuffle_one_hand_draw", lambda m: [m.group("draw")]),
+    Rule("flip-recover-basic-energy",
+         r"flip (?P<n>\d+) coins for each heads put (?P<each>\d+) basic energy card from your "
+         r"discard pile into your hand.*",
+         "flip_recover_basic_energy", lambda m: [m.group("n")]),
+    Rule("recover-basic-to-bench",
+         r"put (?P<n>\d+) basic pokemon? from your discard pile onto your bench",
+         "recover_basic_to_bench", lambda m: [m.group("n")]),
+    Rule("reveal-until-supporter",
+         r"reveal cards from the top of your deck until you reveal (?P<n>\d+) supporter cards? "
+         r"put (?:it|them) into your hand shuffle the other cards back into your deck",
+         "reveal_until_supporter", lambda m: []),
+    Rule("devolve-one",
+         r"devolve (?P<n>\d+) of your evolved pokemon and put the highest stage evolution card "
+         r"on it into your hand(?: that pokemon cant evolve this turn)?",
+         "devolve_one", lambda m: [m.group("n")]),
+    Rule("cure-each-active",
+         r"remove all special conditions from each of your active pokemon",
+         "cure_conditions_effect", lambda m: ['scope="each_own"'],
+         module="support_common"),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",

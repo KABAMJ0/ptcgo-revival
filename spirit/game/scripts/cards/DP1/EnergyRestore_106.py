@@ -1,5 +1,6 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import flip_recover_basic_energy
 
 card = ItemCardDef(
     guid="0ece8f3c-1daf-59c2-a0b8-26c754acda62",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=106,
     set_code="DP1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_recover_basic_energy(3)
 )
