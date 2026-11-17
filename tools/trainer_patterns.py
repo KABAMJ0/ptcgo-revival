@@ -39,6 +39,8 @@ SIMPLE_PREDICATES = {
     "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
     "pokemon ex": "is_pokemon_ex",
     "pokemon that has any damage counters on it": "is_damaged_pokemon",
+    "pokemon that dont have 1 rule box": "is_rule_box_free_pokemon",
+    "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
     "pokemon gx": "is_pokemon_gx",
     "pokemon vstar": "is_pokemon_vstar",
     "item card": "is_item_card",
@@ -963,17 +965,59 @@ RULES = [
          r"poisoned",
          "attach_darkness_to_each_poison", lambda m: []),
 
+    # --- Going-second, hand reveals, top-of-deck ---------------------------
+    Rule("shuffle-hand-draw-going-second",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) cards? if you go second and its "
+         r"your first turn draw (?P<bigger>\d+) cards? instead",
+         "shuffle_hand_draw_going_second",
+         lambda m: [m.group("n"), m.group("bigger")]),
+    Rule("look-top-take-bottom",
+         r"look at the top (?P<n>\d+) cards of your deck and put (?P<take>\d+) of them into your "
+         r"hand shuffle the other cards and put them on the bottom of your deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="bottom"'],
+         module="support_common"),
+    Rule("opponent-reveals-draw-per-supporter",
+         r"your opponent reveals their hand and you draw (?P<per>\d+) cards? for each "
+         r"(?P<cat>[a-z0-9 ]+?) you find there",
+         "draw_per_opponent_hand_card",
+         lambda m: ["predicate=" + _pred(m.group("cat")), "per=" + m.group("per")]),
+    Rule("draw-per-opponent-bench",
+         r"draw (?P<per>\d+) card for each of your opponents benched pokemon",
+         "draw_per_opponent_bench", lambda m: [m.group("per")]),
+    Rule("opponent-hand-to-bottom",
+         r"your opponent reveals their hand and you choose (?P<n>\d+) card you find there and put "
+         r"it on the bottom of their deck.*",
+         "opponent_hand_to_bottom", lambda m: []),
+    Rule("opponent-energy-to-hand-then-attach",
+         r"put (?P<n>\d+) energy attached to your opponents active pokemon into their hand if you "
+         r"do attach (?P<c>\d+) energy card from your hand to your active pokemon",
+         "opponent_energy_to_hand_then_attach", lambda m: []),
+    Rule("reveal-then-search-same",
+         r"reveal up to (?P<n>\d+) pokemon in your hand and put them into your deck if you do "
+         r"search your deck for up to that many pokemon reveal th.*",
+         "reveal_then_search_same", lambda m: []),
+    Rule("tool-damage-boost-ex-or-gx",
+         r"the attacks of the pokemon this card is attached to do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon gx or active pokemon ex(?: before applying weakness and "
+         r"resistance)?",
+         "holder_damage_boost",
+         lambda m: [m.group("amount"),
+                    "target_pred=any_of(is_pokemon_gx, is_pokemon_ex)"],
+         kind="passive"),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "
-         r"stage 2 card|1 stage 1 card|1 stage 2 card) that evolves from that pokemon"
-         r"(?: in your hand)? put that card on the basic pokemon"
-         r"(?: this counts as evolving that pokemon)?",
+         r"stage 2 card|1 stage 1 card|1 stage 2 card) (?:in your hand )?that evolves from that "
+         r"pokemon(?: in your hand)? put that card on(?:to)? the basic pokemon(?: to evolve it)?"
+         r"(?: this counts as evolving that pokemon)?(?: you cant use this card during your first "
+         r"turn or on 1 basic pokemon that was put into play this turn)?",
          "evolve_from_hand", lambda m: []),
     Rule("rare-candy",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have 1 stage 2 card in your "
-         r"hand that evolves from that pokemon put that card onto the basic pokemon to evolve "
-         r"it skipping the stage 1.*",
+         r"hand that evolves from that pokemon put that card on(?:to)? the basic pokemon to "
+         r"evolve it skipping the stage 1.*",
          "rare_candy", lambda m: []),
 ]
 
@@ -1016,6 +1060,8 @@ CONDITION_PREFIXES = [
                 r"than your opponent "), "behind_on_prizes"),
     (re.compile(r"^you can (?:use|play) this card only if you have any (?P<sub>[a-z]+) pokemon "
                 r"in play "), "has_subtype_in_play"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
+                r"(?P<cond>[a-z]+) "), "opponent_active_has"),
 ]
 
 ENDS_TURN = re.compile(r" your turn ends$")
@@ -1061,6 +1107,8 @@ def resolve(text, depth=0):
         groups = found.groupdict()
         if factory == "has_subtype_in_play":
             condition = '%s("%s")' % (factory, groups["sub"].capitalize())
+        elif factory == "opponent_active_has":
+            condition = '%s("%s")' % (factory, groups["cond"].upper())
         elif "n" in groups:
             condition = "%s(%s)" % (factory, groups["n"])
         else:

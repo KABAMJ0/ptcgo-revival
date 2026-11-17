@@ -2974,3 +2974,123 @@ def attach_darkness_to_each_poison():
         if attached_to_active and active is not None:
             await ctx.apply_special_condition(active, SpecialConditions.POISONED)
     return effect
+
+
+def shuffle_hand_draw_going_second(n: int, bigger: int):
+    """Shuffle your hand into your deck, then draw `n` — or `bigger` when you
+    went second and this is your first turn."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        turn_state = getattr(ctx.board, "turn_state", None)
+        first_turn = turn_state is not None and turn_state.turn_number <= 2
+        await ctx.draw_cards(bigger if first_turn else n)
+    return effect
+
+
+def draw_per_opponent_hand_card(predicate, per: int = 2):
+    """Your opponent reveals their hand; draw `per` card for each matching
+    card found there."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        await ctx.reveal_hand(ctx.opponent_id)
+        matches = sum(1 for card in hand if predicate(card))
+        if matches:
+            await ctx.draw_cards(per * matches)
+    return effect
+
+
+def draw_per_opponent_bench(per: int = 1):
+    """Draw `per` card for each of the opponent's Benched Pokemon."""
+    async def effect(ctx):
+        count = len(ctx.opponent_bench())
+        if count:
+            await ctx.draw_cards(per * count)
+    return effect
+
+
+def opponent_hand_to_bottom(predicate=None):
+    """Your opponent reveals their hand; put 1 matching card from it on the
+    bottom of their deck (they may then draw a card)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        await ctx.reveal_hand(ctx.opponent_id)
+        cards = [c for c in hand if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose a card to put on the bottom of their deck")
+        if picks:
+            await ctx.put_on_bottom_of_deck(picks[0])
+            if await ctx.ask_yes_no("Draw a card?", player_id=ctx.opponent_id):
+                await ctx.draw_cards(1, ctx.opponent_id)
+    return effect
+
+
+def opponent_energy_to_hand_then_attach():
+    """Put an Energy attached to the opponent's Active into their hand, then
+    attach an Energy card from your hand to your Active."""
+    async def effect(ctx):
+        holder = ctx.opponent_active()
+        energies = ctx.attached_energies(holder) if holder is not None else []
+        if not energies:
+            return
+        picked = await ctx.choose_cards(
+            energies, 1, minimum=1,
+            prompt="Choose an Energy to return to their hand") \
+            if len(energies) > 1 else energies[:1]
+        if not picked:
+            return
+        await ctx.put_in_hand(picked, reveal=True)
+        mine = [c for c in ctx.hand() if is_energy_card(c)]
+        target = ctx.my_active()
+        if not mine or target is None:
+            return
+        chose = await ctx.choose_cards(
+            mine, 1, minimum=1,
+            prompt="Choose an Energy to attach to your Active") \
+            if len(mine) > 1 else mine[:1]
+        if chose:
+            await ctx.attach_energy(chose[0], target)
+    return effect
+
+
+def reveal_then_search_same():
+    """Reveal up to 2 Pokemon from your hand and put them into your deck; then
+    search the deck for that many Pokemon."""
+    async def effect(ctx):
+        pool = [c for c in ctx.hand() if is_pokemon_card(c)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 2, minimum=0,
+            prompt="Choose up to 2 Pokémon from your hand to put into your deck")
+        if not picks:
+            return
+        await ctx.shuffle_into_deck(picks)
+        found = await ctx.search_deck(
+            is_pokemon_card, count=len(picks), minimum=0,
+            prompt="Choose a Pokémon to put into your hand")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def opponent_active_has(condition_code: str):
+    """The opponent's Active Pokemon has the named Special Condition."""
+    code = condition_code.upper()
+
+    def check(board, player_id):
+        opponent = _other_player(board, player_id)
+        if not opponent:
+            return False
+        area = board.find_player_area(opponent, "activePokemonArea")
+        pokemon = next((c for c in (area.children if area else [])
+                        if isinstance(c, PokemonEntity)), None)
+        if pokemon is None:
+            return False
+        wanted = SpecialConditions[code].value
+        conditions = pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or []
+        return wanted in conditions
+    return check
