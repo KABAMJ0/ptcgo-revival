@@ -3702,3 +3702,47 @@ def holder_condition_immunity(holder=None):
     """The holder can't be affected by any Special Condition."""
     return condition_immunity_passive(None, protects=_holds(holder))
 
+
+
+class EveryoneHpBonusPassive(Passive):
+    """Stadium: every in-play Pokemon matching `pred` gets +amount max HP."""
+
+    def __init__(self, amount, pred):
+        self.amount = amount
+        self.pred = pred
+
+    def max_hp_bonus(self, pokemon, carrier):
+        return self.amount if self.pred(pokemon) else 0
+
+
+def stadium_hp_bonus(amount: int, pred):
+    """<pred> Pokemon in play (both sides) get +amount max HP."""
+    return EveryoneHpBonusPassive(amount, pred)
+
+
+def has_energy_of(*type_names):
+    """Pokemon predicate: any attached Energy is one of the named types."""
+    values = {POKEMON_TYPE_NAMES[name] for name in type_names}
+
+    def predicate(pokemon):
+        stack = list(pokemon.children)
+        while stack:
+            entity = stack.pop()
+            stack.extend(getattr(entity, "children", []) or [])
+            if entity.get_attribute(AttrID.CARD_TYPE) != CardType.ENERGY.value:
+                continue
+            if values & set(entity.get_attribute(AttrID.POKEMON_TYPES) or []):
+                return True
+        return False
+    return predicate
+
+
+def pokemon_named(word: str):
+    """Pokemon predicate: the printed name contains `word` ("Psyduck")."""
+    wanted = word.lower()
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        return is_pokemon_card(card) and wanted in (
+            getattr(definition, "display_name", "") or "").lower()
+    return predicate

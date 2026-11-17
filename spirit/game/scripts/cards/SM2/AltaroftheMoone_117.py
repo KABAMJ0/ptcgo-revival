@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import has_energy_of, stadium_retreat_shift
 
 card = StadiumCardDef(
     guid="b1d91432-5568-55f2-bd79-723bd0422afe",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=117,
     set_code="SM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_retreat_shift(-2, has_energy_of("psychic", "darkness"))
 )

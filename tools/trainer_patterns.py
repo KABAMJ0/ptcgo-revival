@@ -378,6 +378,47 @@ def _name_choice(phrase):
     return "named_one_of(%s)" % ", ".join('"%s"' % part for part in parts)
 
 
+_STADIUM_CATEGORY_SUBTYPES = {
+    "pokemon sp": "SP", "pokemon team plasma": "Team Plasma",
+}
+
+
+def _stadium_cat(phrase):
+    """A both-sides stadium's affected-Pokemon phrase -> predicate source.
+
+    "psychic and darkness pokemon" means either type, and a bare type name is
+    a Pokemon of that type, so the parts join with any_of."""
+    text = re.sub(r" (?:in|is) play$", "", phrase.strip())
+    if text in _STADIUM_CATEGORY_SUBTYPES:
+        return 'pokemon_of_subtype("%s")' % _STADIUM_CATEGORY_SUBTYPES[text]
+    basic_non = re.match(r"^basic non (?P<type>[a-z]+)(?: pokemon)?$", text)
+    if basic_non:
+        return 'all_of(is_basic_pokemon, excluding(pokemon_of("%s")))' % basic_non.group("type")
+    energy = re.match(r"^pokemon that has any (?P<types>[a-z ]+?) energy attached to it$", text)
+    if energy:
+        words = [w for w in energy.group("types").replace(" or ", " ").split() if w]
+        if words and all(w in TYPE_NAMES.split("|") for w in words):
+            return "has_energy_of(%s)" % ", ".join('"%s"' % w for w in words)
+        raise Unresolved(phrase)
+    dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
+    if dark:
+        return 'pokemon_named("%s")' % dark.group("word")
+    if text.endswith(" pokemon"):
+        text = text[:-len(" pokemon")]
+    parts = [_type_or_predicate(part) for part in text.split(" and ")]
+    return parts[0] if len(parts) == 1 else "any_of(%s)" % ", ".join(parts)
+
+
+def _type_or_predicate(phrase):
+    """A bare type name is a Pokemon of that type; else a full predicate."""
+    text = phrase.strip()
+    if text in TYPE_NAMES.split("|"):
+        return 'pokemon_of("%s")' % text
+    if text == "pokemon":
+        return "is_pokemon_card"
+    return resolve_predicate(text)
+
+
 def _union(phrase):
     """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
     either, so the parts join with any_of."""
@@ -1278,6 +1319,47 @@ RULES = [
          "takes_less_from",
          lambda m: [m.group("amount"), "excluding(pokemon_of_subtype(\"MEGA\"))",
                     'attacker_has_subtypes("MEGA", "ex")'], kind="passive"),
+    Rule("stadium-retreat-zero",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: pokemon)? both yours and your "
+         r"opponents is 0",
+         "stadium_no_retreat", lambda m: [_stadium_cat(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-retreat-shift-cat",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: pokemon)?(?: in play)? both "
+         r"yours and your opponents is (?P<count>colorless(?: ?colorless)*) (?P<dir>less|more)",
+         "stadium_retreat_shift",
+         lambda m: [("-" if m.group("dir") == "less" else "")
+                    + str(_colorless_count(m.group("count"))),
+                    _stadium_cat(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-retreat-shift-attached-energy",
+         r"the retreat cost of each pokemon both yours and your opponents that has any "
+         r"(?P<types>[a-z ]+?) energy attached to it is (?P<count>colorless(?: ?colorless)*) less",
+         "stadium_retreat_shift",
+         lambda m: ["-" + str(_colorless_count(m.group("count"))),
+                    _stadium_cat("pokemon that has any " + m.group("types")
+                                 + " energy attached to it")],
+         kind="passive"),
+    Rule("stadium-no-retreat-energy",
+         r"each pokemon that has any (?P<types>[a-z ]+?) energy attached to it both yours and "
+         r"your opponents has no retreat cost",
+         "stadium_no_retreat",
+         lambda m: [_stadium_cat("pokemon that has any " + m.group("types")
+                                 + " energy attached to it")],
+         kind="passive"),
+    Rule("stadium-hp-named",
+         r"each pokemon(?: in play)? with (?P<word>[a-z]+) in its name even your opponents gets "
+         r"(?P<amount>\d+) hp",
+         "stadium_hp_bonus",
+         lambda m: [m.group("amount"), _stadium_cat("pokemon with %s in its name"
+                                                    % m.group("word"))],
+         kind="passive"),
+    Rule("stadium-retreat-named",
+         r"the retreat cost of each (?P<word>[a-z]+) in play both yours and your opponents is "
+         r"(?P<count>colorless(?: ?colorless)*) less",
+         "stadium_retreat_shift",
+         lambda m: ["-" + str(_colorless_count(m.group("count"))),
+                    'pokemon_named("%s")' % m.group("word")], kind="passive"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

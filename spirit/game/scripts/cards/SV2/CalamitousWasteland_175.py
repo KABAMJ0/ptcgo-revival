@@ -1,5 +1,6 @@
-from spirit.game.data_utils import StadiumCardDef, unimplemented
+from spirit.game.data_utils import StadiumCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import all_of, excluding, is_basic_pokemon, pokemon_of, stadium_retreat_shift
 
 card = StadiumCardDef(
     guid="27764a23-fd06-537f-a949-8b742e06b348",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=175,
     set_code="SV2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_retreat_shift(1, all_of(is_basic_pokemon, excluding(pokemon_of("fighting"))))
 )
