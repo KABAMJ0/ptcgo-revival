@@ -56,6 +56,7 @@ SIMPLE_PREDICATES = {
     "special energy card": "is_special_energy",
     "special energy": "is_special_energy",
     "card": "None",
+    "baby pokemon": 'pokemon_of_subtype("Baby")',
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
 }
@@ -92,7 +93,11 @@ def resolve_predicate(phrase):
     decline rather than pick a wrong filter.
     """
     text = re.sub(r"\s+", " ", (phrase or "").strip().lower())
+    text = re.sub(r" and or ", " or ", text)
     text = re.sub(r"^(up to|any number of) ", "", text)
+    bare = re.sub(r" cards?$", "", text)
+    if text not in SIMPLE_PREDICATES and bare in SIMPLE_PREDICATES:
+        text = bare
     text = re.sub(r"^(1|a|an) ", "", text)
     combination = _any_combination(text)
     if combination is not None:
@@ -527,6 +532,22 @@ RULES = [
          r"hand" + SHUFFLE_TAIL,
          "search_to_hand",
          lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-show-that",
+         r"search your deck for (?:up to |any )?(?P<n>\d+ )?" + CAT +
+         r" (?:reveal|show) that card(?:s)?(?: to your opponent)? then put (?:it|them) into your "
+         r"hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-named-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<base>[a-z0-9 ]+?) with "
+         r"(?P<word>[a-z]+) in its name (?:reveal|show) (?:it|them)(?: to your opponent)? and put "
+         r"(?:it|them) into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, card_named_contains(\"%s\"))"
+                    % (_pred(m.group("base")), m.group("word")),
+                    "count=" + str(_count(m.group("n")))],
          module="support_common"),
     Rule("search-hand-plain",
          r"search your deck for (?:up to )?(?P<n>\d+ )?" + CAT +
@@ -1492,6 +1513,21 @@ RULES = [
          "with_discard_cost",
          lambda m: [m.group("n"),
                     'draw_until_per_typed_pokemon("%s")' % m.group("type")]),
+    Rule("gambler",
+         r"shuffle your hand into your deck flip (?P<coins>\d+) coin if heads draw (?P<a>\d+) "
+         r"cards? if tails draw (?P<b>\d+) cards?",
+         "shuffle_hand_flip_draw", lambda m: [m.group("a"), m.group("b")]),
+    Rule("dual-ball",
+         r"flip (?P<coins>\d+) coins for each heads search your deck for (?P<n>\d+) basic pokemon "
+         r"card other than (?P<skip>\d+) baby pokemon card show it to your opponent and put it "
+         r"into your hand",
+         "flip_search_basic_count", lambda m: [m.group("coins")]),
+    Rule("look-top-choose-discard-rest",
+         r"look at the top (?P<n>\d+) cards of your deck choose (?P<take>\d+) of those cards and "
+         r"put them into your hand discard the rest",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="discard"', "minimum=0"],
+         module="support_common"),
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1586,6 +1622,7 @@ ENDS_TURN = re.compile(r" your turn ends$")
 
 WRAPPERS = [
     (re.compile(r"^flip 1 coin if heads "), "if_heads", None),
+    (re.compile(r"^you may "), None, None),
     (re.compile(r"^you can (?:use|play) this card only if you discard (?P<n>\d+) other cards? "
                 r"from your hand "), "with_discard_cost", None),
     (re.compile(r"^you can (?:use|play) this card only if you discard another card from your "

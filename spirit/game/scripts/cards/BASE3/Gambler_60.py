@@ -1,5 +1,6 @@
-from spirit.game.data_utils import ItemCardDef, unimplemented
+from spirit.game.data_utils import ItemCardDef
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import shuffle_hand_flip_draw
 
 card = ItemCardDef(
     guid="f7849688-e0a5-50cb-bbaf-58f734588de4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=60,
     set_code="BASE3",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=shuffle_hand_flip_draw(8, 1)
 )

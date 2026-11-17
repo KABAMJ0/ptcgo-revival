@@ -334,6 +334,10 @@ def look_at_top(n, take=1, predicate=None, rest="shuffle", minimum=None,
             for card in top:
                 if card not in picks:
                     await ctx.put_on_bottom_of_deck(card)
+        elif rest == "discard":
+            for card in top:
+                if card not in picks:
+                    await ctx.discard_cards([card])
     return effect
 
 

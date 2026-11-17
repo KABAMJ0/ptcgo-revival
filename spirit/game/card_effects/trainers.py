@@ -3861,3 +3861,46 @@ def draw_until_per_typed_pokemon(type_name: str):
         if wanted > hand:
             await ctx.draw_cards(wanted - hand)
     return effect
+
+
+def card_named_contains(word: str):
+    """Predicate: any card whose printed name contains `word`."""
+    wanted = word.lower()
+
+    def predicate(card):
+        definition = def_for(card.archetype_id)
+        return wanted in (getattr(definition, "display_name", "") or "").lower()
+    return predicate
+
+
+def shuffle_hand_flip_draw(heads: int, tails: int):
+    """Shuffle your hand into your deck, flip a coin: heads draws `heads`,
+    tails draws `tails` (Gambler)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        if await ctx.flip_coins(1):
+            await ctx.draw_cards(heads)
+        else:
+            await ctx.draw_cards(tails)
+    return effect
+
+
+def flip_search_basic_count(count: int, avoid_baby: bool = True):
+    """Flip `count` coins; for each heads, search the deck for a Basic Pokemon
+    and put it into your hand (Dual Ball)."""
+    async def effect(ctx):
+        heads = await ctx.flip_coins(count)
+        wanted = sum(1 for result in heads if result)
+        if wanted <= 0:
+            return
+        def eligible(card):
+            if not is_basic_pokemon(card):
+                return False
+            return not (avoid_baby and "Baby" in subtypes_for(card.archetype_id))
+        picks = await ctx.search_deck(eligible, count=wanted, minimum=0)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
