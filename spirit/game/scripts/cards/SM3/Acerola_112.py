@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import is_damaged_pokemon, return_pokemon_to_hand
 
 card = SupporterCardDef(
     guid="479eac05-4692-569c-aaff-d8f88dcf0b33",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=112,
     set_code="SM3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=return_pokemon_to_hand(predicate=is_damaged_pokemon)
 )

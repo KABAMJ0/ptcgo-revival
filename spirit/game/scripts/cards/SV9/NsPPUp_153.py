@@ -1,5 +1,7 @@
 from spirit.game.data_utils import ItemCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import attach_from_discard
+from spirit.game.card_effects.trainers import is_basic_energy_card
 
 card = ItemCardDef(
     guid="a66d34b1-ce65-53d9-938c-1c8176a55a94",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=153,
     set_code="SV9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=attach_from_discard(is_basic_energy_card, count=1, target="choice")
 )

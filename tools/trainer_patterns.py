@@ -117,6 +117,12 @@ def resolve_predicate(phrase):
     owned = _owned_category(text)
     if owned is not None:
         return owned
+    distributed = _distribute_noun(text)
+    if distributed is not None:
+        try:
+            return _combine(distributed, "any_of")
+        except Unresolved:
+            pass
     for joiner, combinator in ((" or ", "any_of"),):
         if joiner in text:
             parts = [resolve_predicate(part) for part in text.split(joiner)]
@@ -164,6 +170,41 @@ def _any_combination(text):
     if not resolved:
         return None
     return resolved[0] if len(resolved) == 1 else "any_of(%s)" % ", ".join(resolved)
+
+
+_CATEGORY_NOUNS = ("pokemon", "card", "cards", "energy")
+
+
+def _distribute_noun(text):
+    """"psychic or dragon pokemon" -> ['psychic pokemon', 'dragon pokemon']."""
+    if " or " not in text:
+        return None
+    parts = [part.strip() for part in text.split(" or ")]
+    last = parts[-1].split()
+    if not last:
+        return None
+    noun = last[-1] if last[-1] in _CATEGORY_NOUNS else None
+    if noun is None:
+        return None
+    filled = []
+    for part in parts:
+        if part.split()[-1] in _CATEGORY_NOUNS:
+            filled.append(part)
+        else:
+            filled.append(part + " " + noun)
+    return filled
+
+
+def _combine(parts, combinator):
+    """Resolve every phrase in `parts` and combine them."""
+    expressions = []
+    for part in parts:
+        expression = resolve_predicate(part)
+        if expression != "None":
+            expressions.append(expression)
+    if len(expressions) < 2:
+        raise Unresolved(" or ".join(parts))
+    return "%s(%s)" % (combinator, ", ".join(expressions))
 
 
 def _excluding(text):
@@ -578,7 +619,8 @@ RULES = [
          "turn_damage_boost", lambda m: [m.group("amount")]),
     Rule("turn-damage-boost-no-rule-box",
          r"during this turn attacks used by your pokemon that dont have 1 rule box do "
-         r"(?P<amount>\d+) more damage to your opponents active pokemon",
+         r"(?P<amount>\d+) more damage to your opponents active pokemon(?: before applying weakness "
+         r"and resistance)?",
          "turn_damage_boost", lambda m: [m.group("amount"), "exclude_rule_box=True"]),
     Rule("turn-damage-boost-typed",
          r"during this turn attacks used by your (?P<type>[a-z]+) pokemon do (?P<amount>\d+) "
@@ -891,6 +933,35 @@ RULES = [
     Rule("draw-per-opponent-pokemon",
          r"draw (?P<per>\d+) card for each of your opponents pokemon in play",
          "draw_per_opponent_pokemon", lambda m: [m.group("per")]),
+
+    # --- Final composed shapes --------------------------------------------
+    Rule("return-damaged-pokemon-to-hand",
+         r"put (?P<n>\d+) of your pokemon that has any damage counters on it and all cards "
+         r"attached to it into your hand",
+         "return_pokemon_to_hand",
+         lambda m: ["predicate=is_damaged_pokemon"]),
+    Rule("switch-then-heal-ex",
+         r"switch (?:1 of )?your active pokemon with (?P<n>\d+) of your benched pokemon if you "
+         r"moved (?P<c>\d+) pokemon ex to your bench in this way heal (?P<amount>\d+) damage from "
+         r"that pokemon",
+         "switch_then_heal_ex", lambda m: [m.group("amount")]),
+    Rule("attach-discard-to-typed-target",
+         r"attach (?:up to )?(?P<n>\d+) " + CAT +
+         r" from your discard pile to (?P<target>\d+) of your (?P<which>[a-z0-9 ]*?)pokemon",
+         "attach_from_discard",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"), 'target="choice"'],
+         module="support_common"),
+    Rule("search-split-energy",
+         r"search your deck for up to (?P<n>\d+) basic energy cards of different types reveal "
+         r"them and put (?P<take>\d+) of them into your hand attach the other to (?P<target>\d+) "
+         r"of your pokemon then shuffle your deck",
+         "search_split_energy_to_hand_and_attach", lambda m: []),
+    Rule("attach-darkness-each-poison",
+         r"choose up to (?P<n>\d+) of your darkness pokemon for each of those pokemon search your "
+         r"deck for (?P<c>\d+) basic darkness energy card and attach it to that pokemon then "
+         r"shuffle your deck if you attached energy to your active pokemon in this way it is now "
+         r"poisoned",
+         "attach_darkness_to_each_poison", lambda m: []),
 
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",

@@ -1,5 +1,6 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.trainers import switch_then_heal_ex
 
 card = SupporterCardDef(
     guid="07742ad8-fee6-58c7-ae71-f86ce5d87b90",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=106,
     set_code="ME4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=switch_then_heal_ex(80)
 )

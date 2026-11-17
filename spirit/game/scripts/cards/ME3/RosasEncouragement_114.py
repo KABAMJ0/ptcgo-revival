@@ -1,5 +1,7 @@
 from spirit.game.data_utils import SupporterCardDef, unimplemented
 from spirit.game.attributes import Rarities
+from spirit.game.card_effects.support_common import attach_from_discard
+from spirit.game.card_effects.trainers import behind_on_prizes, is_basic_energy_card
 
 card = SupporterCardDef(
     guid="19138afd-c39e-582e-982e-91642949050b",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=114,
     set_code="ME3",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=attach_from_discard(is_basic_energy_card, count=2, target="choice"), condition=behind_on_prizes()
 )

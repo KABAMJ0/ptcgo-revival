@@ -2903,3 +2903,74 @@ class EvolveEarlyPassive(Passive):
         if self.wanted_type is None:
             return True
         return self.wanted_type in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
+
+def switch_then_heal_ex(amount: int = 80):
+    """Switch your Active with a Benched Pokemon; heal `amount` from it if the
+    Pokemon that went to the Bench was a Pokemon ex."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        old_active = ctx.my_active()
+        if not bench or old_active is None:
+            return
+        target = await ctx.choose_play_target(bench, "Choose your new Active Pokémon")
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        if is_pokemon_ex(old_active):
+            await ctx.heal(amount, target)
+    return effect
+
+
+def search_split_energy_to_hand_and_attach():
+    """Search the deck for up to 2 Basic Energy of different types: one into
+    your hand, the other attached to one of your Pokemon."""
+    async def effect(ctx):
+        found = await ctx.search_deck(
+            is_basic_energy_card, count=2, minimum=0,
+            prompt="Choose up to 2 Basic Energy cards")
+        if not found:
+            await ctx.shuffle_deck()
+            return
+        picks = await ctx.choose_cards(
+            found, 1, minimum=1,
+            prompt="Choose the Energy card to put into your hand") if found else []
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        rest = [card for card in found if card not in picks]
+        if rest:
+            targets = ctx.my_pokemon_in_play()
+            if targets:
+                target = await ctx.choose_pokemon(
+                    targets, "Choose a Pokémon to attach the other Energy to") \
+                    if len(targets) > 1 else targets[0]
+                if target is not None:
+                    await ctx.attach_energy(rest[0], target)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def attach_darkness_to_each_poison():
+    """For each of up to N of your Darkness Pokemon, search the deck for a
+    Basic Darkness Energy and attach it; if the Active got one, it is Poisoned."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if pokemon_of("darkness")(p)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 2, minimum=0,
+            prompt="Choose up to 2 Darkness Pokémon to attach Energy to")
+        active = ctx.my_active()
+        attached_to_active = False
+        for pokemon in picks:
+            found = await ctx.search_deck(
+                basic_energy_of("darkness"), count=1, minimum=0,
+                prompt="Choose a Basic Darkness Energy")
+            for card in found:
+                await ctx.attach_energy(card, pokemon)
+                if pokemon is active:
+                    attached_to_active = True
+        await ctx.shuffle_deck()
+        if attached_to_active and active is not None:
+            await ctx.apply_special_condition(active, SpecialConditions.POISONED)
+    return effect
