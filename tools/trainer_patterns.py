@@ -136,6 +136,11 @@ def resolve_predicate(phrase):
             return _combine(distributed, "any_of")
         except Unresolved:
             pass
+    two_energy = _TWO_TYPED_ENERGY.match(text)
+    if two_energy and all(part in TYPE_NAMES.split("|")
+                          for part in (two_energy.group("a"), two_energy.group("b"))):
+        return 'any_of(basic_energy_of("%s"), basic_energy_of("%s"))' % (
+            two_energy.group("a"), two_energy.group("b"))
     for joiner, combinator in ((" or ", "any_of"),):
         if joiner in text:
             # "Basic Pokemon, Evolution card, or Energy card" loses its comma,
@@ -355,6 +360,8 @@ def _pred(phrase):
 
 _NAMED_RULE_BOX = re.compile(r"^(?P<name>[a-z][a-z ]*?) (?P<suffix>ex|gx)$")
 
+_TWO_TYPED_ENERGY = re.compile(r"^(?P<a>[a-z]+) or (?P<b>[a-z]+) energy cards?$")
+
 
 def _holder(phrase):
     """Predicate source for a tool's holder phrase; plain "pokemon" is any,
@@ -427,6 +434,11 @@ def _stadium_cat(phrase):
     named = re.match(r"^cards? named (?P<word>[a-z0-9 ]+)$", text)
     if named:
         return 'named_exactly("%s")' % named.group("word").title()
+    two_energy = re.match(r"^(?P<a>[a-z]+) or (?P<b>[a-z]+) energy cards?$", text)
+    if two_energy:
+        types = [two_energy.group("a"), two_energy.group("b")]
+        if all(t in TYPE_NAMES.split("|") for t in types):
+            return "any_of(basic_energy_of(\"%s\"), basic_energy_of(\"%s\"))" % tuple(types)
     dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
     if dark:
         return 'pokemon_named("%s")' % dark.group("word")
@@ -531,6 +543,16 @@ CAT = r"(?P<cat>[a-z0-9][a-z0-9 ]*?)"
 # Printings differ only in how the deck shuffle is phrased; all forms mean
 # the same thing, so one fragment covers them.
 SHUFFLE_TAIL = r"(?: then)? shuffle your deck(?: afterward)?"
+
+def _cat_with_cards(cat):
+    """A printed card-category phrase, given back a trailing "card" word."""
+    text = (cat or "").strip()
+    if not text:
+        return "None"
+    if not text.endswith("card") and not text.endswith("cards"):
+        text += " card"
+    return _pred(text)
+
 
 def _attach_target(which):
     """Target predicate for "to 1 of your <which>pokemon": "benched" keeps it
@@ -2063,6 +2085,57 @@ RULES = [
          "evolve_from_deck_matching",
          lambda m: ["None", "is_pokemon_ex"]),
 
+    Rule("discard-from-hand-to-draw",
+         r"discard (?P<n>\d+) (?P<cat>[a-z0-9 ]*?)from your hand in order to draw (?P<draw>\d+) "
+         r"cards?",
+         "discard_typed_from_hand_then",
+         lambda m: [_cat_with_cards(m.group("cat")), m.group("n"),
+                    "lambda ctx: ctx.draw_cards(%s)" % m.group("draw")]),
+    Rule("discard-from-hand-if-you-do-draw",
+         r"discard (?P<n>\d+) (?P<cat>[a-z0-9 ]*?)from your hand if you do(?: so)? you draw "
+         r"(?P<draw>\d+) cards?",
+         "discard_typed_from_hand_then",
+         lambda m: [_cat_with_cards(m.group("cat")), m.group("n"),
+                    "lambda ctx: ctx.draw_cards(%s)" % m.group("draw")]),
+    Rule("discard-any-from-hand-to-draw",
+         r"discard (?P<n>\d+) cards from your hand in order to draw (?P<draw>\d+) cards?",
+         "discard_typed_from_hand_then",
+         lambda m: ["None", m.group("n"),
+                    "lambda ctx: ctx.draw_cards(%s)" % m.group("draw")]),
+    Rule("discard-from-hand-to-heal-each",
+         r"discard (?P<n>\d+) (?P<cat>[a-z0-9 ]*?)from your hand in order to heal (?P<amount>\d+) "
+         r"damage from each of your pokemon",
+         "discard_typed_from_hand_then",
+         lambda m: [_cat_with_cards(m.group("cat")), m.group("n"),
+                    "heal_where(%s, \"each_own\")" % m.group("amount")]),
+    Rule("switch-same-type-active",
+         r"switch your active (?P<type>[a-z]+) pokemon with (?P<n>\d+) of your benched "
+         r"(?P=type) pokemon",
+         "switch_typed_active", lambda m: [m.group("type") and _pred(m.group("type") + " pokemon")]),
+    Rule("move-typed-energy-between",
+         r"choose (?P<n>\d+) (?P<types>[a-z ]+?) energy attached to (?P<t>\d+) of your pokemon and "
+         r"move that energy to (?P<k>\d+) of your pokemon",
+         "move_energy_of_type_between",
+         lambda m: ['"%s"' % w for w in m.group("types").replace(" or ", " ").split()
+                    if w in TYPE_NAMES.split("|")]),
+    Rule("hand-card-to-top",
+         r"put (?P<n>\d+) card from your hand on top of your deck",
+         "hand_card_to_top", lambda m: []),
+    Rule("flip-until-tails-draw",
+         r"flip (?P<n>\d+) coin until (?:he or she|you) gets tails for each heads you draw "
+         r"(?P<per>\d+) card",
+         "flip_until_tails_draw", lambda m: [m.group("per")]),
+    Rule("heal-each-two-types",
+         r"heal (?P<amount>\d+) damage from each of your (?P<a>[a-z]+) pokemon and (?P<b>[a-z]+) "
+         r"pokemon",
+         "heal_where",
+         lambda m: [m.group("amount"), '"each_own"',
+                    'any_of(pokemon_of("%s"), pokemon_of("%s"))' % (m.group("a"), m.group("b"))]),
+    Rule("devolve-chosen",
+         r"choose (?P<n>\d+) of your evolved pokemon in play and discard the top evolution card from "
+         r"that pokemon devolving it",
+         "devolve_one", lambda m: [m.group("n")]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -2338,6 +2411,8 @@ def resolve_stadium_ability(text):
     if head is None:
         return None
     inner = text[len(head):]
+    inner = (inner.replace("their opponent", "your opponent")
+             .replace("the opponent", "your opponent"))
     if "opponent" in inner:
         return None
     inner = inner.replace("then that player shuffles their deck", "then shuffle your deck")
@@ -2350,7 +2425,7 @@ def resolve_stadium_ability(text):
                     "discards": "discard", "flips": "flip", "puts": "put",
                     "shuffles": "shuffle", "removes": "remove", "heals": "heal",
                     "attaches": "attach", "reveals": "reveal", "takes": "take",
-                    "shows": "show", "places": "place"}
+                    "shows": "show", "places": "place", "does": "do"}
     inner = re.sub(r"\b(%s)\b" % "|".join(THIRD_PERSON),
                    lambda m: THIRD_PERSON[m.group(1)], inner)
     inner = inner.replace("if heads you ", "if heads ")

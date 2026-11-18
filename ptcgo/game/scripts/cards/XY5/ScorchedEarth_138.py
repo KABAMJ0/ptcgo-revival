@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, basic_energy_of, discard_typed_from_hand_then, stadium_ability
 
 card = StadiumCardDef(
     guid="1f4f46e7-f9fc-525e-978b-5934d5dab812",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=138,
     set_code="XY5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Scorched Earth', discard_typed_from_hand_then(any_of(basic_energy_of("fire"), basic_energy_of("fighting")), 1, lambda ctx: ctx.draw_cards(2)))
 )

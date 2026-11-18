@@ -4959,3 +4959,94 @@ def search_distinct_types(predicate, count: int, to_bench: bool = False):
             await ctx.put_in_hand(taken, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+def discard_typed_from_hand_then(predicate, count: int, inner):
+    """Discard `count` matching cards from your hand, then run `inner`
+    (Scorched Earth, Prism Tower, Cycling Road)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if predicate is None or predicate(c)]
+        if len(hand) < count:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=count, prompt=f"Discard {count} card(s) from your hand")
+        if len(picks) < count:
+            return
+        await ctx.discard_cards(picks)
+        await inner(ctx)
+    return effect
+
+
+def switch_typed_active(predicate):
+    """Switch your Active Pokemon for a Benched one of the same kind
+    (Surfing Beach)."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        if active is None or not predicate(active):
+            return
+        bench = [p for p in ctx.my_bench() if predicate(p)]
+        if not bench:
+            return
+        target = await ctx.choose_pokemon(
+            bench, "Choose your new Active Pokémon") if len(bench) > 1 else bench[0]
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+    return effect
+
+
+def move_energy_of_type_between(*types):
+    """Move 1 matching Energy from 1 of your Pokemon to another of your Pokemon
+    (Stark Mountain)."""
+    wanted = {POKEMON_TYPE_NAMES[name] for name in types}
+
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if any(wanted & set(e.get_attribute(AttrID.POKEMON_TYPES) or [])
+                       for e in ctx.attached_energies(p))]
+        if not pool:
+            return
+        source = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to move Energy from") \
+            if len(pool) > 1 else pool[0]
+        if source is None:
+            return
+        energies = [e for e in ctx.attached_energies(source)
+                    if wanted & set(e.get_attribute(AttrID.POKEMON_TYPES) or [])]
+        picks = await ctx.choose_cards(
+            energies, 1, minimum=1, prompt="Choose an Energy to move")
+        targets = [p for p in ctx.my_pokemon_in_play() if p is not source]
+        if not picks or not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        await ctx.attach_energy(picks[0], dest)
+    return effect
+
+
+def hand_card_to_top():
+    """Put 1 card from your hand on top of your deck (Academy at Night)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Choose a card to put on top of your deck")
+        if picks:
+            await ctx.put_on_top_of_deck(picks[0])
+    return effect
+
+
+def flip_until_tails_draw(per: int = 1):
+    """Flip coins until tails; draw `per` card for each heads (Speed
+    Stadium)."""
+    async def effect(ctx):
+        heads = 0
+        while True:
+            if not (await ctx.flip_coins(1, title="Draw for each heads"))[0]:
+                break
+            heads += 1
+            if heads > 20:
+                break
+        if heads:
+            await ctx.draw_cards(per * heads)
+    return effect

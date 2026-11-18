@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import move_energy_of_type_between, stadium_ability
 
 card = StadiumCardDef(
     guid="5a1c2410-eb89-569e-9709-ba7f582a1d06",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=135,
     set_code="DP6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Stark Mountain', move_energy_of_type_between("fire", "fighting"))
 )
