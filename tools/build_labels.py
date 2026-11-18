@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Fill the gaps in the client's filter vocabulary.
+"""Fill the gaps in the client's vocabulary.
 
-The 2020 client renders a filter label by looking up a key it derives from the
-value the server sends -- `collection.filter.series.<slug>` for a series,
-`deckbuilder.cardfilters.rarity.<slug>` for a rarity, and so on. Anything we send
-that it has no key for shows up as the raw key, which is what a screen full of
+The 2020 client renders a label by looking up a key it derives from a value the
+server sends -- `series.<block>` for a collection's series header,
+`collection.filter.series.<block>` for its filter, `deckbuilder.cardfilters.
+rarity.<slug>` for a rarity, and so on. Anything we send that it has no key for
+shows up as the raw key, which is what a screen full of "series.base" and
 "collection.filter.series.mega evolution" was.
 
-This compares the labels that client ships with the values our card data can
-actually produce, and writes the missing ones to
+This compares the labels that client ships with the values our card and set data
+can actually produce, and writes the missing ones to
 `ptcgo/database/json_data/custom_labels.json`. The localization handler merges
 that file at startup, so the labels travel with the repository instead of being
 hard-coded in the handler.
@@ -27,6 +28,8 @@ from pathlib import Path
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_DB = os.path.join(ROOT, "ptcgo", "database", "game_data", "LocalizationDB-UTF16.db")
 OUT_PATH = os.path.join(ROOT, "ptcgo", "database", "json_data", "custom_labels.json")
+SETS_PATH = os.path.join(ROOT, "ptcgo", "database", "json_data", "sets.json")
+SET_META_PATH = os.path.join(ROOT, "ptcgo", "database", "json_data", "set_meta.json")
 FILTER = "deckbuilder.cardfilters."
 
 sys.path.insert(0, ROOT)
@@ -74,6 +77,7 @@ TRAINER_NAMES = {
 
 
 def client_keys(db_path):
+    """The client's own key set, lowercased the way its lookup keys it."""
     con = sqlite3.connect(Path(db_path).resolve().as_uri() + "?mode=ro", uri=True)
     try:
         return {key.lower() for key, in con.execute("select key from Lookup")}
@@ -83,6 +87,39 @@ def client_keys(db_path):
 
 def slug(name):
     return re.sub(r"[\s_-]+", "", name.lower()).replace("é", "e")
+
+
+# Series the client labels as "<series>—<set>" itself (its own set strings read
+# "XY—Flashfire", "Sun & Moon—Guardians Rising"). Older eras ship as the plain
+# set name, so "Jungle" stays "Jungle" instead of becoming "Base—Jungle".
+PREFIXED_SERIES = {
+    "Black & White", "XY", "Sun & Moon", "Sword & Shield",
+    "Scarlet & Violet", "Mega Evolution",
+}
+
+
+def set_labels(entries, meta):
+    """Yield (key, text) for a set's own label, in both namespaces the client builds.
+
+    A set entry is labelled by the client from its code: the collection's set list
+    formats a key template with `code.ToLowerInvariant()` (pie-src CollectionUI
+    `get_Label`), and the client ships those strings under both `set.name.<code>`
+    and `setname.<code>`, so we fill whichever of the two our codes are missing
+    from. The text follows the client's own shape for a set: the series in italics,
+    then an em dash and the set name when the set is not the series' first.
+    """
+    for entry in entries:
+        code = entry.get("name")
+        if not isinstance(code, str) or not code:
+            continue
+        record = meta.get(code, {})
+        name = record.get("name") or code
+        series = record.get("series") or ""
+        if series in PREFIXED_SERIES and series.lower() not in name.lower():
+            name = f"{series}—{name}"
+        text = f"<i>{name}</i>"
+        yield f"set.name.{code.lower()}", text
+        yield f"setname.{code.lower()}", text
 
 
 def card_filter_labels(card):
@@ -151,11 +188,15 @@ def main():
     labels = dict(existing)
 
     def want(key, value):
-        if key not in have:
+        if key.lower() not in have:
             labels.setdefault(key, value)
 
-    for slug, name in SERIES.items():
-        want(f"collection.filter.series.{slug}", f"<i>{name}</i> Series")
+    for series_slug, name in SERIES.items():
+        want(f"series.{series_slug}", f"<i>{name}</i> Series")
+        want(f"collection.filter.series.{series_slug}", f"<i>{name}</i> Series")
+    for key, value in set_labels(json.load(open(SETS_PATH, encoding="utf-8")),
+                                 json.load(open(SET_META_PATH, encoding="utf-8"))):
+        want(key, value)
     cards = loader.load_all()
     if loader.last_errors:
         ap.error(f"could not audit all cards: {len(loader.last_errors)} load errors")

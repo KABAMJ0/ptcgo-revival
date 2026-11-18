@@ -33,11 +33,16 @@ def load_catalog():
     return rows
 
 
+# The reward panel labels a challenge payout itself; the client has no
+# `QuestCompleted` string, so it rides as text.
+QUEST_COMPLETED_TEXT = "Challenge Completed"
+
+
 def coin_reward(amount, source=""):
     return {
         "name": "DailyChallengeReward", "rewardType": "Tokens", "rewardAmount": amount,
         "rewardProductID": None, "rewardCurrency": "Tokens",
-        "rewardDescription": {"id": "QuestCompleted"}, "rewardReason": "QuestCompleted",
+        "rewardDescription": {"id": QUEST_COMPLETED_TEXT}, "rewardReason": "QuestCompleted",
         "selectedFrom": [], "selectedIndex": 0, "rewardSource": source,
         "index": 0, "openedReward": None,
     }

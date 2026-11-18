@@ -75,6 +75,7 @@ from .constants import (
     TEXT_ATTACH_TAX_CHECK,
     TEXT_ATTACH_TAX_OK,
     TEXT_ATTACH_TAX_DISCARD,
+    ENDGAME_REWARD_TEXT,
 )
 from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.session.sequence_packets import NestedSequence
@@ -3131,8 +3132,9 @@ class GameSession:
                     "rewardProductID": EMPTY_SEQUENCE_ID,
                     "rewardCurrency": "Tokens",
                     # rewardDescription must be non-null: the client's
-                    # RewardsList getter dereferences its ID unguarded.
-                    "rewardDescription": {"id": "playmat.endgame.gamereward"},
+                    # RewardsList getter dereferences its ID unguarded. Plain
+                    # text, because the client ships no such key.
+                    "rewardDescription": {"id": ENDGAME_REWARD_TEXT},
                     "rewardReason": "GameCompleted",
                     "selectedFrom": [],
                     "selectedIndex": 0,
@@ -3986,7 +3988,7 @@ class GameSession:
                 "rewardAmount": granted["coins"],
                 "rewardProductID": EMPTY_SEQUENCE_ID,
                 "rewardCurrency": "Tokens",
-                "rewardDescription": {"id": "playmat.endgame.gamereward"},
+                "rewardDescription": {"id": ENDGAME_REWARD_TEXT},
                 "rewardReason": "GameCompleted",
                 "selectedFrom": [],
                 "selectedIndex": 0,

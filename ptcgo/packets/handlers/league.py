@@ -21,8 +21,10 @@ from ptcgo.game.session.manager import GameSessionManager
 
 from .base import BaseHandler, handle
 
-NO_DECK_KEY = "league.error.nodeck"
-UNAVAILABLE_KEY = "league.error.unavailable"
+# Plain text, not keys: the client ships no `league.error.*` string, so its
+# LocalizableText lookup would miss and draw the key itself on the panel.
+NO_DECK_TEXT = "You need a deck of exactly 60 cards to play here."
+UNAVAILABLE_TEXT = "That opponent is not available yet."
 
 # Keys the client may use to name the opponent it selected. The request payload
 # is not in the decoded protocol notes, so every plausible spelling of the same
@@ -135,14 +137,14 @@ class ChallengePlayHandler(BaseHandler):
             logging.info(f"[TCP] [{self.client.addr}] {label}: no league opponent is available")
             await self.client.send_packet({
                 "messageName": "LeagueAndGymModeError",
-                "msg": {"id": UNAVAILABLE_KEY},
+                "msg": {"id": UNAVAILABLE_TEXT},
             }, request_id)
             return
         if not trainer_challenge_data.available(opponent.key, progress):
             logging.info(f"[TCP] [{self.client.addr}] {label}: {opponent.name} is not available")
             await self.client.send_packet({
                 "messageName": "LeagueAndGymModeError",
-                "msg": {"id": UNAVAILABLE_KEY},
+                "msg": {"id": UNAVAILABLE_TEXT},
             }, request_id)
             return
         deck = _player_deck(self.client)
@@ -150,7 +152,7 @@ class ChallengePlayHandler(BaseHandler):
             logging.info(f"[TCP] [{self.client.addr}] {label}: player has no complete deck")
             await self.client.send_packet({
                 "messageName": "LeagueAndGymModeError",
-                "msg": {"id": NO_DECK_KEY},
+                "msg": {"id": NO_DECK_TEXT},
             }, request_id)
             return
         logging.info(f"[TCP] [{self.client.addr}] {label}: starting a match vs "
@@ -181,7 +183,7 @@ class ChallengePlayHandler(BaseHandler):
         if deck is None:
             await self.client.send_packet({
                 "messageName": "LeagueAndGymModeError",
-                "msg": {"id": NO_DECK_KEY},
+                "msg": {"id": NO_DECK_TEXT},
             }, request_id)
             return
         logging.info(f"[TCP] [{self.client.addr}] TutorialPlayGame: starting a practice match")

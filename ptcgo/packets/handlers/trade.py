@@ -229,7 +229,7 @@ class TradeHandler(BaseHandler):
         if not account_id or not await run_db(economy_data.cancel_trade_offer, lot_id, account_id):
             return await self._send_error(
                 OutboundMsg.ERROR_REMOVING_LOT.value,
-                "trade.errorCreatingLotDialog.body", request_id)
+                "That trade offer could not be removed. Please try again.", request_id)
 
         await self.send({
             "messageName": OutboundMsg.LOT_REMOVED.value,

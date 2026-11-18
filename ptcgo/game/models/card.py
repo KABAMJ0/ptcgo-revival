@@ -56,7 +56,9 @@ class Card:
         if isinstance(name_val, str) and name_val.startswith('{'):
             final_attrs[str(AttrID.NAME.value)] = {"type": "json", "value": name_val}
         else:
-            token = str(name_val) if name_val is not None else "ids_card_name_spirit"
+            # A card with no name still needs a NAME attr; the client has no
+            # "ids_card_name_spirit" key, so fall back to plain text.
+            token = str(name_val) if name_val is not None else "Custom Card"
             final_attrs[str(AttrID.NAME.value)] = {
                 "type": "json", "value": json.dumps({"id": token})
             }
