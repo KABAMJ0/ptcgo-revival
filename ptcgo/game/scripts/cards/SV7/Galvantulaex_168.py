@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Discard all Energy from this Pok\u00e9mon. During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.FIGHTING: 1},
             damage=180,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, also=lock_opponent_plays("item", damage=0)),
         ),
     ],
 )

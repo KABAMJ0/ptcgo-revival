@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent can't play any Pok\u00e9mon Tool, Special Energy, or Stadium cards from their hand during their next turn.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=lock_opponent_plays("tool", "special_energy", "stadium"),
         ),
         Attack(
             title="Dark Arts",
