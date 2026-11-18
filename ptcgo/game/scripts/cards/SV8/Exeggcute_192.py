@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_from_deck_attack
 
 card = PokemonCardDef(
     guid="e91782e1-150b-5d0a-8877-3561b84e526d",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Precocious Evolution",
             game_text="If you go first, you can use this attack during your first turn. Search your deck for a card that evolves from this Pok\u00e9mon and put it onto this Pok\u00e9mon to evolve it. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=evolve_from_deck_attack(),
         ),
     ],
 )
