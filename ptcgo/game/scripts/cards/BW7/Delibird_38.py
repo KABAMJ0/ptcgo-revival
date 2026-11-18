@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +24,9 @@ card = PokemonCardDef(
             title="Present",
             game_text="Flip a coin. If heads, search your deck for a card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=search_to_hand(
+                None, count=1, reveal=False
+            )),
         ),
         Attack(
             title="Icy Wind",
