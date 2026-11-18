@@ -2,10 +2,11 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, uni
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.card_effects.trainers import return_pokemon_to_hand
 
 async def tuck_tail(ctx):
     """Put this Pokemon and all cards attached to it into your hand."""
-    await ctx.return_pokemon_to_hand(lambda p: p is ctx.attacker, with_attachments="same")
+    await return_pokemon_to_hand(lambda p: p is ctx.attacker, with_attachments="same")(ctx)
 
 
 card = PokemonCardDef(
