@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="2d6614cb-8195-5b9f-8aa5-6fabc044171f",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Kangaskhan.Name",
+    display_name="Kangaskhan",
+    searchable_by=["Kangaskhan", "Basic", "Kangaskhan"],
+    subtypes=["Basic"],
+    collector_number=204,
+    set_code="SV10",
+    rarity=Rarities.Rare,
+    hp=120,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=115,
+    abilities=[
+        Attack(
+            title="Gentle Slap",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=50,
+        ),
+        Attack(
+            title="Dizzy Punch",
+            game_text="Flip 2 coins. This attack does 90 damage for each heads.",
+            cost={PokemonTypes.COLORLESS: 3},
+            damage=90,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

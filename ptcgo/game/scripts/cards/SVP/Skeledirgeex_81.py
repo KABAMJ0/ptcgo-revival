@@ -1,0 +1,38 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a54d399e-f5a1-592d-9c8b-e5fab7d54af9",
+    key="SVP",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Skeledirgeex.Name",
+    display_name="Skeledirge ex",
+    searchable_by=["Skeledirge ex", "Stage 2", "ex", "Skeledirgeex"],
+    subtypes=["Stage 2", "ex"],
+    collector_number=81,
+    set_code="SVP",
+    rarity=Rarities.RarePromo,
+    hp=340,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Crocalor.Name",
+    family_id=909,
+    abilities=[
+        Attack(
+            title="Vitality Song",
+            game_text="Heal 30 damage from each of your Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 1},
+            damage=50,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Burning Voice",
+            game_text="This attack does 10 less damage for each damage counter on this Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 2},
+            damage=270,
+            damage_operator="-",
+            effect=unimplemented,
+        ),
+    ],
+)

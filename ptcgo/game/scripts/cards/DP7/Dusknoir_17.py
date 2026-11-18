@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="9bc2f7ee-2e2d-5bb4-a679-2e0b02ef3fb4",
+    key="DP7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Dusknoir.Name",
+    display_name="Dusknoir",
+    searchable_by=["Dusknoir", "Stage 2", "Dusknoir"],
+    subtypes=["Stage 2"],
+    collector_number=17,
+    set_code="DP7",
+    rarity=Rarities.Rare,
+    hp=120,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.COLORLESS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Dusclops.Name",
+    family_id=355,
+    abilities=[
+        Ability(
+            title="Spirit Pulse",
+            game_text="As long as Dusknoir is your Active Pok\u00e9mon, put 1 damage counter on each of your opponent's Pok\u00e9mon that has any Energy attached to it between turns.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Darkness Mist",
+            game_text="If the Defending Pok\u00e9mon already has 2 or more damage counters on it, this attack does 60 damage plus 20 more damage.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
+            damage=60,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

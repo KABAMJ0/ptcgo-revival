@@ -1,0 +1,29 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="0aec7096-b326-5be3-ac9d-d49b12759d36",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Tarountula.Name",
+    display_name="Tarountula",
+    searchable_by=["Tarountula", "Basic", "Tarountula"],
+    subtypes=["Basic"],
+    collector_number=16,
+    set_code="SV2",
+    rarity=Rarities.Common,
+    hp=50,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=917,
+    abilities=[
+        Attack(
+            title="Bind Down",
+            game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
+            cost={PokemonTypes.GRASS: 1},
+            damage=10,
+            effect=unimplemented,
+        ),
+    ],
+)

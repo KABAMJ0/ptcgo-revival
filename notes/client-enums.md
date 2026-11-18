@@ -1,0 +1,353 @@
+# PTCGO client enums
+
+349 enums, read from the assemblies by `tools_client_dump.py`.
+
+- **A.b+Bits** — Clear, Compressed, Protobuf
+- **A.g+Flag** — ForTrade, Review, Wanted, NONE
+- **AbilityType** — ALL, Attack, PokeAbility, Retreats, Stadium, UndoAction
+- **Actions** — NONE, ChooseActivePokemon, DefaultPokemonPlayAbility, EvolvePokemonPlayAbility, DefaultEnergyPlayAbility, UseTrainerCard, DefaultStadiumPlayAbility, UsePokemonAbility, UseStadiumCard, UsePokemonAttack, BaseRetreat, UndoLastAction, Cancel, ShowPlaymat, Continue, EndTurn, EvolveEXPlayAbility
+- **Align** — Center, Positive, Negative, CenterAsymmetric
+- **AppBuildType** — RELEASE, DEBUG
+- **AppState** — UNINITIALIZED, RUNNING, SHUTDOWN
+- **AudioItem+LoopMode** — DoNotLoop, LoopSubitem, LoopSequence, PlaySequenceAndLoopLast, IntroLoopOutroSequence
+- **AudioPickSubItemMode** — Disabled, Random, RandomNotSameTwice, Sequence, SequenceWithRandomStart, AllSimultaneously, TwoSimultaneously, StartLoopSequenceWithFirst, RandomNotSameTwiceOddsEvens
+- **AudioSubItemType** — Clip, Item, Reference
+- **AutoPosition+XSide** — Center, Left, Right
+- **AutoPosition+YSide** — Center, Bottom, Top
+- **AutoPosition+ZSide** — Center, Back, Front
+- **Axis** — X, Y, Z
+- **AxisXY** — X, Y
+- **BonusWheelPrizeItemRenderer+BonusPrizeRewardType** — Bonus, Reggie
+- **BoundingBoxOffset+Direction** — Forward, Back, Up, Down, Left, Right
+- **ButtonStates** — Up, Over, Down, Disabled
+- **Cake.enums.CardOrientations** — None, Inverted, UNSET
+- **Cake.enums.CardTypes** — Pokemon, TrainerCard, Energy, LegendHalf, UNSET
+- **Cake.enums.CollectionType** — Pokemon, Trainer, Energy, Packs, Gameplay, Avatar
+- **Cake.enums.FoilEffects** — None, Cosmos, Galaxy, Rainbow, Cracked_Ice, Lithograph, Tinsel, FlatSilver, Etched, EtchedSunPillar, AngledPillars, Squares, SunLava, SunPillar, SunBeam, SolgaleoEtch, LunalaEtch, XYEtch, BWEtch, TapuFiniEtch, TapuBuluEtch, TapuKokoEtch, TapuLeleEtch, SolgaleoHFEtch, LunalaHFEtch, SwHolo, SwSecret, Ann25thConfetti, RadiantHolo, SvHolo, UNSET
+- **Cake.enums.FoilMasks** — None, Holo, Reverse, Thatch, Etched, UNSET
+- **Cake.enums.GenderTypes** — Female, Male, Neuter, Unknown, UNSET
+- **Cake.enums.ItemTypes** — Campaign, Currency, Upgrade, XP, UNSET
+- **Cake.enums.Phases** — StartGamePhase, ActionPhase, BetweenTurnsPhase, UNSET
+- **Cake.enums.PokemonStage** — Basic, Stage1, Stage2, Restored, LevelUp, Legend, Break, VMAX, VUNION, VSTAR, UNSET
+- **Cake.enums.PokemonTeams** — TeamPlasma, TeamFlare, HyperGear, TeamAqua, TeamMagma, UNSET
+- **Cake.enums.PokemonTypes** — NoColor, Colorless, Darkness, Dragon, Fairy, Fighting, Fire, Grass, Lightning, Metal, Psychic, Water, Strong, Herbal, UNSET
+- **Cake.enums.ProductTypes** — Avatars, AvatarItems, AvatarProducts, Bundles, Campaigns, Coins, Currency, CurrencyTransfer, DeckBox, Decks, DraftEntry, Extras, FactionPacks, Gifts, Investment, Item, Miscellaneous, Packs, Playmat, Powerups, Proofset, Resources, Singles, Sleeve, TournamentEntry, WorkshopRecipe, ExternalProduct, CustomProduct, Collectibles, CollectibleBases, UNSET
+- **Cake.enums.QuestPriority** — Bronze, Silver, Gold
+- **Cake.enums.Rarities** — Common, Uncommon, Rare, RareHolo, RareHoloEX, RareHoloGX, RareHoloV, RareHoloVMAX, RareHoloVSTAR, ChrRareHolo, ChrRareHoloV, ChrRareSecret, ChrRareUltra, RarePrime, Legendary, Ace, RareUltra, RareSecret, RareRainbow, DisplayNone, medium, PromoExclusive, RarePromo, Token, ExtraRare, VeryRare, Unassigned, BreakRare, Shining, Prism, Amazing, RareRadiant, RareDitto, UNSET
+- **Cake.enums.SpecialConditions** — Asleep, Burned, Confused, Paralyzed, Poisoned, UNSET
+- **Cake.enums.SuppressEffects** — CannotActivateAbilities, CannotActivatePokeAbilities, CannotActivatePokeBodies, CannotActivatePokePowers, OverrideCanActivatePokeAbilities, OverrideCanActivatePokeBodies, CannotAttack, CannotBeHarmed, CannotDealDamage, CannotDrawWhenTurnStarts, CannotEvolve, CannotEvolveFromAbilities, CannotEvolveFromHand, CannotHeal, CannotModifyDamageTargetingOthers, CannotModifyDamageTargetingSelf, CannotPlayAceSpec, CannotPlayEnergy, CannotPlayBasicEnergy, CannotPlaySpecialEnergy, CannotPlayItemCards, CannotPlayStadiumCards, CannotPlaySupporterCards, CannotPlayTrainerItemCards, CannotRetreat, CannotUseVictoryStar, CanOnlyBeDamaged, CanOnlyDealDamage, DoNotPayToAttack, ExpShareExhausted, ImmuneToSpecialConditions, CannotBeConfused, CannotBePoisoned, CannotBeAsleep, CannotBeBurned, CannotBeParalyzed, ImmuneToAttackDamage, ImmuneToAttackEffects, MaxBenchSizeSetTo4, CannotPlayPokemonToolCardsSelf, CannotReflipCoins, TurnContinuesOnMegaEvolution, KilledOnDamage, UNSET
+- **Cake.enums.TrainerTypes** — Item, Stadium, Supporter, TechnicalMachine, PokemonTool, PokemonToolF, Trainer, UNSET
+- **Cake.enums.VisualizationArrows** — None, Neutral, Positive, Negative, NotApplied, LargeNegative, LargePositive, UNSET
+- **Cake.enums.VisualizationTypes** — Nothing, PokeToolAttached, AttackCostIncreased, CannotActivatePokeAbilities, CannotAttack, CannotPlayItem, CannotPlaySupporter, CannotPlayTrainer, CannotRetreat, CannotUseAbility, CannotUsePokePower, DamageDealtReduced, DamageTakenIncreased, DisabledAttack, FlipMoreCoinsToAwaken, MustFlipToAttack, ResistanceRemoved, RetreatCostIncreased, SpecialBurnAmount, SpecialPoisonAmount, WeaknessAdded, AdditionalAttackOption, AttackCostDecreased, AttackForFree, DamageDealtIgnoresResistance, DamageDealtIncreased, DamageDealtIncreasedIf, DamageTakenPreventedIf, DamageTakenReduced, DamageTakenReducedIf, DamageTakenReturnsDamage, DiscardsBackToHand, DrawEnergyWhenKilled, FlipMoreCoinsNextAttack, HPMaxUp, ImmuneToAttackEffects, ImmuneToSpecialConditions, JoinedTeamPlasma, MoveEnergyWhenAllyKilled, PrizeCardValueReduced, RetreatCostReduced, WeaknessRemoved, EnergyTypeChanged, EnergyValueIncreased, ForcedCoinFlipTails, SpecialParalyzeDuration, DamageDealtIgnoresWeakness, ResistanceIncreased, HealsBetweenTurns, CannotPlaySpecialEnergy, DrawAdditionalPrizeCardOnKill, MayNotBeKnockedOut, Positive, Negative, Neutral, WeaknessChanged, TurnContinuesOnMegaEvolution, MustFlipToPlayTrainer, CannotEvolveFromHand, CannotPlayEnergyFromHand, CannotPlayPokemonToolCardsSelf, CanOnlyBeDamage, ReflipForAttacks, KilledOnDamage, DiesAtEndOfTurn, PokemonToolHasNoEffect, BenchDamageDealtAffected, AllSupportersAffected, UNSET
+- **CakeDeckBuilderMakeModifiedDialogButton+MakeModifiedAction** — AcceptChanges, CancelChanges
+- **CakeDeckBuilderView+DeckActionType** — None, Clone, Edit, Delete, View, Favorite, Save, Cancel
+- **CakeDeckRegistrationItemRender+CakeDeckRegistrationItemType** — POKEMON, TRAINER, ENERGY, LEGEND
+- **CakeScrollArea+MouseWheelBehaviors** — YElseX, NONE
+- **CakeSortUtil+AchievementSortMethods** — Name, Category, Points, Coins, XP
+- **CakeSortUtil+CardSortMethods** — Name, CollectionNumber, Set, Rarity, Energy, CardType, Stage, Foil, NonFoil, Family, LowestQuantityFirst, Preview, Type, PackType, ProductType, HP, HasAbility, GameText, EvolvesFrom, Weakness, Resistance, Retreat, AvatarItemGroup, Gender, TaggedAs, SetAndNumber, UNSET, AlphabeticalAZAndNewestToOldest, AlphabeticalZAAndNewestToOldest, SetAndNumberReverse, HighestQuantityFirst, AvatarItemCollectionName, AvatarItemCollectionNameReverse, FamilyReverse, ProductTypeName, SetAndNumberFoilFirst
+- **CakeSortUtil+DeckContentsSortMethods** — All, Pokemon, Trainer, Energy, None, EnergyInverse, PokemonPrint
+- **CakeSortUtil+PackSortMethods** — NewestFirst, OldestFirst, Name
+- **CardAttributeFilterDataSource+AttributeFilterType** — Pokemon, Trainer, Energy, CollectionAttribute, GameplayAttribute
+- **CardSelectionSet** — Collection, AllArchetypes, Other
+- **CardZoomer+States** — INIT, ZOOMING, ZOOMED, UNZOOMING
+- **CasAuthStatus** — None, Loading, NetworkError, Success, NetworkTimeout, Failure, EmptyResponse, AccountLocked, AwaitingEmailVerification
+- **ChatLevel** — Open, Limited, Closed
+- **ChatMode** — Playmat, Nonplaymat
+- **CloseFriendChallengePopup+AcceptChallengeActionTypes** — Accept, Reject
+- **CollectionDataTabButton+CollectionDataType** — Pokemon, Trainer, Energy, Packs, GameplayItem, Avatars
+- **CollectionListRenderer_MessageHandler+MouseKey** — Left, Right, Middle
+- **CollectionTradePanel+DisplayModes** — NONE, Owned, All
+- **ConnectionStatus** — Connected, Disconnected, TimedOut, Unsure, Failed, CouldNotConnect, Denied
+- **CreateNewDeckDialogButton+CreateNewDeckActionType** — DeckWizard, MakeModified, MakeUnlimited, MakeExpanded, MakeLegacy, Import
+- **CreateTradeDialog+PointerPositions** — NONE, Left, Right
+- **CreateTradeDialog+TradeTypes** — NONE, Public, Private, CounterOffer
+- **D.U+SymbolTextTypes** — Large, Small, Fast, Default
+- **DailyPrize+CheckMarkState** — UnSet, NoCheck, AlreadyCheck, NewCheck
+- **DailyPrize+PrizeType** — UnSet, Booster, Coin, Ticket, Deck, Card
+- **DailyPrize+TextState** — Unset, Complete, LocText
+- **DamageModification** — None, Weakness, Resistance, DamageIncrease, DamageDecrease
+- **DeckShareMode** — Everybody, FriendChallenge, Nobody
+- **DeckValidationPopupButton+DeckValidationCategories** — Standard, Unlimited, Theme, Expanded, Legacy
+- **DeckValidationPopupButton+DeckValidationTypes** — NONE, SixtyCards, BasicPokemon, BannedCards, BannedSets, ThemeDeck, UnlimitedCards, Expanded, UnownedCards, Legacy, Modified
+- **DeckWizardCreateDeckButton+DeckWizardAction** — CreateRandom, CreateFromSelected
+- **DeltaPanel+RenderTypes** — Gain, Loss
+- **DragSource+DragDirection** — Horizontal, Vertical, Both
+- **EOGAnimationController_SummaryDialog+EOGSummaryPage** — EOGSummaryPage_Prizes, EOGSummaryPage_Stats, EOGSummaryPage_GameLog
+- **EOGModule+EOGAnimationType** — Victory, Defeat, ShowBackdrop, TrainerChallengeScore, Spinner, Unlocks, Rewards, BonusRewards, DailyRewards, MysteryBoxReward, QuestProgression, Spectator, Summary, UnownDefeat, UnownVictory
+- **EndGameDialog+DisplayStyles** — NONE, TrainerChallenge, NonTrainerChallenge
+- **EndGameDialog+ResultValues** — NONE, Done, EditDeck, PlayAgain
+- **EulaData** — NONE, Expired, Successful
+- **ExpansionCheckboxState** — Partial, Full, Empty
+- **ExposeMethodAttribute+Flag** — DEFAULT, DisabledWhilePlaying, DisabledInEditMode
+- **F.A+FilterAttributes** — POKEMON_EX, LEGEND, ACE, FULL_ART, LEAGUE, FOIL, TEAM_PLASMA, MEGAEVOLUTION, NONFOIL, PARALLELFOIL, SPECIALFOIL, TEAM_AQUA, TEAM_MAGMA, PRIME, HASABILITY, HASPOKEPOWER, HASPOKEBODY, SECRET, HASANCIENTTRAIT, POKEMON_GX, SHINYPOKEMON, ULTRABEAST, YELLOW_A, PRISM, BASIC_ENERGY, SPECIAL_ENERGY, TEAM, TAG_TEAM, POKEMON_V, SINGLE_STRIKE, RAPID_STRIKE, FUSION_STRIKE
+- **F.A+FilterValidation** — Modified, Unlimited, Expanded, Legacy
+- **F.A+Filters** — Pokemon, Energy, Trainer, Cards, Gameplay, Avatar, Packs, PokemonGlobal, EnergyGlobal, TrainerGlobal, New
+- **F.A+PackTypes** — FiveCard, TenCard, TreasureChestPack, ThemeDeckPack, BundlePack, AvatarCollectionBoxPack, Other, BattleDeckPack
+- **F.D+DisplayState** — NORMAL, CHECKED_DISABLED, DISABLED, REMOVED
+- **F.L+DeckValidationTypes** — TrainerChallenge, Theme, Modified, Unlimited, All, Expanded, Legacy
+- **FTPAnimatedText+AnimationType** — SingleChar, WholeWords, Instant
+- **FTPInputField+KeyboardType** — Default, ASCIICapable, NumbersAndPunctuation, URL, NumberPad, PhonePad, NamePhonePad, EmailAddress
+- **FTPPopupList+GridItemDirection** — Horizontal, Vertical
+- **FTPPopupList+ItemLayout** — Default, Grid
+- **FTPPopupList+Position** — Auto, Above, Below
+- **FeaturedTabProductListDataSource+DisplayMode** — Newest, Popular
+- **FilterClicked+FilterTypes** — TypeGrass, TypeFire, TypeWater, TypeLightning, TypePsychic, TypeFighting, TypeDragon, TypeDarkness, TypeMetal, TypeColorless, EvolutionBasic, EvolutionStage1, EvolutionStage2, AttackTypeGrass, AttackTypeFire, AttackTypeWater, AttackTypeLightning, AttackTypePsychic, AttackTypeFighting, AttackTypeDragon, AttackTypeDarkness, AttackTypeMetal, AttackTypeColorless, AttackCost0, AttackCost1, AttackCost2, AttackCost3, AttackCost4, AttackCost5Plus, RetreatCost0, RetreatCost1, RetreatCost2, RetreatCost3, RetreatCost4, RetreatCost5Plus, IsModified, TaggedForTrade, TaggedForWant, TaggedForReview, RarityCommon, RarityUncommon, RarityRare, RarityRareHolo, RarityRareUltra, AttributePokemonEX, AttributeLegend, AttributeFullArt, AttributeLeague, AttributeFoil, AttributeTeamPlasma, SetDP1, SetDP5, SetDP6, SetDP7, SetHGSS1, SetHGSS2, SetHGSS3, SetHGSS4, SetPromo_HGSS, SetCOL, SetPromo_BW, SetTK5A, SetTK5B, SetFree_Energy, SetBW1, SetBW2, SetBW3, SetBW4, SetBW5, SetBW6, SetBW7, SetBW8, SetBW9, SetBW10, SetDV, Default, EnergyBasic, EnergySpecial, TrainerItem, TrainerSupporter, TrainerStadium, TrainerTool, AttackTypeFairy, TypeFairy, MegaEvolutionType, Getting, Giving, IsUnlimited, AttributeNonFoil, AttributeParallelFoil, FiveCardBooster, TenCardBooster, Coin, Deckbox, Sleeve, Playmat, AvatarJackets, AvatarShirts, AvatarShoes, AvatarTrousers, AvatarHats, AvatarFace, AvatarHair, AvatarFacialHair, AvatarMouths, AttributeSpecialFoil, AttributeAce, IsExpanded, EvolutionRestored, EvolutionBreak, IsLegacy, OtherCardBooster, IsNew, TreasureChestPack, ThemeDeckPack, BundlePack, AvatarCollectionBoxPack, AvatarMale, AvatarFemale, RarityVeryRare, AttributePrism, PokemonV, VMAX, BattleDeckPack, VUNION, VSTAR
+- **FteTrainer** — Zach, Ella, Holly
+- **G.S+MainOption** — UNSET, SinglePlayer, Multiplayer, Tournament, Cards, Shop
+- **G.S+SubOption** — UNSET, QuickGame, Tutorial, Avatar, PVP, FriendBattle, DeckBuilder, OnDemand, Scheduled, Trading, Collection, PracticeBattle, ShopHome, ShopRedeem
+- **GameLogActions** — Heal, Damage, DamageSimple, DamageTransfer, Retreat, PokeAbility, Knockout, PlayTrainerStadium, AttachEnergy, EffectRemoved, EffectAdded, DrawCard, CoinFlip, Evolved, Devolved, TurnUpdate, PrizeCard, PlayToBench, NewActivePokemon, MoveToLostZone, AttachPokemonTool, NonDamage, ReflectDamage, SimpleReflect, PreventDamage, SpecialConditionDamage, EndOfGame, NONE
+- **GameLogState** — Displayable, NonDisplayable
+- **GlobalNavCurrencyNotificationBehaviour+CurrencyType** — Tokens, Tickets, PromoTournamentKey
+- **GridCellDeckRenderer+DeckButtons** — Favorite, View, Copy, Edit, Delete
+- **Ionic.ComparisonOperator** — GreaterThan, GreaterThanOrEqualTo, LesserThan, LesserThanOrEqualTo, EqualTo, NotEqualTo
+- **Ionic.LogicalConjunction** — NONE, AND, OR, XOR
+- **Ionic.WhichTime** — atime, mtime, ctime
+- **Ionic.Zip.AddOrUpdateAction** — AddOnly, AddOrUpdate
+- **Ionic.Zip.CompressionMethod** — None, Deflate
+- **Ionic.Zip.CryptoMode** — Encrypt, Decrypt
+- **Ionic.Zip.EncryptionAlgorithm** — None, PkzipWeak, Unsupported
+- **Ionic.Zip.ExtractExistingFileAction** — Throw, OverwriteSilently, DoNotOverwrite, InvokeExtractProgressEvent
+- **Ionic.Zip.SelfExtractorFlavor** — ConsoleApplication, WinFormsApplication
+- **Ionic.Zip.Zip64Option** — Default, Never, AsNecessary, Always
+- **Ionic.Zip.ZipEntrySource** — None, FileSystem, Stream, ZipFile, WriteDelegate, JitStream, ZipOutputStream
+- **Ionic.Zip.ZipEntryTimestamp** — None, DOS, Windows, Unix, InfoZip1
+- **Ionic.Zip.ZipErrorAction** — Throw, Skip, Retry, InvokeErrorEvent
+- **Ionic.Zip.ZipOption** — Default, Never, AsNecessary, Always
+- **Ionic.Zip.ZipProgressEventType** — Adding_Started, Adding_AfterAddEntry, Adding_Completed, Reading_Started, Reading_BeforeReadEntry, Reading_AfterReadEntry, Reading_Completed, Reading_ArchiveBytesRead, Saving_Started, Saving_BeforeWriteEntry, Saving_AfterWriteEntry, Saving_Completed, Saving_AfterSaveTempArchive, Saving_BeforeRenameTempArchive, Saving_AfterRenameTempArchive, Saving_AfterCompileSelfExtractor, Saving_EntryBytesRead, Extracting_BeforeExtractEntry, Extracting_AfterExtractEntry, Extracting_ExtractEntryWouldOverwrite, Extracting_EntryBytesWritten, Extracting_BeforeExtractAll, Extracting_AfterExtractAll, Error_Saving
+- **ItemSelectFor** — Receiving, Trading, UNSET
+- **ItemSelectionType** — PublicOffer, PublicInExchangeFor, PrivateOffer, PrivateInExchangeFor
+- **J.X+State** — UNSET, ViewingHistory, SelectingTournament, TournamentSelected, SelectingDeck, DeckSelected, DeckSelectCancelled, AttemptingToJoin, TournamentCancelled, JoinFailed, WaitinginQueue, InProgress, Complete, Lost, Reset, Maintenance, ViewingLeaderBoards, MonthlyRep
+- **K.T+AddResult** — OK, FourCopiesSameCard, FourCopiesSameName, FullDeck, SameFunctionCardInDeck
+- **K.W+Area** — NONE, Collection, DeckBuilder
+- **K.W+Request** — ViewDeck, CloneDeck, DeleteDeck, EditDeck, EditDeckWizardDeck, DeckWizard, NewDeck
+- **K.W+Type** — CustomDeck, ThemeDeck, TrainerChallenge
+- **K.e+FormatType** — Standard, Expanded, Legacy, Unlimited, UNSET
+- **K.e+TagType** — Want, Trade, Review
+- **K.e+ViewModes** — Carousel, Tile, List, NONE
+- **K.m+FilteredType** — INVALID, REGULAR, LIMITED, ADMIN
+- **K.w+DeckType** — NONE, Unlimited, Unfinished, Intermediate, Modified, ThemeDeck, TrainerChallengeDeck, Expanded, Legacy
+- **K.w+FormatName** — Unlimited, TrainerChallenge, Avatar, ThemeDeck, Modified, Expanded, Legacy
+- **L.E+ShowPlaymatState** — Disabled, ShowPlaymat, ShowSelection
+- **L.I+Step** — NONE, MoveIn, Effect, MoveOut
+- **L.K+Step** — NONE, MoveIn, Present, MoveOut, End
+- **L.N+DragStyle** — ATTACHMENT, AREA
+- **L.N+States** — NONE, DRAG_START, DRAG, DRAG_CANCEL, DRAG_ABORT
+- **L.l+Step** — NONE, Presenting, Presented, Move
+- **LargeTradePanel+PanelTypes** — Giving, Getting
+- **LargeUnivItemRenderer+PanelDisplay** — Item, Description
+- **LargeUnivItemRenderer+RenderStyles** — NONE, Shop, TradeRequest, TradeOffer, TradeAllItems, TradeCollection, Collection, NonTrade, DetailDisplay, TournamentReward
+- **LoginButtonBehaviour+LoginType** — MainLogin, DeviceIDLogin
+- **MarqueeCardRenderer+CardSlot** — Left, Middle, Right
+- **MatchState** — HasSymbol, HasMatch, HasSymbolAndMatch
+- **MatchType** — none, TrainerChallenge, Multiplayer, VersusAI, Tournament
+- **MediumUnivItemRenderer+RenderStyles** — None, Collection, TradeCollection, TradeAllItems, Shop, VanillaCard
+- **MonoFadeable+FadeState** — FadingUp, FadingDown, FadeComplete
+- **MouseButton** — LEFT, RIGHT, MIDDLE
+- **MouseManager+ButtonRequestType** — Current, Up, Down
+- **MouseManager+ClickActions** — Up, Down
+- **N.d+DeckBoxType** — TwoTone, Bundle, KeeperBox
+- **N.s+ActionTypes** — PLAY, ATTACH, DISCARD, SELECT, UNSELECT, NONE
+- **N.w+Difficulty** — Beginner, Intermediate, Hard, Expert, NONE
+- **N.w+Mode** — NONE, TrainerChallenge, Versus, Tournament
+- **N.w+Opponent** — NONE, PvE, PvP, Friend
+- **N.w+Tabs** — Deck
+- **NUX** — IsNuxEnabled, FirstTimeLogin, FirstTimeIOSLogin, NONE, FirstDayLeave, TrainingTransition, FirstGameComplete, FirstTCLoss, IOSControls, BrandNewAccounts, QuickPlayGame, SecondDayLeave, TrainerGoldComplete, DeckBuilderIntro, QuickPlayReturn, PVPIntro, TrainerChallenge, Achievement, Booster, SecondDayLogin, Tokens, FirstPCD, BasicBlueUnlocked, BasicRedUnlocked, AchievementsCoinAward, BasicGreenUnlocked, FirstUpset, FirstTCWin, SecondTCWin, FirstVSGame, BWBasicGreenUnlock, BWBasicRedUnlock, BWBasicBlueUnlock, FirstCardZoom, FirstCardPlay, FirstCardAttackChoice, QuickPlayInstructional, FirstTrainerChallengeInstructional, SecondTrainerChallengeInstructional, ThirdTrainerChallengeInstructional, DeckbuilderInstructional, TrainerChallengeReentry, PVPInstructional, ResetAllNUX, ResetNUX, FirstCardExplanation, QuickPlayAdvancedIntro, QuickPlayAdvancedInstructional, FirstOpponentPresent, FirstCardAttackReady, AttackExplanation, PlayAdditionalEnergy, AddAdditionalEnergy, StrongerAttackChoice, BenchPlayExplanation, TrainerCardExplanation, TrainerCardSelection, FirstAttackKnockoutReady, FirstAttackChoiceKnockout, PrizeCardExplanation, KnockoutReplacementExplanation, QuickAttackAbility, PlayToBench, UserSelectEnergyThirdTime, UserPlayEnergyTHirdime, UserReadyAttackThirdTime, UserSelectAttackThirdTime, UserSelectEnergyFourthTime, UserPlayEnergyFourthTime, UserReadyAttackFourthTime, UserSelectAttackFourthTime, UserKnockoutReplaceCard, UserFirstTutorialComplete, UserSecondTutorialBegin, UserAdvancedSelectEnergy, UserSelectEndTurnButton, UserAdvancedSelectEnergySecondTime, UserAdvancedReadyAttack, UserAdvancedSelectAttack, UserAdvancedReadyBenchPokemon, UserAdvancedSelectEnergyThirdTime, UserAdvancedPlayEnergy, UserAdvancedReadyAttackSecond, UserAdvancedPlayAttackSecond, EvolutionExplanation, UserEvolution, UserAdvancedSelectEnergyThird, UserAdvancedReadyAttackThird, UserAdvancedSelectAttackThird, UserAdvancedRetreatExplanation, UserAdvancedTutorialComplete
+- **NUXCharacterEmotions** — Default, Happy, Blink, Sad, Mad, Serious, Crushed, Laughing, Win, Waiting
+- **NUXFullScreenDialogController+AnimationSets** — NONE, Enter, ConvoFocus, ConvoUnfocus, Exit
+- **NUXInnerFrameController+FrameState** — NONE, ButtonSet, Deck
+- **NUXSprite+Status** — Ready, Speaking
+- **NavScreenButtonAction+NavScenes** — Collection, TCPlayScreen, VSPlayScreen, DeckBuilder, NUXScene, EmptyScene, Tournament, Trade, Shop, ShopCodeRedemption, QuickGame
+- **NetworkNotificationMessage+NotificationType** — Unknown, AutoAcknowledge, NoPopup, Normal
+- **O.B+Accessories** — Coin, Sleeve, Playmat
+- **O.B+Type** — NONE, Card, Deck, Avatar
+- **O.C+TradeValidationError** — NONE, NO_CARDS, LIKE_FOR_LIKE, IDENTICAL
+- **O.F+ViewMode** — ViewPublic, ViewPrivate, ViewPosted, CreatePrivate, CreatePublic, History
+- **O.e+OfferSet** — Public, Private, Posted, History
+- **O.e+SortBy** — Partner, Expire, UNSET
+- **O.g+League** — NONE, Gold, Platinum, CityChampionship
+- **OfferPostType** — Unknown, Eight, TwentyFour, FortyEight
+- **OrientToRect** — MiddleCenter, LeftMiddle, LeftBottomBaseline, LeftTopBaseline, RightMiddle, RightBottomBaseline, RightTopBaseline, TopCenter, TopLeftBaseline, TopRightBaseline, BottomCenter, BottomLeftBaseline, BottomRightBaseline
+- **P.D+RwMode** — None, ReadOnly, Write
+- **P.S+HTTPRequestType** — GET, POST
+- **PanelVisibility+Direction** — HideLeft, HideRight
+- **PieGXToken+PlaymatTokenOwner** — Player1, Player2
+- **PieGXToken+tokenType** — GXToken, VSTARToken
+- **PiePromptListener+buttonAlignment** — center, left
+- **PlaymatPlayAudio+MusicStates** — Normal, Status, NearVictory, None
+- **PlaymatUtil+SortEnergyTo** — BackOfHand, FrontOfHand
+- **PlaymatUtil+SortPokemonBy** — Energy, Stage, Evolution
+- **ProfileTabSubwindow** — none, avatar, quests, stats
+- **RPS** — NONE, Rock, Paper, Scissors
+- **ReportGameType** — Unknown, Ranked, Practice, Single, Tournament, Puzzle, TrainerChallenge, TrainerChallengeSpeedRun
+- **ReportLocation** — Game, Chat
+- **ReportReason** — Cheating, Exploiting, Harassment, InappropriateScreenName, Profanity, Spamming, Other
+- **ScrollArea+MouseWheelBehaviors** — YElseX, NONE
+- **ScrollAreaScrollBarReporter+ScrollType** — Horizontal, Vertical
+- **SelectionRevealArea+SelectionCarouselCount** — ZERO, ONE, TWO, THREE, OVERFLOW
+- **SeriesButtonType** — Checkbox, Row
+- **ShopDataSourceSorter+SortOrder** — Newest, Oldest, LowestTokenCost, HighestTokenCost, AlphabeticalAZ, AlphabeticalZA
+- **SimpleParameterStringTooltip+TooltipRenderOptions** — Coins, Tickets
+- **SmallTradePanel+PanelAccentColors** — Blue, Gold
+- **SmallUnivItemRenderer+RenderStyles** — NONE, TradeRequest, TradeOffer, Collection, NonTrade, VanillaItem
+- **TextLocalization+Locale** — xx_XX, en_US, en_PH, en_SG, pt_BR, de_DE, dk_DK, el_GR, es_ES, es_MX, fr_FR, fi_FI, it_IT, ko_KR, nl_NL, no_NO, pl_PL, ro_RO, ru_RU, se_SE, th_TH, tr_TR, vn_VN, zh_CN, zh_MY, zh_TW, ja_JP
+- **ToggleButton+TextResponsibility** — All, SelfOnly
+- **ToggleButtonStates** — SelectedUp, SelectedOver, SelectedDown, SelectedDisabled, UnselectedUp, UnselectedOver, UnselectedDown, UnselectedDisabled
+- **TournamentGlobalTimer+TimerState** — NONE, Complete, CountDown, PlayerCount, Lost
+- **TournamentLeaderboardRankRequest+LeaderBoardViews** — MyRank, TopRank
+- **Transition+State** — Awake, Initialized, Running, Complete
+- **U.A+RenderModes** — Card, CarouselCard, EnergyPip, ToolPip, MOZ, MOZBreak, MOZLegendary, Legendary, Break, Zoom, ExtraEnergyPip, SelectionRevealCard, Unintroduced, ZoomLegend, RevealAssociatedEntityCard, RevealAssociatedEntityPip, RevealAssociatedEntityBreak, RevealAssociatedEntityLegend
+- **UIButtonStateWatcher+WatcherType** — Normal, Popup
+- **UIDragPanelScrollbarButton+CantScrollState** — NONE, Hide, Disable
+- **UIDraggableScrollArea+ScrollDirection** — VERTICAL, HORIZONTAL, BOTH
+- **UIScallableScrollBar+Direction** — Vertical, Horizontal
+- **Unity.IO.Compression.BlockType** — Uncompressed, Static, Dynamic
+- **Unity.IO.Compression.CompressionMode** — Decompress, Compress
+- **Unity.IO.Compression.DeflateStream+WorkerType** — Managed, Unknown
+- **Unity.IO.Compression.DeflaterManaged+DeflaterState** — NotStarted, SlowDownForIncompressible1, SlowDownForIncompressible2, StartingSmallData, CompressThenCheck, CheckingForIncompressible, HandlingSmallData
+- **Unity.IO.Compression.GZipDecoder+GZipOptionalHeaderFlags** — CRCFlag, ExtraFieldsFlag, FileNameFlag, CommentFlag
+- **Unity.IO.Compression.GZipDecoder+GzipHeaderState** — ReadingID1, ReadingID2, ReadingCM, ReadingFLG, ReadingMMTime, ReadingXFL, ReadingOS, ReadingXLen1, ReadingXLen2, ReadingXLenData, ReadingFileName, ReadingComment, ReadingCRC16Part1, ReadingCRC16Part2, Done, ReadingCRC, ReadingFileSize
+- **Unity.IO.Compression.InflaterState** — ReadingHeader, ReadingBFinal, ReadingBType, ReadingNumLitCodes, ReadingNumDistCodes, ReadingNumCodeLengthCodes, ReadingCodeLengthCodes, ReadingTreeCodesBefore, ReadingTreeCodesAfter, DecodeTop, HaveInitialLength, HaveFullLength, HaveDistCode, UncompressedAligning, UncompressedByte1, UncompressedByte2, UncompressedByte3, UncompressedByte4, DecodingUncompressed, StartReadingFooter, ReadingFooter, VerifyingFooter, Done
+- **UnityEngineInternal.Switch.SslStream+CertificateFormat** — Pem, Der
+- **UnityEngineInternal.Switch.SslStream+RenegotiationMode** — None, Secure
+- **UnityEngineInternal.Switch.SslStream+SessionCacheMode** — None, SessionId, SessionTicket
+- **UnityEngineInternal.Switch.SslStream+VerifyOption** — None, PeerCa, HostName, DateCheck, EvCertPartial, Default, All
+- **UnivCurrencySubRender+CurrencyTypes** — NONE, EventTickets, VirtualCurrency, RealCurrency
+- **UnivRenderSize** — Small, Medium, Large
+- **UnivSubRenderStyle** — Default, URL, Resources
+- **UseMinSpecEffect** — TRUE, FALSE
+- **UserFlagKey** — TradeMode, FriendMode, FriendChatMode, PublicChatMode, ShoppingMode, FriendTradeMode, GameChatMode, PrivateMessaging
+- **UserFlagValue** — NOTSET, OpenChat, NoChat, Open, Free, Closed, None, Restricted, Limited, CannedChat, LikeforLike
+- **V.I+IntroSteps** — Trainers, PlayButton, Complete
+- **VersionLabel+Type** — Client, Server
+- **W.E+ArrowEndType** — Head, Tail, InbetweenHead, InbetweenTail
+- **W.h+CosmeticType** — Coins, Deckboxes, Sleeves
+- **a.F+GlobalNavSubmenu** — Play, Cards, Shop, Profile
+- **b.F+EOGSummaryRewardType** — None, Tokens, Tickets, SingleCard, AssetBundleReward
+- **b.H+StatImageType** — Default, Damage, Healing, Card, Trainer, Energy, HeadsFlip, CardsDrawn, PrizeCards, TailsFlip, DamageTotal
+- **b.b+RolloverRenderType** — Weekly, Monthly
+- **d.H+CardMovementContext** — IsEnergy, IsTool
+- **dwd.Protobuf.Object+Type** — UNKNOWN, ARRAY, DICT, STRING, BOOL, INT, FLOAT, UUID, JSON
+- **dwd.core.abtesting.ABTestCohortGroups+CohortGroup** — None, CohortA, CohortB, CohortC, CohortD
+- **dwd.core.android.obb.EventyCheckForObb+States** — Checking, Downloading, Remounting, Success, Error
+- **dwd.core.asynctournament.States** — BeforePreview, Preview, Open, EntryClosed, Resolved, Hidden
+- **dwd.core.attributes.AttributeColorer+State** — Normal, BaseGreaterThanOriginal, BaseLessThanOriginal, ValueLessThanBase, ValueGreaterThanBase
+- **dwd.core.audio.PlayAudioLocation** — Default, StartAtTransform, FollowTransform
+- **dwd.core.battery.BatteryLevel+ACLineStatus** — Offline, Online, Unknown
+- **dwd.core.battery.BatteryLevel+BatteryFlag** — High, Low, Critical, Charging, NoSystemBattery, Unknown
+- **dwd.core.commands.FreeMemoryCommand+FreeMemoryOptions** — None, UnloadUnusedResources, GarbageCollect
+- **dwd.core.commerce.messages.incoming.OverridePrice+OverrideType** — Buy, Sell
+- **dwd.core.data.LoadableData`1+LoadableDataState** — NotLoaded, Loading, Loaded
+- **dwd.core.deck.ValidationFailureType** — AtLeastXWithAttribute, MaxXWithAttribute, DeckContainsBannedCards, BoolRestriction, DeckAttributeQuery, ExactArchetypesMatchingQuery, ExactlyXWithAttribute, ExactSize, MutuallyExclusiveCards, MaxDuplicates, MaximumNotRatio, MaxMatches, MaxUniqueAttributeValues, MaxSize, MinimumNotRatio, MinimumRatio, MinSize, MustContain, MustNotContain, UnownedCards, MustContainThatsNot
+- **dwd.core.direction.Direction** — Fixed, Positive, Negative
+- **dwd.core.input.FilterPressByTouch+PressType** — Touch, Click
+- **dwd.core.input.MouseButtonFilter+MouseButtonFlags** — Left, Right, Middle
+- **dwd.core.layout.TileLayout+Modes** — RowsFirst, ColumnsFirst
+- **dwd.core.layout.screen.RectAlignmentAnchor+Anchor** — TopCenter, TopAlignRightEdges, RightAlignTopEdges, RightCenter, RightAlignBottomEdges, BottomAlignRightEdges, BottomCenter, BottomAlignLeftEdges, LeftAlignBottomEdges, LeftCenter, LeftAlignTopEdges, TopAlignLeftEdges, TopLeftCorner, TopRightCorner, BottomLeftCorner, BottomRightCorner, Middle
+- **dwd.core.loader.LoaderMode** — Synchronous, Asynchronous
+- **dwd.core.match.GameResults** — NoRecord, Loss, Draw, Win
+- **dwd.core.match.selection.messages.TargetPreference** — Optimal, Suboptimal, ForcedAttacker, Depleted, Super, Negative, Unselectable
+- **dwd.core.match.selection.messages.TargetStrength** — Strong, Weak, Negative, Forced, Enhanced, Depleted, Super, CanAutoSelect, Any, ForcedAttacker
+- **dwd.core.matchmaking.Statuses** — Requesting, Waiting, Canceling, Canceled, InGame, GameOver, Error, ReadyForGame
+- **dwd.core.matchmaking.messages.incoming.MatchRequestFailureType** — NONE, Rejected, Canceled, Timeout, Unavailable
+- **dwd.core.networking.NetworkHealth** — Good, Warning, Error, Disconnected
+- **dwd.core.networking.commands.DwdWebRequestCommand+ErrorCodes** — HttpError, NetworkError
+- **dwd.core.networking.downloadHandlers.DwdDownloadHandlerFile+ErrorCodes** — ContentTooLarge
+- **dwd.core.notifications.NotificationTypes** — Normal, AutoAcknowledge, NoPopup
+- **dwd.core.progression.ScenarioComponent+ScenarioStatus** — Root, Completed, Available
+- **dwd.core.progression.messages.ScenarioProgress+Status** — NotStarted, InProgress, Completed
+- **dwd.core.property.Track** — FullAttribute, Value, OriginalValue, ModValue
+- **dwd.core.session.commands.SessionResponseResult** — NONE, Success, Failure, Error
+- **dwd.core.social.data.FriendListStatus** — Invited, Removed, Blocking, Blocked, Friends, NoRelationship
+- **dwd.core.systemMessaging.OperatingSystemMessaging+FlashFlags** — Stop, Caption, Tray, All, UntilStopSent, UntilFocus
+- **dwd.core.twitch.DeckDisplayMode** — Fallback, Disabled, DrawnOnly, FullStatic, FullLive, ComboLive
+- **dwd.core.ui.SelectableValidator+ActiveType** — Any, All
+- **dwd.core.ui.scrollRect.ScrollSnap+ScrollDirection** — Horizontal, Vertical
+- **dwd.core.ui.text.parsing.DynamicTextParser+VarOption** — NoFormat, InvertNumericModFormat
+- **dwd.core.ui.text.parsing.TokenType** — String, Expression
+- **dwd.core.ui.tooltips.DefaultTooltipPositioner+HorizontalBehaviour** — PreferRight, PreferLeft
+- **dwd.core.ui.tooltips.DefaultTooltipPositioner+VerticalBehaviour** — Center, AlignTopEdges, AlignBottomEdges
+- **dwd.core.ui.ugui.commands.FadeCanvasGroup+FadeTypes** — OpaqueToTransparent, TransparentToOpaque
+- **dwd.core.ui.ugui.tooltips.TooltipPositioner+HorizontalBehaviour** — PreferRight, PreferLeft
+- **dwd.core.ui.ugui.tooltips.TooltipPositioner+VerticalBehaviour** — Center, AlignTopEdges, AlignBottomEdges
+- **dwd.core.util.CircuitBehaviours.Ticker+UpdateType** — Update, LateUpdate, FixedUpdate
+- **dwd.core.util.Timespace** — Game, Unscaled
+- **dwd.core.wargServer.AsyncConnection+State** — INITIAL, Connecting, ReadyForAuthentication, Authenticating, Authenticated, Closed, Disposed
+- **dwd.core.wargServer.LogType** — None, Serialize, Deserialize, SocketState, ReadThreadActivity, WriteThreadActivity, PingPong, ReadQueue, WriteQueue, MessageSize, AcknowledgeRequest
+- **dwd.core.wargServer.WargSession+DisconnectReasons** — UNKNOWN, Error, Logout, DuplicateLogin, Timeout, DataError, ReadNull
+- **dwd.core.wargServer.WargSocket+State** — Initial, Connected, Closed
+- **dwd.core.wargServer.raw.RawFlags+bits** — CLEAR, Compressed, Protobuf, PingPong, ConnectionError, AcknowledgeRequest, ReconnectSession, GrantedSession
+- **e.o+DeckManagementState** — ALLDECKS, BUILD, SAVE, VIEW
+- **f.a+AnimationOrigin** — Left, Right
+- **f.a+LayoutStyle** — Left, Right
+- **f.a+Location** — Top, Bot
+- **f.a+State** — Fresh, AnimationEntry, Typing, Waiting, AnimationExit, Cleanup
+- **f.b+ControlActions** — NONE, ActiveCardClick, BenchCardClick, CardClick, CardDoubleClick, EntityClick, EntityDoubleClick, EndOfTurnUpdate, CardZoom, ClickAnyWhereToContinue, EntityZoom, Overlay, PlaymatCardAction, PlayEnergy, Waiting, EarlyTermination, OpponentPresent, OpponentPrizeCard, EndSelection, CancelClick, HandCardClick, Empty
+- **f.o+ButtonDisplay** — NONE, HideUntilReady, StayHidden
+- **f.z+OptionsTab** — GamePlay, Video, Audio, CardCache
+- **g.l+NotificationType** — None, FriendRequest, TradeCompleted, LotExpired, ProductsFulfilled, AchievementCompleted, ProductsOpened, DeckUpdated, UserReported, GeneralNotification, PrivateTradeOffer, TournamentCompleted
+- **i.L+PopupStatus** — AllowPopups, DontAllowPopups
+- **i.P+ContentDisplay** — Text, SpriteSet
+- **i.Z+Filters** — Featured, Packs, Decks, Gameplay
+- **i.o+StatCategories** — Game, Collection
+- **iTween+EaseType** — easeInQuad, easeOutQuad, easeInOutQuad, easeInCubic, easeOutCubic, easeInOutCubic, easeInQuart, easeOutQuart, easeInOutQuart, easeInQuint, easeOutQuint, easeInOutQuint, easeInSine, easeOutSine, easeInOutSine, easeInExpo, easeOutExpo, easeInOutExpo, easeInCirc, easeOutCirc, easeInOutCirc, linear, spring, easeInBounce, easeOutBounce, easeInOutBounce, easeInBack, easeOutBack, easeInOutBack, easeInElastic, easeOutElastic, easeInOutElastic, punch
+- **iTween+LoopType** — none, loop, pingPong
+- **iTween+NamedValueColor** — _Color, _SpecColor, _Emission, _ReflectColor
+- **j.P+AchievementTypes** — UNDEFINED, Binary, Progress, Series, Tiered
+- **j.P+Categories** — NONE, TrainerChallenge, Tournament, General, Avatar, Versus
+- **j.l+RenderTypes** — NONE, TokenRewards, CardRewards, BoosterRewards, PrizeWheelReward, TokenHeader, Spacer, PrizeHeader, BoosterHeader, CardHeader, TokenTotal, PrizeWheelRewardBonus, DailyReward
+- **j.y+Gender** — Male, Female
+- **j.y+Group** — UNSET, Eyes, Eyebrows, Face, Face_prop, face_makeup, Facial_hair, Hair, Hat, Jacket, Trousers, Mouth, Nose, Shirt, Shoes, Shape, Skin_color
+- **j.y+ItemType** — Body, Clothes
+- **j.y+Pivot** — Torso, Neck, Head, ArmFront, ForearmFront, HandFront, ArmBack, ForearmBack, HandBack, Pelvis, LegFront, KneeFront, FootFront, LegBack, KneeBack, FootBack
+- **k.R+SortEnergyTo** — BackOfHand, FrontOfHand
+- **k.R+SortPokemonBy** — Energy, Stage, Family, StageInverse
+- **k.p+MessageQueueTypes** — Instant, Queued
+- **landing.DynamicLandingPage.DynamicItem+DynamicType** — Page, Maintenance
+- **landing.DynamicLandingPage.VersionedDynamicItem+DynamicType** — Page, Maintenance
+- **n.B+GameResult** — Won, Lost
+- **n.B+GameType** — UNSET, PVPGame, FriendBattle, PracticeGame, TrainerChallenge, Tournament
+- **n.B+MatchSuccess** — Success, User_Cancel, Failure
+- **n.N+IDStyle** — NONE, SHORT_NAME
+- **n.N+LogLevel** — ERROR, WARNING, INFO
+- **n.Z+Status** — Unknown, Validating, Valid, Invalid, Redeeming, Redeemed, RedeemedFailed
+- **n.j+AbilityTypes** — NONE, Attack, NonDamagingAttack, PokeAbility, PokePower, PokeBody, TechnicalMachine, EnergyAbility, StadiumAbility, TrainerAbility, AncientTrait
+- **n.j+AspectRatio** — AspectOthers, Aspect4by3, Aspect8by5, Aspect5by4, Aspect16by10, Aspect16by9
+- **n.j+BasicDecks** — bwbasicgreen, bwbasicred, bwbasicblue, basicgreen, basicred, basicblue, basicorange, basicyellow, mentalmight, mcdpromo, rallyingcry, xybasicgreen, xybasicred, xybasicblue, basicredclassic, BasicBlueClassic, BasicYellowClassic
+- **n.j+CardType** — NONE, Pokemon, LegendHalf, LegendTopHalf, LegendBottomHalf, Legend, TrainerCard, SpecialEnergy, Energy
+- **n.j+InteractionVisualizations** — DamagingAction, NonDamagingAction
+- **n.j+Rarity** — DisplayNone, Common, Common_alt, Uncommon, Uncommon_alt, Promo_BW, Promo_BW_alt, Promo_HGSS, Promo_HGSS_alt, Promo_RC, Promo_RC_alt, Promo_XY, Promo_XY_alt, Promo_SM, Promo_SM_alt, Promo_SWSH, Promo_SWSH_alt, Rare, Rare_alt, RareHolo, RareHolo_alt, RareHoloEX, RareHoloEX_alt, RareHoloGX, RareHoloGX_alt, RareHoloV, RareHoloV_alt, RareHoloVMAX, RareHoloVMAX_alt, RarePrime, RarePrime_alt, RareHoloVSTAR, Legendary, Legendary_alt, Ace, Shining, RareUltra, RareUltra_alt, RareRainbow, RareRainbow_alt, RareSecret, RareSecret_alt, ChrRareHolo, ChrRareHoloV, ChrRareUltra, ChrRareSecret, Prism, Amazing, RareRadiant, RarePromo, RareDitto, NONE, UNSET
+- **n.l+Type** — EntityIntroduced
+- **o.M+ParseState** — Start, OpenParen, CriterionDone, ConjunctionPending, Whitespace
+- **pie.QuestRenderer+QuestPresentationState** — ActivePresentation, PassivePresentation, SelectivePresentation
+- **pie.card.layout.Mode** — Vertical, Diagonal, Hide
+- **pie.code.pie.PieKabbage.KabbageFlavors** — Fizzle, Light, Medium, Hard, Bench, Group, Unqiue
+- **pie.code.pie.PieKabbage.PieKabbageFlavors** — Fizzle, Light, Medium, Hard, Bench, Group, Unqiue
+- **pie.code.pie.PieKabbage.PieSequenceTags** — Attack, Draw, Discard, Reveal
+- **pie.code.pie.PieKabbage.PieTagRestrictions** — Any, Must, Not
+- **pie.code.pie.PieKabbage.SequenceTags** — ComeIntoPlay, Bounce
+- **pie.code.pie.PieKabbage.TagRestrictions** — Any, Must, Not
+- **pie.code.pie.animation.MatchCurves+EndPoint** — Player1Deck, Player1Discard, Player1Hand, Player1Bench, Player1LostZone, Player1Trainer, Player1AbilitySelect, Player1TargetSelect, Player1Active, Player1Present, Player1Piptray, Player1Pullback, Stadium, Player2Deck, Player2Discard, Player2Hand, Player2Bench, Player2LostZone, Player2Trainer, Player2AbilitySelect, Player2Active, Player2Pullback
+- **pie.code.pie.gameModules.abtesting.PieABTestCohortGroups+CohortFeature** — NewTrainerChallenge, PostTutorialToVersus, ReceivedDeckInTutorial
+- **pie.code.pie.gameModules.collection.packOpening.ProductOpeningProvider+SequenceTypes** — NONE, Pack, TreasureBox
+- **pie.code.pie.gameModules.collection.treasureBox.TreasureBoxSubItemAnimator+SubSequences** — Intro, Reveal, Cleanup
+- **pie.code.pie.gameModules.common.instantiation.PiePrefabProvider+PoolType** — Default, Avatar, Card, Gameplay, Deck, DeckBox, Pack
+- **pie.code.pie.gameModules.trainerChallenge.FunnelState** — UNSET, TutorialGame1Intro, TutorialGame1, TutorialGame2Intro, TutorialGame2, TrainingIntro, Training, OpenBooster, OutOfFunnel
+- **pie.code.pie.gameModules.user.VisitedScenesDataProvider+VisitedScene** — TrainerChallenge, Versus, Deckbuilder, TCGoldComplete, TCLoss, VersusUpdate
+- **pie.code.pie.gameModules.versus.AnimatedVersusTierButton+VersusTierButtonDisplayState** — Incomplete, Complete, Disabled
+- **pie.code.pie.ui.RewardChevron+StateChanges** — HideRewardComplete, FillAnimComplete, ShowCheckmarkComplete, ShowRewardComplete, ShowPointExplosionComplete, ShowPointTotalExplosionComplete, PresentRewardsComplete
+- **pie.code.pie.ui.prompt.prompts.PieModalScope** — SceneLoading, Application, Session, Playmat
+- **pie.match.layout.Layer** — PlayArea, StatusEffects, Combat, SelectionReveal, Reveal, Player1Reveal, GameplaySecondaryAnimation, GameplayAnimation, Indicator, UI, ClickAndDrag, Attachments, AttachmentTray, AttachmentAnimations, Pipification, ZoomAnimation, Zoom, Legendary, ZoomAboveLegendary, GameplayEffects, Hinter, MOZ, MAX
+- **pie.playmat.code.cake.Playmat.DeckBoxes.TwoColorBox+Flap** — Left, Right
+- **pie.playmat.code.cake.Playmat.HandShuffleSleeveLoader+Player** — Player1, Player2
+- **pie.renderer.configData.MOZPosition** — PreferRight, PreferAbove, PreferCenter
+- **pie.renderer.configData.MOZType** — Copy, InPlace, Replace, None, NoHangers
+- **pie.socialv2.enums.FriendsListOptions** — None, Friends, Blocked, Requests, Room
+- **pie.socialv2.enums.PlayerType** — Self, Friend, Ignored, Invited, Unknown, Accept, Offline, Admin
+- **pie.socialv2.enums.RoomType** — Lobby, Tournament_Strategy, Battle_Challenge, Deck_Discussion, New_Players, Pokemon_Fan_Chat, Trading_Post, Casual_Strategy, Team_Recruitement, Rules, Game, Private, Active_Tournament, Queue_Tournament
+- **pie.socialv2.enums.SocialTabs** — friends, chat, notifications
+- **pie.ui.DialogModelKey** — Confirm, Cancel, Title, Message
+- **u.J+QueryType** — SELECT, SELECTDISTINCT
+- **u.x+OpponentStatus** — Available, Unavailable, Completed
+- **ui.UIElementManager.UIStyle+EffectTrigger** — OnClick, OnMouseOver, OnMouseOut, OnPress, OnRelease, OnDoubleClick, OnLeftClick, OnStart, None
+- **v.P+CurrencyTypes** — None, EventTickets, VirtualCurrency, RealCurrency
+- **w.n+EndPoint** — Player1Deck, Player1Discard, Player1Hand, Player1Bench, Player1LostZone, Player1Trainer, Player1AbilitySelect, Player1TargetSelect, Player1Active, Player1Present, Player1Piptray, Player1Pullback, Stadium, Player2Deck, Player2Discard, Player2Hand, Player2Bench, Player2LostZone, Player2Trainer, Player2AbilitySelect, Player2Active, Player2Pullback

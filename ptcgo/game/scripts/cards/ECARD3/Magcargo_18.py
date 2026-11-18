@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="94b1c919-99df-5e87-80ad-52bebd30af15",
+    key="ECARD3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Magcargo.Name",
+    display_name="Magcargo",
+    searchable_by=["Magcargo", "Stage 1", "Magcargo"],
+    subtypes=["Stage 1"],
+    collector_number=18,
+    set_code="ECARD3",
+    rarity=Rarities.Rare,
+    hp=80,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Slugma.Name",
+    family_id=218,
+    abilities=[
+        Ability(
+            title="Streaming Mantle",
+            game_text="When you play Magcargo from your hand to evolve your Active Pok\u00e9mon, you may discard the top 3 cards of your deck and and then shuffle 3 basic Energy cards from your discard pile into your deck. If you do, your opponent does the same.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Crushing Lava",
+            game_text="You may discard a Fire or Fighting basic Energy card attached to Magcargo. If you discard a Fire Energy card in this way, the Defending Pok\u00e9mon is now Burned. If you discard a Fighting Energy card in this way, this attack does 40 damage plus 20 more damage.",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
+            damage=40,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

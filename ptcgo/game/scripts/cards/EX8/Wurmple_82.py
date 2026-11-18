@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e7a254f0-42ff-5847-8edb-d52608465a97",
+    key="EX8",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Wurmple.Name",
+    display_name="Wurmple",
+    searchable_by=["Wurmple", "Basic", "Wurmple"],
+    subtypes=["Basic"],
+    collector_number=82,
+    set_code="EX8",
+    rarity=Rarities.Common,
+    hp=50,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=265,
+    abilities=[
+        Attack(
+            title="Ascension",
+            game_text="Search your deck for a card that evolves from Wurmple and put it on Wurmple. (This counts as evolving Wurmple.) Shuffle your deck afterward.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Miracle Essence",
+            game_text="Flip a coin. If heads, choose 1 Special Condition. Each Defending Pok\u00e9mon is now affected by that Special Condition.",
+            cost={PokemonTypes.GRASS: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

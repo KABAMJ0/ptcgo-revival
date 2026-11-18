@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_energy_opponent
+
+card = ItemCardDef(
+    guid="6a7b2ef9-fce1-5857-a9ce-0272947f30c2",
+    key="XY0",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.CrushingHammer.Name",
+    display_name="Crushing Hammer",
+    searchable_by=["Crushing Hammer", "Item"],
+    subtypes=["Item"],
+    collector_number=34,
+    set_code="XY0",
+    rarity=Rarities.Common,
+    effect=discard_energy_opponent(flip=True)
+)

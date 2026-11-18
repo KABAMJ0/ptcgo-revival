@@ -1,0 +1,40 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="d2c41fdb-28ca-526c-ae26-ee2f7c27d019",
+    key="DP7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Bibarel.Name",
+    display_name="Bibarel",
+    searchable_by=["Bibarel", "Stage 1", "Bibarel"],
+    subtypes=["Stage 1"],
+    collector_number=32,
+    set_code="DP7",
+    rarity=Rarities.Uncommon,
+    hp=100,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Bidoof.Name",
+    family_id=399,
+    abilities=[
+        Ability(
+            title="Unaware",
+            game_text="Prevent all effects of attacks, excluding damage, done to Bibarel.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Amnesia",
+            game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Surf",
+            cost={PokemonTypes.WATER: 2},
+            damage=60,
+        ),
+    ],
+)

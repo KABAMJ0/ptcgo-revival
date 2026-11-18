@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="5f7bb543-b96d-5dbb-b04a-b04b4699650c",
+    key="ME2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Dewgong.Name",
+    display_name="Dewgong",
+    searchable_by=["Dewgong", "Stage 1", "Dewgong"],
+    subtypes=["Stage 1"],
+    collector_number=97,
+    set_code="ME2",
+    rarity=Rarities.Rare,
+    hp=130,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.LIGHTNING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Seel.Name",
+    family_id=86,
+    abilities=[
+        Ability(
+            title="Thick Fat",
+            game_text="This Pok\u00e9mon takes 30 less damage from attacks from your opponent's Fire or Water Pok\u00e9mon (after applying Weakness and Resistance).",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Slam",
+            game_text="Flip 2 coins. This attack does 70 damage for each heads.",
+            cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
+            damage=70,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

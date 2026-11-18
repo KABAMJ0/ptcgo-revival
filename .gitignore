@@ -29,3 +29,10 @@ baseline/
 
 # Runtime activity archive written by the admin monitor
 logs/
+
+# Custom cards are hand-made, not downloadable: keep their art
+!spirit/assets/cards/CUSTOM/*.png
+
+# Energy/tool pip borders are source art the bundler reads, not cache
+!ptcgo/assets/bundleCache/pips_borders/
+!ptcgo/assets/bundleCache/pips_borders/*.png

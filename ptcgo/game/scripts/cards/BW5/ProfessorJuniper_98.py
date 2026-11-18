@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_hand_draw
+
+card = SupporterCardDef(
+    guid="700c6bb8-8dc1-5c95-b345-86441d8f3fb4",
+    key="BW5",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.ProfessorJuniper.Name",
+    display_name="Professor Juniper",
+    searchable_by=["Professor Juniper", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=98,
+    set_code="BW5",
+    rarity=Rarities.Uncommon,
+    effect=discard_hand_draw(7)
+)

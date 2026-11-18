@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import recover_basic_to_bench
+
+card = ItemCardDef(
+    guid="b5ed74e1-7938-5542-83a5-ec04d5bf4aa0",
+    key="XY12",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Revive.Name",
+    display_name="Revive",
+    searchable_by=["Revive", "Item"],
+    subtypes=["Item"],
+    collector_number=85,
+    set_code="XY12",
+    rarity=Rarities.Uncommon,
+    effect=recover_basic_to_bench(1)
+)

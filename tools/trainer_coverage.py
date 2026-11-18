@@ -20,7 +20,7 @@ import sys
 from collections import Counter, defaultdict
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CARDS_ROOT = os.path.join(REPO_ROOT, "spirit", "game", "scripts", "cards")
+CARDS_ROOT = os.path.join(REPO_ROOT, "ptcgo", "game", "scripts", "cards")
 SKIP_DIRS = {"__pycache__"}
 
 TRAINER_CLASSES = {

@@ -1,0 +1,15 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="cd7a3c9b-c3d3-5383-9a11-381909c30235",
+    key="SV9",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Ruffian.Name",
+    display_name="Ruffian",
+    searchable_by=["Ruffian", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=157,
+    set_code="SV9",
+    rarity=Rarities.Uncommon,
+    effect=unimplemented
+)

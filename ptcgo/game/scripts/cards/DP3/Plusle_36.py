@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="6da4c313-3e93-5221-8cdc-e99c739c31ac",
+    key="DP3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Plusle.Name",
+    display_name="Plusle",
+    searchable_by=["Plusle", "Basic", "Plusle"],
+    subtypes=["Basic"],
+    collector_number=36,
+    set_code="DP3",
+    rarity=Rarities.Rare,
+    hp=60,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    resistance_type=PokemonTypes.METAL,
+    family_id=311,
+    abilities=[
+        Ability(
+            title="Plus Charge",
+            game_text="Once during your turn (before your attack), if any of your Pok\u00e9mon were Knocked Out during your opponent's last turn, you may search your discard pile for up to 2 basic Energy cards, show them to your opponent, and put them into your hand. You can't use more than 1 Plus Charge Pok\u00e9-Power each turn. This power can't be used if Plusle is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Tag Play +",
+            game_text="If you have Minun on your Bench, you may do 20 damage to any 1 Benched Pok\u00e9mon instead. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+    ],
+)

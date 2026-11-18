@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="3a1ffcb1-952c-52a0-b8b1-0765f578e07c",
+    key="SM11",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Giratina.Name",
+    display_name="Giratina",
+    searchable_by=["Giratina", "Basic", "Giratina"],
+    subtypes=["Basic"],
+    collector_number=86,
+    set_code="SM11",
+    rarity=Rarities.RareHolo,
+    hp=130,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.DARKNESS,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=487,
+    abilities=[
+        Ability(
+            title="Dimension Breach",
+            game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard a Special Energy from your opponent's Active Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Fade to Black",
+            game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
+            damage=70,
+            effect=unimplemented,
+        ),
+    ],
+)

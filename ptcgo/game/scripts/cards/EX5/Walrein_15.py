@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="f8983f0b-8cb7-531a-87ed-267396e6ae93",
+    key="EX5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Walrein.Name",
+    display_name="Walrein",
+    searchable_by=["Walrein", "Stage 2", "Walrein"],
+    subtypes=["Stage 2"],
+    collector_number=15,
+    set_code="EX5",
+    rarity=Rarities.RareHolo,
+    hp=120,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.METAL,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Sealeo.Name",
+    family_id=363,
+    abilities=[
+        Ability(
+            title="Crush Draw",
+            game_text="Once during your turn (before your attack), you may reveal the top card of your deck. If that card is a basic Energy card, attach it to 1 of your Pok\u00e9mon. If not, put the card back on your deck. This power can't be used if Walrein is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sheer Cold",
+            game_text="Flip a coin. If heads, each Defending Pok\u00e9mon can't attack during your opponent's next turn.",
+            cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
+            damage=50,
+            effect=unimplemented,
+        ),
+    ],
+)

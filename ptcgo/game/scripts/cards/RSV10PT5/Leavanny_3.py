@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="5397d03f-e93d-59df-a9cd-f1faf0de13a7",
+    key="RSV10PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Leavanny.Name",
+    display_name="Leavanny",
+    searchable_by=["Leavanny", "Stage 2", "Leavanny"],
+    subtypes=["Stage 2"],
+    collector_number=3,
+    set_code="RSV10PT5",
+    rarity=Rarities.Uncommon,
+    hp=130,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Swadloon.Name",
+    family_id=540,
+    abilities=[
+        Attack(
+            title="Healing Wrapping",
+            game_text="Heal 100 damage from each of your Basic Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="X-Scissor",
+            game_text="Flip a coin. If heads, this attack does 40 more damage.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
+            damage=90,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

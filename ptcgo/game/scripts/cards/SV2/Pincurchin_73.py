@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="987577b5-4366-5d2a-b89c-eb1e03de2186",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Pincurchin.Name",
+    display_name="Pincurchin",
+    searchable_by=["Pincurchin", "Basic", "Pincurchin"],
+    subtypes=["Basic"],
+    collector_number=73,
+    set_code="SV2",
+    rarity=Rarities.Uncommon,
+    hp=90,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=871,
+    abilities=[
+        Attack(
+            title="Stun Needle",
+            game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Follow-Up Kerzap",
+            game_text="You can use this attack only if this Pok\u00e9mon used Stun Needle during your last turn.",
+            cost={PokemonTypes.LIGHTNING: 1},
+            damage=100,
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -15,7 +15,7 @@ client ──HTTP :8000──> nginx (cache + range) ──> Python asset server
 Run the Python server on 8001 so nginx can own the public port:
 
 ```bash
-sudo SPIRIT_HTTP_PORT=8001 SPIRIT_PUBLIC_HOST=YOUR_VPS_IP bash run.sh
+sudo PTCGO_HTTP_PORT=8001 PTCGO_PUBLIC_HOST=YOUR_VPS_IP bash run.sh
 ```
 
 `AssetURL` is built from the client's `Host` header, so it keeps resolving to
@@ -47,5 +47,5 @@ curl -s -D- -o /dev/null http://YOUR_VPS_IP:8000/en_US/en_US_SWSH8.unity3d | gre
 ## 2. (Optional) config.py default host
 
 `spirit/config.py` defaults `PUBLIC_HOST` to a hardcoded IP. On the VPS always
-set `SPIRIT_PUBLIC_HOST=YOUR_VPS_IP` (env) rather than relying on the committed
+set `PTCGO_PUBLIC_HOST=YOUR_VPS_IP` (env) rather than relying on the committed
 default — it's the address the Warg login handshake redirects clients to for TCP.

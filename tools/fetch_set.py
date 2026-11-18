@@ -3,8 +3,8 @@
 
     python3 tools/fetch_set.py bw2 BW2
 
-Writes spirit/game/scripts/cards/<CODE>/<set_id>.json as a plain list of cards,
-which is what spirit/tools/import_set.py expects (the API wraps them in "data").
+Writes ptcgo/game/scripts/cards/<CODE>/<set_id>.json as a plain list of cards,
+which is what ptcgo/tools/import_set.py expects (the API wraps them in "data").
 The query needs a URL-encoded colon and retries, or the API answers 500.
 """
 
@@ -35,7 +35,7 @@ def main():
     set_id = sys.argv[1].lower()
     code = sys.argv[2].upper()
 
-    out_dir = f"spirit/game/scripts/cards/{code}"
+    out_dir = f"ptcgo/game/scripts/cards/{code}"
     os.makedirs(out_dir, exist_ok=True)
 
     cards, page = [], 1

@@ -15,10 +15,10 @@ import os
 import shutil
 import sys
 
-CARDS = "spirit/game/scripts/cards"
-ASSETS = "spirit/assets/cards"
-PRODUCTS = "spirit/game/scripts/products"
-SETS_JSON = "spirit/database/json_data/sets.json"
+CARDS = "ptcgo/game/scripts/cards"
+ASSETS = "ptcgo/assets/cards"
+PRODUCTS = "ptcgo/game/scripts/products"
+SETS_JSON = "ptcgo/database/json_data/sets.json"
 
 # our folder -> the client's code for the same set
 MERGES = {

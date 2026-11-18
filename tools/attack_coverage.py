@@ -22,7 +22,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-CARDS_ROOT = os.path.join("spirit", "game", "scripts", "cards")
+CARDS_ROOT = os.path.join("ptcgo", "game", "scripts", "cards")
 SKIP_DIRS = {"__pycache__", "CUSTOM", "Free_Energy"}
 POKEMON_CLASSES = {"PokemonCardDef", "PokemonReprintCardDef"}
 ABILITY_CALLS = {"Attack", "Ability"}
@@ -179,9 +179,9 @@ def report(entries: List[Entry], totals: Totals, top: int, grep: Optional[str]):
 def live_remaining(top: int, grep: Optional[str]):
     """Post-resolution view: what is STILL unimplemented after the wording
     patterns have run, grouped by normalized text (the next work items)."""
-    from spirit.game.card_effects import patterns
-    from spirit.game.data_utils import CARD_DEFS_BY_GUID, Attack, unimplemented
-    from spirit.game.scripts.cards import loader
+    from ptcgo.game.card_effects import patterns
+    from ptcgo.game.data_utils import CARD_DEFS_BY_GUID, Attack, unimplemented
+    from ptcgo.game.scripts.cards import loader
 
     loader.load_all()
     templated = re.compile(r"\d+")

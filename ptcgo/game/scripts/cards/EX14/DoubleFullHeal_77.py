@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
+
+card = ItemCardDef(
+    guid="70e20f9b-7494-5ab1-bf30-4b3619ffcac9",
+    key="EX14",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.DoubleFullHeal.Name",
+    display_name="Double Full Heal",
+    searchable_by=["Double Full Heal", "Item"],
+    subtypes=["Item"],
+    collector_number=77,
+    set_code="EX14",
+    rarity=Rarities.Uncommon,
+    effect=cure_conditions_effect(scope="each_own")
+)

@@ -11,9 +11,9 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
-from spirit.packets.handlers.data_sync import _dynamic_page_is_active
-from spirit.server import dynamic_pages
-from spirit.server.manifest_manager import ManifestManager
+from ptcgo.packets.handlers.data_sync import _dynamic_page_is_active
+from ptcgo.server import dynamic_pages
+from ptcgo.server.manifest_manager import ManifestManager
 
 
 def localized(text):
@@ -340,7 +340,7 @@ class LandingPageManifestTests(unittest.TestCase):
             )
             env = SimpleNamespace(objects=[obj])
 
-            with patch("spirit.server.manifest_manager.UnityPy.load", return_value=env):
+            with patch("ptcgo.server.manifest_manager.UnityPy.load", return_value=env):
                 manager = ManifestManager([str(root)])
                 manifest = json.loads(gzip.decompress(manager.generate_manifest()))
 

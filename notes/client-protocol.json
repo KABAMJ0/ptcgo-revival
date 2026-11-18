@@ -1,0 +1,5291 @@
+{
+ "assemblies": [
+  "pie-src.dll",
+  "pie-core.dll",
+  "sausage-core.dll",
+  "core.dll",
+  "ProtobufMessages.dll"
+ ],
+ "messages": {
+  "AccountUpdated": {
+   "account": {
+    "username": "string",
+    "accountID": "dwd.core.account.AccountID",
+    "attributes": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   }
+  },
+  "ActiveAsyncTournaments": {
+   "tournamentDefinitions": [
+    {
+     "id": "dwd.core.tournament.TournamentID",
+     "name": "string",
+     "title": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     },
+     "description": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     },
+     "img": "string",
+     "background": "string",
+     "url": "string",
+     "previewTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "startTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "entryClosingTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "resolutionTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "disappearTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "maxRuns": "int",
+     "leaderboard": {
+      "runs": "int",
+      "winValue": "int",
+      "lossValue": "int",
+      "prizeTable": [
+       {
+        "start": "int",
+        "end": "int",
+        "rewards": [
+         {
+          "rewardType": "string",
+          "rewardAmount": "int",
+          "flavor": "string"
+         }
+        ]
+       }
+      ]
+     },
+     "run": {
+      "entryFee": [
+       {
+        "currency": "string",
+        "amount": "int"
+       }
+      ],
+      "prizeTable": [
+       {
+        "start": "int",
+        "end": "int",
+        "rewards": [
+         {
+          "rewardType": "string",
+          "rewardAmount": "int",
+          "flavor": "string"
+         }
+        ]
+       }
+      ],
+      "allowDeckSwitching": "bool",
+      "maxWins": "int",
+      "maxLosses": "int",
+      "maxGames": "int"
+     },
+     "active": "bool",
+     "game": {
+      "format": "dwd.core.deck.DeckFormatID",
+      "matchStructure": "string",
+      "strategy": "string",
+      "options": {
+       "<key>": "string"
+      }
+     },
+     "limited": {
+      "limitedType": "string",
+      "draftFormat": "string",
+      "randomProduct": [
+       [
+        "dwd.core.archetypes.ArchetypeID"
+       ]
+      ],
+      "selectedProduct": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "additionalProduct": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "randomDeck": [
+       "dwd.core.deck.DeckID"
+      ],
+      "selectedDeck": [
+       "dwd.core.deck.DeckID"
+      ],
+      "keep": "bool"
+     },
+     "league": {
+      "gamesPerInterval": "int",
+      "interval": "long",
+      "productsPerInterval": [
+       [
+        "dwd.core.archetypes.ArchetypeID"
+       ]
+      ],
+      "tiebreakerGamesPerInterval": "int"
+     },
+     "prizeBy": "string"
+    }
+   ],
+   "tournamentProgress": [
+    {
+     "tournamentDefID": "dwd.core.tournament.TournamentID",
+     "entryID": "dwd.core.tournament.TournamentEntryID",
+     "deck": {
+      "EMPTY_DECKID": "dwd.core.deck.DeckID",
+      "deckName": "string",
+      "deckLocked": "string",
+      "attributes": {
+       "source": {
+        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+        "data": "dwd.core.attributes.AttributeDictionary",
+        "useGlobalDefaults": "bool"
+       }
+      },
+      "piles": {
+       "<key>": [
+        "dwd.core.archetypes.ArchetypeID"
+       ]
+      }
+     },
+     "wins": "int",
+     "losses": "int",
+     "lastUpdate": "long",
+     "limitedCollection": [
+      "dwd.core.archetypes.ArchetypeID"
+     ],
+     "tiebreakers": "int"
+    }
+   ],
+   "claimedLeaderboard": {
+    "<key>": "bool"
+   }
+  },
+  "ActivePlayerSet": {
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "AllArchetypesChecksumMatch": {},
+  "AllAvatarArchetypesChecksumMatch": {},
+  "AllAvatarArchetypesFound": {
+   "archetypes": [
+    {
+     "extensionObject": "ProtoBuf.IExtension"
+    }
+   ],
+   "checksum": "string",
+   "protoMsg": {
+    "extensionObject": "ProtoBuf.IExtension"
+   }
+  },
+  "AllBannedCards": {
+   "bannedArchetypeIDs": [
+    "dwd.core.archetypes.ArchetypeID"
+   ]
+  },
+  "AllBannedCardsByFormat": {
+   "cards": {
+    "<key>": "string"
+   }
+  },
+  "AllPurchasedDisplayProducts": {
+   "displayProducts": [
+    "dwd.core.archetypes.ArchetypeID"
+   ]
+  },
+  "ArchetypeCommands.GetProtobufAllArchetypesList": {
+   "checksum": "string"
+  },
+  "ArchetypeCommands.GetProtobufArchetypesList": {
+   "key": "string",
+   "checksum": "string"
+  },
+  "ArchetypeCommands.GetProtobufArchetypesLists": {
+   "keyedChecksums": {
+    "<key>": "string"
+   }
+  },
+  "ArchetypeCommands.SaveDeck": {
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   }
+  },
+  "ArchetypeCustomChoiceRequired": {
+   "buttons": [
+    {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   ],
+   "sourceEntity": "dwd.core.match.EntityID",
+   "selectionParams": {
+    "<key>": "object"
+   }
+  },
+  "ArchetypeFlagsForTradeSet": {
+   "archetypeFlags": [
+    {
+     "archetypeID": "System.Guid",
+     "wanted": "int",
+     "forTrade": "int",
+     "review": "int"
+    }
+   ]
+  },
+  "ArchetypeFlagsRequested": {
+   "archetypeFlags": [
+    {
+     "archetypeID": "System.Guid",
+     "wanted": "int",
+     "forTrade": "int",
+     "review": "int"
+    }
+   ]
+  },
+  "ArchetypeFlagsSet": {
+   "archetypeFlags": [
+    {
+     "archetypeID": "System.Guid",
+     "wanted": "int",
+     "forTrade": "int",
+     "review": "int"
+    }
+   ]
+  },
+  "ArchetypeForReviewSet": {
+   "archetypeID": "System.Guid",
+   "review": "int"
+  },
+  "ArchetypeForTradeSet": {
+   "archetypeID": "System.Guid",
+   "forTrade": "int"
+  },
+  "ArchetypeIDsByFamily": {
+   "familyMap": {
+    "<key>": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   }
+  },
+  "ArchetypeKeys": {
+   "keys": [
+    "string"
+   ]
+  },
+  "ArchetypeReviewSet": {
+   "archetypeID": "System.Guid",
+   "review": "int"
+  },
+  "ArchetypeWantedSet": {
+   "archetypeID": "System.Guid",
+   "wanted": "int"
+  },
+  "ArchetypesChecksumMatch": {
+   "key": "string"
+  },
+  "AsyncTournamentHasClaimedLeaderboardReward": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "claimed": "bool"
+  },
+  "AsyncTournamentJoined": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "progress": {
+    "tournamentDefID": "dwd.core.tournament.TournamentID",
+    "entryID": "dwd.core.tournament.TournamentEntryID",
+    "deck": {
+     "EMPTY_DECKID": "dwd.core.deck.DeckID",
+     "deckName": "string",
+     "deckLocked": "string",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     },
+     "piles": {
+      "<key>": [
+       "dwd.core.archetypes.ArchetypeID"
+      ]
+     }
+    },
+    "wins": "int",
+    "losses": "int",
+    "lastUpdate": "long",
+    "limitedCollection": [
+     "dwd.core.archetypes.ArchetypeID"
+    ],
+    "tiebreakers": "int"
+   }
+  },
+  "AsyncTournamentLeaderboardRewards": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "rank": "int",
+   "rewards": [
+    {
+     "rewardType": "string",
+     "rewardAmount": "int",
+     "flavor": "string"
+    }
+   ]
+  },
+  "AsyncTournamentProgressUpdated": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "wins": "int",
+   "losses": "int",
+   "rank": "int",
+   "tiebreakers": "int"
+  },
+  "AsyncTournamentRewards": {
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "wins": "int",
+   "losses": "int",
+   "rewards": [
+    {
+     "rewardType": "string",
+     "rewardAmount": "int",
+     "flavor": "string"
+    }
+   ]
+  },
+  "AsyncTournamentStandings": {
+   "standings": [
+    {
+     "accountID": "dwd.core.account.AccountID",
+     "displayName": "string",
+     "points": "double",
+     "rank": "int",
+     "displayRank": "string"
+    }
+   ]
+  },
+  "AttributesReset": {
+   "entityID": "dwd.core.match.EntityID"
+  },
+  "AuthenticationError": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "AuthenticationFailed": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "AvailableProducts": {
+   "availableProducts": [
+    "dwd.core.archetypes.ArchetypeID"
+   ],
+   "priceMap": {
+    "<key>": [
+     [
+      [
+       "int"
+      ]
+     ]
+    ]
+   },
+   "newArchetypes": [
+    "Archetype"
+   ],
+   "archetypeProperties": {
+    "<key>": {
+     "bannerText": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     },
+     "bannerImage": "string"
+    }
+   }
+  },
+  "AvailableTournamentList": {
+   "tournamentList": [
+    {
+     "tournamentID": "System.Guid",
+     "name": "string",
+     "il8nName": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "description": "string",
+     "il8nDescription": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "format": "Unlimited | TrainerChallenge | Avatar | ThemeDeck | Modified | Expanded | Legacy",
+     "maxSize": "int",
+     "tournamentType": "string",
+     "matchStructure": "string",
+     "roundLength": "int",
+     "delayBetweenRounds": "int",
+     "entryFee": [
+      {
+       "feeType": "string",
+       "feeAmount": "int"
+      }
+     ],
+     "prizes": [
+      {
+       "prizeType": {
+        "type": "string",
+        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+       },
+       "amount": "int",
+       "startPlace": "int",
+       "endPlace": "int"
+      }
+     ],
+     "active": "bool",
+     "b": "int",
+     "A": {
+      "ActiveTournamentID": "System.Guid",
+      "logging": "bool",
+      "TournamentRewardsMessageQueue": [
+       {
+        "notification": {
+         "title": "string",
+         "text": "string",
+         "id": "System.Guid",
+         "consumed": "bool",
+         "activated": "bool"
+        },
+        "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+       }
+      ],
+      "WeeklyLeaderboardRep": "int",
+      "lastPollTime": "float",
+      "leaderboardsEnabledModel": {
+       "A": [
+        "bool"
+       ]
+      },
+      "onTournamentJoined": "System.Action",
+      "onTournamentLeft": "System.Action",
+      "subscribed": "bool",
+      "messageCenter": {
+       "pingErrorThreshold": "int",
+       "pingWarningThreshold": "int",
+       "pingDisconnectCount": "int",
+       "host": "string",
+       "port": "int",
+       "connectionStatus": "Connected | Disconnected | TimedOut | Unsure | Failed | CouldNotConnect | Denied",
+       "Logging": "bool",
+       "LastPong": "double",
+       "Delta": "double",
+       "LastPing": "double",
+       "ServerPingReceivedTime": "double",
+       "ReadyToPing": "bool"
+      },
+      "joiningTournamentMatch": "bool"
+     }
+    }
+   ],
+   "tournamentQueues": {
+    "<key>": "int"
+   }
+  },
+  "BanArchetypeIDs": {
+   "cards": {
+    "<key>": "string"
+   }
+  },
+  "BonusProductsFulfilled": {},
+  "CakeMonthlyLeaderboardRewards": {
+   "current": {
+    "standings": [
+     {
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "tournamentRep": "int",
+      "tierReward": "dwd.core.archetypes.ArchetypeID",
+      "minNumTourney": "int"
+     }
+    ]
+   },
+   "nextWeek": {
+    "standings": [
+     {
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "tournamentRep": "int",
+      "tierReward": "dwd.core.archetypes.ArchetypeID",
+      "minNumTourney": "int"
+     }
+    ]
+   },
+   "endDate": "long"
+  },
+  "CakeRevealOpened": {
+   "revealID": "System.Guid",
+   "entityIDs": [
+    {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   ],
+   "revealSource": "dwd.core.match.EntityID",
+   "revealTypes": "string",
+   "revealTitle": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "RevealType_RevealDialog": "string",
+   "RevealType_SelectionDialog": "string",
+   "RevealType_SelectionOrderedDialog": "string"
+  },
+  "CakeSelectionWithTargetsRequired": {
+   "prompt": {
+    "textVars": {
+     "numberMap": {
+      "<key>": "int"
+     },
+     "stringMap": {
+      "<key>": "string"
+     },
+     "varMap": {
+      "<key>": "object"
+     }
+    }
+   }
+  },
+  "CakeWeeklyLeaderboardRewards": {
+   "current": {
+    "rankRewards": [
+     {
+      "threshold": "int",
+      "rewards": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "topEnd": "int",
+      "bottomEnd": "int",
+      "A": {
+       "<key>": "int"
+      }
+     }
+    ],
+    "thresholdRewards": [
+     {
+      "threshold": "int",
+      "rewards": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "topEnd": "int",
+      "bottomEnd": "int",
+      "A": {
+       "<key>": "int"
+      }
+     }
+    ]
+   },
+   "nextWeek": {
+    "rankRewards": [
+     {
+      "threshold": "int",
+      "rewards": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "topEnd": "int",
+      "bottomEnd": "int",
+      "A": {
+       "<key>": "int"
+      }
+     }
+    ],
+    "thresholdRewards": [
+     {
+      "threshold": "int",
+      "rewards": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "topEnd": "int",
+      "bottomEnd": "int",
+      "A": {
+       "<key>": "int"
+      }
+     }
+    ]
+   },
+   "endDate": "long"
+  },
+  "CampaignStarted": {
+   "scenarioID": "System.Guid"
+  },
+  "ChatPartnerError": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ClaimAsyncTournamentRewardError": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "CodeIsValid": {
+   "code": "string",
+   "products": [
+    "string"
+   ],
+   "couponGroup": "string",
+   "maxRedemptionsForGroup": "int"
+  },
+  "CodeRedemptionFailure": {
+   "code": "string",
+   "reason": {
+    "textVars": {
+     "numberMap": {
+      "<key>": "int"
+     },
+     "stringMap": {
+      "<key>": "string"
+     },
+     "varMap": {
+      "<key>": "object"
+     }
+    }
+   }
+  },
+  "CodeSuccessfullyRedeemed": {
+   "code": "string"
+  },
+  "CoinFlipChoiceRequired": {
+   "sortType": "string",
+   "buttons": [
+    {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    }
+   ],
+   "sourceEntity": "dwd.core.match.EntityID"
+  },
+  "CommerceHistory": {
+   "entries": [
+    {
+     "accountID": "System.Guid",
+     "when": "long",
+     "purchaseInfo": "string",
+     "status": "string",
+     "currencyType": "string",
+     "amount": "int"
+    }
+   ],
+   "total": "int",
+   "startIndex": "int",
+   "count": "int",
+   "missingEntries": "bool"
+  },
+  "CommerceHistoryEntriesFound": {
+   "entries": [
+    {
+     "accountID": "System.Guid",
+     "when": "long",
+     "purchaseInfo": "string",
+     "status": "string",
+     "currencyType": "string",
+     "amount": "int"
+    }
+   ]
+  },
+  "ConnectionDenied": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ConnectionError": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ConnectionService": {
+   "connectionEndPoint": "string"
+  },
+  "CounterCreated": {},
+  "CounterRejected": {
+   "offerID": "System.Guid"
+  },
+  "CreateLotPrices": {
+   "prices": {
+    "<key>": {
+     "name": "int",
+     "value": "int"
+    }
+   }
+  },
+  "CurrencyCaps": {
+   "currencies": [
+    {
+     "name": "int",
+     "value": "int"
+    }
+   ]
+  },
+  "CurrentDailyRewardTrack": {
+   "dailyRewardTrack": {
+    "name": "string",
+    "rewardTiers": [
+     {
+      "wins": "int",
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "isDefaultReward": "bool",
+      "isSpecialReward": "bool"
+     }
+    ],
+    "isDefault": "bool"
+   },
+   "nextExpiry": "long"
+  },
+  "CurrentGames": {
+   "gameIDs": [
+    "System.Guid"
+   ]
+  },
+  "CurrentVersusSeason": {
+   "versusSeason": {
+    "seasonID": "string",
+    "startTime": "long",
+    "endTime": "long",
+    "description": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "tiers": [
+     {
+      "rewards": {
+       "<key>": [
+        {
+         "A": {
+          "amount": "P.u"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "resetRewardID": "string"
+   }
+  },
+  "CustomChoiceOfferMessage": {
+   "selectingPlayer": "dwd.core.account.AccountID",
+   "prompt": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "buttons": [
+    {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   ],
+   "offerLength": "long",
+   "sourceEntity": "dwd.core.match.EntityID",
+   "selection": "int",
+   "correctChoice": "int"
+  },
+  "CustomChoiceRequired": {
+   "sortType": "string",
+   "buttons": [
+    {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    }
+   ],
+   "sourceEntity": "dwd.core.match.EntityID",
+   "kind": "string"
+  },
+  "DailyLogin": {
+   "activations": "int",
+   "rewardDay": "int",
+   "weeksRewards": [
+    [
+     {
+      "A": {
+       "amount": {
+        "name": "int",
+        "value": "int"
+       }
+      }
+     }
+    ]
+   ],
+   "firstDailyLogin": "bool"
+  },
+  "DailyRewardTier": {
+   "wins": "int",
+   "rewards": [
+    {
+     "A": {
+      "amount": {
+       "name": "int",
+       "value": "int"
+      }
+     }
+    }
+   ],
+   "isDefaultReward": "bool",
+   "isSpecialReward": "bool"
+  },
+  "DailyRewardTrack": {
+   "name": "string",
+   "rewardTiers": [
+    {
+     "wins": "int",
+     "rewards": [
+      {
+       "A": {
+        "amount": {
+         "name": "int",
+         "value": "int"
+        }
+       }
+      }
+     ],
+     "isDefaultReward": "bool",
+     "isSpecialReward": "bool"
+    }
+   ],
+   "isDefault": "bool"
+  },
+  "DailyRewardTrackID": {},
+  "DeckRetrievalFailed": {},
+  "DeckUpdated": {
+   "deckID": "dwd.core.deck.DeckID",
+   "cardsAdded": [
+    "System.Guid"
+   ],
+   "cardsRemoved": [
+    "System.Guid"
+   ]
+  },
+  "DeviceAccountUpgradeFailed": {},
+  "DeviceAccountUpgraded": {
+   "account": {
+    "username": "string",
+    "accountID": "dwd.core.account.AccountID",
+    "attributes": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   }
+  },
+  "DigestSalt": {
+   "salt": "string"
+  },
+  "DraftChoiceException": {
+   "tournamentEntryID": "System.Guid"
+  },
+  "EffectPlayed": {
+   "effectMessage": "EffectMessage"
+  },
+  "EntityMoved": {
+   "entityID": "dwd.core.match.EntityID",
+   "destinationID": "dwd.core.match.EntityID",
+   "positionInParent": "int",
+   "animDuration": "int"
+  },
+  "ErrorCreatingLot": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ErrorPurchasingLot": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ErrorRemovingLot": {
+   "error": "string"
+  },
+  "EventNotice": {
+   "eventName": "string",
+   "message": {
+    "bundle": {
+     "<key>": "string"
+    },
+    "token": "string"
+   },
+   "title": {
+    "bundle": {
+     "<key>": "string"
+    },
+    "token": "string"
+   },
+   "items": [
+    {
+     "A": {
+      "amount": {
+       "name": "int",
+       "value": "int"
+      }
+     }
+    }
+   ]
+  },
+  "FeaturedProducts": {
+   "products": [
+    {
+     "productID": "System.Guid",
+     "urls": {
+      "<key>": [
+       "string"
+      ]
+     },
+     "A": {
+      "<key>": "UnityEngine.Texture"
+     }
+    }
+   ]
+  },
+  "FirstLoginEverMessage": {},
+  "ForceLoadAssetBundle": {
+   "archetypeids": [
+    "dwd.core.archetypes.ArchetypeID"
+   ]
+  },
+  "ForceSelectionFinished": {},
+  "FormatLegalityForArchetypes": {
+   "archLegality": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "formatLegality": [
+      "bool"
+     ],
+     "formatLegalityTime": [
+      "long"
+     ]
+    }
+   ]
+  },
+  "GameCompletedMessage": {
+   "coins": "int",
+   "exp": "int",
+   "share": "bool",
+   "endOfGameText": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "rewardList": [
+    {
+     "A": {
+      "amount": {
+       "name": "int",
+       "value": "int"
+      }
+     }
+    }
+   ],
+   "winner": "string",
+   "loser": "string",
+   "additionalParameters": {
+    "<key>": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   }
+  },
+  "GameDoesNotExist": {},
+  "GameMessage": {},
+  "GameUnPaused": {
+   "accountID": "System.Guid"
+  },
+  "GatewayError": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "GatewayThrottled": {
+   "sessionID": "dwd.core.session.SessionID",
+   "positionInQueue": "int",
+   "waitTime": "long"
+  },
+  "GetXCostChoiceRequired": {
+   "lowBound": "int",
+   "highBound": "int"
+  },
+  "GoFirstChoiceRequired": {
+   "sortType": "string",
+   "buttons": [
+    {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    }
+   ],
+   "sourceEntity": "dwd.core.match.EntityID"
+  },
+  "GrantedSession": {
+   "version": "string",
+   "serverTime": "long",
+   "options": {
+    "<key>": "string"
+   },
+   "session": "string"
+  },
+  "HasAvailableTutorialMatches": {
+   "hasAvailableMatches": "bool"
+  },
+  "InfiniteLoopDetected": {},
+  "InvalidCode": {
+   "code": "string",
+   "reason": {
+    "textVars": {
+     "numberMap": {
+      "<key>": "int"
+     },
+     "stringMap": {
+      "<key>": "string"
+     },
+     "varMap": {
+      "<key>": "object"
+     }
+    }
+   }
+  },
+  "ItemsAddedToCollection": {
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ]
+  },
+  "ItemsLocked": {
+   "lockID": "System.Guid",
+   "items": [
+    "System.Guid"
+   ],
+   "archCounts": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "tradable": "int",
+     "nontradable": "int"
+    }
+   ]
+  },
+  "ItemsRemovedFromCollection": {
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ]
+  },
+  "ItemsUnlocked": {
+   "items": [
+    "System.Guid"
+   ],
+   "archCounts": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "tradable": "int",
+     "nontradable": "int"
+    }
+   ]
+  },
+  "JoinAsyncTournamentError": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "JoinTournamentFailed": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "JoinTournamentFailedInvalidDeck": {
+   "deckValidationResult": [
+    {
+     "deckID": "dwd.core.deck.DeckID",
+     "format": "dwd.core.deck.DeckFormatID",
+     "formatName": "string",
+     "valid": "bool",
+     "results": [
+      {
+       "explanation": {
+        "trimChars": [
+         "char"
+        ],
+        "id": "string"
+       },
+       "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
+       "offendingArchetypeIDs": [
+        "dwd.core.archetypes.ArchetypeID"
+       ],
+       "additionalData": "object"
+      }
+     ]
+    }
+   ]
+  },
+  "LeaderBoardRankings": {
+   "entries": {
+    "<key>": [
+     {
+      "accountID": "dwd.core.account.AccountID",
+      "username": "string",
+      "rank": "int",
+      "displayRank": "string",
+      "score": "double",
+      "region": "string",
+      "movement": "int",
+      "attributes": {
+       "<key>": "string"
+      }
+     }
+    ]
+   }
+  },
+  "LeaderBoards": {
+   "names": [
+    "string"
+   ]
+  },
+  "ListingsRetrieved": {
+   "listings": [
+    "Listing"
+   ]
+  },
+  "LotCreated": {
+   "lotID": "System.Guid"
+  },
+  "LotCreatedForYou": {
+   "byUserName": "string"
+  },
+  "LotExpired": {
+   "lot": {
+    "id": "System.Guid",
+    "items": [
+     {
+      "itemID": "dwd.core.commerce.ItemID",
+      "ownerID": "dwd.core.account.AccountID",
+      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "lockID": "System.Guid",
+      "created": "long",
+      "isTradable": "bool",
+      "name": "string",
+      "invoiceID": "System.Guid",
+      "attributes": {
+       "source": {
+        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+        "data": "dwd.core.attributes.AttributeDictionary",
+        "useGlobalDefaults": "bool"
+       }
+      }
+     }
+    ],
+    "price": "float",
+    "owner": "System.Guid",
+    "lockID": "System.Guid",
+    "expirationDate": "long",
+    "expirationHR": "string",
+    "lockedBy": "System.Guid",
+    "lockedByName": "string",
+    "isDeck": "bool",
+    "cardPrice": [
+     "int"
+    ],
+    "message": "string",
+    "ownerName": "string",
+    "expirationType": "int"
+   }
+  },
+  "LotRemoved": {
+   "lotID": "System.Guid",
+   "reason": "string"
+  },
+  "LotRemovedAndRejected": {
+   "lotID": "System.Guid"
+  },
+  "LotSold": {
+   "lotID": "System.Guid"
+  },
+  "LotsRetrieved": {
+   "lots": [
+    {
+     "id": "System.Guid",
+     "items": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "price": "float",
+     "owner": "System.Guid",
+     "lockID": "System.Guid",
+     "expirationDate": "long",
+     "expirationHR": "string",
+     "lockedBy": "System.Guid",
+     "lockedByName": "string",
+     "isDeck": "bool",
+     "cardPrice": [
+      "int"
+     ],
+     "message": "string",
+     "ownerName": "string",
+     "expirationType": "int"
+    }
+   ]
+  },
+  "LotsRetrievedCount": {
+   "count": "int"
+  },
+  "MatchQueueJoinFailed": {
+   "failureType": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "MatchRequestAccepted": {
+   "requestID": "System.Guid"
+  },
+  "MatchRequestWithSpecificClientDeckCheckFailed": {
+   "failureType": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "challenger": "System.Guid",
+   "format": "string"
+  },
+  "Motd": {
+   "id": "int",
+   "title": {
+    "token": "string",
+    "bundle": {
+     "<key>": "string"
+    }
+   },
+   "text": {
+    "token": "string",
+    "bundle": {
+     "<key>": "string"
+    }
+   }
+  },
+  "MulliganChoiceRequired": {
+   "mulliganRound": "int",
+   "maxMulligans": "int",
+   "cardsDrawn": "int"
+  },
+  "MultipleSelectionWithTargetsRequired": {
+   "forcedTargets": [
+    "dwd.core.match.EntityID"
+   ],
+   "forcedSecondStageTargets": [
+    "dwd.core.match.EntityID"
+   ],
+   "targetMap": {
+    "<key>": {
+     "targetPrompt": {
+      "textVars": {
+       "numberMap": {
+        "<key>": "int"
+       },
+       "stringMap": {
+        "<key>": "string"
+       },
+       "varMap": {
+        "<key>": "object"
+       }
+      }
+     },
+     "targets": [
+      {
+       "entity": "dwd.core.match.EntityID",
+       "noDupe": "bool",
+       "pickFirst": "bool"
+      }
+     ],
+     "numberToSelect": "int",
+     "mustBeSelectedAlone": "bool",
+     "accountID": "dwd.core.account.AccountID"
+    }
+   },
+   "forced": "bool"
+  },
+  "MyLotsRetrieved": {
+   "lots": [
+    {
+     "id": "System.Guid",
+     "items": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "price": "float",
+     "owner": "System.Guid",
+     "lockID": "System.Guid",
+     "expirationDate": "long",
+     "expirationHR": "string",
+     "lockedBy": "System.Guid",
+     "lockedByName": "string",
+     "isDeck": "bool",
+     "cardPrice": [
+      "int"
+     ],
+     "message": "string",
+     "ownerName": "string",
+     "expirationType": "int"
+    }
+   ],
+   "offers": [
+    {
+     "contents": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "countering": [
+      "System.Guid"
+     ],
+     "offerID": "System.Guid",
+     "lotID": "System.Guid",
+     "lockID": "System.Guid",
+     "owner": "System.Guid",
+     "offerFor": "System.Guid"
+    }
+   ]
+  },
+  "MyLotsRetrievedCount": {
+   "count": "int"
+  },
+  "NetworkNotificationMessage": {
+   "notification": {
+    "title": "string",
+    "text": "string",
+    "id": "System.Guid",
+    "consumed": "bool",
+    "activated": "bool"
+   },
+   "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+  },
+  "NoMotdSet": {},
+  "NonMatchingArchetypesChecksums": {
+   "keys": [
+    "string"
+   ]
+  },
+  "ObserverCustomChoiceOfferMessage": {
+   "selectingPlayer": "dwd.core.account.AccountID",
+   "prompt": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "buttons": [
+    {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   ],
+   "offerLength": "long",
+   "sourceEntity": "dwd.core.match.EntityID",
+   "selection": "int",
+   "correctChoice": "int"
+  },
+  "OfferRetrievalFailure": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "ParameterizedLocCustomChoiceRequired": {
+   "buttons": [
+    {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    }
+   ]
+  },
+  "PlayerDisconnected": {
+   "accountID": "dwd.core.account.AccountID",
+   "waitTime": "int"
+  },
+  "PlayerReconnected": {
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "PokemonFamilyMap": {
+   "pokemonFamilyMap": {
+    "<key>": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   }
+  },
+  "Pong": {
+   "timestamp": "double"
+  },
+  "PrivateLotsRetrieved": {
+   "lots": [
+    {
+     "id": "System.Guid",
+     "items": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "price": "float",
+     "owner": "System.Guid",
+     "lockID": "System.Guid",
+     "expirationDate": "long",
+     "expirationHR": "string",
+     "lockedBy": "System.Guid",
+     "lockedByName": "string",
+     "isDeck": "bool",
+     "cardPrice": [
+      "int"
+     ],
+     "message": "string",
+     "ownerName": "string",
+     "expirationType": "int"
+    }
+   ],
+   "counterOffers": [
+    {
+     "contents": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "countering": [
+      "System.Guid"
+     ],
+     "offerID": "System.Guid",
+     "lotID": "System.Guid",
+     "lockID": "System.Guid",
+     "owner": "System.Guid",
+     "offerFor": "System.Guid"
+    }
+   ]
+  },
+  "PrivateLotsRetrievedCount": {
+   "count": "int"
+  },
+  "ProductRetrievalFailure": {},
+  "ProductsFulfilled": {
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ]
+  },
+  "ProductsPurchased": {
+   "invoiceID": "string",
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ]
+  },
+  "RefreshContent": {
+   "content": {
+    "<key>": "int"
+   }
+  },
+  "RemoveLotWrongAccount": {
+   "error": "string"
+  },
+  "RemoveOfferWrongAccount": {
+   "error": "string"
+  },
+  "ReportFailed": {},
+  "ReportSent": {},
+  "RequestDeviceID": {},
+  "RequestedAID": {
+   "accountID": "System.Guid"
+  },
+  "RequestedAuthType": {
+   "validAuthTypes": [
+    "string"
+   ]
+  },
+  "RequestedGASKey": {},
+  "RequestedRandomAvatarDeck": {
+   "deck": {
+    "deckID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    },
+    "piles": {
+     "<key>": [
+      "System.Guid"
+     ]
+    }
+   }
+  },
+  "RequestedUsername": {},
+  "RevealClosed": {
+   "revealID": "System.Guid"
+  },
+  "SearchLotsRetrieved": {
+   "currentPage": "int",
+   "totalPages": "int",
+   "totalItems": "int",
+   "lots": [
+    {
+     "id": "System.Guid",
+     "items": [
+      {
+       "itemID": "dwd.core.commerce.ItemID",
+       "ownerID": "dwd.core.account.AccountID",
+       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "lockID": "System.Guid",
+       "created": "long",
+       "isTradable": "bool",
+       "name": "string",
+       "invoiceID": "System.Guid",
+       "attributes": {
+        "source": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       }
+      }
+     ],
+     "price": "float",
+     "owner": "System.Guid",
+     "lockID": "System.Guid",
+     "expirationDate": "long",
+     "expirationHR": "string",
+     "lockedBy": "System.Guid",
+     "lockedByName": "string",
+     "isDeck": "bool",
+     "cardPrice": [
+      "int"
+     ],
+     "message": "string",
+     "ownerName": "string",
+     "expirationType": "int"
+    }
+   ]
+  },
+  "SelectionFinished": {},
+  "SelectionWithTargetsRequired": {
+   "targetMap": {
+    "<key>": [
+     {
+      "selected": "bool",
+      "accountID": "dwd.core.account.AccountID",
+      "name": "string",
+      "targetPrompt": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "optimalPlayMap": [
+    [
+     "dwd.core.match.EntityID"
+    ]
+   ],
+   "forced": "bool",
+   "targetType": "string",
+   "ignoreFirst": "bool",
+   "selectionParams": {
+    "<key>": "object"
+   },
+   "sourceID": "dwd.core.match.EntityID"
+  },
+  "SetDataList": {
+   "setDataList": [
+    {
+     "name": "string",
+     "externalId": "string",
+     "number": "int",
+     "count": "int",
+     "filter": "bool",
+     "block": "string",
+     "legalFormats": [
+      "string"
+     ],
+     "featuredArchetypes": [
+      "string"
+     ],
+     "visibleUnfilterable": "bool",
+     "promo": "bool",
+     "b": "bool",
+     "A": [
+      "n.j+K"
+     ],
+     "a": {
+      "<key>": "n.j+K"
+     },
+     "C": "bool"
+    }
+   ]
+  },
+  "SetIdleTimer": {
+   "playerID": "dwd.core.account.AccountID",
+   "inactivityDuration": "int",
+   "endTurnDuration": "int",
+   "forced": "bool"
+  },
+  "Shuffled": {
+   "entityID": "System.Guid"
+  },
+  "StartAsyncTournamentGameError": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "StoreIsClosed": {},
+  "StoreIsOpen": {},
+  "SubscribeToTournamentChannelSuccessful": {
+   "tournamentQueues": [
+    "int"
+   ]
+  },
+  "SuddenDeathGameMessage": {
+   "suddenDeathRound": "int"
+  },
+  "SystemMessage": {
+   "message": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "SystemMessageULB": {
+   "message": {
+    "bundle": {
+     "<key>": "string"
+    },
+    "token": "string"
+   }
+  },
+  "ThemeDeckContentsMap": {
+   "themeDeckContentsMap": {
+    "<key>": [
+     "dwd.core.archetypes.ArchetypeID"
+    ]
+   }
+  },
+  "TimeLockedArchetypes": {
+   "currentServerTime": "long",
+   "timeLockedArchetypes": {
+    "<key>": {
+     "unlockTime": "long",
+     "title": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     },
+     "body": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     }
+    }
+   }
+  },
+  "TopSellingProducts": {
+   "invoiceID": "string",
+   "products": [
+    "Archetype"
+   ]
+  },
+  "TournamentActive": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentCancelled": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentCompleted": {
+   "tournamentData": {
+    "activeTournamentID": "System.Guid",
+    "tournamentData": {
+     "tournamentID": "System.Guid",
+     "name": "string",
+     "il8nName": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "description": "string",
+     "il8nDescription": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "format": "Unlimited | TrainerChallenge | Avatar | ThemeDeck | Modified | Expanded | Legacy",
+     "maxSize": "int",
+     "tournamentType": "string",
+     "matchStructure": "string",
+     "roundLength": "int",
+     "delayBetweenRounds": "int",
+     "entryFee": [
+      {
+       "feeType": "string",
+       "feeAmount": "int"
+      }
+     ],
+     "prizes": [
+      {
+       "prizeType": {
+        "type": "string",
+        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+       },
+       "amount": "int",
+       "startPlace": "int",
+       "endPlace": "int"
+      }
+     ],
+     "active": "bool",
+     "b": "int",
+     "A": {
+      "ActiveTournamentID": "System.Guid",
+      "logging": "bool",
+      "TournamentRewardsMessageQueue": [
+       {
+        "notification": {
+         "title": "string",
+         "text": "string",
+         "id": "System.Guid",
+         "consumed": "bool",
+         "activated": "bool"
+        },
+        "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+       }
+      ],
+      "WeeklyLeaderboardRep": "int",
+      "lastPollTime": "float",
+      "leaderboardsEnabledModel": {
+       "A": [
+        "bool"
+       ]
+      },
+      "onTournamentJoined": "System.Action",
+      "onTournamentLeft": "System.Action",
+      "subscribed": "bool",
+      "messageCenter": {
+       "pingErrorThreshold": "int",
+       "pingWarningThreshold": "int",
+       "pingDisconnectCount": "int",
+       "host": "string",
+       "port": "int",
+       "connectionStatus": "Connected | Disconnected | TimedOut | Unsure | Failed | CouldNotConnect | Denied",
+       "Logging": "bool",
+       "LastPong": "double",
+       "Delta": "double",
+       "LastPing": "double",
+       "ServerPingReceivedTime": "double",
+       "ReadyToPing": "bool"
+      },
+      "joiningTournamentMatch": "bool"
+     }
+    },
+    "currentRound": "int",
+    "matchups": [
+     {
+      "A": {
+       "account": {
+        "username": "string",
+        "accountID": "dwd.core.account.AccountID",
+        "attributes": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       },
+       "wins": "int",
+       "losses": "int",
+       "draws": "int",
+       "A": "string"
+      },
+      "a": "System.Guid",
+      "gameID": "System.Guid",
+      "B": "System.Guid",
+      "winner": {
+       "accountID": "dwd.core.account.AccountID",
+       "username": "string"
+      },
+      "round": "int",
+      "table": "int",
+      "players": [
+       {
+        "accountID": "dwd.core.account.AccountID",
+        "username": "string"
+       }
+      ]
+     }
+    ],
+    "roundLength": "int"
+   },
+   "finalStandings": [
+    {
+     "accountID": "dwd.core.account.AccountID",
+     "username": "string"
+    }
+   ],
+   "prizes": [
+    {
+     "A": {
+      "amount": {
+       "name": "int",
+       "value": "int"
+      }
+     }
+    }
+   ]
+  },
+  "TournamentDraftChoices": {
+   "tournamentEntryID": "System.Guid",
+   "choices": [
+    "System.Guid"
+   ],
+   "draftedCards": [
+    "System.Guid"
+   ],
+   "choiceNumber": "int",
+   "packSize": "int",
+   "packNumber": "int",
+   "numPacks": "int"
+  },
+  "TournamentDraftComplete": {
+   "tournamentEntryID": "System.Guid",
+   "selections": [
+    "System.Guid"
+   ]
+  },
+  "TournamentHistoryList": {
+   "tournamentHistoryList": [
+    {
+     "activeTournamentID": "System.Guid",
+     "tournamentData": {
+      "tournamentID": "System.Guid",
+      "name": "string",
+      "il8nName": {
+       "bundle": {
+        "<key>": "string"
+       },
+       "token": "string"
+      },
+      "description": "string",
+      "il8nDescription": {
+       "bundle": {
+        "<key>": "string"
+       },
+       "token": "string"
+      },
+      "format": "Unlimited | TrainerChallenge | Avatar | ThemeDeck | Modified | Expanded | Legacy",
+      "maxSize": "int",
+      "tournamentType": "string",
+      "matchStructure": "string",
+      "roundLength": "int",
+      "delayBetweenRounds": "int",
+      "entryFee": [
+       {
+        "feeType": "string",
+        "feeAmount": "int"
+       }
+      ],
+      "prizes": [
+       {
+        "prizeType": {
+         "type": "string",
+         "archetypeID": "dwd.core.archetypes.ArchetypeID"
+        },
+        "amount": "int",
+        "startPlace": "int",
+        "endPlace": "int"
+       }
+      ],
+      "active": "bool",
+      "b": "int",
+      "A": {
+       "ActiveTournamentID": "System.Guid",
+       "logging": "bool",
+       "TournamentRewardsMessageQueue": [
+        {
+         "notification": {
+          "title": "string",
+          "text": "string",
+          "id": "System.Guid",
+          "consumed": "bool",
+          "activated": "bool"
+         },
+         "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+        }
+       ],
+       "WeeklyLeaderboardRep": "int",
+       "lastPollTime": "float",
+       "leaderboardsEnabledModel": {
+        "A": [
+         "bool"
+        ]
+       },
+       "onTournamentJoined": "System.Action",
+       "onTournamentLeft": "System.Action",
+       "subscribed": "bool",
+       "messageCenter": {
+        "pingErrorThreshold": "int",
+        "pingWarningThreshold": "int",
+        "pingDisconnectCount": "int",
+        "host": "string",
+        "port": "int",
+        "connectionStatus": "Connected | Disconnected | TimedOut | Unsure | Failed | CouldNotConnect | Denied",
+        "Logging": "bool",
+        "LastPong": "double",
+        "Delta": "double",
+        "LastPing": "double",
+        "ServerPingReceivedTime": "double",
+        "ReadyToPing": "bool"
+       },
+       "joiningTournamentMatch": "bool"
+      }
+     },
+     "rounds": "int",
+     "players": [
+      {
+       "accountID": "dwd.core.account.AccountID",
+       "username": "string"
+      }
+     ],
+     "matchups": [
+      {
+       "A": {
+        "account": {
+         "username": "string",
+         "accountID": "dwd.core.account.AccountID",
+         "attributes": {
+          "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+          "data": "dwd.core.attributes.AttributeDictionary",
+          "useGlobalDefaults": "bool"
+         }
+        },
+        "wins": "int",
+        "losses": "int",
+        "draws": "int",
+        "A": "string"
+       },
+       "a": "System.Guid",
+       "gameID": "System.Guid",
+       "B": "System.Guid",
+       "winner": {
+        "accountID": "dwd.core.account.AccountID",
+        "username": "string"
+       },
+       "round": "int",
+       "table": "int",
+       "players": [
+        {
+         "accountID": "dwd.core.account.AccountID",
+         "username": "string"
+        }
+       ]
+      }
+     ],
+     "tournamentStarted": "long",
+     "tournamentEnded": "long",
+     "roundLength": "int",
+     "prizeList": [
+      {
+       "accountIDUsername": {
+        "accountID": "dwd.core.account.AccountID",
+        "username": "string"
+       },
+       "prizes": [
+        {
+         "A": {
+          "amount": "P.u"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "TournamentInActive": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentItemsAddedToCollection": {
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ]
+  },
+  "TournamentJoinFailed": {
+   "reason": "string"
+  },
+  "TournamentLeft": {
+   "activeTournamentID": "System.Guid"
+  },
+  "TournamentMessage": {},
+  "TournamentNextRoundStarting": {
+   "activeTournamentID": "System.Guid",
+   "countdown": "int",
+   "suppressPopup": "bool"
+  },
+  "TournamentQueueJoined": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentQueueLeft": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentQueueLeftFailed": {
+   "tournamentID": "System.Guid"
+  },
+  "TournamentQueueStatus": {
+   "tournamentID": "System.Guid",
+   "size": "int"
+  },
+  "TournamentRoundUpdated": {
+   "activeTournamentID": "System.Guid",
+   "tournamentData": {
+    "activeTournamentID": "System.Guid",
+    "tournamentData": {
+     "tournamentID": "System.Guid",
+     "name": "string",
+     "il8nName": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "description": "string",
+     "il8nDescription": {
+      "bundle": {
+       "<key>": "string"
+      },
+      "token": "string"
+     },
+     "format": "Unlimited | TrainerChallenge | Avatar | ThemeDeck | Modified | Expanded | Legacy",
+     "maxSize": "int",
+     "tournamentType": "string",
+     "matchStructure": "string",
+     "roundLength": "int",
+     "delayBetweenRounds": "int",
+     "entryFee": [
+      {
+       "feeType": "string",
+       "feeAmount": "int"
+      }
+     ],
+     "prizes": [
+      {
+       "prizeType": {
+        "type": "string",
+        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+       },
+       "amount": "int",
+       "startPlace": "int",
+       "endPlace": "int"
+      }
+     ],
+     "active": "bool",
+     "b": "int",
+     "A": {
+      "ActiveTournamentID": "System.Guid",
+      "logging": "bool",
+      "TournamentRewardsMessageQueue": [
+       {
+        "notification": {
+         "title": "string",
+         "text": "string",
+         "id": "System.Guid",
+         "consumed": "bool",
+         "activated": "bool"
+        },
+        "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+       }
+      ],
+      "WeeklyLeaderboardRep": "int",
+      "lastPollTime": "float",
+      "leaderboardsEnabledModel": {
+       "A": [
+        "bool"
+       ]
+      },
+      "onTournamentJoined": "System.Action",
+      "onTournamentLeft": "System.Action",
+      "subscribed": "bool",
+      "messageCenter": {
+       "pingErrorThreshold": "int",
+       "pingWarningThreshold": "int",
+       "pingDisconnectCount": "int",
+       "host": "string",
+       "port": "int",
+       "connectionStatus": "Connected | Disconnected | TimedOut | Unsure | Failed | CouldNotConnect | Denied",
+       "Logging": "bool",
+       "LastPong": "double",
+       "Delta": "double",
+       "LastPing": "double",
+       "ServerPingReceivedTime": "double",
+       "ReadyToPing": "bool"
+      },
+      "joiningTournamentMatch": "bool"
+     }
+    },
+    "currentRound": "int",
+    "matchups": [
+     {
+      "A": {
+       "account": {
+        "username": "string",
+        "accountID": "dwd.core.account.AccountID",
+        "attributes": {
+         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+         "data": "dwd.core.attributes.AttributeDictionary",
+         "useGlobalDefaults": "bool"
+        }
+       },
+       "wins": "int",
+       "losses": "int",
+       "draws": "int",
+       "A": "string"
+      },
+      "a": "System.Guid",
+      "gameID": "System.Guid",
+      "B": "System.Guid",
+      "winner": {
+       "accountID": "dwd.core.account.AccountID",
+       "username": "string"
+      },
+      "round": "int",
+      "table": "int",
+      "players": [
+       {
+        "accountID": "dwd.core.account.AccountID",
+        "username": "string"
+       }
+      ]
+     }
+    ],
+    "roundLength": "int"
+   }
+  },
+  "TournamentStarted": {
+   "activeTournamentID": "System.Guid",
+   "size": "int"
+  },
+  "TournamentsInProgressData": {
+   "tournamentData": [
+    {
+     "activeTournamentID": "System.Guid",
+     "tournamentData": {
+      "tournamentID": "System.Guid",
+      "name": "string",
+      "il8nName": {
+       "bundle": {
+        "<key>": "string"
+       },
+       "token": "string"
+      },
+      "description": "string",
+      "il8nDescription": {
+       "bundle": {
+        "<key>": "string"
+       },
+       "token": "string"
+      },
+      "format": "Unlimited | TrainerChallenge | Avatar | ThemeDeck | Modified | Expanded | Legacy",
+      "maxSize": "int",
+      "tournamentType": "string",
+      "matchStructure": "string",
+      "roundLength": "int",
+      "delayBetweenRounds": "int",
+      "entryFee": [
+       {
+        "feeType": "string",
+        "feeAmount": "int"
+       }
+      ],
+      "prizes": [
+       {
+        "prizeType": {
+         "type": "string",
+         "archetypeID": "dwd.core.archetypes.ArchetypeID"
+        },
+        "amount": "int",
+        "startPlace": "int",
+        "endPlace": "int"
+       }
+      ],
+      "active": "bool",
+      "b": "int",
+      "A": {
+       "ActiveTournamentID": "System.Guid",
+       "logging": "bool",
+       "TournamentRewardsMessageQueue": [
+        {
+         "notification": {
+          "title": "string",
+          "text": "string",
+          "id": "System.Guid",
+          "consumed": "bool",
+          "activated": "bool"
+         },
+         "BehaviorType": "Unknown | AutoAcknowledge | NoPopup | Normal"
+        }
+       ],
+       "WeeklyLeaderboardRep": "int",
+       "lastPollTime": "float",
+       "leaderboardsEnabledModel": {
+        "A": [
+         "bool"
+        ]
+       },
+       "onTournamentJoined": "System.Action",
+       "onTournamentLeft": "System.Action",
+       "subscribed": "bool",
+       "messageCenter": {
+        "pingErrorThreshold": "int",
+        "pingWarningThreshold": "int",
+        "pingDisconnectCount": "int",
+        "host": "string",
+        "port": "int",
+        "connectionStatus": "Connected | Disconnected | TimedOut | Unsure | Failed | CouldNotConnect | Denied",
+        "Logging": "bool",
+        "LastPong": "double",
+        "Delta": "double",
+        "LastPing": "double",
+        "ServerPingReceivedTime": "double",
+        "ReadyToPing": "bool"
+       },
+       "joiningTournamentMatch": "bool"
+      }
+     },
+     "currentRound": "int",
+     "matchups": [
+      {
+       "A": {
+        "account": {
+         "username": "string",
+         "accountID": "dwd.core.account.AccountID",
+         "attributes": {
+          "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+          "data": "dwd.core.attributes.AttributeDictionary",
+          "useGlobalDefaults": "bool"
+         }
+        },
+        "wins": "int",
+        "losses": "int",
+        "draws": "int",
+        "A": "string"
+       },
+       "a": "System.Guid",
+       "gameID": "System.Guid",
+       "B": "System.Guid",
+       "winner": {
+        "accountID": "dwd.core.account.AccountID",
+        "username": "string"
+       },
+       "round": "int",
+       "table": "int",
+       "players": [
+        {
+         "accountID": "dwd.core.account.AccountID",
+         "username": "string"
+        }
+       ]
+      }
+     ],
+     "roundLength": "int"
+    }
+   ]
+  },
+  "TradeCompleted": {
+   "itemsReceived": [
+    "int"
+   ],
+   "itemsLost": [
+    "int"
+   ],
+   "role": "string"
+  },
+  "TradeHasBeenReported": {},
+  "TradeHistoryRetrieved": {
+   "offset": "int",
+   "history": [
+    {
+     "id": "System.Guid",
+     "offer": [
+      {
+       "itemID": "System.Guid",
+       "ownerID": "System.Guid",
+       "archetypeID": "System.Guid",
+       "created": "float",
+       "isTradable": "bool"
+      }
+     ],
+     "counterOffer": [
+      {
+       "itemID": "System.Guid",
+       "ownerID": "System.Guid",
+       "archetypeID": "System.Guid",
+       "created": "float",
+       "isTradable": "bool"
+      }
+     ],
+     "offeredBy": "System.Guid",
+     "acceptedBy": "System.Guid",
+     "offeredByUsername": "string",
+     "acceptedByUsername": "string",
+     "price": "int",
+     "acceptedDttm": "long",
+     "isPrivate": "bool",
+     "cardPrice": [
+      "int"
+     ]
+    }
+   ]
+  },
+  "TradeHistoryRetrievedCount": {
+   "count": "int"
+  },
+  "TradeReported": {},
+  "UnBanArchetypeIDForFormat": {
+   "card": "dwd.core.archetypes.ArchetypeID",
+   "format": "string"
+  },
+  "UnBanArchetypeIDs": {
+   "bannedArchetypeIDs": [
+    "dwd.core.archetypes.ArchetypeID"
+   ]
+  },
+  "UnSubscribeToTournamentChannelSuccessful": {},
+  "UpdateWantedFlagsForArchetypes": {
+   "archetypeFlags": [
+    {
+     "archetypeID": "System.Guid",
+     "wanted": "int",
+     "forTrade": "int",
+     "review": "int"
+    }
+   ]
+  },
+  "UserHasBeenReported": {},
+  "UserInActiveTournament": {
+   "activeTournamentID": "System.Guid"
+  },
+  "UsersInTournamentQueue": {
+   "usernames": [
+    "string"
+   ]
+  },
+  "VersusSeason": {
+   "seasonID": "string",
+   "startTime": "long",
+   "endTime": "long",
+   "description": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "tiers": [
+    {
+     "rewards": {
+      "<key>": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "resetRewardID": "string"
+  },
+  "VersusSeasonBegan": {
+   "versusSeason": {
+    "seasonID": "string",
+    "startTime": "long",
+    "endTime": "long",
+    "description": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "tiers": [
+     {
+      "rewards": {
+       "<key>": [
+        {
+         "A": {
+          "amount": "P.u"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "resetRewardID": "string"
+   }
+  },
+  "VersusSeasonEnded": {
+   "versusSeason": {
+    "seasonID": "string",
+    "startTime": "long",
+    "endTime": "long",
+    "description": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "tiers": [
+     {
+      "rewards": {
+       "<key>": [
+        {
+         "A": {
+          "amount": "P.u"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "resetRewardID": "string"
+   }
+  },
+  "W.e+CakeSaveDeck": {
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "eventReason": "string"
+  },
+  "WeeklyLeaderboardRewards": {
+   "archIDs": [
+    "dwd.core.archetypes.ArchetypeID"
+   ],
+   "rank": "int",
+   "tournamentRep": "int",
+   "weeklyRankIcon": "string",
+   "tournamentRepIcon": "string",
+   "NotificationID": "dwd.core.notifications.NotificationID"
+  },
+  "core.campaign.messages.incoming.ScenarioDiff": {
+   "completed": [
+    "dwd.core.progression.ScenarioID"
+   ],
+   "available": [
+    "dwd.core.progression.ScenarioID"
+   ],
+   "unavailable": [
+    "dwd.core.progression.ScenarioID"
+   ],
+   "invisible": [
+    "dwd.core.progression.ScenarioID"
+   ],
+   "visible": [
+    {
+     "scenarioID": "dwd.core.progression.ScenarioID",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     },
+     "children": [
+      "dwd.core.progression.ScenarioID"
+     ],
+     "entryRequirements": "string",
+     "completionRequirements": "string"
+    }
+   ]
+  },
+  "dwd.core.abilities.messages.incoming.AllAbilitiesFound": {
+   "abilities": [
+    [
+     "dwd.core.match.AbilityID"
+    ]
+   ]
+  },
+  "dwd.core.abtesting.CohortsForAccount": {
+   "cohorts": {
+    "<key>": "string"
+   },
+   "redirectScenes": {
+    "<key>": "string"
+   },
+   "cohortFeatures": [
+    "string"
+   ]
+  },
+  "dwd.core.account.eula.incoming.EulaExpired": {
+   "version": "int",
+   "eulaContent": "string"
+  },
+  "dwd.core.account.eula.incoming.EulaSetForAccount": {
+   "accountID": "string"
+  },
+  "dwd.core.account.eula.incoming.EulaSuccessful": {
+   "version": "int"
+  },
+  "dwd.core.account.messages.AuthenticationSuccessful": {
+   "account": {
+    "username": "string",
+    "accountID": "dwd.core.account.AccountID",
+    "attributes": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   },
+   "sessionID": "dwd.core.session.SessionID",
+   "supplementaryInfo": "object"
+  },
+  "dwd.core.account.messages.incoming.AccountPropertiesUpdated": {
+   "accountID": "dwd.core.account.AccountID",
+   "attributes": {
+    "source": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   }
+  },
+  "dwd.core.account.messages.incoming.AccountPropertyRemoved": {
+   "accountID": "dwd.core.account.AccountID",
+   "attribute": {
+    "Name": "int",
+    "ValueType": "System.Type"
+   }
+  },
+  "dwd.core.account.messages.incoming.AccountPropertyRemoved2": {
+   "accountID": "dwd.core.account.AccountID",
+   "attribute": "int"
+  },
+  "dwd.core.account.messages.outgoing.SetAccountSettings": {
+   "settings": {
+    "<key>": "int"
+   }
+  },
+  "dwd.core.account.privacyPolicy.incoming.PrivacyPolicyExpired": {
+   "version": "int",
+   "privacyPolicyContent": "string"
+  },
+  "dwd.core.account.privacyPolicy.incoming.PrivacyPolicySetForAccount": {
+   "accountID": "string"
+  },
+  "dwd.core.account.privacyPolicy.incoming.PrivacyPolicySuccessful": {
+   "version": "int"
+  },
+  "dwd.core.achievements.messages.incoming.AchievementCompleted": {
+   "achievement": {
+    "achievementID": "dwd.core.achievements.AchievementID",
+    "name": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   }
+  },
+  "dwd.core.achievements.messages.incoming.AchievementProgress": {
+   "achievement": {
+    "achievementID": "dwd.core.achievements.AchievementID",
+    "name": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   },
+   "activations": "int",
+   "activationsNeeded": "int",
+   "activatedDttm": "long"
+  },
+  "dwd.core.achievements.messages.incoming.ListAchievements": {
+   "achievements": [
+    {
+     "achievement": {
+      "achievementID": "dwd.core.achievements.AchievementID",
+      "name": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "attributes": {
+       "source": {
+        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+        "data": "dwd.core.attributes.AttributeDictionary",
+        "useGlobalDefaults": "bool"
+       }
+      }
+     },
+     "activations": "int",
+     "activationsNeeded": "int",
+     "activatedDttm": "long"
+    }
+   ]
+  },
+  "dwd.core.achievements.messages.outgoing.GetAchievements": {},
+  "dwd.core.achievements.messages.outgoing.GetDailyQuests": {},
+  "dwd.core.archetypes.messages.AllArchetypesFound": {
+   "A": [
+    {
+     "ArchetypeID": "dwd.core.archetypes.ArchetypeID",
+     "attributes": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   ]
+  },
+  "dwd.core.archetypes.messages.ArchetypesUpdated": {
+   "A": "bool"
+  },
+  "dwd.core.archetypes.messages.ProtoAllArchetypesFound": {
+   "A": {
+    "extensionObject": "ProtoBuf.IExtension"
+   }
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentDeckUpdated": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "limitedCollection": [
+    "dwd.core.archetypes.ArchetypeID"
+   ]
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentGameHistory": {
+   "opponentID": "dwd.core.account.AccountID",
+   "opponentName": "string",
+   "gameResult": "string"
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentGameHistoryList": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "games": [
+    {
+     "opponentID": "dwd.core.account.AccountID",
+     "opponentName": "string",
+     "gameResult": "string"
+    }
+   ]
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings": {
+   "standingMap": {
+    "<key>": {
+     "accountID": "dwd.core.account.AccountID",
+     "displayName": "string",
+     "points": "double",
+     "rank": "int",
+     "displayRank": "string"
+    }
+   }
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentLeaderboardTopRankedStandings": {
+   "standings": [
+    {
+     "accountID": "dwd.core.account.AccountID",
+     "displayName": "string",
+     "points": "double",
+     "rank": "int",
+     "displayRank": "string"
+    }
+   ],
+   "playerRank": "int",
+   "playerStanding": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string",
+    "points": "double",
+    "rank": "int",
+    "displayRank": "string"
+   }
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentNumberOfPlayerRuns": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "runs": "int"
+  },
+  "dwd.core.asynctournament.messages.AsyncTournamentUnacknowledgedPacks": {
+   "tournamentEntryID": "dwd.core.tournament.TournamentEntryID",
+   "packs": [
+    {
+     "packID": "System.Guid",
+     "packArchetypeID": "dwd.core.archetypes.ArchetypeID",
+     "packContents": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   ],
+   "additionalRewards": "bool"
+  },
+  "dwd.core.asynctournament.messages.CanClaimLeaderboardRewardsForTournament": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "hasParticipated": "bool",
+   "claimAvailable": "bool",
+   "rank": "int",
+   "availableIn": "long"
+  },
+  "dwd.core.asynctournament.messages.LeagueTiebreakersRemaining": {
+   "tournamentID": "dwd.core.tournament.TournamentID",
+   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "week": "int",
+   "tiebreakersPlayedThisWeek": "int",
+   "tiebreakersRemaining": "int"
+  },
+  "dwd.core.asynctournament.messages.PackAcknowledged": {
+   "tournamentEntryID": "dwd.core.tournament.TournamentEntryID",
+   "packID": "System.Guid"
+  },
+  "dwd.core.attributes.messages.AttributeModified": {
+   "entityID": "dwd.core.match.EntityID",
+   "attribute": {
+    "Name": "int",
+    "ValueType": "System.Type"
+   }
+  },
+  "dwd.core.attributes.messages.AttributeRemoved": {
+   "entityID": "dwd.core.match.EntityID",
+   "attributeName": {
+    "Key": "int",
+    "ValueType": "System.Type",
+    "SecondaryType": "System.Type"
+   }
+  },
+  "dwd.core.cacheableMessages.messages.incoming.ChecksumDiff": {
+   "dataType": "string",
+   "ckSumDiff": [
+    {
+     "groupKey": "string",
+     "ckSum": "string",
+     "newData": "NetworkMessageEvent"
+    }
+   ],
+   "xOfY": [
+    "int"
+   ]
+  },
+  "dwd.core.cacheableMessages.messages.incoming.ChecksumMatch": {
+   "dataType": "string"
+  },
+  "dwd.core.cacheableMessages.messages.incoming.GetChecksummedDataError": {
+   "dataType": "string",
+   "reason": "string"
+  },
+  "dwd.core.chat.messages.incoming.NotifyPrivateChat": {
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "toUserInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "message": "string",
+   "purpose": "string",
+   "targetWasOnline": "bool"
+  },
+  "dwd.core.chat.messages.outgoing.PrivateChat": {
+   "accountID": "dwd.core.account.AccountID",
+   "message": "string",
+   "purpose": "string"
+  },
+  "dwd.core.collection.messages.incoming.CollectionCountFound": {
+   "collectionCountList": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "tradable": "int",
+     "nontradable": "int"
+    }
+   ]
+  },
+  "dwd.core.collection.messages.incoming.ItemsRemovedFromCollectionById": {
+   "archCounts": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "tradable": "int",
+     "nontradable": "int"
+    }
+   ]
+  },
+  "dwd.core.commerce.messages.incoming.ArchetypesPurchaseFailure": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.ArchetypesPurchased": {
+   "archetypes": {
+    "<key>": "int"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.ArchetypesSellFailure": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.ArchetypesSold": {
+   "archetypes": {
+    "<key>": "int"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.CurrencyChanged": {
+   "newAmount": {
+    "name": "int",
+    "value": "int"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.CurrentWallet": {
+   "currencies": [
+    {
+     "name": "int",
+     "value": "int"
+    }
+   ]
+  },
+  "dwd.core.commerce.messages.incoming.GetWalletFailed": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.OverridePrices": {
+   "prices": [
+    {
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "quantityForSell": "int",
+     "newPrice": {
+      "name": "int",
+      "value": "int"
+     },
+     "buySell": "Buy | Sell",
+     "startTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     },
+     "endTime": {
+      "timestamp": "long",
+      "MinValue": "dwd.core.wargServer.WargTime",
+      "MaxValue": "dwd.core.wargServer.WargTime"
+     }
+    }
+   ]
+  },
+  "dwd.core.commerce.messages.incoming.ProductPurchaseFailure": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.ProductsOpened": {
+   "accountID": "dwd.core.account.AccountID",
+   "items": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ],
+   "products": [
+    {
+     "itemID": "dwd.core.commerce.ItemID",
+     "ownerID": "dwd.core.account.AccountID",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "lockID": "System.Guid",
+     "created": "long",
+     "isTradable": "bool",
+     "name": "string",
+     "invoiceID": "System.Guid",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     }
+    }
+   ],
+   "additionalData": {
+    "<key>": "object"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.ProductsOpenedFailure": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.commerce.messages.incoming.SinglesPrices": {
+   "sellPrices": {
+    "<key>": "int"
+   },
+   "buyPrices": {
+    "<key>": "int"
+   }
+  },
+  "dwd.core.commerce.messages.outgoing.GetAllPurchasedDisplayProducts": {},
+  "dwd.core.commerce.messages.outgoing.GetAvailableProducts": {
+   "version": "string",
+   "catalogs": [
+    "string"
+   ]
+  },
+  "dwd.core.commerce.messages.outgoing.GetWallet": {},
+  "dwd.core.commerce.messages.outgoing.RequestOverridePrices": {},
+  "dwd.core.commerce.messages.outgoing.RequestSinglesPrices": {},
+  "dwd.core.data.dataTable.messages.outgoing.GetDataTable": {
+   "checksums": {
+    "<key>": "string"
+   },
+   "dataType": "string"
+  },
+  "dwd.core.data.dataTable.messages.outgoing.GetDataTableNoChecksum": {
+   "dataType": "string"
+  },
+  "dwd.core.data.leaderboards.LeaderBoardQueryFailed": {
+   "error": "string"
+  },
+  "dwd.core.data.leaderboards.LeaderBoardUserRank": {
+   "entries": {
+    "<key>": {
+     "accountID": "dwd.core.account.AccountID",
+     "username": "string",
+     "rank": "int",
+     "displayRank": "string",
+     "score": "double",
+     "region": "string",
+     "movement": "int",
+     "attributes": {
+      "<key>": "string"
+     }
+    }
+   }
+  },
+  "dwd.core.data.leaderboards.LeaderBoardUserRankings": {
+   "entries": {
+    "<key>": [
+     {
+      "accountID": "dwd.core.account.AccountID",
+      "username": "string",
+      "rank": "int",
+      "displayRank": "string",
+      "score": "double",
+      "region": "string",
+      "movement": "int",
+      "attributes": {
+       "<key>": "string"
+      }
+     }
+    ]
+   }
+  },
+  "dwd.core.data.login.RegisterGuestAccountWithToken": {
+   "accountData": {
+    "<key>": "object"
+   }
+  },
+  "dwd.core.data.matchmaking.messages.AcceptMatchWithSpecificClient": {
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "opponentID": "dwd.core.account.AccountID",
+   "path": "string"
+  },
+  "dwd.core.data.matchmaking.messages.PhoenixRequestXboxMatchWithSpecificClient": {
+   "opponentXuid": "string",
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "matchOptions": {
+    "<key>": "string"
+   }
+  },
+  "dwd.core.data.matchmaking.messages.RequestMatchWithSpecificClient": {
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "matchOptions": {
+    "<key>": "string"
+   },
+   "opponentID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.data.message.game.DematerializeEntity": {
+   "entityID": "dwd.core.match.EntityID",
+   "destinationID": "dwd.core.match.EntityID",
+   "positionInParent": "int"
+  },
+  "dwd.core.data.message.game.EntityMovedWithoutID": {
+   "sourceID": "dwd.core.match.EntityID",
+   "destinationID": "dwd.core.match.EntityID",
+   "positionInParent": "int"
+  },
+  "dwd.core.data.message.game.MapEntityID": {
+   "oldID": "dwd.core.match.EntityID",
+   "newID": "dwd.core.match.EntityID"
+  },
+  "dwd.core.data.message.game.MaterializeEntity": {
+   "entityID": "dwd.core.match.EntityID",
+   "entityName": "string",
+   "attributeMap": {
+    "source": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   },
+   "owningPlayerID": "dwd.core.account.AccountID",
+   "sourceID": "dwd.core.match.EntityID",
+   "destinationID": "dwd.core.match.EntityID",
+   "positionInParent": "int",
+   "animDuration": "int",
+   "children": [
+    "dwd.core.data.message.game.MaterializeEntity"
+   ],
+   "presentationPile": "dwd.core.match.EntityID"
+  },
+  "dwd.core.deck.messages.DeckDeleted": {
+   "deckID": "dwd.core.deck.DeckID"
+  },
+  "dwd.core.deck.messages.DeckPropertiesSaved": {
+   "deckID": "dwd.core.deck.DeckID",
+   "attributes": {
+    "source": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   }
+  },
+  "dwd.core.deck.messages.DeckSaveFailed": {
+   "deckID": "dwd.core.deck.DeckID"
+  },
+  "dwd.core.deck.messages.DeckSaved": {
+   "deckID": "dwd.core.deck.DeckID",
+   "deck": {
+    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "deckName": "string",
+    "deckLocked": "string",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "piles": {
+     "<key>": [
+      "dwd.core.archetypes.ArchetypeID"
+     ]
+    }
+   },
+   "validationResults": [
+    {
+     "deckID": "dwd.core.deck.DeckID",
+     "format": "dwd.core.deck.DeckFormatID",
+     "formatName": "string",
+     "valid": "bool",
+     "results": [
+      {
+       "explanation": {
+        "trimChars": [
+         "char"
+        ],
+        "id": "string"
+       },
+       "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
+       "offendingArchetypeIDs": [
+        "dwd.core.archetypes.ArchetypeID"
+       ],
+       "additionalData": "object"
+      }
+     ]
+    }
+   ]
+  },
+  "dwd.core.deck.messages.DecksDeleted": {
+   "deckIDs": [
+    "dwd.core.deck.DeckID"
+   ]
+  },
+  "dwd.core.deck.messages.DecksValidated": {
+   "results": [
+    {
+     "deckID": "dwd.core.deck.DeckID",
+     "format": "dwd.core.deck.DeckFormatID",
+     "formatName": "string",
+     "valid": "bool",
+     "results": [
+      {
+       "explanation": {
+        "trimChars": [
+         "char"
+        ],
+        "id": "string"
+       },
+       "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
+       "offendingArchetypeIDs": [
+        "dwd.core.archetypes.ArchetypeID"
+       ],
+       "additionalData": "object"
+      }
+     ]
+    }
+   ]
+  },
+  "dwd.core.deck.messages.DeleteDeckFailed": {
+   "deckID": "dwd.core.deck.DeckID"
+  },
+  "dwd.core.deck.messages.OnlineDecksFound": {
+   "decks": [
+    {
+     "EMPTY_DECKID": "dwd.core.deck.DeckID",
+     "deckName": "string",
+     "deckLocked": "string",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     },
+     "piles": {
+      "<key>": [
+       "dwd.core.archetypes.ArchetypeID"
+      ]
+     }
+    }
+   ]
+  },
+  "dwd.core.demoMode.messages.StoreEmailError": {
+   "msg": "string"
+  },
+  "dwd.core.demoMode.messages.StoreEmailSuccess": {},
+  "dwd.core.direBytes.messages.DireBytesFound": {
+   "tiles": [
+    {
+     "id": "string",
+     "release": "string",
+     "properties": {
+      "project": "string",
+      "domain": "string",
+      "internalName": "string",
+      "layout": "string",
+      "priority": "int",
+      "platforms": [
+       "UnityEngine.RuntimePlatform"
+      ],
+      "tileType": "dwd.core.direBytes.messages.DireByteTileType"
+     }
+    }
+   ]
+  },
+  "dwd.core.draft.messages.incoming.ActiveDrafts": {
+   "states": {
+    "<key>": {
+     "currentSubState": "dwd.core.draft.serialization.DraftSubState",
+     "collection": {
+      "previousPicks": [
+       [
+        "dwd.core.archetypes.ArchetypeID"
+       ]
+      ]
+     }
+    }
+   }
+  },
+  "dwd.core.draft.messages.incoming.DraftEnded": {
+   "instanceID": "dwd.core.draft.DraftEntryID",
+   "result": "dwd.core.draft.serialization.DraftResult",
+   "chestRewards": [
+    {
+     "rewardType": "string",
+     "rewardAmount": "int",
+     "flavor": "string"
+    }
+   ],
+   "rewards": [
+    {
+     "rewardType": "string",
+     "rewardAmount": "int",
+     "flavor": "string"
+    }
+   ]
+  },
+  "dwd.core.draft.messages.incoming.DraftError": {
+   "text": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.draft.messages.incoming.DraftStateUpdated": {
+   "instanceID": "dwd.core.draft.DraftEntryID",
+   "state": {
+    "currentSubState": "dwd.core.draft.serialization.DraftSubState",
+    "collection": {
+     "previousPicks": [
+      [
+       "dwd.core.archetypes.ArchetypeID"
+      ]
+     ]
+    }
+   }
+  },
+  "dwd.core.eventTriggers.messages.incoming.RunClientAction": {
+   "clientAction": "dwd.core.eventTriggers.clientActions.ClientAction"
+  },
+  "dwd.core.gameTerms.messages.incoming.GameTermsAsDict": {
+   "dict": {
+    "<key>": [
+     "string"
+    ]
+   }
+  },
+  "dwd.core.localization.service.messages.incoming.AllLocalizationReleases": {
+   "locale": "string",
+   "releases": {
+    "<key>": {
+     "md5": "string",
+     "localizationList": [
+      {
+       "key": "string",
+       "value": "string"
+      }
+     ]
+    }
+   },
+   "version": "string"
+  },
+  "dwd.core.loginRewards.messages.incoming.LoginReward": {
+   "rolledOver": "int",
+   "maybeReward": {
+    "rewardType": "string",
+    "rewardAmount": "int",
+    "flavor": "string"
+   },
+   "schedule": {
+    "scheduleId": "string",
+    "rewards": [
+     {
+      "rewardType": "string",
+      "rewardAmount": "int",
+      "flavor": "string"
+     }
+    ]
+   },
+   "progress": {
+    "periodsGotReward": "int",
+    "periodsSkippedReward": [
+     "int"
+    ]
+   },
+   "scheduleName": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "scheduleType": "string",
+   "timestamp": {
+    "timestamp": "long",
+    "MinValue": "dwd.core.wargServer.WargTime",
+    "MaxValue": "dwd.core.wargServer.WargTime"
+   }
+  },
+  "dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffect": {
+   "gameID": "dwd.core.match.GameID",
+   "playerID": "dwd.core.match.EntityID",
+   "entityID": "dwd.core.match.EntityID",
+   "flavor": "string"
+  },
+  "dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffectV2": {
+   "gameID": "dwd.core.match.GameID",
+   "playerID": "dwd.core.match.EntityID",
+   "parent": "dwd.core.match.EntityID",
+   "flavor": "string"
+  },
+  "dwd.core.match.interaction.messages.incoming.PlayerStoppedInteractingEffect": {
+   "gameID": "dwd.core.match.GameID",
+   "playerID": "dwd.core.match.EntityID",
+   "flavor": "string"
+  },
+  "dwd.core.match.messages.EntityAdded": {
+   "entityID": "dwd.core.match.EntityID",
+   "owningPlayerID": "dwd.core.account.AccountID",
+   "parentEntityID": "dwd.core.match.EntityID"
+  },
+  "dwd.core.match.messages.EntityDestroyed": {
+   "entityID": "dwd.core.match.EntityID"
+  },
+  "dwd.core.match.messages.EntityIntroduced": {
+   "attributeMap": {
+    "source": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   },
+   "entityID": "dwd.core.match.EntityID",
+   "entityName": "string"
+  },
+  "dwd.core.match.messages.GameEnded": {
+   "winnerList": [
+    "dwd.core.account.AccountID"
+   ],
+   "loserMap": {
+    "<key>": "string"
+   },
+   "draw": "bool"
+  },
+  "dwd.core.match.messages.MatchGameEnded": {
+   "winnerList": [
+    "dwd.core.account.AccountID"
+   ],
+   "loserMap": {
+    "<key>": "string"
+   },
+   "draw": "bool",
+   "gameNumber": "int"
+  },
+  "dwd.core.match.messages.SerializedGameState": {
+   "entities": {
+    "entityID": "dwd.core.match.EntityID",
+    "parentID": "dwd.core.match.EntityID",
+    "owningPlayerID": "dwd.core.account.AccountID",
+    "entityName": "string",
+    "archetypeID": "dwd.core.archetypes.ArchetypeID",
+    "attributes": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    },
+    "children": [
+     "dwd.core.match.messages.SerializedEntity"
+    ]
+   },
+   "playerAccounts": [
+    "dwd.core.account.AccountID"
+   ],
+   "gameOptions": {
+    "<key>": "string"
+   }
+  },
+  "dwd.core.match.messages.incoming.GamePaused": {
+   "accountID": "dwd.core.account.AccountID",
+   "pauseClock": "int",
+   "forcePause": "bool"
+  },
+  "dwd.core.match.messages.incoming.PlayerNotInGame": {},
+  "dwd.core.match.messages.incoming.PlayerStillInGame": {},
+  "dwd.core.match.messages.incoming.RevealOpened": {
+   "revealID": "System.Guid",
+   "entityIDs": {
+    "<key>": {
+     "source": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     }
+    }
+   }
+  },
+  "dwd.core.match.messages.outgoing.GameCustomChoice": {
+   "selection": "int",
+   "counter": "int"
+  },
+  "dwd.core.match.messages.outgoing.ObserveGame": {
+   "gameID": "dwd.core.match.GameID"
+  },
+  "dwd.core.match.messages.outgoing.ObserveGameForAccountID": {
+   "accountToObserve": "dwd.core.account.AccountID"
+  },
+  "dwd.core.match.messages.outgoing.Replay": {
+   "queueName": "string"
+  },
+  "dwd.core.match.messages.outgoing.ResignGame": {
+   "gameID": "dwd.core.match.GameID",
+   "gameNum": "int"
+  },
+  "dwd.core.match.messages.outgoing.ResignMatch": {
+   "gameID": "dwd.core.match.GameID"
+  },
+  "dwd.core.match.messages.outgoing.StopObserving": {
+   "gameID": "dwd.core.match.GameID"
+  },
+  "dwd.core.match.selection.messages.CustomChoiceWithTargetsRequired": {
+   "forced": "bool",
+   "ignoreFirst": "bool",
+   "choiceKind": "string",
+   "choices": [
+    {
+     "entityID": "dwd.core.match.EntityID",
+     "parentID": "dwd.core.match.EntityID",
+     "owningPlayerID": "dwd.core.account.AccountID",
+     "entityName": "string",
+     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "attributes": {
+      "source": {
+       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+       "data": "dwd.core.attributes.AttributeDictionary",
+       "useGlobalDefaults": "bool"
+      }
+     },
+     "children": [
+      "dwd.core.match.messages.SerializedEntity"
+     ]
+    }
+   ],
+   "choiceTargets": [
+    [
+     {
+      "selected": "bool",
+      "accountID": "dwd.core.account.AccountID",
+      "name": "string",
+      "targetPrompt": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      }
+     }
+    ]
+   ],
+   "optimalChoices": [
+    "Optimal | Suboptimal | ForcedAttacker | Depleted | Super | Negative | Unselectable"
+   ],
+   "sourceEntity": "dwd.core.match.EntityID",
+   "selectionParams": {
+    "<key>": "object"
+   }
+  },
+  "dwd.core.match.selection.messages.SelectionMessage": {
+   "counter": "int",
+   "prompt": {
+    "textVars": {
+     "numberMap": {
+      "<key>": "int"
+     },
+     "stringMap": {
+      "<key>": "string"
+     },
+     "varMap": {
+      "<key>": "object"
+     }
+    }
+   },
+   "offerLength": "long",
+   "startingTimestamp": "long"
+  },
+  "dwd.core.match.selection.messages.incoming.SelectionWithTargetsAndActionsRequired": {
+   "targetMap": [
+    {
+     "entityID": "dwd.core.match.EntityID",
+     "selectableAction": {
+      "gameID": "dwd.core.match.GameID",
+      "actionID": "dwd.core.match.AbilityID",
+      "description": "string",
+      "selectionType": "string",
+      "actionHint": "Optimal | Suboptimal | ForcedAttacker | Depleted | Super | Negative | Unselectable"
+     },
+     "targetInfoLst": [
+      {
+       "selected": "bool",
+       "accountID": "dwd.core.account.AccountID",
+       "name": "string",
+       "targetPrompt": {
+        "textVars": {
+         "numberMap": {
+          "<key>": "int"
+         },
+         "stringMap": {
+          "<key>": "string"
+         },
+         "varMap": {
+          "<key>": "object"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "optimalPlayMap": [
+    [
+     "dwd.core.match.EntityID"
+    ]
+   ],
+   "forced": "bool",
+   "targetType": "string",
+   "selectionParams": {
+    "<key>": "object"
+   }
+  },
+  "dwd.core.match.sequence.messages.SequenceMessage": {
+   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "msg": "dwd.core.match.IGameMessage"
+  },
+  "dwd.core.match.sequence.messages.StartSequence": {
+   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "name": "string",
+   "attributes": {
+    "source": {
+     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+     "data": "dwd.core.attributes.AttributeDictionary",
+     "useGlobalDefaults": "bool"
+    }
+   }
+  },
+  "dwd.core.match.sequence.messages.StopSequence": {
+   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "name": "string"
+  },
+  "dwd.core.matchmaking.messages.incoming.ConfirmReadyForMatch": {
+   "queueName": "string",
+   "gameID": "dwd.core.match.GameID",
+   "path": "string"
+  },
+  "dwd.core.matchmaking.messages.incoming.DeckNotValidForQueue": {
+   "deckID": "dwd.core.deck.DeckID",
+   "reason": {
+    "deckID": "dwd.core.deck.DeckID",
+    "format": "dwd.core.deck.DeckFormatID",
+    "formatName": "string",
+    "valid": "bool",
+    "results": [
+     {
+      "explanation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
+      "offendingArchetypeIDs": [
+       "dwd.core.archetypes.ArchetypeID"
+      ],
+      "additionalData": "object"
+     }
+    ]
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchFailure": {},
+  "dwd.core.matchmaking.messages.incoming.MatchFound": {
+   "gameID": "dwd.core.match.GameID",
+   "players": [
+    "dwd.core.account.AccountID"
+   ],
+   "gameOptions": {
+    "<key>": "string"
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchQueueEntered": {
+   "estimatedWaitTime": "int"
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchQueueLeft": {},
+  "dwd.core.matchmaking.messages.incoming.MatchRequestCancelled": {
+   "path": "string"
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchRequestError": {
+   "errorMsg": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchRequestRejected": {
+   "path": "string",
+   "failureType": "NONE | Rejected | Canceled | Timeout | Unavailable"
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchRequestSent": {
+   "path": "string",
+   "opponentID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchRequestWithSpecificClientFailed": {
+   "failureType": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.MatchRequested": {
+   "path": "string",
+   "opponentID": "dwd.core.account.AccountID",
+   "matchOptions": {
+    "<key>": "string"
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.ObserveGameError": {
+   "error": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.matchmaking.messages.incoming.SpectatedMatchRequestSent": {
+   "path": "string",
+   "player1ID": "dwd.core.account.AccountID",
+   "player2ID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.matchmaking.messages.incoming.StoppedObserving": {
+   "gameID": "dwd.core.match.GameID",
+   "reason": "string"
+  },
+  "dwd.core.networking.NetworkStatusIndicatorConfiguration": {
+   "pingWarningThreshold": "int",
+   "pingErrorThreshold": "int",
+   "thresholdManualSetting": "int",
+   "thresholdProceduralSetting": "int"
+  },
+  "dwd.core.networking.wargServer.messages.incoming.AccountDuplicateLogin": {},
+  "dwd.core.networking.wargServer.messages.incoming.LoggedClientError": {
+   "logID": "System.Guid"
+  },
+  "dwd.core.networking.wargServer.messages.incoming.UpgradeClient": {
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.notifications.messages.incoming.Notification": {
+   "notificationID": "dwd.core.notifications.NotificationID",
+   "payload": "string",
+   "Payload": "NetworkMessageEvent",
+   "notificationType": "Normal | AutoAcknowledge | NoPopup"
+  },
+  "dwd.core.notifications.messages.incoming.NotificationsRequested": {
+   "notificationList": [
+    {
+     "notificationID": "dwd.core.notifications.NotificationID",
+     "payload": "string",
+     "Payload": "NetworkMessageEvent",
+     "notificationType": "Normal | AutoAcknowledge | NoPopup"
+    }
+   ]
+  },
+  "dwd.core.notifications.messages.outgoing.AcknowledgeNotification": {
+   "notificationID": "dwd.core.notifications.NotificationID"
+  },
+  "dwd.core.notifications.messages.outgoing.GetNotifications": {},
+  "dwd.core.progression.messages.AllScenarios": {
+   "A": {
+    "extensionObject": "ProtoBuf.IExtension"
+   }
+  },
+  "dwd.core.progression.messages.ScenarioNotAvailable": {
+   "scenarioID": "dwd.core.progression.ScenarioID"
+  },
+  "dwd.core.progression.messages.ScenarioProgress": {
+   "scenarioID": "dwd.core.progression.ScenarioID",
+   "progress": "NotStarted | InProgress | Completed"
+  },
+  "dwd.core.progression.messages.ScenarioServerError": {
+   "scenarioID": "dwd.core.progression.ScenarioID"
+  },
+  "dwd.core.settings.cloudPrefs.messages.ClientStorageError": {
+   "error": "string"
+  },
+  "dwd.core.settings.cloudPrefs.messages.ClientStorageRetrieved": {
+   "data": "string"
+  },
+  "dwd.core.social.messages.incoming.FriendAdded": {
+   "friend": {
+    "status": "Invited | Removed | Blocking | Blocked | Friends | NoRelationship",
+    "presence": "string"
+   }
+  },
+  "dwd.core.social.messages.incoming.FriendBlocked": {
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.social.messages.incoming.FriendDeclined": {
+   "friend": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   }
+  },
+  "dwd.core.social.messages.incoming.FriendError": {
+   "msg": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "dwd.core.social.messages.incoming.FriendInvitation": {
+   "friend": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   }
+  },
+  "dwd.core.social.messages.incoming.FriendPresence": {
+   "accountID": "dwd.core.account.AccountID",
+   "presence": "string"
+  },
+  "dwd.core.social.messages.incoming.FriendRemoved": {
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.social.messages.incoming.FriendRoster": {
+   "roster": [
+    {
+     "status": "Invited | Removed | Blocking | Blocked | Friends | NoRelationship",
+     "presence": "string"
+    }
+   ]
+  },
+  "dwd.core.social.messages.incoming.FriendUnblocked": {
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "dwd.core.switchboard.messages.AllFeatureStatuses": {
+   "service": "string",
+   "open": [
+    "string"
+   ],
+   "closed": [
+    "string"
+   ]
+  },
+  "dwd.core.switchboard.messages.AllFeatureStatuses_v2": {
+   "service": "string",
+   "open": [
+    {
+     "featureName": "string",
+     "downMsg": "string",
+     "treatment": "string"
+    }
+   ],
+   "closed": [
+    {
+     "featureName": "string",
+     "downMsg": "string",
+     "treatment": "string"
+    }
+   ]
+  },
+  "dwd.core.switchboard.messages.FeatureIsClosed": {
+   "feature": {
+    "featureName": "string",
+    "downMsg": "string",
+    "treatment": "string"
+   },
+   "reason": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   },
+   "platform": "UnityEngine.RuntimePlatform"
+  },
+  "dwd.core.switchboard.messages.FeatureIsOpen": {
+   "feature": {
+    "featureName": "string",
+    "downMsg": "string",
+    "treatment": "string"
+   },
+   "platform": "UnityEngine.RuntimePlatform"
+  },
+  "dwd.core.switchboard.messages.GetFeatureStatuses_v2": {},
+  "dwd.core.timers.messages.incoming.AddDuration": {
+   "id": "dwd.core.timers.TimerID",
+   "additionalTime": "long"
+  },
+  "dwd.core.timers.messages.incoming.ChangeTimerEvent": {
+   "id": "dwd.core.timers.TimerID",
+   "name": "string",
+   "remainingTime": "long"
+  },
+  "dwd.core.timers.messages.incoming.CreateTimer": {
+   "newTimer": {
+    "id": "dwd.core.timers.TimerID",
+    "changeRate": "long",
+    "initialDuration": "long",
+    "lastModified": {
+     "timestamp": "long",
+     "MinValue": "dwd.core.wargServer.WargTime",
+     "MaxValue": "dwd.core.wargServer.WargTime"
+    },
+    "events": [
+     {
+      "remainingTime": "long",
+      "name": "string"
+     }
+    ]
+   }
+  },
+  "dwd.core.timers.messages.incoming.DeleteTimer": {
+   "id": "dwd.core.timers.TimerID"
+  },
+  "dwd.core.timers.messages.incoming.ResetTimer": {
+   "newTimer": {
+    "id": "dwd.core.timers.TimerID",
+    "changeRate": "long",
+    "initialDuration": "long",
+    "lastModified": {
+     "timestamp": "long",
+     "MinValue": "dwd.core.wargServer.WargTime",
+     "MaxValue": "dwd.core.wargServer.WargTime"
+    },
+    "events": [
+     {
+      "remainingTime": "long",
+      "name": "string"
+     }
+    ]
+   }
+  },
+  "dwd.core.timers.messages.incoming.SetRate": {
+   "id": "dwd.core.timers.TimerID",
+   "rate": "long",
+   "timestamp": {
+    "timestamp": "long",
+    "MinValue": "dwd.core.wargServer.WargTime",
+    "MaxValue": "dwd.core.wargServer.WargTime"
+   }
+  },
+  "dwd.core.timers.messages.incoming.TimerStopped": {
+   "id": "dwd.core.timers.TimerID"
+  },
+  "dwd.core.tips.network.incoming.RequestedHelpTips": {
+   "tips": [
+    {
+     "id": "dwd.core.tips.network.TipID",
+     "name": "string",
+     "eventJSON": "string",
+     "flavors": [
+      "string"
+     ],
+     "dataJSON": "string"
+    }
+   ],
+   "dismissedTips": [
+    "dwd.core.tips.network.TipID"
+   ]
+  },
+  "dwd.core.wargServer.authentication.AuthenticationResultMessage": {},
+  "dwd.core.wargServer.authentication.platform.incoming.RequestAuthToken": {},
+  "dwd.core.wargServer.messages.Unparseable": {
+   "Message": "object"
+  },
+  "dwd.legacy.CollectionFound": {
+   "collection": {
+    "items": [
+     {
+      "itemID": "dwd.core.commerce.ItemID",
+      "ownerID": "dwd.core.account.AccountID",
+      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "lockID": "System.Guid",
+      "created": "long",
+      "isTradable": "bool",
+      "name": "string",
+      "invoiceID": "System.Guid",
+      "attributes": {
+       "source": {
+        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+        "data": "dwd.core.attributes.AttributeDictionary",
+        "useGlobalDefaults": "bool"
+       }
+      }
+     }
+    ],
+    "owningAccountID": "System.Guid"
+   },
+   "protoMsg": {
+    "extensionObject": "ProtoBuf.IExtension"
+   },
+   "itemsParsed": "int"
+  },
+  "dwd.legacy.CollectionFoundPart": {
+   "collection": {
+    "items": [
+     {
+      "itemID": "dwd.core.commerce.ItemID",
+      "ownerID": "dwd.core.account.AccountID",
+      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "lockID": "System.Guid",
+      "created": "long",
+      "isTradable": "bool",
+      "name": "string",
+      "invoiceID": "System.Guid",
+      "attributes": {
+       "source": {
+        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+        "data": "dwd.core.attributes.AttributeDictionary",
+        "useGlobalDefaults": "bool"
+       }
+      }
+     }
+    ],
+    "owningAccountID": "System.Guid"
+   },
+   "chunkNum": "int",
+   "chunkTotal": "int",
+   "protoMsg": {
+    "extensionObject": "ProtoBuf.IExtension"
+   },
+   "itemsParsed": "int"
+  },
+  "dwd.legacy.CurrencyAmount": {
+   "amount": {
+    "name": "int",
+    "value": "int"
+   }
+  },
+  "dwd.legacy.InvalidCurrency": {
+   "error": "string"
+  },
+  "dwd.legacy.OnlineAvatarDecksFound": {
+   "decks": [
+    {
+     "deckID": "dwd.core.deck.DeckID",
+     "deckName": "string",
+     "deckLocked": "string",
+     "attributes": {
+      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
+      "data": "dwd.core.attributes.AttributeDictionary",
+      "useGlobalDefaults": "bool"
+     },
+     "piles": {
+      "<key>": [
+       "System.Guid"
+      ]
+     }
+    }
+   ]
+  },
+  "dwd.legacy.messages.ArchetypesFound": {
+   "ArchetypeIDs": [
+    "dwd.core.archetypes.ArchetypeID"
+   ],
+   "archetypesParsed": "int",
+   "totalArchetypes": "int",
+   "protoMsg": {
+    "extensionObject": "ProtoBuf.IExtension"
+   }
+  },
+  "dwd.legacy.messages.BigNetworkMessageEvent": {
+   "coroutine": "UnityEngine.Coroutine",
+   "Progress": "float",
+   "processingTime": "long"
+  },
+  "landing.DynamicLandingPage.DynamicLandingPages": {
+   "pageData": [
+    {
+     "template": "string",
+     "sortOrder": "int",
+     "labels": {
+      "<key>": {
+       "token": "string",
+       "bundle": {
+        "<key>": "string"
+       }
+      }
+     },
+     "images": {
+      "<key>": {
+       "localeImageMap": {
+        "<key>": "string"
+       }
+      }
+     },
+     "actions": {
+      "<key>": "P.Q"
+     },
+     "startTime": "long",
+     "endTime": "long"
+    }
+   ],
+   "maintenanceData": [
+    {
+     "template": "string",
+     "sortOrder": "int",
+     "labels": {
+      "<key>": {
+       "token": "string",
+       "bundle": {
+        "<key>": "string"
+       }
+      }
+     },
+     "images": {
+      "<key>": {
+       "localeImageMap": {
+        "<key>": "string"
+       }
+      }
+     },
+     "actions": {
+      "<key>": "P.Q"
+     },
+     "startTime": "long",
+     "endTime": "long"
+    }
+   ]
+  },
+  "pie.AllQuests": {
+   "currentQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ],
+   "availableQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ],
+   "specialQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ]
+  },
+  "pie.QuestComplete": {
+   "quest": {
+    "questID": "p.D",
+    "name": "string",
+    "title": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "description": {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    },
+    "rewards": [
+     {
+      "A": {
+       "amount": {
+        "name": "int",
+        "value": "int"
+       }
+      }
+     }
+    ],
+    "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+    "xp": "int",
+    "tier": "int",
+    "startTime": "long",
+    "endTime": "long",
+    "priority": "Bronze | Silver | Gold",
+    "abandonable": "bool",
+    "gameModes": [
+     "string"
+    ],
+    "questInformation": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   },
+   "xpLevel": "int"
+  },
+  "pie.QuestConfigurationUpdated": {
+   "questConfiguration": {
+    "xpLevelMap": {
+     "<key>": "int"
+    },
+    "levelTierMap": {
+     "<key>": "int"
+    },
+    "affinityToAffinityLevelRewardsMap": {
+     "<key>": {
+      "<key>": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ]
+     }
+    },
+    "nextQuestAvailableTime": "long",
+    "levelActiveQuestsMap": {
+     "<key>": "int"
+    }
+   }
+  },
+  "pie.QuestsProgressed": {
+   "completedQuestsAndXPTotal": [
+    [
+     {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     }
+    ]
+   ],
+   "progressedQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ]
+  },
+  "pie.QuestsUpdated": {
+   "updatedQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ]
+  },
+  "pie.SelectQuest": {
+   "availableQuests": [
+    {
+     "questDefinition": {
+      "questID": "p.D",
+      "name": "string",
+      "title": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "description": {
+       "textVars": {
+        "numberMap": {
+         "<key>": "int"
+        },
+        "stringMap": {
+         "<key>": "string"
+        },
+        "varMap": {
+         "<key>": "object"
+        }
+       }
+      },
+      "rewards": [
+       {
+        "A": {
+         "amount": {
+          "name": "int",
+          "value": "int"
+         }
+        }
+       }
+      ],
+      "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+      "xp": "int",
+      "tier": "int",
+      "startTime": "long",
+      "endTime": "long",
+      "priority": "Bronze | Silver | Gold",
+      "abandonable": "bool",
+      "gameModes": [
+       "string"
+      ],
+      "questInformation": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      }
+     },
+     "currentProgress": {
+      "questID": "System.Guid",
+      "activations": "int",
+      "requiredActivations": "int"
+     }
+    }
+   ]
+  },
+  "pie.SpecialQuestBegan": {
+   "quest": {
+    "questDefinition": {
+     "questID": "p.D",
+     "name": "string",
+     "title": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     },
+     "description": {
+      "textVars": {
+       "numberMap": {
+        "<key>": "int"
+       },
+       "stringMap": {
+        "<key>": "string"
+       },
+       "varMap": {
+        "<key>": "object"
+       }
+      }
+     },
+     "rewards": [
+      {
+       "A": {
+        "amount": {
+         "name": "int",
+         "value": "int"
+        }
+       }
+      }
+     ],
+     "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+     "xp": "int",
+     "tier": "int",
+     "startTime": "long",
+     "endTime": "long",
+     "priority": "Bronze | Silver | Gold",
+     "abandonable": "bool",
+     "gameModes": [
+      "string"
+     ],
+     "questInformation": {
+      "trimChars": [
+       "char"
+      ],
+      "id": "string"
+     }
+    },
+    "currentProgress": {
+     "questID": "System.Guid",
+     "activations": "int",
+     "requiredActivations": "int"
+    }
+   }
+  },
+  "pie.SpecialQuestEnded": {
+   "quest": {
+    "questID": "p.D",
+    "name": "string",
+    "title": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    },
+    "description": {
+     "textVars": {
+      "numberMap": {
+       "<key>": "int"
+      },
+      "stringMap": {
+       "<key>": "string"
+      },
+      "varMap": {
+       "<key>": "object"
+      }
+     }
+    },
+    "rewards": [
+     {
+      "A": {
+       "amount": {
+        "name": "int",
+        "value": "int"
+       }
+      }
+     }
+    ],
+    "affinity": "NoColor | Colorless | Darkness | Dragon | Fairy | Fighting | Fire | Grass | Lightning | Metal | Psychic | Water | Strong | Herbal | UNSET",
+    "xp": "int",
+    "tier": "int",
+    "startTime": "long",
+    "endTime": "long",
+    "priority": "Bronze | Silver | Gold",
+    "abandonable": "bool",
+    "gameModes": [
+     "string"
+    ],
+    "questInformation": {
+     "trimChars": [
+      "char"
+     ],
+     "id": "string"
+    }
+   }
+  },
+  "pie.code.gameModules.cheats.ConsoleLogData": {
+   "data": [
+    {
+     "name": "string",
+     "strings": [
+      "string"
+     ],
+     "floats": [
+      "float"
+     ],
+     "bools": [
+      "bool"
+     ]
+    }
+   ]
+  },
+  "pie.code.pie.Global.messages.LocalizedSystemMessage": {
+   "message": {
+    "textVars": {
+     "numberMap": {
+      "<key>": "int"
+     },
+     "stringMap": {
+      "<key>": "string"
+     },
+     "varMap": {
+      "<key>": "object"
+     }
+    }
+   }
+  },
+  "pie.code.pie.commands.ReloadManifest": {},
+  "pie.code.pie.diffData.ArchetypeContentData": {
+   "added": [
+    "Archetype"
+   ],
+   "deleted": [
+    "System.Guid"
+   ],
+   "updated": [
+    "Archetype"
+   ]
+  },
+  "pie.code.pie.diffData.BundleContentData": {},
+  "pie.code.pie.diffData.ContentCompleted": {},
+  "pie.code.pie.diffData.ContentData": {
+   "contentType": "string",
+   "revision": "int"
+  },
+  "pie.code.pie.diffData.ContentDataNotify": {
+   "msgOverride": "string",
+   "contentUpdates": [
+    {
+     "msg": "string",
+     "content": "string",
+     "revision": "int"
+    }
+   ]
+  },
+  "pie.code.pie.diffData.LocalizationContentData": {
+   "added": {
+    "<key>": "string"
+   },
+   "deleted": [
+    "string"
+   ],
+   "updated": {
+    "<key>": "string"
+   }
+  },
+  "pie.code.pie.gameModules.login.messages.DynamicVersions": {
+   "versionData": {
+    "<key>": "string"
+   }
+  },
+  "pie.code.pie.gameModules.messaging.OverLimit": {
+   "error": "string"
+  },
+  "pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeError": {
+   "msg": {
+    "trimChars": [
+     "char"
+    ],
+    "id": "string"
+   }
+  },
+  "pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeRewards": {
+   "totalRewardSchedule": {
+    "<key>": [
+     {
+      "A": {
+       "amount": {
+        "name": "int",
+        "value": "int"
+       }
+      }
+     }
+    ]
+   }
+  },
+  "pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeStatus": {
+   "status": {
+    "opponents": [
+     {
+      "name": {
+       "trimChars": [
+        "char"
+       ],
+       "id": "string"
+      },
+      "image": "string",
+      "status": "Available | Unavailable | Completed"
+     }
+    ],
+    "playerData": {
+     "playerDeckImages": [
+      "string"
+     ]
+    },
+    "waitingForRewards": "bool",
+    "losses": "int"
+   }
+  },
+  "pie.code.pie.gameModules.trainerChallenge.messages.TutorialDeckUnlock": {
+   "unlock": "dwd.core.archetypes.ArchetypeID"
+  },
+  "pie.code.pie.gameModules.trainerChallengev3.DefaultTrainerChallengeDeckMessage": {
+   "defaultDeckName": "string"
+  },
+  "pie.code.pie.messages.CurrentGuidOverride": {
+   "guid": "string"
+  },
+  "pie.code.pie.messages.NoGuidOverride": {},
+  "pie.code.pie.networking.RequestHeartbeat": {},
+  "pie.playmat.code.cake.CustomMessages.RequestTimeOutConfirmation": {},
+  "pie.socialv2.messages.AvailableRooms": {
+   "rooms": [
+    {
+     "roomID": "string",
+     "displayName": "string",
+     "roomType": "Lobby | Tournament_Strategy | Battle_Challenge | Deck_Discussion | New_Players | Pokemon_Fan_Chat | Trading_Post | Casual_Strategy | Team_Recruitement | Rules | Game | Private | Active_Tournament | Queue_Tournament",
+     "A": "dwd.core.account.AccountID"
+    }
+   ]
+  },
+  "pie.socialv2.messages.ChatConnected": {
+   "room": {
+    "roomID": "string",
+    "displayName": "string",
+    "roomType": "Lobby | Tournament_Strategy | Battle_Challenge | Deck_Discussion | New_Players | Pokemon_Fan_Chat | Trading_Post | Casual_Strategy | Team_Recruitement | Rules | Game | Private | Active_Tournament | Queue_Tournament",
+    "A": "dwd.core.account.AccountID"
+   },
+   "members": [
+    {
+     "accountID": "dwd.core.account.AccountID",
+     "displayName": "string"
+    }
+   ],
+   "messageHistory": [
+    "s.G"
+   ]
+  },
+  "pie.socialv2.messages.ChatDisconnected": {
+   "roomID": "string"
+  },
+  "pie.socialv2.messages.NotifyActiveTournamentChat": {
+   "activeTournamentID": "string",
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "message": "string"
+  },
+  "pie.socialv2.messages.NotifyChat": {
+   "roomID": "string",
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "message": "string"
+  },
+  "pie.socialv2.messages.NotifyGameChat": {
+   "gameID": "string",
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "message": "string"
+  },
+  "pie.socialv2.messages.NotifyJoin": {
+   "roomID": "string",
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   }
+  },
+  "pie.socialv2.messages.NotifyLeave": {
+   "roomID": "string",
+   "accountID": "dwd.core.account.AccountID"
+  },
+  "pie.socialv2.messages.NotifyTournamentQueueChat": {
+   "tournamentID": "string",
+   "userInfo": {
+    "accountID": "dwd.core.account.AccountID",
+    "displayName": "string"
+   },
+   "message": "string"
+  },
+  "pie.src.data.message.deck.ArchetypeCorrections": {
+   "correctionMap": {
+    "<key>": "dwd.core.archetypes.ArchetypeID"
+   }
+  },
+  "pie.src.data.message.deck.GetArchetypeCorrections": {}
+ }
+}

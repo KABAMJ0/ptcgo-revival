@@ -1,0 +1,16 @@
+from ptcgo.game.card_effects.trainers import milo
+from ptcgo.game.data_utils import SupporterCardDef
+from ptcgo.game.attributes import Rarities
+
+card = SupporterCardDef(
+    guid="4b84cead-436a-5955-b124-28ba7f216264",
+    key="SWSH2",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Milo.Name",
+    display_name="Milo",
+    searchable_by=["Milo", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=190,
+    set_code="SWSH2",
+    rarity=Rarities.RareUltra,
+    effect=milo
+)

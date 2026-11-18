@@ -19,7 +19,7 @@ import time
 import urllib.request
 
 SETS_API = "https://api.pokemontcg.io/v2/sets?pageSize=250"
-CARDS_DIR = os.path.join("spirit", "game", "scripts", "cards")
+CARDS_DIR = os.path.join("ptcgo", "game", "scripts", "cards")
 CODE_OVERRIDES = {  # api id -> our code, where they differ
     "dv1": "DV",
     "bwp": "Promo_BW",
@@ -77,15 +77,15 @@ def main():
         try:
             subprocess.run([sys.executable, "tools/fetch_set.py", s["id"], code], check=True)
             subprocess.run(
-                [sys.executable, "spirit/tools/import_set.py",
-                 f"spirit/game/scripts/cards/{code}/{s['id']}.json", "--set-code", code],
+                [sys.executable, "ptcgo/tools/import_set.py",
+                 f"ptcgo/game/scripts/cards/{code}/{s['id']}.json", "--set-code", code],
                 check=True, stdout=subprocess.DEVNULL)
             subprocess.run([sys.executable, "tools/fix_collector_numbers.py", code], check=True)
         except subprocess.CalledProcessError as e:
             print(f"  FAILED: {e}", flush=True)
             continue
-        scripts = len(glob.glob(f"spirit/game/scripts/cards/{code}/*.py"))
-        images = len(glob.glob(f"spirit/assets/cards/{code}/*.png"))
+        scripts = len(glob.glob(f"ptcgo/game/scripts/cards/{code}/*.py"))
+        images = len(glob.glob(f"ptcgo/assets/cards/{code}/*.png"))
         print(f"  scripts={scripts} images={images}", flush=True)
 
 

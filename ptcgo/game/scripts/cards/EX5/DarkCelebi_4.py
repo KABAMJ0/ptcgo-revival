@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="e164b500-ca2b-5f4b-a412-09c64435b64f",
+    key="EX5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.DarkCelebi.Name",
+    display_name="Dark Celebi",
+    searchable_by=["Dark Celebi", "Basic", "DarkCelebi"],
+    subtypes=["Basic"],
+    collector_number=4,
+    set_code="EX5",
+    rarity=Rarities.RareHolo,
+    hp=70,
+    elements=[PokemonTypes.GRASS, PokemonTypes.DARKNESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=251,
+    abilities=[
+        Attack(
+            title="Dark Provide",
+            game_text="Attach up to 1 Grass or Darkness Energy card from your hand to your Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Leaf Poison",
+            game_text="The Defending Pok\u00e9mon is now Poisoned.",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.DARKNESS: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+    ],
+)

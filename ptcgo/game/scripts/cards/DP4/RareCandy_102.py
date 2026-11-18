@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_from_hand
+
+card = ItemCardDef(
+    guid="3e21516f-bf55-5646-be38-7a54e2ccd3bc",
+    key="DP4",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.RareCandy.Name",
+    display_name="Rare Candy",
+    searchable_by=["Rare Candy", "Item"],
+    subtypes=["Item"],
+    collector_number=102,
+    set_code="DP4",
+    rarity=Rarities.Uncommon,
+    effect=evolve_from_hand()
+)

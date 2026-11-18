@@ -45,9 +45,9 @@ def deck_weights(db_path: str) -> Dict[str, int]:
 
 
 def report(db_path: str, top: int):
-    from spirit.game.card_effects import patterns
-    from spirit.game.data_utils import CARD_DEFS_BY_GUID, Attack, unimplemented
-    from spirit.game.scripts.cards import loader
+    from ptcgo.game.card_effects import patterns
+    from ptcgo.game.data_utils import CARD_DEFS_BY_GUID, Attack, unimplemented
+    from ptcgo.game.scripts.cards import loader
 
     loader.load_all()
     weights = deck_weights(db_path)

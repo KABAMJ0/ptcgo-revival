@@ -23,7 +23,7 @@ def main():
 
     fixed = 0
     for code in codes:
-        for path in glob.glob(f"spirit/game/scripts/cards/{code}/*.py"):
+        for path in glob.glob(f"ptcgo/game/scripts/cards/{code}/*.py"):
             with open(path) as f:
                 source = f.read()
 

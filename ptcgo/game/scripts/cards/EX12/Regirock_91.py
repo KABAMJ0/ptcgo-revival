@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a03c815e-d696-50fa-8b32-42b78e740edf",
+    key="EX12",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Regirock.Name",
+    display_name="Regirock ★",
+    searchable_by=["Regirock \u2605", "Basic", "Star", "Regirock"],
+    subtypes=["Basic", "Star"],
+    collector_number=91,
+    set_code="EX12",
+    rarity=Rarities.RareHolo,
+    hp=90,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.WATER,
+    family_id=377,
+    abilities=[
+        Attack(
+            title="Dig Drain",
+            game_text="Remove 1 damage counter from Regirock Star.",
+            cost={PokemonTypes.FIGHTING: 1},
+            damage=10,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Final Blast",
+            game_text="If your opponent has only 1 Prize card left and Regirock Star is the only Pok\u00e9mon you have in play, this attack's base damage is 100 instead of 30.",
+            cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+    ],
+)

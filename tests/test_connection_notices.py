@@ -2,14 +2,14 @@ import asyncio
 import unittest
 from types import SimpleNamespace
 
-from spirit.game.session.constants import (
+from ptcgo.game.session.constants import (
     GamePhase,
     FORCE_SELECTION_SETTLE_SECONDS,
     RECONNECT_GRACE_SECONDS,
 )
-from spirit.game.session.game_session import GameSession
-from spirit.game.session.network_player import NetworkPlayer
-from spirit.network.message_names import OutboundMsg
+from ptcgo.game.session.game_session import GameSession
+from ptcgo.game.session.network_player import NetworkPlayer
+from ptcgo.network.message_names import OutboundMsg
 
 
 class RecordingNetworkPlayer(NetworkPlayer):

@@ -16,10 +16,10 @@ except ImportError:
     sys.exit(1)
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from spirit.server.bundle_variants import drop_textures  # noqa: E402
+from ptcgo.server.bundle_variants import drop_textures  # noqa: E402
 
-ASSET_MAP_PATH = "spirit/server/asset_map.json"
-OUTPUT_DIR = "spirit/assets/bundleCache"
+ASSET_MAP_PATH = "ptcgo/server/asset_map.json"
+OUTPUT_DIR = "ptcgo/assets/bundleCache"
 
 def create_card_set_bundle(png_mapping, template_path, target_bundle_name, keep_size=False):
     """
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--keep-size", action="store_true",
                         help="Keep source PNG dimensions instead of resizing to the template size (foil masks)")
     parser.add_argument("--template", help="Path to template bundle",
-                        default=r"spirit/templates/card_bundle")
+                        default=r"ptcgo/templates/card_bundle")
 
     # This is for backward compatibility with the old positional argument style
     parser.add_argument("pos_png", nargs="?", help=argparse.SUPPRESS)
