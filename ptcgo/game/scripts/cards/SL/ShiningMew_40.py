@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import search_attach_energy, is_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Legendary Guidance",
             game_text="Search your deck for up to 2 Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_energy, count=2, to_self=True),
         ),
         Attack(
             title="Beam",

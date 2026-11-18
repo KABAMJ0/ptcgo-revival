@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Call to Muster",
             game_text="Search your deck for up to 2 Basic Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=2, to_self=True),
         ),
         Attack(
             title="Pitch-Black Fangs",

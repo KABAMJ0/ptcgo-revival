@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 3 basic Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=150,
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=3, to_self=True),
         ),
         Attack(
             title="Altered Creation-GX",
