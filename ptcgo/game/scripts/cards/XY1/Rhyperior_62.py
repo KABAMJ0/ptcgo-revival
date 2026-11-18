@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
 
 card = PokemonCardDef(
     guid="c7853afb-a3e6-53c2-af16-bb2024f69964",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_energy("self", PokemonTypes.FIGHTING), per_heads=50),
         ),
         Attack(
             title="Rock Wrecker",
