@@ -8031,3 +8031,95 @@ def team_magma_target(pokemon) -> bool:
     """Tool attach target: a Pokemon with Team Magma in its printed name."""
     name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
     return "team magma" in name.lower()
+
+
+# --- Benching an Evolution as a Basic; Burn overrides -----------------------
+
+def card_named_any(names):
+    """Predicate: a card whose printed name contains one of `names`."""
+    lowered = [name.lower() for name in names]
+
+    def predicate(card):
+        label = (getattr(def_for(card.archetype_id), "display_name", "") or "").lower()
+        return any(name in label for name in lowered)
+    return predicate
+
+
+def bench_named_pokemon(predicate, source="deck", label="Pokemon"):
+    """Put 1 matching Pokemon from the deck (or from your hand and discard
+    pile) onto your Bench as a Basic Pokemon; a printed Stage 2 arrives with 2
+    damage counters on it (Archie, Maxie, Holon Fossil's tails half)."""
+    async def effect(ctx):
+        picks = []
+        if source == "deck":
+            picks = await ctx.search_deck(
+                predicate, count=1, minimum=1,
+                prompt="Choose a %s to put onto your Bench" % label)
+        else:
+            pool = [card for card in list(ctx.hand()) + list(ctx.discard_pile())
+                    if predicate(card)]
+            if pool:
+                picks = await ctx.choose_cards(
+                    pool, 1, minimum=1,
+                    prompt="Choose a %s to put onto your Bench" % label)
+        if not picks:
+            if source == "deck":
+                await ctx.shuffle_deck()
+            return
+        card = picks[0]
+        stage = card.get_attribute(AttrID.STAGE)
+        if not await ctx.bench_pokemon(card):
+            if source == "deck":
+                await ctx.shuffle_deck()
+            return
+        benched = ctx.board.get_entity(card.entity_id)
+        if benched is not None:
+            ctx.set_pokemon_stage(benched, PokemonStage.BASIC)
+            if stage == PokemonStage.STAGE2.value:
+                await ctx.deal_damage(20, target=benched,
+                                      apply_modifiers=False, as_counters=True)
+        if source == "deck":
+            await ctx.shuffle_deck()
+    return effect
+
+
+def holon_fossil():
+    """Flip a coin: heads searches the deck for a fossil-evolved Pokemon;
+    tails takes one from your hand; either arrives on the Bench as a Basic."""
+    fossil_family = card_named_any((
+        "omanyte", "kabuto", "aerodactyl", "lileep", "anorith"))
+
+    async def effect(ctx):
+        heads = (await ctx.flip_coins(1, title="Holon Fossil"))[0]
+        if heads:
+            picks = await ctx.search_deck(
+                fossil_family, count=1, minimum=0,
+                prompt="Choose a Pokemon to put onto your Bench")
+            if not picks:
+                await ctx.shuffle_deck()
+                return
+            card = picks[0]
+            if await ctx.bench_pokemon(card):
+                benched = ctx.board.get_entity(card.entity_id)
+                if benched is not None:
+                    ctx.set_pokemon_stage(benched, PokemonStage.BASIC)
+            await ctx.shuffle_deck()
+            return
+        pool = [card for card in ctx.hand() if fossil_family(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Pokemon from your hand to put onto your Bench")
+        if picks and await ctx.bench_pokemon(picks[0]):
+            benched = ctx.board.get_entity(picks[0].entity_id)
+            if benched is not None:
+                ctx.set_pokemon_stage(benched, PokemonStage.BASIC)
+    return effect
+
+
+def full_flame():
+    """Burned Pokemon take 4 damage counters instead of 2 between turns."""
+    async def effect(ctx):
+        ctx.override_burn(counters=4)
+    return effect
