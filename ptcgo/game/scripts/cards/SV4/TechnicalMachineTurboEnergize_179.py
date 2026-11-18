@@ -1,7 +1,6 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
-from ptcgo.game.attributes import Rarities, PokemonTypes
-from ptcgo.game.card_effects.trainers import discard_tool_at_end_of_turn, is_basic_energy_card, is_in_active_spot
-from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.attributes import PokemonTypes, Rarities
+from ptcgo.game.card_effects.trainers import turbo_energize, discard_tool_at_end_of_turn
 
 card = PokemonToolCardDef(
     guid="62a9137d-bf93-5390-a49a-a5ef41b21a15",
@@ -16,13 +15,9 @@ card = PokemonToolCardDef(
     granted_abilities=[
         Attack(
             title="Turbo Energize",
-            game_text="Search your deck for up to 2 Basic Energy cards and attach "
-                      "them to your Benched Pokémon in any way you like. Then, "
-                      "shuffle your deck.",
+            game_text="Search your deck for up to 2 Basic Energy cards and attach them to your Benched Pokémon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_attach_energy(
-                is_basic_energy_card, count=2,
-                target_pred=lambda pokemon: not is_in_active_spot(pokemon)),
+            effect=turbo_energize(2),
         ),
         Ability(
             title="Technical Machine: Turbo Energize",

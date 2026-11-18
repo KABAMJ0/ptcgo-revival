@@ -1,15 +1,6 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
-from ptcgo.game.attributes import Rarities, AttrID, PokemonTypes
-from ptcgo.game.card_effects.trainers import discard_tool_at_end_of_turn
-from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.session.passives import effective_max_hp
-
-async def _blindside_attack(ctx):
-    def _damaged(pokemon):
-        return pokemon.get_attribute(AttrID.HP, 0) < effective_max_hp(ctx.board, pokemon)
-
-    await snipe_attack(100, pool=_damaged, count=1)(ctx)
-
+from ptcgo.game.attributes import PokemonTypes, Rarities
+from ptcgo.game.card_effects.trainers import blindside, discard_tool_at_end_of_turn
 
 card = PokemonToolCardDef(
     guid="1a7325dd-c11d-5260-a965-6aeb1fc35b84",
@@ -24,11 +15,9 @@ card = PokemonToolCardDef(
     granted_abilities=[
         Attack(
             title="Blindside",
-            game_text="This attack does 100 damage to 1 of your opponent's "
-                      "Pokémon that has any damage counters on it. (Don't apply "
-                      "Weakness and Resistance for Benched Pokémon.)",
+            game_text="This attack does 100 damage to 1 of your opponent's Pokémon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pokémon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=_blindside_attack,
+            effect=blindside(100),
         ),
         Ability(
             title="Technical Machine: Blindside",

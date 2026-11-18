@@ -8559,3 +8559,206 @@ def flip_search_pair(heads_predicate, heads_count, tails_predicate, tails_count)
             await _branch(ctx, tails_predicate, tails_count)
         await ctx.shuffle_deck()
     return effect
+
+
+# --- Technical Machine attack bodies ----------------------------------------
+
+def tm_evoluter():
+    """Search your deck for a card that evolves from 1 of your Pokemon and put
+    it onto that Pokemon, counting as its evolution; then shuffle."""
+    async def effect(ctx):
+        pool = ctx.my_pokemon_in_play()
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokemon to evolve") if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        name = (getattr(def_for(target.archetype_id), "display_name", "") or "").lower()
+
+        def evolves_from(card):
+            logic = card.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) or ""
+            return logic.lower() == name
+
+        picks = await ctx.search_deck(
+            evolves_from, count=1, minimum=0,
+            prompt="Choose an Evolution card to put onto it")
+        if picks:
+            await ctx.evolve_pokemon(target, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def tm_devoluter():
+    """Remove the highest Stage Evolution card from 1 of your opponent's Evolved
+    Pokemon and put it into their hand (Devoluter; also Ancient TM Rock)."""
+    async def effect(ctx):
+        pool = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                if is_evolution_pokemon(pokemon)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose an Evolved Pokemon to devolve") \
+            if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        await ctx.devolve_pokemon(target, 1, destination="hand")
+    return effect
+
+
+def tm_devolve_all():
+    """Devolve every one of your opponent's Evolved Pokemon once, highest Stage
+    into their hand (Technical Machine: Devolution, Ancient TM Rock)."""
+    async def effect(ctx):
+        for pokemon in [p for p in ctx.opponent_pokemon_in_play()
+                        if is_evolution_pokemon(p)]:
+            await ctx.devolve_pokemon(pokemon, 1, destination="hand")
+    return effect
+
+
+def lightning_discharge(per_head: int = 40):
+    """Discard all Lightning Energy attached to this Pokemon, flip that many
+    coins and do `per_head` damage per heads (Lightning Cube 01)."""
+    lightning = basic_energy_of("lightning")
+
+    async def effect(ctx):
+        holder = ctx.attacker
+        if holder is None:
+            return
+        energy = [card for card in ctx.attached_energies(holder) if lightning(card)]
+        if energy:
+            await ctx.discard_cards(energy)
+            results = await ctx.flip_coins(len(energy), title="Discharge")
+            heads = sum(1 for result in results if result)
+            if heads:
+                await ctx.deal_damage(per_head * heads)
+    return effect
+
+
+def crushing_magma(damage: int = 10):
+    """Printed damage, then choose an Energy card attached to the Defending
+    Pokemon and put it on the bottom of your opponent's deck."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None:
+            return
+        pool = list(ctx.attached_energies(defender))
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose an Energy card to put on the bottom of their deck")
+        if picks:
+            await ctx.put_on_bottom_of_deck(picks[0])
+    return effect
+
+
+def steel_generator(count: int = 2):
+    """If the Defending Pokemon has an Ability, move up to `count` basic Energy
+    cards from 1 of your opponent's Pokemon onto it (Ancient TM Steel)."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        abilities = [entry for entry
+                     in (defender.get_attribute(AttrID.PIE_ABILITIES) or [])
+                     if isinstance(entry, dict)]
+        if not abilities:
+            return
+        sources = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                   if pokemon is not defender and any(
+                       is_basic_energy_card(energy)
+                       for energy in ctx.attached_energies(pokemon))]
+        if not sources:
+            return
+        source = await ctx.choose_pokemon(
+            sources, "Choose a Pokemon to take Energy from") \
+            if len(sources) > 1 else sources[0]
+        if source is None:
+            return
+        pool = [energy for energy in ctx.attached_energies(source)
+                if is_basic_energy_card(energy)]
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt="Choose up to %d Energy cards to attach to the Defending "
+                   "Pokemon" % count)
+        for energy in picks:
+            await ctx.move_energy(energy, defender)
+    return effect
+
+
+def damage_porter(per: int = 10):
+    """10 damage times the number of damage counters on this Pokemon to 1 of
+    your opponent's Pokemon (TM G)."""
+    async def effect(ctx):
+        holder = ctx.attacker
+        pool = ctx.opponent_pokemon_in_play()
+        if holder is None or not pool:
+            return
+        counters = (ctx.max_hp(holder)
+                    - (holder.get_attribute(AttrID.HP, 0) or 0)) // 10
+        amount = per * counters
+        if amount <= 0:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokemon to damage") if len(pool) > 1 else pool[0]
+        if target is not None:
+            await ctx.deal_damage(amount, target=target)
+    return effect
+
+
+def blindside(amount: int = 100):
+    """This attack does `amount` damage to 1 of your opponent's Pokemon that
+    already has damage counters on it (Technical Machine: Blindside)."""
+    async def effect(ctx):
+        pool = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                if (pokemon.get_attribute(AttrID.HP, 0) or 0) < ctx.max_hp(pokemon)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a damaged Pokemon to hit") if len(pool) > 1 else pool[0]
+        if target is not None:
+            await ctx.deal_damage(amount, target=target)
+    return effect
+
+
+def turbo_energize(count: int = 2):
+    """Search your deck for up to `count` Basic Energy cards and attach them to
+    your Benched Pokemon in any way you like, then shuffle."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        if not bench:
+            await ctx.shuffle_deck()
+            return
+        picks = await ctx.search_deck(
+            is_basic_energy_card, count=count, minimum=0,
+            prompt="Choose up to %d Basic Energy cards" % count)
+        for card in picks:
+            target = await ctx.choose_pokemon(
+                bench, "Choose a Benched Pokemon to attach it to") \
+                if len(bench) > 1 else bench[0]
+            if target is not None:
+                await ctx.attach_energy(card, target)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def fluorite():
+    """Discard all Energy from this Pokemon and heal all damage from each of
+    your Tera Pokemon (Technical Machine: Fluorite)."""
+    async def effect(ctx):
+        holder = ctx.attacker
+        if holder is not None:
+            energy = list(ctx.attached_energies(holder))
+            if energy:
+                await ctx.discard_cards(energy)
+        for pokemon in ctx.my_pokemon_in_play():
+            subtypes = [str(subtype).lower()
+                        for subtype in subtypes_for(pokemon.archetype_id)]
+            if "tera" not in subtypes:
+                continue
+            missing = ctx.max_hp(pokemon) - (pokemon.get_attribute(AttrID.HP, 0) or 0)
+            if missing > 0:
+                await ctx.heal(missing, pokemon)
+    return effect
