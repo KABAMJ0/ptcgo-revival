@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import any_of, named_exactly
 
 card = PokemonCardDef(
     guid="7a827ed5-334f-554b-8d60-4012079fb0ed",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Multiplying Cocoon",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. Search your deck for a Silcoon or a Cascoon and put it onto your Bench. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_bench(any_of(named_exactly("silcoon"), named_exactly("cascoon")), count=1),
         ),
         Attack(
             title="Tackle",

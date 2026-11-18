@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named
+from ptcgo.game.card_effects.pokemon import in_active_spot
 
 card = PokemonCardDef(
     guid="a8cb95d1-ab44-57c6-93a3-a966fc230e8d",
@@ -21,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Smog Signals",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), search your deck for up to 2 Pok\u00e9mon that have \"Koffing\" in their name and put them onto your Bench. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            condition=in_active_spot,
+            effect=search_to_bench(named("koffing"), count=2),
         ),
         Attack(
             title="Leaking Gas",

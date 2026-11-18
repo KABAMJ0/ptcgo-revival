@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.trainers import all_of, any_of, named
 
 card = PokemonCardDef(
     guid="2680f85b-01db-5074-acca-164640d7bee2",
@@ -22,7 +26,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Colorless Basic Pok\u00e9mon or Basic Pok\u00e9mon with Team Magma in its name and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(any_of(all_of(is_basic_pokemon, lambda card: is_pokemon_of_type(card, "colorless")), all_of(is_basic_pokemon, named("team magma"))), count=1),
         ),
         Attack(
             title="Team Play",

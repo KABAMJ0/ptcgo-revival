@@ -1,7 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_bench, flip_damage
 from ptcgo.game.card_effects.energies import pokemon_named_like
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.trainers import all_of, named_exactly
 
 card = PokemonCardDef(
     guid="3a8dbeeb-5fbe-50ba-b352-5ae0225e37c9",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Basic Pok\u00e9mon card named Murkrow and put it onto your Bench. Shuffle your deck afterward. (You can't use this attack if your Bench is full.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(all_of(is_basic_pokemon, named_exactly("murkrow")), count=1),
         ),
         Attack(
             title="Flock Attack",
