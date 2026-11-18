@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_hand_trainer_to_deck
 
 card = ItemCardDef(
     guid="ae3caa63-1d33-5ddd-b7df-0a59799625dd",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=72,
     set_code="BASE5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=opponent_hand_trainer_to_deck(1)
 )

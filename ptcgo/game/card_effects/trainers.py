@@ -4232,7 +4232,8 @@ def look_bottom_to_hand(count: int, take: int, predicate):
         bottom = deck[:count]
         if not bottom:
             return
-        matches = [card for card in bottom if predicate(card)]
+        matches = [card for card in bottom
+                   if predicate is None or predicate(card)]
         picks = await ctx.choose_cards(
             matches, take, minimum=0,
             prompt="Choose a card from the bottom of your deck",
@@ -4782,4 +4783,117 @@ def search_two_kinds_to_bench(ex_count: int, plain_count: int):
                 if await ctx.bench_pokemon(card):
                     break
         await ctx.shuffle_deck()
+    return effect
+
+
+def each_player_count_shuffle_draw():
+    """Each player counts their hand, shuffles it into their deck, and draws
+    that many cards (Wicke)."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            count = len(ctx.hand(player_id))
+            if count:
+                await ctx.shuffle_into_deck(ctx.hand(player_id), player_id)
+                await ctx.draw_cards(count, player_id)
+    return effect
+
+
+def opponent_hand_trainer_to_deck(count: int = 1):
+    """Look at the opponent's hand and shuffle `count` Trainer cards from it
+    into their deck (Rocket's Sneak Attack)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        await ctx.reveal_hand(ctx.opponent_id)
+        trainers = [c for c in hand if is_trainer_card(c)]
+        if not trainers:
+            return
+        picks = await ctx.choose_cards(
+            trainers, count, minimum=min(count, len(trainers)),
+            prompt="Choose Trainer cards to shuffle into their deck")
+        if picks:
+            await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+    return effect
+
+
+def move_energy_special_between_opponents(count: int = 1):
+    """Move `count` Special Energy from 1 of the opponent's Pokemon to another
+    of their Pokemon (Eneporter)."""
+    async def effect(ctx):
+        pool = ctx.opponent_pokemon_in_play()
+        sources = [p for p in pool
+                   if any(is_special_energy(e) for e in ctx.attached_energies(p))]
+        if not sources:
+            return
+        source = await ctx.choose_pokemon(
+            sources, "Choose a Pokémon with Special Energy") \
+            if len(sources) > 1 else sources[0]
+        if source is None:
+            return
+        energies = [e for e in ctx.attached_energies(source) if is_special_energy(e)]
+        picks = await ctx.choose_cards(
+            energies, count, minimum=min(count, len(energies)),
+            prompt="Choose Special Energy to move")
+        targets = [p for p in pool if p is not source]
+        if not picks or not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        for card in picks:
+            await ctx.attach_energy(card, dest)
+    return effect
+
+
+def move_energy_from_holder(predicate, count: int = 2):
+    """Move up to `count` Energy from 1 of your (matching) Pokemon to another
+    of your Pokemon (Tag Switch)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if ctx.attached_energies(p) and (predicate is None or predicate(p))]
+        if not pool:
+            return
+        source = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to move Energy from") \
+            if len(pool) > 1 else pool[0]
+        if source is None:
+            return
+        energies = ctx.attached_energies(source)
+        picks = await ctx.choose_cards(
+            energies, count, minimum=0,
+            prompt=f"Choose up to {count} Energy to move")
+        targets = [p for p in ctx.my_pokemon_in_play() if p is not source]
+        if not picks or not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        for card in picks:
+            await ctx.attach_energy(card, dest)
+    return effect
+
+
+def both_shuffle_trainers_into_decks():
+    """You and your opponent show hands, then shuffle every Trainer card from
+    those hands into your decks (Lass)."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            trainers = [c for c in ctx.hand(player_id) if is_trainer_card(c)]
+            if trainers:
+                await ctx.shuffle_into_deck(trainers, player_id)
+    return effect
+
+
+def opponent_active_energy_to_deck_top(count: int = 1):
+    """Put `count` Energy from the opponent's Active Pokemon on top of their
+    deck (Nita)."""
+    async def effect(ctx):
+        active = ctx.opponent_active()
+        if active is None:
+            return
+        energies = ctx.attached_energies(active)
+        if not energies:
+            return
+        picks = await ctx.choose_cards(
+            energies, count, minimum=min(count, len(energies)),
+            prompt="Choose Energy to put on top of their deck")
+        for card in picks:
+            await ctx.put_on_top_of_deck(card)
     return effect

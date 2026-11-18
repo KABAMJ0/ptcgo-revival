@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import move_energy_special_between_opponents
 
 card = ItemCardDef(
     guid="3cedc8b5-8c92-59a5-95f4-94853e06f4ed",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=142,
     set_code="SM6",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=move_energy_special_between_opponents(1)
 )

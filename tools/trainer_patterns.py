@@ -1233,7 +1233,8 @@ RULES = [
          r"you do the new active pokemon is now confused",
          "gust_then_confuse", lambda m: []),
     Rule("move-energy-to-active",
-         r"move up to (?P<n>\d+) energy from your benched pokemon to your active pokemon",
+         r"move (?:up to )?(?P<n>\d+) energy from (?P<t>\d+) of your benched pokemon to your "
+         r"active pokemon",
          "move_energy_to_active", lambda m: [m.group("n")]),
     Rule("discard-stadium-opponent-discards",
          r"discard any stadium card in play if you do your opponent discards (?P<n>\d+) cards "
@@ -2005,6 +2006,38 @@ RULES = [
          r"for pokemon ex and put them onto your bench" + SHUFFLE_TAIL,
          "search_two_kinds_to_bench",
          lambda m: [m.group("ex"), m.group("plain")]),
+
+    Rule("each-player-count-shuffle-draw",
+         r"each player counts the cards in their hand shuffles those cards into their deck then "
+         r"draws that many cards",
+         "each_player_count_shuffle_draw", lambda m: []),
+    Rule("both-shuffle-trainers",
+         r"you and your opponent show each other your hands then shuffle all the trainer cards from "
+         r"your hands into your decks",
+         "both_shuffle_trainers_into_decks", lambda m: []),
+    Rule("opponent-hand-trainer-to-deck",
+         r"look at your opponents hand if he or she has any trainer cards choose (?P<n>\d+) of them "
+         r"your opponent shuffles that card into his or her deck",
+         "opponent_hand_trainer_to_deck", lambda m: [m.group("n")]),
+    Rule("move-special-energy-opponents",
+         r"move (?P<n>\d+) special energy from (?P<t>\d+) of your opponents pokemon to another of "
+         r"their pokemon",
+         "move_energy_special_between_opponents", lambda m: [m.group("n")]),
+    Rule("tag-switch",
+         r"move up to (?P<n>\d+) energy from (?P<t>\d+) of your tag team pokemon to another of "
+         r"your pokemon",
+         "move_energy_from_holder",
+         lambda m: ['pokemon_of_subtype("TAG TEAM")', m.group("n")]),
+    Rule("opponent-active-energy-to-deck-top",
+         r"put (?P<n>\d+) energy from your opponents active pokemon on top of their deck",
+         "opponent_active_energy_to_deck_top", lambda m: [m.group("n")]),
+    Rule("look-bottom-take",
+         r"look at the (?:bottom (?P<n>\d+) cards|(?P<m>\d+) cards from the bottom) of your deck "
+         r"(?:and put (?P<a>\d+) of (?:those|them|the)(?: cards)? into your hand|choose any (?P<b>\d+) "
+         r"cards there and put them into your hand)(?: and then return)?(?: put)? the "
+         r"(?:other|remaining) cards (?:back )?(?:on|to) the bottom of your deck in any order",
+         "look_bottom_to_hand",
+         lambda m: [m.group("n") or m.group("m"), m.group("a") or m.group("b"), "None"]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
