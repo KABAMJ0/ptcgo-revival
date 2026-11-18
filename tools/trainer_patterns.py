@@ -2419,6 +2419,53 @@ RULES = [
          "return_pokemon_to_hand",
          lambda m: ['predicate=pokemon_of_subtype("SP")']),
 
+    Rule("each-shuffle-draw-pair",
+         r"each player shuffles (?:his or her|their) hand into (?:his or her|their) deck then draw "
+         r"(?P<own>\d+) cards? your opponent draws (?P<other>\d+) cards?",
+         "each_player_shuffle_draw_pair",
+         lambda m: [m.group("own"), m.group("other")]),
+    Rule("flip-defender-condition",
+         r"flip (?P<coins>\d+) coin if heads the defending pokemon is now (?P<cond>[a-z]+)",
+         "flip_condition_on_defender",
+         lambda m: [_condition(m.group("cond"))]),
+    Rule("random-opponent-card-discard-if",
+         r"choose (?P<n>\d+) random card from your opponents hand your opponent reveals that card if "
+         r"its (?P<cat>[a-z0-9 ]+?) discard it",
+         "random_opponent_card_discard_if",
+         lambda m: [_pred(m.group("cat"))]),
+    Rule("flip-wipe-energy",
+         r"flip 2 coins if both are heads discard all energy cards attached to the defending pokemon if "
+         r"both are tails discard all energy cards attached to your active pokemon",
+         "flip_wipe_energy", lambda m: []),
+    Rule("draw-until-not-behind",
+         r"if you have less cards in your hand than your opponent draw cards until you have the same "
+         r"number of cards as your opponent",
+         "draw_until_not_behind", lambda m: []),
+    Rule("look-top-combination-any",
+         r"look at the top (?P<n>\d+) cards of your deck you may reveal up to (?P<take>\d+) in any "
+         r"combination of (?P<a>[a-z0-9 ]+?) and (?P<b>[a-z0-9 ]+?) you find there and put them into your "
+         r"hand",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"),
+                    "predicate=any_of(%s, %s)" % (_pred(m.group("a")), _pred(m.group("b"))),
+                    "minimum=0"],
+         module="support_common"),
+    Rule("discard-typed-from-hand-then-draw",
+         r"discard (?P<n>\d+) (?P<cat>[a-z0-9 ]*?)from your (?:card|hand) if you cant discard \d+ "
+         r"(?P=cat)from your (?:card|hand) you cant play this card draw (?P<draw>\d+) cards?",
+         "discard_typed_from_hand_then",
+         lambda m: [_cat_with_cards(m.group("cat")), m.group("n"),
+                    "lambda ctx: ctx.draw_cards(%s)" % m.group("draw")]),
+    Rule("each-shuffle-draw-per-prizes",
+         r"each player shuffles (?:his or her|their) hand into (?:his or her|their) deck then each player "
+         r"counts (?:his or her|their) prize cards left and draws up to that many cards you draw your "
+         r"cards first",
+         "each_player_shuffle_draw_per_prize", lambda m: []),
+    Rule("evolve-early-typed-any-turn",
+         r"each players (?P<type>[a-z]+) pokemon can evolve during his or her first turn or the turn he or "
+         r"she plays those pokemon",
+         "evolve_early_passive", lambda m: [_typed_or_decline(m.group("type"))], kind="passive"),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -2501,7 +2548,7 @@ CONDITION_PREFIXES = [
                 r"cards in your hand "), "hand_at_most"),
     (re.compile(r"^you can (?:use|play) this card only when it is the last card in your hand "),
      "hand_is_last"),
-    (re.compile(r"^you can (?:use|play) this card only if you have more prize cards remaining "
+    (re.compile(r"^you can (?:use|play) this card only if you have more prize cards (?:remaining|left) "
                 r"than your opponent "), "behind_on_prizes"),
     (re.compile(r"^you can (?:use|play) this card only if you have any (?P<sub>[a-z]+) pokemon "
                 r"in play "), "has_subtype_in_play"),

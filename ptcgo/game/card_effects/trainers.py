@@ -5668,3 +5668,68 @@ def move_energy_between_own(count: int = 1, predicate=None):
         for card in picks:
             await ctx.attach_energy(card, dest)
     return effect
+
+
+def each_player_shuffle_draw_pair(own: int, other: int):
+    """Each player shuffles their hand into their deck; you draw `own` and your
+    opponent draws `other` (Ace Trainer)."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            await ctx.shuffle_into_deck(ctx.hand(player_id), player_id)
+        await ctx.draw_cards(own, ctx.player_id)
+        await ctx.draw_cards(other, ctx.opponent_id)
+    return effect
+
+
+def flip_condition_on_defender(condition):
+    """Flip a coin: on heads the opponent's Active takes `condition` (Sleep!)."""
+    async def effect(ctx):
+        if not (await ctx.flip_coins(1, title="Apply a Special Condition"))[0]:
+            return
+        target = ctx.opponent_active()
+        if target is not None:
+            await ctx.apply_special_condition(target, condition)
+    return effect
+
+
+def random_opponent_card_discard_if(predicate):
+    """Reveal a random card from the opponent's hand; discard it if it matches
+    (Tormenting Spray)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        card = hand[0]
+        await ctx.reveal_hand(ctx.opponent_id)
+        if predicate(card):
+            await ctx.discard_cards([card])
+    return effect
+
+
+def flip_wipe_energy():
+    """Flip 2 coins: both heads strips the opponent's Active of Energy, both
+    tails yours (Super Energy Removal 2)."""
+    async def effect(ctx):
+        faces = await ctx.flip_coins(2, title="Discard Energy")
+        if all(faces):
+            target = ctx.opponent_active()
+        elif not any(faces):
+            target = ctx.my_active()
+        else:
+            return
+        if target is None:
+            return
+        energies = ctx.attached_energies(target)
+        if energies:
+            await ctx.discard_cards(list(energies))
+    return effect
+
+
+def draw_until_not_behind():
+    """Draw cards until your hand is as large as your opponent's, then stop
+    (Holon Scientist)."""
+    async def effect(ctx):
+        target = len(ctx.hand(ctx.opponent_id))
+        if len(ctx.hand()) < target:
+            await ctx.draw_until(target)
+    return effect
