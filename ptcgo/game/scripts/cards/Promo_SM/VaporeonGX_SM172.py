@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.passives_common import heal_activation
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+_heal, _heal_condition = heal_activation(30, target_pred=lambda p: PokemonTypes.WATER.value in (
+    p.get_attribute(AttrID.POKEMON_TYPES) or []
+))
+
 
 card = PokemonCardDef(
     guid="10b9217c-fcec-5f3c-8db6-c4ce6e7ac44c",
@@ -22,7 +28,9 @@ card = PokemonCardDef(
         Ability(
             title="Hydrating Drops",
             game_text="Once during your turn (before your attack), you may heal 30 damage from your Active Water Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=_heal,
+            condition=_heal_condition,
         ),
         Attack(
             title="Hydro Pump",
