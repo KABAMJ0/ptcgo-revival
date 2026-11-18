@@ -37,6 +37,7 @@ from .vunion import summon_pieces
 from .passives import (
     ability_locked,
     can_attack_despite_conditions,
+    can_retreat_despite_conditions,
     can_evolve_early,
     effective_attack_cost,
     effective_bench_capacity,
@@ -739,7 +740,9 @@ def compute_legal_actions(
     # Asleep/Paralyzed gates attacks per-attack (Attack(usable_despite_conditions)).
     immobilized = _active_immobilized(board, player_id)
     entries.extend(_attack_entries(board, state, player_id, game_id, immobilized))
-    if not immobilized:
+    # An Asleep/Paralyzed Active may still retreat when a carrier allows it
+    # (Escape Board); the condition keeps blocking its attacks.
+    if not immobilized or can_retreat_despite_conditions(board, player_id):
         entries.extend(_retreat_entry(board, state, player_id, game_id))
     # A turn kept alive past an attack (Fluffy Barrage's second strike) stays
     # in the attack phase: only attacking (or End Turn) remains legal.
@@ -856,7 +859,7 @@ def _stadium_ability_entries(
     board: BoardState, state: TurnState, player_id: str, game_id: str
 ) -> List[Dict[str, Any]]:
     """The in-play Stadium's activated ability (Training Court), offered once
-    during each player's turn. Only the active player is offered actions and
+    during each player's turn unless the ability is UNLIMITED. Only the active player is offered actions and
     used_abilities resets each turn, so (stadium, ability) is a clean
     once-per-player-turn key."""
     stadium_area = board.find_global_area("activeStadium")
@@ -866,7 +869,10 @@ def _stadium_ability_entries(
         ability = getattr(definition, "ability", None)
         if ability is None or ability.effect is None or not ability.ability_id:
             continue
-        if (stadium.entity_id, ability.ability_id) in state.used_abilities:
+        # "As often as he or she likes" (Ultimate Zone) is an UNLIMITED
+        # stadium ability: it is never spent, so the per-turn key never fills.
+        if ability.activation != Activations.UNLIMITED \
+                and (stadium.entity_id, ability.ability_id) in state.used_abilities:
             continue
         if ability.condition and not ability.condition(board, player_id, stadium):
             continue

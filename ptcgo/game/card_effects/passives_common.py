@@ -1170,3 +1170,29 @@ def rewrite_energy_types_passive(types, protects="carrier", basic_only=False,
     return EnergyTypeRewritePassive(types, protects, basic_only=basic_only,
                                     colorless_only=colorless_only,
                                     holder_types=holder_types)
+
+
+class RetreatDiscountDespiteConditionsPassive(Passive):
+    """"The Retreat Cost of the Pokemon this card is attached to is C less,
+    and it can retreat even if it's Asleep or Paralyzed" (Escape Board).
+
+    Both halves are continuous, so this is one passive on the Tool: the
+    discount through modify_retreat_cost, the permission through the
+    retreat-only negator that legal_actions consults."""
+
+    def __init__(self, amount=1, protects="carrier"):
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if not self.protects(pokemon, carrier):
+            return cost
+        return max(0, cost - self.amount)
+
+    def permits_retreat_while_immobilized(self, pokemon, carrier):
+        return self.protects(pokemon, carrier)
+
+
+def retreat_discount_despite_conditions(amount=1, protects="carrier") -> Passive:
+    """Retreat Cost -amount plus "may retreat while Asleep or Paralyzed"."""
+    return RetreatDiscountDespiteConditionsPassive(amount, protects)

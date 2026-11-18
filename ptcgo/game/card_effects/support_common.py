@@ -630,3 +630,43 @@ def heal_all_from_one():
         if amount > 0:
             await ctx.heal(amount, target)
     return effect
+
+
+# --- Ultimate Zone ---------------------------------------------------------
+
+def _bench_energy_holders(ctx):
+    return [p for p in ctx.my_bench() if ctx.board.attached_energies(p)]
+
+
+def move_bench_energy_to_named_active(name):
+    """"The player may move an Energy card attached to 1 of his or her
+    Benched Pokemon to his or her Active <name> as often as he or she likes"
+    (Ultimate Zone) -- an UNLIMITED Stadium ability, so it is repeatable."""
+
+    def _active_is_named(board, player_id):
+        active = board.active_pokemon(player_id)
+        if active is None:
+            return False
+        printed = (getattr(def_for(active.archetype_id), "display_name", "") or "").lower()
+        return printed == name.lower() or printed.startswith(name.lower() + " ")
+
+    def condition(board, player_id, stadium):
+        if not _active_is_named(board, player_id):
+            return False
+        bench = board.find_player_area(player_id, "bench")
+        return any(bool(board.attached_energies(p)) for p in (bench.children if bench else []))
+
+    async def effect(ctx):
+        active = ctx.board.active_pokemon(ctx.player_id)
+        if active is None:
+            return
+        energies = [energy for pokemon in _bench_energy_holders(ctx)
+                    for energy in ctx.board.attached_energies(pokemon)]
+        if not energies:
+            return
+        for energy in await ctx.choose_cards(
+                energies, 1, minimum=1,
+                prompt=f"Choose an Energy to move to your Active {name}"):
+            await ctx.move_energy(energy, active)
+
+    return effect, condition
