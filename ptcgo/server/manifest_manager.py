@@ -102,6 +102,12 @@ class ManifestManager:
             return False
         self.manifest_version = meta.get("version", 0)
         self.android_manifest_version = meta.get("android_version", 0)
+        # The scan also fills these two; anything after boot that asks for them
+        # raised AttributeError when the cache short-circuited it. card_partitions()
+        # is cheap to recompute; the variant sources come back from the cache because
+        # rebuilding them means reopening every bundle.
+        self.card_partitions = card_partitions()
+        self.variant_sources = dict(meta.get("variant_sources") or {})
         return True
 
     def _store_cached_manifest(self) -> None:
@@ -115,7 +121,8 @@ class ManifestManager:
             with open(meta_path, "w", encoding="utf-8") as f:
                 json.dump({"fingerprint": self._fingerprint(),
                            "version": self.manifest_version,
-                           "android_version": getattr(self, "android_manifest_version", 0)}, f)
+                           "android_version": getattr(self, "android_manifest_version", 0),
+                           "variant_sources": {str(k): str(v) for k, v in (self.variant_sources or {}).items()}}, f)
         except OSError as e:
             logging.warning(f"[Manifest] Could not write manifest cache: {e}")
 
