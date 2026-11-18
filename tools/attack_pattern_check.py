@@ -229,11 +229,16 @@ def check_temporary_passive(before, after, rig, ability, entities):
 
 
 def check_less_per_counter(before, after, rig, ability, entities):
+    attacker = entities["p1_active"]
     dealt = delta(before, after, entities["p2_active"].entity_id)
-    amount = max(0, (ability.damage or 0) - 10 * 2)
-    expected = expected_damage(rig, entities["p1_active"],
-                               entities["p2_active"], amount)
-    return dealt == expected, f"dealt {dealt} (expected {expected}: printed - 10 x 2)"
+    counters = (passives.effective_max_hp(rig.board, attacker)
+                - before["hp"][attacker.entity_id]) // 10
+    per = text_number(ability.game_text, r"(\d+) (?:less damage|damage for each)") or 10
+    amount = max(0, (ability.damage or 0) - per * counters)
+    expected = expected_damage(rig, attacker, entities["p2_active"], amount,
+                               cap=before["hp"][entities["p2_active"].entity_id])
+    return dealt == expected, \
+        f"dealt {dealt} (expected {expected}: printed - {per} x {counters})"
 
 
 def check_lock_defender(before, after, rig, ability, entities):
@@ -280,6 +285,7 @@ CASES = [
     ("attach.energy-from-discard", check_attach_from_discard, (1, 1, 1, 1), 0),
     ("protect.no-weakness", check_temporary_passive, (1, 1, 1, 1), 0),
     ("scale.less-per-counter-self", check_less_per_counter, (1, 1, 1, 1), 20),
+    ("scale.minus-per-self-counter", check_less_per_counter, (1, 1, 1, 1), 20),
     ("ability.takes-less", check_passive_bound, (1, 1, 1, 1), 0),
     ("snipe.choose-bench", check_snipe_bench, (1, 1, 1, 1), 0),
     ("debuff.defender-attacks", check_temporary_passive, (1, 1, 1, 1), 0),
@@ -380,7 +386,8 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
 
     if seed_damage:
         attacker.set_attribute(AttrID.HP, hp(attacker) - seed_damage)
-    if pattern in ("scale.counter-self", "scale.less-per-counter-self"):
+    if pattern in ("scale.counter-self", "scale.less-per-counter-self",
+                   "scale.minus-per-self-counter"):
         attacker.set_attribute(AttrID.HP, hp(attacker) - 20)
     if pattern == "counters.move-bench-to-defender":
         # The rig's bench has no damage to move.
