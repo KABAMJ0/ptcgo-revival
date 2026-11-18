@@ -73,6 +73,12 @@ from ptcgo.game.card_effects.passives_common import (
     carrier_pokemon,
     no_energy_free_retreat_passive,
     opponent_retreat_tax_passive,
+    active_vs_active_debuff_passive,
+    benched_full_shield_passive,
+    condition_immunity_passive,
+    guts_survive_passive,
+    retreat_discount,
+    typed_energy_free_retreat_passive,
     retaliate_counters_passive,
     retreat_free_when,
     flip_prevent_damage_passive,
@@ -3827,6 +3833,120 @@ def _entered_active_bonus_condition(m, ability):
             await ctx.apply_special_condition(defender, condition)
     return effect
 
+
+def _only_while_active(inner):
+    """Ability text gated on 'if this Pokemon is in the Active Spot'."""
+    async def effect(ctx):
+        if ctx.source is None or not is_in_active_spot(ctx.source):
+            return
+        await inner(ctx)
+    return effect
+
+
+def _passive_bench_team_shield(m, ability):
+    return prevent_damage_when(
+        lambda calc, carrier: calc.target.owning_player_id
+        == carrier.owning_player_id and not is_in_active_spot(calc.target))
+
+
+def _passive_flip_survive(m, ability):
+    return guts_survive_passive(hp_floor=int(m.group(1)),
+                                title=getattr(ability, "title", ""), flip=True)
+
+
+def _passive_special_energy_hp(m, ability):
+    from ptcgo.game.card_effects.passives_common import hp_bonus_tool
+    return hp_bonus_tool(int(m.group(1)), holder_pred=lambda pokemon: any(
+        is_special_energy(card) for card in (pokemon.children or [])))
+
+
+def _passive_active_team_takes_less(m, ability):
+    return takes_less_passive(
+        int(m.group(1)),
+        protects=lambda target, carrier: target.owning_player_id
+        == carrier.owning_player_id
+        and is_in_active_spot(carrier_pokemon(carrier)))
+
+
+def _passive_active_vs_active_debuff(m, ability):
+    return active_vs_active_debuff_passive(int(m.group(1)))
+
+
+def _passive_condition_immunity(m, ability):
+    return condition_immunity_passive(CONDITIONS[m.group(1)])
+
+
+def _passive_typed_energy_free_retreat(m, ability):
+    return typed_energy_free_retreat_passive(TYPE_WORDS[m.group(1)].value)
+
+
+def _passive_team_typed_energy_free_retreat(m, ability):
+    return typed_energy_free_retreat_passive(TYPE_WORDS[m.group(1)].value,
+                                             team=True)
+
+
+def _passive_bench_active_retreat_discount(m, ability):
+    amount = m.group(1).count("colorless")
+    return retreat_discount(
+        amount, target_pred=lambda pokemon, carrier: pokemon.owning_player_id
+        == carrier.owning_player_id and is_in_active_spot(pokemon)
+        and not is_in_active_spot(carrier_pokemon(carrier)))
+
+
+def _passive_benched_full_shield(m, ability):
+    return benched_full_shield_passive()
+
+
+def _discard_pokemon_heal_self(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        if not any(_is_pokemon_card(card) for card in ctx.hand()):
+            return
+        discarded = await ctx.discard_from_hand(
+            1, minimum=0, predicate=_is_pokemon_card,
+            prompt="You may discard a Pokémon to heal")
+        if discarded and ctx.source is not None:
+            await ctx.heal(amount, ctx.source)
+    return effect
+
+
+def _attach_typed_hand_energy_to_one(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        hand = [card for card in ctx.hand() if is_energy_card(card)
+                and energy_provides_type(card, type_value)]
+        candidates = ctx.my_pokemon_in_play()
+        if not hand or not candidates:
+            return
+        picks = await ctx.choose_cards(hand, 1, minimum=0,
+                                       prompt="Choose an Energy to attach")
+        if not picks:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates,
+                                     "Choose a Pokémon to attach the Energy to")
+        if target is not None:
+            await ctx.attach_energy(picks[0], target)
+    return effect
+
+
+def _top_pick_rest_bottom(m, ability):
+    look, keep = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        top = ctx.deck_top(look)
+        if not top:
+            return
+        picks = top if len(top) <= keep else await ctx.choose_cards(
+            top, keep, prompt=f"Choose {keep} card(s) to put into your hand")
+        await ctx.put_in_hand(list(picks), reveal=False)
+        for card in top:
+            if card not in picks:
+                await ctx.put_on_bottom_of_deck(card)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -5222,6 +5342,59 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"benched pokemon\.\)"), _self_bench_spread),
 
 
+
+    # -- batch 37: continuous ability shields, retreat rules, utilities ----
+    ("ability.bench-team-shield",
+     re.compile(r"prevent all damage done to your benched pokemon by your "
+                r"opponent's attacks\."), _passive_bench_team_shield),
+    ("ability.flip-survive",
+     re.compile(r"if this pokemon would be knocked out by damage from an "
+                r"attack, flip a coin\. if heads, this pokemon is not knocked "
+                r"out, and its remaining hp becomes (\d+)\."),
+     _passive_flip_survive),
+    ("ability.special-energy-hp",
+     re.compile(r"if this pokemon has any special energy attached(?: to it)?, "
+                r"it gets \+(\d+) hp\."), _passive_special_energy_hp),
+    ("ability.active-team-takes-less",
+     re.compile(r"as long as this pokemon is your active pokemon, all of your "
+                r"pokemon take (\d+) less damage from your opponent's attacks "
+                r"\(after applying weakness and resistance\)\."),
+     _passive_active_team_takes_less),
+    ("ability.active-vs-active-debuff",
+     re.compile(r"as long as this pokemon is in the active spot, attacks used "
+                r"by your opponent's active pokemon do (\d+) less damage "
+                r"\(before applying weakness and resistance\)\."),
+     _passive_active_vs_active_debuff),
+    ("ability.condition-immunity",
+     re.compile(r"this pokemon can't be (" + _CONDITION_WORDS + r")\."),
+     _passive_condition_immunity),
+    ("ability.typed-energy-free-retreat",
+     re.compile(r"if this pokemon has any (" + _TYPE_WORDS + r") energy "
+                r"attached(?: to it)?, it has no retreat cost\."),
+     _passive_typed_energy_free_retreat),
+    ("ability.team-typed-energy-free-retreat",
+     re.compile(r"each of your pokemon that has any (" + _TYPE_WORDS +
+                r") energy attached to it has no retreat cost\."),
+     _passive_team_typed_energy_free_retreat),
+    ("ability.bench-active-retreat-discount",
+     re.compile(r"as long as this pokemon is on your bench, your active "
+                r"pokemon's retreat cost is ((?:colorless)+) less\."),
+     _passive_bench_active_retreat_discount),
+    ("ability.benched-full-shield",
+     re.compile(r"as long as this pokemon is on your bench, prevent all damage "
+                r"from and effects of attacks from your opponent's pokemon "
+                r"done to this pokemon\."), _passive_benched_full_shield),
+    ("ability.discard-pokemon-heal-self",
+     re.compile(r"discard a pokemon from your hand\. if you do, heal (\d+) "
+                r"damage from this pokemon\."), _discard_pokemon_heal_self),
+    ("ability.attach-typed-hand-energy",
+     re.compile(r"attach an? (" + _TYPE_WORDS + r") energy card from your hand "
+                r"to (?:an?|1) of your pokemon\."),
+     _attach_typed_hand_energy_to_one),
+    ("ability.top-pick-rest-bottom",
+     re.compile(r"look at the top (\d+) cards of your deck and put (\d+) of "
+                r"them into your hand\. put the other cards? on the bottom of "
+                r"your deck(?: in any order)?\."), _top_pick_rest_bottom),
     # -- batch 36: next-turn shields, recoveries, old-era riders -----------
     ("flip.both-tails-nothing",
      re.compile(r"flip (\d+) coins\. if both (?:of them )?are tails, this "
@@ -5375,8 +5548,8 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"opponent's pokemon\. if you use this ability, this pokemon "
                 r"is knocked out\."), _counters_then_self_knock_out),
     ("ability.bench-self-switch-in",
-     re.compile(r"if this pokemon is on your bench, you may switch this "
-                r"pokemon with your active pokemon\."), _bench_self_switch_in),
+     re.compile(r"if this pokemon is on your bench, you may switch (?:this "
+                r"pokemon|it) with your active pokemon\."), _bench_self_switch_in),
     ("ability.no-energy-free-retreat",
      re.compile(r"if this pokemon has no energy attached(?: to it)?, it has no "
                 r"retreat cost\."), _passive_no_energy_free_retreat),
@@ -5494,6 +5667,10 @@ _ABILITY_PREFIXES = (
      "during your turn, you may ", "trigger", Triggers.ON_EVOLVE),
     ("when you play this pokemon from your hand onto your bench during your "
      "turn, you may ", "trigger", Triggers.ON_PLAY),
+    ("once during your turn, if this pokemon is in the active spot, you may ",
+     "activation_active", Activations.ONCE_PER_TURN),
+    ("if this pokemon is your active pokemon, once during your turn (before "
+     "your attack), you may ", "activation_active", Activations.ONCE_PER_TURN),
     ("if this pokemon is your active pokemon and is damaged by an opponent's "
      "attack (even if this pokemon is knocked out), ", "trigger",
      Triggers.ON_DAMAGED_BY_ATTACK),
@@ -5565,6 +5742,8 @@ def bind(ability) -> Optional[str]:
                 ability.trigger = value
             else:
                 ability.activation = value
+            if kind == "activation_active":
+                effect = _only_while_active(effect)
         elif not isinstance(ability, Attack) and ability.activation is None \
                 and ability.trigger is None:
             # An ordinary coroutine on an ability the engine cannot offer.

@@ -273,6 +273,73 @@ def no_energy_free_retreat_passive() -> Passive:
     return NoEnergyFreeRetreatPassive()
 
 
+class TypedEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has any [type] Energy attached, it has no Retreat
+    Cost" (team=True: each of your Pokemon with that Energy)."""
+
+    def __init__(self, type_value, team=False):
+        self.type_value = type_value
+        self.team = team
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if self.team:
+            if pokemon.owning_player_id != carrier.owning_player_id:
+                return cost
+        elif pokemon is not carrier_pokemon(carrier):
+            return cost
+        from ptcgo.game.card_effects.pokemon import energy_provides_type
+        for energy in board.attached_energies(pokemon):
+            if energy_provides_type(energy, self.type_value):
+                return 0
+        return cost
+
+
+def typed_energy_free_retreat_passive(type_value, team=False) -> Passive:
+    return TypedEnergyFreeRetreatPassive(type_value, team)
+
+
+class ActiveVsActiveDebuffPassive(Passive):
+    """"As long as this Pokemon is in the Active Spot, attacks used by your
+    opponent's Active Pokemon do N less damage (before W/R)"."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        holder = carrier_pokemon(carrier)
+        if not calc.is_attack or attacker is None or holder is None:
+            return
+        if attacker.owning_player_id == holder.owning_player_id:
+            return
+        if is_in_active_spot(holder) and is_in_active_spot(attacker):
+            calc.amount = max(0, calc.amount - self.amount)
+
+
+def active_vs_active_debuff_passive(amount) -> Passive:
+    return ActiveVsActiveDebuffPassive(amount)
+
+
+class BenchedFullShieldPassive(Passive):
+    """"As long as this Pokemon is on your Bench, prevent all damage from and
+    effects of attacks from your opponent's Pokemon done to this Pokemon"."""
+
+    def _benched(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and not is_in_active_spot(holder)
+
+    def prevents_damage(self, calc, carrier):
+        return bool(calc.is_attack and calc.is_opposing
+                    and self._benched(calc.target, carrier))
+
+    def blocks_attack_effects(self, target, carrier):
+        return self._benched(target, carrier)
+
+
+def benched_full_shield_passive() -> Passive:
+    return BenchedFullShieldPassive()
+
+
 class OpponentAttackTaxPassive(Passive):
     """Opposing Pokemon's attacks cost [C] N more."""
 
