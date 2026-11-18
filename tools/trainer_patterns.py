@@ -2136,6 +2136,29 @@ RULES = [
          r"that pokemon devolving it",
          "devolve_one", lambda m: [m.group("n")]),
 
+    Rule("opponent-bench-gust-words",
+         r"switch (?P<n>\d+) of your opponents benched pokemon with (?:his or her|their) active "
+         r"pokemon",
+         "opponent_bench_to_active", lambda m: []),
+    Rule("opponent-bench-reversal",
+         r"(?:flip 1 coin if heads )?choose (?P<n>\d+) of your opponents benched pokemon and switch "
+         r"it with (?P<k>\d+) of the defending pokemon your opponent chooses the defending pokemon "
+         r"to switch",
+         "opponent_bench_to_active", lambda m: ["flip=True"]),
+    Rule("opponent-bench-reversal-short",
+         r"(?:flip 1 coin if heads )?choose (?P<n>\d+) of your opponents benched pokemon and switch "
+         r"it with your opponents active pokemon",
+         "opponent_bench_to_active", lambda m: ["flip=True"]),
+    Rule("opponent-switches-self",
+         r"(?:flip 1 coin if heads )?your opponent switches (?P<n>\d+) of his or her active pokemon "
+         r"with (?P<k>\d+) of his or her benched pokemon",
+         "opponent_bench_to_active", lambda m: ["opponent_chooses=True"]),
+    Rule("opponent-random-hand-shuffle",
+         r"(?:flip 1 coin if heads )?choose (?P<up>up to )?(?P<n>\d+) (?P<r>random )?cards? "
+         r"(?:at random )?from your opponents hand(?: dont look at them)? your opponent shuffles "
+         r"those cards into his or her deck",
+         "shuffle_random_from_opponent_hand", lambda m: [m.group("n")]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
