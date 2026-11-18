@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_special_energy
+
+
+async def special_roll(ctx):
+    attached = [energy for energy in ctx.attached_energies(ctx.attacker)
+                if is_special_energy(energy)]
+    if attached:
+        await ctx.deal_damage(70 * len(attached))
+
 
 card = PokemonCardDef(
     guid="e369a489-2124-5bbd-a482-0fc4e79b2a3c",
@@ -30,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=special_roll,
         ),
     ],
 )

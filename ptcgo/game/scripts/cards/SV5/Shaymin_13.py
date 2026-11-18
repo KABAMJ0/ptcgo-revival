@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+
+def _benched_ex_or_v(pokemon) -> bool:
+    subtypes = [name.lower() for name in subtypes_for(pokemon.archetype_id)]
+    return not is_in_active_spot(pokemon) and ("ex" in subtypes or "v" in subtypes)
+
 
 card = PokemonCardDef(
     guid="363c9470-68f1-5f22-9eab-d5e57a0d3a25",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
             title="Pinpoint Dive",
             game_text="This attack does 60 damage to 1 of your opponent's Benched Pok\u00e9mon ex or Benched Pok\u00e9mon V. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(60, pool=_benched_ex_or_v),
         ),
         Attack(
             title="Rear Kick",
