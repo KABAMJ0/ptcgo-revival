@@ -46,7 +46,7 @@ def ensure_default_shop_items():
                 currency=AttrID.TRAINER_TOKENS.value,
                 price=offer["price"],
                 enabled=True,
-                featured=False,
+                featured=True,
                 top_selling=True,
                 sort_order=offer["sort_order"],
             )

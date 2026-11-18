@@ -13,18 +13,24 @@ image; drop a real image URL in `image_url` when there is one.
 import uuid
 
 from ptcgo.config import PLACEHOLDER_IMG
-from ptcgo.game.data_utils import DeckDef, DeckEntry
+from ptcgo.game.data_utils import DeckEntry, ThemeDeckDef
 
 # Stable identity: derived once so a reload never mints a new product GUID.
 _GUID = str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:deck:dragapult-ex-shop"))
 
 
-product = DeckDef(
+product = ThemeDeckDef(
     guid=_GUID,
-    key="NoSet",
+    # The shop groups products into tabs by this key: a real set code puts the deck
+    # under that set. "NoSet" leaves it in a group the client never renders a tab for.
+    key="SV6",
     name="Dragapult ex",
     description="Spread damage with Phantom Dive, then move the counters with Munkidori.",
     image_url=PLACEHOLDER_IMG,
+    # The client's shop puts decks in its deck category on the theme-deck flag, and
+    # theme_legal=False keeps it out of Theme format: this list is not an approved
+    # theme deck and must not pretend to be one.
+    theme_legal=False,
     contents=[
         DeckEntry("SV6/128", 4),  # Dreepy
         DeckEntry("SV6/129", 4),  # Drakloak
