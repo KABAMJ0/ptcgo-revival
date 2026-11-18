@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import gust_then_self_switch
 
 card = ItemCardDef(
     guid="d8730283-d038-56aa-8821-dc673434df2f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=157,
     set_code="SV5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=gust_then_self_switch()
 )

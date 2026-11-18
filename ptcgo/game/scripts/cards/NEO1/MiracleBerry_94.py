@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import lum_berry_between_turns
 
 card = PokemonToolCardDef(
     guid="a31fc863-83ce-58d4-a71d-8799b86444a3",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=94,
     set_code="NEO1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=lum_berry_between_turns("Miracle Berry")
 )

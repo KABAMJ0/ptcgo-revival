@@ -2271,7 +2271,10 @@ def trade_to_hand(predicate=None, count: int = 1):
             cards, count, minimum=0,
             prompt="Choose cards from your discard pile")
         if taken:
-            await ctx.put_in_hand(taken, reveal=True)
+            if to == "deck_shuffle":
+                await ctx.shuffle_into_deck(taken)
+            else:
+                await ctx.put_in_hand(taken, reveal=True)
     return effect
 
 
@@ -7160,7 +7163,7 @@ def flip_two_discard_all_energy():
 
 
 # --- flip-recover-per-heads ---
-def flip_recover_per_heads(coins: int, predicate):
+def flip_recover_per_heads(coins: int, predicate, to: str = "hand"):
     """Flip `coins` coins; for each heads take a matching card from your
     discard pile into your hand (Time-Space Distortion)."""
     async def effect(ctx):
@@ -8308,4 +8311,82 @@ def search_one_of_each_into_hand(kinds):
         if taken:
             await ctx.put_in_hand(taken, reveal=True)
         await ctx.shuffle_deck()
+    return effect
+
+# --- batch-01 switch/gust/discard shapes -----------------------------------
+
+def switch_then_move_any_energy():
+    """Switch your Active Pokemon with 1 of your Benched Pokemon, then move any
+    number of Energy from the Pokemon that went to the Bench onto the new
+    Active (Scramble Switch)."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        old_active = ctx.my_active()
+        if not bench or old_active is None:
+            return
+        target = await ctx.choose_play_target(bench, "Choose your new Active Pokemon")
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        energies = ctx.attached_energies(old_active)
+        if not energies:
+            return
+        picks = await ctx.choose_cards(
+            energies, len(energies), minimum=0,
+            prompt="Choose any number of Energy to move to the new Active",
+        )
+        for card in picks:
+            await ctx.move_energy(card, target)
+    return effect
+
+
+def gust_then_self_switch():
+    """Switch 1 of the opponent's Benched Pokemon with their Active, then
+    switch your Active with 1 of your Benched Pokemon (Prime Catcher)."""
+    async def effect(ctx):
+        opp_bench = ctx.opponent_bench()
+        if not opp_bench:
+            return
+        target = await ctx.choose_pokemon(
+            opp_bench, "Choose your opponent's new Active Pokemon") \
+            if len(opp_bench) > 1 else opp_bench[0]
+        if target is None or not await ctx.switch_active(ctx.opponent_id, target):
+            return
+        mine = ctx.my_bench()
+        if not mine:
+            return
+        target = await ctx.choose_play_target(mine, "Choose your new Active Pokemon")
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+    return effect
+
+
+def gust_bench_only(predicate):
+    """Switch a Benched Pokemon matching `predicate` with the opponent's Active
+    (Mega Catcher: only Mega Evolution Pokemon are legal targets)."""
+    async def effect(ctx):
+        candidates = [p for p in ctx.opponent_bench() if predicate(p)]
+        if not candidates:
+            return
+        target = await ctx.choose_pokemon(
+            candidates, "Choose a Benched Pokemon to switch in") \
+            if len(candidates) > 1 else candidates[0]
+        if target is not None:
+            await ctx.switch_active(ctx.opponent_id, target)
+    return effect
+
+
+def megaton_blower():
+    """Discard all Pokemon Tools and Special Energy from all of the opponent's
+    Pokemon, then discard the Stadium in play (Megaton Blower)."""
+    async def effect(ctx):
+        doomed = []
+        for pokemon in ctx.opponent_pokemon_in_play():
+            for child in pokemon.children:
+                if is_tool_card(child) or is_special_energy(child):
+                    doomed.append(child)
+        if doomed:
+            await ctx.discard_cards(doomed)
+        stadium = ctx.stadium_in_play()
+        if stadium is not None:
+            await ctx.discard_cards([stadium])
     return effect

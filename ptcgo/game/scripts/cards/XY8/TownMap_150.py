@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import prize_face_up
 
 card = ItemCardDef(
     guid="c8904062-e8ac-5c98-8b22-e1548f1a257e",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=150,
     set_code="XY8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=prize_face_up()
 )
