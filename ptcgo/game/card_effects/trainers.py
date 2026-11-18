@@ -5873,3 +5873,25 @@ def with_discard_typed_cost(n: int, inner):
         await ctx.discard_cards(picks)
         await inner(ctx)
     return effect
+
+
+def search_same_type_as_opponent(count: int = 1):
+    """Search the deck for a Pokemon sharing a type with the opponent's Pokemon
+    in play (Friend Ball)."""
+    async def effect(ctx):
+        wanted = set()
+        for pokemon in ctx.opponent_pokemon_in_play():
+            wanted |= set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+        if not wanted:
+            return
+
+        def shares_type(card):
+            return bool(wanted & set(card.get_attribute(AttrID.POKEMON_TYPES) or []))
+
+        picks = await ctx.search_deck(
+            shares_type, count=count, minimum=0,
+            prompt="Choose a Pokémon of the same type")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect

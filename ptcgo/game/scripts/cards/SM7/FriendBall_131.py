@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_same_type_as_opponent
 
 card = ItemCardDef(
     guid="37bc31bf-b9da-5c15-b5bf-f8e0d25aead8",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=131,
     set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_same_type_as_opponent(1)
 )

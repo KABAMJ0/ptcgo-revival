@@ -619,8 +619,8 @@ RULES = [
          module="support_common"),
     Rule("search-hand-show",
          r"search your deck for (?:up to )?(?P<n>\d+ )?" + CAT +
-         r" (?:reveal|show) (?:it|them|those cards)(?: to your opponent)? and put (?:it|them) into "
-         r"your hand" + SHUFFLE_TAIL,
+         r" (?:(?:reveal|show) (?:it|them|those cards)(?: to your opponent)? and )?(?:then )?put "
+         r"(?:it|them) into your hand" + SHUFFLE_TAIL,
          "search_to_hand",
          lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
          module="support_common"),
@@ -2025,9 +2025,10 @@ RULES = [
          "flip_search_per_head",
          lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("n")]),
     Rule("reveal-hand-top-then-search",
-         r"(?:choose|reveal) (?P<n>\d+) pokemon in your hand(?: show it to your opponent)? and put it "
-         r"on top of your deck if you do search your deck for (?P<k>\d+) pokemon"
-         r"(?: show it to your opponent)? and put it into your hand shuffle your deck(?: afterward)?",
+         r"(?:choose|reveal) (?P<n>\d+) pokemon in your hand(?: (?:show|reveal) it(?: to your "
+         r"opponent)?)? and put it on top of your deck if you do search your deck for (?P<k>\d+) "
+         r"pokemon(?: (?:show|reveal) it(?: to your opponent)?)? and put it into your hand shuffle your "
+         r"deck(?: afterward)?",
          "reveal_hand_to_top_then_search",
          lambda m: ["is_pokemon_card", "is_pokemon_card"]),
     Rule("brigette",
@@ -2508,6 +2509,24 @@ RULES = [
          r"each player puts (?P<n>\d+) pokemon from his or her discard pile into his or her hand your "
          r"opponent chooses first",
          "buddy_buddy_rescue", lambda m: [m.group("n")]),
+
+    Rule("search-named-cards-deck",
+         r"search your deck for up to (?P<n>\d+) cards named (?P<word>[a-z0-9 ]+?) (?:reveal|show) "
+         r"(?:it|them) and put (?:it|them) into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ['card_named_contains("%s")' % m.group("word"), "count=" + m.group("n")],
+         module="support_common"),
+    Rule("look-top-take-all-cat",
+         r"look at the top (?P<n>\d+) cards of your deck take all (?P<cat>[a-z0-9 ]+?) you find there "
+         r"(?:reveal|show) them to your opponent and then put them into your hand" + SHUFFLE_TAIL,
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("n"), "predicate=" + _pred(m.group("cat")),
+                    "minimum=0"],
+         module="support_common"),
+    Rule("search-same-type-as-opponent",
+         r"search your deck for (?P<n>\d+) pokemon with the same type as (?P<k>\d+) of your opponents "
+         r"pokemon in play reveal it and put it into your hand then shuffle your deck",
+         "search_same_type_as_opponent", lambda m: [m.group("n")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
