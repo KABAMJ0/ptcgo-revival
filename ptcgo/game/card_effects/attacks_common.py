@@ -1031,6 +1031,27 @@ def energy_move_attack(count: int = 1, energy_type=None,
     return effect
 
 
+def flip_discard_opponent_energy(damage: Optional[int] = None, count: int = 1,
+                                 scope: str = "active", coins: int = 1,
+                                 energy_pred=None):
+    """"Flip a coin. If heads, discard an Energy from your opponent's Active
+    Pokemon" — printed (or `damage`) damage, one coin, then the discard.
+
+    The body is `trainers.discard_energy_opponent`, shared with the Trainer
+    cards of the same wording."""
+    from ptcgo.game.card_effects.trainers import discard_energy_opponent
+
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if not (results and all(results)):
+            if damage is not None:
+                await ctx.deal_damage(damage)
+            return
+        await discard_energy_opponent(
+            count=count, scope=scope, energy_pred=energy_pred, damage=damage)(ctx)
+    return effect
+
+
 def discard_random_hand_attack(count: int = 1, opponent: bool = True,
                                damage: Optional[int] = None):
     """Printed damage, then discard `count` random cards from a hand."""

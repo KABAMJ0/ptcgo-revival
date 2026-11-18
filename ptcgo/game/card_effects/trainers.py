@@ -1604,11 +1604,15 @@ def each_player_shuffle_draw(n: int):
 # --- Discard from the opponent's side ---------------------------------------
 
 def discard_energy_opponent(count: int = 1, flip: bool = False,
-                            scope: str = "any", energy_pred=None):
+                            scope: str = "any", energy_pred=None,
+                            damage=None):
     """Discard up to `count` Energy from the opponent's Pokemon; `scope` is
     'any' (choose the holder) or 'active'. flip=True pays a coin first
-    ("Flip a coin. If heads, discard an Energy...")."""
+    ("Flip a coin. If heads, discard an Energy..."). `damage` deals the attack's
+    damage before the rider; leave it None for a Trainer."""
     async def effect(ctx):
+        if damage is not None:
+            await ctx.deal_damage(damage)
         if flip and not (await ctx.flip_coins(1, title="Discard an Energy"))[0]:
             return
         if scope == "active":
