@@ -74,11 +74,20 @@ class ManifestManager:
             digest.update(f"{st.st_size}:{int(st.st_mtime)}".encode())
         except OSError:
             digest.update(b"no-asset-map")
+        # Bundle NAMES and sizes, not the directory mtime: regenerating a bundle
+        # with identical content rewrites its timestamp and used to invalidate the
+        # whole manifest on every boot, turning a 50-second restart into eight
+        # minutes of scanning.
         for asset_dir in sorted(self.asset_dirs):
             try:
-                st = os.stat(asset_dir)
-                digest.update(f"{asset_dir}:{st.st_size}:{int(st.st_mtime)}".encode())
-                digest.update(str(len(os.listdir(asset_dir))).encode())
+                digest.update(asset_dir.encode())
+                for name in sorted(os.listdir(asset_dir)):
+                    path = os.path.join(asset_dir, name)
+                    try:
+                        entry = os.stat(os.path.join(path, "__data")) if os.path.isdir(path) else os.stat(path)
+                        digest.update(f"{name}:{entry.st_size}".encode())
+                    except OSError:
+                        digest.update(f"{name}:missing".encode())
             except OSError:
                 digest.update(f"{asset_dir}:missing".encode())
         return digest.hexdigest()
