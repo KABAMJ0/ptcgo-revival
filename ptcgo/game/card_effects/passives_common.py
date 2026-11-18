@@ -261,12 +261,18 @@ def opponent_retreat_tax_passive(amount=1, active_only=False) -> Passive:
 
 
 class NoEnergyFreeRetreatPassive(Passive):
-    """"If this Pokemon has no Energy attached, it has no Retreat Cost"."""
+    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
+    inverted=True, "if this Pokemon has any Energy attached ..."."""
+
+    def __init__(self, inverted=False):
+        self.inverted = inverted
 
     def modify_retreat_cost(self, cost, pokemon, carrier, board):
         if pokemon is not carrier_pokemon(carrier):
             return cost
-        return 0 if not board.attached_energies(pokemon) else cost
+        has_energy = bool(board.attached_energies(pokemon))
+        free = has_energy if self.inverted else not has_energy
+        return 0 if free else cost
 
 
 def no_energy_free_retreat_passive() -> Passive:
@@ -275,11 +281,13 @@ def no_energy_free_retreat_passive() -> Passive:
 
 class TypedEnergyFreeRetreatPassive(Passive):
     """"If this Pokemon has any [type] Energy attached, it has no Retreat
-    Cost" (team=True: each of your Pokemon with that Energy)."""
+    Cost" (team=True: each of your Pokemon with that Energy); amount overrides
+    the cost set instead of zero."""
 
-    def __init__(self, type_value, team=False):
+    def __init__(self, type_value, team=False, amount=0):
         self.type_value = type_value
         self.team = team
+        self.amount = amount
 
     def modify_retreat_cost(self, cost, pokemon, carrier, board):
         if self.team:
@@ -290,12 +298,55 @@ class TypedEnergyFreeRetreatPassive(Passive):
         from ptcgo.game.card_effects.pokemon import energy_provides_type
         for energy in board.attached_energies(pokemon):
             if energy_provides_type(energy, self.type_value):
-                return 0
+                return self.amount
         return cost
 
 
-def typed_energy_free_retreat_passive(type_value, team=False) -> Passive:
-    return TypedEnergyFreeRetreatPassive(type_value, team)
+def typed_energy_free_retreat_passive(type_value, team=False,
+                                      amount=0) -> Passive:
+    return TypedEnergyFreeRetreatPassive(type_value, team, amount)
+
+
+class HpPerTypedEnergyPassive(Passive):
+    """"This Pokemon gets +N HP for each [type] Energy attached to it"."""
+
+    def __init__(self, amount, type_value=None):
+        self.amount = amount
+        self.type_value = type_value
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return 0
+        from ptcgo.game.card_effects.pokemon import energy_provides_type
+        count = 0
+        for child in pokemon.children or []:
+            if self.type_value is None or energy_provides_type(
+                    child, self.type_value):
+                count += 1
+        return self.amount * count
+
+
+def hp_per_typed_energy_passive(amount, type_value=None) -> Passive:
+    return HpPerTypedEnergyPassive(amount, type_value)
+
+
+class NoEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
+    inverted=True, "if this Pokemon has any Energy attached ..."."""
+
+    def __init__(self, inverted=False):
+        self.inverted = inverted
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier_pokemon(carrier):
+            return cost
+        has_energy = bool(board.attached_energies(pokemon))
+        free = has_energy if self.inverted else not has_energy
+        return 0 if free else cost
+
+
+def no_energy_free_retreat_passive(inverted=False) -> Passive:
+    return NoEnergyFreeRetreatPassive(inverted)
 
 
 class ActiveVsActiveDebuffPassive(Passive):

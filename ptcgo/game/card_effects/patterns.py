@@ -80,6 +80,8 @@ from ptcgo.game.card_effects.passives_common import (
     guts_survive_passive,
     retreat_discount,
     typed_energy_free_retreat_passive,
+    hp_per_typed_energy_passive,
+    team_damage_boost_passive,
     retaliate_counters_passive,
     retreat_free_when,
     flip_prevent_damage_passive,
@@ -4793,6 +4795,93 @@ def _flip_both_confused(m, ability):
                                                   SpecialConditions.CONFUSED)
     return effect
 
+
+def _passive_free_retreat_with_any_energy(m, ability):
+    return no_energy_free_retreat_passive()
+
+
+def _free_retreat_with_energy(m, ability):
+    from ptcgo.game.card_effects.passives_common import (
+        NoEnergyFreeRetreatPassive,
+    )
+    return NoEnergyFreeRetreatPassive(inverted=True)
+
+
+def _passive_typed_energy_retreat_cost(m, ability):
+    return typed_energy_free_retreat_passive(TYPE_WORDS[m.group(1)].value,
+                                             amount=int(m.group(2)))
+
+
+def _passive_team_typed_boost(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+    amount = int(m.group(2))
+    return team_damage_boost_passive(
+        amount, attacker_pred=lambda pokemon: type_value in (
+            pokemon.get_attribute(AttrID.POKEMON_TYPES) or []))
+
+
+def _passive_effects_shield(m, ability):
+    from ptcgo.game.card_effects.passives_common import (
+        attack_effect_shield_passive,
+    )
+    return attack_effect_shield_passive()
+
+
+def _passive_reduce_from_types_joined(m, ability):
+    types = {TYPE_WORDS[m.group(1)].value, TYPE_WORDS[m.group(2)].value}
+    amount = int(m.group(3))
+
+    def attacker_pred(pokemon) -> bool:
+        return bool(types & set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or []))
+    return takes_less_passive(amount, attacker_pred=attacker_pred)
+
+
+def _passive_hp_per_typed_energy(m, ability):
+    return hp_per_typed_energy_passive(int(m.group(1)),
+                                       TYPE_WORDS[m.group(2)].value)
+
+
+def _recover_basics_and_evolutions(m, ability):
+    from ptcgo.game.content.definitions import evolves_from
+    count = _count(m.group(1))
+
+    def predicate(card) -> bool:
+        return bool(evolves_from(getattr(card, "archetype_id", None) or "", ""))
+
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile()
+                if _is_pokemon_card(card) or predicate(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(pool, count, minimum=0,
+                                       prompt="Choose cards to put into hand")
+        if picks:
+            await ctx.put_in_hand(list(picks), reveal=False)
+    return effect
+
+
+def _passive_condition_immunity_list(m, ability):
+    names = re.split(r", | and ", m.group(1))
+    conditions = [CONDITIONS[name] for name in names]
+    return condition_immunity_passive(conditions)
+
+
+def _passive_evolve_early(m, ability):
+    from ptcgo.game.card_effects.trainers import evolve_early_passive
+    return evolve_early_passive()
+
+
+def _passive_team_free_retreat_no_gx_ex(m, ability):
+    from ptcgo.game.data_utils import subtypes_for
+
+    def pred(pokemon, carrier) -> bool:
+        if pokemon.owning_player_id != carrier.owning_player_id:
+            return False
+        subtypes = {subtype.lower()
+                    for subtype in subtypes_for(pokemon.archetype_id)}
+        return not (subtypes & {"gx", "ex"})
+    return retreat_free_when(pred)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -6191,6 +6280,46 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+
+    # -- batch 42: team boosts, energy-gated retreat, first-turn evolution --
+    ("ability.retreat-free-with-any-energy",
+     re.compile(r"if this pokemon has any energy attached(?: to it)?, it has no "
+                r"retreat cost\."), _free_retreat_with_energy),
+    ("ability.typed-energy-retreat-cost",
+     re.compile(r"if this pokemon has any (" + _TYPE_WORDS + r") energy "
+                r"attached to it, the retreat cost for this pokemon is (\d+)\."),
+     _passive_typed_energy_retreat_cost),
+    ("ability.team-typed-damage-boost",
+     re.compile(r"your (" + _TYPE_WORDS + r") pokemon's attacks do (\d+) more "
+                r"damage to (?:the active|your opponent's active) pokemon "
+                r"\(before applying weakness and resistance\)\."),
+     _passive_team_typed_boost),
+    ("ability.effects-only-shield",
+     re.compile(r"prevent all effects of attacks, (?:excluding|except) damage, "
+                r"done to this pokemon(?: by the attacking pokemon)?\."),
+     _passive_effects_shield),
+    ("ability.reduce-damage-from-types",
+     re.compile(r"any damage done to this pokemon by attacks from (" +
+                _TYPE_WORDS + r")(?: pokemon)? and (" + _TYPE_WORDS +
+                r") pokemon is reduced by (\d+) \(after applying weakness and "
+                r"resistance\)\."), _passive_reduce_from_types_joined),
+    ("ability.hp-per-typed-energy",
+     re.compile(r"this pokemon gets \+(\d+) hp for each (" + _TYPE_WORDS +
+                r") energy attached to it\."), _passive_hp_per_typed_energy),
+    ("ability.recover-basics-and-evolutions",
+     re.compile(r"choose up to (\d+) basic pokemon and/or evolution cards from "
+                r"your discard pile and put them into your hand\."),
+     _recover_basics_and_evolutions),
+    ("ability.condition-immunity-list",
+     re.compile(r"this pokemon can't become (" + _CONDITION_WORDS +
+                r"(?:, " + _CONDITION_WORDS + r")*(?:,? (?:or|and) "
+                + _CONDITION_WORDS + r"))\."), _passive_condition_immunity_list),
+    ("ability.evolve-early",
+     re.compile(r"this pokemon can evolve during (?:your first turn or the turn "
+                r"you play it|the turn you play it)\."), _passive_evolve_early),
+    ("ability.team-free-retreat-no-gx-ex",
+     re.compile(r"your pokemon in play have no retreat cost, except pokemon-gx "
+                r"and pokemon-ex\."), _passive_team_free_retreat_no_gx_ex),
     # -- batch 41: bench scaling, mills, swaps and resistance gates --------
     ("heal.equal-to-damage-dealt",
      re.compile(r"remove from this pokemon the number of damage counters equal "
