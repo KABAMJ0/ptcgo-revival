@@ -73,6 +73,7 @@ from ptcgo.game.card_effects.attacks_common import (
     spread_damage,
 )
 from ptcgo.game.card_effects.passives_common import (
+    boost_own_next_turn,
     debuff_defender_attacks,
     carrier_pokemon,
     no_energy_free_retreat_passive,
@@ -14016,6 +14017,118 @@ def _t64_confused_after_damage(m, ability):
                                               SpecialConditions.CONFUSED)
     return effect
 
+
+def _t65_bonus_if_used_last_turn(m, ability):
+    wanted = m.group(1)
+    bonus = int(m.group(2))
+
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        return attacker is not None and ctx.attack_used_last_turn(
+            title=wanted, entity=attacker, whose="own")
+    return bonus_if(cond, bonus)
+
+
+def _t65_base_swap_if_used_last_turn(m, ability):
+    wanted = m.group(1)
+    changed = int(m.group(2))
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        used = attacker is not None and ctx.attack_used_last_turn(
+            title=wanted, entity=attacker, whose="own")
+        await ctx.deal_damage(changed if used else None)
+    return effect
+
+
+def _t65_gate_used_last_turn(m, ability):
+    wanted = m.group(1)
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        if attacker is None or not ctx.attack_used_last_turn(
+                title=wanted, entity=attacker, whose="own"):
+            return
+        await ctx.deal_damage()
+    return effect
+
+
+def _t65_bonus_if_played_named(m, ability):
+    wanted = m.group(1)
+    bonus = int(m.group(2))
+
+    def cond(ctx) -> bool:
+        return ctx.played_trainer_this_turn(wanted) > 0
+    return bonus_if(cond, bonus)
+
+
+def _t65_bonus_if_damaged_last_turn(m, ability):
+    bonus = int(m.group(1))
+
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        return attacker is not None and \
+            ctx.damaged_by_attack_last_turn(attacker) > 0
+    return bonus_if(cond, bonus)
+
+
+def _t65_bonus_if_own_ko_last_turn(m, ability):
+    bonus = int(m.group(1))
+
+    def cond(ctx) -> bool:
+        return ctx.knocked_out_last_turn(ctx.player_id) > 0
+    return bonus_if(cond, bonus)
+
+
+def _t65_bonus_if_defender_moved(m, ability):
+    bonus = int(m.group(1))
+
+    def cond(ctx) -> bool:
+        defender = ctx.defender
+        return defender is not None and ctx.moved_to_active_last_turn(defender)
+    return bonus_if(cond, bonus)
+
+
+def _t65_next_turn_boost_named(m, ability):
+    title = m.group(1)
+    amount = int(m.group(2))
+    return boost_own_next_turn(amount, attack_title=title)
+
+
+def _t65_use_last_opponent_attack(m, ability):
+    async def effect(ctx):
+        records = getattr(ctx.session.turn_state, "attacks_used_last_turn", [])
+        for entity_id, _archetype, title in reversed(records or []):
+            entity = ctx.session.board_state.get_entity(entity_id) \
+                if hasattr(ctx.session, "board_state") else None
+            if entity is None:
+                continue
+            for attack in (ctx.attacks_of(entity) or []):
+                if getattr(attack, "title", None) == title:
+                    await ctx.use_attack(attack, source=entity)
+                    return
+    return effect
+
+
+def _t65_bonus_if_self_damaged(m, ability):
+    bonus = int(m.group(1))
+
+    def cond(ctx) -> bool:
+        attacker = ctx.attacker
+        return attacker is not None and \
+            ctx.max_hp(attacker) > attacker.get_attribute(AttrID.HP, 0)
+    return bonus_if(cond, bonus)
+
+
+def _t65_bonus_if_defender_damaged_last_turn(m, ability):
+    bonus = int(m.group(1))
+
+    def cond(ctx) -> bool:
+        defender = ctx.defender
+        return defender is not None and \
+            ctx.damaged_by_attack_last_turn(defender) > 0
+    return bonus_if(cond, bonus)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -15431,6 +15544,48 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
+    # -- batch 65: previous-turn memory ------------------------------------
+    ("bonus.used-attack-last-turn",
+     re.compile(r"if this pokemon used ([a-z][\w' -]*) during your last turn, "
+                r"this attack does (\d+) more damage\."),
+     _t65_bonus_if_used_last_turn),
+    ("damage.base-swap-used-last-turn",
+     re.compile(r"if this pokemon used ([a-z][\w' -]*) during your last turn, "
+                r"this attack's base damage is (\d+) instead of (\d+)\."),
+     _t65_base_swap_if_used_last_turn),
+    ("gate.used-attack-last-turn",
+     re.compile(r"this attack can't be used unless this pokemon used (?:its )?([a-z][\w' "
+                r"-]*) attack last turn\."), _t65_gate_used_last_turn),
+    ("bonus.played-named-this-turn",
+     re.compile(r"if you played ([a-z][\w' -]*) from your hand during this turn, "
+                r"this attack does (\d+) more damage\."),
+     _t65_bonus_if_played_named),
+    ("bonus.damaged-last-turn",
+     re.compile(r"if this pokemon was damaged by an attack during your "
+                r"opponent's last turn, this attack does (\d+) more damage\."),
+     _t65_bonus_if_damaged_last_turn),
+    ("bonus.own-ko-last-turn",
+     re.compile(r"if any of your pokemon were knocked out during your opponent's "
+                r"last turn, this attack does (\d+) more damage\."),
+     _t65_bonus_if_own_ko_last_turn),
+    ("bonus.defender-moved-last-turn",
+     re.compile(r"if your opponent's active pokemon moved from the bench to the "
+                r"active spot during your opponent's last turn, this attack does "
+                r"(\d+) more damage\."), _t65_bonus_if_defender_moved),
+    ("boost.next-turn-named",
+     re.compile(r"during your next turn, this pokemon's ([a-z][\w' -]*) "
+                r"attack's base damage is (\d+)\."), _t65_next_turn_boost_named),
+    ("attack.use-last-opponent-attack",
+     re.compile(r"if your opponent's pokemon used an attack during (?:his or her|"
+                r"their) last turn, use it as this attack\."),
+     _t65_use_last_opponent_attack),
+    ("bonus.self-has-counters",
+     re.compile(r"if this pokemon has any damage counters on it, this attack does "
+                r"(\d+) more damage\."), _t65_bonus_if_self_damaged),
+    ("bonus.defender-damaged-last-turn",
+     re.compile(r"if the defending pokemon was damaged by an attack during your "
+                r"last turn, this attack does (\d+) more damage\."),
+     _t65_bonus_if_defender_damaged_last_turn),
     # -- batch 64: spreads, snipes and the survey tail ----------------------
     ("counters.distribute-opponent-any",
      re.compile(r"put (\d+) damage counters on your opponent's pokemon in any "
