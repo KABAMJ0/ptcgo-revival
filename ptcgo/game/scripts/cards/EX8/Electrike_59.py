@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="High Voltage",
             game_text="Flip a coin. If heads, your opponent can't play Trainer cards from his or her hand during his or her next turn.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=lock_opponent_plays("trainer", damage=0, flip=True),
         ),
         Attack(
             title="Gnaw",
