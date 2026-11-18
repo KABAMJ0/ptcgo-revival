@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import evolution_lock_passive
 
 card = PokemonCardDef(
     guid="ea4becb3-1517-5f11-85bc-316da56fc2ef",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Primal Stare",
             game_text="As long as Kabutops is your Active Pok\u00e9mon, your opponent can't play any Basic Pok\u00e9mon or Evolution cards from his or her hand to evolve his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=evolution_lock_passive(active_only=True),
         ),
         Attack(
             title="Luring Antenna",

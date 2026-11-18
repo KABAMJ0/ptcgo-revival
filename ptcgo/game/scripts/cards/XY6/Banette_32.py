@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
 
 card = PokemonCardDef(
     guid="88dbf48a-508d-5ecf-ae9d-cf645b859f7f",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent can't play any Pok\u00e9mon from his or her hand to evolve his or her Pok\u00e9mon during his or her next turn.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=20,
-            effect=unimplemented,
+            effect=lock_opponent_evolutions(),
         ),
         Attack(
             title="Curse Deeply",
