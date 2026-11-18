@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import rival_reveal
 
 card = SupporterCardDef(
     guid="64b27ae8-3da3-5f08-a38e-c7995762fb40",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=113,
     set_code="DP1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=rival_reveal(5, 3)
 )

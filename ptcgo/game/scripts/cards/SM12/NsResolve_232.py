@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, discard_top_attach_energy, excluding, is_basic_energy_card, is_in_active_spot, pokemon_of
 
 card = SupporterCardDef(
     guid="5c7b155b-6b99-5809-9447-cf7caf499803",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=232,
     set_code="SM12",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=discard_top_attach_energy(6, is_basic_energy_card, all_of(excluding(is_in_active_spot), pokemon_of("dragon")))
 )

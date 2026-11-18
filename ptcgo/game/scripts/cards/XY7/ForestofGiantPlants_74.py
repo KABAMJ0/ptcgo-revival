@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_early_passive
 
 card = StadiumCardDef(
     guid="aedb9e18-b3de-5561-a0ba-57491ab1a270",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=74,
     set_code="XY7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=evolve_early_passive("grass")
 )

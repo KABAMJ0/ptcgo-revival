@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_tool_or_special_energy
 
 card = SupporterCardDef(
     guid="889f550f-ffa6-5873-9433-1cf8c8f15db5",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=110,
     set_code="XY4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_tool_or_special_energy(1)
 )

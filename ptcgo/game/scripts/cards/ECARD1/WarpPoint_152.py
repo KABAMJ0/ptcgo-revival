@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import both_sides_switch
 
 card = ItemCardDef(
     guid="ef7ff778-e9c7-5a1c-bc15-f4dae5db4b02",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=152,
     set_code="ECARD1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=both_sides_switch()
 )

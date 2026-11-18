@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import top_card_energy_attach
 
 card = ItemCardDef(
     guid="6473890b-a3b0-5b3b-9d93-1a3e49321e7f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=121,
     set_code="BW8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=top_card_energy_attach()
 )

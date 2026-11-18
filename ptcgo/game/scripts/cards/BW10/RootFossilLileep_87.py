@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import card_named_contains, look_bottom_to_bench
 
 card = ItemCardDef(
     guid="972135c9-19af-57e4-8f29-3c663fcfd9d0",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=87,
     set_code="BW10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_bottom_to_bench(7, card_named_contains("lileep"))
 )

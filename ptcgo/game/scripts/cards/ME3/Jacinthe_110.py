@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.support_common import heal_item
+from ptcgo.game.card_effects.trainers import heal_where, pokemon_of
 
 card = SupporterCardDef(
     guid="2c9f13c3-3860-592f-9fa8-d73f6a2b6c71",
@@ -12,5 +12,5 @@ card = SupporterCardDef(
     collector_number=110,
     set_code="ME3",
     rarity=Rarities.Rare,
-    effect=heal_item(amount=150, scope="choice")
+    effect=heal_where(150, "choice", pokemon_of("psychic"))
 )

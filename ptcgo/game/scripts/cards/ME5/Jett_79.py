@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_per_subtype
 
 card = SupporterCardDef(
     guid="d0e13667-4c6c-52ca-9f05-777367508a3f",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=79,
     set_code="ME5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_per_subtype("Mega Evolution", 1, opponent=True)
 )

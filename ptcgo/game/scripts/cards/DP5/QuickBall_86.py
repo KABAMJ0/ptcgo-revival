@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import reveal_until_pokemon_to_hand
 
 card = ItemCardDef(
     guid="f90c74cc-600a-5197-a31e-bb06f32abf7f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=86,
     set_code="DP5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=reveal_until_pokemon_to_hand()
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import super_potion
 
 card = ItemCardDef(
     guid="ba4e49c8-3fab-584e-b664-207889afcbbe",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=128,
     set_code="XY1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=super_potion(60)
 )

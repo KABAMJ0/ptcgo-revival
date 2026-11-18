@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_if_stadium
 
 card = SupporterCardDef(
     guid="1d4cd76c-4f76-598e-bc84-473483c06bb3",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=251,
     set_code="SV2",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=draw_if_stadium(2, 2)
 )

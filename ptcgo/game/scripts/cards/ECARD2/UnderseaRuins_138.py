@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import devolve_one, if_heads, stadium_ability
 
 card = StadiumCardDef(
     guid="940dd877-bbd8-5fd1-ab4d-9590a4579952",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=138,
     set_code="ECARD2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Undersea Ruins', if_heads(devolve_one(1)))
 )

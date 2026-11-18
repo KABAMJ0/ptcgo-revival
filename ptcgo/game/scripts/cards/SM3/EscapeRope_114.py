@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import escape_rope
 
 card = ItemCardDef(
     guid="5f83a367-f2c4-5268-849f-0977d133146c",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=114,
     set_code="SM3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=escape_rope
 )

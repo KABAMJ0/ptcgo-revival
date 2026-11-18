@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_heal_chosen
 
 card = ItemCardDef(
     guid="7c4974db-2ae3-5fff-a125-f35ca250271b",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=94,
     set_code="HGSS1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_heal_chosen(3, 2)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import mill_opponent_per_heads
 
 card = SupporterCardDef(
     guid="b0a3f91f-e4d7-5357-9f5a-00e623edd536",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=124,
     set_code="XY10",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=mill_opponent_per_heads(2, 2)
 )

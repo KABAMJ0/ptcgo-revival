@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import stadium_retreat_discount_typed
 
 card = StadiumCardDef(
     guid="22d23a20-bb72-53d7-8e09-a339d007e94c",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=10,
     set_code="POP3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_retreat_discount_typed("fire", "water")
 )

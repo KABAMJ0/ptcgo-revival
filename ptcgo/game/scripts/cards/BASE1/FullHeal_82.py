@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
 
 card = ItemCardDef(
     guid="8990de97-d63d-58f7-9c11-5d3b4cd030fd",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=82,
     set_code="BASE1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=cure_conditions_effect()
 )

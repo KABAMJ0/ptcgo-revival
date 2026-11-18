@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_bench_to_active
 
 card = SupporterCardDef(
     guid="a1dcc4ec-3463-5c03-a295-68f0dada2c25",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=78,
     set_code="XY7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_bench_to_active()
 )

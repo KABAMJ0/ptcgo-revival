@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import card_named_contains, look_bottom_to_bench
 
 card = ItemCardDef(
     guid="700344c5-f15f-5ebe-9521-a1589c1d91e0",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=97,
     set_code="BW5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_bottom_to_bench(7, card_named_contains("aerodactyl"))
 )

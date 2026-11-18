@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import each_may_draw_up_to
 
 card = ItemCardDef(
     guid="c3978618-8737-5605-94d5-e09c82e3f262",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=16,
     set_code="GYM1",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=each_may_draw_up_to(3)
 )

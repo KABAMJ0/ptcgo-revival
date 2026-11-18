@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_then_recover_basic_energy
 
 card = SupporterCardDef(
     guid="50eab561-24b0-5f10-a280-aeda11b61202",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=173,
     set_code="SV4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_then_recover_basic_energy(2, 1)
 )

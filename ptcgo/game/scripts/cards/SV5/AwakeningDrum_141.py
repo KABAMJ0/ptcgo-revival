@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_per_subtype
 
 card = ItemCardDef(
     guid="ad1ca31c-beb6-54df-a1de-88bc52c28372",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=141,
     set_code="SV5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=draw_per_subtype("Ancient", 1)
 )

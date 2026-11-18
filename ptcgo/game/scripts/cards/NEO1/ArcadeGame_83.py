@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_for_shared_name
 
 card = ItemCardDef(
     guid="cd37f2ff-8a76-5d83-bb71-24844fa471aa",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=83,
     set_code="NEO1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=search_for_shared_name(3, 2)
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = SupporterCardDef(
     guid="024715b9-f516-53ea-a1f1-42e05ad073af",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=133,
     set_code="ECARD2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(6, take=6, predicate=is_basic_energy_card, minimum=0)
 )

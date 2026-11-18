@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_if_opponent_active, is_pokemon_ex
 
 card = SupporterCardDef(
     guid="33391e1c-e0c2-5f74-9fef-29bfba166710",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=237,
     set_code="SV4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=draw_if_opponent_active(is_pokemon_ex, 2, 2)
 )

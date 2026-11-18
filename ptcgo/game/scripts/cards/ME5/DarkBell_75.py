@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import confuse_both_actives, excluding, pokemon_of
 
 card = ItemCardDef(
     guid="1ba045ba-0a51-556c-a326-6328e3550ed7",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=75,
     set_code="ME5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=confuse_both_actives(excluding(pokemon_of("darkness")))
 )

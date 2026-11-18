@@ -1,15 +1,17 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import all_of, card_named_contains, is_item_card
 
 card = SupporterCardDef(
-    guid="bf4491d5-d58a-51f0-a8a6-58513ca7244e",
-    key="ECARD3",
+    guid="84ac64f4-d478-5575-8ab3-7137074956dc",
+    key="SM7",
     name="com.direwolfdigital.cake.data.archetypes.trainer.ApricornMaker.Name",
     display_name="Apricorn Maker",
     searchable_by=["Apricorn Maker", "Supporter"],
     subtypes=["Supporter"],
-    collector_number=121,
-    set_code="ECARD3",
+    collector_number=124,
+    set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(all_of(is_item_card, card_named_contains("ball")), count=2)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import card_named_contains, look_bottom_to_bench
 
 card = ItemCardDef(
     guid="e482382e-c42b-5200-bb37-ad1e96179bff",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=79,
     set_code="BW10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_bottom_to_bench(7, card_named_contains("tirtouga"))
 )

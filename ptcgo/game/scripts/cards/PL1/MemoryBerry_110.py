@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import previous_evolution_grant_passive
 
 card = PokemonToolCardDef(
     guid="c794b28e-99eb-5f4a-954f-58d9ff0d5653",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=110,
     set_code="PL1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=previous_evolution_grant_passive()
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import move_energy_to_active
 
 card = ItemCardDef(
     guid="0c698d08-3e32-57c7-b9ef-f490af9b53e7",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=129,
     set_code="SM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=move_energy_to_active(1)
 )
