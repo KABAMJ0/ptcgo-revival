@@ -3187,6 +3187,80 @@ def _base_plus_per_bench(m, ability):
     return damage_per(count_bench("mine"), int(m.group(2)),
                       base=int(m.group(1)))
 
+
+def _snipe_chosen_plain(m, ability):
+    count = _count(m.group(1))
+    amount = int(m.group(2))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose {count} Pokémon")
+        for target in picks:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(amount, target=target,
+                                      apply_modifiers=False)
+    return effect
+
+
+def _discard_self_energy_then_spread(m, ability):
+    cost, amount = int(m.group(1)), int(m.group(2))
+    count = _count(m.group(3)) if m.group(3) else 1
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+        if len(ctx.attached_energies(attacker)) < cost:
+            return
+        await ctx.discard_energy_from(attacker, cost,
+                                      prompt=f"Choose {cost} Energy to discard")
+        await ctx.deal_damage()
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        targets = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose {count} Pokémon")
+        for target in targets:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(amount, target=target,
+                                      apply_modifiers=False)
+    return effect
+
+
+def _flip_per_typed_energy(m, ability):
+    per = int(m.group(2))
+    type_word = m.group(1)
+    predicate = count_energy("self", TYPE_WORDS[type_word]) if type_word else \
+        count_energy("self", cards=True)
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        coins = predicate(ctx)
+        results = await ctx.flip_coins(coins, getattr(ability, "title", "")) \
+            if coins else []
+        heads = sum(1 for result in results or [] if result)
+        await ctx.deal_damage(printed + per * heads)
+    return effect
+
+
+def _times_self_damage_counters(m, ability):
+    per = int(m.group(1))
+
+    def counters(ctx) -> int:
+        attacker = ctx.attacker
+        if attacker is None:
+            return 0
+        missing = ctx.max_hp(attacker) - attacker.get_attribute(AttrID.HP, 0)
+        return max(0, missing // 10)
+
+    return damage_per(counters, per)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4579,6 +4653,21 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"this attack also does (\d+) damage to (?:an?|(\d+)) of your "
                 r"benched pokemon\. \(don't apply weakness and resistance for "
                 r"benched pokemon\.\)"), _self_bench_spread),
+    ("snipe.chosen-plain",
+     re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
+                r"does (\d+) damage to that pokemon" + _SNIPE_TAIL),
+     _snipe_chosen_plain),
+    ("discard.self-energy-then-spread",
+     re.compile(r"discard (\d+) energy attached to this pokemon\. this attack "
+                r"does (\d+) damage to (?:an?|(\d+)) of your opponent's "
+                r"pokemon" + _SNIPE_TAIL), _discard_self_energy_then_spread),
+    ("flip.per-typed-energy-bonus",
+     re.compile(r"flip a coin for each (?:(?P<type>" + _TYPE_WORDS +
+                r") )?(?:\w+ )?energy attached to this pokemon\. this attack "
+                r"does (\d+) more damage for each heads\."), _flip_per_typed_energy),
+    ("scale.times-self-damage-counters",
+     re.compile(r"does (\d+) damage times the number of damage counters on "
+                r"this pokemon\."), _times_self_damage_counters),
     ("bonus.base-plus-per-bench",
      re.compile(r"does (\d+) damage plus (\d+) more damage for each of your "
                 r"benched pokemon\."), _base_plus_per_bench),
