@@ -49,6 +49,7 @@ from ptcgo.game.card_effects.passives_common import (
     retreat_free_when,
     no_weakness_passive,
     retreat_discount,
+    retreat_discount_despite_conditions,
     takes_less_passive,
     typed_damage_boost_tool,
 )
@@ -9320,3 +9321,91 @@ async def level_max(ctx):
     await evolve_from_deck_matching(
         predicate=lambda card: "Level-Up" in subtypes_for(card.archetype_id)
     )(ctx)
+
+
+# --- Stadium evolution ticks -----------------------------------------------
+
+def stadium_evolve_counters(counters: int):
+    """Whenever any player plays a Pokemon from hand to evolve one of theirs,
+    put `counters` damage counters on it (Po Town, Galactic HQ)."""
+    async def effect(ctx):
+        evolved = ctx.evolved_pokemon
+        if evolved is None:
+            return
+        await ctx.deal_damage(10 * counters, target=evolved,
+                              apply_modifiers=False, as_counters=True)
+    return effect
+
+
+def stadium_evolve_heal(amount: int, name_contains: str, only_one_left: int = 1):
+    """Whenever a Pokemon with `name_contains` in its name evolves, its owner
+    removes `amount` damage counters from it (or `only_one_left` when that is
+    all it has) -- Viridian City Gym."""
+    async def effect(ctx):
+        evolved = ctx.evolved_pokemon
+        if evolved is None:
+            return
+        definition = def_for(evolved.archetype_id)
+        printed = (getattr(definition, "display_name", "") or "").lower()
+        if name_contains.lower() not in printed:
+            return
+        counters = max(0, (ctx.max_hp(evolved)
+                           - evolved.get_attribute(AttrID.HP, 0)) // 10)
+        if counters <= 0:
+            return
+        remove = counters if counters <= only_one_left else amount
+        await ctx.heal(10 * remove, target=evolved)
+    return effect
+
+
+# --- GX-attack unlock supporters --------------------------------------------
+
+def stadium_in_play_playable(board, player_id) -> bool:
+    """Play condition: a Stadium card is in play (Bonnie)."""
+    area = board.find_global_area("activeStadium")
+    return bool(area and area.children)
+
+
+async def bonnie(ctx):
+    """Discard the Stadium in play; this turn your Zygarde-GX may use its GX
+    attack even if you have used your GX attack."""
+    await ctx.discard_stadium()
+    await gx_unlock_for_name("Zygarde")(ctx)
+
+
+async def misty_and_lorelei(ctx):
+    """Search up to 3 Water Energy cards into your hand; you may then discard 5
+    other cards to let your Water Pokemon use their GX attacks this turn."""
+    picks = await ctx.search_deck(
+        lambda card: is_energy_card(card)
+        and PokemonTypes.WATER.value in
+        (card.get_attribute(AttrID.POKEMON_TYPES) or []),
+        count=3, minimum=0, prompt="Choose up to 3 Water Energy cards")
+    if picks:
+        await ctx.put_in_hand(picks, reveal=True)
+    await ctx.shuffle_deck()
+    discarded = await ctx.discard_from_hand(
+        5, minimum=0,
+        prompt="Discard 5 cards to let your Water Pokemon use their GX attacks")
+    if len(discarded) == 5:
+        await gx_unlock_for_type("Water")(ctx)
+
+
+# --- Retreat Tools ----------------------------------------------------------
+
+class BalloonBerryPassive(Passive):
+    """The holder's Retreat Cost is 0 and the card is discarded when the holder
+    retreats (Balloon Berry, all three printings)."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is pokemon:
+            return 0
+        return cost
+
+    async def on_retreat(self, ctx, pokemon, carrier):
+        if carrier_pokemon(carrier) is pokemon:
+            await ctx.discard_cards([carrier])
+
+
+def balloon_berry_passive():
+    return BalloonBerryPassive()

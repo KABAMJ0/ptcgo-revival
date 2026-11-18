@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import SupporterCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import bonnie, stadium_in_play_playable
 
 card = SupporterCardDef(
     guid="60d0a3af-5b9c-5c67-8aba-bff059e62847",
@@ -11,5 +12,6 @@ card = SupporterCardDef(
     collector_number=103,
     set_code="SM6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=bonnie,
+    condition=stadium_in_play_playable,
 )
