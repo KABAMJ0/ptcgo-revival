@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import previous_evolution_grant_passive
 
 card = PokemonCardDef(
     guid="8e353f1b-7773-5e66-9e46-62c8f2c6c6df",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Time Recall",
             game_text="Each of your evolved Pok\u00e9mon can use any attack from its previous Evolutions. (You still need the necessary Energy to use each attack.)",
-            effect=unimplemented,
+            passive=previous_evolution_grant_passive(),
         ),
         Attack(
             title="Leaf Step",

@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+def _is_lightning_energy(card) -> bool:
+    return (is_energy_card(card)
+            and energy_provides_type(card, PokemonTypes.LIGHTNING.value))
 
 card = PokemonCardDef(
     guid="061ac64c-5ca1-57cb-a0af-610ad9b2f227",
@@ -31,7 +38,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 4},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="self-energy", predicate=_is_lightning_energy,
+                              max_count=99, per=0, flat=100, base=120),
         ),
     ],
 )

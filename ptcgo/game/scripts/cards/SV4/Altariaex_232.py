@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all effects of attacks used by your opponent's Pok\u00e9mon done to this Pok\u00e9mon. (Damage is not an effect.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.METAL: 1},
             damage=140,
-            effect=unimplemented,
+            effect=protect_next_turn(effects_too=True),
         ),
     ],
 )

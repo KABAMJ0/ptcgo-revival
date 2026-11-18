@@ -1,4 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.passives_common import (
+    boost_own_next_turn, takes_less_passive,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,14 +26,14 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Spinning Needles",
             game_text="During your next turn, this Pok\u00e9mon's Spinning Needles attack does 100 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=boost_own_next_turn(100, attack_title="Spinning Needles"),
         ),
     ],
 )

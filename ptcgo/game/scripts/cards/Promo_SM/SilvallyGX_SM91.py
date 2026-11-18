@@ -1,5 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, retreat_free_when
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+
+def _basic_free_retreat(pokemon, carrier) -> bool:
+    return (pokemon.owning_player_id == carrier.owning_player_id
+            and "Basic" in subtypes_for(pokemon.archetype_id))
+
+
+def _is_basic_energy(card) -> bool:
+    return (is_energy_card(card)
+            and not card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
+
+def _is_benched(pokemon) -> bool:
+    return not is_in_active_spot(pokemon)
 
 card = PokemonCardDef(
     guid="d3b3138d-324c-5157-a369-dcbd0ef91c7b",
@@ -22,14 +40,14 @@ card = PokemonCardDef(
         Ability(
             title="Gyro Unit",
             game_text="Your Basic Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_basic_free_retreat),
         ),
         Attack(
             title="Turbo Drive",
             game_text="Attach a basic Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=attach_from_discard(_is_basic_energy, count=1, target=_is_benched),
         ),
         Attack(
             title="Rebel-GX",
@@ -37,7 +55,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 50),
         ),
     ],
 )

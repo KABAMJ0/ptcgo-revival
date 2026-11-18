@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if, self_energy_discard_attack
+
+
+def _defender_has_ability(ctx) -> bool:
+    return bool(ctx.defender is not None
+                and ctx.defender.get_attribute(AttrID.PIE_ABILITIES))
 
 card = PokemonCardDef(
     guid="716075ec-3ba0-526f-87bd-7a4193e7cd93",
@@ -25,14 +31,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_has_ability, 60),
         ),
         Attack(
             title="Aero Force",
             game_text="Discard an Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=130,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(1),
         ),
     ],
 )

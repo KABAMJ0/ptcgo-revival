@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
+
+
+async def freezing_chill(ctx):
+    await ctx.deal_damage()
+    lock_defender_attacks(ctx)
 
 card = PokemonCardDef(
     guid="a2680dba-9140-5fa3-af5f-534a4c206a46",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't attack.",
             cost={PokemonTypes.WATER: 2},
             damage=100,
-            effect=unimplemented,
+            effect=freezing_chill,
         ),
     ],
 )

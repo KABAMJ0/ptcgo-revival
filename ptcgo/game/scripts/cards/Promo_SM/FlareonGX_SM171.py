@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import (
+    count_discard,
+    damage_per,
+    self_energy_discard_attack,
+)
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+def _is_fire_energy_card(card) -> bool:
+    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
 
 card = PokemonCardDef(
     guid="d64e09fa-2b87-595d-bfbd-6de809a1582e",
@@ -31,7 +41,7 @@ card = PokemonCardDef(
             game_text="Discard 2 Fire Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=190,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(2, energy_type=PokemonTypes.FIRE),
         ),
         Attack(
             title="Power Burner-GX",
@@ -39,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", _is_fire_energy_card), 20),
         ),
     ],
 )

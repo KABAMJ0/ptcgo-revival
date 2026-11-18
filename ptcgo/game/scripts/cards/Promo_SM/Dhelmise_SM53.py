@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+
+
+def _is_metal(pokemon) -> bool:
+    return PokemonTypes.METAL.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="7ac89f64-5e0f-5dc9-846b-db66b69015d0",
@@ -22,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Steelworker",
             game_text="Your Metal Pok\u00e9mon's attacks do 10 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(10, attacker_pred=_is_metal),
         ),
         Attack(
             title="Anchor Shot",

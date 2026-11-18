@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.content.definitions import evolves_from
+
+
+def _eevee_gx(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return ("GX" in (getattr(definition, "subtypes", None) or [])
+            and evolves_from(pokemon.archetype_id, "Eevee"))
 
 card = PokemonCardDef(
     guid="59419e29-dab9-5bf4-8b84-1659f928045d",
@@ -22,14 +31,15 @@ card = PokemonCardDef(
         Ability(
             title="Power Cheer",
             game_text="The attacks of your Pok\u00e9mon-GX in play that evolve from Eevee do 30 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance). You can't apply more than 1 Power Cheer Ability at a time.",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(30, attacker_pred=_eevee_gx,
+                                     once_key="PowerCheer"),
         ),
         Attack(
             title="Flamethrower",
             game_text="Discard an Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(1),
         ),
     ],
 )

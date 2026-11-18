@@ -1,6 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
+from ptcgo.game.card_effects.attacks_common import (
+    bonus_if,
+    discard_opponent_energy_attack,
+    stadium_in_play_cond,
+)
 
 card = PokemonCardDef(
     guid="7097af38-dc1e-50ab-b6c7-7b4f58fe2da2",
@@ -24,7 +28,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(special_only=True),
         ),
         Attack(
             title="Dazzling Blizzard",
