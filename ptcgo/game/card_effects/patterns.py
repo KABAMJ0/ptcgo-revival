@@ -5790,6 +5790,65 @@ def _top_pick_then_shuffle(m, ability):
             await ctx.shuffle_into_deck(rest, ctx.player_id)
     return effect
 
+
+def _search_basic_typed_energy_to_hand(m, ability):
+    count = int(m.group(1))
+    type_word = m.group("type")
+    type_value = TYPE_WORDS[type_word].value if type_word else None
+
+    def predicate(card) -> bool:
+        return is_basic_energy_card(card) and (
+            type_value is None or energy_provides_type(card, type_value))
+    return search_to_hand(predicate, count=count, reveal=True)
+
+
+def _heal_own_with_energy(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        candidates = [pokemon for pokemon in ctx.my_pokemon_in_play()
+                      if ctx.attached_energies(pokemon)
+                      and ctx.max_hp(pokemon)
+                      > pokemon.get_attribute(AttrID.HP, 0)]
+        if not candidates:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates, "Choose a Pokémon to heal")
+        if target is not None:
+            await ctx.heal(amount, target)
+    return effect
+
+
+def _move_typed_energy_between_own(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        sources = [pokemon for pokemon in ctx.my_pokemon_in_play()
+                   if any(energy_provides_type(energy, type_value)
+                          for energy in ctx.attached_energies(pokemon))]
+        dests = ctx.my_pokemon_in_play()
+        if not sources or len(dests) < 2:
+            return
+        await ctx.move_energy_freely(
+            sources, dests, max_count=1,
+            predicate=lambda energy: energy_provides_type(energy, type_value),
+            prompt="Choose Energy to move")
+    return effect
+
+
+def _passive_attacks_boost_at_low_hp(m, ability):
+    limit, amount = int(m.group(1)), int(m.group(2))
+
+    def attacker_pred(pokemon) -> bool:
+        return pokemon.get_attribute(AttrID.HP, 0) <= limit
+    return team_damage_boost_passive(amount, attacker_pred=attacker_pred)
+
+
+def _draw_one(m, ability):
+    async def effect(ctx):
+        await ctx.draw_cards(1, ctx.player_id)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -7189,6 +7248,26 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+    # -- batch 47: ability utilities from the mid tail ----------------------
+    ("search.basic-typed-energy-to-hand",
+     re.compile(r"search your deck for up to (\d+) basic (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy cards?, reveal (?:them|it), and "
+                r"put (?:them|it) into your hand\. then, shuffle your deck\."),
+     _search_basic_typed_energy_to_hand),
+    ("heal.own-with-energy",
+     re.compile(r"heal (\d+) damage from (?:an?|1) of your pokemon that has any "
+                r"energy attached to it\."), _heal_own_with_energy),
+    ("energy.move-typed-between-own",
+     re.compile(r"move an? (" + _TYPE_WORDS + r") energy (?:card )?from (?:an?|1) "
+                r"of your pokemon to another of your pokemon\."),
+     _move_typed_energy_between_own),
+    ("ability.attacks-boost-at-low-hp",
+     re.compile(r"if this pokemon's remaining hp is (\d+) or less, its attacks "
+                r"do (\d+) more damage to your opponent's active pokemon "
+                r"\(before applying weakness and resistance\)\."),
+     _passive_attacks_boost_at_low_hp),
+    ("draw.one-card",
+     re.compile(r"draw a card\."), _draw_one),
     # -- batch 46: conditions, typed scaling and shop-style riders ---------
     ("bonus.base-plus-defender-damaged",
      re.compile(r"if the defending pokemon has any damage counters on it, this "
