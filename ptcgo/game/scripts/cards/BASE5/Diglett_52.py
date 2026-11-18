@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="4d286c20-89e3-5b5b-900c-cdef8f24433f",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Dig Under",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. Don't apply Weakness and Resistance for this attack. (Any other effects that would happen after applying Weakness and Resistance still happen.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Scratch",

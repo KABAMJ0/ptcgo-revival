@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="4cd5e3be-d712-5687-b53f-9d3447f39951",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             title="Volcanic Ash",
             game_text="Discard 2 Fire Energy attached to Blaziken ex and then choose 1 of your opponent's Pok\u00e9mon. This attack does 100 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(100, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

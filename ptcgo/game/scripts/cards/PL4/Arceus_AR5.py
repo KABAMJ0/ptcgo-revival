@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="d2457dd1-242f-5cee-ab56-cb8861a7f038",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Sky Spear",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 80 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Remove all Energy cards attached to Arceus and put them in the Lost Zone.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(80, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

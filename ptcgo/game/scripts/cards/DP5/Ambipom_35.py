@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="22deef5b-379e-5e4c-b4a8-840ee1dd9066",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Hang High",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 40 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

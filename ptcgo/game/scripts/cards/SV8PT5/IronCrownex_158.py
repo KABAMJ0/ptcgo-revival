@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="3fc02590-3452-59d0-b471-6035c071b368",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Twin Shotels",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. This attack's damage isn't affected by Weakness or Resistance, or by any effects on those Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=2, apply_modifiers=False),
         ),
     ],
 )

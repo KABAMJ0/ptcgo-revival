@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="3ce103a4-5ab6-5ef6-b8b3-1b7892796365",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Hydro Shot",
             game_text="Discard 2 Energy attached to Palkia G. Choose 1 of your opponent's Pok\u00e9mon. This attack does 80 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(80, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

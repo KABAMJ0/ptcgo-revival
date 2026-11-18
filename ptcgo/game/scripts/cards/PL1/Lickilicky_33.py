@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="54f75897-d0ad-5034-9216-22f24f79eca8",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Harrumph",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 40 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Before doing damage, discard all Trainer cards attached to that Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Body Press",

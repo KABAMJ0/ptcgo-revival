@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="43011585-6adb-55c9-b2a6-b99f6ffb522c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Homing Headbutt",
             game_text="This attack does 50 damage to 3 of your opponent's Pok\u00e9mon that have any damage counters on them. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=3, apply_modifiers=False),
         ),
         Attack(
             title="Baryon Beam",
