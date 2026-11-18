@@ -9409,3 +9409,28 @@ class BalloonBerryPassive(Passive):
 
 def balloon_berry_passive():
     return BalloonBerryPassive()
+
+
+async def personality_test(ctx):
+    """Show an Evolution card from hand; the opponent guesses whether it is a
+    Light Pokemon, a Dark Pokemon, or neither. A right guess draws them 3, a
+    wrong one draws you 3."""
+    evolutions = [card for card in ctx.hand() if is_evolution_pokemon(card)]
+    if not evolutions:
+        return
+    picks = await ctx.choose_cards(
+        evolutions, 1, minimum=0,
+        prompt="Choose an Evolution card to show")
+    if not picks:
+        return
+    shown = picks[0]
+    printed = (getattr(def_for(picks[0].archetype_id), "display_name", "") or "").lower()
+    truth = 0 if "light" in printed else 1 if "dark" in printed else 2
+    await ctx.reveal_cards([shown])
+    guess = await ctx.ask_opponent(
+        "Guess the card: Light, Dark, or neither",
+        ["Light", "Dark", "Neither"])
+    if guess == truth:
+        await ctx.draw_cards(3, ctx.opponent_id)
+    else:
+        await ctx.draw_cards(3)
