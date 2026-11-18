@@ -23,7 +23,9 @@ import re
 import unicodedata
 from typing import Callable, List, Optional, Tuple
 
-from ptcgo.game.attributes import AttrID, PokemonTypes, SpecialConditions
+from ptcgo.game.attributes import (
+    AttrID, PokemonTypes, SpecialConditions, TrainerType,
+)
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import (
     bonus_if,
@@ -8047,7 +8049,7 @@ def _recover_items_up_to(m, ability):
     count = _count(m.group(1))
 
     def predicate(card) -> bool:
-        return getattr(card, "card_type", None) == "item" or is_tool_card(card)
+        return _trainer_kind(card) is TrainerType.ITEM or is_tool_card(card)
     return recover_from_discard(predicate=predicate, count=count, minimum=0)
 
 
@@ -8596,14 +8598,13 @@ def _attach_hand_basic_to_many(m, ability):
 
 
 def _lock_supporters(m, ability):
-    from ptcgo.game.attributes import CardType
+    from ptcgo.game.attributes import TrainerType
 
     async def effect(ctx):
         await ctx.deal_damage()
         ctx.lock_plays(
             ctx.opponent_id,
-            lambda card: card.get_attribute(AttrID.CARD_TYPE)
-            == CardType.SUPPORTER.value)
+            lambda card: _trainer_kind(card) is TrainerType.SUPPORTER)
     return effect
 
 
@@ -10850,7 +10851,7 @@ def _t59_heal_self_amount(m, ability):
 
 def _t59_recover_supporter(m, ability):
     def predicate(card) -> bool:
-        return getattr(card, "card_type", None) == "supporter"
+        return _trainer_kind(card) is TrainerType.SUPPORTER
     return recover_from_discard(predicate=predicate, count=1, minimum=0)
 
 
@@ -11028,8 +11029,9 @@ def _t59_mill_opponent_bonus_if_trainer(m, ability):
         top = ctx.deck_top(1, ctx.opponent_id)
         if not top:
             return
-        is_trainer = getattr(top[0], "card_type", None) in (
-            "trainer", "supporter", "item", "stadium")
+        is_trainer = _trainer_kind(top[0]) in (
+            TrainerType.TRAINER, TrainerType.SUPPORTER, TrainerType.ITEM,
+            TrainerType.STADIUM)
         await ctx.discard_cards(list(top))
         printed = getattr(ctx.ability, "damage", 0) or 0
         await ctx.deal_damage(printed + (bonus if is_trainer else 0))
@@ -11344,8 +11346,8 @@ def _t59_search_trainer(m, ability):
     async def effect(ctx):
         await ctx.deal_damage()
         picks = await ctx.search_deck(
-            lambda card: getattr(card, "card_type", None) in (
-                "trainer", "supporter", "item"), count=1, minimum=0,
+            lambda card: _trainer_kind(card) in (
+                TrainerType.TRAINER, TrainerType.SUPPORTER, TrainerType.ITEM), count=1, minimum=0,
             prompt="Choose a Trainer card")
         if picks:
             await ctx.put_in_hand(list(picks), reveal=True)
@@ -11388,6 +11390,14 @@ def _t59_discard_tool_chosen(m, ability):
         if picks:
             await ctx.discard_cards(list(picks))
     return effect
+
+def _trainer_kind(card):
+    value = card.get_attribute(AttrID.TRAINER_TYPE)
+    for kind in TrainerType:
+        if kind.value == value:
+            return kind
+    return None
+
 
 def _stage_of(pokemon) -> int:
     stage = pokemon.get_attribute(AttrID.STAGE)
@@ -11627,14 +11637,14 @@ def _t60_reveal_supporter_to_bottom(m, ability):
             return
         await ctx.reveal_cards(cards)
         supporters = [card for card in cards
-                      if getattr(card, "card_type", None) == "supporter"]
+                      if _trainer_kind(card) is TrainerType.SUPPORTER]
         for card in supporters[:1]:
             await ctx.put_on_bottom_of_deck(card)
     return effect
 
 
 def _t60_flip_lock_items(m, ability):
-    from ptcgo.game.attributes import CardType
+    from ptcgo.game.attributes import TrainerType
 
     async def effect(ctx):
         await ctx.deal_damage()
@@ -11643,8 +11653,7 @@ def _t60_flip_lock_items(m, ability):
             return
         ctx.lock_plays(
             ctx.opponent_id,
-            lambda card: card.get_attribute(AttrID.CARD_TYPE)
-            == CardType.ITEM.value)
+            lambda card: _trainer_kind(card) is TrainerType.ITEM)
     return effect
 
 
@@ -11763,7 +11772,7 @@ def _t60_search_supporters(m, ability):
     async def effect(ctx):
         await ctx.deal_damage()
         picks = await ctx.search_deck(
-            lambda card: getattr(card, "card_type", None) == "supporter",
+            lambda card: _trainer_kind(card) is TrainerType.SUPPORTER,
             count=limit, minimum=0, prompt="Choose Supporter cards")
         if picks:
             await ctx.put_in_hand(list(picks), reveal=True)
@@ -11831,7 +11840,7 @@ def _t60_recover_items_and_tools(m, ability):
     limit = _count(m.group(1))
 
     def predicate(card) -> bool:
-        return getattr(card, "card_type", None) in ("item", "trainer") or \
+        return _trainer_kind(card) in (TrainerType.ITEM, TrainerType.TRAINER) or \
             is_tool_card(card)
     return recover_from_discard(predicate=predicate, count=limit, minimum=0)
 
@@ -12312,7 +12321,7 @@ def _t61_optional_item_bonus(m, ability):
     async def effect(ctx):
         printed = getattr(ctx.ability, "damage", 0) or 0
         pool = [card for card in ctx.hand()
-                if getattr(card, "card_type", None) in ("item", "trainer")]
+                if _trainer_kind(card) in (TrainerType.ITEM, TrainerType.TRAINER)]
         if pool and await ctx.ask_yes_no(prompt="Discard an Item for more damage?"):
             picks = await ctx.choose_cards(pool, 1, prompt="Choose an Item card")
             if picks:
@@ -12586,8 +12595,8 @@ def _t61_reveal_hand_discard_trainer(m, ability):
             return
         await ctx.reveal_cards(cards)
         trainers = [card for card in cards
-                    if getattr(card, "card_type", None) in (
-                        "trainer", "supporter", "item")]
+                    if _trainer_kind(card) in (
+                        TrainerType.TRAINER, TrainerType.SUPPORTER, TrainerType.ITEM)]
         if trainers:
             await ctx.discard_cards(trainers[:1])
     return effect
@@ -12714,7 +12723,7 @@ def _t61_scale_revealed_items(m, ability):
         if theirs:
             await ctx.reveal_cards(theirs, to_player=ctx.player_id)
         items = sum(1 for card in mine + theirs
-                    if getattr(card, "card_type", None) in ("item", "trainer"))
+                    if _trainer_kind(card) in (TrainerType.ITEM, TrainerType.TRAINER))
         await ctx.deal_damage(per * items)
     return effect
 
@@ -13390,8 +13399,8 @@ def _t62_search_trainer_afterward(m, ability):
     async def effect(ctx):
         await ctx.deal_damage()
         picks = await ctx.search_deck(
-            lambda card: getattr(card, "card_type", None) in (
-                "trainer", "supporter", "item"), count=1, minimum=0,
+            lambda card: _trainer_kind(card) in (
+                TrainerType.TRAINER, TrainerType.SUPPORTER, TrainerType.ITEM), count=1, minimum=0,
             prompt="Choose a Trainer card")
         if picks:
             await ctx.put_in_hand(list(picks), reveal=True)
