@@ -712,3 +712,41 @@ async def sabrinas_psychic_control(ctx):
     await ctx.use_trainer_from_opponent_discard(
         "Choose a Trainer card in your opponent's discard pile to use"
     )
+
+
+def baby_evolution(*names):
+    """"Once during your turn, you may put <name> from your hand onto this
+    Pokemon (this counts as evolving it) and remove all damage counters from
+    it" (Baby Evolution).
+
+    Returns (effect, condition): the offer must disappear when no copy of the
+    named card is in hand. perform_evolution nests the pre-evolution under a
+    NEW entity and carries the damage across, so the counters are cleared on
+    the evolution card that was just played, not on ctx.source."""
+    wanted = {" ".join((name or "").lower().split()) for name in names}
+
+    def _in_hand(board, player_id, pokemon) -> bool:
+        area = board.find_player_area(player_id, "hand")
+        return any(
+            " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted
+            for card in (area.children if area else [])
+        )
+
+    async def effect(ctx):
+        cards = [card for card in ctx.hand()
+                 if " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted]
+        if not cards:
+            return
+        picks = cards if len(cards) == 1 else await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose the Evolution card to put onto this Pokémon",
+        )
+        if not picks:
+            return
+        evolution = picks[0]
+        if not await ctx.evolve_pokemon(ctx.source, evolution):
+            return
+        remaining = evolution.get_attribute(AttrID.HP, 0)
+        await ctx.heal(max(0, ctx.max_hp(evolution) - remaining), evolution)
+
+    return effect, _in_hand

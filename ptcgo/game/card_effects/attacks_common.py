@@ -14,9 +14,11 @@ from ptcgo.game.attributes import (
     AttrID,
     CLIENT_SPECIAL_CONDITION_NAMES,
     PokemonStage,
+    SpecialConditions,
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
@@ -1004,4 +1006,29 @@ def search_bench_as_basic(names, count, prompt):
                     ctx.set_pokemon_stage(pokemon, PokemonStage.BASIC)
         if picks:
             await ctx.shuffle_deck()
+    return effect
+
+
+def poison_defender_on_evolve(counters=1):
+    """"When you play this Pokemon from your hand to evolve 1 of your Pokemon,
+    you may choose 1 of the Defending Pokemon. That Pokemon is now Poisoned.
+    Put N damage counters instead of 1 on it between turns" (Crobat)."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        if not await ctx.ask_yes_no("Poison your opponent's Active Pokémon?"):
+            return
+        await ctx.apply_special_condition(
+            defender, SpecialConditions.POISONED, poison_counters=counters)
+    return effect
+
+
+def condition_immunity_pollen_shield(conditions=None):
+    """"During your opponent's next turn, this Pokemon can't become <conditions>":
+    printed damage, then a condition-immunity passive through the opponent's turn."""
+    async def effect(ctx):
+        await ctx.deal_damage()
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, condition_immunity_passive(conditions))
     return effect

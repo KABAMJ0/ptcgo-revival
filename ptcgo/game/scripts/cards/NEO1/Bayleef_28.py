@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_immunity_pollen_shield
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="c02b8406-49e2-56be-9472-5e71ac2850b4",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, Bayleef can't become Asleep, Confused, Paralyzed, or Poisoned. (All other effects of attacks, Pok\u00e9mon Powers and Trainer cards still happen.)",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_immunity_pollen_shield([SpecialConditions.ASLEEP, SpecialConditions.CONFUSED, SpecialConditions.PARALYZED, SpecialConditions.POISONED]),
         ),
     ],
 )
