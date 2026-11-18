@@ -10,6 +10,7 @@ from ptcgo.database.models.tournaments import (
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim
 )
 from ptcgo.database.models.trainer_challenge import TrainerChallengeProgress, LEAGUE_ROW
+from ptcgo.database.models.tutorial import TutorialProgress
 
 for table in Base.metadata.tables.values():
     table.dialect_options["mysql"]["engine"] = "InnoDB"
@@ -22,5 +23,5 @@ __all__ = [
     "VersusProgress", "DailyLoginProgress",
     "QuestAccount", "DailyQuest", "QuestMatchCredit",
     "AsyncTournament", "TournamentEntry", "TournamentLeaderboardClaim",
-    "TrainerChallengeProgress", "LEAGUE_ROW"
+    "TrainerChallengeProgress", "LEAGUE_ROW", "TutorialProgress"
 ]
