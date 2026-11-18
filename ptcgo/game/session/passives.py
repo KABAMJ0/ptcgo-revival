@@ -499,6 +499,22 @@ class Passive:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
 
+    async def on_retreat(self, ctx, pokemon: PokemonEntity,
+                         carrier: BoardEntity) -> None:
+        """Runs after `pokemon` finishes retreating, this passive's carrier
+        still attached (Balloon Berry: "when the Pokemon this card is attached
+        to retreats, discard this card")."""
+        return None
+
+    def blocks_play(self, player_id: str, card: BoardEntity,
+                    carrier: BoardEntity, board: Optional["BoardState"] = None
+                    ) -> bool:
+        """True to forbid `player_id` playing `card` from hand while this
+        passive is on (Gothitelle: "your opponent can't play any Item cards
+        from his or her hand"). Continuous, so it is asked at offer time
+        rather than recorded as a turn-scoped lock."""
+        return False
+
     def blocks_trainer_effects(
         self, affected_player_id: str, trainer_card: BoardEntity,
         trainer_type: Any, carrier: BoardEntity,
@@ -950,6 +966,15 @@ def discard_blocked(board: BoardState, card: BoardEntity) -> bool:
     """Whether a passive protects `card` from an opponent-caused discard."""
     return any(
         passive.blocks_discard(card, carrier)
+        for passive, carrier in active_passives(board)
+    )
+
+
+def plays_blocked(board: BoardState, player_id: str, card: BoardEntity) -> bool:
+    """Whether a continuous passive forbids `player_id` playing `card` from
+    hand (the always-on twin of TurnState.play_locked's scoped locks)."""
+    return any(
+        passive.blocks_play(player_id, card, carrier, board=board)
         for passive, carrier in active_passives(board)
     )
 

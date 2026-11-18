@@ -61,6 +61,83 @@ def opposing_active(target, carrier) -> bool:
     return opposing_pokemon(target, carrier) and is_in_active_spot(target)
 
 
+def unafflicted(board, player_id, pokemon) -> bool:
+    """Board-level Ability.condition: the Pokemon carries no Special Condition
+    ("This power can't be used if <name> is affected by a Special Condition")."""
+    return not (pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
+
+_PLAY_KIND_TESTS = {
+    "item": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.ITEM.value,
+    "supporter": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value,
+    "stadium": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value,
+    "tool": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) in (
+        TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value),
+    "special_energy": lambda card: bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+    "trainer": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) is not None,
+}
+
+
+class PlayLockPassive(Passive):
+    """A continuous lock on the opponent's hand: "As long as this Pokemon is
+    your Active Pokemon, your opponent can't play any Item cards from his or
+    her hand" (Gothitelle, Vileplume, Kabutops).
+
+    `matches` is the kind test over a hand card; the two hooks are the two
+    places the offer consults a passive -- blocks_trainer_play for Trainer
+    cards, blocks_play for Energy.
+    """
+
+    def __init__(self, matches, while_active=True, opponents_only=True,
+                 condition=None):
+        self.matches = matches
+        self.while_active = while_active
+        self.opponents_only = opponents_only
+        self.condition = condition
+
+    def _locks(self, player_id, card, carrier, board) -> bool:
+        if not self.matches(card):
+            return False
+        if self.opponents_only and player_id == carrier.owning_player_id:
+            return False
+        if self.while_active and not is_in_active_spot(carrier_pokemon(carrier)):
+            return False
+        if self.condition is not None and not self.condition(board, player_id, carrier):
+            return False
+        return True
+
+    def blocks_trainer_play(self, card, player_id, carrier) -> bool:
+        return self._locks(player_id, card, carrier, None)
+
+    def blocks_play(self, player_id, card, carrier, board=None) -> bool:
+        return self._locks(player_id, card, carrier, board)
+
+
+def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
+                      opponents_only: bool = True, condition=None) -> Passive:
+    """"Your opponent can't play any <kinds> cards from his or her hand" while
+    this Pokemon is Active (Gothitelle, Vileplume, Kabutops, Trevenant).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy" or "all"; `excluding` drops one, which spells the
+    "Trainer cards (except for Supporter cards)" wording."""
+    selected = set(kinds)
+    if "all" in selected:
+        selected |= set(_PLAY_KIND_TESTS)
+    if excluding:
+        selected.discard(excluding)
+    if not selected:
+        raise ValueError(f"play_lock_passive: no kinds in {kinds!r}")
+    tests = [_PLAY_KIND_TESTS[kind] for kind in selected]
+
+    def matches(card) -> bool:
+        return any(test(card) for test in tests)
+
+    matches.plays = tuple(sorted(selected))
+    return PlayLockPassive(matches, while_active=while_active,
+                           opponents_only=opponents_only, condition=condition)
+
+
 # ======================================================================
 # GROUP A -- continuous Passive factories
 # ======================================================================
@@ -968,6 +1045,65 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
         target = ctx.attacker if self_target else ctx.defender
         await apply_protection(ctx, target=target, reduce=reduce,
                                prevent=prevent, effects_too=effects_too)
+    return effect
+
+
+class DiscardSelfOnRetreatPassive(Passive):
+    """Balloon Berry: "when the Pokemon this card is attached to retreats,
+    discard this card" (and pay no Energy for the retreat)."""
+
+    async def on_retreat(self, ctx, pokemon, carrier) -> None:
+        if carrier is pokemon:
+            return
+        await ctx.discard_cards([carrier])
+
+
+def discard_self_on_retreat() -> Passive:
+    """`on_retreat` half of Balloon Berry; compose with retreat_discount."""
+    return DiscardSelfOnRetreatPassive()
+
+
+def heal_activation(amount, target_pred=None, flip=False,
+                    requires_benched=False):
+    """"Once during your turn, you may [flip a coin. If heads,] heal N damage
+    from your Active Pokemon" (Healing Leaves, Softboiled, Victory Kiss).
+
+    Returns `(effect, condition)`: the condition hides the offer while the
+    Active has nothing to heal, so an ONCE_PER_TURN ability's slot disappears
+    as soon as it is spent. `target_pred` narrows the Active (Water only,
+    Evolution only); `requires_benched` is the "if this Pokemon is on your
+    Bench" wording, which needs the carrier to stay off the Active spot."""
+    def condition(board, player_id, pokemon) -> bool:
+        if requires_benched and is_in_active_spot(pokemon):
+            return False
+        active = board.active_pokemon(player_id)
+        return active is not None \
+            and (target_pred is None or target_pred(active)) \
+            and active.get_attribute(AttrID.HP, 0) < effective_max_hp(board, active)
+
+    async def effect(ctx):
+        if requires_benched and is_in_active_spot(ctx.source):
+            return
+        active = ctx.my_active()
+        if active is None or (target_pred is not None and not target_pred(active)):
+            return
+        if flip:
+            results = await ctx.flip_coins(1, ctx.ability.title if ctx.ability else "")
+            if not (results and results[0]):
+                return
+        await ctx.heal(amount, active)
+
+    return effect, condition
+
+
+def on_ko_from_attack(then):
+    """"If this Pokemon is Knocked Out by damage from an attack" wrapper for an
+    ON_KNOCKED_OUT ability: runs `then(ctx)` only for attack damage, leaving
+    ability/effect knockouts alone (Final Wish)."""
+    async def effect(ctx):
+        if not getattr(ctx, "ko_from_attack", False):
+            return
+        await then(ctx)
     return effect
 
 

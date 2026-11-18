@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    plays_blocked,
     trainer_play_blocked,
 )
 
@@ -144,6 +145,13 @@ class TurnState:
     used_named_abilities: Set[str] = field(default_factory=set)
     # Players who already used their once-per-game VSTAR Power.
     vstar_used: Set[str] = field(default_factory=set)
+    # Players who already used their once-per-game GX attack. A title ending
+    # "-GX" marks the attack; gx_unlocks is the card-granted override ("your
+    # Water Pokemon can use their GX attacks even if you have used one").
+    gx_attack_used: Set[str] = field(default_factory=set)
+    # player_id -> [(predicate(attacker, ability) | None, last turn it holds)]
+    gx_unlocks: Dict[str, List[Tuple[Optional[Any], Optional[int]]]] = \
+        field(default_factory=dict)
     # (player_id, combined guid) per V-UNION already combined this game.
     vunions_assembled: Set[Tuple[str, str]] = field(default_factory=set)
     # (entity_id, ability_id) -> last turn number the attack stays locked
@@ -289,6 +297,11 @@ class TurnState:
         self.turn_draw_entity_ids = set()
         self.on_move_to_active_fired = set()
         self.attack_coin_reroll_used = False
+        self.gx_unlocks = {
+            pid: kept for pid, grants in self.gx_unlocks.items()
+            if (kept := [(p, exp) for p, exp in grants
+                         if exp is None or exp >= self.turn_number])
+        }
         self.play_locks = {
             pid: kept for pid, locks in self.play_locks.items()
             if (kept := [(p, exp) for p, exp in locks
@@ -375,6 +388,30 @@ class TurnState:
 
     def retreat_locked(self, entity_id: str) -> bool:
         return self.turn_number <= self.retreat_locks.get(entity_id, 0)
+
+    def mark_gx_attack_used(self, player_id: str) -> None:
+        """Records that `player_id` spent their once-per-game GX attack."""
+        self.gx_attack_used.add(player_id)
+
+    def unlock_gx_attacks(self, player_id: str, predicate=None,
+                          through_turn: Optional[int] = None) -> None:
+        """Lets `player_id`'s matching Pokemon use a GX attack again this turn
+        (Misty & Lorelei, Bonnie). `predicate(attacker, ability)` narrows which
+        Pokemon and attacks the grant covers."""
+        self.gx_unlocks.setdefault(player_id, []).append(
+            (predicate, self.turn_number if through_turn is None else through_turn)
+        )
+
+    def gx_attack_allowed(self, player_id: str, attacker, ability) -> bool:
+        """Whether `attacker`'s GX `ability` may be offered: yes until the
+        player has used theirs, and again under a matching unlock."""
+        if player_id not in self.gx_attack_used:
+            return True
+        return any(
+            (expires is None or self.turn_number <= expires)
+            and (predicate is None or predicate(attacker, ability))
+            for predicate, expires in self.gx_unlocks.get(player_id, [])
+        )
 
     def lock_plays(self, player_id: str, predicate, through_turn: Optional[int] = None):
         """Forbids `player_id` playing hand cards matching `predicate`
@@ -604,6 +641,12 @@ def trainer_play_target_ids(board: BoardState, player_id: str, card) -> Optional
     ))
 
 
+def _is_gx_attack(definition) -> bool:
+    """A GX attack: the printed title carries the "-GX" marker."""
+    return bool(definition is not None) and \
+        (getattr(definition, "title", "") or "").endswith("-GX")
+
+
 def compute_legal_actions(
     board: BoardState,
     state: TurnState,
@@ -676,7 +719,8 @@ def compute_legal_actions(
         elif isinstance(card, EnergyEntity):
             if state.energy_attached or not in_play_ids:
                 continue
-            if state.play_locked(player_id, card):
+            if state.play_locked(player_id, card) \
+                    or plays_blocked(board, player_id, card):
                 continue
             definition = def_for(card.archetype_id)
             condition = getattr(definition, "attach_condition", None)
@@ -1010,6 +1054,11 @@ def _attack_entries(
             continue
         if definition is not None and definition.vstar \
                 and player_id in state.vstar_used:
+            continue
+        # "You can't use more than 1 GX attack in a game", unless a card
+        # granted this player an override for these Pokemon.
+        if _is_gx_attack(definition) \
+                and not state.gx_attack_allowed(player_id, active, definition):
             continue
         # Attack usage restriction ("You can use this attack only if...").
         if definition is not None and definition.condition is not None \

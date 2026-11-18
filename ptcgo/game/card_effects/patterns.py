@@ -1308,25 +1308,10 @@ def _defender_counters_at_least(count: int):
 
 def _extra_energy_attached(required: int, type_word: Optional[str]):
     """"At least N extra [type] Energy attached (in addition to this attack's
-    cost)": attached minus what the attack itself costs."""
+    cost)" — the shared count in attacks_common, with patterns' type words."""
+    from ptcgo.game.card_effects.attacks_common import extra_energy_attached
     type_value = TYPE_WORDS[type_word].value if type_word else None
-
-    def cond(ctx) -> bool:
-        attacker = ctx.attacker
-        if attacker is None:
-            return False
-        attached = 0
-        for energy in ctx.attached_energies(attacker):
-            if type_value is None or energy_provides_type(energy, type_value):
-                attached += 1
-        cost = 0
-        for cost_type, count in (getattr(ctx.ability, "cost", None) or {}).items():
-            value = getattr(cost_type, "value", cost_type)
-            if value in (PokemonTypes.COLORLESS.value,
-                         PokemonTypes.UNSET.value) or value == type_value:
-                cost += count
-        return attached - cost >= required
-    return cond
+    return extra_energy_attached(required, type_value)
 
 
 def _prize_comparison(kind: str):
