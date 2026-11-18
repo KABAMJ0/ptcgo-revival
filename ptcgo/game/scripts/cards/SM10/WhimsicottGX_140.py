@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             title="Toy Box-GX",
             game_text="Search your deck for up to 5 cards and put them into your hand. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=search_to_hand(count=5, minimum=0),
         ),
     ],
 )

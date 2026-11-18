@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters, bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 card = PokemonCardDef(
     guid="209aa523-32fc-5c4d-9a3c-5099c5a30a3f",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: any(c in (ctx.attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or []) for c in ("Burned", "Poisoned")), 100),
         ),
         Attack(
             title="Feathery Strike",
