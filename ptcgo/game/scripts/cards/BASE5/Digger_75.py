@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import digger_duel
 
 card = ItemCardDef(
     guid="9c522fe8-21c4-5527-bfbb-7ba6471a3be4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=75,
     set_code="BASE5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=digger_duel()
 )

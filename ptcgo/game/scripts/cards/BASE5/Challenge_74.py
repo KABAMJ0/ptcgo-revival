@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import challenge_opponent
 
 card = ItemCardDef(
     guid="2060a7ff-2386-56b3-ab9f-416fdac1b1a9",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=74,
     set_code="BASE5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=challenge_opponent(2)
 )

@@ -8864,3 +8864,252 @@ def mystery_plate_healing_oasis():
                 if missing > 0:
                     await ctx.heal(missing, target)
     return effect
+
+
+# --- One-off bodies: discard recovery, swaps, coin loops --------------------
+
+def team_plasma_card(card) -> bool:
+    """Predicate: a card whose subtype or printed name says Team Plasma."""
+    for subtype in subtypes_for(card.archetype_id):
+        if "team plasma" in str(subtype).lower():
+            return True
+    name = (getattr(def_for(card.archetype_id), "display_name", "") or "").lower()
+    return "team plasma" in name
+
+
+def shadow_triad():
+    """Put 1 Team Plasma card from your discard pile into your hand."""
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile() if team_plasma_card(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Team Plasma card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def search_basic_cards_either_zone(count: int = 2):
+    """Search the deck OR the discard pile for up to `count` Basic cards into
+    your hand (Mr. Stone's Project)."""
+    def basic_any(card):
+        return is_basic_pokemon(card) or is_basic_energy_card(card)
+
+    async def effect(ctx):
+        options = ["Search your deck", "Search your discard pile"]
+        choice = await ctx.choose("Where do you search?", options)
+        if choice == 0:
+            picks = await ctx.search_deck(
+                basic_any, count=count, minimum=0,
+                prompt="Choose up to %d Basic cards" % count)
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+            await ctx.shuffle_deck()
+        else:
+            pool = [card for card in ctx.discard_pile() if basic_any(card)]
+            if not pool:
+                return
+            picks = await ctx.choose_cards(
+                pool, count, minimum=0,
+                prompt="Choose up to %d Basic cards" % count)
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def basic_from_hand_as_active():
+    """Put a Basic Pokemon from your hand into the Active spot, sending your
+    old Active to the Bench; unplayable with a full Bench (Lt. Surge)."""
+    async def effect(ctx):
+        bench = ctx.board.find_player_area(ctx.player_id, "bench")
+        space = effective_bench_capacity(ctx.board, ctx.player_id) \
+            - (len(bench.children) if bench else 0)
+        if space <= 0:
+            return
+        pool = [card for card in ctx.hand() if is_basic_pokemon(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Basic Pokemon to put into the Active spot")
+        if not picks:
+            return
+        card = picks[0]
+        if not await ctx.bench_pokemon(card):
+            return
+        benched = ctx.board.get_entity(card.entity_id)
+        if benched is not None:
+            await ctx.switch_active(ctx.player_id, benched)
+    return effect
+
+
+def bench_has_room():
+    """Play condition: the Bench has a free slot (Lt. Surge)."""
+    def check(board, player_id):
+        bench = board.find_player_area(player_id, "bench")
+        used = len(bench.children) if bench else 0
+        return used < effective_bench_capacity(board, player_id)
+    return check
+
+
+def challenge_opponent(draw: int = 2):
+    """Ask the opponent to accept: if they do, each player benches any number of
+    Basic Pokemon from their deck; otherwise (or with both Benches full) draw
+    `draw` cards (Challenge!)."""
+    async def effect(ctx):
+        accepted = await ctx.ask_yes_no(
+            "Do you accept the challenge?", player_id=ctx.opponent_id)
+        benches_full = True
+        for pid in (ctx.player_id, ctx.opponent_id):
+            bench = ctx.board.find_player_area(pid, "bench")
+            used = len(bench.children) if bench else 0
+            if used < effective_bench_capacity(ctx.board, pid):
+                benches_full = False
+        if not accepted or benches_full:
+            await ctx.draw_cards(draw)
+            return
+        for pid in (ctx.player_id, ctx.opponent_id):
+            bench = ctx.board.find_player_area(pid, "bench")
+            space = effective_bench_capacity(ctx.board, pid) \
+                - (len(bench.children) if bench else 0)
+            if space <= 0:
+                continue
+            picks = await ctx.search_deck(
+                is_basic_pokemon, count=space, minimum=0,
+                prompt="Choose any number of Basic Pokemon to Bench",
+                player_id=pid)
+            for card in picks:
+                await ctx.bench_pokemon(card)
+            await ctx.shuffle_deck(pid)
+    return effect
+
+
+def time_capsule():
+    """Your opponent may choose 5 Basic Pokemon, Evolution and/or basic Energy
+    cards from their discard pile and shuffle them into their deck."""
+    def any_of_those(card):
+        return is_pokemon_card(card) or is_basic_energy_card(card)
+
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile(ctx.opponent_id)
+                if any_of_those(card)]
+        if not pool:
+            return
+        if not await ctx.ask_yes_no(
+                "Shuffle 5 cards from your discard pile into your deck?",
+                player_id=ctx.opponent_id):
+            return
+        picks = await ctx.choose_cards(
+            pool, min(5, len(pool)), minimum=min(5, len(pool)),
+            prompt="Choose 5 cards to shuffle into your deck",
+            player_id=ctx.opponent_id)
+        if picks:
+            await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+    return effect
+
+
+def digger_duel():
+    """Alternate coin flips: the first player to flip tails takes 10 damage on
+    their Active Pokemon (Digger)."""
+    async def effect(ctx):
+        subject = ctx.player_id
+        while True:
+            heads = (await ctx.flip_coins(1, title="Digger"))[0]
+            active = ctx.board.active_pokemon(subject)
+            if not heads:
+                if active is not None:
+                    await ctx.deal_damage(10, target=active, apply_modifiers=False)
+                return
+            subject = ctx.opponent_id if subject == ctx.player_id else ctx.player_id
+    return effect
+
+
+def holon_farmer():
+    """Discard a card from your hand, then put 3 basic Energy cards plus any
+    combination of 3 Basic Pokemon or Evolution cards from your discard pile on
+    top of your deck (Holon Farmer)."""
+    async def effect(ctx):
+        hand = list(ctx.hand())
+        if not hand:
+            return
+        cost = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Discard a card from your hand")
+        if not cost:
+            return
+        await ctx.discard_cards(cost)
+        energies = [card for card in ctx.discard_pile() if is_basic_energy_card(card)]
+        rest = [card for card in ctx.discard_pile()
+                if card not in energies and (is_basic_pokemon(card)
+                                             or is_evolution_pokemon(card))]
+        taken = []
+        if energies:
+            taken += await ctx.choose_cards(
+                energies, min(3, len(energies)), minimum=0,
+                prompt="Choose up to 3 basic Energy cards")
+        if rest:
+            taken += await ctx.choose_cards(
+                rest, min(3, len(rest)), minimum=0,
+                prompt="Choose up to 3 Basic Pokemon or Evolution cards")
+        for card in taken:
+            await ctx.put_on_top_of_deck(card)
+    return effect
+
+
+def cynthia_caitlin(draw: int = 3):
+    """Put a Supporter card from your discard pile into your hand; you may then
+    discard another card to draw `draw` (Cynthia & Caitlin)."""
+    async def effect(ctx):
+        pool = [card for card in ctx.discard_pile()
+                if is_supporter_card(card)
+                and (getattr(def_for(card.archetype_id), "display_name", "") or "")
+                != "Cynthia & Caitlin"]
+        if pool:
+            picks = await ctx.choose_cards(
+                pool, 1, minimum=0,
+                prompt="Choose a Supporter card to put into your hand")
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+        hand = list(ctx.hand())
+        if not hand:
+            return
+        if not await ctx.ask_yes_no("Discard another card to draw 3 cards?"):
+            return
+        extra = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Discard a card")
+        if extra:
+            await ctx.discard_cards(extra)
+            await ctx.draw_cards(draw)
+    return effect
+
+
+def cyrus_two_benched(keep: int = 2):
+    """The opponent keeps `keep` of their Benched Pokemon; the rest and their
+    attached cards shuffle into their deck (Cyrus)."""
+    async def effect(ctx):
+        remaining = list(ctx.opponent_bench())
+        if not remaining:
+            return
+        for _ in range(min(keep, len(remaining))):
+            pick = await ctx.choose_pokemon(
+                remaining, "Choose a Benched Pokemon to keep",
+                player_id=ctx.opponent_id)
+            if pick is None:
+                break
+            remaining.remove(pick)
+        for pokemon in remaining:
+            stack = [pokemon] + list(getattr(pokemon, "children", []))
+            await ctx.shuffle_into_deck(stack, ctx.opponent_id)
+    return effect
+
+
+def active_is_water_or_metal():
+    """Play condition: your Active Pokemon is Water or Metal (Cyrus)."""
+    def check(board, player_id):
+        active = board.active_pokemon(player_id)
+        if active is None:
+            return False
+        types = active.get_attribute(AttrID.POKEMON_TYPES) or []
+        return PokemonTypes.WATER.value in types or PokemonTypes.METAL.value in types
+    return check

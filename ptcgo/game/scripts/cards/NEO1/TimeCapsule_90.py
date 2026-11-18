@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import time_capsule
 
 card = ItemCardDef(
     guid="c0f99755-400f-5af7-b06f-e74de09c7a56",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=90,
     set_code="NEO1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=time_capsule()
 )
