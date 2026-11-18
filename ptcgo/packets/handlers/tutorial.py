@@ -76,7 +76,7 @@ async def start_tutorial_match(client, label, index=None, request_id=0):
         logging.info(f"[TCP] [{client.addr}] {label}: no deck available")
         await client.send_packet({
             "messageName": "LeagueAndGymModeError",
-            "msg": {"id": "league.error.nodeck"},
+            "msg": {"id": "You need a deck to play this match."},
         }, request_id)
         return
     logging.info(f"[TCP] [{client.addr}] {label} {index!r}: starting "
