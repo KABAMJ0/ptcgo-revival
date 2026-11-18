@@ -2700,6 +2700,12 @@ RULES = [
     Rule('stadium-type-takes-less', r'(?:metal|basic grass and basic lightning) pokemon both yours and your opponents take \d+ less damage from (?:attacks from )?the opponents(?: pokemon)?(?: attacks?)? after applying weakness and resistance(?: put it into the active spot and discard it if another stadium comes into play)?', 'stadium_type_takes_less', lambda m: [repr(m.group(0))], kind='passive'),
     Rule('surges-bargain', r'ask your opponent if each player may take \d+ prize card if yes each player takes \d+ prize card if no you draw \d+ cards', 'surges_bargain', lambda m: [m.group(0).split()[-2]]),
 
+
+    Rule('team-aqua-ball', r'flip \d+ coin if heads search your deck for \d+ pokemon that has team aqua in its name show it to your opponent and put it into your hand if tails search your deck for \d+ basic pokemon that has team aqua in its name show it to your opponent and put it into your hand shuffle your deck afterward', 'team_aqua_ball', lambda m: []),
+    Rule('team-magma-ball', r'flip \d+ coin if heads search your deck for \d+ pokemon that has team magma in its name show it to your opponent and put it into your hand if tails search your deck for \d+ basic pokemon that has team magma in its name show it to your opponent and put it into your hand shuffle your deck afterward', 'team_magma_ball', lambda m: []),
+    Rule('team-rocket-great-ball', r'flip \d+ coin if heads search your deck for \d+ evolution team rockets pokemon reveal it and put it into your hand if tails search your deck for \d+ basic team rockets pokemon reveal it and put it into your hand then shuffle your deck', 'team_rocket_great_ball', lambda m: []),
+    Rule('search-fossil-or-evolution', r'search your deck or discard pile for \d+ trainer card that has fossil in its name or \d+ stage 1 or stage 2 evolution card that evolves from \d+ fossil show it to your opponent and put it into your hand if you searched your deck shuffle your deck afterward', 'search_fossil_or_fossil_evolution', lambda m: []),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

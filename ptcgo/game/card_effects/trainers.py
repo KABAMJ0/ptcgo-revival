@@ -6299,20 +6299,6 @@ def abilities_off_for(pred):
     return AbilityLockPredicatePassive(pred)
 
 
-# --- stadium-abilities-off-typed ---
-class AbilityLockPredicatePassive(Passive):
-    """Abilities are off on every Pokemon matching `pred`, both sides
-    (Power Plant, Team Rocket's Watchtower)."""
-
-    def __init__(self, pred):
-        self.pred = pred
-
-    def blocks_abilities(self, pokemon, carrier):
-        return self.pred(pokemon)
-
-
-def abilities_off_for(pred):
-    return AbilityLockPredicatePassive(pred)
 
 
 # --- each-player-flip-draw ---
@@ -6489,12 +6475,16 @@ def look_top_attach_up_to(n, take, predicate=is_energy_card, target_pred=None,
                           if target_pred is None or target_pred(p)]
             if picks and candidates:
                 if distribute:
+                    from ptcgo.game.card_effects.support_common import (
+                        distribute_energy,
+                    )
                     await distribute_energy(ctx, picks, candidates)
                 else:
                     target = await ctx.choose_pokemon(
                         candidates, "Choose a Pokemon to attach the Energy to")
                     if target is not None:
-                        await _attach_all(ctx, picks, target)
+                        for card in picks:
+                            await ctx.attach_energy(card, target)
         await ctx.shuffle_deck()
     return effect
 
@@ -8389,4 +8379,74 @@ def megaton_blower():
         stadium = ctx.stadium_in_play()
         if stadium is not None:
             await ctx.discard_cards([stadium])
+    return effect
+
+
+# --- Coin-flip deck searches for a named team, and Fossil Excavator ---------
+
+def flip_search_either(heads_predicate, tails_predicate, title="Search your deck"):
+    """Flip a coin: heads searches the deck for a `heads_predicate` card into
+    your hand, tails for a `tails_predicate` one, then shuffles."""
+    async def effect(ctx):
+        heads = (await ctx.flip_coins(1, title=title))[0]
+        picks = await ctx.search_deck(
+            heads_predicate if heads else tails_predicate,
+            count=1, minimum=0,
+            prompt="Choose a card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def team_aqua_ball():
+    """Heads: any Team Aqua Pokemon; tails: a Basic Team Aqua Pokemon."""
+    team = all_of(is_pokemon_card, card_named_contains("team aqua"))
+    basic = all_of(is_basic_pokemon, card_named_contains("team aqua"))
+    return flip_search_either(team, basic)
+
+
+def team_magma_ball():
+    """Heads: any Team Magma Pokemon; tails: a Basic Team Magma Pokemon."""
+    team = all_of(is_pokemon_card, card_named_contains("team magma"))
+    basic = all_of(is_basic_pokemon, card_named_contains("team magma"))
+    return flip_search_either(team, basic)
+
+
+def team_rocket_great_ball():
+    """Heads: an Evolution Team Rocket Pokemon; tails: a Basic one."""
+    rockets = card_named_contains("team rocket")
+    return flip_search_either(all_of(is_evolution_pokemon, rockets),
+                              all_of(is_basic_pokemon, rockets))
+
+
+def fossil_evolution_card(card) -> bool:
+    """Predicate: an Evolution card that evolves from a card with Fossil in its
+    name (Fossil Excavator)."""
+    if not is_evolution_pokemon(card):
+        return False
+    logic = (card.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) or "").lower()
+    return "fossil" in logic
+
+
+def search_fossil_or_fossil_evolution(count: int = 1):
+    """Search the deck or discard pile for a Trainer card with Fossil in its
+    name, or an Evolution card evolving from a Fossil, into your hand; shuffle
+    only when the deck was searched (Fossil Excavator)."""
+    def fossil_trainer(card):
+        return is_trainer_card(card) and card_named_contains("fossil")(card)
+
+    async def effect(ctx):
+        deck_cards = list(ctx.deck())
+        pool = [card for card in deck_cards + list(ctx.discard_pile())
+                if fossil_trainer(card) or fossil_evolution_card(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, count, minimum=0,
+            prompt="Choose a Fossil card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+            if any(card in deck_cards for card in picks):
+                await ctx.shuffle_deck()
     return effect
