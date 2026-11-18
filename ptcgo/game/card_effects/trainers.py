@@ -9259,3 +9259,14 @@ async def championship_arena_checkup(ctx):
         return
     await ctx.discard_from_hand(
         held - 7, prompt="Discard down to 7 cards for Championship Arena")
+
+
+async def level_max(ctx):
+    """Flip a coin; heads puts the Level-Up card for one of your Pokemon from
+    the deck onto it (counting as levelling that Pokemon up)."""
+    coins = await ctx.flip_coins(1, "Level Max")
+    if not coins or not coins[0]:
+        return
+    await evolve_from_deck_matching(
+        predicate=lambda card: "Level-Up" in subtypes_for(card.archetype_id)
+    )(ctx)
