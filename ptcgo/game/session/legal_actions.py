@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    plays_blocked,
     trainer_play_blocked,
 )
 
@@ -676,7 +677,8 @@ def compute_legal_actions(
         elif isinstance(card, EnergyEntity):
             if state.energy_attached or not in_play_ids:
                 continue
-            if state.play_locked(player_id, card):
+            if state.play_locked(player_id, card) \
+                    or plays_blocked(board, player_id, card):
                 continue
             definition = def_for(card.archetype_id)
             condition = getattr(definition, "attach_condition", None)
