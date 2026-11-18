@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_own_energy_heal
 
 card = ItemCardDef(
     guid="f7d475d4-7947-5aa8-b375-59f37a015e42",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=117,
     set_code="BASE4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_own_energy_heal(4),
 )

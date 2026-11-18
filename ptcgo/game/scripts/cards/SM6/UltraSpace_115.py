@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype, stadium_ability
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = StadiumCardDef(
     guid="275ec1de-d82c-5643-8416-eb4529477822",
@@ -11,5 +13,5 @@ card = StadiumCardDef(
     collector_number=115,
     set_code="SM6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability("Ultra Space", search_to_hand(pokemon_of_subtype("Ultra Beast"), 1))
 )

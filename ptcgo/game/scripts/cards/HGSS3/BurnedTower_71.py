@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import stadium_ability, flip_recover_basic_energy
 
 card = StadiumCardDef(
     guid="cc04ff4f-1f85-5756-a89b-1280113a5999",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=71,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability("Burned Tower", flip_recover_basic_energy(1)),
 )

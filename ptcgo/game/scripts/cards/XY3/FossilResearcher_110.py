@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import card_named_any
+from ptcgo.game.card_effects.support_common import search_to_bench
 
 card = SupporterCardDef(
     guid="c51e44de-fa49-56c8-a267-cad4ceeb693a",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=110,
     set_code="XY3",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_to_bench(card_named_any(("amaura", "tyrunt")), 2)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import crystal_shard_tool
 
 card = PokemonToolCardDef(
     guid="5410f903-d3c0-5055-8284-ad3a5dcfddde",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=85,
     set_code="EX8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=crystal_shard_tool(),
 )

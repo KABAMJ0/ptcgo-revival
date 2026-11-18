@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, is_stadium_card
+from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = SupporterCardDef(
     guid="fedad97e-c47b-551b-88bf-a60a71c50154",
@@ -11,5 +14,5 @@ card = SupporterCardDef(
     collector_number=84,
     set_code="EX9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(any_of(is_supporter_card, is_stadium_card), 3)
 )

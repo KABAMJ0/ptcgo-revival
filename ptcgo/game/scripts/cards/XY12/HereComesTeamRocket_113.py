@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_prizes_face_up
 
 card = SupporterCardDef(
     guid="f7f04d60-e7bd-5505-afa0-fa7a659625b4",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=113,
     set_code="XY12",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=all_prizes_face_up()
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import basic_energy_of, with_discard_cost
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = ItemCardDef(
     guid="96464e84-d474-5522-959b-e8322a411ce4",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=118,
     set_code="GYM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=with_discard_cost(1, search_to_hand(basic_energy_of("Water"), 2))
 )
