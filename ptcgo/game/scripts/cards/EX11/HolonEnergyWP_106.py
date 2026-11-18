@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import HolonEnergyPassive
 card = EnergyCardDef(
     guid="923b0a11-4523-56dd-a11c-9b696c81042b",
     key="EX11",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="EX11",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=HolonEnergyPassive(("PokemonTypes.WATER", "effect_shield"), ("PokemonTypes.PSYCHIC", "free_retreat")),
 )

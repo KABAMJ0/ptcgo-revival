@@ -42,6 +42,32 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         (), "passive"
     ),
     (
+        "scramble-energy",
+        r"if you have more prize cards left than your opponent, scramble energy provides every type of energy "
+        r"but provides only 3 in any combination at a time",
+        "passive=ScrambleEnergyPassive()",
+        (), "passive"
+    ),
+    (
+        "holon-energy",
+        r"holon energy (ff|gl|wp) provides colorless energy",
+        None,
+        ("holon",),
+        "passive"
+    ),
+    (
+        "upper-energy",
+        r"if you have more prize cards left than your opponent and this card is attached to a pokemon",
+        "passive=UpperEnergyPassive()",
+        (), "passive"
+    ),
+    (
+        "crystal-energy",
+        r"provides 1 energy of all types \(colors\) of basic energy cards attached",
+        "passive=CrystalEnergyPassive()",
+        (), "passive"
+    ),
+    (
         "sp-energy",
         r"attached to is a pokemon sp, sp energy provides every type of energy",
         'passive=SubtypeProvisionPassive("SP")',
@@ -216,7 +242,6 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
 # Wording that asks for a primitive the engine does not have yet. Reported, never
 # wired, because a half-wired card plays by different rules than it is printed with.
 BLOCKED = [
-    (r"also has a basic \w+ energy card attached", "conditional on another energy attached"),
     (r"at the end of every turn, put \d+ damage counter", "end-of-turn damage counter tick missing"),
     (r"1 fewer prize", "prize-count passive with a once-per-game gate"),
     (r"\bδ\b|delta species", "delta-species marker not tracked on cards"),
@@ -291,6 +316,16 @@ def _resolve(name, low, snippet, extra, target):
         if listed:
             return name, f"passive=EffectShieldPassive({TYPE_NAMES[listed.group(1)]})", "", target
         return name, "passive=EffectShieldPassive()", "", target
+    if extra == ("holon",):
+        riders = {
+            "ff": ('PokemonTypes.FIRE', "no_weakness", 'PokemonTypes.FIGHTING', "ignore_resistance"),
+            "gl": ('PokemonTypes.GRASS', "no_conditions", 'PokemonTypes.LIGHTNING', "ex_reduction"),
+            "wp": ('PokemonTypes.WATER', "effect_shield", 'PokemonTypes.PSYCHIC', "free_retreat"),
+        }
+        which = re.match(r"holon energy (ff|gl|wp)", low).group(1)
+        first_type, first_behaviour, second_type, second_behaviour = riders[which]
+        return name, (f'passive=HolonEnergyPassive(("{first_type}", "{first_behaviour}"), '
+                      f'("{second_type}", "{second_behaviour}"))'), "", target
     if extra == ("pairs",):
         listed = re.search(
             r"provides (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) "
@@ -420,6 +455,10 @@ NEEDED = {
     "passive=EffectShieldPassive(": ["EffectShieldPassive"],
     "passive=SubtypeProvisionPassive(": ["SubtypeProvisionPassive"],
     "passive=SuperBoostEnergyPassive()": ["SuperBoostEnergyPassive"],
+    "passive=UpperEnergyPassive()": ["UpperEnergyPassive"],
+    "passive=ScrambleEnergyPassive()": ["ScrambleEnergyPassive"],
+    "passive=HolonEnergyPassive(": ["HolonEnergyPassive"],
+    "passive=CrystalEnergyPassive()": ["CrystalEnergyPassive"],
     "passive=SubtypeProvisionPassive(\"SP\")": ["SubtypeProvisionPassive"],
     "on_attach=warp_on_attach": ["warp_on_attach"],
     "on_attach=cyclone_on_attach": ["cyclone_on_attach"],

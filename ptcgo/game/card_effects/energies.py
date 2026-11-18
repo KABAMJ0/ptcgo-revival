@@ -434,3 +434,145 @@ async def jet_on_attach(ctx):
         return
     if any(pokemon is target for pokemon in ctx.my_bench()):
         await ctx.switch_active(ctx.player_id, target)
+
+
+# --- prize comparison and attached-energy readers ---------------------------
+def _prizes_remaining(board, player_id) -> int:
+    area = board.find_player_area(player_id, "prizePile") if board is not None else None
+    return len(area.children) if area is not None else 0
+
+
+def _opponent_of(board, player_id):
+    others = [pid for pid in getattr(board, "player_ids", []) if pid != player_id]
+    return others[0] if others else None
+
+
+class UpperEnergyPassive(Passive):
+    """Upper Energy: two Colorless while you have more prizes left than the
+    opponent, and never on a Pokemon LV.X."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        archetype_id = getattr(holder, "archetype_id", None)
+        if archetype_id is not None and "LV.X" in subtypes_for(archetype_id):
+            return options
+        owner = getattr(holder, "owning_player_id", None)
+        opponent = _opponent_of(board, owner) if owner else None
+        if opponent is None:
+            return options
+        if _prizes_remaining(board, owner) > _prizes_remaining(board, opponent):
+            return [[PokemonTypes.COLORLESS, PokemonTypes.COLORLESS]]
+        return options
+
+
+class CrystalEnergyPassive(Passive):
+    """Crystal Energy: one Energy of every type among the basic Energy cards
+    attached to the carrier, Colorless when there are none."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        types = []
+        for card in board.attached_energies(holder):
+            definition = def_for(getattr(card, "archetype_id", None))
+            if definition is None or getattr(definition, "is_special", False):
+                continue
+            energy_type = getattr(definition, "energy_type", None)
+            if energy_type is not None and energy_type not in types:
+                types.append(energy_type)
+        return [[t] for t in types] if types else [[PokemonTypes.COLORLESS]]
+
+
+class ScrambleEnergyPassive(Passive):
+    """Scramble Energy: three Energy of any types while you have more prizes left
+    than the opponent, Colorless otherwise."""
+
+    def __init__(self):
+        types = [PokemonTypes.GRASS, PokemonTypes.FIRE, PokemonTypes.WATER,
+                 PokemonTypes.LIGHTNING, PokemonTypes.PSYCHIC, PokemonTypes.FIGHTING,
+                 PokemonTypes.DARKNESS, PokemonTypes.METAL, PokemonTypes.FAIRY,
+                 PokemonTypes.DRAGON, PokemonTypes.COLORLESS]
+        self.options = [[types[i], types[j], types[k]]
+                        for i in range(len(types))
+                        for j in range(i, len(types))
+                        for k in range(j, len(types))]
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        owner = getattr(holder, "owning_player_id", None)
+        opponent = _opponent_of(board, owner) if owner else None
+        if opponent is None:
+            return options
+        if _prizes_remaining(board, owner) > _prizes_remaining(board, opponent):
+            return self.options
+        return options
+
+
+# --- Holon Energies: two riders, each gated on a basic Energy attached -------
+def _has_basic_energy(board, holder, energy_type) -> bool:
+    if board is None or holder is None:
+        return False
+    for card in board.attached_energies(holder):
+        definition = def_for(getattr(card, "archetype_id", None))
+        if definition is None or getattr(definition, "is_special", False):
+            continue
+        if getattr(definition, "energy_type", None) == energy_type:
+            return True
+    return False
+
+
+class HolonEnergyPassive(Passive):
+    """Holon Energy FF/GL/WP.
+
+    Each card grants two riders, one while a basic Energy of a given type sits on
+    the carrier: `primary` and `secondary` are (type, behaviour) pairs, where the
+    behaviour is one of "no_weakness", "ignore_resistance", "no_conditions",
+    "ex_reduction", "effect_shield" or "free_retreat".
+    """
+
+    def __init__(self, primary, secondary):
+        self.primary = primary
+        self.secondary = secondary
+
+    def _active(self, behaviour, board, holder) -> bool:
+        for energy_type, name in (self.primary, self.secondary):
+            if name == behaviour and _has_basic_energy(board, holder, energy_type):
+                return True
+        return False
+
+    def modify_weakness(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is calc.target and self._active("no_weakness", getattr(calc, "board", None), holder):
+            calc.weakness_applies = False
+
+    def modify_resistance(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is calc.attacker and self._active("ignore_resistance", getattr(calc, "board", None), holder):
+            calc.resistance_applies = False
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and self._active("no_conditions", None, holder)
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is not calc.target or not calc.is_attack or not calc.is_opposing:
+            return
+        if not self._active("ex_reduction", getattr(calc, "board", None), holder):
+            return
+        attacker = getattr(calc, "attacker", None)
+        archetype_id = getattr(attacker, "archetype_id", None) if attacker is not None else None
+        if archetype_id is not None and "ex" in [s.lower() for s in subtypes_for(archetype_id)]:
+            calc.amount = max(0, calc.amount - 10)
+
+    def blocks_attack_effects(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and self._active("effect_shield", None, holder)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is pokemon and self._active("free_retreat", board, holder):
+            return 0
+        return cost
