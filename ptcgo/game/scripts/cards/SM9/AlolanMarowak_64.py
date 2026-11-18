@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, pokemon_named
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
 
 card = PokemonCardDef(
     guid="759db410-b0c5-55ea-b2c8-b619c162a9f1",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Limbo Limbo",
             game_text="Search your deck for up to 2 basic Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=search_attach_energy(is_basic_energy_card, count=2),
         ),
         Attack(
             title="Alolan Club",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", pokemon_named("Alolan")), 20),
         ),
     ],
 )
