@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Jungle Totem",
             game_text="Each basic Grass Energy attached to your Pok\u00e9mon provides GrassGrass Energy. You can't apply more than 1 Jungle Totem Ability at a time.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive([PokemonTypes.GRASS.value] * 2, protects="team", basic_only=True),
         ),
         Attack(
             title="Solar Beam",

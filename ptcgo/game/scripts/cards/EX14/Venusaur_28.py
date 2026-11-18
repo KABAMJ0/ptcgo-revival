@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Chlorophyll",
             game_text="All Energy cards that provide only Colorless Energy attached to your Grass Pok\u00e9mon provide Grass Energy instead.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive(PokemonTypes.GRASS.value, protects="team", colorless_only=True, holder_types=[PokemonTypes.GRASS.value]),
         ),
         Attack(
             title="Green Blast",

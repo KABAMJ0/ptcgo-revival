@@ -16,11 +16,13 @@ from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import AttrID, TrainerType
 from ptcgo.game.session.passives import (
+    EnergyTypeOverride,
     Passive,
     TurnDamageModifier,
     attacks_of,
     carrier_pokemon,
     effective_max_hp,
+    effective_pokemon_types,
     previous_evolution_attacks,
 )
 
@@ -1101,3 +1103,70 @@ def raise_defender_retreat_cost_next_turn(extra=1):
         await ctx.deal_damage()
         await apply_defender_retreat_cost_raise(ctx, extra)
     return effect
+
+
+class EnergyTypeRewritePassive(Passive):
+    """"All [basic] Energy attached to <scope> provide <types> Energy instead
+    of their usual types" (Steelix Rare Metal, Erika's Oddish Photosynthesis,
+    Wild Growth, Chlorophyll). Read-time only: the attached cards never change.
+
+    `modify_energy_provided` gets the Energy and its holder but not the
+    Pokemon contributing the passive, and ability passives are shared
+    singletons, so the carrier is recovered from the board: the in-play
+    Pokemon whose ability list holds this exact passive object."""
+
+    def __init__(self, types, protects="carrier", basic_only=False,
+                 colorless_only=False, holder_types=None):
+        self.types = [int(types)] if isinstance(types, int) else [int(t) for t in types]
+        self.protects = protects
+        self.basic_only = basic_only
+        self.colorless_only = colorless_only
+        self.holder_types = tuple(int(t) for t in holder_types or ())
+
+    def _carrier(self, board):
+        from ptcgo.game.content.definitions import ABILITIES_BY_ID
+        for player_id in board.player_ids:
+            for pokemon in board.pokemon_in_play(player_id):
+                for entry in pokemon.get_attribute(AttrID.PIE_ABILITIES) or []:
+                    if not isinstance(entry, dict):
+                        continue
+                    ability = ABILITIES_BY_ID.get(entry.get("abilityID"))
+                    if ability is not None and ability.passive is self:
+                        return pokemon
+        return None
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        carrier = self._carrier(board)
+        if carrier is None or not _protects_pred(self.protects)(holder, carrier):
+            return options
+        if self.holder_types:
+            types = {getattr(t, "value", t) for t in effective_pokemon_types(board, holder)}
+            if not types.intersection(self.holder_types):
+                return options
+        record = EnergyTypeOverride(
+            types=list(self.types),
+            basic_only=self.basic_only,
+            colorless_only=self.colorless_only,
+        )
+        return record.apply(options, energy, holder, board)
+
+
+def rewrite_energy_types_passive(types, protects="carrier", basic_only=False,
+                                 colorless_only=False, holder_types=None) -> Passive:
+    """Continuous "all Energy attached to X provide <types> Energy instead".
+
+    `types` is what they provide instead (repeat a type to double it);
+    `protects` is 'carrier' (Energy on this Pokemon) | 'team' (Energy on any
+    of your Pokemon) | callable(holder, carrier); `basic_only` drops Special
+    Energy, `colorless_only` keeps cards currently providing only Colorless,
+    `holder_types` keeps holders of one of those types. Example::
+
+        Ability("Rare Metal", game_text="...",
+                passive=rewrite_energy_types_passive(
+                    PokemonTypes.METAL.value, basic_only=True))
+    """
+    return EnergyTypeRewritePassive(types, protects, basic_only=basic_only,
+                                    colorless_only=colorless_only,
+                                    holder_types=holder_types)
