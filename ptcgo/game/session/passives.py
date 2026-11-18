@@ -499,6 +499,13 @@ class Passive:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
 
+    async def on_retreat(self, ctx, pokemon: PokemonEntity,
+                         carrier: BoardEntity) -> None:
+        """Runs after `pokemon` finishes retreating, this passive's carrier
+        still attached (Balloon Berry: "when the Pokemon this card is attached
+        to retreats, discard this card")."""
+        return None
+
     def blocks_play(self, player_id: str, card: BoardEntity,
                     carrier: BoardEntity, board: Optional["BoardState"] = None
                     ) -> bool:

@@ -1048,6 +1048,21 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+class DiscardSelfOnRetreatPassive(Passive):
+    """Balloon Berry: "when the Pokemon this card is attached to retreats,
+    discard this card" (and pay no Energy for the retreat)."""
+
+    async def on_retreat(self, ctx, pokemon, carrier) -> None:
+        if carrier is pokemon:
+            return
+        await ctx.discard_cards([carrier])
+
+
+def discard_self_on_retreat() -> Passive:
+    """`on_retreat` half of Balloon Berry; compose with retreat_discount."""
+    return DiscardSelfOnRetreatPassive()
+
+
 def heal_activation(amount, target_pred=None, flip=False,
                     requires_benched=False):
     """"Once during your turn, you may [flip a coin. If heads,] heal N damage

@@ -128,6 +128,7 @@ from .effects import (
 from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
+    carrier_pokemon,
     effective_bench_capacity, effective_max_hp,
     effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
@@ -5380,6 +5381,10 @@ class GameSession:
             list(self.players.values()), GameSequence.RETREAT, messages
         )
 
+        # Post-retreat passive hooks run while the stack is intact (Balloon
+        # Berry discards itself "instead of discarding Energy").
+        await self._fire_retreat_hooks(player_id, card)
+
         # All effects (Special Conditions, attack locks) end when a Pokemon
         # leaves the Active spot; a separate follow-up bracket is the safe
         # pattern here (the Retreat executor's non-move handling is unverified).
@@ -5396,6 +5401,22 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _fire_retreat_hooks(self, player_id, retreated):
+        """`Passive.on_retreat` for the passives riding the Pokemon that just
+        retreated (its own Abilities, attached Tools and Energy)."""
+        hooks = [
+            (passive, carrier)
+            for passive, carrier in active_passives(self.board_state)
+            if carrier_pokemon(carrier) is retreated
+        ]
+        if not hooks:
+            return
+        for passive, carrier in hooks:
+            hook_ctx = EffectContext(self, player_id, carrier, None)
+            hook_ctx.retreated_pokemon = retreated
+            await passive.on_retreat(hook_ctx, retreated, carrier)
+            await self._flush_effect_runs(hook_ctx)
 
     async def _apply_active_to_bench_counters(self, player_id, pokemon):
         """Spikemuth: counters on an Active that moved to its owner's Bench
