@@ -132,6 +132,7 @@ from .passives import (
     stadium_face,
     effective_bench_capacity, effective_max_hp,
     conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
+    retreat_flips,
     evolve_heal_amount, poison_checkup_counters,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
     tool_suppressed,
@@ -5353,6 +5354,21 @@ class GameSession:
                 f"({target_ids}); re-offering."
             )
             return
+
+        # Mirage Stadium: "whenever a player tries to retreat a Pokemon, that
+        # player flips a coin. If tails, that Pokemon can't retreat this turn."
+        if retreat_flips(self.board_state, card):
+            flip_ctx = EffectContext(self, player_id, card, None)
+            results = await flip_ctx.flip_coins(1)
+            await self._flush_effect_runs(flip_ctx)
+            if not (results and results[0]):
+                self.turn_state.lock_retreat(card.entity_id,
+                                            through_turn=self.turn_state.turn_number)
+                logging.info(
+                    f"[Session {self.game_id}] Retreat of {card.entity_id} "
+                    f"refused: the stadium flip was tails."
+                )
+                return
 
         cost = effective_retreat_cost(self.board_state, card)
         energies = [

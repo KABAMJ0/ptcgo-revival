@@ -487,6 +487,26 @@ class Passive:
         or more become 50); the card rewrites the number."""
         return amount
 
+    def energy_discard_destination(self, energy: BoardEntity,
+                                   pokemon: Optional[PokemonEntity],
+                                   discarder_id: Optional[str],
+                                   carrier: BoardEntity) -> Optional[str]:
+        """Where an Energy discarded from `pokemon` by `discarder_id` goes
+        instead of the discard pile ("hand" for Ecogym); None keeps it."""
+        return None
+
+    def trainer_play_flips(self, card: BoardEntity, player_id: str,
+                           carrier: BoardEntity) -> bool:
+        """True to coin-flip a Trainer play before it resolves; tails makes the
+        card do nothing (Chaos Gym)."""
+        return False
+
+    def retreat_flips(self, pokemon: PokemonEntity,
+                      carrier: BoardEntity) -> bool:
+        """True to coin-flip a retreat attempt; tails refuses it for the turn
+        (Mirage Stadium)."""
+        return False
+
     def wr_applies_to_bench(self, calc: "DamageCalc", carrier: BoardEntity) -> bool:
         """True to apply Weakness/Resistance to a BENCHED defender from this
         passive's side of the board (Wide Lens)."""
@@ -1028,6 +1048,31 @@ def modified_heal_amount(board: BoardState, pokemon: PokemonEntity,
     for passive, carrier in active_passives(board):
         amount = passive.modify_heal_amount(pokemon, carrier, amount)
     return amount
+
+
+def energy_discard_destination(board: BoardState, energy: BoardEntity,
+                               pokemon: Optional[PokemonEntity] = None,
+                               discarder_id: Optional[str] = None
+                               ) -> Optional[str]:
+    """The area a discarded Energy goes to instead of the discard pile."""
+    for passive, carrier in active_passives(board):
+        destination = passive.energy_discard_destination(
+            energy, pokemon, discarder_id, carrier)
+        if destination:
+            return destination
+    return None
+
+
+def trainer_play_flips(board: BoardState, card: BoardEntity, player_id: str) -> bool:
+    """Whether a Trainer play must be coin-flipped first (Chaos Gym)."""
+    return any(passive.trainer_play_flips(card, player_id, carrier)
+               for passive, carrier in active_passives(board))
+
+
+def retreat_flips(board: BoardState, pokemon: PokemonEntity) -> bool:
+    """Whether a retreat attempt must be coin-flipped first (Mirage Stadium)."""
+    return any(passive.retreat_flips(pokemon, carrier)
+               for passive, carrier in active_passives(board))
 
 
 def attacks_blocked(board: BoardState, pokemon: PokemonEntity) -> bool:

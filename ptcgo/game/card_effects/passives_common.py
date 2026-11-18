@@ -1146,6 +1146,52 @@ def heal_multiplier(bonus: int = 0, amount: Optional[int] = None,
                              minimum=minimum)
 
 
+class EnergyReturnPassive(Passive):
+    """Ecogym: Energy discarded from a Pokemon goes to its owner's hand instead
+    of the discard pile ("another player's non-Colorless Energy")."""
+
+    def __init__(self, other_player_only=True, non_colorless=True):
+        self.other_player_only = other_player_only
+        self.non_colorless = non_colorless
+
+    def energy_discard_destination(self, energy, pokemon, discarder_id, carrier):
+        if pokemon is not None and self.other_player_only \
+                and pokemon.owning_player_id == discarder_id:
+            return None
+        if self.non_colorless and energy_provides_type(
+                energy, PokemonTypes.COLORLESS.value):
+            return None
+        return "hand"
+
+
+def energy_return_on_discard_passive(other_player_only: bool = True,
+                                    non_colorless: bool = True) -> Passive:
+    return EnergyReturnPassive(other_player_only, non_colorless)
+
+
+class TrainerPlayFlipPassive(Passive):
+    """Chaos Gym: every non-Stadium Trainer play is coin-flipped; tails makes
+    the card do nothing."""
+
+    def trainer_play_flips(self, card, player_id, carrier):
+        return card.get_attribute(AttrID.TRAINER_TYPE) != TrainerType.STADIUM.value
+
+
+def trainer_play_flip_passive() -> Passive:
+    return TrainerPlayFlipPassive()
+
+
+class RetreatFlipPassive(Passive):
+    """Mirage Stadium: each retreat attempt is coin-flipped; tails refuses it."""
+
+    def retreat_flips(self, pokemon, carrier):
+        return True
+
+
+def retreat_flip_passive() -> Passive:
+    return RetreatFlipPassive()
+
+
 class WROnBenchPassive(Passive):
     """Wide Lens: the holder's attacks are affected by Weakness and Resistance
     on the opponent's Benched Pokemon too."""

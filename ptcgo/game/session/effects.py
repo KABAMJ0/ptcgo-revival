@@ -1916,8 +1916,21 @@ class EffectContext:
                 energies, count, minimum=count if minimum is None else minimum,
                 prompt=prompt,
             )
-        await self.discard_cards(picked)
+        await self._discard_energies(picked, pokemon)
         return picked
+
+    async def _discard_energies(self, energies, pokemon=None):
+        """Discards Energy, honouring a passive that redirects it (Ecogym sends
+        another player's non-Colorless Energy to its owner's hand instead)."""
+        redirected, plain = [], []
+        for energy in energies:
+            destination = energy_discard_destination(
+                self.board, energy, pokemon, self.player_id)
+            (redirected if destination == "hand" else plain).append(energy)
+        if plain:
+            await self.discard_cards(plain)
+        if redirected:
+            await self.put_in_hand(list(redirected), reveal=True)
 
     async def discard_energy_units_from(
         self, pokemon: PokemonEntity, amount: int,
@@ -1963,7 +1976,7 @@ class EffectContext:
                 f"with only {paid}; no cards discarded."
             )
             return []
-        await self.discard_cards(picked)
+        await self._discard_energies(picked, pokemon)
         return picked
 
     async def move_to_lost_zone(self, cards: List[CardEntity]):
@@ -3166,6 +3179,19 @@ async def resolve_trainer_effect(session, player_id: str, card,
             ctx.is_trainer_effect = True
             await replacement(ctx)
             return ctx
+    # Chaos Gym: "whenever a player plays a Trainer card other than a Stadium,
+    # that player flips a coin. If tails, that card does nothing."
+    if trainer_play_flips(session.board_state, card, player_id):
+        flip_ctx = EffectContext(session, player_id, card, None)
+        results = await flip_ctx.flip_coins(1)
+        if not (results and results[0]):
+            await session._flush_effect_runs(flip_ctx)
+            logging.info(
+                f"[Effects {session.game_id}] {card.entity_id} did nothing: "
+                f"Chaos Gym flip was tails."
+            )
+            return None
+        await session._flush_effect_runs(flip_ctx)
     effect = TRAINER_EFFECTS_BY_GUID.get((card.archetype_id or "").lower())
     if effect is None or effect is unimplemented:
         logging.warning(
