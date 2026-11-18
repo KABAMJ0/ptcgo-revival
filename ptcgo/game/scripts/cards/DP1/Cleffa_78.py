@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, draw_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             title="Eeek",
             game_text="Draw a card.",
             cost={},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
     ],
 )

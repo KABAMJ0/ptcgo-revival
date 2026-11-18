@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, recover_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             title="Delivery",
             game_text="Put any 1 card from your discard pile into your hand.",
             cost={},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1),
         ),
     ],
 )

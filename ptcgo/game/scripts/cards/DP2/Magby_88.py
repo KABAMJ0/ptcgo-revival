@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.support_common import baby_evolution
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 _baby_effect, _baby_in_hand = baby_evolution("Magmar")
 
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Scorch",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
     ],
 )

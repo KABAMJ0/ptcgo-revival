@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             title="Lively",
             game_text="Remove 2 damage counters from 1 of your Pok\u00e9mon.",
             cost={},
-            effect=unimplemented,
+            effect=heal_targets(20, scope="choice"),
         ),
     ],
 )
