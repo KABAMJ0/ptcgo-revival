@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from ptcgo.game.attributes import AttrID, PokemonTypes, TrainerType
-from ptcgo.game.data_utils import ABILITIES_BY_ID, def_for, subtypes_for
+from ptcgo.game.data_utils import ABILITIES_BY_ID, Attack, def_for, subtypes_for
 from ptcgo.game.models.board import (
     BENCH_SLOT_COUNT,
     BoardEntity,
@@ -489,6 +489,36 @@ def granted_extra_attacks(board: BoardState, pokemon: PokemonEntity) -> List[Any
             if attack.ability_id and attack.ability_id not in seen:
                 seen.add(attack.ability_id)
                 out.append(attack)
+    return out
+
+
+def attacks_of(entity: BoardEntity) -> List[Any]:
+    """The attacks printed on another entity, as registered Attack objects.
+
+    The lookup behind every "this Pokemon can use the attacks of X" card:
+    "the attacks of any Pokemon in play" (Mew-EX's Versatile, Mew ex's
+    Memory Helix), "the attacks of any Basic Pokemon in your discard pile"
+    (Marshadow-GX's Shadow Hunt), "the attacks of its previous evolutions"
+    (previous_evolution_attacks). The returned objects are the live
+    definitions, so their ability_id still resolves the offered panel row
+    back to the printed attack and its effect; `entity` itself is never
+    filtered out here, the caller decides the source set.
+    """
+    return [
+        ability
+        for ability in (getattr(def_for(entity.archetype_id), "abilities", None) or [])
+        if isinstance(ability, Attack)
+    ]
+
+
+def previous_evolution_attacks(pokemon: PokemonEntity) -> List[Any]:
+    """The attacks of the Pokemon tucked underneath `pokemon` (its previous
+    Evolutions): "this Pokemon can use the attacks of its previous
+    evolutions" -- Memory Capsule, and the Stadium/Ability variants."""
+    out: List[Any] = []
+    for child in pokemon.children:
+        if isinstance(child, PokemonEntity):
+            out.extend(attacks_of(child))
     return out
 
 
