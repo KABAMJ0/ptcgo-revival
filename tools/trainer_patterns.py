@@ -2483,6 +2483,32 @@ RULES = [
          "opponent_chooses_discard_take",
          lambda m: ["any_of(is_trainer_card, is_supporter_card, is_stadium_card)"]),
 
+    Rule("flip-recover-to-deck",
+         r"flip (?P<coins>\d+) coins? for each heads shuffle (?P<per>\d+) (?P<cat>[a-z0-9 ]+?) from your "
+         r"discard pile into your deck",
+         "flip_recover_to",
+         lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("per"), 'to="deck"']),
+    Rule("flip-recover-into-hand",
+         r"flip (?P<coins>\d+) coins? for each heads put (?P<per>\d+) (?P<cat>[a-z0-9 ]+?) from your "
+         r"discard pile into your hand",
+         "flip_recover_to",
+         lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("per")]),
+    Rule("super-rod",
+         r"flip (?P<coins>\d+) coin if heads put (?P<n>\d+) evolution card from your discard pile if any "
+         r"into your hand if tails put \d+ basic pokemon card from your discard pile if any into your "
+         r"hand",
+         "flip_recover_either",
+         lambda m: ["is_evolution_pokemon", "is_basic_pokemon"]),
+    Rule("energy-pickup",
+         r"flip (?P<coins>\d+) coin if heads search your discard pile for (?P<n>\d+) basic energy card "
+         r"and attach it to \d+ of your pokemon",
+         "flip_search_discard_attach",
+         lambda m: [m.group("coins"), "is_basic_energy_card"]),
+    Rule("buddy-buddy-rescue",
+         r"each player puts (?P<n>\d+) pokemon from his or her discard pile into his or her hand your "
+         r"opponent chooses first",
+         "buddy_buddy_rescue", lambda m: [m.group("n")]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -2601,6 +2627,10 @@ WRAPPERS = [
                 r"from your hand "), "with_discard_cost", None),
     (re.compile(r"^you can (?:use|play) this card only if you discard another card from your "
                 r"hand "), "with_discard_cost", "1"),
+    (re.compile(r"^discard (?P<n>\d+) energy cards? from your hand in order to "),
+     "with_discard_typed_cost", None),
+    (re.compile(r"^discard (?P<n>\d+) cards? from your hand (?=(?:search|put|shuffle) your discard)"),
+     "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you do "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) card from your hand in order to play this card "),

@@ -5775,3 +5775,101 @@ def opponent_chooses_discard_take(predicate):
         if rest:
             await ctx.discard_cards(rest)
     return effect
+
+
+def flip_recover_to(count: int, predicate=None, per: int = 1, to: str = "hand"):
+    """Flip `count` coins; each heads moves `per` matching card from the discard
+    pile to your hand or into your deck (Lure Ball, Electrocharger)."""
+    async def effect(ctx):
+        heads = sum(1 for face in await ctx.flip_coins(count, title="Recover from the discard pile")
+                    if face)
+        if heads <= 0:
+            return
+        cards = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, heads * per, minimum=0,
+            prompt="Choose cards from your discard pile")
+        if not picks:
+            return
+        if to == "deck":
+            await ctx.shuffle_into_deck(picks)
+        else:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def flip_recover_either(heads_predicate, tails_predicate):
+    """Flip a coin: heads takes a `heads_predicate` card from the discard pile,
+    tails a `tails_predicate` one (Super Rod)."""
+    async def effect(ctx):
+        predicate = heads_predicate if (
+            await ctx.flip_coins(1, title="Recover from the discard pile"))[0] \
+            else tails_predicate
+        cards = [c for c in ctx.discard_pile() if predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=0, prompt="Choose a card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def flip_search_discard_attach(coins: int, predicate):
+    """Flip `coins` coins; on heads take a matching Energy from the discard pile
+    and attach it to 1 of your Pokemon (Energy Pickup)."""
+    async def effect(ctx):
+        if not (await ctx.flip_coins(coins, title="Attach Energy"))[0]:
+            return
+        cards = [c for c in ctx.discard_pile() if predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=1, prompt="Choose an Energy card to attach")
+        pool = ctx.my_pokemon_in_play()
+        if not picks or not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to attach the Energy to") \
+            if len(pool) > 1 else pool[0]
+        if target is not None:
+            await ctx.attach_energy(picks[0], target)
+    return effect
+
+
+def buddy_buddy_rescue(count: int = 1):
+    """Each player puts `count` Pokemon from their discard pile into their hand;
+    the opponent chooses first (Buddy-Buddy Rescue)."""
+    async def effect(ctx):
+        for player_id in (ctx.opponent_id, ctx.player_id):
+            area = ctx.board.find_player_area(player_id, "discardPile")
+            cards = [c for c in (area.children if area is not None else [])
+                     if is_pokemon_card(c)]
+            if not cards:
+                continue
+            picks = await ctx.choose_cards(
+                cards, count, minimum=0,
+                player_id=ctx.opponent_id if player_id == ctx.opponent_id else ctx.player_id,
+                prompt="Choose a Pokémon to put into your hand")
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def with_discard_typed_cost(n: int, inner):
+    """Discard `n` Energy cards from your hand as the card's cost, then run
+    `inner` (declines when the hand cannot pay)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if is_energy_card(c)]
+        if len(hand) < n:
+            return
+        picks = await ctx.choose_cards(
+            hand, n, minimum=n, prompt=f"Discard {n} Energy card(s) from your hand")
+        if len(picks) < n:
+            return
+        await ctx.discard_cards(picks)
+        await inner(ctx)
+    return effect

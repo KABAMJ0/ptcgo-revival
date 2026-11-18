@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import buddy_buddy_rescue
 
 card = ItemCardDef(
     guid="621b05a3-ec94-5aaf-ba07-099dfe7b2b54",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=135,
     set_code="XY8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=buddy_buddy_rescue(1)
 )
