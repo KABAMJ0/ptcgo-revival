@@ -13398,6 +13398,174 @@ def _t62_search_trainer_afterward(m, ability):
         await ctx.shuffle_deck()
     return effect
 
+
+def _t63_pokemon_in_play_of(board, player_id):
+    try:
+        return list(board.pokemon_in_play(player_id))
+    except Exception:
+        return []
+
+
+def _t63_discard_cards(board, player_id):
+    area = board.find_player_area(player_id, "discard")
+    return list(area.children) if area is not None else []
+
+
+def _t63_trainer_type(card):
+    from ptcgo.game.attributes import TrainerType
+    value = card.get_attribute(AttrID.TRAINER_TYPE)
+    for candidate in TrainerType:
+        if candidate.value == value:
+            return candidate
+    return None
+
+
+def _grant_attacks_any_in_play(m, ability):
+    from ptcgo.game.card_effects.passives_common import attack_grant_passive
+
+    def sources(board, pokemon, carrier):
+        out = []
+        for player_id in getattr(board, "player_ids", []):
+            out.extend(p for p in _t63_pokemon_in_play_of(board, player_id)
+                       if p is not pokemon)
+        return out
+    return attack_grant_passive(sources)
+
+
+def _grant_attacks_bench(m, ability):
+    from ptcgo.game.card_effects.passives_common import attack_grant_passive
+
+    def sources(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        return [p for p in _t63_pokemon_in_play_of(board, owner)
+                if p is not pokemon and p is not holder]
+    return attack_grant_passive(sources)
+
+
+def _grant_attacks_discard_basics(m, ability):
+    from ptcgo.game.card_effects.passives_common import attack_grant_passive
+    from ptcgo.game.session.effects import is_basic_pokemon
+
+    def sources(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        return [card for card in _t63_discard_cards(board, owner)
+                if is_basic_pokemon(card)]
+    return attack_grant_passive(sources)
+
+
+def _grant_attacks_bench_discard_gx_ex(m, ability):
+    from ptcgo.game.card_effects.passives_common import attack_grant_passive
+    from ptcgo.game.data_utils import subtypes_for
+
+    def is_gx_or_ex(card) -> bool:
+        subtypes = [sub.lower() for sub in subtypes_for(card.archetype_id)]
+        return "gx" in subtypes or "ex" in subtypes
+
+    def sources(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        bench = [p for p in _t63_pokemon_in_play_of(board, owner)
+                 if p is not pokemon]
+        pile = _t63_discard_cards(board, owner)
+        return [card for card in bench + pile if is_gx_or_ex(card)]
+    return attack_grant_passive(sources)
+
+
+def _grant_previous_evolutions(m, ability):
+    from ptcgo.game.card_effects.passives_common import (
+        previous_evolution_grant_passive)
+    return previous_evolution_grant_passive()
+
+
+def _free_cost_if_tools_in_discard(m, ability):
+    from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+    from ptcgo.game.attributes import TrainerType
+    needed = int(m.group(1))
+
+    def condition(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        tools = [card for card in _t63_discard_cards(board, owner)
+                 if _t63_trainer_type(card) in (TrainerType.POKEMON_TOOL,
+                                                TrainerType.POKEMON_TOOL_F)]
+        return len(tools) >= needed
+    return free_attack_cost_passive(condition=condition)
+
+
+def _free_cost_if_stadiums_in_discard(m, ability):
+    from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+    from ptcgo.game.attributes import CardType
+    needed = int(m.group(1))
+
+    def condition(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        stadiums = [card for card in _t63_discard_cards(board, owner)
+                    if card.get_attribute(AttrID.CARD_TYPE)
+                    == CardType.STADIUM.value]
+        return len(stadiums) >= needed
+    return free_attack_cost_passive(condition=condition)
+
+
+def _free_cost_if_named_in_play(m, ability):
+    from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+    wanted = normalize(m.group(1))
+
+    def condition(board, pokemon, carrier):
+        holder = carrier_pokemon(carrier) or pokemon
+        owner = getattr(holder, "owning_player_id", None)
+        return any(wanted in normalize(getattr(entity, "display_name", "") or "")
+                   for entity in _t63_pokemon_in_play_of(board, owner))
+    return free_attack_cost_passive(condition=condition)
+
+
+def _free_cost_plain(m, ability):
+    from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+    return free_attack_cost_passive()
+
+
+def _free_cost_team_with_attack(m, ability):
+    from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+    from ptcgo.game.session.passives import attacks_of
+    wanted = normalize(m.group(1))
+
+    def condition(board, pokemon, carrier):
+        return any(normalize(getattr(attack, "title", "") or "") == wanted
+                   for attack in attacks_of(pokemon))
+    return free_attack_cost_passive(condition=condition, protects="team")
+
+
+def _t63_free_next_attack(m, ability):
+    async def effect(ctx):
+        ctx.ignore_next_attack_cost()
+        await ctx.deal_damage()
+    return effect
+
+
+def _t63_use_opponent_attack(m, ability):
+    async def effect(ctx):
+        pool = []
+        for pokemon in ctx.opponent_pokemon_in_play():
+            attacks = ctx.attacks_of(pokemon)
+            for attack in attacks or []:
+                pool.append((pokemon, attack))
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            [attack for _, attack in pool], 1,
+            prompt="Choose an attack to use")
+        if not picks:
+            return
+        chosen = picks[0]
+        for pokemon, attack in pool:
+            if attack is chosen or getattr(attack, "title", None) == \
+                    getattr(chosen, "title", None):
+                await ctx.use_attack(attack, source=pokemon)
+                return
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -14813,6 +14981,48 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
+    # -- batch 63: granted attacks and free attack costs -------------------
+    ("grant.attacks-any-in-play",
+     re.compile(r"this pokemon can use the attacks of any pokemon in play "
+                r"\(both yours and your opponent's\)\..*"), _grant_attacks_any_in_play),
+    ("grant.attacks-own-bench",
+     re.compile(r"this pokemon can use the attacks of any of your benched "
+                r"pokemon\..*"), _grant_attacks_bench),
+    ("grant.attacks-discard-basics",
+     re.compile(r"this pokemon can use the attacks of (?:any )?basic pokemon in "
+                r"your discard pile\..*"), _grant_attacks_discard_basics),
+    ("grant.attacks-gx-ex-bench-discard",
+     re.compile(r"this pokemon can use the attacks of any pokemon-gx or "
+                r"pokemon-ex on your bench or in your discard pile\..*"),
+     _grant_attacks_bench_discard_gx_ex),
+    ("grant.previous-evolutions",
+     re.compile(r"this pokemon can use (?:any attack from|the attacks of) its "
+                r"previous evolutions\..*"), _grant_previous_evolutions),
+    ("cost.free-if-tools-in-discard",
+     re.compile(r"if you have (\d+) or more pokemon tool cards in your discard "
+                r"pile, ignore all energy in the attack cost of each of this "
+                r"pokemon's attacks\."), _free_cost_if_tools_in_discard),
+    ("cost.free-if-stadiums-in-discard",
+     re.compile(r"if you have (\d+) or more stadium cards in your discard pile, "
+                r"ignore all energy in this pokemon's attack costs\."),
+     _free_cost_if_stadiums_in_discard),
+    ("cost.free-if-named-in-play",
+     re.compile(r"if you have ([a-z][\w' -]*) in play, ignore all energy in the "
+                r"costs of attacks used by this pokemon\."),
+     _free_cost_if_named_in_play),
+    ("cost.free-plain",
+     re.compile(r"ignore all energy in this pokemon's attack costs?\."),
+     _free_cost_plain),
+    ("cost.free-team-with-attack",
+     re.compile(r"ignore all energy in the attack costs of each of your pokemon "
+                r"in play that has the ([a-z][\w' -]*) attack\."),
+     _free_cost_team_with_attack),
+    ("cost.free-next-attack",
+     re.compile(r"you may use this attack without paying its energy cost\."),
+     _t63_free_next_attack),
+    ("attack.use-opponent-attack",
+     re.compile(r"choose (?:an?|\d+) of your opponent's pokemon's attacks and "
+                r"use it as this attack\."), _t63_use_opponent_attack),
     # -- batch 62: the one-card tail, seventh pass -------------------------
     ("scale.per-opponent-ability-b62",
      re.compile(r"this attack does (\d+) damage for each of your opponent's "
