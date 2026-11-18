@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="bbda4070-59fa-5965-886b-650b2b69a200",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Rigidify",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
         Attack(
             title="Metal Claw",

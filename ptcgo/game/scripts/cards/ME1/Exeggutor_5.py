@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="52903264-7e2c-5154-b7db-5fd713ed9d08",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
         Attack(
             title="Stomping Wood",

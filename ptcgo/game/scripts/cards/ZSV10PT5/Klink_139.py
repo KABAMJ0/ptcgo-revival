@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="d612abb3-130d-5c88-ae51-10b892802d68",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 10 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1},
             damage=10,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=10),
         ),
     ],
 )
