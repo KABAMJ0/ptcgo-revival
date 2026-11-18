@@ -68,6 +68,7 @@ from .passives import (
     effective_pokemon_types,
     energy_removal_blocked,
     healing_blocked,
+    modified_heal_amount,
     supporter_effect_replacement,
     trainer_effects_blocked,
 )
@@ -553,6 +554,7 @@ class EffectContext:
                 f"prevented by a passive effect."
             )
             return 0
+        amount = modified_heal_amount(self.board, target, amount)
         current = target.get_attribute(AttrID.HP, 0)
         healed = min(self.max_hp(target), current + amount) - current
         if healed <= 0:
@@ -2716,7 +2718,8 @@ class EffectContext:
                                    if self.source is not None else stadium,
                                    affected_entity=stadium):
             return None
-        hook = getattr(def_for(stadium.archetype_id), "on_leave_play", None)
+        from ptcgo.game.session.passives import stadium_face
+        hook = stadium_face(self.board, stadium).get("on_leave_play")
         if hook is not None and hook is not unimplemented:
             await hook(self)
         owner_id = stadium.owning_player_id or self.player_id
