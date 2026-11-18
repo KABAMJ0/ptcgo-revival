@@ -71,9 +71,11 @@ class _StubClient:
         self.addr = "test"
         self.player = _StubPlayer(account_id, decks)
         self.sent = []
+        self.sent_ids = []
 
     async def send_packet(self, payload, request_id=0, flags=0):
         self.sent.append(payload)
+        self.sent_ids.append(request_id)
 
     def names(self):
         return [packet.get("messageName") for packet in self.sent]
@@ -182,25 +184,62 @@ class TutorialWireTest(unittest.TestCase):
 
     def test_play_starts_the_scripted_trainer_with_their_own_deck(self):
         handler = TutorialHandler(self.client)
-        asyncio.run(handler.handle_tutorial_play({"index": 0}, 5, 0))
+        pairing = asyncio.run(self._play_and_capture_pairing(
+            lambda rid: handler.handle_tutorial_play({"index": 0}, rid, 0), 5))
         match = content.matches()[0]
-        pairing = next(p for p in GameSessionManager().pending_pairings.values()
-                       if p.get("solo_context", {}).get("account_id") == ACCOUNT)
         self.assertEqual(pairing["solo_context"]["tutorial"], match.key)
         self.assertEqual(pairing["solitaire_id"], match.key)
         opponent = pairing["players"][next(pid for pid in pairing["players"]
                                            if pid.startswith("0000"))]
         self.assertEqual(len(opponent["deck"]["piles"]["deck"]), 60)
-        self.assertEqual(self.client.sent[0]["messageName"], "ConfirmReadyForMatch")
+
+    async def _play_and_capture_pairing(self, play, request_id):
+        """Plays, then reports the pairing the manager built for it."""
+        created = {}
+        manager = GameSessionManager()
+        original = manager._transition_to_game
+
+        async def capture(game_id):
+            created.update(manager.pending_pairings.get(game_id) or {})
+            await original(game_id)
+
+        manager._transition_to_game = capture
+        try:
+            await play(request_id)
+        finally:
+            manager._transition_to_game = original
+        for game_id in [gid for gid, pairing in list(manager.pending_pairings.items())
+                        if pairing.get("solo_context", {}).get("account_id") == ACCOUNT]:
+            manager.pending_pairings.pop(game_id, None)
+        return created
+
+    def test_a_play_request_acknowledges_before_the_match_events(self):
+        """The reply completes the RPC; the game start is its own event behind it."""
+        manager = GameSessionManager()
+        sent = []
+        original = manager._transition_to_game
+
+        async def fake_start(game_id):
+            await self.client.send_packet({"messageName": "MatchFound"}, 0)
+
+        manager._transition_to_game = fake_start
+        try:
+            asyncio.run(TutorialHandler(self.client).handle_tutorial_play({"index": 0}, 5, 0))
+        finally:
+            manager._transition_to_game = original
+        for game_id in list(manager.pending_pairings):
+            manager.pending_pairings.pop(game_id, None)
+        self.assertEqual(self.client.names(), [None, "MatchFound"])
+        self.assertEqual(self.client.sent_ids, [5, 0],
+                         "the game start must not ride on the request id")
 
     def test_the_intros_play_button_also_starts_a_tutorial_match(self):
         """The intro sends the league Play message with the tutorial subMode, no index."""
         handler = ChallengePlayHandler(self.client)
-        asyncio.run(handler.handle_league_play({"subMode": "tutorial"}, 9, 0))
-        pairing = next(p for p in GameSessionManager().pending_pairings.values()
-                       if p.get("solo_context", {}).get("account_id") == ACCOUNT)
+        pairing = asyncio.run(self._play_and_capture_pairing(
+            lambda rid: handler.handle_league_play({"subMode": "tutorial"}, rid, 0), 9))
         self.assertEqual(pairing["solo_context"]["tutorial"], content.matches()[0].key)
-        self.assertEqual(self.client.sent[0]["messageName"], "ConfirmReadyForMatch")
+        self.assertEqual(self.client.names(), [None], "the play request was not acknowledged")
 
     def test_play_gives_a_fresh_account_a_deck_to_play_with(self):
         self.assertEqual(self.client.player.decks, [])
@@ -225,13 +264,12 @@ class TutorialWireTest(unittest.TestCase):
 
         for index, match in enumerate(content.matches()):
             self.client.sent.clear()
-            asyncio.run(tutorial.handle_tutorial_play({"index": index}, 10 + index, 0))
-            pairing = next(p for p in GameSessionManager().pending_pairings.values()
-                           if p.get("solo_context", {}).get("tutorial") == match.key)
-            self.assertEqual(self.client.sent[0]["messageName"], "ConfirmReadyForMatch")
+            pairing = asyncio.run(self._play_and_capture_pairing(
+                lambda rid, i=index: tutorial.handle_tutorial_play({"index": i}, rid, 0),
+                10 + index))
+            self.assertEqual(self.client.names(), [None], "the play request was not acknowledged")
+            self.assertEqual(pairing["solo_context"]["tutorial"], match.key)
             self.assertEqual(len(pairing["players"][ACCOUNT]["deck"]["piles"]["deck"]), 60)
-            GameSessionManager().pending_pairings.pop(next(
-                gid for gid, p in GameSessionManager().pending_pairings.items() if p is pairing))
 
             tutorial_data.record_result(ACCOUNT, match.key, won=True)
 
