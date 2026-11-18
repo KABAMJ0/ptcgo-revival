@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_from_deck_matching, is_pokemon_gx
 
 card = SupporterCardDef(
     guid="cb8c5531-c0bb-5f15-b2e5-0095e1fcb873",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=202,
     set_code="SM12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=evolve_from_deck_matching(is_pokemon_gx)
 )

@@ -5376,3 +5376,74 @@ def stadium_retreat_discount_typed(*types):
         len(types),
         target_pred=lambda target, carrier: bool(
             set(wanted) & set(target.get_attribute(AttrID.POKEMON_TYPES) or [])))
+
+
+def discard_top_attach_energy(count: int, predicate, target_predicate):
+    """Put the top `count` cards of your deck into the discard pile, then attach
+    each matching Energy among them to 1 of your (matching) Pokemon (N's
+    Resolve)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        await ctx.discard_cards(top)
+        energies = [c for c in top if predicate(c)]
+        if not energies:
+            return
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if target_predicate is None or target_predicate(p)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to attach the Energy to") \
+            if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        for card in energies:
+            await ctx.attach_energy(card, target)
+    return effect
+
+
+def opponent_hand_card_to_bottom(predicate=None):
+    """Your opponent reveals their hand; you put 1 matching card from it on the
+    bottom of their deck (Grabber)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        await ctx.reveal_hand(ctx.opponent_id)
+        cards = [c for c in hand if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose a card to put on the bottom of their deck")
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+    return effect
+
+
+def tools_to_hand(predicate=None, count: int = 2):
+    """Put up to `count` Pokemon Tools attached to your Pokemon into your hand
+    (Tool Retriever)."""
+    async def effect(ctx):
+        tools = [card for card, holder in ctx.tools_in_play()
+                 if (holder.owning_player_id or ctx.player_id) == ctx.player_id
+                 and (predicate is None or predicate(card))]
+        if not tools:
+            return
+        picks = await ctx.choose_cards(
+            tools, count, minimum=0,
+            prompt=f"Choose up to {count} Pokémon Tools to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def look_top_put_back(count: int):
+    """Look at the top `count` cards of your deck and put them back (Deduction
+    Kit)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if top:
+            await ctx.choose_cards(
+                top, count, minimum=0, prompt="Look at these cards, then put them back")
+    return effect

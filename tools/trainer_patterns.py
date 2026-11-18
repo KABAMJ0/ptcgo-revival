@@ -969,8 +969,8 @@ RULES = [
          r"then discard all energy cards attached to those pokemon",
          "heal_all_own_discard_energy", lambda m: []),
     Rule("discard-tools",
-         r"choose up to (?P<n>\d+) pokemon tools attached to pokemon(?: yours or your "
-         r"opponents)? and discard them",
+         r"choose up to (?P<n>\d+) pokemon tools?(?: cards)? attached to pokemon(?: in play)?"
+         r"(?: yours or your opponents)? and discard them",
          "discard_tools", lambda m: [m.group("n")]),
     Rule("trade-for-discard",
          r"trade (?P<n>\d+) of the other cards in your hand for up to (?P<count>\d+) "
@@ -2299,6 +2299,42 @@ RULES = [
          lambda m: [m.group("n"), "take=" + m.group("n"), "predicate=is_pokemon_card",
                     'rest="back"', "minimum=0"],
          module="support_common"),
+
+    Rule("heal-one-static-tail",
+         r"heal (?P<amount>\d+) damage from (?P<n>\d+) of your pokemon this card cant be put into "
+         r"your hand or deck from the discard pile",
+         "heal_item", lambda m: ["amount=" + m.group("amount"), 'scope="choice"'],
+         module="support_common"),
+    Rule("look-top-energy-any-number",
+         r"look at the top (?P<n>\d+) cards of your deck choose as many energy cards as you like show "
+         r"them to your opponent and put them into your hand shuffle the other cards back into your "
+         r"deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("n"), "predicate=is_energy_card",
+                    "minimum=0"],
+         module="support_common"),
+    Rule("discard-top-attach-typed",
+         r"discard the top (?P<n>\d+) cards of your deck if any of those cards are basic energy cards "
+         r"attach them to (?P<k>\d+) of your benched (?P<type>[a-z]+) pokemon",
+         "discard_top_attach_energy",
+         lambda m: [m.group("n"), "is_basic_energy_card",
+                    "all_of(excluding(is_in_active_spot), pokemon_of(\"%s\"))" % m.group("type")]),
+    Rule("opponent-hand-card-to-bottom",
+         r"your opponent reveals their hand and you put (?P<n>\d+) (?P<cat>pokemon|c[/]?) from it "
+         r"you find there on the bottom of their deck",
+         "opponent_hand_card_to_bottom", lambda m: [None]),
+    Rule("tool-retriever",
+         r"choose up to (?P<n>\d+) pokemon tool cards attached to your pokemon and put them into your "
+         r"hand",
+         "tools_to_hand", lambda m: ["None", m.group("n")]),
+    Rule("look-top-put-back",
+         r"look at the top (?P<n>\d+) cards of your deck and put them back in any order or shuffle them "
+         r"and put them on the bottom of your deck",
+         "look_top_put_back", lambda m: [m.group("n")]),
+    Rule("evolve-from-deck-gx",
+         r"search your deck for (?P<n>\d+) pokemon gx that evolves from \d+ of your pokemon and put it "
+         r"onto that pokemon to evolve it" + SHUFFLE_TAIL + r"(?: you cant use this card.*)?",
+         "evolve_from_deck_matching", lambda m: ["is_pokemon_gx"]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",

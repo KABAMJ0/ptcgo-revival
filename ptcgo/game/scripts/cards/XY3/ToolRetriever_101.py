@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tools_to_hand
 
 card = ItemCardDef(
     guid="b7c58442-1e30-51b9-b283-f08a6b335f2e",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=101,
     set_code="XY3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=tools_to_hand(None, 2)
 )
