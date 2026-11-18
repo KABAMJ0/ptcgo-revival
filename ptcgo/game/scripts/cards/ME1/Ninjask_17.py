@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="b5392403-e978-5270-a1e8-214f02a715dc",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Cast-Off Shell",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. Search your deck for a Shedinja and put it onto your Bench. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_bench(named_exactly("shedinja"), count=1),
         ),
         Attack(
             title="U-turn",

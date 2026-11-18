@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="95711bbe-b0f8-5496-aa9a-63056073366d",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Follow My Tail",
             game_text="Search your deck for any number of Eevee and Eevee-GX and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named("eevee"), count=5),
         ),
         Attack(
             title="Tackle",

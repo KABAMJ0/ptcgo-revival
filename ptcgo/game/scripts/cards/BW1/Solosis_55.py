@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="a9fef81e-e927-558f-91f2-1987877bee41",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Cell Culture",
             game_text="Search your deck for Solosis and put it into your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("solosis"), count=1),
         ),
         Attack(
             title="Rollout",
