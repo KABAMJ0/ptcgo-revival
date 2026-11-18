@@ -264,6 +264,12 @@ class DamageCalc:
         self.applied_once: Set[str] = set()
 
     @property
+    def to_bench(self) -> bool:
+        """Whether the target sits on its owner's Bench."""
+        parent = self.target.parent
+        return bool(parent) and parent.get_attribute(AttrID.NAME) == "bench"
+
+    @property
     def to_active(self) -> bool:
         """Whether the target sits in its owner's Active spot."""
         parent = self.target.parent
@@ -480,6 +486,28 @@ class Passive:
         """Healing done TO `pokemon`, this passive's view (Sylveon: heals of 30
         or more become 50); the card rewrites the number."""
         return amount
+
+    def wr_applies_to_bench(self, calc: "DamageCalc", carrier: BoardEntity) -> bool:
+        """True to apply Weakness/Resistance to a BENCHED defender from this
+        passive's side of the board (Wide Lens)."""
+        return False
+
+    def modify_resistance_amount(self, amount: int, calc: "DamageCalc",
+                                 carrier: BoardEntity) -> int:
+        """The Resistance reduction after this passive's say (Resistance Gym:
+        every Resistance is 20 smaller). `amount` is the printed reduction."""
+        return amount
+
+    def blocks_attack(self, pokemon: PokemonEntity, carrier: BoardEntity) -> bool:
+        """True to forbid `pokemon` attacking at all (Blizzard Town: Pokemon
+        with 40 HP or less remaining can't attack)."""
+        return False
+
+    def keeps_condition_on_evolve(self, condition: str, pokemon: PokemonEntity,
+                                  carrier: BoardEntity) -> bool:
+        """True to keep `condition` when the Pokemon evolves or devolves (Sea of
+        Nothingness, Dizzying Valley)."""
+        return False
 
     def poison_checkup_counters(self, pokemon: PokemonEntity, carrier: BoardEntity,
                                 counters: int) -> int:
@@ -827,7 +855,12 @@ def compute_damage(
             calc.amount += mod.amount
         calc.amount = max(0, calc.amount)
 
-    if calc.apply_modifiers and attacker is not None:
+    applies_wr = calc.apply_modifiers
+    if not applies_wr and calc.is_attack and calc.to_bench and attacker is not None:
+        # Wide Lens: the holder's attacks are affected by W/R on the Bench too.
+        applies_wr = any(passive.wr_applies_to_bench(calc, carrier)
+                         for passive, carrier in passives)
+    if applies_wr and attacker is not None:
         for passive, carrier in passives:
             passive.modify_weakness(calc, carrier)
             passive.modify_resistance(calc, carrier)
@@ -837,10 +870,17 @@ def compute_damage(
         if calc.weakness_applies and any(t in calc.weak_types for t in attacker_types):
             calc.weakness_hit = True
             calc.amount *= calc.weakness_multiplier
-        resist_type = target.get_attribute(AttrID.RESISTANCE_TYPES)
-        if calc.resistance_applies and resist_type in attacker_types:
+        # A single resistance is stored as a bare value; a delta or a rewrite
+        # may leave a list, so accept both rather than silently miss.
+        resist_types = target.get_attribute(AttrID.RESISTANCE_TYPES) or []
+        if not isinstance(resist_types, (list, tuple, set)):
+            resist_types = [resist_types]
+        if calc.resistance_applies and any(t in attacker_types for t in resist_types):
             calc.resistance_hit = True
-            calc.amount = max(0, calc.amount - RESISTANCE_REDUCTION)
+            reduction = RESISTANCE_REDUCTION
+            for passive, carrier in passives:
+                reduction = passive.modify_resistance_amount(reduction, calc, carrier)
+            calc.amount = max(0, calc.amount - max(0, reduction))
 
     # Defender-side modifiers ("takes N more/less damage from attacks (after
     # applying Weakness and Resistance)"): one flat step, summed, before the
@@ -988,6 +1028,25 @@ def modified_heal_amount(board: BoardState, pokemon: PokemonEntity,
     for passive, carrier in active_passives(board):
         amount = passive.modify_heal_amount(pokemon, carrier, amount)
     return amount
+
+
+def attacks_blocked(board: BoardState, pokemon: PokemonEntity) -> bool:
+    """Whether a passive forbids `pokemon` from attacking (Blizzard Town)."""
+    return any(passive.blocks_attack(pokemon, carrier)
+               for passive, carrier in active_passives(board))
+
+
+def conditions_kept_on_evolve(board: BoardState, pokemon: PokemonEntity,
+                              conditions: List[str]) -> List[str]:
+    """Which of `conditions` survive an evolution/devolution of `pokemon`."""
+    if not conditions:
+        return []
+    kept = []
+    for condition in conditions:
+        if any(passive.keeps_condition_on_evolve(condition, pokemon, carrier)
+               for passive, carrier in active_passives(board)):
+            kept.append(condition)
+    return kept
 
 
 def poison_checkup_counters(board: BoardState, pokemon: PokemonEntity,

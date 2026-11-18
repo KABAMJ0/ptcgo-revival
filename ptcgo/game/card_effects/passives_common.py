@@ -1146,6 +1146,73 @@ def heal_multiplier(bonus: int = 0, amount: Optional[int] = None,
                              minimum=minimum)
 
 
+class WROnBenchPassive(Passive):
+    """Wide Lens: the holder's attacks are affected by Weakness and Resistance
+    on the opponent's Benched Pokemon too."""
+
+    def wr_applies_to_bench(self, calc, carrier):
+        return (calc.is_attack and calc.is_opposing
+                and carrier_pokemon(carrier) is calc.attacker)
+
+
+def wr_on_bench_passive() -> Passive:
+    return WROnBenchPassive()
+
+
+class ResistanceReducedPassive(Passive):
+    """Resistance Gym: every Pokemon's Resistance is `amount` smaller."""
+
+    def __init__(self, amount=20):
+        self.amount = amount
+
+    def modify_resistance_amount(self, amount, calc, carrier):
+        return max(0, amount - self.amount)
+
+
+def resistance_reduced_passive(amount: int = 20) -> Passive:
+    return ResistanceReducedPassive(amount)
+
+
+class NoAttackAtHPPassive(Passive):
+    """Blizzard Town: a Pokemon with `max_remaining` HP or less remaining
+    can't attack -- both sides."""
+
+    def __init__(self, max_remaining=40, opponents_only=False):
+        self.max_remaining = max_remaining
+        self.opponents_only = opponents_only
+
+    def blocks_attack(self, pokemon, carrier):
+        if self.opponents_only and pokemon.owning_player_id == carrier.owning_player_id:
+            return False
+        return pokemon.get_attribute(AttrID.HP, 0) <= self.max_remaining
+
+
+def no_attack_at_hp(max_remaining: int = 40, opponents_only: bool = False) -> Passive:
+    return NoAttackAtHPPassive(max_remaining, opponents_only)
+
+
+class ConditionsSurviveEvolutionPassive(Passive):
+    """Sea of Nothingness ("Special Conditions are not removed when Pokemon
+    evolve or devolve") and Dizzying Valley (Confused only)."""
+
+    def __init__(self, conditions=None):
+        # None = every condition.
+        self.conditions = None if conditions is None else tuple(conditions)
+
+    def keeps_condition_on_evolve(self, condition, pokemon, carrier):
+        if self.conditions is None:
+            return True
+        return condition in self.conditions
+
+
+def conditions_survive_evolution_passive(*conditions) -> Passive:
+    """No `conditions` means all of them; pass client condition names or
+    SpecialConditions members for the narrower wordings."""
+    names = tuple(CLIENT_SPECIAL_CONDITION_NAMES[c] if c in CLIENT_SPECIAL_CONDITION_NAMES
+                  else c for c in conditions) or None
+    return ConditionsSurviveEvolutionPassive(names)
+
+
 class ExtraPoisonCountersPassive(Passive):
     """Poisoned Pokemon take `amount` more damage counters at Checkup
     (Virbank City Gym: "each Pokemon affected by Poison now takes 2 damage
