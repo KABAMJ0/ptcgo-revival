@@ -5050,3 +5050,21 @@ def flip_until_tails_draw(per: int = 1):
         if heads:
             await ctx.draw_cards(per * heads)
     return effect
+
+
+def draw_after(count: int, inner):
+    """Run `inner`, then draw `count` cards."""
+    async def effect(ctx):
+        await inner(ctx)
+        await ctx.draw_cards(count)
+    return effect
+
+
+def discard_after(count: int, inner):
+    """Run `inner`, then discard `count` cards from your hand."""
+    async def effect(ctx):
+        await inner(ctx)
+        await ctx.discard_from_hand(
+            count, minimum=min(count, len(ctx.hand())),
+            prompt=f"Discard {count} card(s) from your hand")
+    return effect

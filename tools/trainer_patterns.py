@@ -2228,6 +2228,14 @@ CONDITION_PREFIXES = [
                 r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
+TAIL_WRAPPERS = [
+    (re.compile(r" then draw (?P<n>\d+) cards?$"), "draw_after",
+     lambda g: [g["n"]]),
+    (re.compile(r" then discard (?P<n>\d+) cards? from your hand$"), "discard_after",
+     lambda g: [g["n"]]),
+]
+
+
 CONDITION_SUFFIXES = [
     (re.compile(r" ace spec you cant have more than 1 ace spec card in your deck$"), None),
     (re.compile(r" if this is the only card in your hand you cant play this card$"),
@@ -2307,6 +2315,21 @@ def resolve(text, depth=0):
             return inner
         if not inner.get("condition"):
             return dict(inner, condition=condition)
+
+    for pattern, wrapper, args in TAIL_WRAPPERS:
+        found = pattern.search(text)
+        if not found:
+            continue
+        inner = resolve(text[:found.start()], depth + 1)
+        if inner is None or inner.get("condition"):
+            continue
+        groups = found.groupdict()
+        return {
+            "rule": wrapper + "+" + inner["rule"],
+            "expr": "%s(%s, %s)" % (wrapper, ", ".join(args(groups)), inner["expr"]),
+            "symbols": inner["symbols"] | {wrapper},
+            "kind": inner.get("kind", "effect"),
+        }
 
     match = ENDS_TURN.search(text)
     if match:
