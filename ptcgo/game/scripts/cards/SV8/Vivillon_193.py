@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_each_from_deck
 
 card = PokemonCardDef(
     guid="e1859868-24eb-56d5-9742-454d6bb5b384",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Evo-Powder",
             game_text="For each of your Benched Pok\u00e9mon, search your deck for a card that evolves from that Pok\u00e9mon and put it onto that Pok\u00e9mon to evolve it. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=evolve_each_from_deck(),
         ),
         Attack(
             title="Cutting Wind",

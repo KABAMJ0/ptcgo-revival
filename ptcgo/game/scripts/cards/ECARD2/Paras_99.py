@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_from_deck_attack
 
 card = PokemonCardDef(
     guid="2b6a9312-2ab8-533a-8144-e932330c748f",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Spore Evolution",
             game_text="Search your deck for a card that evolves from Paras. Attach it to Paras. This counts as evolving Paras. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=evolve_from_deck_attack(),
         ),
     ],
 )

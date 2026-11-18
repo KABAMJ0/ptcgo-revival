@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_from_deck_attack, flip_or_nothing
 
 card = PokemonCardDef(
     guid="0c9cf154-ed72-5e15-8355-7982f729e1af",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Emerge",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, search your deck for a card that evolves from this Pok\u00e9mon and put it onto this Pok\u00e9mon to evolve it. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=flip_or_nothing(then=evolve_from_deck_attack()),
         ),
         Attack(
             title="Bug Bite",
