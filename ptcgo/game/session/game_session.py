@@ -121,7 +121,8 @@ from .effects import (
 )
 from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
-    burn_recovery_blocked, effective_bench_capacity, effective_max_hp,
+    burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
+    effective_bench_capacity, effective_max_hp,
     effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
     tool_suppressed,
@@ -1476,6 +1477,18 @@ class GameSession:
         self.board_state.temporary_passives = [
             tp for tp in self.board_state.temporary_passives
             if tp.carrier_entity_id != entity_id
+        ]
+        # Effect-created rewrites ride the card too (subtypes, stage, energy
+        # type, burn rules): they end when it leaves play or evolves.
+        self.board_state.subtype_overrides.pop(entity_id, None)
+        self.board_state.stage_overrides.pop(entity_id, None)
+        self.board_state.energy_type_overrides = [
+            o for o in self.board_state.energy_type_overrides
+            if o.holder_entity_id != entity_id
+        ]
+        self.board_state.burn_overrides = [
+            o for o in self.board_state.burn_overrides
+            if o.target_entity_id != entity_id
         ]
         # "The Defending Pokemon takes N more damage" rides that card: an
         # effect of an attack ends when it leaves play or evolves.
@@ -3360,9 +3373,7 @@ class GameSession:
     async def _checkup_burn(self, player_id: str, active):
         """Burn tick: 2 damage counters (passives may modify), then a flip --
         heads cures; blocks_burn_recovery skips the flip entirely."""
-        counters = 2
-        for passive, carrier in active_passives(self.board_state):
-            counters = passive.modify_burn_counters(counters, active, carrier)
+        counters = burn_checkup_counters(self.board_state, active)
         knocked_out = await self._apply_raw_damage(
             active, max(0, counters) * 10, GameSequence.BURN_DAMAGE.value
         )
@@ -3370,7 +3381,8 @@ class GameSession:
             await self.choreo_pause(1.5)
             await self._resolve_raw_knockout(active)
             return
-        if burn_recovery_blocked(self.board_state, active):
+        if burn_recovery_blocked(self.board_state, active) \
+                or burn_recovery_suppressed(self.board_state, active):
             return
         flip = random.choice([0, 1])
         heads = flip == 0

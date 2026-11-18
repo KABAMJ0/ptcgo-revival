@@ -307,6 +307,27 @@ class TurnState:
         ]
         self.extra_prize_watchers = []
         if board is not None:
+            # Effect-created rewrites expire on their own window (None = until
+            # the card leaves play, cleared by clear_pokemon_effects).
+            board.subtype_overrides = {
+                eid: kept for eid, entries in
+                (getattr(board, "subtype_overrides", None) or {}).items()
+                if (kept := [(s, t) for s, t in entries
+                             if t is None or t >= self.turn_number])
+            }
+            board.stage_overrides = {
+                eid: entry for eid, entry in
+                (getattr(board, "stage_overrides", None) or {}).items()
+                if entry[1] is None or entry[1] >= self.turn_number
+            }
+            board.energy_type_overrides = [
+                o for o in (getattr(board, "energy_type_overrides", None) or [])
+                if o.through_turn is None or o.through_turn >= self.turn_number
+            ]
+            board.burn_overrides = [
+                o for o in (getattr(board, "burn_overrides", None) or [])
+                if o.through_turn is None or o.through_turn >= self.turn_number
+            ]
             board.temporary_passives = [
                 tp for tp in (getattr(board, "temporary_passives", None) or [])
                 if tp.expires_after_turn is None

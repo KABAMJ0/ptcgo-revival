@@ -2,7 +2,7 @@ import uuid
 import json
 import random
 import logging
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, List, Optional, Tuple, Union
 from ptcgo.game.attributes import AttrID, CardType, PokemonStage, Rarities, PlayerAttrID
 from ptcgo.game.content.definitions import def_for
 from ptcgo.game.models.card import Card
@@ -363,6 +363,17 @@ class BoardState:
         # Effect-granted TempPassive entries (passives.py); pruned by
         # TurnState.begin_turn expiry and GameSession.clear_pokemon_effects.
         self.temporary_passives: List[Any] = []
+        # Effect-created rewrites that outlive a turn: each is a small record
+        # (see passives.py) with its own through_turn, pruned at begin_turn and
+        # by clear_pokemon_effects when its Pokemon leaves play.
+        # entity_id -> [(subtype, through_turn)]: "this Pokemon counts as ..."
+        self.subtype_overrides: Dict[str, List[Any]] = {}
+        # entity_id -> (PokemonStage value, through_turn): "treat it as a Stage 1".
+        self.stage_overrides: Dict[str, Tuple[Any, Optional[int]]] = {}
+        # "All Energy attached to this Pokemon provide X Energy instead".
+        self.energy_type_overrides: List[Any] = []
+        # "put 4 damage counters instead of 2 on Burned Pokemon between turns".
+        self.burn_overrides: List[Any] = []
         # player_id -> a Bench limit set for the rest of the game by an effect
         # ("from now on, your Bench is 6"); effective_bench_capacity reads it.
         # No expiry: unlike the turn-scoped state this outlives every turn, so

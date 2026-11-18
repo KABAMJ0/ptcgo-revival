@@ -44,9 +44,14 @@ from ptcgo.game.content.visualizations import VisualizationArrow, VisualizationL
 from .constants import PROMPT_NO, PROMPT_YES
 from .scheduling import TurnBoundary, TurnScheduler
 from .passives import (
+    BurnOverride,
+    EnergyTypeOverride,
     TempPassive,
     TargetDamageModifier,
     ability_granting_card,
+    effective_stage,
+    effective_subtypes,
+    has_subtype,
     ability_effects_blocked,
     ability_locked,
     active_passives,
@@ -946,6 +951,91 @@ class EffectContext:
         if pokemon is None:
             return lambda candidate: True
         return lambda candidate, _only=pokemon: candidate is _only
+
+    def add_subtype(self, pokemon: PokemonEntity, subtype: str,
+                    through_turn: Optional[int] = None) -> None:
+        """"This Pokemon counts as a [subtype]": adds to the subtypes the
+        reads consult (Single Strike, Fusion Strike, VMAX, Stage 1 ...),
+        leaving the printed ones in place. None = until it leaves play.
+
+        Reach it through `has_subtype` / passives.effective_subtypes; the
+        engine's own subtype gates (Power Tablet-style "your Fusion Strike
+        Pokemon's attacks") read the same list.
+        """
+        entries = self.board.subtype_overrides.setdefault(pokemon.entity_id, [])
+        entries.append((subtype, through_turn))
+
+    def has_subtype(self, pokemon: PokemonEntity, subtype: str) -> bool:
+        """Whether this Pokemon counts as `subtype` right now."""
+        return has_subtype(self.board, pokemon, subtype)
+
+    def effective_subtypes(self, pokemon: PokemonEntity) -> List[str]:
+        """Every subtype this Pokemon counts as right now."""
+        return effective_subtypes(self.board, pokemon)
+
+    def set_pokemon_stage(self, pokemon: PokemonEntity, stage,
+                          through_turn: Optional[int] = None) -> None:
+        """"Treat this Pokemon as a Stage 1" (or any other stage): the stage
+        Basic-only and evolution rules read, without touching the printed card.
+        None = until it leaves play."""
+        self.board.stage_overrides[pokemon.entity_id] = (stage, through_turn)
+
+    def rewrite_energy_types(self, types: Sequence[int],
+                             pokemon: Optional[PokemonEntity] = None,
+                             for_player: Optional[str] = None,
+                             basic_only: bool = False,
+                             colorless_only: bool = False,
+                             from_types: Optional[Sequence[int]] = None,
+                             through_turn: Optional[int] = None) -> None:
+        """"All Energy attached to this Pokemon provide [X] Energy instead of
+        their usual type" (Steelix, Erika's Oddish), "treat [X] Energy as [Y]",
+        "Energy cards that provide only Colorless attached to your Grass
+        Pokemon provide Grass Energy instead". Read-time only: the attached
+        cards never change.
+
+        `types` is what they provide instead; scope is one Pokemon
+        (`pokemon`, default the attacker/source's holder if it is one) or a
+        side (`for_player`); `basic_only` / `colorless_only` / `from_types`
+        narrow which attached cards are rewritten. None = until it leaves play.
+        """
+        holder = pokemon
+        if holder is None and isinstance(self.attacker, PokemonEntity):
+            holder = self.attacker
+        self.board.energy_type_overrides.append(EnergyTypeOverride(
+            types=[int(t) for t in types],
+            holder_entity_id=getattr(holder, "entity_id", None) if for_player is None else None,
+            player_id=for_player,
+            basic_only=basic_only,
+            colorless_only=colorless_only,
+            from_types=list(int(t) for t in from_types) if from_types else None,
+            through_turn=through_turn,
+            source_entity_id=getattr(self.source, "entity_id", None),
+        ))
+
+    def override_burn(self, counters: Optional[int] = None, no_flip: bool = False,
+                      extra_counters: int = 0,
+                      pokemon: Optional[PokemonEntity] = None,
+                      for_player: Optional[str] = None,
+                      through_turn: Optional[int] = None) -> None:
+        """"Put 4 damage counters instead of 2 on your opponent's Burned
+        Pokemon between turns" (`counters=4`) and "instead of flipping a coin
+        for Burned Pokemon" (`no_flip=True`, so the Burned Pokemon cannot
+        recover at checkup this way).
+
+        `extra_counters` adds without replacing. Scope: one Pokemon
+        (`pokemon`) or a side (`for_player`, keyed to the Burned Pokemon's
+        owner -- the default is every Burned Pokemon). None = until it leaves
+        play; pass a turn number for a window.
+        """
+        self.board.burn_overrides.append(BurnOverride(
+            counters=counters,
+            extra_counters=extra_counters,
+            no_flip=no_flip,
+            target_entity_id=getattr(pokemon, "entity_id", None),
+            player_id=for_player,
+            through_turn=through_turn,
+            source_entity_id=getattr(self.source, "entity_id", None),
+        ))
 
     async def set_bench_limit(self, limit: int,
                               player_id: Optional[str] = None) -> None:
@@ -1909,7 +1999,7 @@ class EffectContext:
         if not prize_area or not prize_area.children:
             return False
         prizes = list(prize_area.children)
-        basics = [c for c in prizes if is_basic_pokemon(c)]
+        basics = [c for c in prizes if is_basic_pokemon(c, self.board)]
         picked_id = await session.prompt_prize_reveal_pick(
             self.player_id, self.source.entity_id,
             [c.entity_id for c in prizes], [c.entity_id for c in basics],
@@ -2673,11 +2763,17 @@ def is_pokemon_card(card: CardEntity) -> bool:
     return card.get_attribute(AttrID.CARD_TYPE) in (CardType.POKEMON.value, CardType.LEGEND_HALF.value)
 
 
-def is_basic_pokemon(card: CardEntity) -> bool:
-    return (
-        is_pokemon_card(card)
-        and card.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value
-    )
+def is_basic_pokemon(card: CardEntity, board=None) -> bool:
+    """Whether a card is (or counts as) a Basic Pokemon. With a `board`, an
+    effect-created stage rewrite applies: "Treat the new Benched Pokemon as a
+    Basic Pokemon" (Ninjask, Kabuto, Mysterious Fossil) reads through
+    ctx.set_pokemon_stage, so a Stage-1 body an effect placed down counts as
+    Basic for every later check."""
+    if not is_pokemon_card(card):
+        return False
+    stage = effective_stage(board, card) if board is not None \
+        else card.get_attribute(AttrID.STAGE)
+    return stage == PokemonStage.BASIC.value
 
 
 def is_evolution_pokemon(card: CardEntity) -> bool:
