@@ -6013,6 +6013,79 @@ def _shuffle_own_energy_for_damage(m, ability):
             await ctx.deal_damage(0)
     return effect
 
+
+def _delayed_checkup_rider(ctx, session_target_id, apply):
+    """Schedules `apply(ctx2)` at the checkup ending the opponent's next turn,
+    dropped if the Pokemon has left the Active spot."""
+    owner_id, target_id = session_target_id
+
+    def _guard(board):
+        active = board.active_pokemon(owner_id) if owner_id else None
+        return active is not None and active.entity_id == target_id
+
+    async def _fire(session):
+        pokemon = session.board_state.get_entity(target_id)
+        if pokemon is None:
+            return
+        from ptcgo.game.session.effects import EffectContext
+        ctx2 = EffectContext(session, owner_id, pokemon, None)
+        await apply(ctx2, pokemon)
+
+    ctx.schedule_at_checkup(1, _fire, guard=_guard)
+
+
+def _schedule_counters_on_defender(m, ability):
+    counters = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+
+        async def apply(ctx2, pokemon):
+            await ctx2.deal_damage(counters * 10, target=pokemon,
+                                   as_counters=True)
+        _delayed_checkup_rider(
+            ctx, (defender.owning_player_id, defender.entity_id), apply)
+    return effect
+
+
+def _schedule_condition_on_defender(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+
+        async def apply(ctx2, pokemon):
+            await ctx2.apply_special_condition(pokemon, condition)
+        _delayed_checkup_rider(
+            ctx, (defender.owning_player_id, defender.entity_id), apply)
+    return effect
+
+
+def _schedule_knock_out_defender(m, ability):
+    discard_all = m.groupdict().get("discard") is not None
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        if discard_all and ctx.attacker is not None:
+            energies = ctx.attached_energies(ctx.attacker)
+            if energies:
+                await ctx.discard_energy_from(ctx.attacker, len(energies))
+
+        async def apply(ctx2, pokemon):
+            await ctx2.session._resolve_raw_knockout(pokemon)
+        _delayed_checkup_rider(
+            ctx, (defender.owning_player_id, defender.entity_id), apply)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -7412,6 +7485,22 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+    ("delayed.counters-on-defender",
+     re.compile(r"at the end of your opponent's next turn, put (\d+) damage "
+                r"counters? on the defending pokemon\."),
+     _schedule_counters_on_defender),
+    ("delayed.condition-on-defender",
+     re.compile(r"at the end of your opponent's next turn, the defending pokemon "
+                r"is now (" + _CONDITION_WORDS + r")\."),
+     _schedule_condition_on_defender),
+    ("delayed.knock-out-defender",
+     re.compile(r"(?:(?P<discard>discard all energy (?:attached to|from) this "
+                r"pokemon)\. )?(?:at the end of your opponent's next turn, "
+                r"discard the defending pokemon and all attached cards|the "
+                r"defending pokemon is knocked out at the end of your opponent's "
+                r"next turn|at the end of your opponent's next turn, the "
+                r"defending pokemon will be knocked out)\."),
+     _schedule_knock_out_defender),
     # -- batch 48: discard-pile attaches with their conditional tails ------
     ("attach.flip-discard-energy-self",
      re.compile(r"flip a coin\. if heads, attach (?P<count>an?|\d+) (?:(?P<type>"

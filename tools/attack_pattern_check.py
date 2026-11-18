@@ -241,6 +241,30 @@ def check_less_per_counter(before, after, rig, ability, entities):
         f"dealt {dealt} (expected {expected}: printed - {per} x {counters})"
 
 
+
+def check_delayed_counters(before, after, rig, ability, entities):
+    dealt = getattr(rig, "delayed_delta", {}).get(
+        entities["p2_active"].entity_id, 0)
+    expected = text_number(ability.game_text, r"put (\d+) damage counters")
+    want = (expected or 0) * 10
+    return dealt == want, f"defender lost {dealt} (expected {want} from the " \
+                          f"delayed counters)"
+
+
+def check_delayed_knockout(before, after, rig, ability, entities):
+    defender_id = entities["p2_active"].entity_id
+    gone = defender_id not in after["hp"] or after["hp"][defender_id] <= 0
+    return gone, f"defender HP after the delayed knockout={after['hp'].get(defender_id)}"
+
+
+def check_delayed_condition(before, after, rig, ability, entities):
+    from ptcgo.game.attributes import AttrID as _Attr
+    defender = entities["p2_active"]
+    conditions = defender.get_attribute(_Attr.SPECIAL_CONDITIONS) or []
+    match = re.search(r"is now (\w+)", ability.game_text or "")
+    wanted = match.group(1) if match else "?"
+    return bool(conditions), f"defender conditions={conditions} (wanted {wanted})"
+
 def check_lock_defender(before, after, rig, ability, entities):
     locks = getattr(rig.session.turn_state, "attack_locks", {})
     theirs = [key for key in locks
@@ -375,6 +399,9 @@ CASES = [
     ("scale.times-both-actives-energy", check_bonus_condition, (1, 1, 1, 1), 0),
     ("search.evolve-any-own", check_check_noop, (1, 1, 1, 1), 0),
     ("ko.chosen-basic-non-gx", check_check_noop, (1, 1, 1, 1), 0),
+    ("delayed.counters-on-defender", check_delayed_counters, (1, 1, 1, 1), 0),
+    ("delayed.knock-out-defender", check_delayed_knockout, (1, 1, 1, 1), 0),
+    ("delayed.condition-on-defender", check_delayed_condition, (1, 1, 1, 1), 0),
 ]
 
 
@@ -414,7 +441,20 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
     with coins(coin_values):
         await resolve_attack(rig.session, P1, attacker, ability,
                              ability.ability_id)
+    mid = snapshot(rig)
+    if pattern.startswith("delayed."):
+        pending = list(rig.session.scheduled_effects)
+        rig.session.scheduled_effects.clear()
+        for entry in pending:
+            guard = entry.get("guard")
+            if guard is not None and not guard(rig.board):
+                continue
+            await entry["effect"](rig.session)
     after = snapshot(rig)
+    rig.delayed_delta = {
+        entity_id: mid["hp"].get(entity_id, 0) - after["hp"].get(entity_id, 0)
+        for entity_id in after["hp"]
+    }
     ok, detail = check(before, after, rig, ability, entities)
     return (PASS if ok else FAIL), f"{pattern:<30} {definition.display_name} " \
                                    f"({definition.set_code}) '{ability.title}': {detail}"
