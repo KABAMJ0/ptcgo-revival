@@ -50,6 +50,7 @@ from .passives import (
     active_to_bench_counters,
     attack_coin_reroll_offered,
     attack_effects_blocked,
+    attacks_of,
     carrier_pokemon,
     compute_damage,
     conditions_blocked,
@@ -205,6 +206,19 @@ class EffectContext:
 
     def attached_energies(self, pokemon: PokemonEntity) -> list:
         return self.board.attached_energies(pokemon)
+
+    def attacks_of(self, pokemon: BoardEntity) -> list:
+        """The attacks printed on another entity, as Attack definitions.
+
+        The lookup behind "this Pokemon can use the attacks of any Pokemon in
+        play" (Mew-EX's Versatile), "... of your Benched Pokemon" (Mew ex's
+        Memory Helix), "... of a Basic Pokemon in your discard pile"
+        (Marshadow-GX's Shadow Hunt) and "... of its previous evolutions"
+        (Memory Capsule). Feed any pick straight to ctx.use_attack(attack,
+        source=that_entity) so damage and effects stay anchored to the real
+        attacker.
+        """
+        return attacks_of(pokemon)
 
     def hand(self, player_id: Optional[str] = None) -> list:
         area = self.board.find_player_area(player_id or self.player_id, "hand")
@@ -733,6 +747,74 @@ class EffectContext:
         the opponent's Active" (Phoebe); cleared at begin_turn."""
         self.session.turn_state.ignore_target_effects_entities.add(entity.entity_id)
 
+    def ignore_attack_cost(
+        self,
+        target: Optional[PokemonEntity] = None,
+        predicate: Optional[Callable[[PokemonEntity], bool]] = None,
+        attack_title: Optional[str] = None,
+        through_turn: Optional[int] = None,
+    ) -> None:
+        """"Ignore all Energy in the attack cost(s)" for the rest of the turn.
+
+        Card text served: "ignore all Energy in this Pokemon's attack costs"
+        (Cramorant-style grants written as a one-off effect), "ignore all
+        Energy in the cost of Frightening Howl used by this Pokemon"
+        (attack_title), and "during your next turn, ignore all Energy in the
+        attack costs of Grass Pokemon and Fire Pokemon" (predicate + a
+        through_turn of turn_number + 2, the same window
+        add_passive_through_own_next_turn uses).
+
+        `target` defaults to this effect's attacker (the Pokemon acting), or
+        its source when the source is a Pokemon; `predicate(pokemon)` instead
+        matches any set of Pokemon (types, team, stage). Held until the end of
+        this turn unless `through_turn` names a later turn number.
+
+        Example (card script)::
+
+            ctx.ignore_attack_cost(predicate=lambda p: set(
+                p.get_attribute(AttrID.POKEMON_TYPES) or []) & _GRASS_OR_FIRE,
+                through_turn=ctx.session.turn_state.turn_number + 2)
+        """
+        self.session.turn_state.waive_attack_cost(
+            predicate if predicate is not None else self._attack_cost_predicate(target),
+            attack_title=attack_title,
+            through_turn=through_turn,
+        )
+
+    def ignore_next_attack_cost(
+        self,
+        target: Optional[PokemonEntity] = None,
+        attack_title: Optional[str] = None,
+    ) -> None:
+        """"You may use this attack without paying its Energy cost": the next
+        matching attack this turn costs nothing, then the grant is spent.
+
+        `target` defaults to this effect's attacker; `attack_title` narrows it
+        to one printed attack name.
+
+        Example (card script): ``ctx.ignore_next_attack_cost()`` for "you may
+        use this attack without paying its Energy cost", or
+        ``ctx.ignore_next_attack_cost(attack_title="Solar Beam")`` to free just
+        the named attack of the Pokemon using it.
+        """
+        self.session.turn_state.waive_attack_cost(
+            self._attack_cost_predicate(target), attacks=1, attack_title=attack_title
+        )
+
+    def _attack_cost_predicate(
+        self, target: Optional[PokemonEntity]
+    ) -> Callable[[PokemonEntity], bool]:
+        """The Pokemon an attack-cost grant defaults to: `target`, else the
+        acting Pokemon (the attacker, or the source when it is a Pokemon)."""
+        pokemon = target if isinstance(target, PokemonEntity) else None
+        if pokemon is None and isinstance(self.attacker, PokemonEntity):
+            pokemon = self.attacker
+        if pokemon is None and isinstance(self.source, PokemonEntity):
+            pokemon = self.source
+        if pokemon is None:
+            return lambda candidate: True
+        return lambda candidate, _only=pokemon: candidate is _only
+
     def take_extra_turn(self) -> None:
         """"Take another turn after this one. (Skip Pokemon Checkup.)"
         (Star Chronos, Yoga Loop); consumed by run_turn_loop."""
@@ -840,8 +922,19 @@ class EffectContext:
         )
         return candidates[idx] if idx is not None else None
 
-    async def use_attack(self, ability: Ability) -> bool:
+    async def use_attack(self, ability: Ability, source=None,
+                         attacker=None) -> bool:
         """Resolves another attack's damage/effect as this attack (Cross Fusion).
+
+        Also the granted-attack flow: "this Pokemon can use the attacks of
+        any Pokemon in play" (Mew-EX's Versatile), "... of any of your Benched
+        Pokemon" (Mew ex's Memory Helix), "... of any Basic Pokemon in your
+        discard pile" (Marshadow-GX's Shadow Hunt), "... of its previous
+        evolutions" (Memory Capsule). Pass the entity the attack is printed on
+        as `source` -- it may be Benched, in a discard pile, or the opponent's
+        -- and `attacker` to override the Pokemon actually using it (default:
+        this effect's attacker). Damage, Weakness/Resistance and every effect
+        that reads ctx.attacker anchor to the ATTACKER, never to `source`.
 
         Returns False (a fizzle: the attack does nothing and the turn ends
         normally) when the copy chain revisits an attack title -- Cross Fusion
@@ -854,19 +947,33 @@ class EffectContext:
                 f"re-entered the copy chain {self._copy_chain}; fizzling."
             )
             return False
+        acting = attacker if attacker is not None else self.attacker
+        if source is not None and source is not acting:
+            logging.info(
+                f"[Effects {self.game_id}] Granted attack '{ability.title}' "
+                f"printed on {source.entity_id} is used by {acting.entity_id}."
+            )
         self._copy_chain.append(ability.title)
         self.ability = ability
-        if ability.effect is None or ability.effect is unimplemented:
-            if ability.effect is unimplemented:
-                logging.warning(
-                    f"[Effects {self.game_id}] Attack '{ability.title}' has "
-                    f"unimplemented text; resolving base damage only."
-                )
-            await self.deal_damage()
-        else:
-            await ability.effect(self)
-        if getattr(ability, "locks_next_turn", False):
-            self.session.turn_state.lock_attack(self.attacker.entity_id, ability.ability_id)
+        previous_source = self.source
+        # The granted attack's own script reads ctx.attacker/ctx.source for
+        # "this Pokemon" (energy discards, switches); both must be the user.
+        self.source = acting
+        try:
+            if ability.effect is None or ability.effect is unimplemented:
+                if ability.effect is unimplemented:
+                    logging.warning(
+                        f"[Effects {self.game_id}] Attack '{ability.title}' has "
+                        f"unimplemented text; resolving base damage only."
+                    )
+                await self.deal_damage()
+            else:
+                await ability.effect(self)
+            if getattr(ability, "locks_next_turn", False):
+                self.session.turn_state.lock_attack(acting.entity_id,
+                                                    ability.ability_id)
+        finally:
+            self.source = previous_source
         return True
 
     async def _queue_coin_results(self, results: List[int], title: str,

@@ -7,7 +7,7 @@ client highlights exactly those entities (it does no legality checks itself).
 import logging
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from ptcgo.game.attributes import (
     AttrID,
@@ -91,6 +91,39 @@ def action_id_for(entity_id: str, verb: str) -> str:
 
 
 @dataclass
+class AttackCostWaiver:
+    """"Ignore all Energy in the attack cost" grant, turn-scoped.
+
+    Card text served: "you may use this attack without paying its Energy
+    cost" (attacks_left=1, the next matching attack is free) and "ignore all
+    Energy in the attack costs of <Pokemon>" / "... during your next turn,
+    ignore all Energy in the attack costs of Grass Pokemon and Fire Pokemon"
+    (attacks_left=None, through_turn set for a next-turn window). Created
+    through EffectContext.ignore_attack_cost / ignore_next_attack_cost; the
+    attack offer (legal_actions._attack_entries) reads it, and the attack
+    declaration consumes a single-use waiver.
+    """
+
+    # Which Pokemon's attacks are free; the acting Pokemon by default.
+    predicate: Callable[[PokemonEntity], bool]
+    # Last turn number the waiver applies on.
+    through_turn: int
+    # None = every matching attack until through_turn; 1 = the next one.
+    attacks_left: Optional[int] = None
+    # None = any of the Pokemon's attacks; else that printed title only
+    # ("ignore all Energy in the cost of Frightening Howl used by ...").
+    attack_title: Optional[str] = None
+
+    def covers(self, pokemon: PokemonEntity, attack_title: Optional[str]) -> bool:
+        """Whether `pokemon`'s attack titled `attack_title` attacks for free."""
+        if self.attacks_left is not None and self.attacks_left <= 0:
+            return False
+        if self.attack_title is not None and self.attack_title != attack_title:
+            return False
+        return bool(self.predicate(pokemon))
+
+
+@dataclass
 class TurnState:
     """Per-game turn bookkeeping consumed by the legality rules."""
 
@@ -162,6 +195,10 @@ class TurnState:
     # Entities whose attacks ignore effects on the opponent's Active THIS turn
     # (Phoebe); cleared every begin_turn.
     ignore_target_effects_entities: Set[str] = field(default_factory=set)
+    # "Ignore all Energy in the attack cost" grants (without paying its
+    # Energy cost / ignore all Energy in the attack costs of ...); pruned by
+    # through_turn each begin_turn.
+    attack_cost_waivers: List[AttackCostWaiver] = field(default_factory=list)
     # player_id -> attack titles that player declared on THEIR previous turn
     # ("If 1 of your Pokemon used Yoga Loop during your last turn...").
     attack_titles_prev_turn_by_player: Dict[str, List[str]] = field(default_factory=dict)
@@ -222,6 +259,9 @@ class TurnState:
             if entry[0] >= self.turn_number
         }
         self.ignore_target_effects_entities = set()
+        self.attack_cost_waivers = [
+            w for w in self.attack_cost_waivers if w.through_turn >= self.turn_number
+        ]
         self.extra_prize_watchers = []
         if board is not None:
             board.temporary_passives = [
@@ -294,6 +334,48 @@ class TurnState:
         if self.turn_number <= 2:
             return False
         return self.entered_play_turn.get(entity_id, 0) < self.turn_number
+
+    def waive_attack_cost(
+        self,
+        predicate: Optional[Callable[[PokemonEntity], bool]] = None,
+        attacks: Optional[int] = None,
+        attack_title: Optional[str] = None,
+        through_turn: Optional[int] = None,
+    ) -> None:
+        """"Ignore all Energy in the attack cost" for `predicate`'s attacks.
+
+        `predicate(pokemon)` defaults to every Pokemon; `attacks=None` holds
+        until `through_turn` (None = this turn only), `attacks=1` covers only
+        the next matching attack declared. `attack_title` narrows the grant to
+        one printed attack name.
+        """
+        self.attack_cost_waivers.append(AttackCostWaiver(
+            predicate if predicate is not None else (lambda pokemon: True),
+            self.turn_number if through_turn is None else through_turn,
+            attacks,
+            attack_title,
+        ))
+
+    def attack_cost_waived(self, pokemon: PokemonEntity,
+                           attack_title: Optional[str]) -> bool:
+        """Whether `pokemon`'s attack titled `attack_title` is free right now.
+
+        Read-only: the attack offer asks this, the declaration spends it
+        through consume_attack_cost_waiver.
+        """
+        return any(
+            w.covers(pokemon, attack_title) for w in self.attack_cost_waivers
+        )
+
+    def consume_attack_cost_waiver(self, pokemon: PokemonEntity,
+                                   attack_title: Optional[str]) -> bool:
+        """Spends one shot of a single-use waiver covering this attack."""
+        for waiver in self.attack_cost_waivers:
+            if waiver.attacks_left is None or not waiver.covers(pokemon, attack_title):
+                continue
+            waiver.attacks_left -= 1
+            return True
+        return False
 
 
 def selectable_action(
@@ -826,8 +908,12 @@ def _attack_entries(
         if definition is not None and definition.condition is not None \
                 and not definition.condition(board, player_id, active):
             continue
-        # Cost-modifying passives (e.g. Excited Heart) apply here.
+        # Cost-modifying passives (e.g. Excited Heart) apply here; a
+        # turn-scoped "ignore all Energy in the attack cost" grant then waives
+        # the rest (Solar Power, "without paying its Energy cost").
         cost = effective_attack_cost(board, active, ability.get("cost") or {})
+        if state.attack_cost_waived(active, (ability.get("title") or {}).get("id")):
+            cost = {}
         if attack_cost_satisfied(cost, energies, board):
             entries.append(_target_map_entry(
                 game_id, active.entity_id, ability_id, ACTION_USE_ATTACK,

@@ -18,8 +18,10 @@ from ptcgo.game.attributes import AttrID, TrainerType
 from ptcgo.game.session.passives import (
     Passive,
     TurnDamageModifier,
+    attacks_of,
     carrier_pokemon,
     effective_max_hp,
+    previous_evolution_attacks,
 )
 
 
@@ -287,6 +289,106 @@ def attack_discount_passive(count, self_only=True, pred=None) -> Passive:
     """Attacks cost [C] N less; self_only=False widens to the carrier
     owner's whole team, pred(pokemon) refines further."""
     return AttackDiscountPassive(count, self_only, pred)
+
+
+class FreeAttackCostPassive(Passive):
+    """The carrier's attacks cost nothing while `condition` holds: "ignore all
+    Energy in this Pokemon's attack costs" (Cramorant's Lost Provisions),
+    "... in the attack cost of each of this Pokemon's attacks" (Yanmega,
+    the Rotom forms), "if you have Nidoqueen in play, ignore all Energy in
+    the costs of attacks used by this Pokemon" (Nidoking)."""
+
+    def __init__(self, condition=None, protects="carrier"):
+        self.condition = condition
+        self.protects = _protects_pred(protects)
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if not self.protects(pokemon, carrier):
+            return cost
+        if self.condition is not None and not self.condition(board, pokemon, carrier):
+            return cost
+        return {}
+
+
+def free_attack_cost_passive(condition=None, protects="carrier") -> Passive:
+    """"Ignore all Energy in <Pokemon>'s attack costs": a continuous grant for
+    the named card texts in FreeAttackCostPassive; `condition(board, pokemon,
+    carrier)` gates it on board state, `protects` is 'carrier' | 'team' |
+    callable(pokemon, carrier). Example::
+
+        Ability("Ancient Roar", game_text="...",
+                passive=free_attack_cost_passive(
+                    condition=lambda board, p, c: has_nidoqueen(board, c)))
+    """
+    return FreeAttackCostPassive(condition, protects)
+
+
+class AttackGrantPassive(Passive):
+    """"This Pokemon can use the attacks of <sources> as its own."
+
+    `sources(board, pokemon, carrier)` returns the entities whose printed
+    attacks the holder may use -- any Pokemon in play, the holder's Benched
+    Pokemon, Basics in the discard pile, the opponent's Active. The attacks
+    keep their printed cost and ability_id, so the panel offers each one and
+    an attack lock still applies per the attacking entity.
+    """
+
+    def __init__(self, sources):
+        self.sources = sources
+
+    def granted_attacks(self, board, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return []
+        out = []
+        for source in self.sources(board, pokemon, carrier) or []:
+            if source is pokemon:
+                continue  # the holder's own attacks are already offered
+            out.extend(attacks_of(source))
+        return out
+
+
+def attack_grant_passive(sources) -> Passive:
+    """May use the attacks of the entities `sources(board, pokemon, carrier)`
+    returns: "This Pokemon can use the attacks of any Pokemon in play (both
+    yours and your opponent's)" (Mew-EX's Versatile), "... of any of your
+    Benched Pokemon" (Mew ex's Memory Helix), "... of any Basic Pokemon in
+    your discard pile" (Marshadow-GX's Shadow Hunt), "... of its previous
+    evolutions" (Memory Capsule -- see previous_evolution_grant_passive).
+
+    Example (card script)::
+
+        Ability("Versatile", game_text="...",
+                passive=attack_grant_passive(lambda board, pokemon, carrier: [
+                    p for pid in board.player_ids
+                    for p in board.pokemon_in_play(pid) if p is not pokemon]))
+    """
+    return AttackGrantPassive(sources)
+
+
+class PreviousEvolutionAttacksPassive(Passive):
+    """"This Pokemon can use the attacks of its previous evolutions" --
+    the attacks of the stack tucked underneath the holder (Memory Capsule).
+    `extra_sources(board, pokemon, carrier)` widens the grant."""
+
+    def __init__(self, extra_sources=None):
+        self.extra_sources = extra_sources
+
+    def granted_attacks(self, board, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return []
+        out = previous_evolution_attacks(pokemon)
+        for source in (self.extra_sources(board, pokemon, carrier) or []
+                       if self.extra_sources is not None else []):
+            if source is not pokemon:
+                out.extend(attacks_of(source))
+        return out
+
+
+def previous_evolution_grant_passive(extra_sources=None) -> Passive:
+    """May use the attacks of the Pokemon tucked underneath it: "this Pokemon
+    can use the attacks of its previous evolutions" (Memory Capsule and its
+    Stadium/Ability variants); `extra_sources` widens the grant."""
+    return PreviousEvolutionAttacksPassive(extra_sources)
 
 
 class NoWeaknessPassive(Passive):

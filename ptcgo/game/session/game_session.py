@@ -5198,6 +5198,9 @@ class GameSession:
                 self.turn_state.lock_attack(card.entity_id, action_id)
             if ability.vstar:
                 self.turn_state.vstar_used.add(player_id)
+            # A declared attack spends a single-use "without paying its Energy
+            # cost" grant; the offer checked it read-only.
+            self.turn_state.consume_attack_cost_waiver(card, ability.title)
 
         ctx = await resolve_attack(self, player_id, card, ability, action_id)
         # Effects like Aqua Return can remove the attacker itself from play.
