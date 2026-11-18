@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    count_energy,
+    damage_per,
+    discard_opponent_energy_attack,
+)
 
 card = PokemonCardDef(
     guid="a58d58f8-c280-5a1a-9a3c-03b6790b962d",
@@ -25,14 +30,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("mine", PokemonTypes.WATER), 20, base=10),
         ),
         Attack(
             title="Roaring Seas",
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(damage=120),
         ),
         Attack(
             title="Grand Echo-GX",

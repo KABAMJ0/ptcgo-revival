@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy, switch_self_attack
 
 card = PokemonCardDef(
     guid="003e9121-2022-556b-b76f-34187d642b50",
@@ -23,20 +26,20 @@ card = PokemonCardDef(
         Ability(
             title="Ultra Road",
             game_text="Once during your turn (before your attack), you may switch your Active Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=switch_self_attack(optional=True),
         ),
         Attack(
             title="Sunsteel Strike",
             game_text="Discard all Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=230,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Sol Burst-GX",
             game_text="Search your deck for up to 5 Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(is_energy_card, count=5),
         ),
     ],
 )

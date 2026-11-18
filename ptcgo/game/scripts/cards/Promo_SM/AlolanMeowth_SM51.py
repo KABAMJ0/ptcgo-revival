@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="9d8d395d-4dcd-59ca-ae40-372f54faf01f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Flip a coin. If heads, search your deck for a card and put it into your hand. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=flip_gate(search_to_hand()),
         ),
         Attack(
             title="Scratch",

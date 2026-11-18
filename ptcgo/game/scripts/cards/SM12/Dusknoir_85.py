@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 
 card = PokemonCardDef(
     guid="8d0fe204-3170-5489-b132-47778a602f47",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Psych Up attack does 60 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=60,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60, "Psych Up"),
         ),
     ],
 )

@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+
+
+def _is_registeel(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Registeel"
 
 card = PokemonCardDef(
     guid="cd9d9c7c-6d5f-5537-b8b1-178ccd61630f",
@@ -21,14 +28,14 @@ card = PokemonCardDef(
         Ability(
             title="Rock Peak Growl",
             game_text="Your Registeel's attacks do 10 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(10, attacker_pred=_is_registeel),
         ),
         Attack(
             title="Tough Swing",
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=110,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

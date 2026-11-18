@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+
+def _one_prize_left(ctx) -> bool:
+    return count_prizes_remaining("mine")(ctx) == 1
 
 card = PokemonCardDef(
     guid="e83e9074-3969-52c3-add2-f3aa06ea8f44",
@@ -29,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_one_prize_left, 90),
         ),
     ],
 )

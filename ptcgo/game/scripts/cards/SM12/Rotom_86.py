@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="917d561d-60a3-55ef-9491-38c603d20c0a",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Cycle Draw",
             game_text="Discard a card from your hand. If you do, draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_then_draw(1, 2, optional=False),
         ),
         Attack(
             title="Energy Assist",
