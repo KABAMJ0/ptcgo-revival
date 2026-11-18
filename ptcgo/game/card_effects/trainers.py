@@ -4897,3 +4897,65 @@ def opponent_active_energy_to_deck_top(count: int = 1):
         for card in picks:
             await ctx.put_on_top_of_deck(card)
     return effect
+
+
+def evolve_from_deck_matching(predicate=None, exclude=None):
+    """Search your deck for a card that evolves from 1 of your Pokemon, put it
+    onto that Pokemon to evolve it, then shuffle (Evosoda shapes)."""
+    from ptcgo.game.content.definitions import evolves_from
+
+    async def effect(ctx):
+        pool = ctx.my_pokemon_in_play()
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to evolve") if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        logic_name = target.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+
+        def eligible(card):
+            if predicate is not None and not predicate(card):
+                return False
+            if exclude is not None and exclude(card):
+                return False
+            return bool(logic_name) and evolves_from(
+                getattr(card, "archetype_id", None) or "", logic_name)
+
+        picks = await ctx.search_deck(
+            eligible, count=1, minimum=0,
+            prompt="Choose an Evolution card for this Pokémon")
+        if picks:
+            await ctx.evolve_pokemon(target, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def search_distinct_types(predicate, count: int, to_bench: bool = False):
+    """Search the deck for up to `count` matching cards of different types
+    (Lady Outing, Professor Oak's Setup)."""
+    async def effect(ctx):
+        remaining = count
+        taken: List = []
+        while remaining > 0:
+            used = {frozenset(c.get_attribute(AttrID.POKEMON_TYPES) or []) for c in taken}
+            pool = [c for c in ctx.deck() if predicate(c)
+                    and frozenset(c.get_attribute(AttrID.POKEMON_TYPES) or []) not in used]
+            if not pool:
+                break
+            picks = await ctx.choose_cards(
+                pool, 1, minimum=0, ordered=False,
+                prompt="Choose cards of different types")
+            if not picks:
+                break
+            taken.extend(picks)
+            remaining -= 1
+        if not taken:
+            return
+        if to_bench:
+            for card in taken:
+                await ctx.bench_pokemon(card)
+        else:
+            await ctx.put_in_hand(taken, reveal=True)
+        await ctx.shuffle_deck()
+    return effect

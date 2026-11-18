@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, search_distinct_types
 
 card = SupporterCardDef(
     guid="ac7f1d27-12a0-5915-9d35-381764d4a119",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=83,
     set_code="EX1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_distinct_types(is_basic_energy_card, 3)
 )

@@ -1674,12 +1674,13 @@ RULES = [
          lambda m: [m.group("amount"), 'pokemon_of("%s")' % m.group("type")],
          kind="passive"),
     Rule("search-any-combination-of-two",
-         r"search your deck for up to (?P<n>\d+) in any combination of (?P<a>[a-z0-9 ]+?) and "
+         r"search your deck for up to (?P<n>\d+) (?:cards )?in any combination of "
+         r"(?P<a>[a-z0-9 ]+?) and "
          r"(?P<b>[a-z0-9 ]+?) (?:reveal|show) (?:it|them) and put (?:it|them) into your hand" +
          SHUFFLE_TAIL,
          "search_to_hand",
-         lambda m: ["any_of(%s, %s)" % (_pred_typed_subtype(m.group("a")),
-                                        _pred_typed_subtype(m.group("b"))),
+         lambda m: ["any_of(%s, %s)" % (_pred(m.group("a")),
+                                        _pred(m.group("b"))),
                     "count=" + m.group("n")],
          module="support_common"),
     Rule("shuffle-hand-draw-lock-trainers",
@@ -2038,6 +2039,29 @@ RULES = [
          r"(?:other|remaining) cards (?:back )?(?:on|to) the bottom of your deck in any order",
          "look_bottom_to_hand",
          lambda m: [m.group("n") or m.group("m"), m.group("a") or m.group("b"), "None"]),
+
+    Rule("search-distinct-types-energy",
+         r"search your deck for up to (?P<n>\d+) different types of basic energy cards(?: show them "
+         r"to your opponent)? and put them into your hand" + SHUFFLE_TAIL,
+         "search_distinct_types",
+         lambda m: ["is_basic_energy_card", m.group("n")], module="support_common"),
+    Rule("search-distinct-types-bench",
+         r"search your deck for up to (?P<n>\d+) basic pokemon of different types and put them onto "
+         r"your bench" + SHUFFLE_TAIL,
+         "search_distinct_types",
+         lambda m: ["is_basic_pokemon", m.group("n"), "to_bench=True"], module="support_common"),
+    Rule("evolve-from-deck-no-abilities",
+         r"search your deck for (?P<n>\d+) card that has no abilities and evolves from \d+ of your "
+         r"pokemon and put it onto that pokemon to evolve it" + SHUFFLE_TAIL +
+         r"(?: you can use this card.*)?",
+         "evolve_from_deck_matching",
+         lambda m: ['lambda card: not getattr(card, "abilities", None)']),
+    Rule("evolve-from-deck-excluding-ex",
+         r"search your deck for (?P<n>\d+) card that evolves from \d+ of your pokemon excluding "
+         r"pokemon ex and put it onto that pokemon" + SHUFFLE_TAIL +
+         r"(?: you can use this card.*)?",
+         "evolve_from_deck_matching",
+         lambda m: ["None", "is_pokemon_ex"]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
