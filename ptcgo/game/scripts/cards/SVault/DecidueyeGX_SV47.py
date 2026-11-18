@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="6a737033-557f-5193-8948-a756c287514b",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Feather Arrow",
             game_text="Once during your turn (before your attack), you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(
             title="Razor Leaf",

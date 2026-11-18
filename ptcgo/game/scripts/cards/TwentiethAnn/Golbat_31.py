@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="4e98eaee-c646-5e3f-a359-1b1f45c14e8d",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Sneaky Bite",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(
             title="Swoop Across",
