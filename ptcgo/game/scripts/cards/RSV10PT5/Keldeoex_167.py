@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="02cca661-90b2-52e7-b5c6-5d3cdf8e2a12",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
     ],
 )

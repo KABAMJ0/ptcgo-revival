@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="704df74f-27ca-52a2-9afe-6257734db082",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=110,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
         Attack(
             title="Resolute Blade-GX",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="7b765f7c-8cfb-51df-8bad-4ed4dfac1590",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=40,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
         Attack(
             title="Guarded Rolling",
