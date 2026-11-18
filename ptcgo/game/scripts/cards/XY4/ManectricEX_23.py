@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="652b6baf-2cd4-5141-94bc-f2c1f460e64f",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Assault Laser",
