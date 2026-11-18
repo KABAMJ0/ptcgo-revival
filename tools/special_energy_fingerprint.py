@@ -56,10 +56,13 @@ def tree_at(branch):
     """The same fingerprint map read out of a git branch, without checking it out."""
     listing = subprocess.run(["git", "ls-tree", "-r", "--name-only", branch, CARDS_ROOT],
                              capture_output=True, text=True, check=True).stdout.split()
+    skipped = {"CUSTOM", "Free_Energy"}
     out = {}
     for path in listing:
         if not path.endswith(".py") or path.endswith("__init__.py"):
             continue
+        if os.path.basename(os.path.dirname(path)) in skipped:
+            continue          # walk_tree skips these too; counting them as "gone" was a false alarm
         source = subprocess.run(["git", "show", f"{branch}:{path}"],
                                 capture_output=True, text=True).stdout
         out[path] = fingerprint_source(source)
