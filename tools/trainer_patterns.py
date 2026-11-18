@@ -2601,7 +2601,11 @@ CONDITION_PREFIXES = [
                 r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
-TAIL_STRIP = re.compile(r" you cant choose .* with the effect of this card$")
+TAIL_STRIP = re.compile(
+    r"(?: you cant choose .* with the effect of this card"
+    r"| you cant play [a-z0-9 ]* if your bench is full"
+    r"| prism star rule you cant have more than 1 card with the same name in your deck"
+    r"| ace spec you cant have more than 1 ace spec card in your deck)$")
 
 
 TAIL_WRAPPERS = [
