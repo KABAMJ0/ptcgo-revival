@@ -5685,11 +5685,14 @@ BIND_COUNTS = {}
 BIND_ERRORS = {}
 
 
-def bind(ability) -> Optional[str]:
+def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
     """Bind a wording pattern to `ability`; returns the pattern name or None.
 
     Only an `unimplemented` effect is ever replaced, so a card with a real
-    script keeps it.
+    script keeps it. Older cards name themselves where newer ones say "this
+    Pokemon" ("Arcanine does 30 damage to itself"), so when the text as
+    printed matches nothing, it is retried with the card's own name read as
+    "this Pokemon".
     """
     if ability is None or getattr(ability, "effect", None) is not unimplemented:
         return None
@@ -5719,6 +5722,20 @@ def bind(ability) -> Optional[str]:
                 text = text[len(prefix):].strip()
                 binder = (kind, value)
                 break
+    candidates = [text]
+    if own_name:
+        named = re.sub(r"(?<![\w'])" + re.escape(normalize(own_name))
+                       + r"(?![\w'])", "this pokemon", text)
+        if named != text:
+            candidates.append(named)
+    for text in candidates:
+        bound = _bind_text(ability, text, binder)
+        if bound is not None:
+            return bound
+    return None
+
+
+def _bind_text(ability, text: str, binder) -> Optional[str]:
     for name, pattern, build in _PATTERNS:
         match = pattern.fullmatch(text)
         if match is None:
@@ -5767,7 +5784,8 @@ _register_conditions()
 def bind_definition(definition) -> int:
     """Bind every unimplemented ability on a resolved card definition."""
     bound = 0
+    own_name = getattr(definition, "display_name", None)
     for ability in getattr(definition, "abilities", None) or []:
-        if bind(ability) is not None:
+        if bind(ability, own_name) is not None:
             bound += 1
     return bound
