@@ -138,6 +138,10 @@ def resolve_predicate(phrase):
             return _combine(distributed, "any_of")
         except Unresolved:
             pass
+    named_any = re.match(r"^(?P<cat>[a-z0-9 ]+?) that has (?P<word>[a-z0-9 ]+?) in its name$", text)
+    if named_any and len(named_any.group("word").split()) <= 3:
+        return "all_of(%s, card_named_contains(\"%s\"))" % (
+            resolve_predicate(named_any.group("cat")), named_any.group("word"))
     two_energy = _TWO_TYPED_ENERGY.match(text)
     if two_energy and all(part in TYPE_NAMES.split("|")
                           for part in (two_energy.group("a"), two_energy.group("b"))):
@@ -441,11 +445,7 @@ def _stadium_cat(phrase):
         types = [two_energy.group("a"), two_energy.group("b")]
         if all(t in TYPE_NAMES.split("|") for t in types):
             return "any_of(basic_energy_of(\"%s\"), basic_energy_of(\"%s\"))" % tuple(types)
-    named_any = re.match(r"^(?P<cat>[a-z0-9 ]+?) that has (?P<word>[a-z0-9 ]+?) in its name$", text)
-    if named_any:
-        return "all_of(%s, card_named_contains(\"%s\"))" % (_pred(named_any.group("cat")),
-                                                             named_any.group("word"))
-        dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
+    dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
     if dark:
         return 'pokemon_named("%s")' % dark.group("word")
     if text.endswith(" pokemon"):

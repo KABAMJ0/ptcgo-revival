@@ -112,9 +112,12 @@ def main(argv=None):
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--rule", help="only wire scripts whose rule id matches this regex")
     parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument("--sets", help="only wire scripts in these set folders "
+                                       "(comma-separated prefixes, e.g. BASE,NEO)")
     args = parser.parse_args(argv)
 
     rule_filter = re.compile(args.rule) if args.rule else None
+    set_prefixes = tuple(p.strip() for p in args.sets.split(",") if p.strip())         if args.sets else None
     scripts = coverage.collect()
     stubs = [s for s in scripts if s.is_stub]
 
@@ -133,6 +136,10 @@ def main(argv=None):
             continue
         if rule_filter and not rule_filter.search(found["rule"]):
             continue
+        if set_prefixes is not None:
+            folder = script.path.split("/")[-2]
+            if not folder.startswith(set_prefixes):
+                continue
         plan.append((script, found))
 
     if args.limit:
