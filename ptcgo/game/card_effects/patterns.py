@@ -5478,11 +5478,6 @@ def _more_per_prizes_taken_recoil(m, ability):
     return effect
 
 
-def _base_plus_if_defender_damaged(m, ability):
-    base, bonus = int(m.group(1)), int(m.group(2))
-    return bonus_if(has_damage("defender"), bonus, base=base)
-
-
 def _times_energy_both_actives(m, ability):
     per = int(m.group(1))
 
