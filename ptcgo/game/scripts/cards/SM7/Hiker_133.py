@@ -1,5 +1,27 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
+
+async def _hiker(ctx):
+    which = await ctx.choose(
+        "Look at the top 5 cards of which deck?",
+        ["Your deck", "Your opponent's deck"])
+    if which not in (0, 1):
+        return
+    pid = ctx.player_id if which == 0 else ctx.opponent_id
+    top = ctx.deck_top(5, pid)
+    if not top:
+        return
+    picks = await ctx.choose_cards(
+        top, 1, minimum=1,
+        prompt="Choose the card to put on top of that deck")
+    if not picks:
+        return
+    others = [card for card in top if card is not picks[0]]
+    if others:
+        await ctx.shuffle_into_deck(others, pid)
+    await ctx.put_on_top_of_deck(picks[0])
+
 
 card = SupporterCardDef(
     guid="5c0b86c8-f5b9-54aa-9692-2488c3ecc3c8",
@@ -11,5 +33,5 @@ card = SupporterCardDef(
     collector_number=133,
     set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=_hiker
 )

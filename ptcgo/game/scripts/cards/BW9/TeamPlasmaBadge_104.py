@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class TeamPlasmaPassive(Passive):
+    """The holder counts as a Team Plasma Pok\u00e9mon while this Tool is attached."""
+
+    def modify_subtypes(self, subtypes, pokemon, carrier):
+        if carrier_pokemon(carrier) is pokemon and "Team Plasma" not in subtypes:
+            return list(subtypes) + ["Team Plasma"]
+        return subtypes
+
 
 card = PokemonToolCardDef(
     guid="2bd08d2b-fa60-5277-8f58-7cb39aa5cc08",
@@ -11,5 +22,5 @@ card = PokemonToolCardDef(
     collector_number=104,
     set_code="BW9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=TeamPlasmaPassive(),
 )
