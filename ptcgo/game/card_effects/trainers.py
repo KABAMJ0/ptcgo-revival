@@ -8123,3 +8123,41 @@ def full_flame():
     async def effect(ctx):
         ctx.override_burn(counters=4)
     return effect
+
+
+# --- Tools that grant a printed attack --------------------------------------
+
+def discard_tool_at_end_of_turn():
+    """Granted END_OF_TURN ability: discard the Tool that granted it ("discard
+    this card at the end of your turn")."""
+    async def effect(ctx):
+        tool = ctx.ability_source
+        if tool is not None and tool is not ctx.source:
+            await ctx.discard_cards([tool])
+    return effect
+
+
+def choose_condition_attack(damage: int = 0):
+    """Printed damage, then the Defending Pokemon is affected by a Special
+    Condition of your choice (Team Aqua Technical Machine 01)."""
+    async def effect(ctx):
+        if damage:
+            await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        options = [SpecialConditions.ASLEEP, SpecialConditions.BURNED,
+                   SpecialConditions.CONFUSED, SpecialConditions.PARALYZED,
+                   SpecialConditions.POISONED]
+        index = await ctx.choose(
+            "Choose a Special Condition",
+            ["Asleep", "Burned", "Confused", "Paralyzed", "Poisoned"])
+        await ctx.apply_special_condition(defender, options[index])
+    return effect
+
+
+def opponent_one_prize_left():
+    """Attack condition: the opponent has exactly 1 Prize card remaining."""
+    def condition(ctx):
+        return len(ctx.board.find_player_area(ctx.opponent_id, "prizePile").children) == 1
+    return condition
