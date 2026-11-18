@@ -53,6 +53,13 @@ class PackRulesTest(unittest.TestCase):
         # A Mew is a chase pull, not an every-pack card.
         self.assertLess(sum(c for n, c in mew_counts.items() if n), 200)
 
+    def test_sets_declare_their_own_pack_size(self):
+        """Base Set held eleven cards, a McDonald's promo pack five."""
+        for set_key, size in (("BASE1", 11), ("MCD11", 5), ("MCD22", 5)):
+            booster = pack_for(set_key)
+            for _ in range(10):
+                self.assertEqual(len(booster.open("-1")), size, set_key)
+
     def test_unruled_sets_keep_the_ten_card_pack(self):
         for set_key in ("SWSH8", "SV3", "CEL25"):
             booster = pack_for(set_key)

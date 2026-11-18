@@ -283,20 +283,21 @@ class BoosterPack(Product):
                 # 1 Rare Holo / Hit
                 pack_guids.extend(pick_random(hits_pool, 1, set_key))
             else:
-                # 4 Commons
-                pack_guids.extend(pick_random(commons_pool, 4, set_key))
-                
-                # 4 Uncommons
-                pack_guids.extend(pick_random(uncommons_pool, 4, set_key))
-                
-                # # 1 Basic Energy
-                # pack_guids.extend(random.choices(energy_pool, k=1))
+                # A real product does not always hold ten cards: a Base Set booster
+                # held eleven and a McDonald's promo pack five. A set may declare its
+                # slots in pack_rules.json; everything else keeps 4/4/1/1.
+                slots = set_rules.get("slots") or {}
+                commons_n = int(slots.get("common", 4))
+                uncommons_n = int(slots.get("uncommon", 4))
+                holo_n = int(slots.get("reverse_holo", 1))
+                hits_n = int(slots.get("hit", 1))
 
-                # 1 Reverse Holo
-                pack_guids.extend(pick_random(rev_holo_slot_2_pool, 1, set_key))
-
-                # 1 Rare / Hit
-                pack_guids.extend(pick_random(hits_pool, 1, set_key))
+                pack_guids.extend(pick_random(commons_pool, commons_n, set_key))
+                pack_guids.extend(pick_random(uncommons_pool, uncommons_n, set_key))
+                if holo_n:
+                    pack_guids.extend(pick_random(rev_holo_slot_2_pool, holo_n, set_key))
+                if hits_n:
+                    pack_guids.extend(pick_random(hits_pool, hits_n, set_key))
 
             if set_rules:
                 pack_guids = apply_set_rules(set_key, pack_guids, set_cards, commons_pool)

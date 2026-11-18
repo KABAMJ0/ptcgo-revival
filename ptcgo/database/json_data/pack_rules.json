@@ -2,10 +2,121 @@
   "ME55": {
     "_comment": "30th Celebration: one Pikachu print is guaranteed in every pack and never repeats, the three Mew printings are the chase cards and appear only as rare one-of pulls.",
     "guaranteed": [
-      { "names": ["Pikachu"], "count": 1 }
+      {
+        "names": [
+          "Pikachu"
+        ],
+        "count": 1
+      }
     ],
-    "exclude_from_random": ["Pikachu"],
-    "weight_multiplier": { "Mew": 0.2 },
-    "unique_per_pack": ["Mew", "Pikachu"]
+    "exclude_from_random": [
+      "Pikachu"
+    ],
+    "weight_multiplier": {
+      "Mew": 0.2
+    },
+    "unique_per_pack": [
+      "Mew",
+      "Pikachu"
+    ]
+  },
+  "BASE1": {
+    "_comment": "Base Set boosters held eleven cards: seven common, three uncommon, one rare.",
+    "slots": {
+      "common": 7,
+      "uncommon": 3,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD11": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD12": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD14": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD15": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD16": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD17": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD18": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD19": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD21": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
+  },
+  "MCD22": {
+    "_comment": "McDonald's promo packs held five cards.",
+    "slots": {
+      "common": 2,
+      "uncommon": 2,
+      "reverse_holo": 0,
+      "hit": 1
+    }
   }
 }
