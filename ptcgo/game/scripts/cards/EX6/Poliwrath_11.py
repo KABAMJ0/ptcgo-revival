@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
 card = PokemonCardDef(
     guid="e98db418-dec3-57de-9566-b4ed6b3f2292",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Spiral",
             game_text="As long as Poliwrath is your Active Pok\u00e9mon, your opponent's Confused Pok\u00e9mon can't retreat.",
-            effect=unimplemented,
+            passive=condition_retreat_lock_passive(conditions=(SpecialConditions.CONFUSED,)),
         ),
         Attack(
             title="Split Spiral Punch",
