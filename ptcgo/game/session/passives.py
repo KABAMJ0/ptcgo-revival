@@ -475,6 +475,18 @@ class Passive:
         """True to skip the Burn recovery flip entirely (stays Burned)."""
         return False
 
+    def modify_heal_amount(self, pokemon: PokemonEntity, carrier: BoardEntity,
+                           amount: int) -> int:
+        """Healing done TO `pokemon`, this passive's view (Sylveon: heals of 30
+        or more become 50); the card rewrites the number."""
+        return amount
+
+    def poison_checkup_counters(self, pokemon: PokemonEntity, carrier: BoardEntity,
+                                counters: int) -> int:
+        """Damage counters `pokemon` takes from Poison at Checkup, this
+        passive's view; the card raises it (Virbank City Gym: 2 more)."""
+        return counters
+
     def tool_capacity(self, pokemon: PokemonEntity, carrier: BoardEntity) -> int:
         """Pokemon Tools `pokemon` may hold (GarbodorVMAX 2); highest wins."""
         return 1
@@ -611,8 +623,8 @@ def _collect_passives(board: BoardState) -> List[Tuple[Passive, BoardEntity, boo
                     triples.append((passive, attachment, False))
     stadium_area = board.find_global_area("activeStadium")
     for stadium in (stadium_area.children if stadium_area else []):
-        definition = def_for(stadium.archetype_id)
-        passive = getattr(definition, "passive", None)
+        face = stadium_face(board, stadium)
+        passive = face.get("passive")
         if passive is not None:
             triples.append((passive, stadium, False))
     # Effect-granted temporary passives; dead carriers are silently skipped.
@@ -968,6 +980,41 @@ def discard_blocked(board: BoardState, card: BoardEntity) -> bool:
         passive.blocks_discard(card, carrier)
         for passive, carrier in active_passives(board)
     )
+
+
+def modified_heal_amount(board: BoardState, pokemon: PokemonEntity,
+                         amount: int) -> int:
+    """How much a heal of `amount` on `pokemon` actually heals."""
+    for passive, carrier in active_passives(board):
+        amount = passive.modify_heal_amount(pokemon, carrier, amount)
+    return amount
+
+
+def poison_checkup_counters(board: BoardState, pokemon: PokemonEntity,
+                            counters: int = 1) -> int:
+    """Poison tick size after every passive's say (Virbank City Gym)."""
+    for passive, carrier in active_passives(board):
+        counters = passive.poison_checkup_counters(pokemon, carrier, counters)
+    return counters
+
+
+def stadium_face(board: BoardState, stadium: BoardEntity) -> Dict[str, Any]:
+    """The Stadium's effective face: {passive, ability, on_leave_play}.
+
+    A facing Stadium (Chaos Tower, Parallel City) stores its chosen label on
+    the board; a plain one reads the definition's own slots."""
+    definition = def_for(stadium.archetype_id)
+    if definition is None:
+        return {}
+    faces = getattr(definition, "faces", None)
+    if faces:
+        chosen = (getattr(board, "stadium_facings", None) or {}).get(stadium.entity_id)
+        return faces.get(chosen) or next(iter(faces.values()))
+    return {
+        "passive": getattr(definition, "passive", None),
+        "ability": getattr(definition, "ability", None),
+        "on_leave_play": getattr(definition, "on_leave_play", None),
+    }
 
 
 def plays_blocked(board: BoardState, player_id: str, card: BoardEntity) -> bool:

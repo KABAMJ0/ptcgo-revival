@@ -1048,6 +1048,52 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+class HealAmountPassive(Passive):
+    """Rewrites heals done to the carrier (or its side): "whenever you heal a
+    Pokemon, heal 20 more" / a flat "heals 30 damage instead of 20"."""
+
+    def __init__(self, bonus=0, amount=None, protects="carrier", minimum=0):
+        self.bonus = bonus
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+        self.minimum = minimum
+
+    def modify_heal_amount(self, pokemon, carrier, amount):
+        if not self.protects(pokemon, carrier):
+            return amount
+        if self.minimum and amount < self.minimum:
+            return amount
+        return self.amount if self.amount is not None else amount + self.bonus
+
+
+def heal_multiplier(bonus: int = 0, amount: Optional[int] = None,
+                    protects="team", minimum: int = 0) -> Passive:
+    """`bonus` adds to every heal ("heal 20 more"); `amount` replaces the heal
+    outright ("heals 30 damage instead"), gated by `minimum` when given."""
+    return HealAmountPassive(bonus=bonus, amount=amount, protects=protects,
+                             minimum=minimum)
+
+
+class ExtraPoisonCountersPassive(Passive):
+    """Poisoned Pokemon take `amount` more damage counters at Checkup
+    (Virbank City Gym: "each Pokemon affected by Poison now takes 2 damage
+    from poison between turns")."""
+
+    def __init__(self, amount=2, opponents_only=False):
+        self.amount = amount
+        self.opponents_only = opponents_only
+
+    def poison_checkup_counters(self, pokemon, carrier, counters):
+        if self.opponents_only and pokemon.owning_player_id == carrier.owning_player_id:
+            return counters
+        return counters + self.amount
+
+
+def extra_poison_counters(amount: int = 2, opponents_only: bool = False) -> Passive:
+    """Stadium/passive factory for the Virbank wording."""
+    return ExtraPoisonCountersPassive(amount, opponents_only)
+
+
 class DiscardSelfOnRetreatPassive(Passive):
     """Balloon Berry: "when the Pokemon this card is attached to retreats,
     discard this card" (and pay no Energy for the retreat)."""

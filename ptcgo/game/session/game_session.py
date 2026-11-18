@@ -129,8 +129,10 @@ from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
     carrier_pokemon,
+    stadium_face,
     effective_bench_capacity, effective_max_hp,
     effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
+    poison_checkup_counters,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
     tool_suppressed,
 )
@@ -3384,7 +3386,9 @@ class GameSession:
 
     async def _checkup_poison(self, active):
         """Poison tick: 10 * poison_counters (default 1) raw damage."""
-        amount = 10 * self.poison_counters.get(active.entity_id, 1)
+        counters = poison_checkup_counters(
+            self.board_state, active, self.poison_counters.get(active.entity_id, 1))
+        amount = 10 * counters
         knocked_out = await self._apply_raw_damage(
             active, amount, GameSequence.POISON_DAMAGE.value
         )
@@ -4246,11 +4250,12 @@ class GameSession:
         return False
 
     @staticmethod
-    def _stadium_declared_abilities(definition):
+    def _stadium_declared_abilities(definition, face=None):
         """A Stadium's own ability slots: `ability` (slot 0) and any
         `granted_abilities`. `_fire_triggered_abilities` reads PIE_ABILITIES and
-        a definition's Pokemon-style `abilities`, so these never reach it."""
-        abilities = [getattr(definition, "ability", None)]
+        a definition's Pokemon-style `abilities`, so these never reach it.
+        `face` overrides the ability slot for a facing Stadium."""
+        abilities = [(face or {}).get("ability", getattr(definition, "ability", None))]
         abilities.extend(getattr(definition, "granted_abilities", []) or [])
         return [ability for ability in abilities
                 if ability is not None and ability.effect is not None
@@ -4263,7 +4268,8 @@ class GameSession:
         area = self.board_state.find_global_area("activeStadium")
         for stadium in list(area.children if area else []):
             definition = def_for(stadium.archetype_id)
-            for ability in self._stadium_declared_abilities(definition):
+            face = stadium_face(self.board_state, stadium)
+            for ability in self._stadium_declared_abilities(definition, face):
                 if not ability.has_trigger(trigger):
                     continue
                 trigger_ctx = await resolve_triggered_ability(
@@ -5290,9 +5296,20 @@ class GameSession:
             [self._entity_moved_msg(card.entity_id, stadium_area.entity_id, position)],
             [card]
         )
+        definition = def_for(card.archetype_id)
+        faces = getattr(definition, "faces", None)
+        if faces:
+            await self._choose_stadium_facing(player_id, card, definition)
+        play_effect = getattr(definition, "effect", None)
+        if play_effect is not None and play_effect is not unimplemented:
+            # "When you play this card ..." -- StadiumCardDef.effect was never
+            # run on the play path, so every such Stadium was inert.
+            play_ctx = EffectContext(self, player_id, card, None)
+            await play_effect(play_ctx)
+            await self._flush_effect_runs(play_ctx)
         if existing:
             owner_id = existing.owning_player_id or player_id
-            hook = getattr(def_for(existing.archetype_id), "on_leave_play", None)
+            hook = stadium_face(self.board_state, existing).get("on_leave_play")
             if hook is not None and hook is not unimplemented:
                 leave_ctx = EffectContext(self, owner_id, existing, None)
                 await hook(leave_ctx)
@@ -5401,6 +5418,25 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _choose_stadium_facing(self, player_id, card, definition):
+        """"Choose which way this card faces before you play it": stores the
+        picked label so the Stadium's passive and abilities resolve that way."""
+        labels = [label for label in (getattr(definition, "face_labels", None) or {})
+                  if label in (definition.faces or {})]
+        if not labels:
+            labels = list(definition.faces or {})
+        if len(labels) < 2:
+            self.board_state.stadium_facings[card.entity_id] = labels[0] \
+                if labels else "up"
+            return
+        facing_ctx = EffectContext(self, player_id, card, None)
+        prompt = getattr(definition, "face_prompt", None) \
+            or "Choose which way this Stadium faces"
+        index = await facing_ctx.choose(
+            prompt, [definition.face_labels.get(label, label) for label in labels])
+        self.board_state.stadium_facings[card.entity_id] = labels[
+            index if 0 <= index < len(labels) else 0]
 
     async def _fire_retreat_hooks(self, player_id, retreated):
         """`Passive.on_retreat` for the passives riding the Pokemon that just
