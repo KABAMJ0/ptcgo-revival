@@ -8161,3 +8161,54 @@ def opponent_one_prize_left():
     def condition(ctx):
         return len(ctx.board.find_player_area(ctx.opponent_id, "prizePile").children) == 1
     return condition
+
+
+# --- Turn-scoped damage reduction and prize bargaining ----------------------
+
+def type_takes_less(amount: int, type_names, basic_only: bool = False):
+    """Passive: matching Pokemon on EITHER side take `amount` less damage from
+    attacks (Full Metal Lab, Aether Paradise)."""
+    values = {POKEMON_TYPE_NAMES[name.lower()] for name in type_names}
+
+    def protects(target, carrier):
+        if not is_pokemon_card(target):
+            return False
+        if basic_only and not is_basic_pokemon(target):
+            return False
+        types = target.get_attribute(AttrID.POKEMON_TYPES) or []
+        return bool(values & set(types))
+    return takes_less_passive(amount, protects=protects)
+
+
+def stadium_type_takes_less(text: str):
+    """Stadium wording: `<types> Pokemon (both yours and your opponent's) take
+    N less damage from attacks` (Full Metal Lab, Aether Paradise)."""
+    lowered = text.lower()
+    found = re.search(r"take (\d+) less damage", lowered)
+    amount = int(found.group(1)) if found else 30
+    if lowered.startswith("metal"):
+        return type_takes_less(amount, ("metal",))
+    return type_takes_less(amount, ("grass", "lightning"), basic_only=True)
+
+
+def jasmine_gaze():
+    """During your opponent's next turn every one of your Pokemon takes 30 less
+    damage from attacks, including Pokemon that come into play later."""
+    async def effect(ctx):
+        ctx.add_damage_taken_modifier(-30, for_player=ctx.player_id,
+                                      through="opponent_next_turn")
+    return effect
+
+
+def surges_bargain(draw: int = 4):
+    """Ask the opponent: if they accept, each player takes 1 Prize card; if
+    they decline, you draw `draw` cards (Lt. Surge's Bargain)."""
+    async def effect(ctx):
+        accepts = await ctx.ask_yes_no(
+            "May each player take 1 Prize card?", player_id=ctx.opponent_id)
+        if accepts:
+            await ctx.take_prizes(1)
+            await ctx.take_prizes(1, ctx.opponent_id)
+        else:
+            await ctx.draw_cards(draw)
+    return effect

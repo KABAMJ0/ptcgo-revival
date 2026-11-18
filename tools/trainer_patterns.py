@@ -2695,6 +2695,11 @@ RULES = [
     Rule('look-top-take-rest-shuffle', r'look at the top (?P<c>\d+) cards of your deck and put up to (?P<t>\d+) of them into your hand shuffle the other cards back into your deck', 'look_top_take_rest_shuffle', lambda m: [m.group("c"), m.group("t")]),
     Rule('opponent-hand-bottom-draw', r'your opponent shuffles their hand and puts it on the bottom of their deck if they put any cards on the bottom of their deck in this way they draw (?P<d>\d+) cards', 'opponent_hand_bottom_then_draw', lambda m: [m.group("d")]),
 
+
+    Rule('jasmine-gaze', r'during your opponents next turn all of your pokemon take \d+ less damage from attacks from your opponents pokemon after applying weakness and resistance this includes new pokemon that come into play', 'jasmine_gaze', lambda m: []),
+    Rule('stadium-type-takes-less', r'(?:metal|basic grass and basic lightning) pokemon both yours and your opponents take \d+ less damage from (?:attacks from )?the opponents(?: pokemon)?(?: attacks?)? after applying weakness and resistance(?: put it into the active spot and discard it if another stadium comes into play)?', 'stadium_type_takes_less', lambda m: [repr(m.group(0))], kind='passive'),
+    Rule('surges-bargain', r'ask your opponent if each player may take \d+ prize card if yes each player takes \d+ prize card if no you draw \d+ cards', 'surges_bargain', lambda m: [m.group(0).split()[-2]]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
