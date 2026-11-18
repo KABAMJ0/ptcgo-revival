@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="85cfcee5-b1aa-505a-8d19-10d9cc0846a7",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Swagger",
             game_text="Flip a coin. If heads, discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(),
         ),
         Attack(
             title="Huge Tackle",
