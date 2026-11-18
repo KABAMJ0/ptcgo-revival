@@ -1459,7 +1459,10 @@ def is_stage_two(card) -> bool:
 
 
 def is_pokemon_ex(card) -> bool:
-    return is_pokemon_card(card) and "ex" in " ".join(subtypes_for(card.archetype_id))
+    """SV "Pokemon ex". Shared implementation in card_effects.pokemon, which
+    takes a card entity, a definition or an archetype GUID."""
+    from ptcgo.game.card_effects.pokemon import is_pokemon_ex as _shared
+    return _shared(card)
 
 
 def is_rule_box_pokemon(card) -> bool:
@@ -1538,6 +1541,50 @@ def shuffle_hand_draw(n: int, opponent_prizes_low=None):
     return effect
 
 
+def shuffle_hand_draw_if(cond, draw: int, else_draw: int):
+    """"Shuffle your hand into your deck. If <cond>, draw `draw` cards; if not,
+    draw `else_draw`" (Hala). `cond` is a ctx-level predicate."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        await ctx.draw_cards(draw if cond(ctx) else else_draw)
+    return effect
+
+
+def gx_used_condition(spent: bool = True):
+    """ctx-level condition: this player has (spent=True) or has not used their
+    once-per-game GX attack (Hala)."""
+    def check(ctx) -> bool:
+        used = ctx.player_id in ctx.session.turn_state.gx_attack_used
+        return used == spent
+    return check
+
+
+def gx_unlock(predicate=None):
+    """"During this turn, your <Pokemon> can use their GX attack even if you
+    have already used your GX attack" (Misty & Lorelei, Bonnie).
+    `predicate(attacker, ability)` narrows the grant."""
+    async def effect(ctx):
+        ctx.session.turn_state.unlock_gx_attacks(ctx.player_id, predicate)
+    return effect
+
+
+def gx_unlock_for_type(type_name: str):
+    """The type-narrowed grant: "your Water Pokemon can use their GX attacks"."""
+    type_value = POKEMON_TYPE_NAMES[type_name.lower()]
+
+    def predicate(attacker, ability) -> bool:
+        return type_value in (attacker.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return gx_unlock(predicate)
+
+
+def gx_unlock_for_name(name: str):
+    """The name-narrowed grant: "your Zygarde-GX can use its GX attack"."""
+    def predicate(attacker, ability) -> bool:
+        printed = (getattr(def_for(attacker.archetype_id), "display_name", "") or "")
+        return printed.lower().startswith(name.lower())
+    return gx_unlock(predicate)
+
+
 def each_player_shuffle_draw(n: int):
     """Both players shuffle their hand into their deck and draw `n` (Judge)."""
     async def effect(ctx):
@@ -1551,11 +1598,15 @@ def each_player_shuffle_draw(n: int):
 # --- Discard from the opponent's side ---------------------------------------
 
 def discard_energy_opponent(count: int = 1, flip: bool = False,
-                            scope: str = "any", energy_pred=None):
+                            scope: str = "any", energy_pred=None,
+                            damage=None):
     """Discard up to `count` Energy from the opponent's Pokemon; `scope` is
     'any' (choose the holder) or 'active'. flip=True pays a coin first
-    ("Flip a coin. If heads, discard an Energy...")."""
+    ("Flip a coin. If heads, discard an Energy..."). `damage` deals the attack's
+    damage before the rider; leave it None for a Trainer."""
     async def effect(ctx):
+        if damage is not None:
+            await ctx.deal_damage(damage)
         if flip and not (await ctx.flip_coins(1, title="Discard an Energy"))[0]:
             return
         if scope == "active":
@@ -2467,11 +2518,13 @@ def discard_from_opponent_hand(predicate=None, count: int = 1):
 
 
 def is_pokemon_gx(card) -> bool:
-    return is_pokemon_card(card) and "GX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_gx as _shared
+    return _shared(card)
 
 
 def is_pokemon_vstar(card) -> bool:
-    return is_pokemon_card(card) and "VSTAR" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_vstar as _shared
+    return _shared(card)
 
 
 def retreat_cost_is(cost: int):
@@ -3408,7 +3461,8 @@ def stadium_ability(title: str, effect):
 def is_pokemon_EX(card) -> bool:
     """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
     Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
-    return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_EX as _shared
+    return _shared(card)
 
 
 # --- Bespoke tool shapes on existing engine hooks ---------------------------

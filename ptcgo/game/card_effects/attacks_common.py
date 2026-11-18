@@ -217,7 +217,11 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             else (base if base is not None else _printed(ctx))
         if require_all:
             success = total > 0 and tails == 0
-            amount = base_val + bonus if success else (base_val if bonus else 0)
+            # The per-heads term still lands on an all-heads run ("30 plus 10
+            # more for each heads, if all of them are heads" paid nothing for
+            # the heads before this).
+            amount = base_val + heads * per_heads + bonus if success \
+                else (base_val if bonus else 0)
         else:
             amount = base_val + heads * (per_heads + bonus_per_heads) \
                 + (bonus if heads else 0)
@@ -574,6 +578,30 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
     return effect
 
 
+def condition_if(cond_fn, *conditions, target: str = "defender",
+                 damage: Optional[int] = None, checkup_coins: int = 1,
+                 also=None):
+    """"If <board or Pokemon condition>, the Defending Pokemon is now
+    <conditions>" — applies the conditions only when `cond_fn(ctx)` holds.
+
+    condition_attack applies unconditionally, so this is the gate it lacks
+    ("if this Pokemon has any Plasma Energy attached", "if the Defending
+    Pokemon is a Pokemon ex", "if Nidoran is on your bench"). Printed damage
+    first; pass damage=0 for a pure rider."""
+    async def effect(ctx):
+        base_val = damage if damage is not None else _printed(ctx)
+        if base_val > 0:
+            await ctx.deal_damage(base_val)
+        if cond_fn(ctx):
+            holder = ctx.attacker if target in ("self", "attacker") else ctx.defender
+            for condition in conditions:
+                await ctx.apply_special_condition(
+                    holder, condition, checkup_coins=checkup_coins)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
 def condition_bonus_attack(bonus: int, *required_conditions,
                            base: Optional[int] = None, also=None):
     """"If the Defending Pokemon is already <condition>, this attack does
@@ -732,9 +760,13 @@ def mill_attack(count: int, opponent: bool = True,
     async def effect(ctx):
         await ctx.deal_damage(then_damage)
         pid = ctx.opponent_id if opponent else ctx.player_id
-        await ctx.discard_cards(ctx.deck_top(count, player_id=pid))
+        milled = ctx.deck_top(count, player_id=pid)
+        if milled:
+            await ctx.discard_cards(milled)
         if also is not None:
             await also(ctx)
+        # The milled cards are the signal for "if any of those are Energy, ...".
+        return milled
     return effect
 
 
@@ -792,24 +824,32 @@ def place_counters(count_or_fn, target: str = "opponent_active", also=None):
 
     async def effect(ctx):
         count = _resolve_count(ctx, count_or_fn)
+        placed = 0
         if count > 0:
             if target == "opponent_active":
                 if ctx.defender is not None:
                     await ctx.deal_damage(count * 10, target=ctx.defender,
                                           as_counters=True)
+                    placed = count
             elif target == "choose_any_opponent":
-                await ctx.place_damage_counters(count, ctx.opponent_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.opponent_pokemon_in_play())
             elif target == "each_opponent":
                 for pokemon in ctx.opponent_pokemon_in_play():
                     await ctx.deal_damage(count * 10, target=pokemon,
                                           as_counters=True)
+                    placed += count
             elif target == "self":
                 await ctx.deal_damage(count * 10, target=ctx.attacker,
                                       as_counters=True)
+                placed = count
             else:  # choose_own
-                await ctx.place_damage_counters(count, ctx.my_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.my_pokemon_in_play())
         if also is not None:
             await also(ctx)
+        # Counters that actually landed are the "if you placed any" signal.
+        return placed
     return effect
 
 
@@ -992,14 +1032,39 @@ def energy_move_attack(count: int = 1, energy_type=None,
             return
         picks = pool if len(pool) <= count else await ctx.choose_cards(
             pool, count, prompt="Choose Energy to move to your Benched Pokémon")
+        moved = []
         for energy in picks:
             bench = ctx.my_bench()
             if not bench:
-                return
+                break
             target = await ctx.choose_pokemon(
                 bench, "Choose a Pokémon to move the Energy to")
             if target is not None:
                 await ctx.move_energy(energy, target)
+                moved.append(energy)
+        # The moved Energy is the signal for a second move gated on the first.
+        return moved
+    return effect
+
+
+def flip_discard_opponent_energy(damage: Optional[int] = None, count: int = 1,
+                                 scope: str = "active", coins: int = 1,
+                                 energy_pred=None):
+    """"Flip a coin. If heads, discard an Energy from your opponent's Active
+    Pokemon" — printed (or `damage`) damage, one coin, then the discard.
+
+    The body is `trainers.discard_energy_opponent`, shared with the Trainer
+    cards of the same wording."""
+    from ptcgo.game.card_effects.trainers import discard_energy_opponent
+
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if not (results and all(results)):
+            if damage is not None:
+                await ctx.deal_damage(damage)
+            return
+        await discard_energy_opponent(
+            count=count, scope=scope, energy_pred=energy_pred, damage=damage)(ctx)
     return effect
 
 
