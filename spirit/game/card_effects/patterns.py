@@ -3124,6 +3124,11 @@ def _passive_bench_damage_shield(m, ability):
 def _passive_opponent_retreat_tax(m, ability):
     return opponent_retreat_tax_passive(1)
 
+
+def _flip_per_self_energy(m, ability):
+    per = int(m.group(1))
+    return flip_damage(coins_from=count_energy("self", cards=True), per_heads=per)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4502,6 +4507,10 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"(\d+) more damage(?: \(before applying weakness and "
                 r"resistance\))?\."), _own_next_turn_all_boost),
     # -- batch 27: bench damage shield and opponent retreat tax ------------
+    ("flip.per-self-energy-per-heads",
+     re.compile(r"flip a coin for each energy attached to this pokemon\. this "
+                r"attack does (\d+) damage (?:times the number of heads|for "
+                r"each heads)\."), _flip_per_self_energy),
     ("ability.bench-damage-shield",
      re.compile(r"as long as this pokemon is on your bench, prevent all damage "
                 r"done to this pokemon by attacks \(both yours and your "
