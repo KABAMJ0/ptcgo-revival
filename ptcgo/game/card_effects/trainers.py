@@ -8212,3 +8212,100 @@ def surges_bargain(draw: int = 4):
         else:
             await ctx.draw_cards(draw)
     return effect
+
+
+# --- Cards whose play cost is paid from the hand -----------------------------
+
+def hand_has(predicate, count: int = 1):
+    """Play condition: the hand holds at least `count` matching cards, which is
+    what a "discard N ... in order to play this card" cost requires."""
+    def check(board, player_id):
+        hand = board.find_player_area(player_id, "hand")
+        return sum(1 for card in (hand.children if hand else []) if predicate(card)) >= count
+    return check
+
+
+async def _pay_hand_cost(ctx, predicate, count: int, prompt: str) -> bool:
+    """Discard `count` matching cards from the hand as a play cost; False when
+    the player cannot pay."""
+    pool = [card for card in ctx.hand() if predicate(card)]
+    if len(pool) < count:
+        return False
+    picks = await ctx.choose_cards(pool, count, minimum=count, prompt=prompt)
+    if len(picks) < count:
+        return False
+    await ctx.discard_cards(picks)
+    return True
+
+
+def molayne():
+    """Discard 2 Metal Energy cards from your hand, then shuffle 1 Trainer card
+    from your discard pile into your deck (Molayne)."""
+    async def effect(ctx):
+        if not await _pay_hand_cost(ctx, is_metal_energy_card, 2,
+                                    "Discard 2 Metal Energy cards"):
+            return
+        pool = [card for card in ctx.discard_pile() if is_trainer_card(card)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Trainer card to shuffle into your deck")
+        if picks:
+            await ctx.shuffle_into_deck(picks)
+    return effect
+
+
+def discard_opponent_attachment_or_stadium(energy_predicate, energy_label: str):
+    """"Discard 1 Pokemon Tool or Special Energy card from 1 of your opponent's
+    Pokemon, or discard 1 Stadium in play" (Blowtorch, Dangerous Drill): the
+    hand cost is paid first, then the player picks which of the two.""" 
+    async def effect(ctx):
+        if not await _pay_hand_cost(ctx, energy_predicate, 1,
+                                    "Discard %s from your hand" % energy_label):
+            return
+        options = []
+        cards = []
+        opponent_tools = [tool for tool, holder in ctx.tools_in_play()
+                          if holder.owning_player_id == ctx.opponent_id]
+        special = [energy for pokemon in ctx.opponent_pokemon_in_play()
+                   for energy in ctx.attached_energies(pokemon)
+                   if is_special_energy(energy)]
+        cards = opponent_tools + special
+        stadium = ctx.board.find_global_area("activeStadium")
+        has_stadium = stadium is not None and bool(stadium.children)
+        if cards:
+            options.append("Discard a Tool or Special Energy")
+        if has_stadium:
+            options.append("Discard the Stadium")
+        if not options:
+            return
+        if len(options) == 1:
+            choice = 0
+        else:
+            choice = await ctx.choose("Choose what to discard", options)
+        if options[choice].startswith("Discard a Tool"):
+            picks = await ctx.choose_cards(
+                cards, 1, minimum=1,
+                prompt="Choose a Pokemon Tool or Special Energy to discard")
+            if picks:
+                await ctx.discard_cards(picks)
+        else:
+            await ctx.discard_stadium()
+    return effect
+
+
+def search_one_of_each_into_hand(kinds):
+    """Search the deck for 1 of each matching kind into your hand, then shuffle
+    (Secret Box)."""
+    async def effect(ctx):
+        taken = []
+        for predicate in kinds:
+            picks = await ctx.search_deck(
+                predicate, count=1, minimum=0,
+                prompt="Choose a card to put into your hand")
+            taken.extend(picks)
+        if taken:
+            await ctx.put_in_hand(taken, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
