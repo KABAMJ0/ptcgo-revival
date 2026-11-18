@@ -169,6 +169,26 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         "passive",
     ),
     (
+        "warp-on-attach",
+        r"attach (this card|warp energy) from your hand to your active pokemon, switch (that pokemon|your active pokemon) "
+        r"with 1 of your benched pokemon",
+        "on_attach=warp_on_attach",
+        (), "on_attach"
+    ),
+    (
+        "cyclone-on-attach",
+        r"(switch 1 of the defending pokemon with 1 of your opponent's benched pokemon"
+        r"|your opponent switches (his or her|their) active pokemon with 1 of (his or her|their) benched pokemon)",
+        "on_attach=cyclone_on_attach",
+        (), "on_attach"
+    ),
+    (
+        "jet-on-attach",
+        r"attach this card from your hand to 1 of your benched pokemon, switch that pokemon with your active pokemon",
+        "on_attach=jet_on_attach",
+        (), "on_attach"
+    ),
+    (
         "pairs-provision",
         r"provides (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) "
         r"(?:and ?/ ?or|and|or) (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) energy "
@@ -394,6 +414,9 @@ NEEDED = {
     "passive=EffectShieldPassive(": ["EffectShieldPassive"],
     "passive=SubtypeProvisionPassive(": ["SubtypeProvisionPassive"],
     "passive=SuperBoostEnergyPassive()": ["SuperBoostEnergyPassive"],
+    "on_attach=warp_on_attach": ["warp_on_attach"],
+    "on_attach=cyclone_on_attach": ["cyclone_on_attach"],
+    "on_attach=jet_on_attach": ["jet_on_attach"],
 }
 
 

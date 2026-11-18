@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import warp_on_attach
 card = EnergyCardDef(
     guid="a0cf3f3d-63c0-5396-bbaf-d1d4b1aa7ef6",
     key="SM4",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SM4",
     rarity=Rarities.RareSecret,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    on_attach=warp_on_attach,
 )

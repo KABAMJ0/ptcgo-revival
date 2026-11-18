@@ -400,3 +400,37 @@ class SuperBoostEnergyPassive(Passive):
                                                PokemonTypes.FAIRY, PokemonTypes.DRAGON,
                                                PokemonTypes.COLORLESS)]
         return ALL_TYPES_ONE_AT_A_TIME
+
+
+# --- switching -------------------------------------------------------------
+async def warp_on_attach(ctx):
+    """Warp Energy: attached to your Active, it may be switched for a Benched
+    Pokemon of your choice."""
+    active = ctx.my_active()
+    if active is None or ctx.attached_to is not active:
+        return
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose your new Active Pokemon")
+    if target is not None:
+        await ctx.switch_active(ctx.player_id, target)
+
+
+async def cyclone_on_attach(ctx):
+    """Cyclone Energy: the opponent switches their Active for one of their
+    Benched Pokemon."""
+    active = ctx.my_active()
+    if active is None or ctx.attached_to is not active:
+        return
+    from ptcgo.game.card_effects.support_common import opponent_switches
+    await opponent_switches(ctx)
+
+
+async def jet_on_attach(ctx):
+    """Jet Energy: attached to a Benched Pokemon, it becomes your Active."""
+    target = ctx.attached_to
+    if target is None:
+        return
+    if any(pokemon is target for pokemon in ctx.my_bench()):
+        await ctx.switch_active(ctx.player_id, target)
