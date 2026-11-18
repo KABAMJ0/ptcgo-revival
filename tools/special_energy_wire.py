@@ -133,6 +133,31 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         "passive",
     ),
     (
+        "on-attach-heal",
+        r"remove (\d+) damage counters?( and all special conditions)?"
+        r".{0,80}pokemon you attach it to|when you attach this card from your hand to 1 of your pokemon, "
+        r"remove (\d+) damage counters?( and all special conditions)?",
+        None,
+        ("heal",),
+        "on_attach",
+    ),
+    (
+        "cure-on-attach",
+        r"is no longer affected by any special conditions",
+        "on_attach=cure_on_attach",
+        (),
+        "on_attach",
+    ),
+    (
+        "pairs-provision",
+        r"provides (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) "
+        r"(?:and ?/ ?or|and|or) (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) energy "
+        r"but provides 2 energy at a time",
+        None,
+        ("pairs",),
+        "provides",
+    ),
+    (
         # the plain "every type, one at a time" family; anything conditional is
         # caught by BLOCKED below and left alone
         "all-types-one-at-a-time",
@@ -146,9 +171,6 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
 # wired, because a half-wired card plays by different rules than it is printed with.
 BLOCKED = [
     (r"at the end of every turn, put \d+ damage counter", "end-of-turn damage counter tick missing"),
-    (r"provides .{0,30} and ?/ ?or .{0,30} energy but provides 2 energy at a time"
-     r"|provides .{0,20} and .{0,20} energy but provides 2 energy at a time",
-     "two-specific-types-at-a-time provision (pairs helper missing)"),
     (r"ultra beast", "Ultra Beast subtype gate plus a damage passive"),
     (r"1 fewer prize", "prize-count passive with a once-per-game gate"),
     (r"put it in the lost zone instead|lost zone instead", "Prism Star lost-zone rule"),
@@ -211,68 +233,116 @@ def existing_kwargs(call):
     return {kw.arg for kw in call.keywords if kw.arg}
 
 
-def plan_for(text, is_special_text=True):
-    """Returns (family, kwargs_snippet, note, target) or (None, None, reason, None)."""
+def _resolve(name, low, snippet, extra, target):
+    """Per-family kwargs for one card, or (None, None, reason, None)."""
+    if extra == ("evolved",):
+        excluding = "excluding pokemon-ex" in low
+        return name, "attach_to=" + ("evolved_excluding_ex" if excluding else "pokemon_is_evolved"), "", target
+    if extra == ("heal",):
+        matched = re.search(r"remove (\d+) damage counters?", low)
+        counters = matched.group(1) if matched else "1"
+        cure = "all special conditions" in low
+        tail = ", cure_conditions=True" if cure else ""
+        return name, f"on_attach=heal_on_attach({counters}{tail})", "", target
+    if extra == ("pairs",):
+        listed = re.findall(
+            r"(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) energy",
+            low)
+        if len(listed) < 2:
+            return None, None, "pair not parsed", None
+        args = ", ".join(TYPE_NAMES[t] for t in listed[:2])
+        return name, f"provides=pairs_of({args})", "", target
+    if extra == ("reduction",):
+        amount = re.search(r"reduced by (\d+)", low)
+        gated = "isn't metal" in low or "is not metal" in low
+        arg = f"{amount.group(1)}, PokemonTypes.METAL" if gated else amount.group(1)
+        return name, f"passive=DamageReductionPassive({arg})", "", target
+    if extra == ("darkness-bonus",):
+        matched = re.search(r"does (\d+) more damage", low)
+        amount = matched.group(1) if matched else "10"
+        if "has dark in its name" in low:
+            return name, f'passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS, "Dark")', "", target
+        return name, f"passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS)", "", target
+    if extra == ("no-weakness",):
+        gated = "the metal pokemon this card is attached to" in low
+        arg = "PokemonTypes.METAL" if gated else ""
+        return name, f"passive=NoWeaknessPassive({arg})", "", target
+    if extra == ("no-retreat",):
+        listed = re.search(r"the (metal|darkness) pokemon this card is attached to", low)
+        arg = "PokemonTypes.METAL" if listed.group(1) == "metal" else "PokemonTypes.DARKNESS"
+        return name, f"passive=NoRetreatCostPassive({arg})", "", target
+    if extra == ("type",):
+        listed = re.search(
+            r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
+            low)
+        if not listed:
+            return None, None, "type not parsed", None
+        return name, f"attach_to=pokemon_of_type({TYPE_NAMES[listed.group(1)]})", "", target
+    if extra == ("strike",):
+        listed = re.search(r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon", low)
+        marker = {"rapid": "Rapid Strike", "single": "Single Strike", "fusion": "Fusion Strike"}[listed.group(1)]
+        return name, f'attach_to=pokemon_with_subtype("{marker}")', "", target
+    if extra == ("named",):
+        listed = re.search(r"(team rocket's|team aqua|team magma)", low)
+        fragment = {"team rocket's": "Team Rocket", "team aqua": "Team Aqua",
+                    "team magma": "Team Magma"}[listed.group(1)]
+        return name, f'attach_to=pokemon_named_like("{fragment}")', "", target
+    if extra in (("unit",), ("blend",)):
+        listed = re.search(
+            r"(grass, fire, and water|lightning, psychic, and metal|fighting, darkness, and fairy|"
+            r"grass, fire, psychic, or darkness|water, lightning, fighting, or metal)", low)
+        if not listed:
+            return None, None, "energy types not parsed", None
+        types = [part.strip() for part in re.split(r",| and | or ", listed.group(1)) if part.strip()]
+        args = ", ".join(TYPE_NAMES[t] for t in types if t in TYPE_NAMES)
+        return name, f"provides=one_at_a_time({args})", "", target
+    if snippet:
+        used = snippet
+        if DAMAGE_COUNTER_ON_ATTACH.search(low):
+            used += ",\n    on_attach=rainbow_on_attach"
+        return name, used, "", target
+    return None, None, "no family matched", None
+
+
+def plans_for(text):
+    """Every (family, snippet, target) the text asks for, most specific first.
+
+    A card can need two hooks: Aqua Energy restricts where it may go AND provides
+    two Energy at a time. Each family is considered independently and the caller
+    skips the ones whose target the card already carries.
+    """
+    low = normalise(text)
+    if not low:
+        return []
+    for pattern, reason in BLOCKED:
+        if re.search(pattern, low):
+            return []          # a blocked clause means the card needs a primitive
+    prism = bool(re.search(FAMILIES[0][1], low))
+    plans = []
+    seen_targets = {"provides"} if prism else set()
+    for family, pattern, snippet, extra, target in FAMILIES:
+        if target in seen_targets:
+            continue           # one hook per target: the first (most specific) wins
+        if not re.search(pattern, low):
+            continue
+        family_name, snippet_text, reason, target_name = _resolve(family, low, snippet, extra, target)
+        if snippet_text:
+            plans.append((family_name, snippet_text, target_name))
+            seen_targets.add(target_name)
+    return plans
+
+
+def plan_for(text):
+    """First matching (family, snippet, note, target) — used by probes and reports."""
     low = normalise(text)
     if not low:
         return None, None, "no printed text", None
     for pattern, reason in BLOCKED:
         if re.search(pattern, low):
             return None, None, reason, None
-    for name, pattern, snippet, extra, target in FAMILIES:
-        if not re.search(pattern, low):
-            continue
-        if extra == ("evolved",):
-            excluding = "(excluding pokemon-ex)" in low or "excluding pokemon-ex" in low
-            return name, "attach_to=" + ("evolved_excluding_ex" if excluding else "pokemon_is_evolved"), "", target
-        if extra == ("reduction",):
-            amount = re.search(
-                r"reduced by (\d+)", low)
-            gated = "isn't metal" in low or "is not metal" in low
-            arg = f"{amount.group(1)}, PokemonTypes.METAL" if gated else amount.group(1)
-            return name, f"passive=DamageReductionPassive({arg})", "", target
-        if extra == ("darkness-bonus",):
-            matched = re.search(r"does (\d+) more damage", low)
-            amount = matched.group(1) if matched else "10"
-            if "has dark in its name" in low:
-                return name, f'passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS, "Dark")', "", target
-            return name, f"passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS)", "", target
-        if extra == ("no-weakness",):
-            gated = "the metal pokemon this card is attached to" in low
-            arg = "PokemonTypes.METAL" if gated else ""
-            return name, f"passive=NoWeaknessPassive({arg})", "", target
-        if extra == ("no-retreat",):
-            listed = re.search(r"the (metal|darkness) pokemon this card is attached to", low)
-            arg = "PokemonTypes.METAL" if listed.group(1) == "metal" else "PokemonTypes.DARKNESS"
-            return name, f"passive=NoRetreatCostPassive({arg})", "", target
-        if extra == ("type",):
-            listed = re.search(
-                r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
-                low)
-            if not listed:
-                return None, None, "type not parsed"
-            return name, f"attach_to=pokemon_of_type({TYPE_NAMES[listed.group(1)]})", "", target
-        if extra == ("strike",):
-            listed = re.search(r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon", low)
-            marker = {"rapid": "Rapid Strike", "single": "Single Strike", "fusion": "Fusion Strike"}[listed.group(1)]
-            return name, f'attach_to=pokemon_with_subtype("{marker}")', "", target
-        if extra == ("named",):
-            listed = re.search(r"(team rocket's|team aqua|team magma)", low)
-            fragment = {"team rocket's": "Team Rocket", "team aqua": "Team Aqua", "team magma": "Team Magma"}[listed.group(1)]
-            return name, f'attach_to=pokemon_named_like("{fragment}")', "", target
-        if extra == ("unit",) or extra == ("blend",):
-            listed = re.search(
-                r"(grass, fire, and water|lightning, psychic, and metal|fighting, darkness, and fairy|"
-                r"grass, fire, psychic, or darkness|water, lightning, fighting, or metal)", low)
-            if not listed:
-                return None, None, "energy types not parsed"
-            types = [part.strip() for part in re.split(r",| and | or ", listed.group(1)) if part.strip()]
-            args = ", ".join(TYPE_NAMES[t] for t in types if t in TYPE_NAMES)
-            return name, f"provides=one_at_a_time({args})", "", target
-        snippet_used = snippet
-        if DAMAGE_COUNTER_ON_ATTACH.search(low):
-            snippet_used += ",\n    on_attach=rainbow_on_attach"
-        return name, snippet_used, "", target
+    for family, pattern, snippet, extra, target in FAMILIES:
+        if re.search(pattern, low):
+            return _resolve(family, low, snippet, extra, target)
     return None, None, "no family matched", None
 
 
@@ -295,7 +365,26 @@ NEEDED = {
     "passive=MetalEnergyLegacyPassive()": ["MetalEnergyLegacyPassive"],
     "passive=NoWeaknessPassive(": ["NoWeaknessPassive"],
     "passive=NoRetreatCostPassive(": ["NoRetreatCostPassive"],
+    "on_attach=heal_on_attach(": ["heal_on_attach"],
+    "provides=pairs_of(": ["pairs_of"],
+    "on_attach=cure_on_attach": ["cure_on_attach"],
 }
+
+
+def add_imports(path, wanted):
+    """Adds `wanted` names to the script's energies import line."""
+    lines = open(path, encoding="utf-8").read().splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith(IMPORT_LINE):
+            existing = [part.strip() for part in line[len(IMPORT_LINE):].split(",") if part.strip()]
+            merged = existing + [name for name in wanted if name not in existing]
+            lines[index] = IMPORT_LINE + ", ".join(merged)
+            open(path, "w", encoding="utf-8").write("\n".join(lines) + "\n")
+            return
+    first_card = next(i for i, line in enumerate(lines) if line.startswith("card ="))
+    lines.insert(first_card, IMPORT_LINE + ", ".join(wanted))
+    lines.insert(first_card, "")
+    open(path, "w", encoding="utf-8").write("\n".join(lines) + "\n")
 
 
 def ensure_imports(path, snippet):
@@ -365,6 +454,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--family")
+    parser.add_argument("--sets", help="comma-separated set codes to limit to")
     args = parser.parse_args()
 
     texts = set_texts()
@@ -391,13 +481,20 @@ def main():
             except ValueError:
                 continue
             text = texts.get((directory.upper(), number), "")
-            family, snippet, reason, target = plan_for(text)
-            if snippet and target in kwargs:
-                family, snippet, reason = None, None, f"already has {target}"
-            rows.append({"path": path, "family": family, "snippet": snippet,
-                         "reason": reason, "text": text, "name": stem.rpartition("_")[0],
-                         "wired": sorted(n for n in HOOKS if n in kwargs)})
+            plans = [(fam, snip, tgt) for fam, snip, tgt in plans_for(text) if tgt not in kwargs]
+            if not plans:
+                reason = "already wired" if any(n in kwargs for n in HOOKS) else plan_for(text)[2]
+                rows.append({"path": path, "family": None, "snippet": None, "reason": reason,
+                             "text": text, "name": stem.rpartition("_")[0], "plans": []})
+                continue
+            rows.append({"path": path, "family": "+".join(p[0] for p in plans),
+                         "snippet": ",\n".join(p[1] for p in plans), "reason": "",
+                         "text": text, "name": stem.rpartition("_")[0],
+                         "plans": plans})
 
+    wanted_sets = {code.strip().upper() for code in (args.sets or "").split(",") if code.strip()}
+    if wanted_sets:
+        rows = [r for r in rows if os.path.basename(os.path.dirname(r["path"])).upper() in wanted_sets]
     matched = [r for r in rows if r["family"]]
     if args.family:
         matched = [r for r in matched if r["family"] == args.family]
@@ -408,6 +505,26 @@ def main():
         print(f"      text: {row['text'][:110]}")
     unmatched = [r for r in rows if not r["family"]]
     print(f"\nleft unwired: {len(unmatched)}")
+
+    if args.apply:
+        # a repair pass: every script that names a helper must import it, whichever
+        # batch added the kwarg
+        repaired = 0
+        for row in rows:
+            source = open(row["path"], encoding="utf-8").read()
+            if "EnergyCardDef(" not in source:
+                continue
+            kwargs_text = source[source.index("EnergyCardDef("):]
+            wanted = [name for marker, names in NEEDED.items() if marker in kwargs_text
+                      for name in names]
+            if not wanted:
+                continue
+            missing = [name for name in wanted if f"{name}" not in source.split("card =")[0]]
+            if missing:
+                add_imports(row["path"], missing)
+                repaired += 1
+        if repaired:
+            print(f"repaired imports in {repaired} scripts")
 
     if args.apply and matched:
         for row in matched:

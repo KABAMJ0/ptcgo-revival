@@ -309,3 +309,33 @@ class NoRetreatCostPassive(Passive):
         if self.pokemon_type is not None and not _pokemon_has_type(holder, self.pokemon_type):
             return cost
         return 0
+
+
+def heal_on_attach(counters: int, cure_conditions: bool = False):
+    """On attach from hand: remove `counters` damage counters from the carrier,
+    and all special conditions with it (Potion/Full Heal/Heal Energy)."""
+    async def effect(ctx):
+        target = ctx.attached_to
+        if target is None:
+            return
+        if cure_conditions:
+            await ctx.cure_all_conditions(target)
+        await ctx.heal(counters * 10, target)
+    return effect
+
+
+def pairs_of(*types) -> list:
+    """Two-at-a-time provision over a fixed set of types.
+
+    Aqua Energy: "provides Water and Darkness Energy but provides 2 Energy at a
+    time" - any combination of the listed types, including two of one.
+    """
+    return [[a, b] for index, a in enumerate(types) for b in types[index:]]
+
+
+async def cure_on_attach(ctx):
+    """On attach from hand: the carrier is no longer affected by special
+    conditions (Full Heal Energy)."""
+    target = ctx.attached_to
+    if target is not None:
+        await ctx.cure_all_conditions(target)
