@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_provides = lambda type_value: (
+    lambda card: energy_provides_type(card, type_value.value)
+)
+
 
 card = PokemonCardDef(
     guid="0984787f-7f77-5999-9be5-2b87a1d4ab21",
@@ -30,7 +37,12 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 3, PokemonTypes.COLORLESS: 1},
             damage=130,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(
+                source="self-energy",
+                predicate=_provides(PokemonTypes.GRASS),
+                max_count=3,
+                per=50,
+            ),
         ),
     ],
 )
