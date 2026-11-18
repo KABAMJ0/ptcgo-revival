@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+
+
+def _has_named_in_play(board, owner_id, name) -> bool:
+    return any(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == name
+               for p in board.pokemon_in_play(owner_id))
+
+
+def _has_nidoqueen(board, pokemon, carrier) -> bool:
+    return _has_named_in_play(board, carrier.owning_player_id, "Nidoqueen")
 
 card = PokemonCardDef(
     guid="20333133-3812-5ee4-92cc-356439f4ae17",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Enthusiastic King",
             game_text="If you have Nidoqueen in play, ignore all Energy in the costs of attacks used by this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=free_attack_cost_passive(condition=_has_nidoqueen),
         ),
         Attack(
             title="Venomous Impact",
