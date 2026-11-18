@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="f6a82dde-5e18-52b7-85bb-cfcfe54b18e9",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Allure",
             game_text="Draw 3 cards.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Hand Kinesis",

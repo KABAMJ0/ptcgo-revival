@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="b3f35c05-a72e-538a-926c-fa52aeb6d2a6",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Triple Laser",
             game_text="This attack does 30 damage to 3 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any", count=3, apply_modifiers=False),
         ),
         Attack(
             title="Cybernetic Wheels",

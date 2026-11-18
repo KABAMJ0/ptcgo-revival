@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="ffa0f012-dfdd-5808-bad1-d0c63eb4dec9",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.DARKNESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Menacing Fangs",
