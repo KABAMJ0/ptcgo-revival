@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy from this Pok\u00e9mon. This attack does 50 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=100,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1, before_damage=True, also=snipe_attack(50, pool="bench", count=1)),
         ),
     ],
 )

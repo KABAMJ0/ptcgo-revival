@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Lightning Crash",
             game_text="Discard all Lightning Energy from this Pok\u00e9mon, and this attack does 90 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 3},
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, energy_type=PokemonTypes.LIGHTNING, before_damage=True, also=snipe_attack(90, pool="any", count=1)),
         ),
     ],
 )
