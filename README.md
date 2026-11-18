@@ -4,13 +4,16 @@ PTCGO Revival is a Python server emulator for the discontinued Pokémon Trading
 Card Game Online (PTCGO) client. It runs the game server and serves the assets
 that an existing copy of the client needs to connect.
 
-The current checkout loads **19,643 cards across 172 sets**. About **57% of
-Trainer scripts** are implemented in this checkout; the Trainer worker reported
-about **67%** on its separate branch. About **58% of Pokémon attacks and
-abilities with text** are scripted here. The dashboard counts attacks without
-effect text too, so it shows about **68% of all entries** resolving without a
-stub. A stubbed attack deals its printed base damage only; a stubbed Ability or
-Trainer doesn't perform its printed effect.
+The current checkout loads **19,643 cards across 172 sets**. **1,837 of 2,686
+Trainer scripts** (68%) carry a real effect. Of the 30,499 Pokémon attack and
+ability entries, **16,350 are scripted and 7,264 are vanilla** — they only ever
+deal printed damage, so nothing is missing — which leaves **6,885 stubbed**, so
+about 77% of entries resolve fully. A stubbed attack deals its base damage and
+nothing else; a stubbed Ability or Trainer does not perform its printed effect.
+
+Roughly 180 Trainer cards and a similar number of attacks are blocked on engine
+features rather than effort. Those are listed with the card text each one serves
+in `reports/` and in the worker gap lists.
 
 ## Quick start
 
