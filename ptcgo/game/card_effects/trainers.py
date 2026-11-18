@@ -49,6 +49,7 @@ from ptcgo.game.card_effects.passives_common import (
     retreat_free_when,
     no_weakness_passive,
     retreat_discount,
+    retreat_discount_despite_conditions,
     takes_less_passive,
     typed_damage_boost_tool,
 )
@@ -1464,7 +1465,10 @@ def is_stage_two(card) -> bool:
 
 
 def is_pokemon_ex(card) -> bool:
-    return is_pokemon_card(card) and "ex" in " ".join(subtypes_for(card.archetype_id))
+    """SV "Pokemon ex". Shared implementation in card_effects.pokemon, which
+    takes a card entity, a definition or an archetype GUID."""
+    from ptcgo.game.card_effects.pokemon import is_pokemon_ex as _shared
+    return _shared(card)
 
 
 def is_rule_box_pokemon(card) -> bool:
@@ -1541,6 +1545,50 @@ def shuffle_hand_draw(n: int, opponent_prizes_low=None):
                 count = opponent_prizes_low[1]
         await ctx.draw_cards(count)
     return effect
+
+
+def shuffle_hand_draw_if(cond, draw: int, else_draw: int):
+    """"Shuffle your hand into your deck. If <cond>, draw `draw` cards; if not,
+    draw `else_draw`" (Hala). `cond` is a ctx-level predicate."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        await ctx.draw_cards(draw if cond(ctx) else else_draw)
+    return effect
+
+
+def gx_used_condition(spent: bool = True):
+    """ctx-level condition: this player has (spent=True) or has not used their
+    once-per-game GX attack (Hala)."""
+    def check(ctx) -> bool:
+        used = ctx.player_id in ctx.session.turn_state.gx_attack_used
+        return used == spent
+    return check
+
+
+def gx_unlock(predicate=None):
+    """"During this turn, your <Pokemon> can use their GX attack even if you
+    have already used your GX attack" (Misty & Lorelei, Bonnie).
+    `predicate(attacker, ability)` narrows the grant."""
+    async def effect(ctx):
+        ctx.session.turn_state.unlock_gx_attacks(ctx.player_id, predicate)
+    return effect
+
+
+def gx_unlock_for_type(type_name: str):
+    """The type-narrowed grant: "your Water Pokemon can use their GX attacks"."""
+    type_value = POKEMON_TYPE_NAMES[type_name.lower()]
+
+    def predicate(attacker, ability) -> bool:
+        return type_value in (attacker.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return gx_unlock(predicate)
+
+
+def gx_unlock_for_name(name: str):
+    """The name-narrowed grant: "your Zygarde-GX can use its GX attack"."""
+    def predicate(attacker, ability) -> bool:
+        printed = (getattr(def_for(attacker.archetype_id), "display_name", "") or "")
+        return printed.lower().startswith(name.lower())
+    return gx_unlock(predicate)
 
 
 def each_player_shuffle_draw(n: int):
@@ -2503,11 +2551,13 @@ def discard_from_opponent_hand(predicate=None, count: int = 1):
 
 
 def is_pokemon_gx(card) -> bool:
-    return is_pokemon_card(card) and "GX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_gx as _shared
+    return _shared(card)
 
 
 def is_pokemon_vstar(card) -> bool:
-    return is_pokemon_card(card) and "VSTAR" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_vstar as _shared
+    return _shared(card)
 
 
 def retreat_cost_is(cost: int):
@@ -3444,7 +3494,8 @@ def stadium_ability(title: str, effect):
 def is_pokemon_EX(card) -> bool:
     """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
     Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
-    return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_EX as _shared
+    return _shared(card)
 
 
 # --- Bespoke tool shapes on existing engine hooks ---------------------------
@@ -9113,3 +9164,273 @@ def active_is_water_or_metal():
         types = active.get_attribute(AttrID.POKEMON_TYPES) or []
         return PokemonTypes.WATER.value in types or PokemonTypes.METAL.value in types
     return check
+
+
+# --- Bench-capacity stadiums and multi-copy items ---------------------------
+
+def pokemon_in_play_from(entity):
+    """Every in-play Pokemon, found by walking the board from `entity` (a card
+    whose hook only hands over its carrier)."""
+    node = entity
+    while node.parent is not None:
+        node = node.parent
+    stack, areas = [node], []
+    while stack:
+        current = stack.pop()
+        for child in getattr(current, "children", None) or []:
+            if child.get_attribute(AttrID.NAME) in ("bench", "activePokemonArea"):
+                areas.append(child)
+            stack.append(child)
+    return [mon for area in areas for mon in area.children
+            if isinstance(mon, PokemonEntity)]
+
+
+class TeraBenchCapPassive(Passive):
+    """A player with any Tera Pokemon in play may have 8 on the Bench (Area
+    Zero Underdepths). The engine's bench-capacity enforcement discards back
+    down to 5 once the last Tera Pokemon or the Stadium leaves play."""
+
+    def bench_capacity(self, player_id, carrier):
+        return 8 if any(mon.owning_player_id == player_id
+                        and "tera" in [str(subtype).lower()
+                                       for subtype in subtypes_for(mon.archetype_id)]
+                        for mon in pokemon_in_play_from(carrier)) else None
+
+
+def tera_bench_cap():
+    return TeraBenchCapPassive()
+
+
+def _copies_on_trainer(ctx) -> int:
+    """How many copies of this card sit on the trainer slot right now.
+
+    "Play N at the same time" is resolved one card after the other, and each
+    copy stays on `activeTrainer` while its own effect runs, so the last copy
+    of the group sees all of them (including itself) and knows the size."""
+    area = ctx.board.find_global_area("activeTrainer")
+    return sum(1 for card in (area.children if area else [])
+               if card.archetype_id == ctx.source.archetype_id)
+
+
+async def _offer_partner(ctx, prompt: str) -> bool:
+    """Play another copy of this card on top of the current one; True when the
+    partner was played and resolved."""
+    partner = next((card for card in ctx.hand()
+                    if card.archetype_id == ctx.source.archetype_id), None)
+    if partner is None or not await ctx.ask_yes_no(prompt):
+        return False
+    await ctx.session._execute_play_trainer(ctx.player_id, partner)
+    return True
+
+
+async def _missing_clover(ctx):
+    """1 Missing Clover: look at the top card. 4 played at once: take 1 Prize
+    card."""
+    if _copies_on_trainer(ctx) >= 4:
+        await ctx.take_prizes(1)
+        return
+    if await _offer_partner(ctx, "Play another Missing Clover?"):
+        return
+    if _copies_on_trainer(ctx) == 1:
+        await ctx.reveal_cards(ctx.deck_top(1))
+
+
+async def _poke_drawer(ctx):
+    """1 Poke Drawer: draw a card. 2 played at once: search up to 2 cards."""
+    if _copies_on_trainer(ctx) >= 2:
+        picks = await ctx.search_deck(
+            None, count=2, minimum=0,
+            prompt="Choose up to 2 cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+        return
+    if await _offer_partner(ctx, "Play a second Poke Drawer at once?"):
+        return
+    if _copies_on_trainer(ctx) == 1:
+        await ctx.draw_cards(1)
+
+
+# --- Stadium checkup pass --------------------------------------------------
+
+def _first_checkup_pass(ctx) -> bool:
+    """The Stadium's BETWEEN_TURNS slot resolves once per player in turn order;
+    a body that covers both sides acts only on the first pass."""
+    order = ctx.session._turn_order()
+    return bool(order) and order[0] == ctx.player_id
+
+
+def stadium_checkup_counters(counters: int, predicate, own_side_only=False):
+    """Between turns, `counters` damage counters on every in-play Pokemon that
+    matches `predicate` (both sides, or only the pass player's)."""
+    async def effect(ctx):
+        if own_side_only:
+            players = [ctx.player_id]
+        else:
+            if not _first_checkup_pass(ctx):
+                return
+            players = ctx.board.player_ids
+        for pid in players:
+            for pokemon in list(ctx.board.pokemon_in_play(pid)):
+                if predicate(pokemon):
+                    await ctx.deal_damage(10 * counters, target=pokemon,
+                                          apply_modifiers=False, as_counters=True)
+    return effect
+
+
+def pokemon_is_ex_with_hp(threshold: int):
+    """Predicate: a Pokemon-ex whose printed maximum HP is at least `threshold`."""
+
+    def predicate(pokemon):
+        if "EX" not in subtypes_for(pokemon.archetype_id):
+            return False
+        printed = pokemon.attribute_originals.get(
+            AttrID.HP.value, pokemon.get_attribute(AttrID.HP, 0))
+        return printed >= threshold
+    return predicate
+
+
+def pokemon_has_any_subtype(*wanted):
+    """Predicate: a Pokemon carrying any of the named printed subtypes."""
+    names = [name.upper() for name in wanted]
+
+    def predicate(pokemon):
+        return any(name.upper() in names
+                   for name in subtypes_for(pokemon.archetype_id))
+    return predicate
+
+
+async def championship_arena_checkup(ctx):
+    """At the end of the active player's turn, that player with 8 or more cards
+    in hand discards down to 7."""
+    if ctx.player_id != ctx.session.turn_state.active_player_id:
+        return
+    held = len(ctx.hand())
+    if held < 8:
+        return
+    await ctx.discard_from_hand(
+        held - 7, prompt="Discard down to 7 cards for Championship Arena")
+
+
+async def level_max(ctx):
+    """Flip a coin; heads puts the Level-Up card for one of your Pokemon from
+    the deck onto it (counting as levelling that Pokemon up)."""
+    coins = await ctx.flip_coins(1, "Level Max")
+    if not coins or not coins[0]:
+        return
+    await evolve_from_deck_matching(
+        predicate=lambda card: "Level-Up" in subtypes_for(card.archetype_id)
+    )(ctx)
+
+
+# --- Stadium evolution ticks -----------------------------------------------
+
+def stadium_evolve_counters(counters: int):
+    """Whenever any player plays a Pokemon from hand to evolve one of theirs,
+    put `counters` damage counters on it (Po Town, Galactic HQ)."""
+    async def effect(ctx):
+        evolved = ctx.evolved_pokemon
+        if evolved is None:
+            return
+        await ctx.deal_damage(10 * counters, target=evolved,
+                              apply_modifiers=False, as_counters=True)
+    return effect
+
+
+def stadium_evolve_heal(amount: int, name_contains: str, only_one_left: int = 1):
+    """Whenever a Pokemon with `name_contains` in its name evolves, its owner
+    removes `amount` damage counters from it (or `only_one_left` when that is
+    all it has) -- Viridian City Gym."""
+    async def effect(ctx):
+        evolved = ctx.evolved_pokemon
+        if evolved is None:
+            return
+        definition = def_for(evolved.archetype_id)
+        printed = (getattr(definition, "display_name", "") or "").lower()
+        if name_contains.lower() not in printed:
+            return
+        counters = max(0, (ctx.max_hp(evolved)
+                           - evolved.get_attribute(AttrID.HP, 0)) // 10)
+        if counters <= 0:
+            return
+        remove = counters if counters <= only_one_left else amount
+        await ctx.heal(10 * remove, target=evolved)
+    return effect
+
+
+# --- GX-attack unlock supporters --------------------------------------------
+
+def stadium_in_play_playable(board, player_id) -> bool:
+    """Play condition: a Stadium card is in play (Bonnie)."""
+    area = board.find_global_area("activeStadium")
+    return bool(area and area.children)
+
+
+async def bonnie(ctx):
+    """Discard the Stadium in play; this turn your Zygarde-GX may use its GX
+    attack even if you have used your GX attack."""
+    await ctx.discard_stadium()
+    await gx_unlock_for_name("Zygarde")(ctx)
+
+
+async def misty_and_lorelei(ctx):
+    """Search up to 3 Water Energy cards into your hand; you may then discard 5
+    other cards to let your Water Pokemon use their GX attacks this turn."""
+    picks = await ctx.search_deck(
+        lambda card: is_energy_card(card)
+        and PokemonTypes.WATER.value in
+        (card.get_attribute(AttrID.POKEMON_TYPES) or []),
+        count=3, minimum=0, prompt="Choose up to 3 Water Energy cards")
+    if picks:
+        await ctx.put_in_hand(picks, reveal=True)
+    await ctx.shuffle_deck()
+    discarded = await ctx.discard_from_hand(
+        5, minimum=0,
+        prompt="Discard 5 cards to let your Water Pokemon use their GX attacks")
+    if len(discarded) == 5:
+        await gx_unlock_for_type("Water")(ctx)
+
+
+# --- Retreat Tools ----------------------------------------------------------
+
+class BalloonBerryPassive(Passive):
+    """The holder's Retreat Cost is 0 and the card is discarded when the holder
+    retreats (Balloon Berry, all three printings)."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is pokemon:
+            return 0
+        return cost
+
+    async def on_retreat(self, ctx, pokemon, carrier):
+        if carrier_pokemon(carrier) is pokemon:
+            await ctx.discard_cards([carrier])
+
+
+def balloon_berry_passive():
+    return BalloonBerryPassive()
+
+
+async def personality_test(ctx):
+    """Show an Evolution card from hand; the opponent guesses whether it is a
+    Light Pokemon, a Dark Pokemon, or neither. A right guess draws them 3, a
+    wrong one draws you 3."""
+    evolutions = [card for card in ctx.hand() if is_evolution_pokemon(card)]
+    if not evolutions:
+        return
+    picks = await ctx.choose_cards(
+        evolutions, 1, minimum=0,
+        prompt="Choose an Evolution card to show")
+    if not picks:
+        return
+    shown = picks[0]
+    printed = (getattr(def_for(picks[0].archetype_id), "display_name", "") or "").lower()
+    truth = 0 if "light" in printed else 1 if "dark" in printed else 2
+    await ctx.reveal_cards([shown])
+    guess = await ctx.ask_opponent(
+        "Guess the card: Light, Dark, or neither",
+        ["Light", "Dark", "Neither"])
+    if guess == truth:
+        await ctx.draw_cards(3, ctx.opponent_id)
+    else:
+        await ctx.draw_cards(3)

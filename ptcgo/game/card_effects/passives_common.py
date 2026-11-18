@@ -15,6 +15,7 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
     Passive,
@@ -58,6 +59,83 @@ def opposing_pokemon(target, carrier) -> bool:
 def opposing_active(target, carrier) -> bool:
     """(target, carrier) pred: target is the opposing Active Pokemon."""
     return opposing_pokemon(target, carrier) and is_in_active_spot(target)
+
+
+def unafflicted(board, player_id, pokemon) -> bool:
+    """Board-level Ability.condition: the Pokemon carries no Special Condition
+    ("This power can't be used if <name> is affected by a Special Condition")."""
+    return not (pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
+
+_PLAY_KIND_TESTS = {
+    "item": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.ITEM.value,
+    "supporter": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value,
+    "stadium": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value,
+    "tool": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) in (
+        TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value),
+    "special_energy": lambda card: bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+    "trainer": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) is not None,
+}
+
+
+class PlayLockPassive(Passive):
+    """A continuous lock on the opponent's hand: "As long as this Pokemon is
+    your Active Pokemon, your opponent can't play any Item cards from his or
+    her hand" (Gothitelle, Vileplume, Kabutops).
+
+    `matches` is the kind test over a hand card; the two hooks are the two
+    places the offer consults a passive -- blocks_trainer_play for Trainer
+    cards, blocks_play for Energy.
+    """
+
+    def __init__(self, matches, while_active=True, opponents_only=True,
+                 condition=None):
+        self.matches = matches
+        self.while_active = while_active
+        self.opponents_only = opponents_only
+        self.condition = condition
+
+    def _locks(self, player_id, card, carrier, board) -> bool:
+        if not self.matches(card):
+            return False
+        if self.opponents_only and player_id == carrier.owning_player_id:
+            return False
+        if self.while_active and not is_in_active_spot(carrier_pokemon(carrier)):
+            return False
+        if self.condition is not None and not self.condition(board, player_id, carrier):
+            return False
+        return True
+
+    def blocks_trainer_play(self, card, player_id, carrier) -> bool:
+        return self._locks(player_id, card, carrier, None)
+
+    def blocks_play(self, player_id, card, carrier, board=None) -> bool:
+        return self._locks(player_id, card, carrier, board)
+
+
+def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
+                      opponents_only: bool = True, condition=None) -> Passive:
+    """"Your opponent can't play any <kinds> cards from his or her hand" while
+    this Pokemon is Active (Gothitelle, Vileplume, Kabutops, Trevenant).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy" or "all"; `excluding` drops one, which spells the
+    "Trainer cards (except for Supporter cards)" wording."""
+    selected = set(kinds)
+    if "all" in selected:
+        selected |= set(_PLAY_KIND_TESTS)
+    if excluding:
+        selected.discard(excluding)
+    if not selected:
+        raise ValueError(f"play_lock_passive: no kinds in {kinds!r}")
+    tests = [_PLAY_KIND_TESTS[kind] for kind in selected]
+
+    def matches(card) -> bool:
+        return any(test(card) for test in tests)
+
+    matches.plays = tuple(sorted(selected))
+    return PlayLockPassive(matches, while_active=while_active,
+                           opponents_only=opponents_only, condition=condition)
 
 
 # ======================================================================
@@ -970,6 +1048,65 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+class DiscardSelfOnRetreatPassive(Passive):
+    """Balloon Berry: "when the Pokemon this card is attached to retreats,
+    discard this card" (and pay no Energy for the retreat)."""
+
+    async def on_retreat(self, ctx, pokemon, carrier) -> None:
+        if carrier is pokemon:
+            return
+        await ctx.discard_cards([carrier])
+
+
+def discard_self_on_retreat() -> Passive:
+    """`on_retreat` half of Balloon Berry; compose with retreat_discount."""
+    return DiscardSelfOnRetreatPassive()
+
+
+def heal_activation(amount, target_pred=None, flip=False,
+                    requires_benched=False):
+    """"Once during your turn, you may [flip a coin. If heads,] heal N damage
+    from your Active Pokemon" (Healing Leaves, Softboiled, Victory Kiss).
+
+    Returns `(effect, condition)`: the condition hides the offer while the
+    Active has nothing to heal, so an ONCE_PER_TURN ability's slot disappears
+    as soon as it is spent. `target_pred` narrows the Active (Water only,
+    Evolution only); `requires_benched` is the "if this Pokemon is on your
+    Bench" wording, which needs the carrier to stay off the Active spot."""
+    def condition(board, player_id, pokemon) -> bool:
+        if requires_benched and is_in_active_spot(pokemon):
+            return False
+        active = board.active_pokemon(player_id)
+        return active is not None \
+            and (target_pred is None or target_pred(active)) \
+            and active.get_attribute(AttrID.HP, 0) < effective_max_hp(board, active)
+
+    async def effect(ctx):
+        if requires_benched and is_in_active_spot(ctx.source):
+            return
+        active = ctx.my_active()
+        if active is None or (target_pred is not None and not target_pred(active)):
+            return
+        if flip:
+            results = await ctx.flip_coins(1, ctx.ability.title if ctx.ability else "")
+            if not (results and results[0]):
+                return
+        await ctx.heal(amount, active)
+
+    return effect, condition
+
+
+def on_ko_from_attack(then):
+    """"If this Pokemon is Knocked Out by damage from an attack" wrapper for an
+    ON_KNOCKED_OUT ability: runs `then(ctx)` only for attack damage, leaving
+    ability/effect knockouts alone (Final Wish)."""
+    async def effect(ctx):
+        if not getattr(ctx, "ko_from_attack", False):
+            return
+        await then(ctx)
+    return effect
+
+
 def flip_protection(prevent=True, reduce=None, effects_too=False, title=None):
     """Complete attack effect: printed damage, then flip a coin -- heads
     shields the user during the opponent's next turn."""
@@ -1268,3 +1405,55 @@ def has_team_plasma(board, pokemon) -> bool:
     granted by an attached Team Plasma Badge."""
     from ptcgo.game.session.passives import has_subtype
     return has_subtype(board, pokemon, "Team Plasma")
+
+
+def cure_on_energy_attach(energy_type=None):
+    """"Whenever you attach [a <type>] Energy from your hand to this Pokemon,
+    remove all Special Conditions from it" (Natural Cure, Water Veil). The
+    typed variants filter the trigger's attached Energy."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    async def effect(ctx):
+        if ctx.energy_receiver is not ctx.source:
+            return
+        if type_value is not None and ctx.attached_energy is not None \
+                and not energy_provides_type(ctx.attached_energy, type_value):
+            return
+        await ctx.cure_all_conditions(ctx.source)
+
+    return effect
+
+
+class EvolutionLockPassive(Passive):
+    """"Your opponent can't evolve their <Active> Pokemon during their next
+    turn" (Evolution Lock): a turn-scoped passive on the attacker."""
+
+    def __init__(self, opponent_id=None, only=None, active_only=False):
+        self.opponent_id = opponent_id
+        self.only = only
+        self.active_only = active_only
+
+    def blocks_evolution(self, player_id, target, carrier):
+        if self.opponent_id is not None and player_id == self.opponent_id:
+            return False
+        if self.only is not None and target is not self.only:
+            return False
+        return True
+
+
+def evolution_lock_passive(active_only=False, opponent_id=None, only=None) -> Passive:
+    """Blocks the opponent's evolutions for the passive's lifetime."""
+    return EvolutionLockPassive(opponent_id=opponent_id, only=only, active_only=active_only)
+
+
+class SpiritLinkPassive(Passive):
+    """"Your turn does not end if the Pokemon this card is attached to becomes
+    M <name> ex" (Spirit Link): the one clause every Spirit Link prints."""
+
+    def permits_turn_continue_after_mega(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
+
+def spirit_link_passive() -> Passive:
+    """Keeps the turn alive through the holder's Mega Evolution."""
+    return SpiritLinkPassive()

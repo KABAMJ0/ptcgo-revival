@@ -14,6 +14,7 @@ from ptcgo.game.attributes import (
     AttrID,
     CLIENT_SPECIAL_CONDITION_NAMES,
     PokemonStage,
+    PokemonTypes,
     SpecialConditions,
     TrainerType,
 )
@@ -226,6 +227,47 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             await ctx.deal_damage(tails_self_damage, target=ctx.attacker,
                                   apply_modifiers=False)
         await _finish(ctx, self_damage, also)
+    return effect
+
+
+def flip_damage_condition(coins: int = 1, per_heads: int = 0,
+                          base: Optional[int] = None, min_heads: int = 1,
+                          condition=None, self_condition=None, also=None):
+    """"Flip N coins. This attack does X damage for each heads. If <min_heads>
+    of them are heads, the Defending Pokemon is now <condition>."
+
+    One flip feeds both halves: the damage and the condition read the SAME
+    coins, which flip_damage + condition_attack cannot do (each flips)."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx)) if coins > 0 else []
+        heads = sum(1 for r in results if r)
+        base_val = (base or 0) if per_heads \
+            else (base if base is not None else _printed(ctx))
+        amount = base_val + heads * per_heads
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if heads >= min_heads:
+            if condition is not None:
+                await ctx.apply_special_condition(ctx.defender, condition)
+            if self_condition is not None:
+                await ctx.apply_special_condition(ctx.attacker, self_condition)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def flip_damage_table(steps: dict, coins: int = 3, base: Optional[int] = None):
+    """"Flip 3 coins. If 1 is heads, 10 more; if 2, 30 more; if all, 60 more."
+
+    `steps` maps head count -> extra damage; a count it does not name adds
+    nothing. `base` defaults to the printed damage."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx))
+        heads = sum(1 for r in results if r)
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + steps.get(heads, 0)
+        if amount > 0:
+            await ctx.deal_damage(amount)
     return effect
 
 
@@ -532,6 +574,30 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
     return effect
 
 
+def condition_if(cond_fn, *conditions, target: str = "defender",
+                 damage: Optional[int] = None, checkup_coins: int = 1,
+                 also=None):
+    """"If <board or Pokemon condition>, the Defending Pokemon is now
+    <conditions>" — applies the conditions only when `cond_fn(ctx)` holds.
+
+    condition_attack applies unconditionally, so this is the gate it lacks
+    ("if this Pokemon has any Plasma Energy attached", "if the Defending
+    Pokemon is a Pokemon ex", "if Nidoran is on your bench"). Printed damage
+    first; pass damage=0 for a pure rider."""
+    async def effect(ctx):
+        base_val = damage if damage is not None else _printed(ctx)
+        if base_val > 0:
+            await ctx.deal_damage(base_val)
+        if cond_fn(ctx):
+            holder = ctx.attacker if target in ("self", "attacker") else ctx.defender
+            for condition in conditions:
+                await ctx.apply_special_condition(
+                    holder, condition, checkup_coins=checkup_coins)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
 def condition_bonus_attack(bonus: int, *required_conditions,
                            base: Optional[int] = None, also=None):
     """"If the Defending Pokemon is already <condition>, this attack does
@@ -549,6 +615,122 @@ def condition_bonus_attack(bonus: int, *required_conditions,
             await ctx.deal_damage(amount)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def _energy_type_value(energy_type):
+    """Normalizes a type given as a PokemonTypes member, its client value or a
+    bare name ("Metal", "Fire"); None means any type."""
+    if energy_type is None:
+        return None
+    if isinstance(energy_type, PokemonTypes):
+        return energy_type.value
+    if isinstance(energy_type, str):
+        member = PokemonTypes.__members__.get(energy_type.upper())
+        if member is not None:
+            return member.value
+        raise ValueError(f"unknown Energy type {energy_type!r}")
+    return energy_type
+
+
+def extra_energy_beyond_cost(ctx, energy_type=None) -> int:
+    """"Extra Energy attached (in addition to this attack's cost)": the
+    attacker's attached Energy of `energy_type` minus what this attack costs in
+    it (Colorless cost counts for any type)."""
+    attacker = ctx.attacker
+    if attacker is None:
+        return 0
+    type_value = _energy_type_value(energy_type)
+    attached = sum(1 for energy in ctx.attached_energies(attacker)
+                   if type_value is None or energy_provides_type(energy, type_value))
+    cost = 0
+    for cost_type, count in (getattr(ctx.ability, "cost", None) or {}).items():
+        value = getattr(cost_type, "value", cost_type)
+        if value in (PokemonTypes.COLORLESS.value, PokemonTypes.UNSET.value) \
+                or value == type_value:
+            cost += count
+    return attached - cost
+
+
+def extra_energy_attached(required: int, energy_type=None):
+    """"If this Pokemon has at least N extra Energy attached ..." condition."""
+    def cond(ctx) -> bool:
+        return extra_energy_beyond_cost(ctx, energy_type) >= required
+    return cond
+
+
+def bonus_if_extra_energy(bonus: int, required: int = 1, energy_type=None,
+                          base: Optional[int] = None, also=None):
+    """"If this Pokemon has at least N extra Energy attached (in addition to
+    this attack's cost), this attack does X more damage." """
+    return bonus_if(extra_energy_attached(required, energy_type), bonus,
+                    base=base, also=also)
+
+
+def damage_per_extra_energy(per_energy: int, energy_type=None,
+                            cap: Optional[int] = None, base: Optional[int] = None,
+                            also=None):
+    """"This attack does X more damage for each extra <type> Energy attached to
+    this Pokemon (in addition to this attack's cost)" — `cap` caps the bonus,
+    not the total."""
+    async def effect(ctx):
+        extra = max(0, extra_energy_beyond_cost(ctx, energy_type))
+        bonus = extra * per_energy
+        if cap is not None:
+            bonus = min(bonus, cap)
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + bonus
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def bonus_if_condition_then_cure(bonus: int, base: Optional[int] = None,
+                                target: str = "defender", also=None):
+    """"If the Defending Pokemon is affected by a Special Condition, this attack
+    does N more damage. Then, remove all Special Conditions from it."
+    target="self" is the "if this Pokemon is affected ... from this Pokemon"."""
+    async def effect(ctx):
+        holder = ctx.attacker if target == "self" else ctx.defender
+        if holder is None:
+            return
+        afflicted = bool(holder.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + (bonus if afflicted else 0)
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if afflicted:
+            await ctx.cure_all_conditions(holder)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def move_counters_attack(count: Optional[int] = None, dest: str = "defender",
+                         damage: Optional[int] = None):
+    """"Move [all] N damage counters from any of your Pokemon to the Defending
+    Pokemon" — printed damage first, then the relocation."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        sources = [p for p in ctx.my_pokemon_in_play()
+                   if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+        if not sources:
+            return
+        source = sources[0] if len(sources) == 1 else await ctx.choose_pokemon(
+            sources, "Choose a Pokémon to move the damage counters from")
+        if source is None:
+            return
+        if dest == "defender":
+            target_pokemon = ctx.defender
+        else:
+            target_pokemon = await ctx.choose_pokemon(
+                ctx.opponent_pokemon_in_play(),
+                "Choose a Pokémon to move the damage counters to")
+        if target_pokemon is None:
+            return
+        await ctx.move_damage_counters(source, target_pokemon, max_count=count)
     return effect
 
 
@@ -766,6 +948,47 @@ def flip_defender_lock_attack(damage: Optional[int] = None, coins: int = 1):
     return effect
 
 
+def flip_attack_and_retreat_lock(damage: Optional[int] = None, coins: int = 1):
+    """"Flip a coin. If heads, until the end of your opponent's next turn the
+    Defending Pokemon can't attack or retreat" — the flip-gated twin of the
+    non-flip _lock_defender_attacks_and_retreat."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if not (results and all(results)):
+            return
+        lock_defender_attacks(ctx)
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            ctx.lock_retreat(defender)
+    return effect
+
+
+def flip_endure_attack(damage: Optional[int] = None, through: str = "opponent",
+                       hp_floor: int = 10):
+    """"Flip a coin. If heads, during your opponent's next turn, if this
+    Pokemon would be Knocked Out by damage from an attack, it is not Knocked
+    Out and its remaining HP becomes 10."
+
+    through="own" is the "until the end of your next turn" wording."""
+    from ptcgo.game.card_effects.passives_common import guts_survive_passive
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(1, _title(ctx))
+        if not (results and results[0]):
+            return
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+        passive = guts_survive_passive(hp_floor=hp_floor, flip=False)
+        if through == "own":
+            ctx.add_passive_through_own_next_turn(attacker, passive)
+        else:
+            ctx.add_passive_through_opponents_turn(attacker, passive)
+    return effect
+
+
 def heal_dealt_attack(damage: Optional[int] = None):
     """"Heal from this Pokemon the same amount of damage you did to your
     opponent's Active Pokemon"."""
@@ -911,17 +1134,9 @@ def evolve_from_deck_attack(damage: Optional[int] = None):
         attacker = ctx.attacker
         if attacker is None:
             return
-        from ptcgo.game.content.definitions import evolves_from
-
-        logic_name = attacker.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
-        if not logic_name:
-            return
-
-        def evolves_from_user(card) -> bool:
-            return evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
-
+        candidates = _evolve_from_deck_candidates(ctx, attacker, None)
         picks = await ctx.search_deck(
-            evolves_from_user, count=1, minimum=0,
+            (lambda card: card in candidates), count=1, minimum=0,
             prompt="Choose an Evolution card for this Pokémon",
         )
         if picks:
@@ -1031,4 +1246,141 @@ def condition_immunity_pollen_shield(conditions=None):
         await ctx.deal_damage()
         ctx.add_passive_through_opponents_turn(
             ctx.attacker, condition_immunity_passive(conditions))
+    return effect
+
+
+def _evolve_from_deck_candidates(ctx, pokemon, predicate):
+    """Deck cards that evolve directly from `pokemon`.
+
+    `evolves_from` matches anything in the evolution family (a Stage 2 counts
+    as evolving from the Basic), which is right for "evolves from" wording but
+    wrong here: the card goes ONTO this Pokemon, so only the direct next stage
+    qualifies -- matched by stage, since the corpus does not carry a printed
+    `evolves_from` for every era."""
+    from ptcgo.game.content.definitions import evolves_from
+    logic_name = pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+    if not logic_name:
+        return []
+    stage = pokemon.get_attribute(AttrID.STAGE)
+    matches = [card for card in ctx.deck()
+               if evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
+               and (stage is None or card.get_attribute(AttrID.STAGE) == stage + 1)]
+    if predicate is not None:
+        matches = [card for card in matches if predicate(card)]
+    return matches
+
+
+def evolve_from_deck(predicate=None, target="chosen", bench_only=False,
+                     damage=None):
+    """"Search your deck for a card that evolves from <one of your Pokemon>
+    and put it onto that Pokemon to evolve it. Then, shuffle your deck."
+
+    `target="self"` evolves the source Pokemon (evolve_from_deck_attack's
+    shape without the attacker assumption); `target="chosen"` picks one of
+    your Pokemon in play, `bench_only=True` narrowing to the Bench.
+    `predicate` narrows the evolution card itself (a named evolution)."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if target == "self":
+            pokemon = ctx.source if isinstance(ctx.source, PokemonEntity) else ctx.attacker
+        else:
+            pool = ctx.my_bench() if bench_only else ctx.my_pokemon_in_play()
+            # Offer only Pokemon whose evolution is actually in the deck: a
+            # pick with nothing to find is a wasted action, and the AI takes
+            # the first option.
+            pool = [pokemon for pokemon in pool
+                    if _evolve_from_deck_candidates(ctx, pokemon, predicate)]
+            if not pool:
+                return
+            pokemon = pool[0] if len(pool) == 1 else await ctx.choose_pokemon(
+                pool, "Choose a Pokémon to evolve")
+        if pokemon is None:
+            return
+        picks = await ctx.search_deck(
+            (lambda card: card in _evolve_from_deck_candidates(ctx, pokemon, predicate)),
+            count=1, minimum=0, prompt="Choose an Evolution card",
+        )
+        if picks:
+            await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def evolve_each_from_deck(predicate=None, target_pred=None, max_targets=None,
+                          damage=None):
+    """"For each of your Benched Basic Pokemon, search your deck for a card
+    that evolves from that Pokemon and put it onto that Pokemon to evolve it.
+    Then, shuffle your deck." One search per target, one shuffle at the end."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        targets = [pokemon for pokemon in ctx.my_bench()
+                   if target_pred is None or target_pred(pokemon)]
+        if max_targets is not None:
+            targets = targets[:max_targets]
+        for pokemon in targets:
+            candidates = _evolve_from_deck_candidates(ctx, pokemon, predicate)
+            if not candidates:
+                continue
+            picks = await ctx.choose_cards(
+                candidates, 1, minimum=0, prompt="Choose an Evolution card")
+            if picks:
+                await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _play_kind_predicate(kinds):
+    from ptcgo.game.card_effects.trainers import (
+        is_item_card, is_special_energy, is_stadium_card, is_supporter_card,
+        is_tool_card, is_trainer_card,
+    )
+    table = {
+        "item": is_item_card,
+        "supporter": is_supporter_card,
+        "stadium": is_stadium_card,
+        "tool": is_tool_card,
+        "trainer": is_trainer_card,
+        "special_energy": is_special_energy,
+        "energy": lambda card: card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value,
+    }
+    chosen = [table[kind] for kind in kinds if kind in table]
+    if "all" in kinds:
+        return lambda card: True
+    return lambda card: any(predicate(card) for predicate in chosen)
+
+
+def lock_opponent_plays(*kinds, damage=None, flip=False, coins=1):
+    """"Your opponent can't play any <kinds> cards from their hand during their
+    next turn" (Disconnect, Pitch-Dark, Chaos Wheel).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy", "energy" or "all"."""
+    async def effect(ctx):
+        # flip_coins returns a LIST of results; `not [False]` is False, so the
+        # gate has to read the coins rather than the coroutine's truthiness.
+        results = await ctx.flip_coins(coins) if flip else []
+        await ctx.deal_damage(damage)
+        if flip and not all(results):
+            return
+        ctx.lock_plays(ctx.opponent_id, _play_kind_predicate(kinds))
+
+    return effect
+
+
+def lock_opponent_evolutions(damage=None, defending_only=False):
+    """"During your opponent's next turn, they can't evolve their <Active>
+    Pokemon" — a turn-scoped passive on the attacker carried through the
+    opponent's turn."""
+    from ptcgo.game.card_effects.passives_common import evolution_lock_passive
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker,
+            evolution_lock_passive(
+                opponent_id=ctx.opponent_id,
+                only=ctx.defender if defending_only else None,
+            ),
+        )
+
     return effect

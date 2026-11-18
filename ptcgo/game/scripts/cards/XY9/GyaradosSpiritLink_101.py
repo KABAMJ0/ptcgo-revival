@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import spirit_link_passive
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
 
 card = PokemonToolCardDef(
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=101,
     set_code="XY9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=spirit_link_passive(),
 )

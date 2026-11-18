@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tera_bench_cap
 
 card = StadiumCardDef(
     guid="5a29f77d-a55a-5428-96d9-9feaab82c8f3",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=131,
     set_code="SV7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=tera_bench_cap(),
 )

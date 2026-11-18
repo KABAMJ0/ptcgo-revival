@@ -1559,6 +1559,16 @@ class EffectContext:
             prompt, [PROMPT_YES, PROMPT_NO], player_id, use_panel=False
         ) == 0
 
+    async def ask_opponent(self, prompt: str, options: Sequence[str]) -> int:
+        """Puts a question with `options` in front of the OPPONENT and returns
+        the picked index ("your opponent guesses ...", Blaine's Quiz Show).
+
+        Button-list only: the client has no text-entry screen, so a wording
+        whose answer is a name, HP or length cannot be asked through this."""
+        return await self.session.prompt_player_choice(
+            self.opponent_id if self.opponent_id is not None else self.player_id,
+            prompt, list(options))
+
     async def choose_cards(
         self,
         cards: Sequence[CardEntity],
@@ -2700,6 +2710,15 @@ class EffectContext:
         stadium = self.stadium_in_play()
         if stadium is None:
             return None
+        # "Prevent all effects of that card done to this Stadium card"
+        # (Black Market Prism Star): an opposing Trainer cannot take it down.
+        if trainer_effects_blocked(self.board, self.player_id, self.source
+                                   if self.source is not None else stadium,
+                                   affected_entity=stadium):
+            return None
+        hook = getattr(def_for(stadium.archetype_id), "on_leave_play", None)
+        if hook is not None and hook is not unimplemented:
+            await hook(self)
         owner_id = stadium.owning_player_id or self.player_id
         discard = self.board.find_player_area(owner_id, "discard")
         if not discard:

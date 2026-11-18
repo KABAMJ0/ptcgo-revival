@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import balloon_berry_passive
 
 card = PokemonToolCardDef(
     guid="aa5139df-9e98-52e2-9333-93f2df26d571",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=82,
     set_code="EX3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=balloon_berry_passive(),
 )

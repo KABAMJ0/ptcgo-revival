@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import _poke_drawer
 
 card = ItemCardDef(
     guid="f1a46bc0-2d62-57ca-9d89-3dfde732b8d0",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=89,
     set_code="DP7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=_poke_drawer,
 )
