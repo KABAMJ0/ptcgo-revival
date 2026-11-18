@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 card = PokemonCardDef(
     guid="a9fd8783-6217-5a00-a61a-43e9891eb560",
@@ -23,7 +24,10 @@ card = PokemonCardDef(
         Ability(
             title="Delta Control",
             game_text="Once during your turn (before your attack), you may look at the top 4 cards of your deck, choose 1 of them, and put it into your hand. Put the 3 other cards on the bottom of your deck in any order. This power can't be used if Metagross is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(
+                AttrID.SPECIAL_CONDITIONS),
+            effect=look_at_top(4, take=1, rest="bottom"),
         ),
         Attack(
             title="Crush and Burn",

@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.support_common import look_at_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Friend Search",
             game_text="Look at the top 5 cards of your deck, choose 1 Pok\u00e9mon you find there, show it to your opponent, and put it into your hand. Shuffle the other cards back into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=look_at_top(5, take=1, predicate=is_pokemon_card, rest="shuffle"),
         ),
         Attack(
             title="Double Kick",
