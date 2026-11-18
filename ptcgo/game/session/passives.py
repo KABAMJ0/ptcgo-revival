@@ -356,6 +356,14 @@ class Passive:
         """True to let `pokemon` attack even while Asleep/Paralyzed (Windup Arm)."""
         return False
 
+    def permits_turn_continue_after_mega(
+        self, pokemon: PokemonEntity, carrier: BoardEntity
+    ) -> bool:
+        """True to keep the turn going when `pokemon` becomes a Mega Evolution
+        (Spirit Link: "your turn does not end if the Pokemon this card is
+        attached to becomes M <name> ex")."""
+        return False
+
     def permits_retreat_while_immobilized(
         self, pokemon: PokemonEntity, carrier: BoardEntity
     ) -> bool:

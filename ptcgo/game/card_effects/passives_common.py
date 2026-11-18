@@ -1308,3 +1308,16 @@ class EvolutionLockPassive(Passive):
 def evolution_lock_passive(active_only=False, opponent_id=None, only=None) -> Passive:
     """Blocks the opponent's evolutions for the passive's lifetime."""
     return EvolutionLockPassive(opponent_id=opponent_id, only=only, active_only=active_only)
+
+
+class SpiritLinkPassive(Passive):
+    """"Your turn does not end if the Pokemon this card is attached to becomes
+    M <name> ex" (Spirit Link): the one clause every Spirit Link prints."""
+
+    def permits_turn_continue_after_mega(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
+
+def spirit_link_passive() -> Passive:
+    """Keeps the turn alive through the holder's Mega Evolution."""
+    return SpiritLinkPassive()

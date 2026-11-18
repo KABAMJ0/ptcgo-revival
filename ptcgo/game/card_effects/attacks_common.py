@@ -1133,10 +1133,12 @@ def lock_opponent_plays(*kinds, damage=None, flip=False, coins=1):
     `kinds` are "item", "supporter", "stadium", "tool", "trainer",
     "special_energy", "energy" or "all"."""
     async def effect(ctx):
-        if flip and not await ctx.flip_coins(coins):
-            await ctx.deal_damage(damage)
-            return
+        # flip_coins returns a LIST of results; `not [False]` is False, so the
+        # gate has to read the coins rather than the coroutine's truthiness.
+        results = await ctx.flip_coins(coins) if flip else []
         await ctx.deal_damage(damage)
+        if flip and not all(results):
+            return
         ctx.lock_plays(ctx.opponent_id, _play_kind_predicate(kinds))
 
     return effect
