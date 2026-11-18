@@ -3378,21 +3378,8 @@ class GameSession:
         `granted_abilities`, which `_fire_triggered_abilities` never scans (it
         reads PIE_ABILITIES and the definition's Pokemon-style `abilities`), so
         they are resolved here instead."""
-        area = self.board_state.find_global_area("activeStadium")
-        for stadium in list(area.children if area else []):
-            definition = def_for(stadium.archetype_id)
-            abilities = [getattr(definition, "ability", None)]
-            abilities.extend(getattr(definition, "granted_abilities", []) or [])
-            for ability in abilities:
-                if ability is None or ability.effect is None or ability.effect is unimplemented:
-                    continue
-                if not ability.has_trigger(Triggers.BETWEEN_TURNS):
-                    continue
-                for player_id in self._turn_order():
-                    trigger_ctx = await resolve_triggered_ability(
-                        self, player_id, stadium, ability)
-                    if trigger_ctx is not None and trigger_ctx.knockouts:
-                        await self.resolve_knockouts(trigger_ctx)
+        for player_id in self._turn_order():
+            await self._fire_stadium_declared(player_id, Triggers.BETWEEN_TURNS)
 
     async def _checkup_poison(self, active):
         """Poison tick: 10 * poison_counters (default 1) raw damage."""
@@ -4257,6 +4244,35 @@ class GameSession:
                 return True
         return False
 
+    @staticmethod
+    def _stadium_declared_abilities(definition):
+        """A Stadium's own ability slots: `ability` (slot 0) and any
+        `granted_abilities`. `_fire_triggered_abilities` reads PIE_ABILITIES and
+        a definition's Pokemon-style `abilities`, so these never reach it."""
+        abilities = [getattr(definition, "ability", None)]
+        abilities.extend(getattr(definition, "granted_abilities", []) or [])
+        return [ability for ability in abilities
+                if ability is not None and ability.effect is not None
+                and ability.effect is not unimplemented]
+
+    async def _fire_stadium_declared(self, acting_player_id: str, trigger: str,
+                                     ctx_setup=None) -> bool:
+        """Declared stadium abilities matching `trigger`, for one acting player."""
+        ends_turn = False
+        area = self.board_state.find_global_area("activeStadium")
+        for stadium in list(area.children if area else []):
+            definition = def_for(stadium.archetype_id)
+            for ability in self._stadium_declared_abilities(definition):
+                if not ability.has_trigger(trigger):
+                    continue
+                trigger_ctx = await resolve_triggered_ability(
+                    self, acting_player_id, stadium, ability, ctx_setup=ctx_setup)
+                if trigger_ctx is not None and trigger_ctx.knockouts:
+                    await self.resolve_knockouts(trigger_ctx)
+                if trigger_ctx is not None and trigger_ctx.ends_turn:
+                    ends_turn = True
+        return ends_turn
+
     async def _fire_stadium_triggers(self, acting_player_id: str, trigger: str,
                                      ctx_setup=None):
         """Declared-ability triggers on the in-play Stadium (Old Cemetery);
@@ -4266,6 +4282,7 @@ class GameSession:
         for stadium in list(area.children if area else []):
             await self._fire_triggered_abilities(
                 acting_player_id, stadium, trigger, ctx_setup=ctx_setup)
+        await self._fire_stadium_declared(acting_player_id, trigger, ctx_setup)
 
     async def fire_pokemon_benched_triggers(self, benching_player_id: str, pokemon):
         """ON_POKEMON_BENCHED for a manual from-hand bench play only (Gapejaw
@@ -4910,6 +4927,13 @@ class GameSession:
                     await self._flush_effect_runs(heal_ctx)
 
         await self._fire_triggered_abilities(player_id, card, Triggers.ON_EVOLVE)
+        # A Stadium can watch evolutions too ("whenever any player plays a
+        # Pokemon from his or her hand to evolve ...", Po Town, Galactic HQ).
+        def _evolve_setup(c):
+            c.evolved_pokemon = card
+            c.evolved_from = target
+        await self._fire_stadium_declared(
+            player_id, Triggers.ON_EVOLVE, ctx_setup=_evolve_setup)
         # Hand-played evolutions also fire the owner's OTHER Pokemon (Eevee's
         # Resonant Evolution); deck-sourced ones aren't "played from hand".
         if not from_zone_intro:
@@ -5267,6 +5291,11 @@ class GameSession:
         )
         if existing:
             owner_id = existing.owning_player_id or player_id
+            hook = getattr(def_for(existing.archetype_id), "on_leave_play", None)
+            if hook is not None and hook is not unimplemented:
+                leave_ctx = EffectContext(self, owner_id, existing, None)
+                await hook(leave_ctx)
+                await self._flush_effect_runs(leave_ctx)
             owner_discard = self.board_state.find_player_area(owner_id, "discard")
             if owner_discard:
                 discard_pos = len(owner_discard.children)

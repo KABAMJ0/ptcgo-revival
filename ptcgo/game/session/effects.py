@@ -2700,6 +2700,15 @@ class EffectContext:
         stadium = self.stadium_in_play()
         if stadium is None:
             return None
+        # "Prevent all effects of that card done to this Stadium card"
+        # (Black Market Prism Star): an opposing Trainer cannot take it down.
+        if trainer_effects_blocked(self.board, self.player_id, self.source
+                                   if self.source is not None else stadium,
+                                   affected_entity=stadium):
+            return None
+        hook = getattr(def_for(stadium.archetype_id), "on_leave_play", None)
+        if hook is not None and hook is not unimplemented:
+            await hook(self)
         owner_id = stadium.owning_player_id or self.player_id
         discard = self.board.find_player_area(owner_id, "discard")
         if not discard:

@@ -14,6 +14,7 @@ from ptcgo.game.attributes import (
     AttrID,
     CLIENT_SPECIAL_CONDITION_NAMES,
     PokemonStage,
+    PokemonTypes,
     SpecialConditions,
     TrainerType,
 )
@@ -226,6 +227,47 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             await ctx.deal_damage(tails_self_damage, target=ctx.attacker,
                                   apply_modifiers=False)
         await _finish(ctx, self_damage, also)
+    return effect
+
+
+def flip_damage_condition(coins: int = 1, per_heads: int = 0,
+                          base: Optional[int] = None, min_heads: int = 1,
+                          condition=None, self_condition=None, also=None):
+    """"Flip N coins. This attack does X damage for each heads. If <min_heads>
+    of them are heads, the Defending Pokemon is now <condition>."
+
+    One flip feeds both halves: the damage and the condition read the SAME
+    coins, which flip_damage + condition_attack cannot do (each flips)."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx)) if coins > 0 else []
+        heads = sum(1 for r in results if r)
+        base_val = (base or 0) if per_heads \
+            else (base if base is not None else _printed(ctx))
+        amount = base_val + heads * per_heads
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if heads >= min_heads:
+            if condition is not None:
+                await ctx.apply_special_condition(ctx.defender, condition)
+            if self_condition is not None:
+                await ctx.apply_special_condition(ctx.attacker, self_condition)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def flip_damage_table(steps: dict, coins: int = 3, base: Optional[int] = None):
+    """"Flip 3 coins. If 1 is heads, 10 more; if 2, 30 more; if all, 60 more."
+
+    `steps` maps head count -> extra damage; a count it does not name adds
+    nothing. `base` defaults to the printed damage."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, _title(ctx))
+        heads = sum(1 for r in results if r)
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + steps.get(heads, 0)
+        if amount > 0:
+            await ctx.deal_damage(amount)
     return effect
 
 
@@ -552,6 +594,122 @@ def condition_bonus_attack(bonus: int, *required_conditions,
     return effect
 
 
+def _energy_type_value(energy_type):
+    """Normalizes a type given as a PokemonTypes member, its client value or a
+    bare name ("Metal", "Fire"); None means any type."""
+    if energy_type is None:
+        return None
+    if isinstance(energy_type, PokemonTypes):
+        return energy_type.value
+    if isinstance(energy_type, str):
+        member = PokemonTypes.__members__.get(energy_type.upper())
+        if member is not None:
+            return member.value
+        raise ValueError(f"unknown Energy type {energy_type!r}")
+    return energy_type
+
+
+def extra_energy_beyond_cost(ctx, energy_type=None) -> int:
+    """"Extra Energy attached (in addition to this attack's cost)": the
+    attacker's attached Energy of `energy_type` minus what this attack costs in
+    it (Colorless cost counts for any type)."""
+    attacker = ctx.attacker
+    if attacker is None:
+        return 0
+    type_value = _energy_type_value(energy_type)
+    attached = sum(1 for energy in ctx.attached_energies(attacker)
+                   if type_value is None or energy_provides_type(energy, type_value))
+    cost = 0
+    for cost_type, count in (getattr(ctx.ability, "cost", None) or {}).items():
+        value = getattr(cost_type, "value", cost_type)
+        if value in (PokemonTypes.COLORLESS.value, PokemonTypes.UNSET.value) \
+                or value == type_value:
+            cost += count
+    return attached - cost
+
+
+def extra_energy_attached(required: int, energy_type=None):
+    """"If this Pokemon has at least N extra Energy attached ..." condition."""
+    def cond(ctx) -> bool:
+        return extra_energy_beyond_cost(ctx, energy_type) >= required
+    return cond
+
+
+def bonus_if_extra_energy(bonus: int, required: int = 1, energy_type=None,
+                          base: Optional[int] = None, also=None):
+    """"If this Pokemon has at least N extra Energy attached (in addition to
+    this attack's cost), this attack does X more damage." """
+    return bonus_if(extra_energy_attached(required, energy_type), bonus,
+                    base=base, also=also)
+
+
+def damage_per_extra_energy(per_energy: int, energy_type=None,
+                            cap: Optional[int] = None, base: Optional[int] = None,
+                            also=None):
+    """"This attack does X more damage for each extra <type> Energy attached to
+    this Pokemon (in addition to this attack's cost)" — `cap` caps the bonus,
+    not the total."""
+    async def effect(ctx):
+        extra = max(0, extra_energy_beyond_cost(ctx, energy_type))
+        bonus = extra * per_energy
+        if cap is not None:
+            bonus = min(bonus, cap)
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + bonus
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def bonus_if_condition_then_cure(bonus: int, base: Optional[int] = None,
+                                target: str = "defender", also=None):
+    """"If the Defending Pokemon is affected by a Special Condition, this attack
+    does N more damage. Then, remove all Special Conditions from it."
+    target="self" is the "if this Pokemon is affected ... from this Pokemon"."""
+    async def effect(ctx):
+        holder = ctx.attacker if target == "self" else ctx.defender
+        if holder is None:
+            return
+        afflicted = bool(holder.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        base_val = base if base is not None else _printed(ctx)
+        amount = base_val + (bonus if afflicted else 0)
+        if amount > 0:
+            await ctx.deal_damage(amount)
+        if afflicted:
+            await ctx.cure_all_conditions(holder)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def move_counters_attack(count: Optional[int] = None, dest: str = "defender",
+                         damage: Optional[int] = None):
+    """"Move [all] N damage counters from any of your Pokemon to the Defending
+    Pokemon" — printed damage first, then the relocation."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        sources = [p for p in ctx.my_pokemon_in_play()
+                   if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+        if not sources:
+            return
+        source = sources[0] if len(sources) == 1 else await ctx.choose_pokemon(
+            sources, "Choose a Pokémon to move the damage counters from")
+        if source is None:
+            return
+        if dest == "defender":
+            target_pokemon = ctx.defender
+        else:
+            target_pokemon = await ctx.choose_pokemon(
+                ctx.opponent_pokemon_in_play(),
+                "Choose a Pokémon to move the damage counters to")
+        if target_pokemon is None:
+            return
+        await ctx.move_damage_counters(source, target_pokemon, max_count=count)
+    return effect
+
+
 # ----------------------------------------------------------------------
 # Recoil / mill
 # ----------------------------------------------------------------------
@@ -763,6 +921,47 @@ def flip_defender_lock_attack(damage: Optional[int] = None, coins: int = 1):
         results = await ctx.flip_coins(coins, _title(ctx))
         if results and all(results):
             lock_defender_attacks(ctx)
+    return effect
+
+
+def flip_attack_and_retreat_lock(damage: Optional[int] = None, coins: int = 1):
+    """"Flip a coin. If heads, until the end of your opponent's next turn the
+    Defending Pokemon can't attack or retreat" — the flip-gated twin of the
+    non-flip _lock_defender_attacks_and_retreat."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if not (results and all(results)):
+            return
+        lock_defender_attacks(ctx)
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            ctx.lock_retreat(defender)
+    return effect
+
+
+def flip_endure_attack(damage: Optional[int] = None, through: str = "opponent",
+                       hp_floor: int = 10):
+    """"Flip a coin. If heads, during your opponent's next turn, if this
+    Pokemon would be Knocked Out by damage from an attack, it is not Knocked
+    Out and its remaining HP becomes 10."
+
+    through="own" is the "until the end of your next turn" wording."""
+    from ptcgo.game.card_effects.passives_common import guts_survive_passive
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(1, _title(ctx))
+        if not (results and results[0]):
+            return
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+        passive = guts_survive_passive(hp_floor=hp_floor, flip=False)
+        if through == "own":
+            ctx.add_passive_through_own_next_turn(attacker, passive)
+        else:
+            ctx.add_passive_through_opponents_turn(attacker, passive)
     return effect
 
 

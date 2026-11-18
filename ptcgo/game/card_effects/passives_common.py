@@ -61,6 +61,83 @@ def opposing_active(target, carrier) -> bool:
     return opposing_pokemon(target, carrier) and is_in_active_spot(target)
 
 
+def unafflicted(board, player_id, pokemon) -> bool:
+    """Board-level Ability.condition: the Pokemon carries no Special Condition
+    ("This power can't be used if <name> is affected by a Special Condition")."""
+    return not (pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
+
+_PLAY_KIND_TESTS = {
+    "item": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.ITEM.value,
+    "supporter": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value,
+    "stadium": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value,
+    "tool": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) in (
+        TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value),
+    "special_energy": lambda card: bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+    "trainer": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) is not None,
+}
+
+
+class PlayLockPassive(Passive):
+    """A continuous lock on the opponent's hand: "As long as this Pokemon is
+    your Active Pokemon, your opponent can't play any Item cards from his or
+    her hand" (Gothitelle, Vileplume, Kabutops).
+
+    `matches` is the kind test over a hand card; the two hooks are the two
+    places the offer consults a passive -- blocks_trainer_play for Trainer
+    cards, blocks_play for Energy.
+    """
+
+    def __init__(self, matches, while_active=True, opponents_only=True,
+                 condition=None):
+        self.matches = matches
+        self.while_active = while_active
+        self.opponents_only = opponents_only
+        self.condition = condition
+
+    def _locks(self, player_id, card, carrier, board) -> bool:
+        if not self.matches(card):
+            return False
+        if self.opponents_only and player_id == carrier.owning_player_id:
+            return False
+        if self.while_active and not is_in_active_spot(carrier_pokemon(carrier)):
+            return False
+        if self.condition is not None and not self.condition(board, player_id, carrier):
+            return False
+        return True
+
+    def blocks_trainer_play(self, card, player_id, carrier) -> bool:
+        return self._locks(player_id, card, carrier, None)
+
+    def blocks_play(self, player_id, card, carrier, board=None) -> bool:
+        return self._locks(player_id, card, carrier, board)
+
+
+def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
+                      opponents_only: bool = True, condition=None) -> Passive:
+    """"Your opponent can't play any <kinds> cards from his or her hand" while
+    this Pokemon is Active (Gothitelle, Vileplume, Kabutops, Trevenant).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy" or "all"; `excluding` drops one, which spells the
+    "Trainer cards (except for Supporter cards)" wording."""
+    selected = set(kinds)
+    if "all" in selected:
+        selected |= set(_PLAY_KIND_TESTS)
+    if excluding:
+        selected.discard(excluding)
+    if not selected:
+        raise ValueError(f"play_lock_passive: no kinds in {kinds!r}")
+    tests = [_PLAY_KIND_TESTS[kind] for kind in selected]
+
+    def matches(card) -> bool:
+        return any(test(card) for test in tests)
+
+    matches.plays = tuple(sorted(selected))
+    return PlayLockPassive(matches, while_active=while_active,
+                           opponents_only=opponents_only, condition=condition)
+
+
 # ======================================================================
 # GROUP A -- continuous Passive factories
 # ======================================================================
