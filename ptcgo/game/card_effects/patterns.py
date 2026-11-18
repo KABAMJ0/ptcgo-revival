@@ -71,6 +71,7 @@ from ptcgo.game.card_effects.attacks_common import (
 from ptcgo.game.card_effects.passives_common import (
     debuff_defender_attacks,
     carrier_pokemon,
+    no_energy_free_retreat_passive,
     opponent_retreat_tax_passive,
     retaliate_counters_passive,
     retreat_free_when,
@@ -98,6 +99,7 @@ from ptcgo.game.card_effects.support_common import (
     gust_attack,
     heal_attack,
     heal_targets,
+    is_basic,
     search_to_bench,
     search_to_hand,
     switch_self_attack,
@@ -3332,6 +3334,96 @@ def _bench_chosen_spread(m, ability):
             await ctx.deal_damage(amount, target=target, apply_modifiers=False)
     return effect
 
+
+def _search_typed_basic_to_bench(m, ability):
+    type_value = TYPE_WORDS[m.group(2)].value
+
+    def predicate(card) -> bool:
+        return is_basic(card) and type_value in (
+            card.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return search_to_bench(predicate=predicate, count=_count(m.group(1)))
+
+
+def _counters_then_self_knock_out(m, ability):
+    counters = int(m.group(1))
+    targets = _count(m.group(2)) if m.group(2) else 1
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        picks = candidates if len(candidates) <= targets else \
+            await ctx.choose_cards(candidates, targets,
+                                   prompt=f"Choose {targets} Pokémon")
+        for target in picks:
+            await ctx.deal_damage(counters * 10, target=target,
+                                  as_counters=True)
+        await ctx.knock_out(ctx.source)
+    return effect
+
+
+def _bench_self_switch_in(m, ability):
+    async def effect(ctx):
+        if ctx.source in ctx.my_bench():
+            await ctx.switch_active(ctx.player_id, ctx.source)
+    return effect
+
+
+def _passive_no_energy_free_retreat(m, ability):
+    return no_energy_free_retreat_passive()
+
+
+def _passive_opponent_active_retreat_tax(m, ability):
+    return opponent_retreat_tax_passive(1, active_only=True)
+
+
+def _flip_plus_bonus_else_condition(m, ability):
+    base, bonus, tails = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    condition = CONDITIONS[m.group(4)]
+
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        if results and results[0]:
+            await ctx.deal_damage(base + bonus)
+            return
+        await ctx.deal_damage(tails)
+        defender = ctx.defender
+        if defender is not None and not ctx.effects_blocked(defender):
+            await ctx.apply_special_condition(defender, condition)
+    return effect
+
+
+def _heal_and_cure_self(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            await ctx.heal(amount, ctx.attacker)
+            await ctx.cure_all_conditions(ctx.attacker)
+    return effect
+
+
+def _damage_each_defending(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage(amount)
+    return effect
+
+
+def _discard_hand_card_then_draw(m, ability):
+    count = int(m.group(1))
+    if ability.activation is None and ability.trigger is None:
+        ability.activation = Activations.ONCE_PER_TURN
+
+    async def effect(ctx):
+        if not ctx.hand():
+            return
+        discarded = await ctx.discard_from_hand(
+            1, minimum=1, prompt="Discard a card to use this Ability")
+        if discarded:
+            await ctx.draw_cards(count)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4724,6 +4816,41 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"this attack also does (\d+) damage to (?:an?|(\d+)) of your "
                 r"benched pokemon\. \(don't apply weakness and resistance for "
                 r"benched pokemon\.\)"), _self_bench_spread),
+
+    # -- batch 34: ability utilities, heal-and-cure, tails conditions ------
+    ("ability.search-typed-basic-to-bench",
+     re.compile(r"search your deck for (?:an?|up to (\d+)) basic ("
+                + _TYPE_WORDS + r") pokemon and put (?:it|them) onto your "
+                r"bench\. then, shuffle your deck\."),
+     _search_typed_basic_to_bench),
+    ("ability.counters-then-self-ko",
+     re.compile(r"put (\d+) damage counters on (?:an?|(\d+)) of your "
+                r"opponent's pokemon\. if you use this ability, this pokemon "
+                r"is knocked out\."), _counters_then_self_knock_out),
+    ("ability.bench-self-switch-in",
+     re.compile(r"if this pokemon is on your bench, you may switch this "
+                r"pokemon with your active pokemon\."), _bench_self_switch_in),
+    ("ability.no-energy-free-retreat",
+     re.compile(r"if this pokemon has no energy attached(?: to it)?, it has no "
+                r"retreat cost\."), _passive_no_energy_free_retreat),
+    ("ability.opponent-active-retreat-tax",
+     re.compile(r"your opponent's active pokemon's retreat cost is colorless "
+                r"more\."), _passive_opponent_active_retreat_tax),
+    ("flip.plus-bonus-else-condition",
+     re.compile(r"flip a coin\. if heads, this attack does (\d+) damage plus "
+                r"(\d+) more damage\. if tails, this attack does (\d+) damage "
+                r"and the defending pokemon is now (" + _CONDITION_WORDS +
+                r")\."), _flip_plus_bonus_else_condition),
+    ("heal.self-and-cure",
+     re.compile(r"heal (\d+) damage and remove all special conditions from "
+                r"this pokemon\."), _heal_and_cure_self),
+    ("damage.each-defending",
+     re.compile(r"does (\d+) damage to each defending pokemon\."),
+     _damage_each_defending),
+    ("ability.discard-card-draw",
+     re.compile(r"you must discard a card from your hand in order to use this "
+                r"ability\. once during your turn, you may draw (\d+) cards?\."),
+     _discard_hand_card_then_draw),
     ("bonus.opponent-prizes-exactly",
      re.compile(r"if your opponent has exactly (\d+) prize cards? remaining, "
                 r"this attack does (\d+) more damage\."),

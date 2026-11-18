@@ -239,21 +239,38 @@ def retreat_free_when(pred) -> Passive:
 
 
 class OpponentRetreatTaxPassive(Passive):
-    """Every opposing Pokemon's retreat cost is N more."""
+    """Every opposing Pokemon's (or only the opposing Active's) retreat cost
+    is N more."""
 
-    def __init__(self, amount=1):
+    def __init__(self, amount=1, active_only=False):
         self.amount = amount
+        self.active_only = active_only
 
     def modify_retreat_cost(self, cost, pokemon, carrier, board):
         if pokemon.owning_player_id == carrier.owning_player_id:
             return cost
+        if self.active_only and not is_in_active_spot(pokemon):
+            return cost
         return cost + self.amount
 
 
-def opponent_retreat_tax_passive(amount=1) -> Passive:
+def opponent_retreat_tax_passive(amount=1, active_only=False) -> Passive:
     """"The retreat cost of each of your opponent's Pokemon in play is [C]
-    more"."""
-    return OpponentRetreatTaxPassive(amount)
+    more"; active_only for "your opponent's Active Pokemon's retreat cost"."""
+    return OpponentRetreatTaxPassive(amount, active_only)
+
+
+class NoEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has no Energy attached, it has no Retreat Cost"."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier_pokemon(carrier):
+            return cost
+        return 0 if not board.attached_energies(pokemon) else cost
+
+
+def no_energy_free_retreat_passive() -> Passive:
+    return NoEnergyFreeRetreatPassive()
 
 
 class OpponentAttackTaxPassive(Passive):
