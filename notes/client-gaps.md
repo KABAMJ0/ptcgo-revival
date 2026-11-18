@@ -27,6 +27,12 @@ These are message classes the client can send (its `outgoing` namespaces, plus a
 - **ResignMatch** — gameID
 - **StopObserving** — gameID
 
+## Server-sent names the client has no type for
+
+Checked against every type in the client, not only message DTOs. A name here is one the client cannot resolve, so its payload is dropped without an error. Client-sent names are not listed: the client builds some of those at runtime, so a name with no matching type there is not evidence of a typo.
+
+- `ClientSettingSet`
+
 ## Server response types (for reference)
 
 - `AccountDuplicateLogin`

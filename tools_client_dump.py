@@ -75,6 +75,7 @@ class Assembly:
         self.field_owner = {}
         self.method_owner = {}
         self.json_names = {}      # field row -> json key
+        self.field_attrs = {}     # field row -> [attribute names]
         self.type_attrs = {}      # typedef row -> [attr names]
         self._index()
 
@@ -114,6 +115,9 @@ class Assembly:
             if parent_table == "Field":
                 if attr_name.endswith("JsonNameAttribute") and args:
                     self.json_names[row] = args[0]
+                if attr_name:
+                    self.field_attrs.setdefault(row, []).append(
+                        ".".join(part for part in (attr_name.rsplit(".", 1)[-1], *args) if part))
             elif parent_table == "TypeDef":
                 self.type_attrs.setdefault(row, []).append(".".join(
                     part for part in (attr_name, *args) if part))
@@ -238,7 +242,7 @@ class Assembly:
         return {"returns": ret, "params": params, "generic_params": generic}
 
     # ---------------------------------------------------------------- members
-    def members(self, position):
+    def members(self, position, include_private=False):
         out = {"fields": [], "properties": [], "methods": []}
         row = self.typedefs[position - 1]
         if row.FieldList:
@@ -248,7 +252,9 @@ class Assembly:
             for fi in range(begin, end):
                 field = self.fields[fi - 1]
                 name = str(field.Name)
-                if name.startswith("<") or name.startswith("_") or name == "value__":
+                if name.startswith("<") or name == "value__":
+                    continue
+                if name.startswith("_") and not include_private:
                     continue
                 try:
                     typ = self.field_signature(field)
@@ -259,6 +265,7 @@ class Assembly:
                     "name": name,
                     "json": self.json_names.get(fi, name),
                     "type": typ,
+                    "attributes": self.field_attrs.get(fi, []),
                 })
         if row.MethodList:
             begin = row.MethodList[0].row_index
@@ -365,6 +372,27 @@ class Protocol:
             seen += 1
         return False
 
+    def ancestry(self, name, limit=6):
+        current = name
+        out = []
+        for _ in range(limit):
+            found = self.resolve(current)
+            if not found:
+                break
+            asm, position = found
+            base = asm.base_name(position)
+            if not base:
+                break
+            out.append(base)
+            current = base
+        return out
+
+    def label_for(self, typ):
+        if typ and typ.get("kind") == "class":
+            if "dwd.core.ids.TypedID" in self.ancestry(typ["name"]):
+                return "Guid"
+        return type_label(typ)
+
     def shape(self, typ, depth=0, seen=None):
         seen = seen or set()
         if not typ:
@@ -375,11 +403,13 @@ class Protocol:
         if kind == "list":
             return {"list": self.shape(typ.get("of"), depth + 1, seen)}
         if kind == "dict":
-            return {"map": {"key": type_label(typ.get("key")),
+            return {"map": {"key": self.label_for(typ.get("key")),
                             "value": self.shape(typ.get("value"), depth + 1, seen)}}
         if kind != "class":
             return {"type": type_label(typ)}
         name = typ["name"]
+        if "dwd.core.ids.TypedID" in self.ancestry(name):
+            return {"type": "Guid"}          # TypedID carries a System.Guid, sent as a string
         found = self.resolve(name)
         if not found or depth > 7 or name in seen:
             return {"type": name}
@@ -388,9 +418,31 @@ class Protocol:
         if values is not None:
             return {"enum": name, "values": values}
         members = asm.members(position)
+        names = {m["name"] for m in members["methods"]}
+        base = asm.base_name(position) or ""
+        if "Dictionary" in base or ("get_Item" in names and "get_Count" in names):
+            value = None
+            for prop in members["properties"]:
+                if prop["name"] == "Item":
+                    value = prop["type"]
+            return {"map": {"key": "string", "value": self.shape(value, depth + 1, seen) if value else None}}
         fields = {}
         for field in members["fields"]:
             fields[field["json"]] = self.shape(field["type"], depth + 1, seen | {name})
+        if not fields:
+            for field in asm.members(position, include_private=True)["fields"]:
+                fields[field["json"].lstrip("_")] = self.shape(field["type"], depth + 1, seen | {name})
+        if not fields:
+            for parent in self.ancestry(name, limit=3):
+                found_parent = self.resolve(parent)
+                if not found_parent:
+                    continue
+                parent_fields = found_parent[0].members(found_parent[1], include_private=True)["fields"]
+                if parent_fields:
+                    for field in parent_fields:
+                        fields[field["json"].lstrip("_")] = self.shape(
+                            field["type"], depth + 1, seen | {name})
+                    break
         if not fields:
             return {"type": name}
         return {"type": name, "fields": fields}
@@ -408,6 +460,36 @@ def shape_json(shape):
     if "fields" in shape:
         return {key: shape_json(value) for key, value in shape["fields"].items()}
     return shape.get("type", "?")
+
+
+def simple_name(name):
+    return name.rsplit(".", 1)[-1].split("+")[-1]
+
+
+def sample_value(shape, depth=0):
+    """A minimal value of this shape: empty lists/maps, zeroed scalars."""
+    if not shape:
+        return None
+    if "list" in shape:
+        return []
+    if "map" in shape:
+        return {}
+    if "enum" in shape:
+        return shape["values"][0] if shape["values"] else None
+    if "fields" in shape:
+        if depth > 3:
+            return {}
+        return {key: sample_value(value, depth + 1) for key, value in shape["fields"].items()}
+    type_name = shape.get("type", "")
+    if type_name in ("int", "long", "short", "byte", "sbyte", "uint", "ulong", "ushort"):
+        return 0
+    if type_name == "bool":
+        return False
+    if type_name == "double" or type_name == "float":
+        return 0.0
+    if type_name == "string":
+        return ""
+    return None
 
 
 def render_shape(shape, indent=0):
@@ -467,7 +549,8 @@ def main():
                     "base": asm.base_name(position),
                     "attributes": asm.type_attrs.get(position, []),
                     "fields": [
-                        {"name": f["name"], "json": f["json"], "type": type_label(f["type"])}
+                        {"name": f["name"], "json": f["json"], "type": type_label(f["type"]),
+                         "attributes": [a for a in f.get("attributes", [])]}
                         for f in members["fields"]],
                     "properties": [
                         {"name": p["name"], "type": type_label(p["type"])}
@@ -515,14 +598,75 @@ def main():
             out.write("```\n\n")
     print(f"wrote {proto_path}: {len(messages)} messages")
 
+    try:
+        from ptcgo.network.message_names import InboundMsg, OutboundMsg
+        inbound = {m.value for m in InboundMsg}
+        outbound = {m.value for m in OutboundMsg}
+    except Exception:
+        inbound, outbound = set(), set()
+
+    def direction(full_name, simple_name):
+        lowered = full_name.lower()
+        if ".outgoing." in lowered:
+            return "client → server"
+        if ".incoming." in lowered:
+            return "server → client"
+        if simple_name in inbound:
+            return "client → server"
+        if simple_name in outbound:
+            return "server → client"
+        return "unclassified"
+
+    # effect classes: they ride inside game payloads, so their shapes matter too
+    effect_rows = []
+    for asm in assemblies:
+        for position in asm.typedef_names:
+            if any("DwdJsonEffect" in attr for attr in asm.type_attrs.get(position, [])):
+                effect_rows.append((asm.nested_name(position), asm.members(position)))
+    effect_rows.sort(key=lambda item: item[0])
+    if effect_rows:
+        effects_path = os.path.join(NOTES, "client-effects.md")
+        with open(effects_path, "w", encoding="utf-8") as out:
+            out.write("# Client effect payloads\n\n")
+            out.write("Types carrying `[DwdJsonEffect]`: they are serialised inside game "
+                      "messages (entity moves, attack effects, data carriers), so their keys "
+                      "have to match exactly as well. Shapes are rendered the same way as "
+                      "`client-protocol.md`.\n\n")
+            out.write(f"- effect types: **{len(effect_rows)}**\n\n")
+            for name, members in effect_rows:
+                shape = {"type": name, "fields": {
+                    f["json"]: protocol.shape(f["type"], 1, {name}) for f in members["fields"]}}
+                out.write(f"## {simple_name(name)}\n\n```json\n{render_shape(shape)}\n```\n\n")
+        print(f"wrote {effects_path}: {len(effect_rows)} effect types")
+
+    # minimal payloads, for implementing a handler in one copy-paste
+    skeletons = os.path.join(NOTES, "client-skeletons.md")
+    with open(skeletons, "w", encoding="utf-8") as out:
+        out.write("# Minimal payloads per message\n\n")
+        out.write("Generated by `tools_client_dump.py`: for every message the client "
+                  "deserialises, the smallest payload of the right shape — scalars zeroed, "
+                  "lists and maps empty, nested objects present. These are shapes, not "
+                  "valid game states: a field the client dereferences may still need a real "
+                  "value.\n\n")
+        for name, members in messages:
+            shape = {"type": name, "fields": {
+                f["json"]: protocol.shape(f["type"], 1, {name}) for f in members["fields"]}}
+            out.write(f"## {simple_name(name)}\n\n```json\n")
+            out.write(json.dumps({"messageName": simple_name(name),
+                                  **sample_value(shape)}, indent=2, ensure_ascii=False))
+            out.write("\n```\n\n")
+    print(f"wrote {skeletons}: {len(messages)} payloads")
+
     index_path = os.path.join(NOTES, "client-messages.md")
     with open(index_path, "w", encoding="utf-8") as out:
         out.write("# Client message index\n\n")
-        out.write("One line per message type with its top-level JSON keys. Full shapes are in "
-                  "`client-protocol.md`.\n\n")
+        out.write("One line per message type with its direction and top-level JSON keys. "
+                  "Direction comes from the client's own `incoming`/`outgoing` namespaces, "
+                  "otherwise from this server's InboundMsg/OutboundMsg enums. Full shapes "
+                  "are in `client-protocol.md`.\n\n")
         for name, members in messages:
             keys = ", ".join(f"`{f['json']}`" for f in members["fields"]) or "_no fields_"
-            out.write(f"- **{name}** — {keys}\n")
+            out.write(f"- **{name}** _({direction(name, name.rsplit('.', 1)[-1])})_ — {keys}\n")
     print(f"wrote {index_path}: {len(messages)} messages")
 
     json_path = os.path.join(NOTES, "client-protocol.json")
