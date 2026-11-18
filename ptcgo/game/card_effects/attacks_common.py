@@ -1104,3 +1104,60 @@ def evolve_each_from_deck(predicate=None, target_pred=None, max_targets=None,
                 await ctx.evolve_pokemon(pokemon, picks[0])
         await ctx.shuffle_deck()
     return effect
+
+
+def _play_kind_predicate(kinds):
+    from ptcgo.game.card_effects.trainers import (
+        is_item_card, is_special_energy, is_stadium_card, is_supporter_card,
+        is_tool_card, is_trainer_card,
+    )
+    table = {
+        "item": is_item_card,
+        "supporter": is_supporter_card,
+        "stadium": is_stadium_card,
+        "tool": is_tool_card,
+        "trainer": is_trainer_card,
+        "special_energy": is_special_energy,
+        "energy": lambda card: card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value,
+    }
+    chosen = [table[kind] for kind in kinds if kind in table]
+    if "all" in kinds:
+        return lambda card: True
+    return lambda card: any(predicate(card) for predicate in chosen)
+
+
+def lock_opponent_plays(*kinds, damage=None, flip=False, coins=1):
+    """"Your opponent can't play any <kinds> cards from their hand during their
+    next turn" (Disconnect, Pitch-Dark, Chaos Wheel).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy", "energy" or "all"."""
+    async def effect(ctx):
+        # flip_coins returns a LIST of results; `not [False]` is False, so the
+        # gate has to read the coins rather than the coroutine's truthiness.
+        results = await ctx.flip_coins(coins) if flip else []
+        await ctx.deal_damage(damage)
+        if flip and not all(results):
+            return
+        ctx.lock_plays(ctx.opponent_id, _play_kind_predicate(kinds))
+
+    return effect
+
+
+def lock_opponent_evolutions(damage=None, defending_only=False):
+    """"During your opponent's next turn, they can't evolve their <Active>
+    Pokemon" — a turn-scoped passive on the attacker carried through the
+    opponent's turn."""
+    from ptcgo.game.card_effects.passives_common import evolution_lock_passive
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker,
+            evolution_lock_passive(
+                opponent_id=ctx.opponent_id,
+                only=ctx.defender if defending_only else None,
+            ),
+        )
+
+    return effect

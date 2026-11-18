@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Pitch-Dark",
             game_text="You opponent can't play any Trainer cards from his or her hand during your opponent's next turn.",
             cost={},
-            effect=unimplemented,
+            effect=lock_opponent_plays("trainer", damage=0),
         ),
         Attack(
             title="Trick Gas",

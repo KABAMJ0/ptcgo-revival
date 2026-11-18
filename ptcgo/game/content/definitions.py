@@ -644,13 +644,20 @@ class SupporterCardDef(TrainerCardDef):
 class StadiumCardDef(TrainerCardDef):
     """`passive` is the stadium's continuous effect while in play (a
     passives.Passive). `ability` is an Ability offered once during EACH
-    player's turn while the stadium is in play (Training Court)."""
+    player's turn while the stadium is in play (Training Court).
+
+    `on_leave_play` is `async def hook(ctx)` run when this Stadium leaves play
+    -- replaced by another one or discarded by an effect -- "when this card
+    leaves play, both players discard Pokemon from their Bench until they have
+    N" (Area Zero Underdepths). ctx.source is the stadium."""
     def __init__(self, passive: Optional[Any] = None,
-                 ability: Optional["Ability"] = None, **kwargs):
+                 ability: Optional["Ability"] = None,
+                 on_leave_play: Optional[Any] = None, **kwargs):
         kwargs['trainer_type'] = TrainerType.STADIUM
         super().__init__(**kwargs)
         self.passive = passive
         self.ability = ability
+        self.on_leave_play = on_leave_play
         if ability is not None:
             if not ability.ability_id:
                 ability.ability_id = ability_id_for(self.guid, 0)

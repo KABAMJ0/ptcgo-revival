@@ -15,6 +15,7 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
     Passive,
@@ -1268,3 +1269,55 @@ def has_team_plasma(board, pokemon) -> bool:
     granted by an attached Team Plasma Badge."""
     from ptcgo.game.session.passives import has_subtype
     return has_subtype(board, pokemon, "Team Plasma")
+
+
+def cure_on_energy_attach(energy_type=None):
+    """"Whenever you attach [a <type>] Energy from your hand to this Pokemon,
+    remove all Special Conditions from it" (Natural Cure, Water Veil). The
+    typed variants filter the trigger's attached Energy."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    async def effect(ctx):
+        if ctx.energy_receiver is not ctx.source:
+            return
+        if type_value is not None and ctx.attached_energy is not None \
+                and not energy_provides_type(ctx.attached_energy, type_value):
+            return
+        await ctx.cure_all_conditions(ctx.source)
+
+    return effect
+
+
+class EvolutionLockPassive(Passive):
+    """"Your opponent can't evolve their <Active> Pokemon during their next
+    turn" (Evolution Lock): a turn-scoped passive on the attacker."""
+
+    def __init__(self, opponent_id=None, only=None, active_only=False):
+        self.opponent_id = opponent_id
+        self.only = only
+        self.active_only = active_only
+
+    def blocks_evolution(self, player_id, target, carrier):
+        if self.opponent_id is not None and player_id == self.opponent_id:
+            return False
+        if self.only is not None and target is not self.only:
+            return False
+        return True
+
+
+def evolution_lock_passive(active_only=False, opponent_id=None, only=None) -> Passive:
+    """Blocks the opponent's evolutions for the passive's lifetime."""
+    return EvolutionLockPassive(opponent_id=opponent_id, only=only, active_only=active_only)
+
+
+class SpiritLinkPassive(Passive):
+    """"Your turn does not end if the Pokemon this card is attached to becomes
+    M <name> ex" (Spirit Link): the one clause every Spirit Link prints."""
+
+    def permits_turn_continue_after_mega(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
+
+def spirit_link_passive() -> Passive:
+    """Keeps the turn alive through the holder's Mega Evolution."""
+    return SpiritLinkPassive()
