@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="5fb9e5ca-b8b5-5c52-8245-ef02a064f574",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Solid Shell",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Rocket Splash",
