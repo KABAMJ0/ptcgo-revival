@@ -2558,6 +2558,9 @@ CONDITION_PREFIXES = [
                 r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
+TAIL_STRIP = re.compile(r" you cant choose .* with the effect of this card$")
+
+
 TAIL_WRAPPERS = [
     (re.compile(r" then draw (?P<n>\d+) cards?$"), "draw_after",
      lambda g: [g["n"]]),
@@ -2606,6 +2609,11 @@ def resolve(text, depth=0):
     """
     if not text or depth > RESOLVE_DEPTH:
         return None
+    trimmed = TAIL_STRIP.search(text)
+    if trimmed:
+        inner = resolve(text[:trimmed.start()], depth + 1)
+        if inner is not None:
+            return inner
     for rule in RULES:
         found = rule.match(text)
         if found is not None:
