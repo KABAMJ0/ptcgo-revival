@@ -4095,14 +4095,20 @@ class GameSession:
                     f"dropped its guard at the {event} of turn {turn_number}."
                 )
                 continue
-            source = self.board_state.get_entity(entry.source_entity_id) \
-                if entry.source_entity_id else None
+            source = entry.source if entry.source is not None else (
+                self.board_state.get_entity(entry.source_entity_id)
+                if entry.source_entity_id else None)
             if entry.require_source_in_play and not self._in_play(source):
                 logging.info(
                     f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
                     f"dropped: its source left play."
                 )
                 continue
+            if source is None:
+                logging.warning(
+                    f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
+                    f"has no source entity; damage/animation may not play."
+                )
             logging.info(
                 f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
                 f"fires at the {event} of turn {turn_number}."
