@@ -5302,3 +5302,77 @@ def search_for_shared_name(count: int, need: int):
             await ctx.put_in_hand(best, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+def search_and_discard(count: int, predicate=None):
+    """Search your deck for up to `count` matching cards and discard them, then
+    shuffle (Battle Compressor)."""
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            predicate, count=count, minimum=0,
+            prompt=f"Choose up to {count} cards to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def move_all_energy_named(word: str):
+    """Move every Energy from 1 of your Pokemon named `word` to another of them
+    (Sabrina)."""
+    def named_holder(pokemon):
+        return pokemon_named(word)(pokemon)
+
+    async def effect(ctx):
+        sources = [p for p in ctx.my_pokemon_in_play()
+                   if named_holder(p) and ctx.attached_energies(p)]
+        if not sources:
+            return
+        source = await ctx.choose_pokemon(
+            sources, "Choose a Pokémon to move Energy from") \
+            if len(sources) > 1 else sources[0]
+        targets = [p for p in ctx.my_pokemon_in_play()
+                   if named_holder(p) and p is not source]
+        if source is None or not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        for card in list(ctx.attached_energies(source)):
+            await ctx.attach_energy(card, dest)
+    return effect
+
+
+def opponent_discard_to_hand(count: int = 1):
+    """Put `count` cards from the opponent's discard pile into their hand
+    (Surprise Box)."""
+    async def effect(ctx):
+        area = ctx.board.find_player_area(ctx.opponent_id, "discardPile")
+        cards = list(area.children) if area is not None else []
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=min(count, len(cards)),
+            prompt="Choose cards to put into your opponent's hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=False)
+    return effect
+
+
+def heal_active_or(predicate, base: int, better: int):
+    """Heal `base` from your Active Pokemon, or `better` when it matches
+    `predicate` (Arven's Sandwich)."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        if active is None:
+            return
+        await ctx.heal(better if predicate(active) else base, active)
+    return effect
+
+
+def stadium_retreat_discount_typed(*types):
+    """Pokemon of the named types pay less to retreat (High Pressure System)."""
+    wanted = [POKEMON_TYPE_NAMES[name] for name in types]
+    return retreat_discount(
+        len(types),
+        target_pred=lambda target, carrier: bool(
+            set(wanted) & set(target.get_attribute(AttrID.POKEMON_TYPES) or [])))

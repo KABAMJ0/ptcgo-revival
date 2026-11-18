@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import move_all_energy_named
 
 card = ItemCardDef(
     guid="69ea82da-eaef-5520-9381-7ee0353710e6",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=20,
     set_code="GYM2",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=move_all_energy_named("sabrina")
 )

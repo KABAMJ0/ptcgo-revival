@@ -60,6 +60,7 @@ SIMPLE_PREDICATES = {
     "mega evolution pokemon": 'pokemon_of_subtype("MEGA")',
     "tag team card": 'pokemon_of_subtype("TAG TEAM")',
     "team plasma pokemon": 'pokemon_of_subtype("Team Plasma")',
+    "pokemon sp": 'pokemon_of_subtype("SP")',
     "any card": "None",
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
@@ -2127,7 +2128,7 @@ RULES = [
          r"put (?P<n>\d+) card from your hand on top of your deck",
          "hand_card_to_top", lambda m: []),
     Rule("flip-until-tails-draw",
-         r"flip (?P<n>\d+) coin until (?:he or she|you) gets tails for each heads you draw "
+         r"flip (?P<n>\d+) coin until (?:he or she|you) gets? tails for each heads you draw "
          r"(?P<per>\d+) card",
          "flip_until_tails_draw", lambda m: [m.group("per")]),
     Rule("heal-each-two-types",
@@ -2251,6 +2252,52 @@ RULES = [
          r"into your hand put the other cards back on top of your deck shuffle your deck afterward",
          "look_at_top",
          lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="shuffle"', "minimum=1"],
+         module="support_common"),
+
+    Rule("stadium-hp-two-types",
+         r"each (?P<a>[a-z]+) and (?P<b>[a-z]+) pokemon in play both yours and your opponents gets "
+         r"(?P<amount>\d+) hp",
+         "stadium_hp_bonus",
+         lambda m: [m.group("amount"), "any_of(pokemon_of(\"%s\"), pokemon_of(\"%s\"))"
+                    % (m.group("a"), m.group("b"))],
+         kind="passive"),
+    Rule("stadium-retreat-two-types",
+         r"each player pays (?P<count>colorless(?: ?colorless)*) less to retreat his or her "
+         r"(?P<a>[a-z]+) and (?P<b>[a-z]+) pokemon",
+         "stadium_retreat_discount_typed",
+         lambda m: [_typed_or_decline(m.group("a")), _typed_or_decline(m.group("b"))],
+         kind="passive"),
+    Rule("search-then-discard",
+         r"search your deck for up to (?P<n>\d+) cards and discard them" + SHUFFLE_TAIL,
+         "search_and_discard", lambda m: [m.group("n")]),
+    Rule("move-all-energy-named",
+         r"take all energy cards attached to (?P<n>\d+) of your pokemon with (?P<word>[a-z]+) in its "
+         r"name and attach them to another \d+ of your pokemon with (?P=word) in its name",
+         "move_all_energy_named", lambda m: ['"%s"' % m.group("word")]),
+    Rule("opponent-discard-to-hand",
+         r"put (?P<n>\d+) card from your opponents discard pile into their hand",
+         "opponent_discard_to_hand", lambda m: [m.group("n")]),
+    Rule("heal-active-or-better",
+         r"heal (?P<base>\d+) damage from your active pokemon if that pokemon is (?P<n>\d+) "
+         r"(?P<word>[a-z]+) pokemon heal (?P<better>\d+) damage from it instead",
+         "heal_active_or",
+         lambda m: ["pokemon_named(\"%s\")" % m.group("word"),
+                    m.group("base"), m.group("better")]),
+    Rule("top-fire-energy-hand-rest-discard",
+         r"show the top (?P<n>\d+) cards of your deck to all players put any (?P<type>[a-z]+) energy "
+         r"cards there into your hand and discard the rest",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("n"),
+                    "predicate=basic_energy_of(\"%s\")" % m.group("type"),
+                    'rest="discard"', "minimum=0"],
+         module="support_common"),
+    Rule("look-top-pokemon-any-number",
+         r"look at the top (?P<n>\d+) cards of your deck choose as many pokemon as you like show them "
+         r"to your opponent and put them into your hand put the other cards back(?: on top of your "
+         r"deck)?(?: in any order)?",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("n"), "predicate=is_pokemon_card",
+                    'rest="back"', "minimum=0"],
          module="support_common"),
 
     # --- Both-sides stadiums -------------------------------------------
