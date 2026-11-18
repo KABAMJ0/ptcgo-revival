@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
 
 card = PokemonCardDef(
     guid="dc0e5ea0-d85e-5cd2-8029-c750e4b3b6d6",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Trap Territory",
             game_text="Your opponent's Active Pok\u00e9mon's Retreat Cost is Colorless more.",
-            effect=unimplemented,
+            passive=opponent_retreat_tax_passive(1, active_only=True),
         ),
         Attack(
             title="Wire Hang",

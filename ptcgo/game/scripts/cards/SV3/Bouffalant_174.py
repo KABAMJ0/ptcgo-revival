@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="253993bd-d480-54e0-90c6-d9691570f58a",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Bouffer",
             game_text="This Pok\u00e9mon takes 20 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(20),
         ),
         Attack(
             title="Damage Rush",

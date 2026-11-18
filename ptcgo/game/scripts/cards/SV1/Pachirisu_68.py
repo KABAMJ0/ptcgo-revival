@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 
 card = PokemonCardDef(
     guid="0dc7af0a-687e-5388-8e9c-6cbf8112c5fc",
@@ -21,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Electricity Pouches",
             game_text="This Pok\u00e9mon can't be Paralyzed.",
-            effect=unimplemented,
+            passive=condition_immunity_passive(SpecialConditions.PARALYZED),
         ),
         Attack(
             title="Everyone Discharge",

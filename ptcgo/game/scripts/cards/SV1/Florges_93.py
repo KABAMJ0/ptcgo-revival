@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
 
 card = PokemonCardDef(
     guid="563f0480-b37d-52d7-9f1e-3628f2bf5dc4",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Blooming Garden",
             game_text="Your Pok\u00e9mon in play have no Weakness.",
-            effect=unimplemented,
+            passive=no_weakness_passive(protects="team"),
         ),
         Attack(
             title="Moonblast",

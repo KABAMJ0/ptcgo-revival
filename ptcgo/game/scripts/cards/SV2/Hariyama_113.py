@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="3088714e-2d97-5bb8-9468-1b1aadc14ec9",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Arm Thrust Practice",
             game_text="All of your Pok\u00e9mon take 10 less damage from attacks from your opponent's Pok\u00e9mon (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10, protects="team"),
         ),
         Attack(
             title="Rocket Slap",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
 
 card = PokemonCardDef(
     guid="678480d9-ea8b-5fda-9230-0d64a9500bf7",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="In a Hungry Hurry",
             game_text="If this Pok\u00e9mon has no Energy attached, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(),
         ),
         Attack(
             title="Energizer Wheel",
