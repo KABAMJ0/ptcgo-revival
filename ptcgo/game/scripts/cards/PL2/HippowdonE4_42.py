@@ -1,5 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+from ptcgo.game.session.effects import is_special_energy
+from ptcgo.game.session.passives import carrier_pokemon
+
+
+def _holder_with(type_value=None, basic_only=False):
+    def protects(target, carrier):
+        if carrier_pokemon(carrier) is not target:
+            return False
+        for child in target.children or []:
+            if not is_energy_card(child):
+                continue
+            if basic_only and is_special_energy(child):
+                continue
+            if type_value is None or energy_provides_type(child, type_value):
+                return True
+        return False
+    return protects
 
 card = PokemonCardDef(
     guid="a05c9df1-5124-5673-bc2a-52e4ef200468",
@@ -22,7 +41,7 @@ card = PokemonCardDef(
         Ability(
             title="Sand Armor",
             game_text="If Hippowdon E4 has any Fighting Energy attached to it, any damage done to Hippowdon E4 by attacks is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10, protects=_holder_with(PokemonTypes.FIGHTING.value)),
         ),
         Attack(
             title="Bite and Crush",
