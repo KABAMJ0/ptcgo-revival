@@ -4354,3 +4354,28 @@ def confuse_both_actives(predicate=None):
             if pokemon is not None and (predicate is None or predicate(pokemon)):
                 await ctx.apply_special_condition(pokemon, SpecialConditions.CONFUSED)
     return effect
+
+
+def heal_where(amount: int, where: str = "choice", predicate=None, min_energy: int = 0):
+    """Heal `amount` from your matching Pokemon: "choice" (1 chosen), "active",
+    "each_own", or "each_both" (every Pokemon in play, both sides)."""
+    async def effect(ctx):
+        if where == "active":
+            pool = [ctx.my_active()]
+        elif where == "each_both":
+            pool = ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play()
+        else:
+            pool = ctx.my_pokemon_in_play()
+        pool = [p for p in pool
+                if p is not None and (predicate is None or predicate(p))
+                and len(ctx.attached_energies(p)) >= min_energy
+                and ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+        if not pool:
+            return
+        if where == "choice":
+            target = await ctx.choose_pokemon(pool, "Choose a Pokémon to heal") \
+                if len(pool) > 1 else pool[0]
+            pool = [target] if target is not None else []
+        for pokemon in pool:
+            await ctx.heal(amount, pokemon)
+    return effect

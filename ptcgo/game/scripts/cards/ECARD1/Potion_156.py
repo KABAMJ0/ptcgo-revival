@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import heal_item
 
 card = ItemCardDef(
     guid="7d1f2e4f-9288-50d2-8817-3521f9b40e2c",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=156,
     set_code="ECARD1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=heal_item(amount=20, scope="choice")
 )

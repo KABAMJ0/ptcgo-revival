@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import heal_where
 
 card = SupporterCardDef(
     guid="78792c43-0ab1-5730-86ff-967303c0df2f",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=93,
     set_code="ME6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_where(50, "each_both")
 )

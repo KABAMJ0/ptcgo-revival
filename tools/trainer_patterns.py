@@ -638,9 +638,8 @@ RULES = [
          module="support_common"),
     Rule("heal-one-typed",
          r"heal (?P<amount>\d+) damage from (?P<n>\d+) of your (?P<type>[a-z]+) pokemon",
-         "heal_item",
-         lambda m: ["amount=" + m.group("amount"), 'scope="choice"'],
-         module="support_common"),
+         "heal_where",
+         lambda m: [m.group("amount"), '"choice"', _pred(m.group("type") + " pokemon")]),
     Rule("heal-each-own",
          r"heal (?P<amount>\d+) damage from each of your pokemon",
          "heal_item", lambda m: ["amount=" + m.group("amount"), 'scope="each_own"'],
@@ -650,7 +649,7 @@ RULES = [
          "heal_all_from_one", lambda m: [], module="support_common"),
     Rule("remove-counters",
          r"remove (?:up to )?(?P<counters>\d+) damage counters? from (?P<n>\d+) of your pokemon"
-         r"(?: remove \d+ damage counters? if that pokemon has only \d+)?",
+         r"(?:(?: remove)? \d+(?: damage counters?)? if that pokemon has only \d+)?",
          "heal_item",
          lambda m: ["amount=" + str(int(m.group("counters")) * 10), 'scope="choice"'],
          module="support_common"),
@@ -1800,6 +1799,42 @@ RULES = [
          "recover_from_discard",
          lambda m: [_pred(m.group("cat")), "count=" + m.group("n"), 'to="deck_top"'],
          module="support_common"),
+
+    Rule("heal-active-cat",
+         r"heal (?P<amount>\d+) damage from your active (?P<cat>[a-z ]*?pokemon(?: gx| ex| v)?)"
+         r"(?: that has (?P<e>\d+) or more energy attached)?",
+         "heal_where",
+         lambda m: [m.group("amount"), '"active"',
+                    "None" if m.group("cat") == "pokemon" else _pred(m.group("cat")),
+                    "min_energy=" + (m.group("e") or "0")]),
+    Rule("heal-one-cat",
+         r"heal (?P<amount>\d+) damage from 1 of your (?P<cat>pokemon that has any [a-z ]+ energy "
+         r"attached to it)",
+         "heal_where",
+         lambda m: [m.group("amount"), '"choice"', _stadium_cat(m.group("cat"))]),
+    Rule("heal-each-cat",
+         r"heal (?P<amount>\d+) damage from each of your (?P<cat>pokemon that has any [a-z ]+ "
+         r"energy attached to it)",
+         "heal_where",
+         lambda m: [m.group("amount"), '"each_own"', _stadium_cat(m.group("cat"))]),
+    Rule("heal-each-both",
+         r"heal (?P<amount>\d+) damage from each pokemon both yours and your opponents",
+         "heal_where", lambda m: [m.group("amount"), '"each_both"']),
+    Rule("heal-one-and-cure-all",
+         r"heal (?P<amount>\d+) damage from 1 of your pokemon and it recovers from all special "
+         r"conditions",
+         "heal_item",
+         lambda m: ["amount=" + m.group("amount"), 'scope="choice"', "condition_cure=True"],
+         module="support_common"),
+    Rule("remove-counter-each-damaged",
+         r"remove (?P<counters>\d+) damage counters? from each of your pokemon that has any "
+         r"damage counters on it",
+         "heal_where", lambda m: [str(int(m.group("counters")) * 10), '"each_own"']),
+    Rule("heal-one-low-hp",
+         r"heal (?P<amount>\d+) damage from 1 of your pokemon that has (?P<hp>\d+) hp or less "
+         r"remaining",
+         "heal_chosen",
+         lambda m: [m.group("amount"), "count=1", "hp_at_most=" + m.group("hp")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
