@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="self-energy", max_count=2, per=120),
         ),
     ],
 )
