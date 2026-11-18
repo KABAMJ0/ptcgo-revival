@@ -44,6 +44,14 @@ def main():
     inbound = {m.value for m in names.InboundMsg}
     outbound = {m.value for m in names.OutboundMsg}
     catalogue = json.load(open(PROTOCOL, encoding="utf-8"))["messages"]
+    # effect classes are wire types too (they travel inside effect payloads), so a
+    # name that matches one is not a typo
+    type_names = set()
+    metadata = os.path.join(ROOT, "notes", "client-metadata.jsonl")
+    if os.path.exists(metadata):
+        for line in open(metadata, encoding="utf-8"):
+            record = json.loads(line)
+            type_names.add(simple(record["name"]))
 
     declared_unhandled = sorted(name for name in inbound if name not in handled)
     requests = {full: data for full, data in catalogue.items()
@@ -78,6 +86,19 @@ def main():
                 (data for full, data in requests.items() if simple(full) == name), {})
             keys = ", ".join(shape) if shape else "(no payload fields)"
             out.write(f"- **{name}** — {keys}\n")
+
+        out.write("\n## Server-sent names the client has no type for\n\n")
+        out.write("Checked against every type in the client, not only message DTOs. A "
+                  "name here is one the client cannot resolve, so its payload is dropped "
+                  "without an error. Client-sent names are not listed: the client builds "
+                  "some of those at runtime, so a name with no matching type there is not "
+                  "evidence of a typo.\n\n")
+        known = {simple(full) for full in catalogue} | type_names
+        unknown_out = sorted(outbound - known)
+        for name in unknown_out:
+            out.write(f"- `{name}`\n")
+        if not unknown_out:
+            out.write("_None — every server-sent name resolves to a client type._\n")
 
         out.write("\n## Server response types (for reference)\n\n")
         responses = sorted({simple(full) for full in catalogue
