@@ -2057,8 +2057,6 @@ def _energy_to_hand(m, ability):
 def _own_next_turn_title_boost(m, ability):
     named = m.group(1)
     amount = int(m.group(2))
-    if normalize(getattr(ability, "title", "")) == normalize(named):
-        return None
 
     async def effect(ctx):
         await ctx.deal_damage()
@@ -4750,10 +4748,13 @@ def _more_if_defender_resistance(m, ability):
     amount = int(m.group(2))
 
     def cond(ctx) -> bool:
-        from ptcgo.game.session.passives import effective_resistance
         defender = ctx.defender
-        return defender is not None and \
-            effective_resistance(ctx.board, defender) == type_value
+        if defender is None:
+            return False
+        resist = defender.get_attribute(AttrID.RESISTANCE_TYPES)
+        if isinstance(resist, (list, tuple, set)):
+            return type_value in resist
+        return resist == type_value
     return bonus_if(cond, amount)
 
 
@@ -4892,7 +4893,7 @@ def _self_to_hand(m, ability):
 
 
 def _discard_hand_energy_then_damage_swap(m, ability):
-    up_to, per = int(m.group(1)), int(m.group(2))
+    up_to, per = int(m.group(1)), int(m.group(3))
     type_word = m.group("type")
     type_value = TYPE_WORDS[type_word].value if type_word else None
 
@@ -4985,6 +4986,7 @@ def _counters_per_opponent_hand(m, ability):
 
 
 def _per_cards_with_attack_in_discard(m, ability):
+    from ptcgo.game.card_effects.attacks_common import has_attack_titled
     per = int(m.group(1))
     title = m.group(2)
     return damage_per(count_discard("mine", has_attack_titled(title)), per)
@@ -5090,7 +5092,7 @@ def _base_plus_if_self_damaged(m, ability):
 
 
 def _base_plus_if_self_has_typed_energy(m, ability):
-    base, bonus, type_word = int(m.group(1)), int(m.group(2)), m.group(3)
+    type_word, base, bonus = m.group(1), int(m.group(2)), int(m.group(3))
     return bonus_if(self_has_energy_of_type(TYPE_WORDS[type_word]), bonus,
                     base=base)
 
@@ -5309,6 +5311,170 @@ def _peek_and_optional_discard(m, ability):
             return
         if await ctx.ask_yes_no("Discard the top card of your deck?"):
             await ctx.discard_cards(top)
+    return effect
+
+
+def _search_name_onto_bench(m, ability):
+    return _search_name_onto_bench_count(m, ability, _count(m.group(1)))
+
+
+def _search_name_onto_bench_count(m, ability, count):
+
+    async def effect(ctx):
+        source = ctx.source
+        if source is None:
+            return
+        wanted = getattr(source, "archetype_id", None)
+        picks = await ctx.search_deck(
+            lambda card: getattr(card, "archetype_id", None) == wanted,
+            count=count, minimum=0, prompt="Choose the Pokémon to Bench")
+        for card in picks:
+            await ctx.bench_pokemon(card)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _search_name_onto_bench_one(m, ability):
+    return _search_name_onto_bench_count(m, ability, 1)
+
+
+def _switch_self_then_opponent_switches(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = ctx.my_bench()
+        if bench:
+            target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+                bench, "Choose a Benched Pokémon to switch in")
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
+        if ctx.opponent_bench():
+            await opponent_switches(ctx)
+    return effect
+
+
+def _heal_if_damage_landed(m, ability):
+    amount = int(m.group(1)) * 10
+
+    async def effect(ctx):
+        dealt = await ctx.deal_damage()
+        if dealt and ctx.attacker is not None:
+            await ctx.heal(amount, ctx.attacker)
+    return effect
+
+
+def _reorder_either_top_plain(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        own = await ctx.ask_yes_no("Look at your own deck? (No: your "
+                                   "opponent's deck)")
+        await ctx.reorder_deck_top(count, ctx.player_id if own
+                                   else ctx.opponent_id,
+                                   "Rearrange the top cards")
+    return effect
+
+
+def _more_per_opponent_with_ability(m, ability):
+    per = int(m.group(1))
+    from ptcgo.game.data_utils import def_for
+
+    def count(ctx) -> int:
+        total = 0
+        for pokemon in ctx.opponent_pokemon_in_play():
+            definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+            if getattr(definition, "abilities", None):
+                total += 1
+        return total
+    return _bonus_from_counter(lambda ctx: per * count(ctx))
+
+
+def _flip_per_opponent_spread(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if ctx.effects_blocked(pokemon):
+                continue
+            results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+            if results and results[0]:
+                if pokemon is ctx.opponent_active():
+                    await ctx.deal_damage(amount, target=pokemon)
+                else:
+                    await ctx.deal_damage(amount, target=pokemon,
+                                          apply_modifiers=False)
+    return effect
+
+
+def _flip_times_heads_spread_all(m, ability):
+    coins, per = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        results = await ctx.flip_coins(coins, getattr(ability, "title", ""))
+        heads = sum(1 for result in results or [] if result)
+        if not heads:
+            return
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if ctx.effects_blocked(pokemon):
+                continue
+            if pokemon is ctx.opponent_active():
+                await ctx.deal_damage(per * heads, target=pokemon)
+            else:
+                await ctx.deal_damage(per * heads, target=pokemon,
+                                      apply_modifiers=False)
+    return effect
+
+
+def _top_pokemon_to_bench(m, ability):
+    count = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        pokemon = [card for card in top if _is_pokemon_card(card)]
+        rest = [card for card in top if card not in pokemon]
+        chosen = pokemon
+        if pokemon:
+            free = max(0, 5 - len(ctx.my_bench()))
+            if len(pokemon) > free:
+                chosen = await ctx.choose_cards(
+                    pokemon, free, minimum=0,
+                    prompt="Choose Pokémon to put onto your Bench")
+            for card in chosen:
+                await ctx.bench_pokemon(card)
+        leftover = [card for card in rest if card not in chosen]
+        if leftover:
+            await ctx.shuffle_into_deck(leftover, ctx.player_id)
+    return effect
+
+
+def _bonus_stadium_then_discard_plain(m, ability):
+    bonus = int(m.group(1))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        from ptcgo.game.card_effects.attacks_common import stadium_in_play_cond
+
+        has_stadium = stadium_in_play_cond(ctx)
+        await ctx.deal_damage(printed + bonus if has_stadium else printed)
+        if has_stadium:
+            await ctx.discard_stadium()
+    return effect
+
+
+def _more_per_prizes_taken_recoil(m, ability):
+    per, recoil = int(m.group(1)), int(m.group(2))
+
+    async def effect(ctx):
+        taken = count_prizes_taken("opponent")(ctx)
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        await ctx.deal_damage(printed + per * taken)
+        if ctx.attacker is not None:
+            await ctx.deal_damage(recoil, target=ctx.attacker,
+                                  apply_modifiers=False)
     return effect
 
 def _scale_from_phrase(m, ability):
@@ -6710,6 +6876,57 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+    # -- batch 45: own-name searches, flipped spreads, stadium riders ------
+    ("search.same-name-to-bench",
+     re.compile(r"search your deck for up to (\d+) this pokemon and put them "
+                r"onto your bench\. then, shuffle your deck\."),
+     _search_name_onto_bench),
+    ("search.same-name-one-to-bench",
+     re.compile(r"search your deck for this pokemon and put it onto your bench"
+                r"(?: then,| )? shuffle your deck(?: afterward)?\."),
+     _search_name_onto_bench),
+    ("search.same-name-to-bench-full",
+     re.compile(r"search your deck for a basic pokemon named this pokemon and "
+                r"put it onto your bench\. shuffle your deck afterward\. \(you "
+                r"can't use this attack if your bench is full\.\)"),
+     _search_name_onto_bench_one),
+    ("switch.self-then-opponent-swaps",
+     re.compile(r"switch this pokemon with (?:an?|1) of your benched pokemon\. "
+                r"then, your opponent switches (?:the defending pokemon|his or "
+                r"her active pokemon) with (?:an?|1) of his or her benched "
+                r"pokemon\."), _switch_self_then_opponent_switches),
+    ("heal.self-if-damage-landed",
+     re.compile(r"unless all damage from this attack is prevented, you may "
+                r"remove (\d+) damage counters? from this pokemon\."),
+     _heal_if_damage_landed),
+    ("reorder.either-top-any-order",
+     re.compile(r"look at the top (\d+) cards of either player's deck and put "
+                r"them back in any order\."), _reorder_either_top_plain),
+    ("bonus.per-opponent-with-ability",
+     re.compile(r"this attack does (\d+) more damage for each of your "
+                r"opponent's pokemon in play that has an ability\."),
+     _more_per_opponent_with_ability),
+    ("spread.flip-per-opponent",
+     re.compile(r"for each of your opponent's pokemon, flip a coin\. if heads, "
+                r"this attack does (\d+) damage to that pokemon" + _SNIPE_TAIL),
+     _flip_per_opponent_spread),
+    ("spread.flips-times-heads-all",
+     re.compile(r"flip (\d+) coins\. this attack does (\d+) damage times the "
+                r"number of heads to each of your opponent's pokemon" +
+                _SNIPE_TAIL), _flip_times_heads_spread_all),
+    ("peek.self-top-pokemon-bench",
+     re.compile(r"look at the top (\d+) cards of your deck\. you may put any "
+                r"number of pokemon you find there onto your bench\. shuffle "
+                r"the other cards back into your deck\."),
+     _top_pokemon_to_bench),
+    ("bonus.stadium-then-discard-plain",
+     re.compile(r"if there is any stadium card in play, this attack does (\d+) "
+                r"more damage\. discard that stadium card\."),
+     _bonus_stadium_then_discard_plain),
+    ("bonus.per-prizes-taken-recoil",
+     re.compile(r"this attack does (\d+) more damage for each prize card your "
+                r"opponent has taken\. this pokemon also does (\d+) damage to "
+                r"itself\."), _more_per_prizes_taken_recoil),
     # -- batch 44: the 3-card tail, second pass ----------------------------
     ("attach.flip-typed-discard-self",
      re.compile(r"flip a coin\. if heads, search your discard pile for an? ("
