@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _precious_gift(ctx):
+    """End of turn: optionally draw up to 8 cards in hand."""
+    if not await ctx.ask_yes_no("Draw cards until you have 8 cards in your hand?"):
+        return
+    await ctx.draw_until(8)
 
 card = PokemonCardDef(
     guid="3eabc5f4-eb6b-53ee-a5c3-912cb1fd42e8",
@@ -22,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Precious Gift",
             game_text="Once at the end of your turn (after your attack), you may use this Ability. Draw cards until you have 8 cards in your hand.",
-            effect=unimplemented,
+            trigger=Triggers.END_OF_TURN,
+            effect=_precious_gift,
         ),
         Attack(
             title="Power Cyclone",

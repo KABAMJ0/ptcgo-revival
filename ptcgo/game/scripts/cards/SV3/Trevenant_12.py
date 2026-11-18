@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+
+async def _forest_miasma(ctx):
+    """Checkup: while Active, 1 damage counter on the opponent's Active."""
+    if ctx.source is None or not is_in_active_spot(ctx.source):
+        return
+    defender = ctx.opponent_active()
+    if defender is not None:
+        await ctx.deal_damage(10, target=defender, as_counters=True)
 
 card = PokemonCardDef(
     guid="4b875cdf-d0c3-5eab-bb9d-ae1f452fd131",
@@ -22,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Forest Miasma",
             game_text="During Pok\u00e9mon Checkup, if this Pok\u00e9mon is in the Active Spot, put 1 damage counter on your opponent's Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=_forest_miasma,
         ),
         Attack(
             title="Lock Up",

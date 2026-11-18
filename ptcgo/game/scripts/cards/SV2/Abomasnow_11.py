@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import healing_block_passive
 
 card = PokemonCardDef(
     guid="de995911-02a9-5475-a51a-ff2e1bb59e62",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Freezing Disaster",
             game_text="Pok\u00e9mon\u00a0(both yours and your opponent's) can't be healed.",
-            effect=unimplemented,
+            passive=healing_block_passive(lambda target, carrier: True),
         ),
         Attack(
             title="Magnum Punch",
