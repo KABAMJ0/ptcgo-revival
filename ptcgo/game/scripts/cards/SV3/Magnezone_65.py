@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="f8c38519-770f-51c0-a08b-1ed6d1a97505",
@@ -24,7 +25,8 @@ card = PokemonCardDef(
             game_text="You may switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=50,
-            effect=unimplemented,
+            effect=gust_attack(
+                opponent_chooses=True, damage_before=50),
         ),
         Attack(
             title="Thunder",

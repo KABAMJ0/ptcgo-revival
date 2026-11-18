@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="6de85b72-30e1-5130-8c1c-22a667bac5d2",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Quick Search",
             game_text="Once during your turn, you may search your deck for a card and put it into your hand. Then, shuffle your deck. You can't use more than 1 Quick Search Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(count=1, minimum=0),
         ),
         Attack(
             title="Blustery Wind",

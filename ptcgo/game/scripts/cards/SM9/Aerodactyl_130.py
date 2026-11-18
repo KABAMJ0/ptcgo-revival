@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, bonus_if
+
+
+def _no_gx_ex_bench(ctx):
+    return not any(
+        {"GX", "EX"} & set(subtypes_for(p.archetype_id))
+        for p in ctx.my_bench()
+    )
 
 card = PokemonCardDef(
     guid="6ee81d3e-c327-561f-8ec1-1dbc28a14b4d",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
             title="Supersonic",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Fossil Fangs",
@@ -32,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_no_gx_ex_bench, 90),
         ),
     ],
 )

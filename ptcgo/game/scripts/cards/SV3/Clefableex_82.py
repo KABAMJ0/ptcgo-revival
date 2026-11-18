@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import typed_energy_free_retreat_passive
 
 card = PokemonCardDef(
     guid="d5ef30d2-693b-51e7-a508-51a9022faad1",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Lunar Zone",
             game_text="All of your Pok\u00e9mon that have Psychic Energy attached have no Retreat Cost.",
-            effect=unimplemented,
+            passive=typed_energy_free_retreat_passive(
+                PokemonTypes.PSYCHIC.value, team=True),
         ),
         Attack(
             title="Wondrous Moon",

@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.card_effects.support_common import gust_then
+
+
+async def _force_asleep(ctx, new_active):
+    await ctx.apply_special_condition(new_active, SpecialConditions.ASLEEP)
 
 card = PokemonCardDef(
     guid="cbe35461-cabc-539d-a65b-661f7aa6cd6f",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
             title="Forced Sleep",
             game_text="Your opponent chooses 1 of their Benched Pok\u00e9mon and switches it with their Active Pok\u00e9mon. The new Active Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=gust_then(_force_asleep, opponent_chooses=True),
         ),
         Attack(
             title="Gentle Slap",

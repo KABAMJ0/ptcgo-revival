@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import pokemon_of
 
 card = PokemonCardDef(
     guid="a64627b2-85d7-531a-a58a-372a8a26bba5",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Electrical Signal",
             game_text="Search your deck for up to 2 Lightning Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(pokemon_of("lightning"), count=2),
         ),
         Attack(
             title="Corkscrew Punch",

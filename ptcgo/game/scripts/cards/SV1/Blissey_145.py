@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
 
 card = PokemonCardDef(
     guid="7eb6223c-9ec2-53d5-a297-2997bc1ecd6b",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Busybody Nurse",
             game_text="Once during your turn, you may use this Ability. Your Active Pok\u00e9mon recovers from all Special Conditions.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=cure_conditions_effect("active"),
         ),
         Attack(
             title="Happy Cyclone",

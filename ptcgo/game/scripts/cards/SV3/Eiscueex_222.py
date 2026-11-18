@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
+
+
+async def _scalding_block(ctx):
+    """Printed damage, discard an Energy from this Pokemon, lock the defender."""
+    await ctx.deal_damage()
+    attacker = ctx.attacker
+    if attacker is None:
+        return
+    await ctx.discard_energy_from(
+        attacker, 1, prompt="Discard an Energy from this Pokémon")
+    lock_defender_attacks(ctx)
 
 card = PokemonCardDef(
     guid="de1dd261-0780-5ea2-9d8c-13a0cecfd51a",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy from this Pok\u00e9mon. During your opponent's next turn, the Defending Pok\u00e9mon can't attack.",
             cost={PokemonTypes.WATER: 3},
             damage=160,
-            effect=unimplemented,
+            effect=_scalding_block,
         ),
     ],
 )

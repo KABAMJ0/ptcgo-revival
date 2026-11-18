@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, subtypes_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
+
+
+def _is_tag_team(pokemon):
+    return "TAG TEAM" in subtypes_for(pokemon.archetype_id)
 
 card = PokemonCardDef(
     guid="0cfd8f6e-3a66-511f-bfcd-be61bdae9515",
@@ -30,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", _is_tag_team), 50),
         ),
     ],
 )

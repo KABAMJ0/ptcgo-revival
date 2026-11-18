@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="c3ff6d4c-779c-5706-9662-ba1a8cf9ffa0",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="This Pok\u00e9mon takes 20 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(20),
         ),
         Attack(
             title="Mega Kick",

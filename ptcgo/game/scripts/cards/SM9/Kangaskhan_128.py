@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_evolution_pokemon
 
 card = PokemonCardDef(
     guid="b1718f66-4d78-5397-a715-9ec8f848f48a",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Fast Evolution",
             game_text="Search your deck for up to 2 Evolution Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_evolution_pokemon, count=2),
         ),
         Attack(
             title="Mega Punch",

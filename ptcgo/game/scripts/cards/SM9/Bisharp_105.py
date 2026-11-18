@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+
+
+def _undamaged_self(ctx):
+    return not has_damage("self")(ctx)
 
 card = PokemonCardDef(
     guid="8b403eb7-ffb5-57ee-9357-a5110b65dc4a",
@@ -26,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_undamaged_self, 90),
         ),
         Attack(
             title="Power Edge",
