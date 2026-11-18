@@ -64,7 +64,7 @@ class TrainerChallengeContentTest(unittest.TestCase):
 
     def test_reward_schedule_matches_the_client_shape(self):
         schedule = content.reward_schedule()
-        self.assertEqual(sorted(schedule), [str(i) for i in range(1, len(content.leagues()) + 1)])
+        self.assertEqual(sorted(schedule, key=int), [str(i) for i in range(len(content.leagues()))])
         for items in schedule.values():
             self.assertEqual(len(items), 1)
             amount = items[0]["A"]["amount"]
@@ -252,7 +252,7 @@ class LeagueHandlerTest(unittest.TestCase):
         asyncio.run(handler.handle_league_rewards({}, 1, 0))
         packet = self.client.sent[-1]
         self.assertEqual(packet["messageName"], "LeagueAndGymModeRewards")
-        self.assertEqual(sorted(packet["totalRewardSchedule"]), ["1", "2"])
+        self.assertEqual(sorted(packet["totalRewardSchedule"], key=int), ["0", "1"])
 
     def test_play_starts_the_selected_opponent_with_their_own_deck(self):
         handler = ChallengePlayHandler(self.client)

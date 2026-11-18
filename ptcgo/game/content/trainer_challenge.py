@@ -91,15 +91,20 @@ def league(league_key):
 
 
 def reward_schedule():
-    """`LeagueAndGymModeRewards.totalRewardSchedule`: league id -> reward items.
+    """`LeagueAndGymModeRewards.totalRewardSchedule`: league index -> reward items.
 
-    Keys are 1-based league ids (the client's `int` map key) and each item is the
-    client's shared reward object, whose only member `A` carries a currency
-    amount that is `{name: <currency id>, value: <amount>}`.
+    The client's `PvEModeRewardsData.UpdateRewards` copies the map into its own
+    array with `for (i = 0; i < map.Count; i++) array[i] = map[i]`, so it indexes
+    the map 0..Count-1 and throws `KeyNotFoundException` on the first key that is
+    not exactly its loop index. Keys are therefore 0-based and contiguous — a
+    schedule keyed from 1 crashes the client in the trainer challenge scene.
+
+    Each item is the client's shared reward object, whose only member `A` carries
+    a currency amount that is `{name: <currency id>, value: <amount>}`.
     """
     return {
         str(index): [{"A": {"amount": {"name": TOKENS, "value": entry.coins}}}]
-        for index, entry in enumerate(LEAGUES, start=1)
+        for index, entry in enumerate(LEAGUES)
     }
 
 
