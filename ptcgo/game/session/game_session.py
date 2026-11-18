@@ -126,6 +126,7 @@ from .passives import (
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
     tool_suppressed,
 )
+from .scheduling import TurnScheduler
 from .legal_actions import (
     ACTION_ATTACH_TOOL,
     ACTION_EVOLVE,
@@ -289,6 +290,10 @@ class GameSession:
         # Cross-turn scheduled effects (ctx.schedule_at_checkup): entries of
         # {fire_at_checkup_of_turn, guard, effect}, run at checkup start.
         self.scheduled_effects: List[Dict[str, Any]] = []
+        # Delayed effects keyed to a turn boundary (ctx.schedule_turn_effect:
+        # "at the end of your opponent's next turn"); drained by
+        # drain_turn_boundary at the start / end of each turn.
+        self.turn_scheduler = TurnScheduler()
         # "Take another turn after this one. (Skip Pokemon Checkup.)" --
         # granted mid-turn to the active player (Star Chronos, Yoga Loop).
         self.extra_turn_pending: bool = False
@@ -1471,6 +1476,12 @@ class GameSession:
         self.board_state.temporary_passives = [
             tp for tp in self.board_state.temporary_passives
             if tp.carrier_entity_id != entity_id
+        ]
+        # "The Defending Pokemon takes N more damage" rides that card: an
+        # effect of an attack ends when it leaves play or evolves.
+        state.target_damage_modifiers = [
+            m for m in state.target_damage_modifiers
+            if m.target_entity_id != entity_id
         ]
         return had_conditions
 
@@ -3684,6 +3695,9 @@ class GameSession:
             await self._run_state_unit(self._begin_turn(active_id))
             await self._run_player_turn(active_id)
             await self._wait_for_connection_resume()
+            # "At the end of this turn / your opponent's next turn" effects
+            # resolve in the end step, before END_OF_TURN ability triggers.
+            await self._run_state_unit(self.drain_turn_boundary("end", active_id))
             await self._run_state_unit(self._fire_end_of_turn_triggers(active_id))
             await self._run_state_unit(self._expire_visualizations(
                 "end", active_id, self.turn_state.turn_number))
@@ -3709,6 +3723,9 @@ class GameSession:
             f"[Session {self.game_id}] Turn {self.turn_state.turn_number} "
             f"begins for {player.screen_name}."
         )
+        # "At the start of your next turn" effects, before the turn draw so
+        # their state changes are in place for the whole turn.
+        await self.drain_turn_boundary("start", active_id)
 
         drawn = self.board_state.draw_cards(active_id, 1)
         if not drawn:
@@ -4053,6 +4070,59 @@ class GameSession:
         for pokemon in list(self.board_state.pokemon_in_play(active_id)):
             await self._fire_triggered_abilities(
                 active_id, pokemon, Triggers.END_OF_TURN)
+
+    async def drain_turn_boundary(self, event: str,
+                                 player_id: Optional[str] = None,
+                                 turn_number: Optional[int] = None):
+        """Runs the delayed effects queued for this turn edge ("start" when a
+        turn begins, "end" when it ends, for `player_id`), oldest first.
+
+        Each effect gets a fresh EffectContext, then its messages flush as
+        their own sequence brackets and any knockouts it caused resolve
+        (prizes, promotion, win check) before the next entry runs -- so an
+        effect that KOs the Active sees a legal board for the one after it.
+        Entries whose guard fails are dropped, never retried.
+        """
+        player_id = player_id if player_id is not None else self.turn_state.active_player_id
+        if player_id is None:
+            return
+        turn_number = turn_number if turn_number is not None else self.turn_state.turn_number
+        due = self.turn_scheduler.take_due(event, player_id, turn_number)
+        for entry in due:
+            if entry.guard is not None and not entry.guard(self.board_state):
+                logging.info(
+                    f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
+                    f"dropped its guard at the {event} of turn {turn_number}."
+                )
+                continue
+            source = self.board_state.get_entity(entry.source_entity_id) \
+                if entry.source_entity_id else None
+            if entry.require_source_in_play and not self._in_play(source):
+                logging.info(
+                    f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
+                    f"dropped: its source left play."
+                )
+                continue
+            logging.info(
+                f"[Session {self.game_id}] Scheduled effect '{entry.label}' "
+                f"fires at the {event} of turn {turn_number}."
+            )
+            ctx = EffectContext(self, entry.owner_id, source, None)
+            await entry.effect(ctx)
+            await self._flush_effect_runs(ctx)
+            await self.resolve_knockouts(ctx)
+            await self.enforce_bench_capacity()
+
+    def _in_play(self, entity) -> bool:
+        """Whether a Pokemon entity is still one of either player's in-play
+        Pokemon (used by scheduled effects' source liveness check)."""
+        if entity is None:
+            return False
+        for pid in list(self.players):
+            if any(p.entity_id == entity.entity_id
+                   for p in self.board_state.pokemon_in_play(pid)):
+                return True
+        return False
 
     async def _fire_stadium_triggers(self, acting_player_id: str, trigger: str,
                                      ctx_setup=None):

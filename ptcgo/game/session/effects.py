@@ -44,6 +44,7 @@ from ptcgo.game.content.visualizations import VisualizationArrow, VisualizationL
 from .constants import PROMPT_NO, PROMPT_YES
 from .passives import (
     TempPassive,
+    TargetDamageModifier,
     ability_effects_blocked,
     ability_locked,
     active_passives,
@@ -694,6 +695,96 @@ class EffectContext:
         """"During your next turn ..." lifetime (spans the opponent's turn too)."""
         self.add_temporary_passive(
             target, passive, self.session.turn_state.turn_number + 2
+        )
+
+    def add_damage_taken_modifier(self, amount: int, target=None, *,
+                                  for_player: Optional[str] = None,
+                                  through: str = "opponent_next_turn",
+                                  attacks_only: bool = True) -> None:
+        """"The Defending Pokemon takes N more damage from attacks (after
+        applying Weakness and Resistance)" (Mabosstiff, Stunfisk, Onix) and
+        its mirror "each of your opponent's Pokemon takes N less damage"
+        (Zamazenta VSTAR). `amount` is signed: positive = more damage taken.
+
+        Pass `target` (a PokemonEntity) for the one-Pokemon wording; the
+        modifier is dropped when that card leaves play or evolves. Pass
+        `for_player` (a player id) instead for the side-wide wording: it then
+        covers every Pokemon that player has in play, including ones that
+        arrive before it expires.
+
+        `through` is the window the card text names, counted from now:
+        "this_turn", "your_next_turn", "opponent_next_turn" (each exactly one
+        turn wide, so "during your opponent's next turn" does not leak into
+        the rest of this turn), or an absolute turn number for anything longer.
+
+        Composition: modifiers stack additively as one flat step after
+        Weakness/Resistance; see passives.TargetDamageModifier.
+        """
+        state = self.session.turn_state
+        turn = state.turn_number
+        if isinstance(through, int):
+            from_turn, through_turn = turn, through
+        else:
+            from_turn, through_turn = {
+                "this_turn": (turn, turn),
+                "your_next_turn": (turn + 2, turn + 2),
+                "opponent_next_turn": (turn + 1, turn + 1),
+            }[through]
+        if target is not None:
+            target_entity_id: Optional[str] = target.entity_id
+            owner_player_id = target.owning_player_id
+        elif for_player is not None:
+            target_entity_id = None
+            owner_player_id = for_player
+        else:
+            # No holder named: the ordinary reading is "the Pokemon this
+            # effect was aimed at", i.e. the defender.
+            target = self.defender
+            if target is None:
+                return
+            target_entity_id = target.entity_id
+            owner_player_id = target.owning_player_id
+        state.target_damage_modifiers.append(TargetDamageModifier(
+            amount=amount,
+            from_turn=from_turn,
+            through_turn=through_turn,
+            target_entity_id=target_entity_id,
+            owner_player_id=owner_player_id,
+            attacks_only=attacks_only,
+            source_entity_id=getattr(self.source, "entity_id", None),
+        ))
+
+    def schedule_turn_effect(self, boundary, effect: Callable, *,
+                             guard: Optional[Callable] = None,
+                             require_source_in_play: bool = False) -> Any:
+        """Queues `effect(ctx)` to run at a later turn boundary -- card text
+        "at the end of your opponent's next turn" (Dugtrio's Dig Trap rider,
+        Word of Ruin), "at the end of this turn", "at the start of your next
+        turn". `boundary` is a scheduling.TurnBoundary or its string value.
+
+        The callback gets a fresh EffectContext for this player whose source
+        is the card that registered it, so the ordinary primitives (draw,
+        damage, place counters, prompts) are available and its messages flush
+        as their own brackets; knockouts it causes resolve afterwards.
+        `guard(board)` returning False at fire time drops it silently (the
+        usual "if it is still your Active Pokemon" clause), and
+        `require_source_in_play` drops it when the registering Pokemon has
+        left play.
+
+        For "during your opponent's next turn ..." wording (a LIFETIME rather
+        than a delayed resolution) use add_passive_through_opponents_turn or
+        add_damage_taken_modifier instead.
+        """
+        return self.session.turn_scheduler.schedule(
+            boundary,
+            player_id=self.player_id,
+            opponent_id=self.opponent_id,
+            turn_number=self.session.turn_state.turn_number,
+            effect=effect,
+            label=self.ability.title if self.ability else "",
+            guard=guard,
+            source_entity_id=getattr(self.source, "entity_id", None),
+            require_source_in_play=require_source_in_play,
         )
 
     def lock_retreat(self, target: PokemonEntity,

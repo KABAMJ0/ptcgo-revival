@@ -121,6 +121,10 @@ class TurnState:
     # Turn-scoped attacker-side damage boosts (Power Tablet); pruned by
     # expires_after_turn each begin_turn (None = this turn only).
     damage_modifiers: List[Any] = field(default_factory=list)
+    # Defender-side damage modifiers ("the Defending Pokemon takes N more
+    # damage from attacks"); TargetDamageModifier instances, pruned by
+    # through_turn each begin_turn.
+    target_damage_modifiers: List[Any] = field(default_factory=list)
     # --- two-turn history ledgers, rotated this-turn -> last-turn ---
     # (archetype_id, display_name, trainer_type) per trainer/stadium played.
     trainers_played: List[Tuple[str, str, int]] = field(default_factory=list)
@@ -189,6 +193,10 @@ class TurnState:
             m for m in self.damage_modifiers
             if getattr(m, "expires_after_turn", None) is not None
             and m.expires_after_turn >= self.turn_number
+        ]
+        self.target_damage_modifiers = [
+            m for m in self.target_damage_modifiers
+            if m.through_turn >= self.turn_number
         ]
         self.trainers_played_last_turn = self.trainers_played
         self.trainers_played = []
