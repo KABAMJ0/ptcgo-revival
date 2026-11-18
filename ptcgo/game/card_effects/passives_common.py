@@ -1196,3 +1196,75 @@ class RetreatDiscountDespiteConditionsPassive(Passive):
 def retreat_discount_despite_conditions(amount=1, protects="carrier") -> Passive:
     """Retreat Cost -amount plus "may retreat while Asleep or Paralyzed"."""
     return RetreatDiscountDespiteConditionsPassive(amount, protects)
+
+
+class RescueScarfPassive(Passive):
+    """"If the Pokemon this card is attached to is Knocked Out by damage from
+    an attack, put that Pokemon into your hand. (Discard all cards attached.)"
+    Only the attack-damage knockout is redirected: a knockout from an effect
+    still goes to the discard pile."""
+
+    def knockout_destination(self, pokemon, carrier, from_attack=False):
+        if not from_attack or carrier_pokemon(carrier) is not pokemon:
+            return None
+        return "hand"
+
+
+def rescue_to_hand_on_attack_ko() -> Passive:
+    """Rescue Scarf: the KO'd holder goes to its owner's hand."""
+    return RescueScarfPassive()
+
+
+def weakness_to_attacker_type(pokemon, attacker) -> bool:
+    """Whether `pokemon`'s printed Weakness is one of `attacker`'s types."""
+    if pokemon is None or attacker is None:
+        return False
+    weakness = pokemon.get_attribute(AttrID.WEAKNESS_TYPES)
+    if isinstance(weakness, str):
+        weakness = [int(part) for part in weakness.strip("[]").split(",") if part.strip()]
+    attacker_types = attacker.get_attribute(AttrID.POKEMON_TYPES) or []
+    if isinstance(attacker_types, str):
+        attacker_types = [int(part) for part in attacker_types.strip("[]").split(",") if part.strip()]
+    return bool(set(weakness or []) & set(attacker_types or []))
+
+
+async def draw_when_damaged_with_weakness(ctx, count=3):
+    """"If the Pokemon this card is attached to has Weakness to your
+    opponent's Active Pokemon's type, is in the Active Spot, and is damaged by
+    an attack from your opponent's Pokemon (even if it is Knocked Out), draw
+    N cards" (Adversity Policy)."""
+    pokemon = ctx.source
+    if pokemon is None or not is_in_active_spot(pokemon):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+        return
+    if not weakness_to_attacker_type(pokemon, attacker):
+        return
+    await ctx.draw_cards(count)
+
+
+class TeamPlasmaPassive(Passive):
+    """"The Pokemon this card is attached to is a Team Plasma Pokemon"
+    (Team Plasma Badge): the subtype is added while the Tool is attached, so
+    it disappears with the card and never touches the printed state."""
+
+    def __init__(self, subtype="Team Plasma"):
+        self.subtype = subtype
+
+    def modify_subtypes(self, subtypes, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon or self.subtype in subtypes:
+            return subtypes
+        return list(subtypes) + [self.subtype]
+
+
+def team_plasma_passive(subtype="Team Plasma") -> Passive:
+    """Makes the holder a Team Plasma Pokemon while attached."""
+    return TeamPlasmaPassive(subtype)
+
+
+def has_team_plasma(board, pokemon) -> bool:
+    """Whether `pokemon` counts as a Team Plasma Pokemon right now, printed or
+    granted by an attached Team Plasma Badge."""
+    from ptcgo.game.session.passives import has_subtype
+    return has_subtype(board, pokemon, "Team Plasma")

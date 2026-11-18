@@ -373,8 +373,12 @@ class Passive:
         """True to prevent healing damage from `target` (Mimikyu SWSH3)."""
         return False
 
-    def knockout_destination(self, pokemon: PokemonEntity, carrier: BoardEntity) -> Optional[str]:
-        """Area name replacing "discard" for a knocked-out Pokemon (e.g. "lostZone")."""
+    def knockout_destination(
+        self, pokemon: PokemonEntity, carrier: BoardEntity, from_attack: bool = False
+    ) -> Optional[str]:
+        """Area name replacing "discard" for a knocked-out Pokemon (e.g. "lostZone",
+        "hand"). `from_attack` is True when attack damage caused the knockout, which
+        Rescue Scarf's wording requires."""
         return None
 
     def modify_prizes_for_knockout(

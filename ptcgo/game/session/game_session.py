@@ -2338,7 +2338,8 @@ class GameSession:
             # stack; energy/tools always fall to the discard pile.
             dest_name = next(
                 (d for p, c in active_passives(self.board_state)
-                 for d in [p.knockout_destination(pokemon, c)] if d),
+                 for d in [p.knockout_destination(
+                     pokemon, c, from_attack=_damage_ko(pokemon))] if d),
                 "discard",
             )
             dest_area = self.board_state.find_player_area(owner_id, dest_name) or discard
