@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 
 card = PokemonCardDef(
     guid="a31e42b5-278a-524c-bd41-cf606835636e",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Meteor Mash attack does 60 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1},
             damage=60,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60, attack_title="Meteor Mash"),
         ),
     ],
 )
