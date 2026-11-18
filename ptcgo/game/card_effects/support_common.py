@@ -350,8 +350,10 @@ def look_at_top(n, take=1, predicate=None, rest="shuffle", minimum=None,
             for card in top:
                 if card not in picks:
                     await ctx.discard_cards([card])
-        # The cards taken into hand are the signal for a follow-up rider.
-        return picks
+        # The signal for a follow-up rider: the cards taken into hand, or --
+        # with take=0, where the body is only "look at them" -- the cards looked
+        # at, which is what a reorder/attach rider consumes.
+        return picks if take > 0 else list(top)
     return effect
 
 

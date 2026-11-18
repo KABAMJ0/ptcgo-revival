@@ -1285,7 +1285,33 @@ def self_ko_ability(then=None):
     return effect
 
 
-def attach_energy_from_cards(target="choice", predicate=None):
+def reorder_top(where: str = "top"):
+    """Follow-up for a look-at body: "put them back on top of your deck in any
+    order" (where="bottom" for "put the rest on the bottom"). Takes
+    `(ctx, cards)` and prompts for the order -- the first card chosen ends on
+    top, the way the deck reads."""
+    async def effect(ctx, cards):
+        looked = [card for card in (cards or []) if card is not None]
+        if not looked:
+            return []
+        if len(looked) == 1:
+            ordered = looked
+        else:
+            ordered = await ctx.choose_cards(
+                looked, len(looked), minimum=len(looked), ordered=True,
+                prompt=("Choose the order to put the cards back on top; the "
+                        "first one chosen ends on top"))
+            ordered = list(ordered) or looked
+        place = (ctx.put_on_bottom_of_deck if where == "bottom"
+                 else ctx.put_on_top_of_deck)
+        for card in reversed(ordered):
+            await place(card)
+        return ordered
+    return effect
+
+
+def attach_energy_from_cards(target="choice", predicate=None,
+                             distribute: bool = False):
     """Follow-up for a first part that produced cards: attach the Energy among
     them ("if any of those are Energy, attach them"). Takes
     `(ctx, cards)`, so it composes with `composed(..., on_success=...)` or
@@ -1296,9 +1322,14 @@ def attach_energy_from_cards(target="choice", predicate=None):
         return (predicate or is_energy_card)(card)
 
     async def effect(ctx, cards):
+        from ptcgo.game.card_effects.support_common import distribute_energy
+
         energies = [card for card in (cards or []) if matches(card)]
         if not energies:
             return []
+        if distribute:
+            # "attach them to your Pokemon in any way you like"
+            return await distribute_energy(ctx, energies, ctx.my_pokemon_in_play())
         if target == "self":
             holder = ctx.source
         else:
