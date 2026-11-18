@@ -2466,6 +2466,23 @@ RULES = [
          r"she plays those pokemon",
          "evolve_early_passive", lambda m: [_typed_or_decline(m.group("type"))], kind="passive"),
 
+    Rule("discard-choose-to-deck",
+         r"(?:choose|take) up to (?P<n>\d+) (?P<cat>[a-z0-9 ]+?) from your discard pile(?: and then)? "
+         r"show (?:them|that card) to your opponent(?: and)? shuffle (?:them|it) into your deck",
+         "discard_to_deck_choosing", lambda m: [_pred(m.group("cat")), m.group("n")],
+         module="support_common"),
+    Rule("named-recover-to-hand",
+         r"put up to (?P<n>\d+) (?P<word>[a-z]+) cards from your discard pile into your hand",
+         "recover_from_discard",
+         lambda m: ["card_named_contains(\"%s\")" % m.group("word"), "count=" + m.group("n"),
+                    'to="hand"', "reveal=True"], module="support_common"),
+    Rule("marleys-request",
+         r"search your discard pile for (?P<n>\d+) different trainer supporter or stadium cards show "
+         r"them to your opponent and your opponent chooses \d+ of them put that card into your hand and "
+         r"discard the other card.*",
+         "opponent_chooses_discard_take",
+         lambda m: ["any_of(is_trainer_card, is_supporter_card, is_stadium_card)"]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

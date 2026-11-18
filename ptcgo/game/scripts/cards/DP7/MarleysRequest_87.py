@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, is_stadium_card, is_supporter_card, is_trainer_card, opponent_chooses_discard_take
 
 card = SupporterCardDef(
     guid="95179315-1d39-5ea7-a6f3-90fbb0befae9",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=87,
     set_code="DP7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_chooses_discard_take(any_of(is_trainer_card, is_supporter_card, is_stadium_card))
 )

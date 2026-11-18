@@ -5733,3 +5733,45 @@ def draw_until_not_behind():
         if len(ctx.hand()) < target:
             await ctx.draw_until(target)
     return effect
+
+
+def discard_to_deck_choosing(predicate, count: int):
+    """Choose up to `count` matching cards from your discard pile, show them,
+    and shuffle them into your deck (Nightly Garbage Run)."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose cards from your discard pile to shuffle into your deck")
+        if picks:
+            await ctx.shuffle_into_deck(picks)
+    return effect
+
+
+def opponent_chooses_discard_take(predicate):
+    """Search your discard pile for 2 matching cards; your opponent picks 1 for
+    your hand and the other is discarded (Marley's Request)."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile() if predicate(c)]
+        if len(cards) < 2:
+            if cards:
+                await ctx.put_in_hand([cards[0]], reveal=True)
+            return
+        picks = await ctx.choose_cards(
+            cards, 2, minimum=2, ordered=False,
+            prompt="Choose 2 different cards from your discard pile")
+        if len(picks) < 2:
+            return
+        chosen = await ctx.choose_cards(
+            picks, 1, minimum=1, player_id=ctx.opponent_id,
+            prompt="Choose which card your opponent gets")
+        if not chosen:
+            return
+        await ctx.put_in_hand(chosen, reveal=True)
+        rest = [c for c in picks if c not in chosen]
+        if rest:
+            await ctx.discard_cards(rest)
+    return effect
