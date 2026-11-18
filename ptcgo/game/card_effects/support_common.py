@@ -34,9 +34,19 @@ async def _deal_printed(ctx):
         await ctx.deal_damage()
 
 
+def entity_name(entity) -> str:
+    """A board entity's printed name.
+
+    A CardEntity carries no `display_name`; the name lives on the definition
+    (`card.card_obj` is the same card model). Resolve through `def_for`, the
+    way the rest of the effect library does, so a predicate that names a card
+    cannot silently read nothing."""
+    definition = def_for(getattr(entity, "archetype_id", None) or "")
+    return getattr(definition, "display_name", "") or ""
+
+
 def _card_label(card: CardEntity) -> str:
-    definition = def_for(card.archetype_id)
-    return getattr(definition, "display_name", None) or "the card"
+    return entity_name(card) or "the card"
 
 
 def _is_damaged(board, pokemon: PokemonEntity) -> bool:
@@ -728,13 +738,13 @@ def baby_evolution(*names):
     def _in_hand(board, player_id, pokemon) -> bool:
         area = board.find_player_area(player_id, "hand")
         return any(
-            " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted
+            " ".join(entity_name(card).lower().split()) in wanted
             for card in (area.children if area else [])
         )
 
     async def effect(ctx):
         cards = [card for card in ctx.hand()
-                 if " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted]
+                 if " ".join(entity_name(card).lower().split()) in wanted]
         if not cards:
             return
         picks = cards if len(cards) == 1 else await ctx.choose_cards(

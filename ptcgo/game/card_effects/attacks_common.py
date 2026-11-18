@@ -911,17 +911,9 @@ def evolve_from_deck_attack(damage: Optional[int] = None):
         attacker = ctx.attacker
         if attacker is None:
             return
-        from ptcgo.game.content.definitions import evolves_from
-
-        logic_name = attacker.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
-        if not logic_name:
-            return
-
-        def evolves_from_user(card) -> bool:
-            return evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
-
+        candidates = _evolve_from_deck_candidates(ctx, attacker, None)
         picks = await ctx.search_deck(
-            evolves_from_user, count=1, minimum=0,
+            (lambda card: card in candidates), count=1, minimum=0,
             prompt="Choose an Evolution card for this Pokémon",
         )
         if picks:
@@ -1031,4 +1023,84 @@ def condition_immunity_pollen_shield(conditions=None):
         await ctx.deal_damage()
         ctx.add_passive_through_opponents_turn(
             ctx.attacker, condition_immunity_passive(conditions))
+    return effect
+
+
+def _evolve_from_deck_candidates(ctx, pokemon, predicate):
+    """Deck cards that evolve directly from `pokemon`.
+
+    `evolves_from` matches anything in the evolution family (a Stage 2 counts
+    as evolving from the Basic), which is right for "evolves from" wording but
+    wrong here: the card goes ONTO this Pokemon, so only the direct next stage
+    qualifies -- matched by stage, since the corpus does not carry a printed
+    `evolves_from` for every era."""
+    from ptcgo.game.content.definitions import evolves_from
+    logic_name = pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+    if not logic_name:
+        return []
+    stage = pokemon.get_attribute(AttrID.STAGE)
+    matches = [card for card in ctx.deck()
+               if evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
+               and (stage is None or card.get_attribute(AttrID.STAGE) == stage + 1)]
+    if predicate is not None:
+        matches = [card for card in matches if predicate(card)]
+    return matches
+
+
+def evolve_from_deck(predicate=None, target="chosen", bench_only=False,
+                     damage=None):
+    """"Search your deck for a card that evolves from <one of your Pokemon>
+    and put it onto that Pokemon to evolve it. Then, shuffle your deck."
+
+    `target="self"` evolves the source Pokemon (evolve_from_deck_attack's
+    shape without the attacker assumption); `target="chosen"` picks one of
+    your Pokemon in play, `bench_only=True` narrowing to the Bench.
+    `predicate` narrows the evolution card itself (a named evolution)."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if target == "self":
+            pokemon = ctx.source if isinstance(ctx.source, PokemonEntity) else ctx.attacker
+        else:
+            pool = ctx.my_bench() if bench_only else ctx.my_pokemon_in_play()
+            # Offer only Pokemon whose evolution is actually in the deck: a
+            # pick with nothing to find is a wasted action, and the AI takes
+            # the first option.
+            pool = [pokemon for pokemon in pool
+                    if _evolve_from_deck_candidates(ctx, pokemon, predicate)]
+            if not pool:
+                return
+            pokemon = pool[0] if len(pool) == 1 else await ctx.choose_pokemon(
+                pool, "Choose a Pokémon to evolve")
+        if pokemon is None:
+            return
+        picks = await ctx.search_deck(
+            (lambda card: card in _evolve_from_deck_candidates(ctx, pokemon, predicate)),
+            count=1, minimum=0, prompt="Choose an Evolution card",
+        )
+        if picks:
+            await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def evolve_each_from_deck(predicate=None, target_pred=None, max_targets=None,
+                          damage=None):
+    """"For each of your Benched Basic Pokemon, search your deck for a card
+    that evolves from that Pokemon and put it onto that Pokemon to evolve it.
+    Then, shuffle your deck." One search per target, one shuffle at the end."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        targets = [pokemon for pokemon in ctx.my_bench()
+                   if target_pred is None or target_pred(pokemon)]
+        if max_targets is not None:
+            targets = targets[:max_targets]
+        for pokemon in targets:
+            candidates = _evolve_from_deck_candidates(ctx, pokemon, predicate)
+            if not candidates:
+                continue
+            picks = await ctx.choose_cards(
+                candidates, 1, minimum=0, prompt="Choose an Evolution card")
+            if picks:
+                await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
     return effect
