@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_discard
+from ptcgo.game.card_effects.trainers import named_exactly
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_tulip_in_discard = lambda ctx: count_discard("mine", named_exactly("Tulip"))(ctx) > 0
+
 
 card = PokemonCardDef(
     guid="d8daa39c-484f-507b-a1a2-9c95e8244589",
@@ -31,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_tulip_in_discard, 70),
         ),
     ],
 )

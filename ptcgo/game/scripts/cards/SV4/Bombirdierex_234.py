@@ -1,4 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import (
+    is_basic, remove_self_from_play, search_to_bench,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,14 +26,15 @@ card = PokemonCardDef(
             title="Fast Carrier",
             game_text="If you go first, you can use this attack during your first turn. Search your deck for up to 3 Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic, count=3),
         ),
         Attack(
             title="Shadowy Wind",
             game_text="You may put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=130,
-            effect=unimplemented,
+            effect=remove_self_from_play(destination="hand",
+                                         with_attachments="same", optional=True),
         ),
     ],
 )
