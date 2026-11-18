@@ -25,7 +25,7 @@ HOOKS = ("provides", "attach_to", "attach_condition", "attach_cost",
 # Text is lowercased, punctuation collapsed and "pokemon" stripped of its accent
 # by normalise(). Every pattern is anchored so a card whose wording differs by a
 # clause falls through instead of being wired to the wrong shape.
-FAMILIES = [
+FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
     (
         # Prism Energy: Colorless by default, every type on a Basic. Checked first
         # because its text also contains the unconditional clause.
@@ -33,7 +33,7 @@ FAMILIES = [
         r"(if the pokemon[^.]{0,60}?is a basic pokemon|if this card is attached to a basic pokemon), "
         r"(this card|it) provides every type of energy but provides only 1 energy at a time",
         "passive=PrismEnergyPassive()",
-        (),
+        (), "passive"
     ),
     (
         # Multi Energy: every type, but only Colorless once another Special Energy
@@ -43,57 +43,94 @@ FAMILIES = [
         r"(provides colorless energy when attached to a pokemon that already has special energy|"
         r"has any other special energy attached, this card provides colorless energy instead)",
         "provides=ALL_TYPES_ONE_AT_A_TIME,\n    passive=MultiEnergyPassive()",
-        (),
+        (), "provides"
     ),
     (
         "double-colourless",
         r"^((double )?colorless energy (card )?provides?|provides?) colorless ?colorless energy",
         "provides=DOUBLE_COLORLESS",
-        (),
+        (), "provides"
     ),
     (
         "unit-energy",
         r"attached to a pokemon, it provides (grass, fire, and water|lightning, psychic, and metal|"
         r"fighting, darkness, and fairy) energy but provides only 1 energy at a time",
         None,
-        ("unit",),
+        ("unit",), "provides"
     ),
     (
         "blend-energy",
         r"provides (grass, fire, psychic, or darkness|water, lightning, fighting, or metal) energy "
         r"but provides only 1 energy at a time",
         None,
-        ("blend",),
+        ("blend",), "provides"
     ),
     (
         "attach-evolved-excluding-ex",
         r"can be attached only to an evolved pokemon( \(excluding pokemon-ex\))?",
-        "attach_to=evolved_excluding_ex" if False else None,
-        ("evolved",),
+        None,
+        ("evolved",), "attach_to"
     ),
     (
         "attach-evolved",
         r"(can be attached only to|can only be attached to) (an )?evolved pokemon|can only be attached to evolution pokemon",
         "attach_to=pokemon_is_evolved",
-        (),
+        (), "attach_to"
     ),
     (
         "attach-type",
         r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
         None,
-        ("type",),
+        ("type",), "attach_to"
     ),
     (
         "attach-strike",
         r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon",
         None,
-        ("strike",),
+        ("strike",), "attach_to"
     ),
     (
         "attach-named",
         r"can (?:only be attached to|be attached only to) (?:a pokemon with )?(team rocket's|team aqua|team magma)( pokemon| in its name)",
         None,
-        ("named",),
+        ("named",), "attach_to"
+    ),
+    (
+        # Old Metal Energy: take 10 less, and a non-Metal carrier deals 10 less.
+        "metal-legacy",
+        r"damage done (by attacks )?to the pokemon metal energy is attached to is reduced by \d+ .*reduce that damage by \d+",
+        "passive=MetalEnergyLegacyPassive()",
+        (),
+        "passive",
+    ),
+    (
+        "metal-reduction",
+        r"damage done (by attacks )?to the pokemon (that )?metal energy is attached to is reduced by (\d+)",
+        None,
+        ("reduction",),
+        "passive",
+    ),
+    (
+        "darkness-bonus",
+        r"(does|the attack does) (\d+) more damage to the active pokemon"
+        r"|does (\d+) more damage to the defending pokemon",
+        None,
+        ("darkness-bonus",),
+        "passive",
+    ),
+    (
+        "no-weakness",
+        r"(the pokemon this card is attached to|the metal pokemon this card is attached to) has no weakness",
+        None,
+        ("no-weakness",),
+        "passive",
+    ),
+    (
+        "no-retreat-cost",
+        r"the (metal|darkness) pokemon this card is attached to has no retreat cost",
+        None,
+        ("no-retreat",),
+        "passive",
     ),
     (
         # the plain "every type, one at a time" family; anything conditional is
@@ -101,13 +138,14 @@ FAMILIES = [
         "all-types-one-at-a-time",
         r"provides every type of (basic )?energy but provides only 1 energy at a time",
         "provides=ALL_TYPES_ONE_AT_A_TIME",
-        (),
+        (), "provides"
     ),
 ]
 
 # Wording that asks for a primitive the engine does not have yet. Reported, never
 # wired, because a half-wired card plays by different rules than it is printed with.
 BLOCKED = [
+    (r"at the end of every turn, put \d+ damage counter", "end-of-turn damage counter tick missing"),
     (r"provides .{0,30} and ?/ ?or .{0,30} energy but provides 2 energy at a time"
      r"|provides .{0,20} and .{0,20} energy but provides 2 energy at a time",
      "two-specific-types-at-a-time provision (pairs helper missing)"),
@@ -119,8 +157,6 @@ BLOCKED = [
     (r"if you have 3 or more stage 2", "conditional on board count"),
     (r"discard .{0,40} at the end of (the|your) turn", "no end-of-turn discard timer for energies"),
     (r"can('|no)t retreat", "retreat lock from an energy needs the passive wired (batch 3)"),
-    (r"damage done .{0,60}(reduced|increased) by", "damage modifier passive (batch 3)"),
-    (r"more damage to the active", "damage modifier passive (batch 3)"),
 ]
 
 TYPE_NAMES = {
@@ -176,34 +212,54 @@ def existing_kwargs(call):
 
 
 def plan_for(text, is_special_text=True):
-    """Returns (family, kwargs_snippet, note) or (None, None, reason)."""
+    """Returns (family, kwargs_snippet, note, target) or (None, None, reason, None)."""
     low = normalise(text)
     if not low:
-        return None, None, "no printed text"
+        return None, None, "no printed text", None
     for pattern, reason in BLOCKED:
         if re.search(pattern, low):
-            return None, None, reason
-    for name, pattern, snippet, extra in FAMILIES:
+            return None, None, reason, None
+    for name, pattern, snippet, extra, target in FAMILIES:
         if not re.search(pattern, low):
             continue
         if extra == ("evolved",):
             excluding = "(excluding pokemon-ex)" in low or "excluding pokemon-ex" in low
-            return name, "attach_to=" + ("evolved_excluding_ex" if excluding else "pokemon_is_evolved"), ""
+            return name, "attach_to=" + ("evolved_excluding_ex" if excluding else "pokemon_is_evolved"), "", target
+        if extra == ("reduction",):
+            amount = re.search(
+                r"reduced by (\d+)", low)
+            gated = "isn't metal" in low or "is not metal" in low
+            arg = f"{amount.group(1)}, PokemonTypes.METAL" if gated else amount.group(1)
+            return name, f"passive=DamageReductionPassive({arg})", "", target
+        if extra == ("darkness-bonus",):
+            matched = re.search(r"does (\d+) more damage", low)
+            amount = matched.group(1) if matched else "10"
+            if "has dark in its name" in low:
+                return name, f'passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS, "Dark")', "", target
+            return name, f"passive=DamageBonusPassive({amount}, PokemonTypes.DARKNESS)", "", target
+        if extra == ("no-weakness",):
+            gated = "the metal pokemon this card is attached to" in low
+            arg = "PokemonTypes.METAL" if gated else ""
+            return name, f"passive=NoWeaknessPassive({arg})", "", target
+        if extra == ("no-retreat",):
+            listed = re.search(r"the (metal|darkness) pokemon this card is attached to", low)
+            arg = "PokemonTypes.METAL" if listed.group(1) == "metal" else "PokemonTypes.DARKNESS"
+            return name, f"passive=NoRetreatCostPassive({arg})", "", target
         if extra == ("type",):
             listed = re.search(
                 r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
                 low)
             if not listed:
                 return None, None, "type not parsed"
-            return name, f"attach_to=pokemon_of_type({TYPE_NAMES[listed.group(1)]})", ""
+            return name, f"attach_to=pokemon_of_type({TYPE_NAMES[listed.group(1)]})", "", target
         if extra == ("strike",):
             listed = re.search(r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon", low)
             marker = {"rapid": "Rapid Strike", "single": "Single Strike", "fusion": "Fusion Strike"}[listed.group(1)]
-            return name, f'attach_to=pokemon_with_subtype("{marker}")', ""
+            return name, f'attach_to=pokemon_with_subtype("{marker}")', "", target
         if extra == ("named",):
             listed = re.search(r"(team rocket's|team aqua|team magma)", low)
             fragment = {"team rocket's": "Team Rocket", "team aqua": "Team Aqua", "team magma": "Team Magma"}[listed.group(1)]
-            return name, f'attach_to=pokemon_named_like("{fragment}")', ""
+            return name, f'attach_to=pokemon_named_like("{fragment}")', "", target
         if extra == ("unit",) or extra == ("blend",):
             listed = re.search(
                 r"(grass, fire, and water|lightning, psychic, and metal|fighting, darkness, and fairy|"
@@ -212,12 +268,12 @@ def plan_for(text, is_special_text=True):
                 return None, None, "energy types not parsed"
             types = [part.strip() for part in re.split(r",| and | or ", listed.group(1)) if part.strip()]
             args = ", ".join(TYPE_NAMES[t] for t in types if t in TYPE_NAMES)
-            return name, f"provides=one_at_a_time({args})", ""
+            return name, f"provides=one_at_a_time({args})", "", target
         snippet_used = snippet
         if DAMAGE_COUNTER_ON_ATTACH.search(low):
             snippet_used += ",\n    on_attach=rainbow_on_attach"
-        return name, snippet_used, ""
-    return None, None, "no family matched"
+        return name, snippet_used, "", target
+    return None, None, "no family matched", None
 
 
 IMPORT_LINE = "from ptcgo.game.card_effects.energies import "
@@ -234,6 +290,11 @@ NEEDED = {
     "attach_to=pokemon_of_type(": ["pokemon_of_type"],
     "attach_to=pokemon_with_subtype(": ["pokemon_with_subtype"],
     "attach_to=pokemon_named_like(": ["pokemon_named_like"],
+    "passive=DamageReductionPassive(": ["DamageReductionPassive"],
+    "passive=DamageBonusPassive(": ["DamageBonusPassive"],
+    "passive=MetalEnergyLegacyPassive()": ["MetalEnergyLegacyPassive"],
+    "passive=NoWeaknessPassive(": ["NoWeaknessPassive"],
+    "passive=NoRetreatCostPassive(": ["NoRetreatCostPassive"],
 }
 
 
@@ -320,8 +381,9 @@ def main():
             kwargs = {kw.arg: kw.value for kw in call.keywords if kw.arg}
             if not (isinstance(kwargs.get("is_special"), ast.Constant) and kwargs["is_special"].value):
                 continue
-            if HOOKS and any(name in kwargs for name in HOOKS):
-                continue
+            # a card can be wired for one clause and still miss another (attach
+            # restriction present, damage passive absent), so selection happens
+            # per family below rather than by "has any hook".
             stem = os.path.splitext(os.path.basename(path))[0]
             number = stem.rpartition("_")[2]
             try:
@@ -329,9 +391,12 @@ def main():
             except ValueError:
                 continue
             text = texts.get((directory.upper(), number), "")
-            family, snippet, reason = plan_for(text)
+            family, snippet, reason, target = plan_for(text)
+            if snippet and target in kwargs:
+                family, snippet, reason = None, None, f"already has {target}"
             rows.append({"path": path, "family": family, "snippet": snippet,
-                         "reason": reason, "text": text, "name": stem.rpartition("_")[0]})
+                         "reason": reason, "text": text, "name": stem.rpartition("_")[0],
+                         "wired": sorted(n for n in HOOKS if n in kwargs)})
 
     matched = [r for r in rows if r["family"]]
     if args.family:

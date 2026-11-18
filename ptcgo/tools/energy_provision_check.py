@@ -141,6 +141,39 @@ def main():
             plain.archetype_id = plain_card.guid
             check("Rapid Strike Energy refuses a plain Basic", not rapid.attach_to(plain), None)
 
+    print("\ncontinuous modifiers")
+    from ptcgo.game.card_effects import energies as helpers
+
+    darkness = definition("DP2/DarknessEnergy_119")
+    check("Darkness Energy carries +10 gated on the Darkness type",
+          isinstance(darkness.passive, helpers.DamageBonusPassive)
+          and darkness.passive.amount == 10
+          and darkness.passive.pokemon_type == PokemonTypes.DARKNESS, darkness.passive)
+
+    old_darkness = definition("EX1/DarknessEnergy_93")
+    check("old Darkness Energy also accepts a Dark-named carrier",
+          isinstance(old_darkness.passive, helpers.DamageBonusPassive)
+          and old_darkness.passive.name_fragment == "Dark", old_darkness.passive)
+
+    metal = definition("DP2/MetalEnergy_120")
+    check("Metal Energy carries -10 gated on the Metal type",
+          isinstance(metal.passive, helpers.DamageReductionPassive)
+          and metal.passive.amount == 10
+          and metal.passive.pokemon_type == PokemonTypes.METAL, metal.passive)
+
+    legacy = definition("NEO1/MetalEnergy_19")
+    check("ECARD-era Metal Energy uses the legacy passive",
+          isinstance(legacy.passive, helpers.MetalEnergyLegacyPassive), legacy.passive)
+
+    weakness_guard = definition("SM11/WeaknessGuardEnergy_213")
+    check("Weakness Guard Energy removes Weakness",
+          isinstance(weakness_guard.passive, helpers.NoWeaknessPassive), weakness_guard.passive)
+
+    magnetic = definition("ME4/MagneticMetalEnergy_85")
+    check("Magnetic Metal Energy removes the Metal carrier's Retreat Cost",
+          isinstance(magnetic.passive, helpers.NoRetreatCostPassive)
+          and magnetic.passive.pokemon_type == PokemonTypes.METAL, magnetic.passive)
+
     print(f"\n{'FAILURES: ' + ', '.join(FAILS) if FAILS else 'all checks passed'}")
     return 1 if FAILS else 0
 

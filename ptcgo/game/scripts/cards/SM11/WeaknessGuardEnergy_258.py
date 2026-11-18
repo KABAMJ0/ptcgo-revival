@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import NoWeaknessPassive
 card = EnergyCardDef(
     guid="1a405954-c087-5c16-b5c4-2a7f45b546df",
     key="SM11",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SM11",
     rarity=Rarities.RareSecret,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=NoWeaknessPassive(),
 )

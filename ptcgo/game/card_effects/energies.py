@@ -202,3 +202,110 @@ def pokemon_named_like(fragment: str):
         name = getattr(definition, "display_name", "") or ""
         return fragment.lower() in name.lower()
     return predicate
+
+
+# --- continuous modifiers --------------------------------------------------
+def pokemon_has_name_fragment(target, fragment: str) -> bool:
+    """True when the carrier's printed name contains `fragment` ("has Dark in
+    its name" on the old Darkness Energies)."""
+    archetype_id = getattr(target, "archetype_id", None)
+    if archetype_id is None:
+        return False
+    definition = def_for(archetype_id)
+    name = (getattr(definition, "display_name", "") or "")
+    return fragment.lower() in name.lower()
+
+
+class DamageBonusPassive(Passive):
+    """The carrier's attacks do `amount` more damage to the Active Pokemon.
+
+    Gated either by type (Darkness Metal-Energy wording: "ignore this effect if
+    the Pokemon is not Darkness") or by a name fragment ("has Dark in its name").
+    """
+
+    def __init__(self, amount: int, pokemon_type=None, name_fragment: str = ""):
+        self.amount = amount
+        self.pokemon_type = pokemon_type
+        self.name_fragment = name_fragment
+
+    def _carrier_qualifies(self, pokemon) -> bool:
+        """Both gates read as "Darkness, or has Dark in its name"."""
+        if self.pokemon_type is None and not self.name_fragment:
+            return True
+        by_type = self.pokemon_type is not None and _pokemon_has_type(pokemon, self.pokemon_type)
+        by_name = bool(self.name_fragment) and pokemon_has_name_fragment(pokemon, self.name_fragment)
+        return by_type or by_name
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.attacker or pokemon is None:
+            return
+        if self._carrier_qualifies(pokemon):
+            calc.amount += self.amount
+
+
+class DamageReductionPassive(Passive):
+    """The carrier takes `amount` less damage from attacks (after W/R)."""
+
+    def __init__(self, amount: int, pokemon_type=None):
+        self.amount = amount
+        self.pokemon_type = pokemon_type
+
+    def modify_damage_taken(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.target:
+            return
+        if self.pokemon_type is not None and not _pokemon_has_type(pokemon, self.pokemon_type):
+            return
+        calc.amount = max(0, calc.amount - self.amount)
+
+
+class MetalEnergyLegacyPassive(DamageReductionPassive):
+    """ECARD-era Metal Energy: the carrier takes 10 less, and a non-Metal carrier
+    deals 10 less with its own attacks."""
+
+    def __init__(self, amount: int = 10):
+        super().__init__(amount)
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.attacker or pokemon is None:
+            return
+        if not _pokemon_has_type(pokemon, PokemonTypes.METAL):
+            calc.amount = max(0, calc.amount - self.amount)
+
+
+class NoWeaknessPassive(Passive):
+    """The carrier has no Weakness while this energy is attached."""
+
+    def __init__(self, pokemon_type=None):
+        self.pokemon_type = pokemon_type
+
+    def modify_weakness(self, calc, carrier):
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.target or pokemon is None:
+            return
+        if self.pokemon_type is not None and not _pokemon_has_type(pokemon, self.pokemon_type):
+            return
+        calc.weakness_applies = False
+
+
+class NoRetreatCostPassive(Passive):
+    """The carrier has no Retreat Cost (Magnetic Metal / Hiding Darkness)."""
+
+    def __init__(self, pokemon_type=None):
+        self.pokemon_type = pokemon_type
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is not pokemon:
+            return cost
+        if self.pokemon_type is not None and not _pokemon_has_type(holder, self.pokemon_type):
+            return cost
+        return 0
