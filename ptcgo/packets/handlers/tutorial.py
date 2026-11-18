@@ -81,10 +81,17 @@ async def start_tutorial_match(client, label, index=None, request_id=0):
         return
     logging.info(f"[TCP] [{client.addr}] {label} {index!r}: starting "
                  f"{match.name} ({match.deck})")
+    # Complete the RPC first and push the match as events, the way a versus queue
+    # entry does. `TutorialPlayGame` never opens a matchmaking request on the
+    # client, so its `handleConfirmReadyForMatch` throws on "An existing request
+    # does not exist" and the scene would never leave the panel; `auto_ready`
+    # confirms on the client's behalf so `MatchFound` follows.
+    await client.send_packet({}, request_id)
     await GameSessionManager().start_solo_match(
-        client, deck, match.key, {}, request_id=request_id,
+        client, deck, match.key, {}, request_id=0,
         opponent_deck=content.opponent_deck(match),
         solo_context={"account_id": account_id, "tutorial": match.key},
+        auto_ready=True,
     )
 
 
