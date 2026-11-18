@@ -111,3 +111,48 @@ class VGuardPassive(Passive):
         ):
             calc._v_guard_applied = True
             calc.amount = max(0, calc.amount - 30)
+
+
+# --- provision shapes ------------------------------------------------------
+DOUBLE_COLORLESS = [[PokemonTypes.COLORLESS, PokemonTypes.COLORLESS]]
+
+
+def one_at_a_time(*types) -> list:
+    """Provided options for an energy that gives one of `types` at a time.
+
+    Unit Energy (Grass, Fire and Water) and the Blend energies (one of four) read
+    as a single clause over several types, so they share this shape.
+    """
+    return [[t] for t in types]
+
+
+async def rainbow_on_attach(ctx):
+    """Rainbow Energy's rider: put 1 damage counter on the Pokemon it lands on."""
+    target = ctx.attached_to
+    if target is not None:
+        await ctx.place_damage_counters(1, candidates=[target])
+
+
+class PrismEnergyPassive(Passive):
+    """Prism Energy: Colorless by default, every type while on a Basic Pokemon."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is not None and is_basic_pokemon(holder):
+            return ALL_TYPES_ONE_AT_A_TIME
+        return options
+
+
+class MultiEnergyPassive(Passive):
+    """Multi Energy and Luminous Energy: every type until a second Special Energy
+    joins it on the same Pokemon, where they provide Colorless instead."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        energy_id = getattr(energy, "entity_id", None)
+        others = [
+            card for card in board.attached_energies(holder)
+            if getattr(card, "entity_id", None) != energy_id
+            and bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+        ]
+        return [[PokemonTypes.COLORLESS.value]] if others else options
