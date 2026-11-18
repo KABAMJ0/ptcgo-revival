@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_draw
 
 card = SupporterCardDef(
     guid="0138d62e-0067-5835-aebe-9d04704ab6f3",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=114,
     set_code="SVP",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=flip_draw(4, 2)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_top_or_bottom_draw
 
 card = SupporterCardDef(
     guid="b9aaee14-e388-5c7b-8376-c5529b761d6f",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=90,
     set_code="EX8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_top_or_bottom_draw(3, 2)
 )

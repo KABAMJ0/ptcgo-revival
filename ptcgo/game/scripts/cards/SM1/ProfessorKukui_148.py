@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_then_turn_boost
 
 card = SupporterCardDef(
     guid="30a2b596-dc83-5a33-b1cf-40ba5f7d9405",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=148,
     set_code="SM1",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=draw_then_turn_boost(2, 20)
 )

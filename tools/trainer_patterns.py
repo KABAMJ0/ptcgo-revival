@@ -1572,7 +1572,7 @@ RULES = [
          lambda m: [m.group("n"),
                     'draw_until_per_typed_pokemon("%s")' % m.group("type")]),
     Rule("gambler",
-         r"shuffle your hand into your deck flip (?P<coins>\d+) coin if heads draw (?P<a>\d+) "
+         r"shuffle your hand into your deck(?: then)? flip (?P<coins>\d+) coin if heads draw (?P<a>\d+) "
          r"cards? if tails draw (?P<b>\d+) cards?",
          "shuffle_hand_flip_draw", lambda m: [m.group("a"), m.group("b")]),
     Rule("dual-ball",
@@ -1881,6 +1881,92 @@ RULES = [
          r"switch (?P<n>\d+) of your opponents benched pokemon gx or pokemon ex with their active "
          r"pokemon",
          "gust_bench_gx_ex", lambda m: [m.group("n")]),
+
+    Rule("flip-draw-two",
+         r"flip (?P<coins>\d+) coins? if heads draw (?P<a>\d+) cards? if tails draw (?P<b>\d+) "
+         r"cards?",
+         "flip_draw", lambda m: [m.group("a"), m.group("b")]),
+    Rule("draw-then-opponent-discard-random",
+         r"draw (?P<draw>\d+) cards? if you do discard (?P<k>\d+) random card from your "
+         r"opponents hand",
+         "draw_then_opponent_discard",
+         lambda m: [m.group("draw"), m.group("k"), "random=True"]),
+    Rule("draw-then-opponent-discard",
+         r"draw (?P<draw>\d+) cards? then your opponent discards (?P<k>\d+) cards? from his or "
+         r"her hand",
+         "draw_then_opponent_discard", lambda m: [m.group("draw"), m.group("k")]),
+    Rule("draw-then-flip-bonus",
+         r"draw (?P<base>\d+) cards? flip (?P<coins>\d+) coins? if heads draw (?P<bonus>\d+) "
+         r"more cards?",
+         "draw_then_flip_bonus",
+         lambda m: [m.group("base"), m.group("bonus"), m.group("coins")]),
+    Rule("draw-then-hand-at-least",
+         r"draw (?P<base>\d+) cards? then if you have (?P<threshold>\d+) or more cards in your "
+         r"hand draw (?P<bonus>\d+) more cards?",
+         "draw_then_if_hand_at_least",
+         lambda m: [m.group("base"), m.group("threshold"), m.group("bonus")]),
+    Rule("draw-then-shuffle-hand",
+         r"draw (?P<draw>\d+) cards? then shuffle (?P<k>\d+) cards from your hand into your deck",
+         "draw_then_shuffle_hand", lambda m: [m.group("draw"), m.group("k")]),
+    Rule("draw-then-opponent-may-draw",
+         r"draw (?P<draw>\d+) cards? your opponent may(?: also)? draw (?P<k>\d+) cards?",
+         "draw_then_opponent_may_draw", lambda m: [m.group("draw"), m.group("k")]),
+    Rule("draw-same-active-type",
+         r"draw (?P<base>\d+) cards? if both active pokemon are the same type draw (?P<bonus>\d+) "
+         r"more cards?",
+         "draw_if_same_active_type", lambda m: [m.group("base"), m.group("bonus")]),
+    Rule("draw-if-opponent-active",
+         r"draw (?P<base>\d+) cards? if your opponents active pokemon is (?P<n>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) draw (?P<bonus>\d+) more cards?",
+         "draw_if_opponent_active",
+         lambda m: [_pred(m.group("cat")), m.group("base"), m.group("bonus")]),
+    Rule("draw-if-stadium",
+         r"draw (?P<base>\d+) cards? if you have (?P<n>\d+) stadium in play draw (?P<bonus>\d+) "
+         r"more cards?",
+         "draw_if_stadium", lambda m: [m.group("base"), m.group("bonus")]),
+    Rule("draw-then-recover-basic-energy",
+         r"draw (?P<draw>\d+) cards? put (?P<k>\d+) basic energy card from your discard pile into "
+         r"your hand",
+         "draw_then_recover_basic_energy", lambda m: [m.group("draw"), m.group("k")]),
+    Rule("draw-then-turn-boost",
+         r"draw (?P<draw>\d+) cards? during this turn your pokemons attacks do (?P<amount>\d+) more "
+         r"damage to your opponents active pokemon(?: before applying weakness and resistance)?",
+         "draw_then_turn_boost", lambda m: [m.group("draw"), m.group("amount")]),
+    Rule("draw-per-own-subtype",
+         r"draw (?P<per>\d+) card for each of your (?P<sub>[a-z ]+?) pokemon in play",
+         "draw_per_subtype",
+         lambda m: [_subtype_literal(m.group("sub")), m.group("per")]),
+    Rule("draw-per-opponent-subtype",
+         r"draw (?P<per>\d+) card for each of your opponents (?P<sub>[a-z ]+?) pokemon(?: ex)? in play",
+         "draw_per_subtype",
+         lambda m: [_subtype_literal(m.group("sub")), m.group("per"), "opponent=True"]),
+    Rule("draw-per-opponent-bench-basic",
+         r"draw (?P<per>\d+) card for each of your opponents benched basic pokemon",
+         "draw_per_opponent_bench_basic", lambda m: [m.group("per")]),
+    Rule("draw-from-bottom",
+         r"draw (?P<n>\d+) cards? from the bottom of your deck",
+         "draw_from_bottom", lambda m: [m.group("n")]),
+    Rule("draw-until-opponent-hand",
+         r"draw cards until you have the same number of cards in your hand as your opponent",
+         "draw_until_opponent_hand", lambda m: []),
+    Rule("count-hand-shuffle-draw-plus",
+         r"count the cards in your hand shuffle those cards into your deck then draw that many cards "
+         r"plus (?P<plus>\d+)",
+         "count_hand_shuffle_draw_plus", lambda m: [m.group("plus")]),
+    Rule("flip-top-or-bottom-draw",
+         r"flip (?P<coins>\d+) coins? if heads draw the bottom (?P<bottom>\d+) cards? of your deck "
+         r"if tails draw the top (?P<top>\d+) cards? of your deck",
+         "flip_top_or_bottom_draw", lambda m: [m.group("bottom"), m.group("top")]),
+    Rule("hand-to-bottom-draw",
+         r"put (?P<k>\d+) cards from your hand on the bottom of your deck in any order(?: if you "
+         r"put \d+ cards on the bottom of your deck in this way)? draw (?P<draw>\d+) cards?(?: if you "
+         r"cant put \d+ cards from your hand on the bottom of your deck you cant use this card)?",
+         "hand_to_bottom_draw", lambda m: [m.group("k"), m.group("draw")]),
+    Rule("each-may-draw-up-to",
+         r"(?:you may draw up to (?P<a>\d+) cards then your opponent may draw up to (?P<b>\d+) "
+         r"cards|each player may draw up to (?P<c>\d+) cards you draw first)",
+         "each_may_draw_up_to",
+         lambda m: [m.group("a") or m.group("c")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",

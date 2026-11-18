@@ -4491,3 +4491,223 @@ def gust_bench_gx_ex(count: int = 1):
             if not await ctx.switch_active(ctx.opponent_id, card):
                 break
     return effect
+
+
+def flip_draw(heads: int, tails: int, coins: int = 1):
+    """Flip a coin: heads draws `heads`, tails draws `tails`."""
+    async def effect(ctx):
+        faces = await ctx.flip_coins(coins, title="Draw cards")
+        await ctx.draw_cards(heads if faces and faces[0] else tails)
+    return effect
+
+
+def draw_then_opponent_discard(draw: int, count: int, random: bool = False):
+    """Draw `draw` cards, then your opponent discards `count` cards from
+    their hand; `random` picks them without their choice (Mars)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        if random:
+            await ctx.discard_cards(hand[:count])
+            return
+        await ctx.discard_from_hand(
+            count, minimum=min(count, len(hand)), player_id=ctx.opponent_id,
+            prompt=f"Discard {count} card(s) from your hand")
+    return effect
+
+
+def draw_then_flip_bonus(base: int, bonus: int, coins: int = 1):
+    """Draw `base` cards, then flip a coin and draw `bonus` more on heads
+    (Bug Catcher)."""
+    async def effect(ctx):
+        await ctx.draw_cards(base)
+        if (await ctx.flip_coins(coins, title="Draw more cards"))[0]:
+            await ctx.draw_cards(bonus)
+    return effect
+
+
+def draw_then_if_hand_at_least(base: int, threshold: int, bonus: int):
+    """Draw `base` cards, then `bonus` more when your hand holds at least
+    `threshold` cards (Billy & O'Nare)."""
+    async def effect(ctx):
+        await ctx.draw_cards(base)
+        if len(ctx.hand()) >= threshold:
+            await ctx.draw_cards(bonus)
+    return effect
+
+
+def draw_then_shuffle_hand(draw: int, count: int):
+    """Draw `draw` cards, then shuffle `count` cards from your hand into your
+    deck (Mary)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=min(count, len(hand)),
+            prompt=f"Choose {count} card(s) to shuffle into your deck")
+        if picks:
+            await ctx.shuffle_into_deck(picks)
+    return effect
+
+
+def draw_then_opponent_may_draw(draw: int, count: int):
+    """Draw `draw` cards; your opponent may then draw `count` (Fieldworker)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        await ctx.draw_cards(count, ctx.opponent_id)
+    return effect
+
+
+def draw_per_subtype(subtype: str, per: int = 1, opponent: bool = False):
+    """Draw `per` card for each Pokemon of the printed subtype in play, yours
+    or the opponent's (Awakening Drum, Jett)."""
+    async def effect(ctx):
+        pool = ctx.opponent_pokemon_in_play() if opponent else ctx.my_pokemon_in_play()
+        count = sum(1 for p in pool if subtype in subtypes_for(p.archetype_id))
+        if count:
+            await ctx.draw_cards(per * count)
+    return effect
+
+
+def draw_per_opponent_bench_basic(per: int = 1):
+    """Draw `per` card for each of the opponent's Benched Basic Pokemon."""
+    async def effect(ctx):
+        count = sum(1 for p in ctx.opponent_bench() if is_basic_pokemon(p))
+        if count:
+            await ctx.draw_cards(per * count)
+    return effect
+
+
+def draw_if_same_active_type(base: int, bonus: int):
+    """Draw `base` cards, plus `bonus` when both Active Pokemon share a type
+    (Samson Oak)."""
+    async def effect(ctx):
+        mine, theirs = ctx.my_active(), ctx.opponent_active()
+        same = (mine is not None and theirs is not None
+                and set(mine.get_attribute(AttrID.POKEMON_TYPES) or [])
+                & set(theirs.get_attribute(AttrID.POKEMON_TYPES) or []))
+        await ctx.draw_cards(base + (bonus if same else 0))
+    return effect
+
+
+def draw_if_opponent_active(predicate, base: int, bonus: int):
+    """Draw `base` cards, or `base + bonus` when the opponent's Active matches
+    `predicate` (Norman)."""
+    async def effect(ctx):
+        active = ctx.opponent_active()
+        await ctx.draw_cards(base + (bonus if active is not None and predicate(active) else 0))
+    return effect
+
+
+def draw_if_stadium(base: int, bonus: int):
+    """Draw `base` cards, plus `bonus` while a Stadium is in play (Falkner)."""
+    async def effect(ctx):
+        await ctx.draw_cards(base + (bonus if ctx.stadium_in_play() is not None else 0))
+    return effect
+
+
+def draw_then_recover_basic_energy(draw: int, count: int = 1):
+    """Draw `draw` cards, then put up to `count` basic Energy cards from your
+    discard pile into your hand (Roark)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        cards = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose basic Energy cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def draw_then_turn_boost(draw: int, amount: int):
+    """Draw `draw` cards; this turn your Pokemon's attacks do `amount` more
+    damage to the opponent's Active (Professor Kukui)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        ctx.add_turn_damage_modifier(TurnDamageModifier(amount, ctx.player_id))
+    return effect
+
+
+def draw_from_bottom(count: int):
+    """Draw `count` cards from the bottom of your deck (Looker)."""
+    async def effect(ctx):
+        deck = ctx.deck()
+        if not deck:
+            return
+        picks = deck[-count:]
+        for card in picks:
+            await ctx.put_in_hand([card], reveal=False)
+    return effect
+
+
+def draw_until_opponent_hand():
+    """Draw cards until your hand holds as many cards as your opponent's
+    (Battle Reporter)."""
+    async def effect(ctx):
+        target = len(ctx.hand(ctx.opponent_id))
+        if len(ctx.hand()) < target:
+            await ctx.draw_until(target)
+    return effect
+
+
+def count_hand_shuffle_draw_plus(plus: int):
+    """Count the cards in your hand, shuffle them into your deck, then draw
+    that many plus `plus` (Brassius)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        count = len(hand)
+        if hand:
+            await ctx.shuffle_into_deck(hand)
+        await ctx.draw_cards(count + plus)
+    return effect
+
+
+def flip_top_or_bottom_draw(heads: int, tails: int):
+    """Flip a coin: heads draws `heads` from the bottom of your deck, tails
+    draws `tails` from the top (Professor Cozmo's Discovery)."""
+    async def effect(ctx):
+        if (await ctx.flip_coins(1, title="Draw from the bottom"))[0]:
+            deck = ctx.deck()
+            for card in deck[-heads:]:
+                await ctx.put_in_hand([card], reveal=False)
+        else:
+            await ctx.draw_cards(tails)
+    return effect
+
+
+def hand_to_bottom_draw(count: int, draw: int):
+    """Put `count` cards from your hand on the bottom of your deck, then draw
+    `draw` (Kofu)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if len(hand) < count:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=count,
+            prompt=f"Choose {count} cards to put on the bottom of your deck")
+        if len(picks) < count:
+            return
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def each_may_draw_up_to(count: int):
+    """You may draw up to `count` cards, then your opponent may draw up to
+    `count` (Erika)."""
+    async def effect(ctx):
+        for player_id in (ctx.player_id, ctx.opponent_id):
+            picks = await ctx.choose_cards(
+                ctx.deck_top(count, player_id), count, minimum=0,
+                player_id=player_id, prompt=f"Choose up to {count} cards to draw")
+            for card in picks:
+                await ctx.put_in_hand([card], reveal=False)
+    return effect

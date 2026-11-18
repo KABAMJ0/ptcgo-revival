@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_until_opponent_hand
 
 card = SupporterCardDef(
     guid="c0b3a52a-81b9-55bf-bee9-03d6d5214416",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=109,
     set_code="XY3",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=draw_until_opponent_hand()
 )
