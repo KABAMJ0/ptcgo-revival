@@ -4711,3 +4711,75 @@ def each_may_draw_up_to(count: int):
             for card in picks:
                 await ctx.put_in_hand([card], reveal=False)
     return effect
+
+
+def flip_search_per_head(coins: int, predicate=None, per: int = 1, both: bool = False):
+    """Flip `coins` coins; each heads searches the deck for `per` matching
+    cards into hand (Timer Ball, Energy Ark); `both` requires every coin to
+    come up heads (Delivery Drone)."""
+    async def effect(ctx):
+        faces = await ctx.flip_coins(coins, title="Search your deck")
+        heads = sum(1 for face in faces if face)
+        if both:
+            if heads != coins:
+                return
+            wanted = per
+        else:
+            wanted = heads * per
+        if wanted <= 0:
+            return
+        picks = await ctx.search_deck(
+            predicate, count=wanted, minimum=0,
+            prompt="Choose cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def reveal_hand_to_top_then_search(put_predicate, find_predicate):
+    """Put a matching card from your hand on top of your deck, then search the
+    deck for a matching card into your hand (Pokemon Communication)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if put_predicate(c)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Choose a Pokémon to put on top of your deck")
+        if not picks:
+            return
+        for card in picks:
+            await ctx.put_on_top_of_deck(card)
+        found = await ctx.search_deck(
+            find_predicate, count=1, minimum=0,
+            prompt="Choose a Pokémon to put into your hand")
+        if found:
+            await ctx.put_in_hand(found, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def search_two_kinds_to_bench(ex_count: int, plain_count: int):
+    """Search the deck for Pokemon onto the Bench: `ex_count` Pokemon ex, or
+    `plain_count` Pokemon that aren't ex (Brigette)."""
+    async def effect(ctx):
+        space = BENCH_CAPACITY - len(ctx.my_bench())
+        if space <= 0:
+            return
+        ex_picks = await ctx.search_deck(
+            is_pokemon_ex, count=min(ex_count, space), minimum=0,
+            prompt=f"Choose up to {ex_count} Pokémon ex for your Bench")
+        benched = 0
+        for card in ex_picks:
+            if await ctx.bench_pokemon(card):
+                benched += 1
+        space -= benched
+        if space > 0:
+            plain = await ctx.search_deck(
+                excluding(is_pokemon_ex), count=min(plain_count, space), minimum=0,
+                prompt=f"Choose up to {plain_count} Basic Pokémon for your Bench")
+            for card in plain:
+                if await ctx.bench_pokemon(card):
+                    break
+        await ctx.shuffle_deck()
+    return effect

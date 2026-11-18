@@ -58,6 +58,7 @@ SIMPLE_PREDICATES = {
     "card": "None",
     "baby pokemon": 'pokemon_of_subtype("Baby")',
     "mega evolution pokemon": 'pokemon_of_subtype("MEGA")',
+    "tag team card": 'pokemon_of_subtype("TAG TEAM")',
     "any card": "None",
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
@@ -417,6 +418,15 @@ def _stadium_cat(phrase):
         if words and all(w in TYPE_NAMES.split("|") for w in words):
             return "has_energy_of(%s)" % ", ".join('"%s"' % w for w in words)
         raise Unresolved(phrase)
+    tool_named = re.match(r"^pokemon tool cards? that have (?P<word>.+?) in (?:their|its) name$", text)
+    if tool_named:
+        return 'all_of(is_tool_card, card_named_contains("%s"))' % tool_named.group("word")
+    tools_and = re.match(r"^technical machine and or pokemon tool cards$", text)
+    if tools_and:
+        return "is_tool_card"
+    named = re.match(r"^cards? named (?P<word>[a-z0-9 ]+)$", text)
+    if named:
+        return 'named_exactly("%s")' % named.group("word").title()
     dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
     if dark:
         return 'pokemon_named("%s")' % dark.group("word")
@@ -756,8 +766,8 @@ RULES = [
          r"attached to that pokemon",
          "return_pokemon_to_hand", lambda m: ['with_attachments="discard"']),
     Rule("search-to-top",
-         r"search your deck for (?P<n>\d+) cards? shuffle your deck then put those cards on "
-         r"top of it in any order",
+         r"search your deck for (?P<n>\d+) cards? (?:then )?shuffle your deck (?:then |and )?put "
+         r"(?:those cards|them) on top of (?:it|your deck) in any order",
          "search_to_top", lambda m: [m.group("n")]),
     Rule("shuffle-hand-draw-prize",
          r"shuffle your hand into your deck then draw (?P<n>\d+) cards? if your opponent has "
@@ -1967,6 +1977,34 @@ RULES = [
          r"cards|each player may draw up to (?P<c>\d+) cards you draw first)",
          "each_may_draw_up_to",
          lambda m: [m.group("a") or m.group("c")]),
+
+    Rule("search-plain-card",
+         r"search your deck for (?P<n>\d+) cards?(?: and)? put (?:it|them) into your hand then "
+         r"shuffle your deck",
+         "search_to_hand",
+         lambda m: ["None", "count=" + m.group("n")], module="support_common"),
+    Rule("flip-both-search",
+         r"flip (?P<coins>\d+) coins if both of them are heads search your deck for (?P<n>\d+) "
+         r"(?P<cat>.+?) and put (?:it|them) into your hand then shuffle your deck",
+         "flip_search_per_head",
+         lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("n"), "both=True"]),
+    Rule("flip-search-cat",
+         r"flip (?P<coins>\d+) coins for each heads search your deck for (?P<n>\d+) "
+         r"(?P<cat>.+?) (?:reveal|show) (?:it|them)(?: to your opponent)? and (?:then )?put "
+         r"(?:it|them) into your hand(?: if you do)? (?:then )?shuffle your deck(?: afterward)?",
+         "flip_search_per_head",
+         lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("n")]),
+    Rule("reveal-hand-top-then-search",
+         r"(?:choose|reveal) (?P<n>\d+) pokemon in your hand(?: show it to your opponent)? and put it "
+         r"on top of your deck if you do search your deck for (?P<k>\d+) pokemon"
+         r"(?: show it to your opponent)? and put it into your hand shuffle your deck(?: afterward)?",
+         "reveal_hand_to_top_then_search",
+         lambda m: ["is_pokemon_card", "is_pokemon_card"]),
+    Rule("brigette",
+         r"search your deck for (?P<ex>\d+) basic pokemon ex or (?P<plain>\d+) basic pokemon except "
+         r"for pokemon ex and put them onto your bench" + SHUFFLE_TAIL,
+         "search_two_kinds_to_bench",
+         lambda m: [m.group("ex"), m.group("plain")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
