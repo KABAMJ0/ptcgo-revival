@@ -570,6 +570,28 @@ def main():
             return "server → client"
         return "unclassified"
 
+    # effect classes: they ride inside game payloads, so their shapes matter too
+    effect_rows = []
+    for asm in assemblies:
+        for position in asm.typedef_names:
+            if any("DwdJsonEffect" in attr for attr in asm.type_attrs.get(position, [])):
+                effect_rows.append((asm.nested_name(position), asm.members(position)))
+    effect_rows.sort(key=lambda item: item[0])
+    if effect_rows:
+        effects_path = os.path.join(NOTES, "client-effects.md")
+        with open(effects_path, "w", encoding="utf-8") as out:
+            out.write("# Client effect payloads\n\n")
+            out.write("Types carrying `[DwdJsonEffect]`: they are serialised inside game "
+                      "messages (entity moves, attack effects, data carriers), so their keys "
+                      "have to match exactly as well. Shapes are rendered the same way as "
+                      "`client-protocol.md`.\n\n")
+            out.write(f"- effect types: **{len(effect_rows)}**\n\n")
+            for name, members in effect_rows:
+                shape = {"type": name, "fields": {
+                    f["json"]: protocol.shape(f["type"], 1, {name}) for f in members["fields"]}}
+                out.write(f"## {simple_name(name)}\n\n```json\n{render_shape(shape)}\n```\n\n")
+        print(f"wrote {effects_path}: {len(effect_rows)} effect types")
+
     # minimal payloads, for implementing a handler in one copy-paste
     skeletons = os.path.join(NOTES, "client-skeletons.md")
     with open(skeletons, "w", encoding="utf-8") as out:
