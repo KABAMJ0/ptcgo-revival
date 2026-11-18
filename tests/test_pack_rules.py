@@ -55,7 +55,7 @@ class PackRulesTest(unittest.TestCase):
 
     def test_sets_declare_their_own_pack_size(self):
         """Base Set held eleven cards, a McDonald's promo pack five."""
-        for set_key, size in (("BASE1", 11), ("MCD11", 5), ("MCD22", 5)):
+        for set_key, size in (("BASE1", 11), ("ECARD1", 9), ("POP9", 3), ("MCD11", 4), ("MCD22", 4)):
             booster = pack_for(set_key)
             for _ in range(10):
                 self.assertEqual(len(booster.open("-1")), size, set_key)
