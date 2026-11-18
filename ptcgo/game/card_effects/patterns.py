@@ -76,6 +76,7 @@ from ptcgo.game.card_effects.passives_common import (
     active_vs_active_debuff_passive,
     benched_full_shield_passive,
     condition_immunity_passive,
+    opponent_attack_tax,
     guts_survive_passive,
     retreat_discount,
     typed_energy_free_retreat_passive,
@@ -4510,6 +4511,88 @@ def _ko_if_counters_at_least(m, ability):
             await ctx.knock_out(defender)
     return effect
 
+
+def _gate_on_healthy(inner):
+    async def effect(ctx):
+        pokemon = ctx.source
+        if pokemon is None or pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            return
+        await inner(ctx)
+    return effect
+
+
+def _passive_asleep_shield(m, ability):
+    asleep = SpecialConditions.ASLEEP.value
+    return prevent_damage_when(
+        lambda calc, carrier: asleep in _condition_values(
+            carrier_pokemon(carrier)) if carrier_pokemon(carrier) else False)
+
+
+def _passive_condition_immune_all(m, ability):
+    return condition_immunity_passive()
+
+
+def _passive_ultra_beast_takes_less(m, ability):
+    from ptcgo.game.data_utils import subtypes_for
+    amount = int(m.group(1))
+
+    def protects(target, carrier) -> bool:
+        if target.owning_player_id != carrier.owning_player_id:
+            return False
+        return any(subtype.lower() == "ultra beast"
+                   for subtype in subtypes_for(target.archetype_id))
+    return takes_less_passive(amount, protects=protects)
+
+
+def _passive_basic_attack_tax_active(m, ability):
+    from ptcgo.game.session.effects import is_basic_pokemon
+    amount = m.group(1).count("colorless")
+
+    def pred(pokemon) -> bool:
+        return is_basic_pokemon(pokemon)
+    passive = opponent_attack_tax(amount, target_pred=pred)
+    return _while_active(passive)
+
+
+def _while_active(passive):
+    class _ActiveOnly(type(passive)):
+        def modify_attack_cost(self, cost, pokemon, carrier, board):
+            if not is_in_active_spot(carrier_pokemon(carrier)):
+                return cost
+            return super().modify_attack_cost(cost, pokemon, carrier, board)
+    active = _ActiveOnly.__new__(_ActiveOnly)
+    active.__dict__.update(passive.__dict__)
+    return active
+
+
+def _discard_special_energy_chosen(m, ability):
+    count = _count(m.group(1))
+
+    async def effect(ctx):
+        candidates = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                      if any(is_special_energy(card)
+                             for card in ctx.attached_energies(pokemon))
+                      and not ctx.effects_blocked(pokemon)]
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose {count} Pokémon")
+        for target in picks:
+            await ctx.discard_energy_from(target, 1,
+                                          predicate=is_special_energy)
+    return effect
+
+
+def _both_actives_conditions(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        for pokemon in (ctx.attacker, ctx.defender):
+            if pokemon is not None:
+                await ctx.apply_special_condition(pokemon, condition)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -5826,7 +5909,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
     # -- batch 22: abilities that react to being damaged -------------------
     ("trigger.counters-on-attacker",
-     re.compile(r"(?:put|place) (\d+) damage counters on the attacking "
+     re.compile(r"put (\d+) damage counters? on the attacking "
                 r"pokemon\."), _counters_on_attacker),
     ("trigger.condition-on-attacker",
      re.compile(r"the attacking pokemon is now (" + _CONDITION_WORDS + r")\."),
@@ -5908,6 +5991,31 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
 
 
 
+    # -- batch 40: condition gates, immunity, team shields, play triggers ---
+    ("ability.asleep-damage-shield",
+     re.compile(r"as long as this pokemon is asleep, prevent all damage done to "
+                r"this pokemon by attacks\."), _passive_asleep_shield),
+    ("ability.condition-immune-all",
+     re.compile(r"this pokemon can't be affected by any special conditions\."),
+     _passive_condition_immune_all),
+    ("ability.all-attack-damage-reduced",
+     re.compile(r"all damage done by attacks to this pokemon is reduced by "
+                r"(\d+) \(after applying weakness and resistance\)\."),
+     _passive_takes_less_flat),
+    ("ability.ultra-beast-takes-less",
+     re.compile(r"your ultra beasts take (\d+) less damage from your "
+                r"opponent's attacks \(after applying weakness and "
+                r"resistance\)\."), _passive_ultra_beast_takes_less),
+    ("ability.basic-attack-tax-active",
+     re.compile(r"as long as this pokemon is your active pokemon, your "
+                r"opponent's basic pokemon's attacks cost ((?:colorless)+) "
+                r"more\."), _passive_basic_attack_tax_active),
+    ("discard.opponent-special-energy-chosen",
+     re.compile(r"discard (?:an?|(\d+)) special energy from (?:an?|1) of your "
+                r"opponent's pokemon\."), _discard_special_energy_chosen),
+    ("condition.leave-both-actives",
+     re.compile(r"leave both active pokemon (" + _CONDITION_WORDS + r")\."),
+     _both_actives_conditions),
     # -- batch 39: discard-pile attaches, flip riders, play locks -----------
     ("spread.both-benches-recoil",
      re.compile(r"does (\d+) damage to each pokemon on each player's bench"
@@ -6441,6 +6549,13 @@ BIND_COUNTS = {}
 BIND_ERRORS = {}
 
 
+# A trailing clause that switches an activated ability off; stripped before
+# matching and enforced as a gate on the bound effect.
+_ABILITY_SUFFIXES = (
+    "this power can't be used if this pokemon is affected by a special "
+    "condition.",
+)
+
 # Wordings that changed between eras but mean the same thing in a one-Active
 # game; an unmatched text is retried with each side read as the other.
 _SYNONYMS = (
@@ -6494,6 +6609,13 @@ def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
                 text = text[len(prefix):].strip()
                 binder = (kind, value)
                 break
+    for suffix in _ABILITY_SUFFIXES:
+        if text.endswith(suffix):
+            text = text[:-len(suffix)].strip()
+            gated = True
+            break
+    else:
+        gated = False
     candidates = [text]
     if own_name:
         named = re.sub(r"(?<![\w'])" + re.escape(normalize(own_name))
@@ -6509,6 +6631,8 @@ def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
     for text in candidates:
         bound = _bind_text(ability, text, binder)
         if bound is not None:
+            if gated:
+                ability.effect = _gate_on_healthy(ability.effect)
             return bound
     return None
 
