@@ -58,6 +58,14 @@ ATTRIBUTES = {
 }
 
 
+# stages our cards use beyond Basic/Stage 1/Stage 2, which the client has keys for
+STAGES = {
+    "vmax": "Pokémon VMAX", "vstar": "Pokémon VSTAR", "vunion": "Pokémon V-UNION",
+    "break": "Pokémon BREAK", "restored": "Restored", "legend": "Legend",
+    "levelup": "Level-Up",
+}
+
+
 def client_keys(db_path):
     if not os.path.exists(db_path):
         return set()
@@ -120,6 +128,9 @@ def main():
         if slug not in mechanics_in_data() and slug not in ("v", "vmax", "vstar", "ex"):
             continue
         want(f"deckbuilder.cardfilters.attributes.{slug}", name)
+
+    for slug, name in STAGES.items():
+        want(f"deckbuilder.cardfilters.pokemontype.{slug}", name)
 
     if args.dry_run:
         for key, value in sorted(labels.items()):
