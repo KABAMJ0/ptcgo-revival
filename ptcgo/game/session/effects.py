@@ -46,6 +46,7 @@ from .scheduling import TurnBoundary, TurnScheduler
 from .passives import (
     TempPassive,
     TargetDamageModifier,
+    ability_granting_card,
     ability_effects_blocked,
     ability_locked,
     active_passives,
@@ -173,6 +174,12 @@ class EffectContext:
         # ON_POKEMON_BENCHED trigger inputs (set via ctx_setup).
         self.benching_player_id: Optional[str] = None
         self.benched_pokemon: Optional[PokemonEntity] = None
+        # The card that grants this ctx's ability when it is not the Pokemon
+        # itself: an attached Tool's granted attack or ability (Single Strike
+        # Scroll of Scorn, Forest Seal Stone), so a script can act on its own
+        # card ("discard this card"). The Pokemon itself for printed abilities
+        # and None when the ctx resolves a trainer/energy/scheduled effect.
+        self.ability_source: Optional[BoardEntity] = None
 
     # ------------------------------------------------------------------
     # Game state accessors
@@ -939,6 +946,31 @@ class EffectContext:
         if pokemon is None:
             return lambda candidate: True
         return lambda candidate, _only=pokemon: candidate is _only
+
+    async def set_bench_limit(self, limit: int,
+                              player_id: Optional[str] = None) -> None:
+        """Changes a player's Bench limit for the REST OF THE GAME: "each
+        player's Bench is now 4" / "your Bench can hold 8 Pokemon". Default
+        player: this ctx's player.
+
+        Expansion moves nothing (existing Pokemon stay put) but makes new
+        Bench plays legal; shrinking discards the excess through the bench-shrink
+        ruling (the affected player picks, and the discard is NOT a Knock Out --
+        no prizes, no ON_KNOCKED_OUT), then re-broadcasts the Bench size.
+        Stored on the board, so it outlives every turn; a capacity passive
+        (Collapsed Stadium) still caps lower, the tighter limit winning.
+        """
+        pid = player_id or self.player_id
+        self.board.bench_limit_overrides[pid] = max(1, int(limit))
+        await self.session.sync_bench_size()
+        bench = self.board.find_player_area(pid, "bench")
+        if bench is not None and len(bench.children) \
+                > effective_bench_capacity(self.board, pid):
+            await self.session.enforce_bench_capacity()
+
+    def bench_limit(self, player_id: Optional[str] = None) -> int:
+        """The player's current Bench limit after effects and passives."""
+        return effective_bench_capacity(self.board, player_id or self.player_id)
 
     def take_extra_turn(self) -> None:
         """"Take another turn after this one. (Skip Pokemon Checkup.)"
@@ -2713,6 +2745,7 @@ async def resolve_attack(session, player_id: str, attacker: PokemonEntity,
     effects do the same and log the missing text.
     """
     ctx = AttackContext(session, player_id, attacker, ability)
+    ctx.ability_source = ability_granting_card(session.board_state, attacker, ability)
     effect = ability.effect if ability else None
     title = ability.title if ability else action_id
     ctx._copy_chain.append(title)
@@ -2810,6 +2843,7 @@ async def resolve_triggered_ability(
             )
         return None
     ctx = EffectContext(session, player_id, pokemon, ability)
+    ctx.ability_source = ability_granting_card(session.board_state, pokemon, ability)
     if ctx_setup is not None:
         ctx_setup(ctx)
     await ability.effect(ctx)
@@ -2834,6 +2868,7 @@ async def resolve_activated_ability(session, player_id: str, pokemon: PokemonEnt
     once-per-game bookkeeping.
     """
     ctx = EffectContext(session, player_id, pokemon, ability)
+    ctx.ability_source = ability_granting_card(session.board_state, pokemon, ability)
     if ability.effect is unimplemented:
         logging.warning(
             f"[Effects {session.game_id}] Activated ability '{ability.title}' "
