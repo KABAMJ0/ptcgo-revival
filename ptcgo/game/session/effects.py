@@ -833,6 +833,15 @@ class EffectContext:
         the lock until it leaves the Active spot."""
         self.session.turn_state.lock_retreat(target.entity_id, through_turn)
 
+    def lock_player_attacks(self, player_id: Optional[str] = None,
+                            through_turn: Optional[int] = None) -> None:
+        """"During this turn, your Pokemon can't attack" (Geeta): a
+        player-scoped lock, so Pokemon that arrive later are covered too.
+        Default is the rest of this turn."""
+        self.session.turn_state.lock_player_attacks(
+            player_id or self.player_id, through_turn
+        )
+
     def lock_plays(self, player_id: str, predicate: Callable[[CardEntity], bool],
                    through_turn: Optional[int] = None) -> None:
         """"<player> can't play <cards matching predicate>" (default: through

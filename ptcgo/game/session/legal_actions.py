@@ -149,6 +149,10 @@ class TurnState:
     # (entity_id, ability_id) -> last turn number the attack stays locked
     # ("during your next turn, this Pokemon can't use ...").
     attack_locks: Dict[Tuple[str, str], int] = field(default_factory=dict)
+    # player_id -> last turn in which that player's Pokemon cannot attack at all
+    # (Geeta: "During this turn, your Pokemon can't attack", which covers
+    # Pokemon that arrive after the lock was made).
+    player_attack_locks: Dict[str, int] = field(default_factory=dict)
     # entity_id -> last turn number retreat stays locked ("the Defending
     # Pokemon can't retreat"); LOCK_UNTIL_LEAVES_ACTIVE = until it leaves.
     retreat_locks: Dict[str, int] = field(default_factory=dict)
@@ -349,6 +353,16 @@ class TurnState:
     def lock_attack(self, entity_id: str, ability_id: str):
         """Locks an attack through its user's next turn."""
         self.attack_locks[(entity_id, ability_id)] = self.turn_number + 2
+
+    def lock_player_attacks(self, player_id: str, through_turn: Optional[int] = None):
+        """Forbids every Pokemon `player_id` controls from attacking through
+        `through_turn` (default: this turn only)."""
+        self.player_attack_locks[player_id] = (
+            self.turn_number if through_turn is None else through_turn
+        )
+
+    def player_attacks_locked(self, player_id: str) -> bool:
+        return self.turn_number <= self.player_attack_locks.get(player_id, 0)
 
     def attack_locked(self, entity_id: str, ability_id: str) -> bool:
         return self.turn_number <= self.attack_locks.get((entity_id, ability_id), 0)
@@ -739,7 +753,8 @@ def compute_legal_actions(
     entries.extend(_stadium_ability_entries(board, state, player_id, game_id))
     # Asleep/Paralyzed gates attacks per-attack (Attack(usable_despite_conditions)).
     immobilized = _active_immobilized(board, player_id)
-    entries.extend(_attack_entries(board, state, player_id, game_id, immobilized))
+    if not state.player_attacks_locked(player_id):
+        entries.extend(_attack_entries(board, state, player_id, game_id, immobilized))
     # An Asleep/Paralyzed Active may still retreat when a carrier allows it
     # (Escape Board); the condition keeps blocking its attacks.
     if not immobilized or can_retreat_despite_conditions(board, player_id):

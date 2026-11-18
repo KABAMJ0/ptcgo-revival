@@ -670,3 +670,34 @@ def move_bench_energy_to_named_active(name):
             await ctx.move_energy(energy, active)
 
     return effect, condition
+
+
+def search_attach_energy_then_lock_attacks(count=2, prompt=""):
+    """"Search your deck for up to N Basic Energy cards and attach them to 1
+    of your Pokemon. Then, shuffle your deck. During this turn, your Pokemon
+    can't attack. (This includes Pokemon that come into play this turn.)"
+    (Geeta)."""
+    async def effect(ctx):
+        cards = await ctx.search_deck(
+            lambda card: is_energy_card(card) and not bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+            count=count, minimum=0,
+            prompt=prompt or f"Choose up to {count} Basic Energy cards",
+        )
+        if cards:
+            target = None
+            in_play = ctx.my_pokemon_in_play()
+            if len(in_play) == 1:
+                target = in_play[0]
+            else:
+                picks = await ctx.choose_cards(
+                    in_play, 1, minimum=1,
+                    prompt="Choose a Pokémon to attach the Energy to",
+                )
+                target = picks[0] if picks else None
+            if target is not None:
+                for card in cards:
+                    await ctx.attach_energy(card, target)
+        await ctx.shuffle_deck()
+        ctx.lock_player_attacks()
+
+    return effect
