@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import SubtypeProvisionPassive
 card = EnergyCardDef(
     guid="615041ff-89b0-5924-830e-a810d82285ad",
     key="SM6",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SM6",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=SubtypeProvisionPassive("Ultra Beast"),
 )

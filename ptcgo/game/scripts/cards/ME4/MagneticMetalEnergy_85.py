@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import NoRetreatCostPassive
 card = EnergyCardDef(
     guid="ee6accee-0629-5f76-8b93-66c6fc9b2e74",
     key="ME4",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="ME4",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=NoRetreatCostPassive(PokemonTypes.METAL),
 )

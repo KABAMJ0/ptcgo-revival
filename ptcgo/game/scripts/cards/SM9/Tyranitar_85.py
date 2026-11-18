@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents, bonus_if, defender_is_gx, defender_is_ex
+
+
+def _defender_gx_or_ex(ctx):
+    return defender_is_gx(ctx) or defender_is_ex(ctx)
 
 card = PokemonCardDef(
     guid="b284770e-abbc-55aa-b656-96db7728735b",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             title="Spinning Tail",
             game_text="This attack does 30 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=damage_all_opponents(30),
         ),
         Attack(
             title="Bite Off",
@@ -32,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 3},
             damage=130,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_gx_or_ex, 100),
         ),
     ],
 )

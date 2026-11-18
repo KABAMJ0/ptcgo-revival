@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, named_in_play
 
 card = PokemonCardDef(
     guid="af30bdb0-142d-5b3f-a4a1-339772faa9e1",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Drag Off",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. This attack does 50 damage to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=50),
         ),
         Attack(
             title="King's Drum",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(named_in_play("Nidoqueen"), 100),
         ),
     ],
 )

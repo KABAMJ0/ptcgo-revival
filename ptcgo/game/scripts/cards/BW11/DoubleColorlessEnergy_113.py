@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import DOUBLE_COLORLESS
 card = EnergyCardDef(
     guid="b19cf66b-f3f6-55fb-99f4-d25fdd1afc6b",
     key="BW11",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="BW11",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    provides=DOUBLE_COLORLESS,
 )

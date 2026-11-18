@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="e4d739c2-e074-5eaa-a27f-781ac857c687",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Ominous News",
             game_text="Discard a Special Energy from 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(count=1, special_only=True),
         ),
         Attack(
             title="Dirty Throw",

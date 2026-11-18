@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import PrismEnergyPassive
 card = EnergyCardDef(
     guid="f7570c28-92a7-5fe1-9fdb-901004795357",
     key="ZSV10PT5",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="ZSV10PT5",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=PrismEnergyPassive(),
 )

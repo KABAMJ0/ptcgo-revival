@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import pokemon_named
 
 card = PokemonCardDef(
     guid="4ed4bf35-aa40-593f-aadb-3270031625f5",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Multiply",
             game_text="Search your deck for up to 2 Sewaddle and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(pokemon_named("Sewaddle"), count=2),
         ),
         Attack(
             title="Gnaw",

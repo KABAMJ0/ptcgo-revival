@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
 
 card = PokemonCardDef(
     guid="6ad306bb-9cb7-5980-af76-4120b67107f4",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(stadium_in_play_cond, 60),
         ),
     ],
 )

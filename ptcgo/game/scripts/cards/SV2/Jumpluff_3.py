@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
 
 card = PokemonCardDef(
     guid="ba612f63-9872-5ac4-960f-408112565439",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Drifting Dodge",
             game_text="If any damage is done to this Pok\u00e9mon by attacks, flip a coin. If heads, prevent that damage.",
-            effect=unimplemented,
+            passive=flip_prevent_damage_passive("Drifting Dodge"),
         ),
         Attack(
             title="Fluffy Breeze",

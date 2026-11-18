@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import pokemon_with_subtype, ALL_TYPES_ONE_AT_A_TIME
 card = EnergyCardDef(
     guid="864d97da-55bc-5a68-95d2-6f0c01b5dce9",
     key="SWSH6",
@@ -12,5 +14,7 @@ card = EnergyCardDef(
     set_code="SWSH6",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    attach_to=pokemon_with_subtype("Rapid Strike"),
+    provides=ALL_TYPES_ONE_AT_A_TIME,
 )

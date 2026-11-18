@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if, recoil_attack
+
+
+def _low_hp_self(ctx):
+    return ctx.attacker is not None and \
+        (ctx.attacker.get_attribute(AttrID.HP, 0) or 0) <= 30
 
 card = PokemonCardDef(
     guid="8afd4280-bf03-5254-a077-01f4651ad80e",
@@ -25,14 +31,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_low_hp_self, 160),
         ),
         Attack(
             title="Spinning Kick",
             game_text="This Pok\u00e9mon does 30 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=90,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
     ],
 )

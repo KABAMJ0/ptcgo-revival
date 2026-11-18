@@ -1,5 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _mountain_scrounging(ctx):
+    """Look at the top card: keep it, or discard it and draw a card."""
+    top = ctx.deck_top(1)
+    if not top:
+        return
+    if await ctx.ask_yes_no("Put the top card of your deck into your hand?"):
+        await ctx.put_in_hand(top, reveal=False)
+        return
+    await ctx.discard_cards(top)
+    await ctx.draw_cards(1)
 
 card = PokemonCardDef(
     guid="0d797cf2-5bd0-5393-a11c-0204cf2b236f",
@@ -22,7 +34,7 @@ card = PokemonCardDef(
             title="Mountain Scrounging",
             game_text="Look at the top card of your deck. You may put that card into your hand. If you don't, discard that card and draw a card.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_mountain_scrounging,
         ),
         Attack(
             title="Mumble",

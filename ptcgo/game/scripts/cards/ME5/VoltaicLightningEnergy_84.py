@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.energies import DamageBonusPassive
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
@@ -11,6 +12,7 @@ card = EnergyCardDef(
     collector_number=84,
     set_code="ME5",
     rarity=Rarities.Rare,
-    energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    energy_type=PokemonTypes.LIGHTNING,
+    is_special=True,
+    passive=DamageBonusPassive(20, PokemonTypes.LIGHTNING),
 )

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.session.effects import is_trainer_card
 
 card = PokemonCardDef(
     guid="1c7c0d32-0a52-5669-909f-772c1cb84a48",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Seaweed Grab",
             game_text="Put a Trainer card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(is_trainer_card, count=1, to="hand"),
         ),
         Attack(
             title="Buster Swing",

@@ -229,12 +229,41 @@ def check_temporary_passive(before, after, rig, ability, entities):
 
 
 def check_less_per_counter(before, after, rig, ability, entities):
+    attacker = entities["p1_active"]
     dealt = delta(before, after, entities["p2_active"].entity_id)
-    amount = max(0, (ability.damage or 0) - 10 * 2)
-    expected = expected_damage(rig, entities["p1_active"],
-                               entities["p2_active"], amount)
-    return dealt == expected, f"dealt {dealt} (expected {expected}: printed - 10 x 2)"
+    counters = (passives.effective_max_hp(rig.board, attacker)
+                - before["hp"][attacker.entity_id]) // 10
+    per = text_number(ability.game_text, r"(\d+) (?:less damage|damage for each)") or 10
+    amount = max(0, (ability.damage or 0) - per * counters)
+    expected = expected_damage(rig, attacker, entities["p2_active"], amount,
+                               cap=before["hp"][entities["p2_active"].entity_id])
+    return dealt == expected, \
+        f"dealt {dealt} (expected {expected}: printed - {per} x {counters})"
 
+
+
+def check_delayed_counters(before, after, rig, ability, entities):
+    dealt = getattr(rig, "delayed_delta", {}).get(
+        entities["p2_active"].entity_id, 0)
+    expected = text_number(ability.game_text, r"put (\d+) damage counters")
+    want = (expected or 0) * 10
+    return dealt == want, f"defender lost {dealt} (expected {want} from the " \
+                          f"delayed counters)"
+
+
+def check_delayed_knockout(before, after, rig, ability, entities):
+    defender_id = entities["p2_active"].entity_id
+    gone = defender_id not in after["hp"] or after["hp"][defender_id] <= 0
+    return gone, f"defender HP after the delayed knockout={after['hp'].get(defender_id)}"
+
+
+def check_delayed_condition(before, after, rig, ability, entities):
+    from ptcgo.game.attributes import AttrID as _Attr
+    defender = entities["p2_active"]
+    conditions = defender.get_attribute(_Attr.SPECIAL_CONDITIONS) or []
+    match = re.search(r"is now (\w+)", ability.game_text or "")
+    wanted = match.group(1) if match else "?"
+    return bool(conditions), f"defender conditions={conditions} (wanted {wanted})"
 
 def check_lock_defender(before, after, rig, ability, entities):
     locks = getattr(rig.session.turn_state, "attack_locks", {})
@@ -266,6 +295,12 @@ CASES = [
     ("self-condition", check_self_condition, (1, 1, 1, 1), 0),
     ("self-damage", check_self_damage, (1, 1, 1, 1), 0),
     ("heal.self", check_heal_self, (1, 1, 1, 1), 60),
+    ("heal.remove-self-counters", check_heal_self, (1, 1, 1, 1), 60),
+    ("cost.discard-self-energy", check_discard_self_energy, (1, 1, 1, 1), 0),
+    ("protect.flip-all-effects", check_temporary_passive, (1, 1, 1, 1), 0),
+    ("protect.reduce-all-damage-next-turn", check_temporary_passive,
+     (1, 1, 1, 1), 0),
+    ("draw.each-player", check_draw, (1, 1, 1, 1), 0),
     ("draw.n", check_draw, (1, 1, 1, 1), 0),
     ("mill.opponent", check_mill_opponent, (1, 1, 1, 1), 0),
     ("discard.self-energy", check_discard_self_energy, (1, 1, 1, 1), 0),
@@ -280,6 +315,7 @@ CASES = [
     ("attach.energy-from-discard", check_attach_from_discard, (1, 1, 1, 1), 0),
     ("protect.no-weakness", check_temporary_passive, (1, 1, 1, 1), 0),
     ("scale.less-per-counter-self", check_less_per_counter, (1, 1, 1, 1), 20),
+    ("scale.minus-per-self-counter", check_less_per_counter, (1, 1, 1, 1), 20),
     ("ability.takes-less", check_passive_bound, (1, 1, 1, 1), 0),
     ("snipe.choose-bench", check_snipe_bench, (1, 1, 1, 1), 0),
     ("debuff.defender-attacks", check_temporary_passive, (1, 1, 1, 1), 0),
@@ -363,6 +399,9 @@ CASES = [
     ("scale.times-both-actives-energy", check_bonus_condition, (1, 1, 1, 1), 0),
     ("search.evolve-any-own", check_check_noop, (1, 1, 1, 1), 0),
     ("ko.chosen-basic-non-gx", check_check_noop, (1, 1, 1, 1), 0),
+    ("delayed.counters-on-defender", check_delayed_counters, (1, 1, 1, 1), 0),
+    ("delayed.knock-out-defender", check_delayed_knockout, (1, 1, 1, 1), 0),
+    ("delayed.condition-on-defender", check_delayed_condition, (1, 1, 1, 1), 0),
 ]
 
 
@@ -380,7 +419,8 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
 
     if seed_damage:
         attacker.set_attribute(AttrID.HP, hp(attacker) - seed_damage)
-    if pattern in ("scale.counter-self", "scale.less-per-counter-self"):
+    if pattern in ("scale.counter-self", "scale.less-per-counter-self",
+                   "scale.minus-per-self-counter"):
         attacker.set_attribute(AttrID.HP, hp(attacker) - 20)
     if pattern == "counters.move-bench-to-defender":
         # The rig's bench has no damage to move.
@@ -401,7 +441,20 @@ async def run_case(pattern, check, coin_values, seed_damage, fillers):
     with coins(coin_values):
         await resolve_attack(rig.session, P1, attacker, ability,
                              ability.ability_id)
+    mid = snapshot(rig)
+    if pattern.startswith("delayed."):
+        pending = list(rig.session.scheduled_effects)
+        rig.session.scheduled_effects.clear()
+        for entry in pending:
+            guard = entry.get("guard")
+            if guard is not None and not guard(rig.board):
+                continue
+            await entry["effect"](rig.session)
     after = snapshot(rig)
+    rig.delayed_delta = {
+        entity_id: mid["hp"].get(entity_id, 0) - after["hp"].get(entity_id, 0)
+        for entity_id in after["hp"]
+    }
     ok, detail = check(before, after, rig, ability, entities)
     return (PASS if ok else FAIL), f"{pattern:<30} {definition.display_name} " \
                                    f"({definition.set_code}) '{ability.title}': {detail}"

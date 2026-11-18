@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.energies import pairs_of, pokemon_named_like
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
@@ -12,5 +13,7 @@ card = EnergyCardDef(
     set_code="SV10",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    attach_to=pokemon_named_like("Team Rocket"),
+    provides=pairs_of(PokemonTypes.PSYCHIC, PokemonTypes.DARKNESS),
 )

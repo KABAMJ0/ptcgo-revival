@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _never_enough(ctx):
+    """Top 3 of your deck: all into hand, or discard them and draw 3."""
+    top = ctx.deck_top(3)
+    if not top:
+        return
+    if await ctx.ask_yes_no(
+            "Put the top 3 cards of your deck into your hand?"):
+        await ctx.put_in_hand(top, reveal=False)
+        return
+    await ctx.discard_cards(top)
+    await ctx.draw_cards(3)
+
 card = PokemonCardDef(
     guid="375e4387-e4b0-5c4f-a032-64b815f47880",
     key="SV3",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
             title="Never Ever Enough",
             game_text="Look at the top 3 cards of your deck. You may put those cards into your hand. If you don't, discard those cards and draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_never_enough,
         ),
         Attack(
             title="Slip 'n' Roll",

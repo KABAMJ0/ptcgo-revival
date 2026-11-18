@@ -135,20 +135,23 @@ def team_damage_boost_passive(amount, attacker_pred=None, target_pred=None,
 class PredicatePreventionPassive(Passive):
     """prevents_damage generic: pred(calc, carrier) decides the block."""
 
-    def __init__(self, pred, attacks_only=True):
+    def __init__(self, pred, attacks_only=True, any_side=False):
         self.pred = pred
         self.attacks_only = attacks_only
+        self.any_side = any_side
 
     def prevents_damage(self, calc, carrier):
-        if self.attacks_only and not (calc.is_attack and calc.is_opposing):
+        if self.attacks_only and not (
+                calc.is_attack and (self.any_side or calc.is_opposing)):
             return False
         return bool(self.pred(calc, carrier))
 
 
-def prevent_damage_when(pred, attacks_only=True) -> Passive:
+def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     """Full damage prevention whenever pred(calc, carrier) holds; by default
-    only versus opposing attacks (Wave Veil discipline)."""
-    return PredicatePreventionPassive(pred, attacks_only)
+    only versus opposing attacks (Wave Veil discipline). any_side lifts the
+    "opposing" half so attacks from either player are covered."""
+    return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
 class TypedDamageBoostPassive(Passive):
@@ -235,6 +238,180 @@ class RetreatFreeWhenPassive(Passive):
 def retreat_free_when(pred) -> Passive:
     """Free retreat while pred(pokemon, carrier) holds."""
     return RetreatFreeWhenPassive(pred)
+
+
+class OpponentRetreatTaxPassive(Passive):
+    """Every opposing Pokemon's (or only the opposing Active's) retreat cost
+    is N more."""
+
+    def __init__(self, amount=1, active_only=False):
+        self.amount = amount
+        self.active_only = active_only
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        if self.active_only and not is_in_active_spot(pokemon):
+            return cost
+        return cost + self.amount
+
+
+def opponent_retreat_tax_passive(amount=1, active_only=False) -> Passive:
+    """"The retreat cost of each of your opponent's Pokemon in play is [C]
+    more"; active_only for "your opponent's Active Pokemon's retreat cost"."""
+    return OpponentRetreatTaxPassive(amount, active_only)
+
+
+class NoEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
+    inverted=True, "if this Pokemon has any Energy attached ..."."""
+
+    def __init__(self, inverted=False):
+        self.inverted = inverted
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier_pokemon(carrier):
+            return cost
+        has_energy = bool(board.attached_energies(pokemon))
+        free = has_energy if self.inverted else not has_energy
+        return 0 if free else cost
+
+
+def no_energy_free_retreat_passive() -> Passive:
+    return NoEnergyFreeRetreatPassive()
+
+
+class TypedEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has any [type] Energy attached, it has no Retreat
+    Cost" (team=True: each of your Pokemon with that Energy); amount overrides
+    the cost set instead of zero."""
+
+    def __init__(self, type_value, team=False, amount=0):
+        self.type_value = type_value
+        self.team = team
+        self.amount = amount
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if self.team:
+            if pokemon.owning_player_id != carrier.owning_player_id:
+                return cost
+        elif pokemon is not carrier_pokemon(carrier):
+            return cost
+        from ptcgo.game.card_effects.pokemon import energy_provides_type
+        for energy in board.attached_energies(pokemon):
+            if energy_provides_type(energy, self.type_value):
+                return self.amount
+        return cost
+
+
+def typed_energy_free_retreat_passive(type_value, team=False,
+                                      amount=0) -> Passive:
+    return TypedEnergyFreeRetreatPassive(type_value, team, amount)
+
+
+class HpPerTypedEnergyPassive(Passive):
+    """"This Pokemon gets +N HP for each [type] Energy attached to it"."""
+
+    def __init__(self, amount, type_value=None):
+        self.amount = amount
+        self.type_value = type_value
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return 0
+        from ptcgo.game.card_effects.pokemon import energy_provides_type
+        count = 0
+        for child in pokemon.children or []:
+            if self.type_value is None or energy_provides_type(
+                    child, self.type_value):
+                count += 1
+        return self.amount * count
+
+
+def hp_per_typed_energy_passive(amount, type_value=None) -> Passive:
+    return HpPerTypedEnergyPassive(amount, type_value)
+
+
+class NoEnergyFreeRetreatPassive(Passive):
+    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
+    inverted=True, "if this Pokemon has any Energy attached ..."."""
+
+    def __init__(self, inverted=False):
+        self.inverted = inverted
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier_pokemon(carrier):
+            return cost
+        has_energy = bool(board.attached_energies(pokemon))
+        free = has_energy if self.inverted else not has_energy
+        return 0 if free else cost
+
+
+def no_energy_free_retreat_passive(inverted=False) -> Passive:
+    return NoEnergyFreeRetreatPassive(inverted)
+
+
+class ActiveVsActiveDebuffPassive(Passive):
+    """"As long as this Pokemon is in the Active Spot, attacks used by your
+    opponent's Active Pokemon do N less damage (before W/R)"."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        holder = carrier_pokemon(carrier)
+        if not calc.is_attack or attacker is None or holder is None:
+            return
+        if attacker.owning_player_id == holder.owning_player_id:
+            return
+        if is_in_active_spot(holder) and is_in_active_spot(attacker):
+            calc.amount = max(0, calc.amount - self.amount)
+
+
+def active_vs_active_debuff_passive(amount) -> Passive:
+    return ActiveVsActiveDebuffPassive(amount)
+
+
+class AdditiveDamageTakenPassive(Passive):
+    """"During your next turn, the Defending Pokemon takes N more damage from
+    attacks (after W/R)" -- a target-side rider for one turn."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if not calc.is_attack or holder is None or calc.target is not holder:
+            return
+        if calc.attacker is not None and \
+                calc.attacker.owning_player_id == holder.owning_player_id:
+            return
+        calc.amount += self.amount
+
+
+def additive_damage_taken_passive(amount) -> Passive:
+    return AdditiveDamageTakenPassive(amount)
+
+
+class BenchedFullShieldPassive(Passive):
+    """"As long as this Pokemon is on your Bench, prevent all damage from and
+    effects of attacks from your opponent's Pokemon done to this Pokemon"."""
+
+    def _benched(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and not is_in_active_spot(holder)
+
+    def prevents_damage(self, calc, carrier):
+        return bool(calc.is_attack and calc.is_opposing
+                    and self._benched(calc.target, carrier))
+
+    def blocks_attack_effects(self, target, carrier):
+        return self._benched(target, carrier)
+
+
+def benched_full_shield_passive() -> Passive:
+    return BenchedFullShieldPassive()
 
 
 class OpponentAttackTaxPassive(Passive):
@@ -557,6 +734,32 @@ class FlipPreventDamagePassive(Passive):
             calc.prevented = True
             return 0
         return None
+
+
+class RetaliateCountersPassive(Passive):
+    """"During your opponent's next turn, if this Pokemon is damaged by an
+    attack (even if it is Knocked Out), put N damage counters on the
+    attacking Pokemon" (Counter Press shape, fixed counter count)."""
+
+    def __init__(self, counters=1):
+        self.counters = counters
+
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.amount > 0):
+            return None
+        if target is not carrier_pokemon(carrier):
+            return None
+        attacker = calc.attacker
+        if attacker is not None:
+            await ctx.deal_damage(self.counters * 10, target=attacker,
+                                  apply_modifiers=False, as_counters=True)
+        return None
+
+
+def retaliate_counters_passive(counters=1) -> Passive:
+    """Strike-back shield for the opponent's next turn: N counters on whoever
+    damages this Pokemon (the damage itself still lands)."""
+    return RetaliateCountersPassive(counters)
 
 
 def flip_prevent_damage_passive(title="") -> Passive:

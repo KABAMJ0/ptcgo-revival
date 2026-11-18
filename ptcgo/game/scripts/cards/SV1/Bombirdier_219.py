@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_tool_card
 
 card = PokemonCardDef(
     guid="c5956dd7-a0b0-5a74-8084-66601f8ddec0",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Knickknack Carrying",
             game_text="Search your deck for up to 3 Pok\u00e9mon Tool cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_tool_card, count=3, minimum=0),
         ),
         Attack(
             title="Clutch",

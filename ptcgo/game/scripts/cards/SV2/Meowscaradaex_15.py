@@ -1,5 +1,30 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import requires_hand
+from ptcgo.game.card_effects.trainers import (
+    is_basic_energy_card, is_grass_energy_card,
+)
+
+
+def _basic_grass_energy(card):
+    return is_basic_energy_card(card) and is_grass_energy_card(card)
+
+
+_bouquet_gate = requires_hand(_basic_grass_energy, n=1)
+
+
+async def _bouquet_magic(ctx):
+    """Discard a Basic Grass Energy from hand, then 3 counters on their Bench."""
+    if not await ctx.ask_yes_no(
+            "Discard a Basic Grass Energy card from your hand?"):
+        return
+    if not await ctx.discard_from_hand(
+            1, predicate=_basic_grass_energy,
+            prompt="Discard a Basic Grass Energy card"):
+        return
+    bench = ctx.opponent_bench()
+    if bench:
+        await ctx.place_damage_counters(3, bench)
 
 card = PokemonCardDef(
     guid="cc30ea9d-0c6e-5815-a551-910b01910fba",
@@ -22,7 +47,9 @@ card = PokemonCardDef(
         Ability(
             title="Bouquet Magic",
             game_text="You must discard a Basic Grass Energy card from your hand in order to use this Ability. Once during your turn, you may put 3 damage counters on 1 of your opponent's Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_bouquet_gate,
+            effect=_bouquet_magic,
         ),
         Attack(
             title="Scratching Nails",
