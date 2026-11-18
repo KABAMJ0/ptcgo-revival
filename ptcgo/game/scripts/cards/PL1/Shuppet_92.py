@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="35505349-e54c-57a3-915f-8aa33038b54c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Hypnotic Gaze",
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Fade Out",

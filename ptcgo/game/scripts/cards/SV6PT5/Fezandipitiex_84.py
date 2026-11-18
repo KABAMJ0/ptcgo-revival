@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="1bc28140-66a5-5765-9d45-2d499154415b",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             title="Cruel Arrow",
             game_text="This attack does 100 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(100, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

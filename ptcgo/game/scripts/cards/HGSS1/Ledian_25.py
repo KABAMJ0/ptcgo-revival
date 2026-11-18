@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="4bc1f9fc-6b1d-5623-8869-3f83c8b4319e",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Draw 3 cards.",
             cost={PokemonTypes.GRASS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Swift",

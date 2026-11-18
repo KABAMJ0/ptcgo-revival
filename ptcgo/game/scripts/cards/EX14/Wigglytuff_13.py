@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="1d69548f-5da0-5be0-8686-513a88f82ad4",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Pester",

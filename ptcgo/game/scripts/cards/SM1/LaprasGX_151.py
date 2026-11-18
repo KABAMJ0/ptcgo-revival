@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="6c97d716-c7ae-5e42-aa31-44c9e29b5b22",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw 3 cards.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Blizzard Burn",

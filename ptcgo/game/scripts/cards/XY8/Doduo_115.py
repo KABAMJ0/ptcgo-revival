@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="02a34259-9805-5963-a54c-3531e9d0bb16",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Doduo Delivery",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
     ],
 )

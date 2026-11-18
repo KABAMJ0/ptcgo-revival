@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="2521b447-e193-5aa1-8ee8-818f45309a66",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             title="Dual Splash",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=2, apply_modifiers=False),
         ),
     ],
 )

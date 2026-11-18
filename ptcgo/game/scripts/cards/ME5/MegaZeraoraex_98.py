@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
 
 card = PokemonCardDef(
     guid="e97fb396-ae72-5f7e-8f08-8458efe105de",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=150,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
     ],
 )

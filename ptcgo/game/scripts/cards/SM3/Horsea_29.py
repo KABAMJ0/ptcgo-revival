@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="dc6e8462-d0cf-56bd-9082-62054624f2d7",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Water Arrow",
             game_text="This attack does 10 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

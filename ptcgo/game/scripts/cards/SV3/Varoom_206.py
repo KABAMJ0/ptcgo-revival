@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="edf1536b-24d4-5a94-ab57-fad968232935",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Draw a card.",
             cost={PokemonTypes.METAL: 1},
             damage=10,
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
     ],
 )
