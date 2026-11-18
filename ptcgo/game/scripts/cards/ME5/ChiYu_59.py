@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+
+async def whirling_envy(ctx):
+    """20, plus 90 with 2 or more damage counters on this Pokemon; this
+    attack's damage isn't affected by Weakness."""
+    counters = damage_counters_on("self")(ctx)
+    await ctx.deal_damage(20 + (90 if counters >= 2 else 0),
+                          ignore_weakness=True)
 
 card = PokemonCardDef(
     guid="e46a2813-d9b5-5529-a986-51c44ad9dd20",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=whirling_envy,
         ),
     ],
 )
