@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _either_face(ctx):
+    """Pick a player: that player shuffles their hand into their deck, draws 4."""
+    pick = await ctx.choose("Choose a player",
+                            ["You shuffle and draw", "Your opponent shuffles and draw"])
+    pid = ctx.player_id if pick == 0 else ctx.opponent_id
+    await ctx.shuffle_into_deck(ctx.hand(pid), pid)
+    await ctx.draw_cards(4, pid)
+
 card = PokemonCardDef(
     guid="f15a1d84-8f64-5f98-88d3-2b0b1c1043a2",
     key="SV2",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
             title="Either Face",
             game_text="Choose a player. That player shuffles their hand into their deck and draws 4 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_either_face,
         ),
         Attack(
             title="Power Beam",
