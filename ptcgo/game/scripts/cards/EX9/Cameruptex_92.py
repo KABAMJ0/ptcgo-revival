@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="35ffbf69-e161-5d53-9a90-2d5f2ee8fe4a",
@@ -19,11 +20,7 @@ card = PokemonCardDef(
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Numel.Name",
     family_id=322,
     abilities=[
-        Ability(
-            title="Magma Armor",
-            game_text="Camerupt ex can't be Asleep or Paralyzed.",
-            effect=unimplemented,
-        ),
+        Ability(title="Magma Armor", game_text="Camerupt ex can't be Asleep or Paralyzed.", passive=condition_immunity_passive([SpecialConditions.ASLEEP, SpecialConditions.PARALYZED])),
         Attack(
             title="Searing Flame",
             game_text="The Defending Pok\u00e9mon is now Burned.",

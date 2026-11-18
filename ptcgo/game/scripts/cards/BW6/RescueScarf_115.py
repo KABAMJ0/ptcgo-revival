@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rescue_to_hand_on_attack_ko
 from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
 
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=115,
     set_code="BW6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=rescue_to_hand_on_attack_ko()
 )

@@ -13,9 +13,12 @@ from ptcgo.game.attributes import (
     AbilityTypes,
     AttrID,
     CLIENT_SPECIAL_CONDITION_NAMES,
+    PokemonStage,
+    SpecialConditions,
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
@@ -908,17 +911,9 @@ def evolve_from_deck_attack(damage: Optional[int] = None):
         attacker = ctx.attacker
         if attacker is None:
             return
-        from ptcgo.game.content.definitions import evolves_from
-
-        logic_name = attacker.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
-        if not logic_name:
-            return
-
-        def evolves_from_user(card) -> bool:
-            return evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
-
+        candidates = _evolve_from_deck_candidates(ctx, attacker, None)
         picks = await ctx.search_deck(
-            evolves_from_user, count=1, minimum=0,
+            (lambda card: card in candidates), count=1, minimum=0,
             prompt="Choose an Evolution card for this Pokémon",
         )
         if picks:
@@ -975,4 +970,194 @@ def lock_chosen_defender_attack(damage: Optional[int] = None):
         state = ctx.session.turn_state
         state.attack_locks[(defender.entity_id, chosen.ability_id)] = \
             state.turn_number + 1
+    return effect
+
+
+def search_bench_as_basic(names, count, prompt):
+    """"Search your deck for <names> and put up to `count` of them onto your
+    Bench. Shuffle your deck afterward. Treat the new Benched Pokemon as
+    Basic Pokemon." (Anorith, Omanyte, Ninjask)
+
+    The stage override covers Benched evolutions put out this way, so
+    Basic-only effects (Fossil-style searches, Curse Powder) see them as
+    Basic until they leave play."""
+    wanted = {name.lower() for name in names}
+
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            lambda card: (getattr(def_for(card.archetype_id), "display_name", "") or "").lower() in wanted,
+            count=count, minimum=0, prompt=prompt, slot_prompt="Your Bench",
+        )
+        existing = {pokemon.entity_id for pokemon in ctx.my_bench()}
+        benched = False
+        for card in picks:
+            benched = await ctx.bench_pokemon(card) or benched
+        if benched:
+            for pokemon in ctx.my_bench():
+                if pokemon.entity_id not in existing:
+                    ctx.set_pokemon_stage(pokemon, PokemonStage.BASIC)
+        if picks:
+            await ctx.shuffle_deck()
+    return effect
+
+
+def poison_defender_on_evolve(counters=1):
+    """"When you play this Pokemon from your hand to evolve 1 of your Pokemon,
+    you may choose 1 of the Defending Pokemon. That Pokemon is now Poisoned.
+    Put N damage counters instead of 1 on it between turns" (Crobat)."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        if not await ctx.ask_yes_no("Poison your opponent's Active Pokémon?"):
+            return
+        await ctx.apply_special_condition(
+            defender, SpecialConditions.POISONED, poison_counters=counters)
+    return effect
+
+
+def condition_immunity_pollen_shield(conditions=None):
+    """"During your opponent's next turn, this Pokemon can't become <conditions>":
+    printed damage, then a condition-immunity passive through the opponent's turn."""
+    async def effect(ctx):
+        await ctx.deal_damage()
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, condition_immunity_passive(conditions))
+    return effect
+
+
+def _evolve_from_deck_candidates(ctx, pokemon, predicate):
+    """Deck cards that evolve directly from `pokemon`.
+
+    `evolves_from` matches anything in the evolution family (a Stage 2 counts
+    as evolving from the Basic), which is right for "evolves from" wording but
+    wrong here: the card goes ONTO this Pokemon, so only the direct next stage
+    qualifies -- matched by stage, since the corpus does not carry a printed
+    `evolves_from` for every era."""
+    from ptcgo.game.content.definitions import evolves_from
+    logic_name = pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+    if not logic_name:
+        return []
+    stage = pokemon.get_attribute(AttrID.STAGE)
+    matches = [card for card in ctx.deck()
+               if evolves_from(getattr(card, "archetype_id", None) or "", logic_name)
+               and (stage is None or card.get_attribute(AttrID.STAGE) == stage + 1)]
+    if predicate is not None:
+        matches = [card for card in matches if predicate(card)]
+    return matches
+
+
+def evolve_from_deck(predicate=None, target="chosen", bench_only=False,
+                     damage=None):
+    """"Search your deck for a card that evolves from <one of your Pokemon>
+    and put it onto that Pokemon to evolve it. Then, shuffle your deck."
+
+    `target="self"` evolves the source Pokemon (evolve_from_deck_attack's
+    shape without the attacker assumption); `target="chosen"` picks one of
+    your Pokemon in play, `bench_only=True` narrowing to the Bench.
+    `predicate` narrows the evolution card itself (a named evolution)."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if target == "self":
+            pokemon = ctx.source if isinstance(ctx.source, PokemonEntity) else ctx.attacker
+        else:
+            pool = ctx.my_bench() if bench_only else ctx.my_pokemon_in_play()
+            # Offer only Pokemon whose evolution is actually in the deck: a
+            # pick with nothing to find is a wasted action, and the AI takes
+            # the first option.
+            pool = [pokemon for pokemon in pool
+                    if _evolve_from_deck_candidates(ctx, pokemon, predicate)]
+            if not pool:
+                return
+            pokemon = pool[0] if len(pool) == 1 else await ctx.choose_pokemon(
+                pool, "Choose a Pokémon to evolve")
+        if pokemon is None:
+            return
+        picks = await ctx.search_deck(
+            (lambda card: card in _evolve_from_deck_candidates(ctx, pokemon, predicate)),
+            count=1, minimum=0, prompt="Choose an Evolution card",
+        )
+        if picks:
+            await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def evolve_each_from_deck(predicate=None, target_pred=None, max_targets=None,
+                          damage=None):
+    """"For each of your Benched Basic Pokemon, search your deck for a card
+    that evolves from that Pokemon and put it onto that Pokemon to evolve it.
+    Then, shuffle your deck." One search per target, one shuffle at the end."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        targets = [pokemon for pokemon in ctx.my_bench()
+                   if target_pred is None or target_pred(pokemon)]
+        if max_targets is not None:
+            targets = targets[:max_targets]
+        for pokemon in targets:
+            candidates = _evolve_from_deck_candidates(ctx, pokemon, predicate)
+            if not candidates:
+                continue
+            picks = await ctx.choose_cards(
+                candidates, 1, minimum=0, prompt="Choose an Evolution card")
+            if picks:
+                await ctx.evolve_pokemon(pokemon, picks[0])
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _play_kind_predicate(kinds):
+    from ptcgo.game.card_effects.trainers import (
+        is_item_card, is_special_energy, is_stadium_card, is_supporter_card,
+        is_tool_card, is_trainer_card,
+    )
+    table = {
+        "item": is_item_card,
+        "supporter": is_supporter_card,
+        "stadium": is_stadium_card,
+        "tool": is_tool_card,
+        "trainer": is_trainer_card,
+        "special_energy": is_special_energy,
+        "energy": lambda card: card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value,
+    }
+    chosen = [table[kind] for kind in kinds if kind in table]
+    if "all" in kinds:
+        return lambda card: True
+    return lambda card: any(predicate(card) for predicate in chosen)
+
+
+def lock_opponent_plays(*kinds, damage=None, flip=False, coins=1):
+    """"Your opponent can't play any <kinds> cards from their hand during their
+    next turn" (Disconnect, Pitch-Dark, Chaos Wheel).
+
+    `kinds` are "item", "supporter", "stadium", "tool", "trainer",
+    "special_energy", "energy" or "all"."""
+    async def effect(ctx):
+        # flip_coins returns a LIST of results; `not [False]` is False, so the
+        # gate has to read the coins rather than the coroutine's truthiness.
+        results = await ctx.flip_coins(coins) if flip else []
+        await ctx.deal_damage(damage)
+        if flip and not all(results):
+            return
+        ctx.lock_plays(ctx.opponent_id, _play_kind_predicate(kinds))
+
+    return effect
+
+
+def lock_opponent_evolutions(damage=None, defending_only=False):
+    """"During your opponent's next turn, they can't evolve their <Active>
+    Pokemon" — a turn-scoped passive on the attacker carried through the
+    opponent's turn."""
+    from ptcgo.game.card_effects.passives_common import evolution_lock_passive
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker,
+            evolution_lock_passive(
+                opponent_id=ctx.opponent_id,
+                only=ctx.defender if defending_only else None,
+            ),
+        )
+
     return effect

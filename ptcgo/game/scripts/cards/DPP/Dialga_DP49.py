@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import evolve_from_deck
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Time Call",
             game_text="Search your deck for a card that evolves from 1 of your Pok\u00e9mon and put it onto that Pok\u00e9mon. (This counts as evolving that Pok\u00e9mon.) Shuffle your deck afterward.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=evolve_from_deck(),
         ),
         Attack(
             title="Time Wager",

@@ -15,12 +15,15 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
+    EnergyTypeOverride,
     Passive,
     TurnDamageModifier,
     attacks_of,
     carrier_pokemon,
     effective_max_hp,
+    effective_pokemon_types,
     previous_evolution_attacks,
 )
 
@@ -568,6 +571,18 @@ def previous_evolution_grant_passive(extra_sources=None) -> Passive:
     return PreviousEvolutionAttacksPassive(extra_sources)
 
 
+class BurnCountersPassive(Passive):
+    """Burn checkup puts `counters` damage counters instead of the usual two:
+    "Put 4 damage counters instead of 2 on your opponent's Burned Pokemon
+    between turns"."""
+
+    def __init__(self, counters):
+        self.counters = counters
+
+    def modify_burn_counters(self, counters, pokemon, carrier):
+        return max(counters, self.counters)
+
+
 class NoWeaknessPassive(Passive):
     """Protected Pokemon have no Weakness."""
 
@@ -1089,3 +1104,220 @@ def raise_defender_retreat_cost_next_turn(extra=1):
         await ctx.deal_damage()
         await apply_defender_retreat_cost_raise(ctx, extra)
     return effect
+
+
+class EnergyTypeRewritePassive(Passive):
+    """"All [basic] Energy attached to <scope> provide <types> Energy instead
+    of their usual types" (Steelix Rare Metal, Erika's Oddish Photosynthesis,
+    Wild Growth, Chlorophyll). Read-time only: the attached cards never change.
+
+    `modify_energy_provided` gets the Energy and its holder but not the
+    Pokemon contributing the passive, and ability passives are shared
+    singletons, so the carrier is recovered from the board: the in-play
+    Pokemon whose ability list holds this exact passive object."""
+
+    def __init__(self, types, protects="carrier", basic_only=False,
+                 colorless_only=False, holder_types=None):
+        self.types = [int(types)] if isinstance(types, int) else [int(t) for t in types]
+        self.protects = protects
+        self.basic_only = basic_only
+        self.colorless_only = colorless_only
+        self.holder_types = tuple(int(t) for t in holder_types or ())
+
+    def _carrier(self, board):
+        from ptcgo.game.content.definitions import ABILITIES_BY_ID
+        for player_id in board.player_ids:
+            for pokemon in board.pokemon_in_play(player_id):
+                for entry in pokemon.get_attribute(AttrID.PIE_ABILITIES) or []:
+                    if not isinstance(entry, dict):
+                        continue
+                    ability = ABILITIES_BY_ID.get(entry.get("abilityID"))
+                    if ability is not None and ability.passive is self:
+                        return pokemon
+        return None
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        if holder is None or board is None:
+            return options
+        carrier = self._carrier(board)
+        if carrier is None or not _protects_pred(self.protects)(holder, carrier):
+            return options
+        if self.holder_types:
+            types = {getattr(t, "value", t) for t in effective_pokemon_types(board, holder)}
+            if not types.intersection(self.holder_types):
+                return options
+        record = EnergyTypeOverride(
+            types=list(self.types),
+            basic_only=self.basic_only,
+            colorless_only=self.colorless_only,
+        )
+        return record.apply(options, energy, holder, board)
+
+
+def rewrite_energy_types_passive(types, protects="carrier", basic_only=False,
+                                 colorless_only=False, holder_types=None) -> Passive:
+    """Continuous "all Energy attached to X provide <types> Energy instead".
+
+    `types` is what they provide instead (repeat a type to double it);
+    `protects` is 'carrier' (Energy on this Pokemon) | 'team' (Energy on any
+    of your Pokemon) | callable(holder, carrier); `basic_only` drops Special
+    Energy, `colorless_only` keeps cards currently providing only Colorless,
+    `holder_types` keeps holders of one of those types. Example::
+
+        Ability("Rare Metal", game_text="...",
+                passive=rewrite_energy_types_passive(
+                    PokemonTypes.METAL.value, basic_only=True))
+    """
+    return EnergyTypeRewritePassive(types, protects, basic_only=basic_only,
+                                    colorless_only=colorless_only,
+                                    holder_types=holder_types)
+
+
+class RetreatDiscountDespiteConditionsPassive(Passive):
+    """"The Retreat Cost of the Pokemon this card is attached to is C less,
+    and it can retreat even if it's Asleep or Paralyzed" (Escape Board).
+
+    Both halves are continuous, so this is one passive on the Tool: the
+    discount through modify_retreat_cost, the permission through the
+    retreat-only negator that legal_actions consults."""
+
+    def __init__(self, amount=1, protects="carrier"):
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if not self.protects(pokemon, carrier):
+            return cost
+        return max(0, cost - self.amount)
+
+    def permits_retreat_while_immobilized(self, pokemon, carrier):
+        return self.protects(pokemon, carrier)
+
+
+def retreat_discount_despite_conditions(amount=1, protects="carrier") -> Passive:
+    """Retreat Cost -amount plus "may retreat while Asleep or Paralyzed"."""
+    return RetreatDiscountDespiteConditionsPassive(amount, protects)
+
+
+class RescueScarfPassive(Passive):
+    """"If the Pokemon this card is attached to is Knocked Out by damage from
+    an attack, put that Pokemon into your hand. (Discard all cards attached.)"
+    Only the attack-damage knockout is redirected: a knockout from an effect
+    still goes to the discard pile."""
+
+    def knockout_destination(self, pokemon, carrier, from_attack=False):
+        if not from_attack or carrier_pokemon(carrier) is not pokemon:
+            return None
+        return "hand"
+
+
+def rescue_to_hand_on_attack_ko() -> Passive:
+    """Rescue Scarf: the KO'd holder goes to its owner's hand."""
+    return RescueScarfPassive()
+
+
+def weakness_to_attacker_type(pokemon, attacker) -> bool:
+    """Whether `pokemon`'s printed Weakness is one of `attacker`'s types."""
+    if pokemon is None or attacker is None:
+        return False
+    weakness = pokemon.get_attribute(AttrID.WEAKNESS_TYPES)
+    if isinstance(weakness, str):
+        weakness = [int(part) for part in weakness.strip("[]").split(",") if part.strip()]
+    attacker_types = attacker.get_attribute(AttrID.POKEMON_TYPES) or []
+    if isinstance(attacker_types, str):
+        attacker_types = [int(part) for part in attacker_types.strip("[]").split(",") if part.strip()]
+    return bool(set(weakness or []) & set(attacker_types or []))
+
+
+async def draw_when_damaged_with_weakness(ctx, count=3):
+    """"If the Pokemon this card is attached to has Weakness to your
+    opponent's Active Pokemon's type, is in the Active Spot, and is damaged by
+    an attack from your opponent's Pokemon (even if it is Knocked Out), draw
+    N cards" (Adversity Policy)."""
+    pokemon = ctx.source
+    if pokemon is None or not is_in_active_spot(pokemon):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+        return
+    if not weakness_to_attacker_type(pokemon, attacker):
+        return
+    await ctx.draw_cards(count)
+
+
+class TeamPlasmaPassive(Passive):
+    """"The Pokemon this card is attached to is a Team Plasma Pokemon"
+    (Team Plasma Badge): the subtype is added while the Tool is attached, so
+    it disappears with the card and never touches the printed state."""
+
+    def __init__(self, subtype="Team Plasma"):
+        self.subtype = subtype
+
+    def modify_subtypes(self, subtypes, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon or self.subtype in subtypes:
+            return subtypes
+        return list(subtypes) + [self.subtype]
+
+
+def team_plasma_passive(subtype="Team Plasma") -> Passive:
+    """Makes the holder a Team Plasma Pokemon while attached."""
+    return TeamPlasmaPassive(subtype)
+
+
+def has_team_plasma(board, pokemon) -> bool:
+    """Whether `pokemon` counts as a Team Plasma Pokemon right now, printed or
+    granted by an attached Team Plasma Badge."""
+    from ptcgo.game.session.passives import has_subtype
+    return has_subtype(board, pokemon, "Team Plasma")
+
+
+def cure_on_energy_attach(energy_type=None):
+    """"Whenever you attach [a <type>] Energy from your hand to this Pokemon,
+    remove all Special Conditions from it" (Natural Cure, Water Veil). The
+    typed variants filter the trigger's attached Energy."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    async def effect(ctx):
+        if ctx.energy_receiver is not ctx.source:
+            return
+        if type_value is not None and ctx.attached_energy is not None \
+                and not energy_provides_type(ctx.attached_energy, type_value):
+            return
+        await ctx.cure_all_conditions(ctx.source)
+
+    return effect
+
+
+class EvolutionLockPassive(Passive):
+    """"Your opponent can't evolve their <Active> Pokemon during their next
+    turn" (Evolution Lock): a turn-scoped passive on the attacker."""
+
+    def __init__(self, opponent_id=None, only=None, active_only=False):
+        self.opponent_id = opponent_id
+        self.only = only
+        self.active_only = active_only
+
+    def blocks_evolution(self, player_id, target, carrier):
+        if self.opponent_id is not None and player_id == self.opponent_id:
+            return False
+        if self.only is not None and target is not self.only:
+            return False
+        return True
+
+
+def evolution_lock_passive(active_only=False, opponent_id=None, only=None) -> Passive:
+    """Blocks the opponent's evolutions for the passive's lifetime."""
+    return EvolutionLockPassive(opponent_id=opponent_id, only=only, active_only=active_only)
+
+
+class SpiritLinkPassive(Passive):
+    """"Your turn does not end if the Pokemon this card is attached to becomes
+    M <name> ex" (Spirit Link): the one clause every Spirit Link prints."""
+
+    def permits_turn_continue_after_mega(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
+
+def spirit_link_passive() -> Passive:
+    """Keeps the turn alive through the holder's Mega Evolution."""
+    return SpiritLinkPassive()

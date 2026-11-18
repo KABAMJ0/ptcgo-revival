@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import return_attached_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Energy Return",
             game_text="As often as you like during your turn (before your attack), choose an Energy card attached to 1 of your Pok\u00e9mon and return it to your hand. This power can't be used if Espeon is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=return_attached_energy(count=1, to="hand", target="choice"),
         ),
         Attack(
             title="Damage Blast",

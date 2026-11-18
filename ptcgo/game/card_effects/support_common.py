@@ -34,9 +34,19 @@ async def _deal_printed(ctx):
         await ctx.deal_damage()
 
 
+def entity_name(entity) -> str:
+    """A board entity's printed name.
+
+    A CardEntity carries no `display_name`; the name lives on the definition
+    (`card.card_obj` is the same card model). Resolve through `def_for`, the
+    way the rest of the effect library does, so a predicate that names a card
+    cannot silently read nothing."""
+    definition = def_for(getattr(entity, "archetype_id", None) or "")
+    return getattr(definition, "display_name", "") or ""
+
+
 def _card_label(card: CardEntity) -> str:
-    definition = def_for(card.archetype_id)
-    return getattr(definition, "display_name", None) or "the card"
+    return entity_name(card) or "the card"
 
 
 def _is_damaged(board, pokemon: PokemonEntity) -> bool:
@@ -629,4 +639,301 @@ def heal_all_from_one():
         amount = ctx.max_hp(target) - target.get_attribute(AttrID.HP, 0)
         if amount > 0:
             await ctx.heal(amount, target)
+    return effect
+
+
+# --- Ultimate Zone ---------------------------------------------------------
+
+def _bench_energy_holders(ctx):
+    return [p for p in ctx.my_bench() if ctx.board.attached_energies(p)]
+
+
+def move_bench_energy_to_named_active(name):
+    """"The player may move an Energy card attached to 1 of his or her
+    Benched Pokemon to his or her Active <name> as often as he or she likes"
+    (Ultimate Zone) -- an UNLIMITED Stadium ability, so it is repeatable."""
+
+    def _active_is_named(board, player_id):
+        active = board.active_pokemon(player_id)
+        if active is None:
+            return False
+        printed = (getattr(def_for(active.archetype_id), "display_name", "") or "").lower()
+        return printed == name.lower() or printed.startswith(name.lower() + " ")
+
+    def condition(board, player_id, stadium):
+        if not _active_is_named(board, player_id):
+            return False
+        bench = board.find_player_area(player_id, "bench")
+        return any(bool(board.attached_energies(p)) for p in (bench.children if bench else []))
+
+    async def effect(ctx):
+        active = ctx.board.active_pokemon(ctx.player_id)
+        if active is None:
+            return
+        energies = [energy for pokemon in _bench_energy_holders(ctx)
+                    for energy in ctx.board.attached_energies(pokemon)]
+        if not energies:
+            return
+        for energy in await ctx.choose_cards(
+                energies, 1, minimum=1,
+                prompt=f"Choose an Energy to move to your Active {name}"):
+            await ctx.move_energy(energy, active)
+
+    return effect, condition
+
+
+def search_attach_energy_then_lock_attacks(count=2, prompt=""):
+    """"Search your deck for up to N Basic Energy cards and attach them to 1
+    of your Pokemon. Then, shuffle your deck. During this turn, your Pokemon
+    can't attack. (This includes Pokemon that come into play this turn.)"
+    (Geeta)."""
+    async def effect(ctx):
+        cards = await ctx.search_deck(
+            lambda card: is_energy_card(card) and not bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+            count=count, minimum=0,
+            prompt=prompt or f"Choose up to {count} Basic Energy cards",
+        )
+        if cards:
+            target = None
+            in_play = ctx.my_pokemon_in_play()
+            if len(in_play) == 1:
+                target = in_play[0]
+            else:
+                picks = await ctx.choose_cards(
+                    in_play, 1, minimum=1,
+                    prompt="Choose a Pokémon to attach the Energy to",
+                )
+                target = picks[0] if picks else None
+            if target is not None:
+                for card in cards:
+                    await ctx.attach_energy(card, target)
+        await ctx.shuffle_deck()
+        ctx.lock_player_attacks()
+
+    return effect
+
+
+async def sabrinas_psychic_control(ctx):
+    """"Flip a coin. If heads, choose a Trainer card in your opponent's discard
+    pile that isn't put in play ... You may use that card as if it were in your
+    hand" (Sabrina's Psychic Control)."""
+    if not await ctx.flip_coins(1):
+        return
+    await ctx.use_trainer_from_opponent_discard(
+        "Choose a Trainer card in your opponent's discard pile to use"
+    )
+
+
+def baby_evolution(*names):
+    """"Once during your turn, you may put <name> from your hand onto this
+    Pokemon (this counts as evolving it) and remove all damage counters from
+    it" (Baby Evolution).
+
+    Returns (effect, condition): the offer must disappear when no copy of the
+    named card is in hand. perform_evolution nests the pre-evolution under a
+    NEW entity and carries the damage across, so the counters are cleared on
+    the evolution card that was just played, not on ctx.source."""
+    wanted = {" ".join((name or "").lower().split()) for name in names}
+
+    def _in_hand(board, player_id, pokemon) -> bool:
+        area = board.find_player_area(player_id, "hand")
+        return any(
+            " ".join(entity_name(card).lower().split()) in wanted
+            for card in (area.children if area else [])
+        )
+
+    async def effect(ctx):
+        cards = [card for card in ctx.hand()
+                 if " ".join(entity_name(card).lower().split()) in wanted]
+        if not cards:
+            return
+        picks = cards if len(cards) == 1 else await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose the Evolution card to put onto this Pokémon",
+        )
+        if not picks:
+            return
+        evolution = picks[0]
+        if not await ctx.evolve_pokemon(ctx.source, evolution):
+            return
+        remaining = evolution.get_attribute(AttrID.HP, 0)
+        await ctx.heal(max(0, ctx.max_hp(evolution) - remaining), evolution)
+
+    return effect, _in_hand
+
+
+def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
+                     distribute=False, minimum=1, then=None, prompt=""):
+    """"Attach up to N Energy from your hand to <target>": offers the matching
+    hand cards, then attaches them to this Pokemon ("self"), to one chosen
+    Pokemon of `ctx.my_pokemon_in_play()` filtered by `target_pred` ("choice"),
+    or one per card through distribute_energy ("in any way you like").
+
+    `then(ctx, attached)` runs afterwards with the (card, target) pairs, for the
+    "if you attached Energy to a Pokemon in this way, ..." riders. `minimum=0`
+    for "you may ... up to N" and repeatable abilities; `minimum=1` when
+    choosing the ability is the commitment."""
+    predicate = predicate or is_energy_card
+
+    def _targets(ctx):
+        return [pokemon for pokemon in ctx.my_pokemon_in_play()
+                if target_pred is None or target_pred(pokemon)]
+
+    async def effect(ctx):
+        hand = [card for card in ctx.hand() if predicate(card)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=minimum,
+            prompt=prompt or f"Choose up to {count} card(s) to attach")
+        if not picks:
+            return
+        attached = []
+        if target == "self":
+            for card in picks:
+                await _attach_all(ctx, [card], ctx.source)
+                attached.append((card, ctx.source))
+        else:
+            candidates = _targets(ctx)
+            if not candidates:
+                return
+            if distribute:
+                attached = await distribute_energy(ctx, picks, candidates)
+            else:
+                pokemon = await ctx.choose_pokemon(
+                    candidates, "Choose a Pokémon to attach the Energy to")
+                if pokemon is None:
+                    pokemon = candidates[0]
+                await _attach_all(ctx, picks, pokemon)
+                attached = [(card, pokemon) for card in picks]
+        if then is not None and attached:
+            await then(ctx, attached)
+
+    return effect
+
+
+def hand_attach_condition(predicate=None, target="choice", target_pred=None) -> Callable:
+    """Gate for a hand-attach ability: offering it would do nothing unless a
+    matching hand card and a legal target are both there. An UNLIMITED
+    activation MUST carry a condition or its offer never disappears."""
+    predicate = predicate or is_energy_card
+
+    def condition(board, player_id, pokemon) -> bool:
+        hand = board.find_player_area(player_id, "hand")
+        if not any(predicate(card) for card in (hand.children if hand else [])):
+            return False
+        if target == "self":
+            return True
+        return any(target_pred is None or target_pred(p)
+                   for p in board.pokemon_in_play(player_id))
+
+    return condition
+
+
+def _energy_pool(ctx, name, predicate=None):
+    if name == "bench":
+        pool = ctx.my_bench()
+    elif name == "active":
+        active = ctx.my_active()
+        pool = [active] if active is not None else []
+    else:
+        pool = ctx.my_pokemon_in_play()
+    return [pokemon for pokemon in pool if predicate is None or predicate(pokemon)]
+
+
+def move_energy_between(predicate=None, count=1, from_pool="any", to_pool="any",
+                        source_pred=None, then=None,
+                        prompt="Choose an Energy to move"):
+    """"Move [up to N] Energy card(s) attached to <one of your Pokemon> to
+    another of your Pokemon" (Sceptile, Simisear, Team Rocket's Energy).
+
+    Pools are "any" (every Pokemon in play), "bench" or "active"; the holder is
+    never offered as its own destination. `count=None` allows any number."""
+    predicate = predicate or is_energy_card
+
+    async def effect(ctx):
+        sources = _energy_pool(ctx, from_pool, source_pred)
+        energies = [energy for pokemon in sources
+                    for energy in ctx.attached_energies(pokemon)
+                    if predicate(energy)]
+        if not energies:
+            return
+        destinations = _energy_pool(ctx, to_pool)
+        if not destinations or (len(destinations) == 1 and destinations[0] is sources[0]
+                                and len(sources) == 1):
+            return
+        moved = await ctx.move_energy_freely(
+            sources, destinations, predicate=predicate,
+            max_count=count, prompt=prompt,
+        )
+        if then is not None and moved:
+            await then(ctx, moved)
+
+    return effect
+
+
+def can_move_energy(predicate=None, from_pool="any", to_pool="any",
+                    source_pred=None) -> Callable:
+    """Condition for a repeatable move-Energy ability: an eligible Energy sits
+    on a source and another Pokemon can receive it."""
+    predicate = predicate or is_energy_card
+
+    def condition(board, player_id, pokemon) -> bool:
+        def pool(name):
+            if name == "bench":
+                area = board.find_player_area(player_id, "bench")
+                return list(area.children) if area else []
+            if name == "active":
+                active = board.active_pokemon(player_id)
+                return [active] if active is not None else []
+            return board.pokemon_in_play(player_id)
+
+        sources = [p for p in pool(from_pool) if source_pred is None or source_pred(p)]
+        carriers = [p for p in sources
+                    if any(predicate(energy) for energy in board.attached_energies(p))]
+        return bool(carriers) and len(pool(to_pool)) >= 2
+
+    return condition
+
+
+def return_attached_energy(count=1, energy_type=None, all=False, to="hand",
+                           target="self", then=None, prompt=""):
+    """"Return [an] Energy card[s] attached to <target> to your hand|deck."
+
+    `target` is "self" (the source Pokemon), "choice" (any of yours) or a
+    callable(pokemon) predicate. `then(ctx, returned)` runs only when something
+    was actually returned, for the "If you do, ..." riders."""
+    type_value = getattr(energy_type, "value", energy_type)
+
+    async def effect(ctx):
+        if callable(target):
+            pool = [pokemon for pokemon in ctx.my_pokemon_in_play() if target(pokemon)]
+        elif target == "choice":
+            pool = ctx.my_pokemon_in_play()
+        else:
+            pool = [ctx.source] if isinstance(ctx.source, PokemonEntity) else []
+        candidates = []
+        for pokemon in pool:
+            for energy in ctx.attached_energies(pokemon):
+                if type_value is None or energy_provides_type(energy, type_value):
+                    candidates.append(energy)
+        if not candidates:
+            return
+        if all:
+            picks = candidates
+        elif len(candidates) == 1:
+            picks = candidates
+        else:
+            picks = await ctx.choose_cards(
+                candidates, count, minimum=0,
+                prompt=prompt or f"Choose up to {count} Energy card(s) to return")
+        if not picks:
+            return
+        if to == "deck":
+            await ctx.shuffle_into_deck(picks)
+        else:
+            await ctx.put_in_hand(picks)
+        if then is not None:
+            await then(ctx, picks)
+
     return effect

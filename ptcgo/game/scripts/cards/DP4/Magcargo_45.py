@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="110b27fc-d8b8-53e5-99b6-812f72d0e920",
@@ -19,11 +20,7 @@ card = PokemonCardDef(
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Slugma.Name",
     family_id=218,
     abilities=[
-        Ability(
-            title="Magma Armor",
-            game_text="Magcargo can't be Asleep or Paralyzed.",
-            effect=unimplemented,
-        ),
+        Ability(title="Magma Armor", game_text="Magcargo can't be Asleep or Paralyzed.", passive=condition_immunity_passive([SpecialConditions.ASLEEP, SpecialConditions.PARALYZED])),
         Attack(
             title="Lava Plume",
             game_text="You may discard the top card of your deck. If you do, the Defending Pok\u00e9mon is now Burned.",

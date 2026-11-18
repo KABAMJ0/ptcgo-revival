@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="c661c8bd-51ad-590a-9457-5ebd2346bdf0",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned; if tails, it is now Confused.",
             cost={PokemonTypes.GRASS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True, tails_conditions=(SpecialConditions.CONFUSED,)),
         ),
     ],
 )

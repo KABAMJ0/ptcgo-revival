@@ -105,6 +105,12 @@ from ptcgo.database.async_utils import run_db
 from ptcgo.server import activity
 
 
+def is_mega_evolution(card) -> bool:
+    """Whether a card is a Mega Evolution (printed subtype MEGA)."""
+    return "MEGA" in [subtype.upper() for subtype in subtypes_for(
+        getattr(card, "archetype_id", None) or "")]
+
+
 def _persist_match_result(account_id: str, coins: int, is_winner: bool):
     """One thread hop for a player's match-end persistence (coins + ladder points)."""
     grant_coins(account_id, coins)
@@ -2342,7 +2348,8 @@ class GameSession:
             # stack; energy/tools always fall to the discard pile.
             dest_name = next(
                 (d for p, c in active_passives(self.board_state)
-                 for d in [p.knockout_destination(pokemon, c)] if d),
+                 for d in [p.knockout_destination(
+                     pokemon, c, from_attack=_damage_ko(pokemon))] if d),
                 "discard",
             )
             dest_area = self.board_state.find_player_area(owner_id, dest_name) or discard
@@ -3363,8 +3370,35 @@ class GameSession:
                 await self._fire_triggered_abilities(
                     player_id, pokemon, Triggers.BETWEEN_TURNS
                 )
+        # A Stadium is in play for both players but is not anybody's Pokemon,
+        # so the per-Pokemon pass above never reached its BETWEEN_TURNS
+        # abilities (Temple of Sinnoh-style checkups).
+        await self._fire_stadium_between_turns()
         # Checkup KOs/triggers may have toggled bench-capacity passives.
         await self.enforce_bench_capacity()
+
+    async def _fire_stadium_between_turns(self):
+        """BETWEEN_TURNS for the in-play Stadium, once per player in turn order.
+
+        A Stadium's abilities live in `StadiumCardDef.ability` and
+        `granted_abilities`, which `_fire_triggered_abilities` never scans (it
+        reads PIE_ABILITIES and the definition's Pokemon-style `abilities`), so
+        they are resolved here instead."""
+        area = self.board_state.find_global_area("activeStadium")
+        for stadium in list(area.children if area else []):
+            definition = def_for(stadium.archetype_id)
+            abilities = [getattr(definition, "ability", None)]
+            abilities.extend(getattr(definition, "granted_abilities", []) or [])
+            for ability in abilities:
+                if ability is None or ability.effect is None or ability.effect is unimplemented:
+                    continue
+                if not ability.has_trigger(Triggers.BETWEEN_TURNS):
+                    continue
+                for player_id in self._turn_order():
+                    trigger_ctx = await resolve_triggered_ability(
+                        self, player_id, stadium, ability)
+                    if trigger_ctx is not None and trigger_ctx.knockouts:
+                        await self.resolve_knockouts(trigger_ctx)
 
     async def _checkup_poison(self, active):
         """Poison tick: 10 * poison_counters (default 1) raw damage."""
@@ -4101,7 +4135,7 @@ class GameSession:
         elif description == ACTION_ATTACH_TOOL:
             await self._execute_attach_tool(player_id, card, entry, target_ids)
         elif description == ACTION_EVOLVE:
-            await self._execute_evolve(player_id, card, entry, target_ids)
+            return await self._execute_evolve(player_id, card, entry, target_ids)
         elif description == ACTION_USE_TRAINER:
             targets = trainer_play_target_ids(self.board_state, player_id, card)
             play_target = None
@@ -4850,8 +4884,20 @@ class GameSession:
                 f"[Session {self.game_id}] Evolve without a valid target "
                 f"({target_ids}); re-offering."
             )
-            return
-        await self.perform_evolution(player_id, card, target)
+            return False
+        # "Your turn does not end if this Pokemon becomes M <name> ex": a
+        # passive on the attached Tool vetoes the turn end. Read it off the
+        # PRE-evolution -- the attachments are re-nested once the evolution
+        # finishes, so the Tool's carrier would no longer be this Pokemon.
+        linked = any(
+            passive.permits_turn_continue_after_mega(target, carrier)
+            for passive, carrier in active_passives(self.board_state)
+        )
+        if not await self.perform_evolution(player_id, card, target):
+            return False
+        # "Mega Evolution: when one of your Pokemon becomes a Mega Evolution,
+        # your turn ends" -- unless the evolving Pokemon carried a Spirit Link.
+        return is_mega_evolution(card) and not linked
 
     async def perform_evolution(self, player_id, evolution_card, target,
                                 from_zone_intro: bool = False) -> bool:

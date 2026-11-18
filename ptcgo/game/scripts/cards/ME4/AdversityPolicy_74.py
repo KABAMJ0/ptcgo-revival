@@ -1,21 +1,6 @@
+from ptcgo.game.card_effects.passives_common import draw_when_damaged_with_weakness
 from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
-from ptcgo.game.attributes import AttrID, Rarities
-from ptcgo.game.session.passives import carrier_pokemon
-
-
-async def _adversity_policy(ctx):
-    attacker = ctx.damaged_by
-    tool = ctx.ability_source
-    if attacker is None or tool is None or attacker.owning_player_id == ctx.player_id:
-        return
-    holder = carrier_pokemon(tool)
-    if holder is None or ctx.board.active_pokemon(ctx.player_id) is not holder:
-        return
-    weakness = holder.get_attribute(AttrID.WEAKNESS_TYPES) or []
-    if not set(weakness) & set(attacker.get_attribute(AttrID.POKEMON_TYPES) or []):
-        return
-    await ctx.draw_cards(3)
-
+from ptcgo.game.attributes import Rarities
 
 card = PokemonToolCardDef(
     guid="b2d1d8e8-308a-59cd-a63a-1cf37fc28c6f",
@@ -27,9 +12,12 @@ card = PokemonToolCardDef(
     collector_number=74,
     set_code="ME4",
     rarity=Rarities.Uncommon,
-    granted_abilities=[Ability(
-        title="Adversity Policy",
-        trigger=Triggers.ON_DAMAGED_BY_ATTACK,
-        effect=_adversity_policy,
-    )],
+    granted_abilities=[
+        Ability(
+            title="Adversity Policy",
+            game_text="If the Pok\u00e9mon this card is attached to has Weakness to your opponent's Active Pok\u00e9mon's type, is in the Active Spot, and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), draw 3 cards.",
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=draw_when_damaged_with_weakness,
+        ),
+    ],
 )

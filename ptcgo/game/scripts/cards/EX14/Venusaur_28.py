@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="deb6e18d-b95f-5f6e-bbdc-4ad363e79a70",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Chlorophyll",
             game_text="All Energy cards that provide only Colorless Energy attached to your Grass Pok\u00e9mon provide Grass Energy instead.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive(PokemonTypes.GRASS.value, protects="team", colorless_only=True, holder_types=[PokemonTypes.GRASS.value]),
         ),
         Attack(
             title="Green Blast",
@@ -36,7 +38,7 @@ card = PokemonCardDef(
             title="Toxic Sleep",
             game_text="The Defending Pok\u00e9mon is now Asleep and Poisoned. Put 2 damage counters instead of 1 on the Defending Pok\u00e9mon between turns.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, SpecialConditions.POISONED, counters=2),
         ),
     ],
 )

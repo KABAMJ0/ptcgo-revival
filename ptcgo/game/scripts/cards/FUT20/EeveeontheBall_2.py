@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import excluding, is_basic_energy_card
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Make the Assist",
             game_text="Attach a basic Energy card from your hand to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, target_pred=excluding(is_in_active_spot)),
         ),
         Attack(
             title="Tackle",

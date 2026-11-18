@@ -356,6 +356,21 @@ class Passive:
         """True to let `pokemon` attack even while Asleep/Paralyzed (Windup Arm)."""
         return False
 
+    def permits_turn_continue_after_mega(
+        self, pokemon: PokemonEntity, carrier: BoardEntity
+    ) -> bool:
+        """True to keep the turn going when `pokemon` becomes a Mega Evolution
+        (Spirit Link: "your turn does not end if the Pokemon this card is
+        attached to becomes M <name> ex")."""
+        return False
+
+    def permits_retreat_while_immobilized(
+        self, pokemon: PokemonEntity, carrier: BoardEntity
+    ) -> bool:
+        """True to let `pokemon` retreat even while Asleep or Paralyzed
+        (Escape Board). Retreat only: attacking stays blocked."""
+        return False
+
     def blocks_special_conditions(
         self, target: PokemonEntity, condition: Any, carrier: BoardEntity
     ) -> bool:
@@ -366,8 +381,12 @@ class Passive:
         """True to prevent healing damage from `target` (Mimikyu SWSH3)."""
         return False
 
-    def knockout_destination(self, pokemon: PokemonEntity, carrier: BoardEntity) -> Optional[str]:
-        """Area name replacing "discard" for a knocked-out Pokemon (e.g. "lostZone")."""
+    def knockout_destination(
+        self, pokemon: PokemonEntity, carrier: BoardEntity, from_attack: bool = False
+    ) -> Optional[str]:
+        """Area name replacing "discard" for a knocked-out Pokemon (e.g. "lostZone",
+        "hand"). `from_attack` is True when attack damage caused the knockout, which
+        Rescue Scarf's wording requires."""
         return None
 
     def modify_prizes_for_knockout(
@@ -869,6 +888,20 @@ def retreat_blocked(board: BoardState, pokemon: PokemonEntity) -> bool:
     """Whether a passive forbids `pokemon` from retreating."""
     return any(
         passive.blocks_retreat(pokemon, carrier)
+        for passive, carrier in active_passives(board)
+    )
+
+
+def can_retreat_despite_conditions(board: BoardState, player_id: str) -> bool:
+    """Whether the player's Active may retreat while Asleep or Paralyzed.
+
+    Only retreat: `can_attack_despite_conditions` is the attack-side twin, and
+    a carrier that grants one does not grant the other."""
+    active = board.active_pokemon(player_id)
+    if active is None:
+        return False
+    return any(
+        passive.permits_retreat_while_immobilized(active, carrier)
         for passive, carrier in active_passives(board)
     )
 

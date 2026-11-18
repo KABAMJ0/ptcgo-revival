@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Psychic Mirage",
             game_text="Each basic Psychic Energy attached to your Psychic Pok\u00e9mon provides PsychicPsychic Energy. You can't apply more than 1 Psychic Mirage Ability at a time.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive([PokemonTypes.PSYCHIC.value] * 2, protects="team", basic_only=True, holder_types=[PokemonTypes.PSYCHIC.value]),
         ),
         Attack(
             title="Mind Shock",

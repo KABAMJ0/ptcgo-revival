@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Wild Growth",
             game_text="Each Basic Grass Energy attached to all of your Pok\u00e9mon provides GrassGrass Energy. The effect of Wild Growth doesn't stack.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive([PokemonTypes.GRASS.value] * 2, protects="team", basic_only=True),
         ),
         Attack(
             title="Solar Beam",

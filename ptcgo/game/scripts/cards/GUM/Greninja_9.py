@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Evasion Jutsu",
             game_text="If any damage is done to this Pok\u00e9mon by attacks, flip a coin. If heads, prevent that damage.",
-            effect=unimplemented,
+            passive=flip_prevent_damage_passive("Evasion Jutsu"),
         ),
         Attack(
             title="Furious Shurikens",

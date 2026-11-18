@@ -789,7 +789,7 @@ class PathToThePeakPassive(Passive):
 class LostCityPassive(Passive):
     """Knocked Out Pokemon go to the Lost Zone instead of the discard pile."""
 
-    def knockout_destination(self, pokemon, carrier):
+    def knockout_destination(self, pokemon, carrier, from_attack=False):
         return "lostZone"
 
 
