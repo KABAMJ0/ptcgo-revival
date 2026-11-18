@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import self_switch_then_opponent_switch
 
 card = ItemCardDef(
     guid="573a33f6-0b84-52c8-8685-e57e533c76f6",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=100,
     set_code="NEO1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=self_switch_then_opponent_switch()
 )

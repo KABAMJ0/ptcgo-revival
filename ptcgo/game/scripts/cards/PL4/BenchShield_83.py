@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import prevents_all_from
 
 card = PokemonToolCardDef(
     guid="853c3710-b026-5148-bbc5-eb4bdf9d7fa7",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=83,
     set_code="PL4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=prevents_all_from()
 )

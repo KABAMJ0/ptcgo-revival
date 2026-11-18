@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_to_top
 
 card = SupporterCardDef(
     guid="3358863d-bf4d-575d-b784-04f0754a6116",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=138,
     set_code="ECARD3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_top(2)
 )
