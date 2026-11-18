@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Tail Wag",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack Eevee during your opponent's next turn. (Benching either Pok\u00e9mon ends this effect.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_defender_lock_attack(),
         ),
         Attack(
             title="Quick Attack",
