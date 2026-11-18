@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import pokemon_with_subtype
 card = EnergyCardDef(
     guid="a1be9557-4439-5c31-8c90-51a75824090f",
     key="SWSH8",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SWSH8",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    attach_to=pokemon_with_subtype("Fusion Strike"),
 )

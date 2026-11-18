@@ -106,6 +106,41 @@ def main():
     check("Rainbow offers every type and carries an attach rider",
           len(options_of(rainbow)) == 11 and rainbow.on_attach is not None, options_of(rainbow))
 
+    print("\nattach restrictions")
+    fighting = StubCard({AttrID.CARD_TYPE: CardType.POKEMON.value,
+                         AttrID.STAGE: PokemonStage.BASIC.value,
+                         AttrID.POKEMON_TYPES: [PokemonTypes.FIGHTING.value]})
+    water = StubCard({AttrID.CARD_TYPE: CardType.POKEMON.value,
+                      AttrID.STAGE: PokemonStage.STAGE1.value,
+                      AttrID.POKEMON_TYPES: [PokemonTypes.WATER.value]})
+    stage2 = StubCard({AttrID.CARD_TYPE: CardType.POKEMON.value,
+                       AttrID.STAGE: PokemonStage.STAGE2.value,
+                       AttrID.POKEMON_TYPES: [PokemonTypes.COLORLESS.value]})
+
+    strong = definition("XY3/StrongEnergy_104")
+    check("Strong Energy takes a Fighting carrier",
+          strong.attach_to(fighting) and not strong.attach_to(water), None)
+
+    double_rainbow = definition("EX14/DoubleRainbowEnergy_88")
+    check("Double Rainbow refuses a Basic and takes an Evolution",
+          not double_rainbow.attach_to(fighting) and double_rainbow.attach_to(stage2), None)
+
+    rapid = definition("SWSH5/RapidStrikeEnergy_140")
+    marker_card = next((card for card in loader.cards
+                        if "Rapid Strike" in (card.subtypes or [])), None)
+    plain_card = next((card for card in loader.cards
+                       if card.subtypes == ["Basic"] and (card.pokemon_types if hasattr(card, "pokemon_types") else None)), None)
+    if marker_card is not None:
+        marked = StubCard({AttrID.CARD_TYPE: CardType.POKEMON.value,
+                           AttrID.STAGE: PokemonStage.BASIC.value})
+        marked.archetype_id = marker_card.guid
+        check("Rapid Strike Energy takes a Rapid Strike carrier", rapid.attach_to(marked), None)
+        if plain_card is not None:
+            plain = StubCard({AttrID.CARD_TYPE: CardType.POKEMON.value,
+                              AttrID.STAGE: PokemonStage.BASIC.value})
+            plain.archetype_id = plain_card.guid
+            check("Rapid Strike Energy refuses a plain Basic", not rapid.attach_to(plain), None)
+
     print(f"\n{'FAILURES: ' + ', '.join(FAILS) if FAILS else 'all checks passed'}")
     return 1 if FAILS else 0
 

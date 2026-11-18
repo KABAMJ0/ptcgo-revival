@@ -1,7 +1,7 @@
 """Behaviors for the Special Energy cards of the Lugia VSTAR archetype deck."""
 
-from ptcgo.game.attributes import AttrID, PokemonTypes
-from ptcgo.game.data_utils import is_pokemon_v
+from ptcgo.game.attributes import AttrID, PokemonStage, PokemonTypes
+from ptcgo.game.data_utils import def_for, is_pokemon_v, subtypes_for
 from ptcgo.game.session.constants import BENCH_CAPACITY
 from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.session.passives import Passive, carrier_pokemon
@@ -156,3 +156,49 @@ class MultiEnergyPassive(Passive):
             and bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
         ]
         return [[PokemonTypes.COLORLESS.value]] if others else options
+
+
+# --- attach restrictions ---------------------------------------------------
+def pokemon_is_evolved(target) -> bool:
+    """Attach restriction: "can be attached only to an Evolved Pokemon"."""
+    if target is None:
+        return False
+    stage = target.get_attribute(AttrID.STAGE)
+    return stage is not None and stage != PokemonStage.BASIC.value
+
+
+def evolved_excluding_ex(target) -> bool:
+    """Old Double Rainbow / Scramble wording: Evolved, but not a Pokemon-ex."""
+    if not pokemon_is_evolved(target):
+        return False
+    archetype_id = getattr(target, "archetype_id", None)
+    if archetype_id is None:
+        return True
+    return not any(sub.lower() == "ex" for sub in subtypes_for(archetype_id))
+
+
+def pokemon_of_type(*types):
+    """Attach restriction: "can only be attached to <type> Pokemon"."""
+    def predicate(target) -> bool:
+        return target is not None and any(_pokemon_has_type(target, t) for t in types)
+    return predicate
+
+
+def pokemon_with_subtype(marker: str):
+    """Attach restriction: "can only be attached to a Rapid Strike Pokemon"."""
+    def predicate(target) -> bool:
+        archetype_id = getattr(target, "archetype_id", None) if target is not None else None
+        return archetype_id is not None and marker in subtypes_for(archetype_id)
+    return predicate
+
+
+def pokemon_named_like(fragment: str):
+    """Attach restriction for name-based gateways ("Team Rocket's Pokemon")."""
+    def predicate(target) -> bool:
+        archetype_id = getattr(target, "archetype_id", None) if target is not None else None
+        if archetype_id is None:
+            return False
+        definition = def_for(archetype_id)
+        name = getattr(definition, "display_name", "") or ""
+        return fragment.lower() in name.lower()
+    return predicate

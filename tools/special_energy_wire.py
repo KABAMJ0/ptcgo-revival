@@ -66,6 +66,36 @@ FAMILIES = [
         ("blend",),
     ),
     (
+        "attach-evolved-excluding-ex",
+        r"can be attached only to an evolved pokemon( \(excluding pokemon-ex\))?",
+        "attach_to=evolved_excluding_ex" if False else None,
+        ("evolved",),
+    ),
+    (
+        "attach-evolved",
+        r"(can be attached only to|can only be attached to) (an )?evolved pokemon|can only be attached to evolution pokemon",
+        "attach_to=pokemon_is_evolved",
+        (),
+    ),
+    (
+        "attach-type",
+        r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
+        None,
+        ("type",),
+    ),
+    (
+        "attach-strike",
+        r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon",
+        None,
+        ("strike",),
+    ),
+    (
+        "attach-named",
+        r"can (?:only be attached to|be attached only to) (?:a pokemon with )?(team rocket's|team aqua|team magma)( pokemon| in its name)",
+        None,
+        ("named",),
+    ),
+    (
         # the plain "every type, one at a time" family; anything conditional is
         # caught by BLOCKED below and left alone
         "all-types-one-at-a-time",
@@ -78,6 +108,9 @@ FAMILIES = [
 # Wording that asks for a primitive the engine does not have yet. Reported, never
 # wired, because a half-wired card plays by different rules than it is printed with.
 BLOCKED = [
+    (r"provides .{0,30} and ?/ ?or .{0,30} energy but provides 2 energy at a time"
+     r"|provides .{0,20} and .{0,20} energy but provides 2 energy at a time",
+     "two-specific-types-at-a-time provision (pairs helper missing)"),
     (r"ultra beast", "Ultra Beast subtype gate plus a damage passive"),
     (r"1 fewer prize", "prize-count passive with a once-per-game gate"),
     (r"put it in the lost zone instead|lost zone instead", "Prism Star lost-zone rule"),
@@ -86,7 +119,6 @@ BLOCKED = [
     (r"if you have 3 or more stage 2", "conditional on board count"),
     (r"discard .{0,40} at the end of (the|your) turn", "no end-of-turn discard timer for energies"),
     (r"can('|no)t retreat", "retreat lock from an energy needs the passive wired (batch 3)"),
-    (r"can be attached only|can only be attached", "attach restriction (batch 2)"),
     (r"damage done .{0,60}(reduced|increased) by", "damage modifier passive (batch 3)"),
     (r"more damage to the active", "damage modifier passive (batch 3)"),
 ]
@@ -154,6 +186,24 @@ def plan_for(text, is_special_text=True):
     for name, pattern, snippet, extra in FAMILIES:
         if not re.search(pattern, low):
             continue
+        if extra == ("evolved",):
+            excluding = "(excluding pokemon-ex)" in low or "excluding pokemon-ex" in low
+            return name, "attach_to=" + ("evolved_excluding_ex" if excluding else "pokemon_is_evolved"), ""
+        if extra == ("type",):
+            listed = re.search(
+                r"can only be attached to (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon) pokemon",
+                low)
+            if not listed:
+                return None, None, "type not parsed"
+            return name, f"attach_to=pokemon_of_type({TYPE_NAMES[listed.group(1)]})", ""
+        if extra == ("strike",):
+            listed = re.search(r"can only be attached to (?:a )?(rapid|single|fusion) strike pokemon", low)
+            marker = {"rapid": "Rapid Strike", "single": "Single Strike", "fusion": "Fusion Strike"}[listed.group(1)]
+            return name, f'attach_to=pokemon_with_subtype("{marker}")', ""
+        if extra == ("named",):
+            listed = re.search(r"(team rocket's|team aqua|team magma)", low)
+            fragment = {"team rocket's": "Team Rocket", "team aqua": "Team Aqua", "team magma": "Team Magma"}[listed.group(1)]
+            return name, f'attach_to=pokemon_named_like("{fragment}")', ""
         if extra == ("unit",) or extra == ("blend",):
             listed = re.search(
                 r"(grass, fire, and water|lightning, psychic, and metal|fighting, darkness, and fairy|"
@@ -179,6 +229,11 @@ NEEDED = {
     "rainbow_on_attach": ["rainbow_on_attach"],
     "PrismEnergyPassive()": ["PrismEnergyPassive"],
     "MultiEnergyPassive()": ["MultiEnergyPassive"],
+    "attach_to=evolved_excluding_ex": ["evolved_excluding_ex"],
+    "attach_to=pokemon_is_evolved": ["pokemon_is_evolved"],
+    "attach_to=pokemon_of_type(": ["pokemon_of_type"],
+    "attach_to=pokemon_with_subtype(": ["pokemon_with_subtype"],
+    "attach_to=pokemon_named_like(": ["pokemon_named_like"],
 }
 
 
