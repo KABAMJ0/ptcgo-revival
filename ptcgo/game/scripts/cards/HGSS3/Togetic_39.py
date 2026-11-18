@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.passives_common import apply_protection
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _fly_success(ctx):
+    await ctx.deal_damage()
+    await apply_protection(ctx, prevent=True, effects_too=True)
 
 card = PokemonCardDef(
     guid="9de1a1f4-b7c5-5426-a5f6-2dd9abdaf391",
@@ -31,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this attack does nothing. If heads, prevent all effects of attacks, including damage done to Togetic during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=flip_or_nothing(then=_fly_success),
         ),
     ],
 )
