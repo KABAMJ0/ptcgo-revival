@@ -1541,6 +1541,50 @@ def shuffle_hand_draw(n: int, opponent_prizes_low=None):
     return effect
 
 
+def shuffle_hand_draw_if(cond, draw: int, else_draw: int):
+    """"Shuffle your hand into your deck. If <cond>, draw `draw` cards; if not,
+    draw `else_draw`" (Hala). `cond` is a ctx-level predicate."""
+    async def effect(ctx):
+        await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        await ctx.draw_cards(draw if cond(ctx) else else_draw)
+    return effect
+
+
+def gx_used_condition(spent: bool = True):
+    """ctx-level condition: this player has (spent=True) or has not used their
+    once-per-game GX attack (Hala)."""
+    def check(ctx) -> bool:
+        used = ctx.player_id in ctx.session.turn_state.gx_attack_used
+        return used == spent
+    return check
+
+
+def gx_unlock(predicate=None):
+    """"During this turn, your <Pokemon> can use their GX attack even if you
+    have already used your GX attack" (Misty & Lorelei, Bonnie).
+    `predicate(attacker, ability)` narrows the grant."""
+    async def effect(ctx):
+        ctx.session.turn_state.unlock_gx_attacks(ctx.player_id, predicate)
+    return effect
+
+
+def gx_unlock_for_type(type_name: str):
+    """The type-narrowed grant: "your Water Pokemon can use their GX attacks"."""
+    type_value = POKEMON_TYPE_NAMES[type_name.lower()]
+
+    def predicate(attacker, ability) -> bool:
+        return type_value in (attacker.get_attribute(AttrID.POKEMON_TYPES) or [])
+    return gx_unlock(predicate)
+
+
+def gx_unlock_for_name(name: str):
+    """The name-narrowed grant: "your Zygarde-GX can use its GX attack"."""
+    def predicate(attacker, ability) -> bool:
+        printed = (getattr(def_for(attacker.archetype_id), "display_name", "") or "")
+        return printed.lower().startswith(name.lower())
+    return gx_unlock(predicate)
+
+
 def each_player_shuffle_draw(n: int):
     """Both players shuffle their hand into their deck and draw `n` (Judge)."""
     async def effect(ctx):
