@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import is_trainer_card
+from ptcgo.game.card_effects.support_common import baby_evolution, search_to_hand
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_baby_effect, _baby_in_hand = baby_evolution("Snorlax")
 
 card = PokemonCardDef(
     guid="1d2fb208-083b-513d-ba98-89bf41397c7c",
@@ -21,13 +25,15 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Snorlax from your hand onto Munchlax (this counts as evolving Munchlax) and remove all damage counters from Munchlax.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Errand-Running",
             game_text="Search your deck for a Trainer card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=search_to_hand(predicate=is_trainer_card, count=1),
         ),
     ],
 )

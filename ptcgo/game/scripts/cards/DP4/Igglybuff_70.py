@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_baby_effect, _baby_in_hand = baby_evolution("Jigglypuff")
 
 card = PokemonCardDef(
     guid="88b4dc36-e781-51f6-9fe9-e28c2724fe0a",
@@ -21,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Jigglypuff from your hand onto Igglybuff (this counts as evolving Igglybuff) and remove all damage counters from Igglybuff.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Inquire",

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Massive Body",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't play any Stadium cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("stadium"),
         ),
         Attack(
             title="Nasal Lariat",

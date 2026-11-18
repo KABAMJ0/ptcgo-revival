@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if_extra_energy
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Oceanic Curse",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't play any Item cards or Pok\u00e9mon Tool cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("item", "tool"),
         ),
         Attack(
             title="Power Press",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if_extra_energy(80, required=2),
         ),
     ],
 )

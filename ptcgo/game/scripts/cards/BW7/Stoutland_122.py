@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,14 +24,14 @@ card = PokemonCardDef(
         Ability(
             title="Sentinel",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent can't play any Supporter cards from his or her hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("supporter"),
         ),
         Attack(
             title="Wild Tackle",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=unimplemented,
+            effect=flip_damage(tails_self_damage=20),
         ),
     ],
 )

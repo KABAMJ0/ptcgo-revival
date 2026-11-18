@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_attack_and_retreat_lock
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Scary Face",
             game_text="Flip a coin. If heads, until the end of your opponent's next turn the Defending Pok\u00e9mon can't attack or retreat.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_attack_and_retreat_lock(),
         ),
         Attack(
             title="Bite",

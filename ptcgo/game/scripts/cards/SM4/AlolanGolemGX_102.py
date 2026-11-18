@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack, lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -30,14 +31,14 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon does 50 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 2},
             damage=200,
-            effect=unimplemented,
+            effect=recoil_attack(50),
         ),
         Attack(
             title="Heavy Rock-GX",
             game_text="Your opponent can't play any cards from their hand during their next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=lock_opponent_plays("all"),
         ),
     ],
 )

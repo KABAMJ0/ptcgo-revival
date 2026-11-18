@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Forest's Curse",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent can't play any Item cards from his or her hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("item"),
         ),
         Attack(
             title="Tree Slam",
             game_text="This attack does 20 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=2, also_base=True),
         ),
     ],
 )

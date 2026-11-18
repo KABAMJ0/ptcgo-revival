@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import move_counters_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Transfer Pain",
             game_text="Move 1 damage counter from any of your Pok\u00e9mon to any of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=move_counters_attack(1, dest="choose"),
         ),
     ],
 )

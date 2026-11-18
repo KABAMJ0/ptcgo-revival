@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="33130514-8892-5139-806d-730e17cd7bf1",
@@ -21,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Icy Barrier",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent can't play any Stadium cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("stadium"),
         ),
         Attack(
             title="Icy Wind",
             game_text="Your opponent's Active Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
     ],
 )

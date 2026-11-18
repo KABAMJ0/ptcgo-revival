@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="a050a0a0-b781-5449-97b5-500576c8aa38",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Mislead",
             game_text="Flip 2 coins. If either of them is heads, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True, coins=2, min_heads=1),
         ),
         Attack(
             title="Ethereal Flame",

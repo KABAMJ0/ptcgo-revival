@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Quick Turn",
             game_text="Flip 2 coins. This attack does 20 damage times the number of heads.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=20),
         ),
         Attack(
             title="Electrisilk",

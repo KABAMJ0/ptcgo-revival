@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_condition
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="fcaf3d26-7e81-5ec2-a4da-c5f10ce1f47a",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage_condition(4, per_heads=60, min_heads=2, condition=SpecialConditions.PARALYZED),
         ),
     ],
 )

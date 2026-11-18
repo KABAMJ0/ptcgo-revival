@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import baby_evolution, heal_targets
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_baby_effect, _baby_in_hand = baby_evolution("Chansey")
 
 card = PokemonCardDef(
     guid="929cd881-27a3-5acf-aa25-8766655fc9f0",
@@ -21,13 +24,15 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Chansey from your hand onto Happiny (this counts as evolving Happiny) and remove all damage counters from Happiny.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Lively",
             game_text="Remove 2 damage counters from 1 of your Pok\u00e9mon.",
             cost={},
-            effect=unimplemented,
+            effect=heal_targets(20, scope="choice"),
         ),
     ],
 )
