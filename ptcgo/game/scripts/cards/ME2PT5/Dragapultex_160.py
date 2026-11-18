@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import phantom_dive
 
 card = PokemonCardDef(
     guid="e857f98f-aeb7-57b7-a255-075d12c84ef5",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Put 6 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.PSYCHIC: 1},
             damage=200,
-            effect=unimplemented,
+            effect=phantom_dive,
         ),
     ],
 )
