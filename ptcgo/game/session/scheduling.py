@@ -32,7 +32,7 @@ turn loop iteration. Entries are removed when drained, guard or not, so a
 guarded-away effect never fires later.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, List, Optional
 
@@ -53,7 +53,7 @@ class TurnBoundary(Enum):
     def resolve(self, player_id: str, opponent_id: str,
                 turn_number: int) -> "BoundaryPoint":
         """The (event, owner, not-before turn) this boundary names from
-        `turn_number`.""" 
+        `turn_number`."""
         return {
             TurnBoundary.END_OF_THIS_TURN: BoundaryPoint(
                 "end", player_id, turn_number),
@@ -98,6 +98,9 @@ class ScheduledEffect:
     effect: Callable[[Any], Any]
     label: str = ""
     guard: Optional[Callable[[Any], bool]] = None
+    # The registering card, kept as an object reference so its effects still
+    # have a source to animate from once it has left the board.
+    source: Any = None
     source_entity_id: Optional[str] = None
     require_source_in_play: bool = False
 
@@ -111,7 +114,7 @@ class TurnScheduler:
     def schedule(self, boundary, *, player_id: str, opponent_id: str,
                  turn_number: int, effect: Callable[[Any], Any],
                  label: str = "", guard: Optional[Callable[[Any], bool]] = None,
-                 source_entity_id: Optional[str] = None,
+                 source: Any = None, source_entity_id: Optional[str] = None,
                  require_source_in_play: bool = False) -> ScheduledEffect:
         """Registers `effect` at `boundary`, read from `player_id`'s side of
         turn `turn_number`. `boundary` is a TurnBoundary or its string value."""
@@ -123,6 +126,7 @@ class TurnScheduler:
             effect=effect,
             label=label,
             guard=guard,
+            source=source,
             source_entity_id=source_entity_id,
             require_source_in_play=require_source_in_play,
         )
@@ -132,7 +136,7 @@ class TurnScheduler:
     def schedule_at(self, event: str, owner_id: str, not_before_turn: int,
                     effect: Callable[[Any], Any], label: str = "",
                     guard: Optional[Callable[[Any], bool]] = None,
-                    source_entity_id: Optional[str] = None,
+                    source: Any = None, source_entity_id: Optional[str] = None,
                     require_source_in_play: bool = False) -> ScheduledEffect:
         """The raw form, for an effect that already knows its turn edge."""
         entry = ScheduledEffect(
@@ -142,6 +146,7 @@ class TurnScheduler:
             effect=effect,
             label=label,
             guard=guard,
+            source=source,
             source_entity_id=source_entity_id,
             require_source_in_play=require_source_in_play,
         )
@@ -172,13 +177,3 @@ class TurnScheduler:
 
     def __len__(self) -> int:
         return len(self._queue)
-
-
-@dataclass
-class BoundaryDrain:
-    """Bookkeeping result of one drain, for logging and self-tests."""
-
-    event: str
-    player_id: str
-    fired: List[str] = field(default_factory=list)
-    skipped: List[str] = field(default_factory=list)
