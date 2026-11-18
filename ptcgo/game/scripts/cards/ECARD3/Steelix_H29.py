@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Rare Metal",
             game_text="All basic Energy cards attached to Steelix provide Metal Energy instead of their usual types.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive(PokemonTypes.METAL.value, basic_only=True),
         ),
         Attack(
             title="Squeeze",

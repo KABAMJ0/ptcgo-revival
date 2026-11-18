@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import condition_immunity_pollen_shield
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, Ledian can't become affected by a Special Condition. (Any other effects of attacks, Pok\u00e9-Powers, Pok\u00e9-Bodies, and Trainer cards still happen.)",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=condition_immunity_pollen_shield(),
         ),
         Attack(
             title="Swift",

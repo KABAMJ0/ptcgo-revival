@@ -630,3 +630,123 @@ def heal_all_from_one():
         if amount > 0:
             await ctx.heal(amount, target)
     return effect
+
+
+# --- Ultimate Zone ---------------------------------------------------------
+
+def _bench_energy_holders(ctx):
+    return [p for p in ctx.my_bench() if ctx.board.attached_energies(p)]
+
+
+def move_bench_energy_to_named_active(name):
+    """"The player may move an Energy card attached to 1 of his or her
+    Benched Pokemon to his or her Active <name> as often as he or she likes"
+    (Ultimate Zone) -- an UNLIMITED Stadium ability, so it is repeatable."""
+
+    def _active_is_named(board, player_id):
+        active = board.active_pokemon(player_id)
+        if active is None:
+            return False
+        printed = (getattr(def_for(active.archetype_id), "display_name", "") or "").lower()
+        return printed == name.lower() or printed.startswith(name.lower() + " ")
+
+    def condition(board, player_id, stadium):
+        if not _active_is_named(board, player_id):
+            return False
+        bench = board.find_player_area(player_id, "bench")
+        return any(bool(board.attached_energies(p)) for p in (bench.children if bench else []))
+
+    async def effect(ctx):
+        active = ctx.board.active_pokemon(ctx.player_id)
+        if active is None:
+            return
+        energies = [energy for pokemon in _bench_energy_holders(ctx)
+                    for energy in ctx.board.attached_energies(pokemon)]
+        if not energies:
+            return
+        for energy in await ctx.choose_cards(
+                energies, 1, minimum=1,
+                prompt=f"Choose an Energy to move to your Active {name}"):
+            await ctx.move_energy(energy, active)
+
+    return effect, condition
+
+
+def search_attach_energy_then_lock_attacks(count=2, prompt=""):
+    """"Search your deck for up to N Basic Energy cards and attach them to 1
+    of your Pokemon. Then, shuffle your deck. During this turn, your Pokemon
+    can't attack. (This includes Pokemon that come into play this turn.)"
+    (Geeta)."""
+    async def effect(ctx):
+        cards = await ctx.search_deck(
+            lambda card: is_energy_card(card) and not bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY)),
+            count=count, minimum=0,
+            prompt=prompt or f"Choose up to {count} Basic Energy cards",
+        )
+        if cards:
+            target = None
+            in_play = ctx.my_pokemon_in_play()
+            if len(in_play) == 1:
+                target = in_play[0]
+            else:
+                picks = await ctx.choose_cards(
+                    in_play, 1, minimum=1,
+                    prompt="Choose a Pokémon to attach the Energy to",
+                )
+                target = picks[0] if picks else None
+            if target is not None:
+                for card in cards:
+                    await ctx.attach_energy(card, target)
+        await ctx.shuffle_deck()
+        ctx.lock_player_attacks()
+
+    return effect
+
+
+async def sabrinas_psychic_control(ctx):
+    """"Flip a coin. If heads, choose a Trainer card in your opponent's discard
+    pile that isn't put in play ... You may use that card as if it were in your
+    hand" (Sabrina's Psychic Control)."""
+    if not await ctx.flip_coins(1):
+        return
+    await ctx.use_trainer_from_opponent_discard(
+        "Choose a Trainer card in your opponent's discard pile to use"
+    )
+
+
+def baby_evolution(*names):
+    """"Once during your turn, you may put <name> from your hand onto this
+    Pokemon (this counts as evolving it) and remove all damage counters from
+    it" (Baby Evolution).
+
+    Returns (effect, condition): the offer must disappear when no copy of the
+    named card is in hand. perform_evolution nests the pre-evolution under a
+    NEW entity and carries the damage across, so the counters are cleared on
+    the evolution card that was just played, not on ctx.source."""
+    wanted = {" ".join((name or "").lower().split()) for name in names}
+
+    def _in_hand(board, player_id, pokemon) -> bool:
+        area = board.find_player_area(player_id, "hand")
+        return any(
+            " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted
+            for card in (area.children if area else [])
+        )
+
+    async def effect(ctx):
+        cards = [card for card in ctx.hand()
+                 if " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted]
+        if not cards:
+            return
+        picks = cards if len(cards) == 1 else await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose the Evolution card to put onto this Pokémon",
+        )
+        if not picks:
+            return
+        evolution = picks[0]
+        if not await ctx.evolve_pokemon(ctx.source, evolution):
+            return
+        remaining = evolution.get_attribute(AttrID.HP, 0)
+        await ctx.heal(max(0, ctx.max_hp(evolution) - remaining), evolution)
+
+    return effect, _in_hand

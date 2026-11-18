@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Photosynthesis",
             game_text="All Energy cards attached to Erika's Oddish provide Grass Energy instead of their usual type. This power works even while Erika's Oddish is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive(PokemonTypes.GRASS.value),
         ),
         Attack(
             title="Poisonpowder",

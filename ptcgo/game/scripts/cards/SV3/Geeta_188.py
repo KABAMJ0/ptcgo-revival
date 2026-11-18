@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.support_common import search_attach_energy_then_lock_attacks
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=188,
     set_code="SV3",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=search_attach_energy_then_lock_attacks(2, "Choose up to 2 Basic Energy cards")
 )

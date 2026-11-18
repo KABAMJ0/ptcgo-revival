@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="f6e89ebc-4755-5494-9d93-bcb3cb8e8810",
@@ -28,7 +30,10 @@ card = PokemonCardDef(
             title="Nap Time",
             game_text="Remove all damage counters from Teddiursa. Teddiursa is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(
+                self_conditions=(SpecialConditions.ASLEEP,),
+                also=heal_attack(all_damage=True, target="self"),
+            ),
         ),
     ],
 )

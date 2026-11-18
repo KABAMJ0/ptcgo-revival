@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import look_top_attach_energy
 
 card = PokemonCardDef(
     guid="d35dbf0e-2dd6-5560-a296-87c55fe02816",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Semi-Blooming Energy",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may look at the top 3 cards of your deck and attach any number of Basic Energy cards you find there to your Pok\u00e9mon in any way you like. Shuffle the other cards back into your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=look_top_attach_energy(3, is_basic_energy_card),
         ),
         Attack(
             title="Drool",

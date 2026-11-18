@@ -27,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Free Flight",
             game_text="If this Pok\u00e9mon has no Energy attached to it, it has no Retreat Cost.",
-            effect=retreat_free_when(_no_energy_attached),
+            passive=retreat_free_when(_no_energy_attached),
         ),
         Attack(
             title="Shinobi Strike",

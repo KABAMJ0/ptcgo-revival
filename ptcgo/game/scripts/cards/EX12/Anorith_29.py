@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import search_bench_as_basic
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Influence",
             game_text="Search your deck for Omanyte, Kabuto, Aerodactyl, Lileep, or Anorith and put up to 2 of them onto your Bench. Shuffle your deck afterward. Treat the new Benched Pok\u00e9mon as Basic Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_bench_as_basic(["Omanyte", "Kabuto", "Aerodactyl", "Lileep", "Anorith"], 2, "Choose up to 2 Fossils to Bench"),
         ),
         Attack(
             title="Stretch Claws",

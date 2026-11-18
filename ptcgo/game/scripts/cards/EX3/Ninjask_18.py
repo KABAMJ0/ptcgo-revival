@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import search_bench_as_basic
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Loose Shell",
             game_text="Once during your turn, when you play Ninjask from your hand to evolve 1 of your Pok\u00e9mon, you may search your deck for Shedinja and put it onto your Bench. Treat the new Benched Pok\u00e9mon as a Basic Pok\u00e9mon. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_bench_as_basic(["Shedinja"], 1, "Choose Shedinja to Bench"),
         ),
         Attack(
             title="Quick Touch",

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import poison_defender_on_evolve
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Evolutionary Toxic",
             game_text="Once during your turn, when you play Crobat from your hand to evolve 1 of your Pok\u00e9mon, you may choose 1 of the Defending Pok\u00e9mon. That Pok\u00e9mon is now Poisoned. Put 2 damage counters instead of 1 on that Pok\u00e9mon between turns.",
-            effect=unimplemented,
+            effect=poison_defender_on_evolve(2),
         ),
         Attack(
             title="Strike and Fade",

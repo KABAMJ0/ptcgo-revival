@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,8 @@ card = PokemonCardDef(
             title="Layabout",
             game_text="Remove all damage counters from Snorlax. Snorlax can't use Layabout during your next turn.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            locks_next_turn=True,
+            effect=heal_attack(all_damage=True, target="self"),
         ),
         Attack(
             title="Clomp Clomp Clobber",

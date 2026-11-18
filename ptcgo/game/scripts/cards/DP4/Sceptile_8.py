@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Wild Growth",
             game_text="Each basic Grass Energy card attached to your Grass Pok\u00e9mon provides GrassGrass Energy instead. You can't use more than 1 Wild Growth Pok\u00e9-Body each turn.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive([PokemonTypes.GRASS.value] * 2, protects="team", basic_only=True, holder_types=[PokemonTypes.GRASS.value]),
         ),
         Attack(
             title="Leaf Blade",
