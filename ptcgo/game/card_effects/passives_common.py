@@ -1048,6 +1048,65 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+class DiscardSelfOnRetreatPassive(Passive):
+    """Balloon Berry: "when the Pokemon this card is attached to retreats,
+    discard this card" (and pay no Energy for the retreat)."""
+
+    async def on_retreat(self, ctx, pokemon, carrier) -> None:
+        if carrier is pokemon:
+            return
+        await ctx.discard_cards([carrier])
+
+
+def discard_self_on_retreat() -> Passive:
+    """`on_retreat` half of Balloon Berry; compose with retreat_discount."""
+    return DiscardSelfOnRetreatPassive()
+
+
+def heal_activation(amount, target_pred=None, flip=False,
+                    requires_benched=False):
+    """"Once during your turn, you may [flip a coin. If heads,] heal N damage
+    from your Active Pokemon" (Healing Leaves, Softboiled, Victory Kiss).
+
+    Returns `(effect, condition)`: the condition hides the offer while the
+    Active has nothing to heal, so an ONCE_PER_TURN ability's slot disappears
+    as soon as it is spent. `target_pred` narrows the Active (Water only,
+    Evolution only); `requires_benched` is the "if this Pokemon is on your
+    Bench" wording, which needs the carrier to stay off the Active spot."""
+    def condition(board, player_id, pokemon) -> bool:
+        if requires_benched and is_in_active_spot(pokemon):
+            return False
+        active = board.active_pokemon(player_id)
+        return active is not None \
+            and (target_pred is None or target_pred(active)) \
+            and active.get_attribute(AttrID.HP, 0) < effective_max_hp(board, active)
+
+    async def effect(ctx):
+        if requires_benched and is_in_active_spot(ctx.source):
+            return
+        active = ctx.my_active()
+        if active is None or (target_pred is not None and not target_pred(active)):
+            return
+        if flip:
+            results = await ctx.flip_coins(1, ctx.ability.title if ctx.ability else "")
+            if not (results and results[0]):
+                return
+        await ctx.heal(amount, active)
+
+    return effect, condition
+
+
+def on_ko_from_attack(then):
+    """"If this Pokemon is Knocked Out by damage from an attack" wrapper for an
+    ON_KNOCKED_OUT ability: runs `then(ctx)` only for attack damage, leaving
+    ability/effect knockouts alone (Final Wish)."""
+    async def effect(ctx):
+        if not getattr(ctx, "ko_from_attack", False):
+            return
+        await then(ctx)
+    return effect
+
+
 def flip_protection(prevent=True, reduce=None, effects_too=False, title=None):
     """Complete attack effect: printed damage, then flip a coin -- heads
     shields the user during the opponent's next turn."""

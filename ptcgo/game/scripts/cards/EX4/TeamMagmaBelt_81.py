@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_holder_between_turns, team_magma_target
 
 card = PokemonToolCardDef(
     guid="d7e857d0-9148-532f-8e60-72576f99906e",
@@ -11,5 +12,6 @@ card = PokemonToolCardDef(
     collector_number=81,
     set_code="EX4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=evolve_holder_between_turns('Team Magma Belt', 'active', 0),
+    attach_to=team_magma_target,
 )

@@ -1559,6 +1559,16 @@ class EffectContext:
             prompt, [PROMPT_YES, PROMPT_NO], player_id, use_panel=False
         ) == 0
 
+    async def ask_opponent(self, prompt: str, options: Sequence[str]) -> int:
+        """Puts a question with `options` in front of the OPPONENT and returns
+        the picked index ("your opponent guesses ...", Blaine's Quiz Show).
+
+        Button-list only: the client has no text-entry screen, so a wording
+        whose answer is a name, HP or length cannot be asked through this."""
+        return await self.session.prompt_player_choice(
+            self.opponent_id if self.opponent_id is not None else self.player_id,
+            prompt, list(options))
+
     async def choose_cards(
         self,
         cards: Sequence[CardEntity],

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import turn_boost_chosen
 
 card = ItemCardDef(
     guid="48e34518-e255-5c0b-8a5e-88139b2db800",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=84,
     set_code="BASE1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=turn_boost_chosen(10, active_only=True)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import bench_into_deck
 
 card = ItemCardDef(
     guid="adf5c669-018e-5a78-82f9-21f3013e9322",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=58,
     set_code="BASE3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=bench_into_deck()
 )

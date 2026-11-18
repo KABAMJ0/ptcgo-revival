@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import prize_ahead_tool
 
 card = PokemonToolCardDef(
     guid="e63f2388-03a8-589b-9934-82b875982113",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=162,
     set_code="SV4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=prize_ahead_tool(40, False, False),
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import patrol_cap_tool
 
 card = PokemonToolCardDef(
     guid="b763bd6b-c55e-53fa-826d-9e1fd920470c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=191,
     set_code="SV3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=patrol_cap_tool(),
 )

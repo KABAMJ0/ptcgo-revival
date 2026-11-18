@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import StadiumCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import stadium_evolve_heal
 
 card = StadiumCardDef(
     guid="ebf437b8-1aed-58a3-a919-6dcf794937d8",
@@ -11,5 +12,9 @@ card = StadiumCardDef(
     collector_number=123,
     set_code="GYM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=Ability(
+        title="Viridian City Gym",
+        trigger=Triggers.ON_EVOLVE,
+        effect=stadium_evolve_heal(2, "Giovanni", only_one_left=1),
+    ),
 )

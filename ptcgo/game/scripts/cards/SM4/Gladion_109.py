@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import take_face_down_prize_shuffle_self
 
 card = SupporterCardDef(
     guid="6811ebd2-a4ab-5415-82b2-bb7aef94aefb",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=109,
     set_code="SM4",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=take_face_down_prize_shuffle_self()
 )

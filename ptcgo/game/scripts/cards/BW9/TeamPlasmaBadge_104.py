@@ -12,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=104,
     set_code="BW9",
     rarity=Rarities.Uncommon,
-    passive=team_plasma_passive()
+    passive=team_plasma_passive(),
 )

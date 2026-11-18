@@ -534,12 +534,49 @@ def is_lightning_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 
 
-def is_pokemon_gx(archetype_id) -> bool:
-    return "GX" in subtypes_for(archetype_id)
+def archetype_id_of(card_or_id):
+    """Resolve the archetype GUID behind a predicate argument: a card entity, a
+    CardDefinition, or the GUID itself. The subtype predicates below accept any
+    of the three, so a card script and the pattern matcher can share one."""
+    if card_or_id is None or isinstance(card_or_id, str):
+        return card_or_id
+    archetype_id = getattr(card_or_id, "archetype_id", None)
+    if archetype_id:
+        return archetype_id
+    return getattr(card_or_id, "guid", None)
 
 
-def is_pokemon_vmax(archetype_id) -> bool:
-    return "VMAX" in subtypes_for(archetype_id)
+def has_pokemon_subtype(card_or_id, *subtypes) -> bool:
+    """Whether the printed subtypes hold any of `subtypes`; accepts a card
+    entity, a CardDefinition or an archetype GUID."""
+    printed = subtypes_for(archetype_id_of(card_or_id)) or []
+    return any(subtype in printed for subtype in subtypes)
+
+
+def is_pokemon_gx(card_or_id) -> bool:
+    """Pokemon-GX, from a card entity or its archetype GUID."""
+    return has_pokemon_subtype(card_or_id, "GX")
+
+
+def is_pokemon_ex(card_or_id) -> bool:
+    """Scarlet & Violet "Pokemon ex" (subtype "ex"), from a card entity or its
+    archetype GUID. The Black & White/XY "Pokemon-EX" is is_pokemon_EX."""
+    return has_pokemon_subtype(card_or_id, "ex")
+
+
+def is_pokemon_EX(card_or_id) -> bool:
+    """Black & White / XY era "Pokemon-EX" (subtype "EX")."""
+    return has_pokemon_subtype(card_or_id, "EX")
+
+
+def is_pokemon_vmax(card_or_id) -> bool:
+    """Pokemon VMAX, from a card entity or its archetype GUID."""
+    return has_pokemon_subtype(card_or_id, "VMAX")
+
+
+def is_pokemon_vstar(card_or_id) -> bool:
+    """Pokemon VSTAR, from a card entity or its archetype GUID."""
+    return has_pokemon_subtype(card_or_id, "VSTAR")
 
 def in_active_spot(board, player_id, pokemon) -> bool:
     """Ability condition: this Pokemon is in the Active Spot."""

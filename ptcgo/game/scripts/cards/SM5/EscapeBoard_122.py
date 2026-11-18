@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.passives_common import retreat_discount_despite_conditions
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import retreat_discount_despite_conditions
 
 card = PokemonToolCardDef(
     guid="fc22b6a2-1070-5011-be88-374afbfae4bc",
@@ -12,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=122,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    passive=retreat_discount_despite_conditions(1)
+    passive=retreat_discount_despite_conditions(1, protects="carrier"),
 )

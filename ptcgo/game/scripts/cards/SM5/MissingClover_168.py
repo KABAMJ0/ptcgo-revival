@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import _missing_clover
 
 card = ItemCardDef(
     guid="3fdc9e9b-1d3c-54a7-8dbf-0bc6e47e86ad",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=168,
     set_code="SM5",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=_missing_clover,
 )

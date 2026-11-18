@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import cessation_crystal_tool, cessation_crystal_attach_to
 
 card = PokemonToolCardDef(
     guid="bb431f97-354d-50ef-861f-38d9c248a1e2",
@@ -11,5 +12,6 @@ card = PokemonToolCardDef(
     collector_number=74,
     set_code="EX14",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=cessation_crystal_tool(),
+    attach_to=cessation_crystal_attach_to,
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import SupporterCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import shuffle_hand_draw_if, gx_used_condition
 
 card = SupporterCardDef(
     guid="f3084b97-94c7-581c-8d61-9cf6f4fca24a",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=143,
     set_code="SM2",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=shuffle_hand_draw_if(gx_used_condition(True), draw=7, else_draw=4),
 )

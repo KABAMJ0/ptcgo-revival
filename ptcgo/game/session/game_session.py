@@ -96,7 +96,10 @@ from ptcgo.game.data_utils import (
     ABILITIES_BY_ID, Ability, Activations, Triggers, def_for, prize_value,
     subtypes_for, unimplemented,
 )
-from ptcgo.database.player_data import COINS_PER_WIN, COINS_PER_LOSS, grant_coins
+from ptcgo.database.player_data import (
+    COINS_PER_WIN, COINS_PER_LOSS, get_merged_collection_payload, grant_coins,
+)
+from ptcgo.database import trainer_challenge_data
 from ptcgo.database.versus_data import award_match_points, get_progress
 from ptcgo.database.async_utils import run_db
 from ptcgo.server import activity
@@ -128,6 +131,7 @@ from .effects import (
 from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
+    carrier_pokemon,
     effective_bench_capacity, effective_max_hp,
     effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
@@ -142,6 +146,7 @@ from .legal_actions import (
     ACTION_PLAY_LEGEND,
     ACTION_PLAY_VUNION,
     ACTION_PLAY_STADIUM,
+    ACTION_PLAY_ENERGY,
     ACTION_RETREAT,
     ACTION_USE_ABILITY,
     ACTION_USE_ATTACK,
@@ -3143,6 +3148,8 @@ class GameSession:
                     "index": 0,
                     "openedReward": None,
                 })
+            reward_list.extend(await self._record_trainer_challenge_result(
+                pid, player, pid == winner_id))
             reward_list.extend(await self._progress_daily_challenges(pid, player, winner_id, reason))
             envelope = self._sequence_envelope(
                 EMPTY_SEQUENCE_ID,
@@ -3883,8 +3890,7 @@ class GameSession:
         """Offers recomputed legal actions until the player ends their turn."""
         player = self.players[active_id]
         if isinstance(player, AIPlayer):
-            # The AI takes no main-phase actions yet; it simply passes.
-            logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) ends turn.")
+            await self._run_ai_turn(active_id)
             return
 
         for _ in range(MAX_ACTIONS_PER_TURN):
@@ -3932,6 +3938,92 @@ class GameSession:
             f"[Session {self.game_id}] {player.screen_name} hit the per-turn "
             f"action cap ({MAX_ACTIONS_PER_TURN}); forcing end of turn."
         )
+
+    async def _run_ai_turn(self, active_id: str):
+        """The AI's whole turn policy: one Energy, then an affordable attack.
+
+        Deliberately narrow -- it plays no trainers, evolves nothing and never
+        retreats, so an AI opponent is a real opponent without pretending to be
+        a competent one.
+        """
+        player = self.players[active_id]
+        await self._run_state_unit(self._refresh_dynamic_attacks(active_id))
+
+        def first(description):
+            return next(
+                (candidate for candidate in compute_legal_actions(
+                    self.board_state, self.turn_state, active_id, self.game_id)
+                 if candidate["selectableAction"]["description"] == description),
+                None,
+            )
+
+        # Attaching one Energy is what makes an attack affordable at all; without
+        # it the AI passes every turn of every game.
+        energy = first(ACTION_PLAY_ENERGY)
+        if energy is not None:
+            infos = energy.get("targetInfoLst") or []
+            targets = infos[0].get("validTargets") if infos else []
+            if targets:
+                logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) "
+                             f"attaches an Energy to {targets[0]}.")
+                await self._run_state_unit(
+                    self._apply_player_action(active_id, energy, [targets[0]]))
+
+        attack = first(ACTION_USE_ATTACK)
+        if attack is None:
+            logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) ends turn.")
+            return
+        logging.info(
+            f"[Session {self.game_id}] {player.screen_name} (AI) attacks with "
+            f"{attack['selectableAction']['actionID']}."
+        )
+        await self._run_state_unit(self._apply_player_action(active_id, attack, []))
+
+    async def _record_trainer_challenge_result(self, pid: str, player, is_winner: bool):
+        """Scores a finished league match and returns the reward items to show."""
+        context = self.pairing.get("solo_context") or {}
+        if not context or pid != context.get("account_id"):
+            return []
+        opponent_key = context.get("opponent") or ""
+        try:
+            result = await run_db(trainer_challenge_data.record_result,
+                                  player.account_id, opponent_key, is_winner)
+        except Exception:
+            logging.exception("[Session %s] Trainer Challenge result recording failed for %s",
+                              self.game_id, player.account_id)
+            return []
+        if not result or not result.get("ok"):
+            return []
+        granted = result["granted"]
+        logging.info(
+            f"[Session {self.game_id}] Trainer Challenge {opponent_key}: "
+            f"{'win' if is_winner else 'loss'}, granted {granted}, "
+            f"unlocked {result['unlocked']}"
+        )
+        items = []
+        if granted.get("coins"):
+            items.append({
+                "name": "GameReward",
+                "rewardType": "Tokens",
+                "rewardAmount": granted["coins"],
+                "rewardProductID": EMPTY_SEQUENCE_ID,
+                "rewardCurrency": "Tokens",
+                "rewardDescription": {"id": "playmat.endgame.gamereward"},
+                "rewardReason": "GameCompleted",
+                "selectedFrom": [],
+                "selectedIndex": 0,
+                "rewardSource": "",
+                "index": 0,
+                "openedReward": None,
+            })
+        if granted.get("products"):
+            payload = await run_db(get_merged_collection_payload, player.account_id)
+            await player.send_packet(
+                OutboundMsg.COLLECTION_COUNT_FOUND.value,
+                {"messageName": OutboundMsg.COLLECTION_COUNT_FOUND.value,
+                 "collectionCountList": payload},
+            )
+        return items
 
     def _main_offer_value(
         self, player_id: str, target_map: List[Dict[str, Any]]
@@ -5380,6 +5472,10 @@ class GameSession:
             list(self.players.values()), GameSequence.RETREAT, messages
         )
 
+        # Post-retreat passive hooks run while the stack is intact (Balloon
+        # Berry discards itself "instead of discarding Energy").
+        await self._fire_retreat_hooks(player_id, card)
+
         # All effects (Special Conditions, attack locks) end when a Pokemon
         # leaves the Active spot; a separate follow-up bracket is the safe
         # pattern here (the Retreat executor's non-move handling is unverified).
@@ -5396,6 +5492,22 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _fire_retreat_hooks(self, player_id, retreated):
+        """`Passive.on_retreat` for the passives riding the Pokemon that just
+        retreated (its own Abilities, attached Tools and Energy)."""
+        hooks = [
+            (passive, carrier)
+            for passive, carrier in active_passives(self.board_state)
+            if carrier_pokemon(carrier) is retreated
+        ]
+        if not hooks:
+            return
+        for passive, carrier in hooks:
+            hook_ctx = EffectContext(self, player_id, carrier, None)
+            hook_ctx.retreated_pokemon = retreated
+            await passive.on_retreat(hook_ctx, retreated, carrier)
+            await self._flush_effect_runs(hook_ctx)
 
     async def _apply_active_to_bench_counters(self, player_id, pokemon):
         """Spikemuth: counters on an Active that moved to its owner's Bench
@@ -5441,6 +5553,8 @@ class GameSession:
                 self.turn_state.lock_attack(card.entity_id, action_id)
             if ability.vstar:
                 self.turn_state.vstar_used.add(player_id)
+            if (getattr(ability, "title", "") or "").endswith("-GX"):
+                self.turn_state.mark_gx_attack_used(player_id)
             # A declared attack spends a single-use "without paying its Energy
             # cost" grant; the offer checked it read-only.
             self.turn_state.consume_attack_cost_waiver(card, ability.title)

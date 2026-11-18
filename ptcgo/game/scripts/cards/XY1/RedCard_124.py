@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_shuffle_hand_draw
 
 card = ItemCardDef(
     guid="e8649a0c-d2c5-5642-9348-08ae57e58148",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=124,
     set_code="XY1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_shuffle_hand_draw(4)
 )

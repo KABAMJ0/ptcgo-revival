@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonToolCardDef(
     guid="3ea92e06-a056-54ae-a05d-99ccf7955aba",
@@ -11,5 +12,13 @@ card = PokemonToolCardDef(
     collector_number=108,
     set_code="XY10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=[
+        Attack(
+            title="All Cells Burn",
+            game_text="Discard 3 Energy attached to this Pokémon.",
+            cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
+            damage=200,
+            effect=self_energy_discard_attack(count=3),
+        ),
+    ],
 )

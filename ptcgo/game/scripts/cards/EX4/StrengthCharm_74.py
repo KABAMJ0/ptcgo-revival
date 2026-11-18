@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import strength_charm_tool
 
 card = PokemonToolCardDef(
     guid="656950fa-b639-5bb2-9557-215aed817e77",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=74,
     set_code="EX4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=strength_charm_tool(10, True, True, True),
 )

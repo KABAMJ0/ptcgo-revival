@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import recover_two_kinds_to_deck
 
 card = SupporterCardDef(
     guid="ccfc1d5e-66ee-5ce6-a99f-cee383d90773",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=74,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=recover_two_kinds_to_deck(3, 3)
 )

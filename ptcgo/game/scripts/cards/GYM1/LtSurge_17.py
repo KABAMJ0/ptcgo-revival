@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import basic_from_hand_as_active, bench_has_room
 
 card = ItemCardDef(
     guid="fdfe2f97-6c95-5e31-a180-1d6b21f7f82a",
@@ -11,5 +12,6 @@ card = ItemCardDef(
     collector_number=17,
     set_code="GYM1",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=basic_from_hand_as_active(),
+    condition=bench_has_room()
 )
