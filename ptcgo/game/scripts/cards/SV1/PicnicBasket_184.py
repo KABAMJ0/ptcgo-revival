@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import heal_where
 
 card = ItemCardDef(
     guid="9bec5e9a-9517-5731-9913-908829d4d8b3",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=184,
     set_code="SV1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_where(30, "each_both")
 )

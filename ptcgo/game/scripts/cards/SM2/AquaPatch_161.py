@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.trainers import all_of, basic_energy_of, excluding, is_in_active_spot, pokemon_of
 
 card = ItemCardDef(
     guid="9fb81d10-cb62-52ca-97f8-af0e1ad772fe",
@@ -13,5 +13,5 @@ card = ItemCardDef(
     collector_number=161,
     set_code="SM2",
     rarity=Rarities.RareSecret,
-    effect=attach_from_discard(basic_energy_of("water"), count=1, target="choice")
+    effect=attach_from_discard(basic_energy_of("water"), count=1, target=all_of(excluding(is_in_active_spot), pokemon_of("water")))
 )

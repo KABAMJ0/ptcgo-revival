@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_basic_pokemon, search_distinct_types
 
 card = SupporterCardDef(
     guid="aafdd31e-3a3b-58fa-a406-3eb3bd99f3ab",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=233,
     set_code="SM12",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_distinct_types(is_basic_pokemon, 3, to_bench=True)
 )

@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.trainers import combined, holder_no_weakness, holder_takes_less
 
@@ -12,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=144,
     set_code="SM6",
     rarity=Rarities.RareSecret,
-    passive=combined(combined(holder_takes_less(30), holder_no_weakness()))
+    passive=combined(combined(holder_takes_less(30, protect_type="metal"), holder_no_weakness(protect_type="metal")))
 )

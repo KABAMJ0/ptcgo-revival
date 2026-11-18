@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import both_shuffle_trainers_into_decks
 
 card = ItemCardDef(
     guid="da0753bd-4246-5ff7-b80b-1581a9594eeb",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=75,
     set_code="BASE1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=both_shuffle_trainers_into_decks()
 )

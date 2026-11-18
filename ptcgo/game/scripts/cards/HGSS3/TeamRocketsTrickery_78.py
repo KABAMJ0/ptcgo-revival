@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_then_opponent_discard
 
 card = SupporterCardDef(
     guid="b5d0d560-7be4-563f-81b3-41d43f6f4915",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=78,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_then_opponent_discard(2, 1)
 )

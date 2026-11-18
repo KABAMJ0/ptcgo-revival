@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_from_deck_matching
 
 card = SupporterCardDef(
     guid="08853f0b-d6af-56c8-bd9e-a5406da851c9",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=160,
     set_code="SV5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=evolve_from_deck_matching(lambda card: not getattr(card, "abilities", None))
 )

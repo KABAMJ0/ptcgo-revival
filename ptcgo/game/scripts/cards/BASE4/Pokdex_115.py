@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import look_top_reorder
 
 card = ItemCardDef(
     guid="b8ddbc72-9ceb-5ecd-bc47-9869b769a3e1",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=115,
     set_code="BASE4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_top_reorder(5)
 )

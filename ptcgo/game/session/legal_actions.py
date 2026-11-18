@@ -154,6 +154,10 @@ class TurnState:
     # Turn-scoped attacker-side damage boosts (Power Tablet); pruned by
     # expires_after_turn each begin_turn (None = this turn only).
     damage_modifiers: List[Any] = field(default_factory=list)
+    # Defender-side damage modifiers ("the Defending Pokemon takes N more
+    # damage from attacks"); TargetDamageModifier instances, pruned by
+    # through_turn each begin_turn.
+    target_damage_modifiers: List[Any] = field(default_factory=list)
     # --- two-turn history ledgers, rotated this-turn -> last-turn ---
     # (archetype_id, display_name, trainer_type) per trainer/stadium played.
     trainers_played: List[Tuple[str, str, int]] = field(default_factory=list)
@@ -163,6 +167,19 @@ class TurnState:
     kos_by_attack: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     # entity_id -> damage dealt to it by the other side this turn.
     damage_taken: Dict[str, int] = field(default_factory=dict)
+    # entity_id -> the ATTACK-damage part of damage_taken ("if this Pokemon
+    # was damaged by an attack during your opponent's last turn"); counters
+    # and effect damage are in damage_taken but not here.
+    attack_damage_taken: Dict[str, int] = field(default_factory=dict)
+    # Pokemon that left play this turn, in order:
+    # {entity_id, archetype_id, owner_id, was_active, by_attack} -- the
+    # "if any of your Pokemon were Knocked Out during your opponent's last
+    # turn" evidence, kept because the card itself is in the discard by then.
+    pokemon_left_play: List[Dict[str, Any]] = field(default_factory=list)
+    # entity_ids that moved from the Bench into the Active spot this turn
+    # ("if your opponent's Active Pokemon moved from the Bench to the Active
+    # Spot during your opponent's last turn").
+    moved_to_active: List[str] = field(default_factory=list)
     # player_id -> prize cards taken this turn.
     prizes_taken: Dict[str, int] = field(default_factory=dict)
     retreated_entities: Set[str] = field(default_factory=set)
@@ -172,6 +189,9 @@ class TurnState:
     attacks_used_last_turn: List[Tuple[str, str, str]] = field(default_factory=list)
     kos_by_attack_last_turn: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
     damage_taken_last_turn: Dict[str, int] = field(default_factory=dict)
+    attack_damage_taken_last_turn: Dict[str, int] = field(default_factory=dict)
+    pokemon_left_play_last_turn: List[Dict[str, Any]] = field(default_factory=list)
+    moved_to_active_last_turn: List[str] = field(default_factory=list)
     prizes_taken_last_turn: Dict[str, int] = field(default_factory=dict)
     retreated_entities_last_turn: Set[str] = field(default_factory=set)
     healed_entities_last_turn: Set[str] = field(default_factory=set)
@@ -184,6 +204,9 @@ class TurnState:
     play_locks: Dict[str, List[Tuple[Any, Optional[int]]]] = field(default_factory=dict)
     # entity_id -> last turn number energy may not be attached to it (Masquerain).
     attach_restrictions: Dict[str, int] = field(default_factory=dict)
+    # player_id -> last turn number that player may not flip coins
+    # ("your opponent can't flip coins during their next turn").
+    coin_flip_locks: Dict[str, int] = field(default_factory=dict)
     # Entities whose ON_MOVE_TO_ACTIVE trigger already fired this turn.
     on_move_to_active_fired: Set[str] = field(default_factory=set)
     # Whether the turn player used their once-per-turn attack-coin re-flip
@@ -199,6 +222,11 @@ class TurnState:
     # Energy cost / ignore all Energy in the attack costs of ...); pruned by
     # through_turn each begin_turn.
     attack_cost_waivers: List[AttackCostWaiver] = field(default_factory=list)
+    # player_id -> [(entity_id, archetype_id, title)] that player declared on
+    # THEIR previous turn ("if this Pokemon used Spiky Rolling during your last
+    # turn"); the Pokemon-level twin of attack_titles_prev_turn_by_player.
+    attacks_prev_turn_by_player: Dict[str, List[Tuple[str, str, str]]] = \
+        field(default_factory=dict)
     # player_id -> attack titles that player declared on THEIR previous turn
     # ("If 1 of your Pokemon used Yoga Loop during your last turn...").
     attack_titles_prev_turn_by_player: Dict[str, List[str]] = field(default_factory=dict)
@@ -214,6 +242,7 @@ class TurnState:
             self.attack_titles_prev_turn_by_player[self.active_player_id] = [
                 title for _, _, title in self.attacks_used
             ]
+            self.attacks_prev_turn_by_player[self.active_player_id] = list(self.attacks_used)
         self.turn_number += 1
         self.active_player_id = player_id
         self.supporter_played = False
@@ -227,6 +256,10 @@ class TurnState:
             if getattr(m, "expires_after_turn", None) is not None
             and m.expires_after_turn >= self.turn_number
         ]
+        self.target_damage_modifiers = [
+            m for m in self.target_damage_modifiers
+            if m.through_turn >= self.turn_number
+        ]
         self.trainers_played_last_turn = self.trainers_played
         self.trainers_played = []
         self.attacks_used_last_turn = self.attacks_used
@@ -235,6 +268,12 @@ class TurnState:
         self.kos_by_attack = {}
         self.damage_taken_last_turn = self.damage_taken
         self.damage_taken = {}
+        self.attack_damage_taken_last_turn = self.attack_damage_taken
+        self.attack_damage_taken = {}
+        self.pokemon_left_play_last_turn = self.pokemon_left_play
+        self.pokemon_left_play = []
+        self.moved_to_active_last_turn = self.moved_to_active
+        self.moved_to_active = []
         self.prizes_taken_last_turn = self.prizes_taken
         self.prizes_taken = {}
         self.retreated_entities_last_turn = self.retreated_entities
@@ -258,6 +297,10 @@ class TurnState:
             eid: entry for eid, entry in self.attack_flip_checks.items()
             if entry[0] >= self.turn_number
         }
+        self.coin_flip_locks = {
+            pid: exp for pid, exp in self.coin_flip_locks.items()
+            if exp >= self.turn_number
+        }
         self.ignore_target_effects_entities = set()
         self.attack_cost_waivers = [
             w for w in self.attack_cost_waivers if w.through_turn >= self.turn_number
@@ -269,6 +312,14 @@ class TurnState:
                 if tp.expires_after_turn is None
                 or tp.expires_after_turn >= self.turn_number
             ]
+
+    def mark_moved_to_active(self, entity_id: str) -> None:
+        """Stamps the Active-spot arrival (once-this-turn triggers read
+        became_active_turn) and remembers it for next turn's "moved from the
+        Bench to the Active Spot during your opponent's last turn" checks."""
+        self.became_active_turn[entity_id] = self.turn_number
+        if entity_id not in self.moved_to_active:
+            self.moved_to_active.append(entity_id)
 
     def mark_entered_play(self, entity_id: str):
         self.entered_play_turn[entity_id] = self.turn_number
@@ -320,6 +371,20 @@ class TurnState:
             self.turn_number + 1 if through_turn is None else through_turn,
             title,
         )
+
+    def lock_coin_flips(self, player_id: str,
+                        through_turn: Optional[int] = None) -> None:
+        """Forbids `player_id` flipping coins through `through_turn` (default:
+        through their next turn)."""
+        self.coin_flip_locks[player_id] = (
+            self.turn_number + 1 if through_turn is None else through_turn
+        )
+
+    def coin_flips_locked(self, player_id: Optional[str]) -> bool:
+        """Whether `player_id` may not flip coins right now."""
+        if player_id is None:
+            return False
+        return self.turn_number <= self.coin_flip_locks.get(player_id, -1)
 
     def attack_flip_check(self, entity_id: str) -> Optional[str]:
         """The flip title when `entity_id` must flip to attack this turn, else None."""

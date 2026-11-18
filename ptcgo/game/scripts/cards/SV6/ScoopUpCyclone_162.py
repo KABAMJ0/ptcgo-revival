@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card, return_pokemon_to_hand
 
 card = ItemCardDef(
     guid="9198960d-2e12-5ee4-bbb3-b96d8949f249",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=162,
     set_code="SV6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=return_pokemon_to_hand(predicate=is_pokemon_card)
 )

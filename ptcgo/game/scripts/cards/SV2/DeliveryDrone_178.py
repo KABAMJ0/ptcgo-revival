@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_search_per_head
 
 card = ItemCardDef(
     guid="9836718c-e866-5345-904b-a1019a13034a",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=178,
     set_code="SV2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_search_per_head(2, None, 1, both=True)
 )

@@ -46,6 +46,61 @@ class TurnDamageModifier:
 
 
 @dataclass
+class TargetDamageModifier:
+    """A defender-side damage step: "the Defending Pokemon takes N more
+    damage from attacks (after applying Weakness and Resistance)" (Mabosstiff,
+    Onix, Stunfisk) and the mirror "each of your opponent's Pokemon takes N
+    less damage from attacks" (Zamazenta VSTAR's Star Shield). `amount` is
+    signed: positive = the defender takes more, negative = less.
+
+    Unlike Passive.modify_damage_taken (a continuous ability that a card
+    declares once, keyed to a carrier), these are created by an EFFECT, stack
+    with each other, and expire on a turn window. Composition rule: every
+    applicable modifier sums into ONE flat delta applied once, after the
+    Weakness/Resistance stage and before damage prevention, so +30 and +50 on
+    the same Pokemon is +80 and a -100 side-wide reduction plus a -30 tool is
+    -130; the running total never falls below 0 damage.
+
+    Scope: `target_entity_id` names one Pokemon (the modifier rides that
+    card and is dropped by clear_pokemon_effects when it leaves play or
+    evolves); leaving it None instead applies it to every Pokemon the
+    `owner_player_id` player has in play, including ones that arrive later.
+
+    Turn window: applied while from_turn <= turn_number <= through_turn, so
+    "during your opponent's next turn" is exactly one turn wide rather than
+    "from now until then". A target-side modifier is an effect ON the
+    defender, so ignore_target_effects (max_mercy_attack / Phoebe) skips it.
+    """
+
+    amount: int
+    from_turn: int
+    through_turn: int
+    target_entity_id: Optional[str] = None
+    owner_player_id: Optional[str] = None
+    attacks_only: bool = True
+    opposing_only: bool = True
+    # The effect that created it, for clear_pokemon_effects bookkeeping.
+    source_entity_id: Optional[str] = None
+
+    def applies_to(self, calc: "DamageCalc") -> bool:
+        """Whether this modifier is part of THIS damage calculation."""
+        if self.attacks_only and not calc.is_attack:
+            return False
+        if self.opposing_only and not calc.is_opposing:
+            return False
+        if calc.ignore_target_effects:
+            return False
+        if self.target_entity_id is not None:
+            if calc.target.entity_id != self.target_entity_id:
+                return False
+        elif calc.target.owning_player_id != self.owner_player_id:
+            return False
+        turn_state = getattr(calc.board, "turn_state", None)
+        turn = getattr(turn_state, "turn_number", self.from_turn)
+        return self.from_turn <= turn <= self.through_turn
+
+
+@dataclass
 class TempPassive:
     """An effect-granted passive with a lifetime. expires_after_turn None =
     until the carrier leaves the Active spot / play (clear_pokemon_effects)."""
@@ -594,6 +649,16 @@ def compute_damage(
         if calc.resistance_applies and resist_type in attacker_types:
             calc.resistance_hit = True
             calc.amount = max(0, calc.amount - RESISTANCE_REDUCTION)
+
+    # Defender-side modifiers ("takes N more/less damage from attacks (after
+    # applying Weakness and Resistance)"): one flat step, summed, before the
+    # continuous taken-damage passives and before prevention.
+    turn_state = getattr(board, "turn_state", None)
+    target_mods = getattr(turn_state, "target_damage_modifiers", None) or ()
+    if target_mods:
+        delta = sum(m.amount for m in target_mods if m.applies_to(calc))
+        if delta:
+            calc.amount = max(0, calc.amount + delta)
 
     for passive, carrier in passives:
         if calc.ignore_target_effects and carrier_pokemon(carrier) is calc.target:

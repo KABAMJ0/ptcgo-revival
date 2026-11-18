@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of, stadium_ability, switch_typed_active
 
 card = StadiumCardDef(
     guid="8ab8254b-5e01-51e5-83a7-737d9bb93f66",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=129,
     set_code="ME1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Surfing Beach', switch_typed_active(pokemon_of("water")))
 )

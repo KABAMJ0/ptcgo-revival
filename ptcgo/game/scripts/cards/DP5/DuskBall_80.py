@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card, look_bottom_to_hand
 
 card = ItemCardDef(
     guid="43f0187a-fe1f-5ec4-ac49-dbf856ec752a",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=80,
     set_code="DP5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_bottom_to_hand(7, 1, is_pokemon_card)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card, reveal_hand_to_top_then_search
 
 card = ItemCardDef(
     guid="a56be50f-cbcd-52d4-bf26-809a91cafd03",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=99,
     set_code="BW1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=reveal_hand_to_top_then_search(is_pokemon_card, is_pokemon_card)
 )

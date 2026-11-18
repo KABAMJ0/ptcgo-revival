@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import count_hand_shuffle_draw_plus
 
 card = SupporterCardDef(
     guid="54a3ad83-cef1-5f70-a312-64d099e029f9",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=187,
     set_code="SV3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=count_hand_shuffle_draw_plus(1)
 )

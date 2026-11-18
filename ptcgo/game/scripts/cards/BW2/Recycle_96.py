@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import recycle_from_discard
 
 card = ItemCardDef(
     guid="08517d71-90c7-5629-b4b2-7d3db1763e53",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=96,
     set_code="BW2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=recycle_from_discard(1)
 )

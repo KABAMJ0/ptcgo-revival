@@ -42,8 +42,10 @@ from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.session.sequence_packets import NestedSequence
 from ptcgo.game.content.visualizations import VisualizationArrow, VisualizationLifetime, VisualizationType
 from .constants import PROMPT_NO, PROMPT_YES
+from .scheduling import TurnBoundary, TurnScheduler
 from .passives import (
     TempPassive,
+    TargetDamageModifier,
     ability_effects_blocked,
     ability_locked,
     active_passives,
@@ -496,6 +498,11 @@ class EffectContext:
             if dealt > 0:
                 taken = self.session.turn_state.damage_taken
                 taken[target.entity_id] = taken.get(target.entity_id, 0) + dealt
+                if is_attack and not as_counters:
+                    # The attack-damage half ("if this Pokemon was damaged by
+                    # an attack during your opponent's last turn").
+                    hit = self.session.turn_state.attack_damage_taken
+                    hit[target.entity_id] = hit.get(target.entity_id, 0) + dealt
             self.session.stat_add(self.player_id, "damagedealt", dealt)
             self.session.credit_card_damage(self.player_id, self.attacker, dealt)
             if is_attack:
@@ -710,6 +717,103 @@ class EffectContext:
             target, passive, self.session.turn_state.turn_number + 2
         )
 
+    def add_damage_taken_modifier(self, amount: int, target=None, *,
+                                  for_player: Optional[str] = None,
+                                  through: str = "opponent_next_turn",
+                                  attacks_only: bool = True) -> None:
+        """"The Defending Pokemon takes N more damage from attacks (after
+        applying Weakness and Resistance)" (Mabosstiff, Stunfisk, Onix) and
+        its mirror "each of your opponent's Pokemon takes N less damage"
+        (Zamazenta VSTAR). `amount` is signed: positive = more damage taken.
+
+        Pass `target` (a PokemonEntity) for the one-Pokemon wording; the
+        modifier is dropped when that card leaves play or evolves. Pass
+        `for_player` (a player id) instead for the side-wide wording: it then
+        covers every Pokemon that player has in play, including ones that
+        arrive before it expires.
+
+        `through` is the window the card text names, counted from now:
+        "this_turn", "your_next_turn", "opponent_next_turn" (each exactly one
+        turn wide, so "during your opponent's next turn" does not leak into
+        the rest of this turn), or an absolute turn number for anything longer.
+
+        Composition: modifiers stack additively as one flat step after
+        Weakness/Resistance; see passives.TargetDamageModifier.
+
+        Example: ctx.add_damage_taken_modifier(50, ctx.defender,
+                                               through="your_next_turn")
+        """
+        state = self.session.turn_state
+        turn = state.turn_number
+        if isinstance(through, int):
+            from_turn, through_turn = turn, through
+        else:
+            from_turn, through_turn = {
+                "this_turn": (turn, turn),
+                "your_next_turn": (turn + 2, turn + 2),
+                "opponent_next_turn": (turn + 1, turn + 1),
+            }[through]
+        if target is not None:
+            target_entity_id: Optional[str] = target.entity_id
+            owner_player_id = target.owning_player_id
+        elif for_player is not None:
+            target_entity_id = None
+            owner_player_id = for_player
+        else:
+            # No holder named: the ordinary reading is "the Pokemon this
+            # effect was aimed at", i.e. the defender.
+            target = self.defender
+            if target is None:
+                return
+            target_entity_id = target.entity_id
+            owner_player_id = target.owning_player_id
+        state.target_damage_modifiers.append(TargetDamageModifier(
+            amount=amount,
+            from_turn=from_turn,
+            through_turn=through_turn,
+            target_entity_id=target_entity_id,
+            owner_player_id=owner_player_id,
+            attacks_only=attacks_only,
+            source_entity_id=getattr(self.source, "entity_id", None),
+        ))
+
+    def schedule_turn_effect(self, boundary, effect: Callable, *,
+                             guard: Optional[Callable] = None,
+                             require_source_in_play: bool = False) -> Any:
+        """Queues `effect(ctx)` to run at a later turn boundary -- card text
+        "at the end of your opponent's next turn" (Dugtrio's Dig Trap rider,
+        Word of Ruin), "at the end of this turn", "at the start of your next
+        turn". `boundary` is a scheduling.TurnBoundary or its string value.
+
+        The callback gets a fresh EffectContext for this player whose source
+        is the card that registered it, so the ordinary primitives (draw,
+        damage, place counters, prompts) are available and its messages flush
+        as their own brackets; knockouts it causes resolve afterwards.
+        `guard(board)` returning False at fire time drops it silently (the
+        usual "if it is still your Active Pokemon" clause), and
+        `require_source_in_play` drops it when the registering Pokemon has
+        left play.
+
+        For "during your opponent's next turn ..." wording (a LIFETIME rather
+        than a delayed resolution) use add_passive_through_opponents_turn or
+        add_damage_taken_modifier instead.
+
+        Example: ctx.schedule_turn_effect(TurnBoundary.END_OF_OPPONENT_NEXT_TURN,
+                                          _six_counters_on_a_bench_pokemon)
+        """
+        return self.session.turn_scheduler.schedule(
+            boundary,
+            player_id=self.player_id,
+            opponent_id=self.opponent_id,
+            turn_number=self.session.turn_state.turn_number,
+            effect=effect,
+            label=self.ability.title if self.ability else "",
+            guard=guard,
+            source=self.source,
+            source_entity_id=getattr(self.source, "entity_id", None),
+            require_source_in_play=require_source_in_play,
+        )
+
     def lock_retreat(self, target: PokemonEntity,
                      through_turn: Optional[int] = None) -> None:
         """"The Defending Pokemon can't retreat during your opponent's next
@@ -741,6 +845,27 @@ class EffectContext:
             target.entity_id, through_turn,
             title if title is not None else (self.ability.title if self.ability else ""),
         )
+
+    def lock_coin_flips(self, player_id: Optional[str] = None,
+                        through_turn: Optional[int] = None) -> None:
+        """"Your opponent can't flip coins during their next turn": the named
+        player's coin flips resolve with no heads until the lock expires.
+
+        Suppressed flips are never made, so they show no coin screen and
+        report no heads -- an "if heads" rider simply does not apply (the same
+        reading as "flip a coin, if tails..."; nothing is generated to be
+        tails, the flip just does not happen). Keys on `ctx.player_id`, the
+        player whose effect is resolving, so a "your opponent flips a coin"
+        effect is suppressed by a lock on the acting player, not the opponent.
+        Default player: the opponent.
+        """
+        self.session.turn_state.lock_coin_flips(
+            player_id or self.opponent_id, through_turn
+        )
+
+    def coin_flips_locked(self, player_id: Optional[str] = None) -> bool:
+        """Whether the named player (default: this ctx's player) may not flip."""
+        return self.session.turn_state.coin_flips_locked(player_id or self.player_id)
 
     def ignore_own_target_effects(self, entity: PokemonEntity) -> None:
         """"During this turn, <entity>'s attacks aren't affected by effects on
@@ -843,21 +968,93 @@ class EffectContext:
         return len(ledger.get(player_id or self.player_id, []))
 
     def attack_used_last_turn(self, title: Optional[str] = None,
-                              entity=None) -> bool:
-        """Whether an attack (optionally by title and/or entity) was declared last turn."""
+                              entity=None, whose: str = "opponent") -> bool:
+        """"If this Pokemon used <attack> during your last turn" (Chimecho's
+        Dreaming Tone, Eelektross' Electrified Bite Mark, Pikachu's Dede-Short)
+        and the "your opponent's last turn" mirror.
+
+        `whose` names the turn the card text names, from the acting player's
+        side: "opponent" (the default -- the turn right before this one, which
+        is the opponent's) or "own" (your own previous turn, two turns back or
+        further after an extra turn). `entity` matches a Pokemon or anything it
+        evolved from (its stack), so an evolution keeps its memory.
+        """
         entity_id = getattr(entity, "entity_id", entity)
-        for used_id, _archetype, used_title in self.session.turn_state.attacks_used_last_turn:
+        lineage = self._stack_entity_ids(entity) if entity is not None else None
+        state = self.session.turn_state
+        records = (
+            state.attacks_prev_turn_by_player.get(self.player_id, [])
+            if whose == "own" else state.attacks_used_last_turn
+        )
+        for used_id, _archetype, used_title in records:
             if title is not None and used_title != title:
                 continue
-            if entity_id is not None and used_id != entity_id:
+            if entity_id is not None and used_id not in (lineage or {entity_id}):
                 continue
             return True
         return False
+
+    @staticmethod
+    def _stack_entity_ids(entity) -> set:
+        """`entity` plus every card tucked underneath it (pre-evolutions)."""
+        ids = set()
+        stack = [entity]
+        while stack:
+            current = stack.pop()
+            entity_id = getattr(current, "entity_id", None)
+            if entity_id is None or entity_id in ids:
+                continue
+            ids.add(entity_id)
+            stack.extend(getattr(current, "children", None) or [])
+        return ids
 
     def damage_taken_last_turn(self, pokemon) -> int:
         return self.session.turn_state.damage_taken_last_turn.get(
             pokemon.entity_id, 0
         )
+
+    def damaged_by_attack_last_turn(self, pokemon) -> int:
+        """"If this Pokemon was damaged by an attack during your opponent's
+        last turn" (Bastiodon, Jynx, Poliwrath, Pidgeot): the attack damage it
+        took then, counters and effect damage excluded. 0 = it wasn't."""
+        return self.session.turn_state.attack_damage_taken_last_turn.get(
+            getattr(pokemon, "entity_id", pokemon), 0
+        )
+
+    def knocked_out_last_turn(self, player_id: Optional[str] = None) -> int:
+        """"If any of your Pokemon were Knocked Out during your opponent's
+        last turn" (Plusle/Minun/Slowking Poke-Powers, Gym Trainer): how many of
+        that player's Pokemon were knocked out then, from any source --
+        kos_suffered_last_turn is the attack-damage-only variant."""
+        pid = player_id or self.player_id
+        return sum(1 for record in self.session.turn_state.pokemon_left_play_last_turn
+                   if record["owner_id"] == pid and record["by_attack"] is not None)
+
+    def was_knocked_out_last_turn(self, pokemon_or_archetype,
+                                 player_id: Optional[str] = None) -> bool:
+        """"If this Pokemon was Knocked Out during your opponent's last turn":
+        whether this Pokemon (or a Pokemon with that card's archetype_id) was
+        knocked out then."""
+        archetype_id = getattr(pokemon_or_archetype, "archetype_id",
+                               pokemon_or_archetype)
+        entity_id = getattr(pokemon_or_archetype, "entity_id", None)
+        for record in self.session.turn_state.pokemon_left_play_last_turn:
+            if record["by_attack"] is None:
+                continue
+            if player_id is not None and record["owner_id"] != player_id:
+                continue
+            if entity_id is not None and record["entity_id"] == entity_id:
+                return True
+            if archetype_id is not None and record["archetype_id"] == archetype_id:
+                return True
+        return False
+
+    def moved_to_active_last_turn(self, pokemon) -> bool:
+        """"If your opponent's Active Pokemon moved from the Bench to the
+        Active Spot during your opponent's last turn" (Gumshoos): whether that
+        Pokemon was promoted then (a retreat or a switch counts too)."""
+        return getattr(pokemon, "entity_id", pokemon) in \
+            self.session.turn_state.moved_to_active_last_turn
 
     def entered_active_this_turn(self, pokemon) -> bool:
         state = self.session.turn_state
@@ -1045,9 +1242,18 @@ class EffectContext:
     async def flip_coins(self, count: int, title: str = "",
                          source: Optional[BoardEntity] = None) -> List[bool]:
         """Flips `count` coins for a card effect ("Flip 2 coins..."); returns
-        the results, True = heads. `source` re-anchors the flip visual."""
+        the results, True = heads. `source` re-anchors the flip visual.
+
+        Under a coin-flip lock (lock_coin_flips) no coin is flipped and no
+        screen plays: every coin reports tails, so "if heads" riders fail."""
         if count <= 0:
             return []
+        if self.coin_flips_locked():
+            logging.info(
+                f"[Effects {self.game_id}] Coin flip suppressed for "
+                f"{self.player_id} by a coin-flip lock."
+            )
+            return [False] * count
         results = [random.choice([0, 1]) for _ in range(count)]
         final = await self._maybe_reroll_attack_coins(
             results, title, source,
@@ -1060,7 +1266,14 @@ class EffectContext:
 
     async def flip_until_tails(self, title: str = "") -> int:
         """"Flip a coin until you get tails": one coin screen shows the whole
-        run; returns the heads count."""
+        run; returns the heads count. A coin-flip lock means no heads."""
+        if self.coin_flips_locked():
+            logging.info(
+                f"[Effects {self.game_id}] Coin flip suppressed for "
+                f"{self.player_id} by a coin-flip lock."
+            )
+            return 0
+
         def _run() -> List[int]:
             run = [random.choice([0, 1])]
             while run[-1] == 0:
@@ -2235,11 +2448,63 @@ class EffectContext:
             await self.session.end_game(pid, "Took all Prize cards")
         return taken or []
 
+    def face_up_prize_cards(self, player_id: Optional[str] = None) -> List[CardEntity]:
+        """The player's Prize cards already turned face up ("these cards
+        remain face up for the rest of the game"), in pile order."""
+        area = self.board.find_player_area(player_id or self.player_id, "prizePile")
+        if area is None:
+            return []
+        return [c for c in area.children if getattr(c, "face_up", False)]
+
+    def face_down_prize_cards(self, player_id: Optional[str] = None) -> List[CardEntity]:
+        """The player's Prize cards still face down -- the pool a "choose 1 of
+        your face-down Prize cards" effect picks from."""
+        area = self.board.find_player_area(player_id or self.player_id, "prizePile")
+        if area is None:
+            return []
+        return [c for c in area.children if not getattr(c, "face_up", False)]
+
+    async def turn_prize_cards_face_up(
+        self, cards: Optional[Sequence[CardEntity]] = None,
+        count: Optional[int] = None, player_id: Optional[str] = None,
+    ) -> List[CardEntity]:
+        """"Turn 1 of your face-down Prize cards face up. (That Prize card
+        remains face up for the rest of the game.)" (Blacephalon, Umbreon XY96)
+        / "turn all of your Prize cards face up" (Celesteela-GX); also the
+        "choose as many of your face-down Prize cards as you like and put them
+        face up" picker half of Gallade.
+
+        Turns `cards` (an explicit pick) or the first `count` face-down Prizes
+        (None = every one) permanently face up and reveals their faces to BOTH
+        players, since a face-up Prize is public knowledge; returns the cards
+        turned up, so the caller can read what they are ("if it's a Fire Energy
+        card, this attack does 50 more damage").
+        """
+        pool = list(cards) if cards is not None else self.face_down_prize_cards(player_id)
+        pool = [c for c in pool if not getattr(c, "face_up", False)]
+        if count is not None:
+            pool = pool[:max(0, count)]
+        if not pool:
+            return []
+        intros = []
+        for card in pool:
+            card.face_up = True
+            intros.append(self.session._entity_introduced_msg(card))
+        for viewer in self.session.players.values():
+            await self.session.send_game_sequence(
+                [viewer], GameSequence.SERIAL_SEQUENCE, list(intros))
+        return pool
+
     async def put_in_prizes(self, cards: List[CardEntity],
-                            player_id: Optional[str] = None) -> int:
+                            player_id: Optional[str] = None,
+                            face_up: bool = False) -> int:
         """Puts hand cards face down into the player's empty Prize slots
         (Peonia): queues the moves, AttributesReset re-hides (the owner knows
-        the faces) and the pile's gap refresh; returns how many were placed."""
+        the faces) and the pile's gap refresh; returns how many were placed.
+
+        `face_up` is "choose a card from your hand and put it as a Prize card
+        face up" (Noctowl, Slowking): the card is public from the moment it
+        lands, so no re-hide is queued for it."""
         pid = player_id or self.player_id
         session = self.session
         prize_area = self.board.find_player_area(pid, "prizePile")
@@ -2257,8 +2522,13 @@ class EffectContext:
             self._queue(session._entity_moved_msg(
                 card.entity_id, prize_area.entity_id, slot),
                 bracket=GameSequence.GROUPED_MOVE.value)
-            self._queue(session._attributes_reset_msg(card.entity_id),
-                        bracket=GameSequence.GROUPED_MOVE.value)
+            if face_up:
+                card.face_up = True
+                self._queue(session._entity_introduced_msg(card),
+                            bracket=GameSequence.GROUPED_MOVE.value)
+            else:
+                self._queue(session._attributes_reset_msg(card.entity_id),
+                            bracket=GameSequence.GROUPED_MOVE.value)
             placed += 1
         if placed:
             self._queue(session._refresh_prize_gaps(pid, prize_area),

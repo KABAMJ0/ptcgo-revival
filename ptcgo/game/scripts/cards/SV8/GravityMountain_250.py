@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_stage_two, stadium_hp_bonus
 
 card = StadiumCardDef(
     guid="f301bab0-74a8-5bf2-b590-d904c4fd20b2",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=250,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=stadium_hp_bonus(30, is_stage_two)
 )

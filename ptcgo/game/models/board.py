@@ -37,6 +37,11 @@ class BoardEntity:
         # value diverges (e.g. HP max vs remaining -- client damage = max - value).
         self.attribute_originals: Dict[int, Any] = {}
         self.children: List[BoardEntity] = []
+        # "Turn 1 of your face-down Prize cards face up. (That Prize card
+        # remains face up for the rest of the game.)": a Prize card turned face
+        # up is public knowledge to both players, so is_hidden_from stops
+        # hiding it and a reconnect snapshot serializes its attributes.
+        self.face_up: bool = False
 
     def set_attribute(self, key: Union[int, AttrID], value: Any):
         """Sets an attribute on this entity."""
@@ -220,6 +225,8 @@ class CardEntity(BoardEntity):
         if viewer_id is None:
             return False
         area_name = self._containing_area_name()
+        if self.face_up and area_name == "prizePile":
+            return False
         if viewer_id != self.owning_player_id:
             return area_name not in self.PUBLIC_AREAS
         return area_name in self.HIDDEN_FROM_OWNER_AREAS

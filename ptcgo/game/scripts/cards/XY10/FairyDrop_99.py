@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import has_energy_of, heal_where
 
 card = ItemCardDef(
     guid="1442d11a-2ff6-55a7-b23e-c7b37dc4fc0c",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=99,
     set_code="XY10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_where(50, "choice", has_energy_of("fairy"))
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import basic_energy_of, discard_typed_from_hand_then, heal_where, stadium_ability
 
 card = StadiumCardDef(
     guid="7a3a1e37-bc5d-5013-97ab-eb2d8be9d33c",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=81,
     set_code="SV4PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=stadium_ability('Moonlit Hill', discard_typed_from_hand_then(basic_energy_of("psychic"), 1, heal_where(30, "each_own")))
 )

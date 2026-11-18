@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_supporter_card, random_opponent_card_discard_if
 
 card = ItemCardDef(
     guid="6957d25d-fda7-5fb4-8096-e34502d64d7d",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=125,
     set_code="SM3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=random_opponent_card_discard_if(is_supporter_card)
 )

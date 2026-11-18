@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import look_top_put_back
 
 card = ItemCardDef(
     guid="19a5a6e2-2952-5b1d-8aff-26ac0780df26",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=171,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_top_put_back(3)
 )

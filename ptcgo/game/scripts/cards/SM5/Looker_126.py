@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_from_bottom
 
 card = SupporterCardDef(
     guid="3e2c8e76-01f3-5f57-85d1-57f5c67d0def",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=126,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_from_bottom(3)
 )

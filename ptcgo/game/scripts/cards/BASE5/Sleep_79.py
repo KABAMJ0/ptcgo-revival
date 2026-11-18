@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import SpecialConditions, flip_condition_on_defender
 
 card = ItemCardDef(
     guid="c714eddf-86cb-5384-9b00-6e66f935d75d",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=79,
     set_code="BASE5",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=flip_condition_on_defender(SpecialConditions.ASLEEP)
 )

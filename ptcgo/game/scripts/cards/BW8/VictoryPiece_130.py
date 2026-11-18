@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import free_attack_cost_passive
 
 card = PokemonToolCardDef(
     guid="9ee6e547-3b9d-546d-9a1c-42ad33b102e2",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=130,
     set_code="BW8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=free_attack_cost_passive()
 )
