@@ -2373,6 +2373,52 @@ RULES = [
          r"put (?P<n>\d+) energy attached to (?P<t>\d+) of your opponents pokemon into their hand",
          "opponent_energy_to_hand", lambda m: [m.group("n")]),
 
+    Rule("search-named-card",
+         r"search your deck for (?P<name>[a-z]+) show it to your opponent and put it into your hand" +
+         SHUFFLE_TAIL,
+         "search_named_card", lambda m: ['"%s"' % m.group("name")],
+         module="support_common"),
+    Rule("each-shuffle-draw-same-count",
+         r"each player shuffles his or her hand into his or her deck and draws (?P<n>\d+) new hand "
+         r"of the same number of cards",
+         "each_player_count_shuffle_draw", lambda m: []),
+    Rule("discard-top-take-kind",
+         r"discard the top (?P<n>\d+) cards of your deck if any of those cards are "
+         r"(?P<cat>[a-z0-9 ]+?) put them into your hand",
+         "discard_top_take_kind", lambda m: [m.group("n"), _pred(m.group("cat"))]),
+    Rule("revive-with-damage",
+         r"put (?P<n>\d+) basic pokemon card from your discard pile onto your bench put damage counters "
+         r"on that pokemon equal to half its hp rounded down to the nearest \d+",
+         "revive_with_damage", lambda m: [m.group("n")]),
+    Rule("opponent-bench-from-discard",
+         r"choose (?P<n>\d+) basic pokemon card from your opponents discard pile and put it onto his or "
+         r"her bench",
+         "opponent_bench_from_discard", lambda m: []),
+    Rule("energy-recycle-choice",
+         r"search your discard pile for basic energy cards you may either show (?P<a>\d+) basic energy "
+         r"card to your opponent and put it into your hand or show (?P<b>\d+) basic energy cards to your "
+         r"opponent and shuffle them into your deck",
+         "energy_recycle_choice", lambda m: []),
+    Rule("move-basic-energy-between-own",
+         r"move (?P<n>\d+) basic energy card attached \d+ of your pokemon to another of your pokemon",
+         "move_energy_between_own", lambda m: [m.group("n"), "is_basic_energy_card"]),
+    Rule("remove-counters-each-both",
+         r"remove (?P<counters>\d+) damage counters from each pokemon yours and your opponents with any "
+         r"damage counters on it(?: if \d+ pokemon has just \d+ damage counter remove it)?",
+         "heal_where", lambda m: [str(int(m.group("counters")) * 10), '"each_both"']),
+    Rule("flip-heal-counters-choose",
+         r"choose (?P<n>\d+) of your pokemon flip (?P<coins>\d+) coins for each heads remove "
+         r"(?P<per>\d+) damage counters from that pokemon",
+         "flip_heal_chosen", lambda m: [m.group("per"), m.group("coins")]),
+    Rule("reveal-until-pokemon-shuffle-rest",
+         r"reveal cards from your deck until you reveal (?P<n>\d+) pokemon show that pokemon to your "
+         r"opponent and put it into your hand shuffle the other revealed cards back into your deck.*",
+         "reveal_until_pokemon_to_hand", lambda m: []),
+    Rule("return-pokemon-sp-to-hand",
+         r"return (?P<n>\d+) of your pokemon sp and all cards attached to it to your hand",
+         "return_pokemon_to_hand",
+         lambda m: ['predicate=pokemon_of_subtype("SP")']),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import energy_recycle_choice
 
 card = ItemCardDef(
     guid="a98b1351-fabe-5eb2-a15b-0d05ef0a0156",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=73,
     set_code="EX16",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=energy_recycle_choice()
 )

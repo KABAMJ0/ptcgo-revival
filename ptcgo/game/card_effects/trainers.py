@@ -5555,3 +5555,116 @@ def opponent_energy_to_hand(count: int = 1):
         if picks:
             await ctx.put_in_hand(picks, reveal=False)
     return effect
+
+
+def search_named_card(name: str):
+    """Search your deck for a card whose printed name contains `name`, show it,
+    and put it into your hand (Beginning Door)."""
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            card_named_contains(name), count=1, minimum=0,
+            prompt=f"Choose a card named {name}")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def discard_top_take_kind(count: int, predicate):
+    """Put the top `count` cards of your deck into the discard pile, then put
+    the matching ones into your hand (Clay)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        await ctx.discard_cards(top)
+        matches = [c for c in top if predicate(c)]
+        if matches:
+            await ctx.put_in_hand(matches, reveal=True)
+    return effect
+
+
+def revive_with_damage(count: int = 1):
+    """Put a Basic Pokemon from your discard pile onto your Bench with damage
+    counters equal to half its HP (Revive)."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile() if is_basic_pokemon(c)]
+        space = BENCH_CAPACITY - len(ctx.my_bench())
+        if not cards or space <= 0:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=0,
+            prompt="Choose a Basic Pokémon to put onto your Bench")
+        for card in picks:
+            if await ctx.bench_pokemon(card):
+                hp = card.get_attribute(AttrID.HP, 0) or 0
+                counters = hp // 20
+                placed = (ctx.my_bench() or [None])[-1]
+                if placed is not None and counters:
+                    await ctx.place_damage_counters(counters, [placed])
+    return effect
+
+
+def opponent_bench_from_discard():
+    """Put a Basic Pokemon from the opponent's discard pile onto their Bench
+    (Pokemon Flute)."""
+    async def effect(ctx):
+        area = ctx.board.find_player_area(ctx.opponent_id, "discardPile")
+        cards = [c for c in (area.children if area is not None else [])
+                 if is_basic_pokemon(c)]
+        if not cards or len(ctx.opponent_bench()) >= BENCH_CAPACITY:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=1,
+            prompt="Choose a Basic Pokémon to put onto their Bench")
+        if picks:
+            await ctx.bench_pokemon(picks[0])
+    return effect
+
+
+def energy_recycle_choice():
+    """From your discard pile, either take 1 basic Energy into your hand or
+    shuffle 3 into your deck (Energy Recycle System)."""
+    async def effect(ctx):
+        cards = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+        if not cards:
+            return
+        one = await ctx.choose_cards(
+            cards, 1, minimum=0,
+            prompt="Choose a basic Energy card to put into your hand")
+        if one:
+            await ctx.put_in_hand(one, reveal=True)
+            return
+        three = await ctx.choose_cards(
+            cards, 3, minimum=3,
+            prompt="Choose 3 basic Energy cards to shuffle into your deck")
+        if three:
+            await ctx.shuffle_into_deck(three)
+    return effect
+
+
+def move_energy_between_own(count: int = 1, predicate=None):
+    """Move `count` basic Energy from 1 of your Pokemon to another of your
+    Pokemon (Energy Switch)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play() if ctx.attached_energies(p)]
+        if not pool:
+            return
+        source = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to move Energy from") \
+            if len(pool) > 1 else pool[0]
+        if source is None:
+            return
+        energies = [e for e in ctx.attached_energies(source)
+                    if predicate is None or predicate(e)]
+        picks = await ctx.choose_cards(
+            energies, count, minimum=min(count, len(energies)),
+            prompt=f"Choose {count} Energy card(s) to move")
+        targets = [p for p in ctx.my_pokemon_in_play() if p is not source]
+        if not picks or not targets:
+            return
+        dest = await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move the Energy to") or targets[0]
+        for card in picks:
+            await ctx.attach_energy(card, dest)
+    return effect
