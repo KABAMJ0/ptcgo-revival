@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def effect(ctx):
+    await ctx.reorder_deck_top(4, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="6587dd1a-7ae0-5c12-a1cc-b5e45998bb98",
@@ -22,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Disrupting Spy",
             game_text="Once during your turn, when you put Chatot G from your hand onto your Bench, you may look at the top 4 cards of your opponent's deck. Put them back on top of your opponent's deck in any order.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=effect,
         ),
         Attack(
             title="Search and Escape",

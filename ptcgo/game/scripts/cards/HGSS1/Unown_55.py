@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def effect(ctx):
+    await ctx.reorder_deck_top(5)
+
 
 card = PokemonCardDef(
     guid="dfe7d3bc-8854-5b95-b844-38dbd7d52f6e",
@@ -21,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="FLASH",
             game_text="Once during your turn, when you put Unown from your hand onto your Bench, you may look at the top 5 cards of your deck and put them back on top of your deck in any order.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=effect,
         ),
         Attack(
             title="Hidden Power",
