@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="b6bf7d26-8c68-5371-a107-333846164e38",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Self-healing",
             game_text="Whenever you attach a Fire Energy card from your hand to Flareon, remove all Special Conditions affecting Flareon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(PokemonTypes.FIRE),
         ),
         Attack(
             title="Singe",

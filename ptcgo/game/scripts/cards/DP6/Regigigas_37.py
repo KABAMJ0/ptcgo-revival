@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="ae2ab9b6-fb0c-53cb-94d8-c5d6f5a6dfe3",
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Recover Mechanism",
             game_text="When you attach an Energy card from your hand to Regigigas, remove all Special Conditions from Regigigas.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(),
         ),
         Attack(
             title="Gigaton Punch",

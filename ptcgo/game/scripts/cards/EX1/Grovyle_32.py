@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="fcafe523-c4cc-5d51-a046-0551b60467e5",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Cure",
             game_text="When you attach a Grass Energy card from your hand to Grovyle, remove all Special Conditions from Grovyle.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(PokemonTypes.GRASS),
         ),
         Attack(
             title="Slash",
