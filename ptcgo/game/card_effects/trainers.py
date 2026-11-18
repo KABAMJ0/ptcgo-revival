@@ -9,6 +9,7 @@ from ptcgo.game.attributes import (
 )
 from ptcgo.game.models.board import PokemonEntity
 from ptcgo.game.data_utils import (
+    Triggers,
     Ability, Activations, Attack, def_for, evolves_from, has_rule_box,
     is_pokemon_v, subtypes_for, VisualizationArrow, VisualizationType,
 )
@@ -35,6 +36,7 @@ from ptcgo.game.session.passives import (
     trainer_play_blocked,
 )
 from ptcgo.game.card_effects.passives_common import (
+    ability_lock_passive,
     attack_discount_passive,
     free_attack_cost_passive,
     previous_evolution_grant_passive,
@@ -7602,3 +7604,430 @@ def exp_share_on_ally_ko():
         if picks:
             await ctx.move_energy(picks[0], ctx.source)
     return effect
+
+
+# --- Pokemon Tool passives and turn-boundary hooks -----------------------------
+
+
+def berry_between_turns(name, heal_amount, min_counters):
+    """Pokemon Checkup: if the holder has at least `min_counters` damage
+    counters on it, heal `heal_amount` from it and discard this Tool."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None:
+            return
+        if _damage_counters(ctx, holder) < min_counters:
+            return
+        await _heal_holder_and_discard_tool(ctx, holder, heal_amount)
+    return [Ability(title=name, trigger=Triggers.BETWEEN_TURNS, effect=effect)]
+
+def low_hp_berry_between_turns(name, hp_at_or_below, heal_amount):
+    """Pokemon Checkup: if the holder has `hp_at_or_below` HP or less, heal
+    `heal_amount` from it and discard this Tool (Healing Berry)."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None or holder.get_attribute(AttrID.HP, 0) > hp_at_or_below:
+            return
+        await _heal_holder_and_discard_tool(ctx, holder, heal_amount)
+    return [Ability(title=name, trigger=Triggers.BETWEEN_TURNS, effect=effect)]
+
+def _damage_counters(ctx, pokemon):
+    """Damage counters on `pokemon` (10 HP each)."""
+    return max(0, (ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)) // 10)
+
+async def _heal_holder_and_discard_tool(ctx, holder, heal_amount):
+    """Heal the holder, then discard the Tool that granted this ability."""
+    if not await ctx.heal(heal_amount, target=holder):
+        return
+    tool = ctx.ability_source
+    if tool is not None and tool is not holder:
+        await ctx.discard_cards([tool])
+
+def lum_berry_between_turns(name):
+    """Pokemon Checkup: remove every Special Condition from the holder, then
+    discard this Tool."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None:
+            return
+        if not (holder.get_attribute(AttrID.SPECIAL_CONDITIONS) or []):
+            return
+        tool = ctx.ability_source
+        await ctx.cure_all_conditions(holder)
+        if tool is not None and tool is not holder:
+            await ctx.discard_cards([tool])
+    return [Ability(title=name, trigger=Triggers.BETWEEN_TURNS, effect=effect)]
+
+def evolve_holder_between_turns(name, spot, min_counters=0):
+    """Pokemon Checkup: if the holder is your Active Pokemon (spot="active")
+    or a Benched one (spot="bench") and carries at least `min_counters` damage
+    counters, search the deck for a card that evolves from it, put that card
+    onto the holder (an evolution), shuffle, then discard this Tool."""
+    async def effect(ctx):
+        holder = ctx.source
+        tool = ctx.ability_source
+        if holder is None or tool is None or tool is holder:
+            return
+        if is_in_active_spot(holder) != (spot == "active"):
+            return
+        if min_counters:
+            counters = max(0, (ctx.max_hp(holder)
+                               - holder.get_attribute(AttrID.HP, 0)) // 10)
+            if counters < min_counters:
+                return
+        logic_name = holder.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        if not logic_name:
+            return
+        picks = await ctx.search_deck(
+            lambda card: evolves_from(getattr(card, "archetype_id", None) or "",
+                                      logic_name),
+            count=1, minimum=0,
+            prompt="Choose an Evolution card for the Pokemon " + name
+                   + " is attached to",
+        )
+        if not picks:
+            return
+        await ctx.evolve_pokemon(holder, picks[0])
+        await ctx.shuffle_deck()
+        await ctx.discard_cards([tool])
+    return [Ability(title=name, trigger=Triggers.BETWEEN_TURNS, effect=effect)]
+
+def powerglass_end_of_turn(name):
+    """At the end of your turn, if the holder is in the Active Spot, you may
+    attach a Basic Energy card from your discard pile to it."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None or not is_in_active_spot(holder):
+            return
+        pool = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=0,
+            prompt="Attach a Basic Energy card from your discard pile to "
+                   "the Pokemon this card is attached to?",
+        )
+        if picks:
+            await ctx.attach_energy(picks[0], holder)
+    return [Ability(title=name, trigger=Triggers.END_OF_TURN, effect=effect)]
+
+def end_of_turn_while_active_tool(name, draw=0, heal=0):
+    """At the end of your turn, if the holder is your Active Pokemon: draw
+    `draw` cards and/or heal `heal` damage from it."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None or not is_in_active_spot(holder):
+            return
+        if draw:
+            await ctx.draw_cards(draw)
+        if heal:
+            await ctx.heal(heal, target=holder)
+    return [Ability(title=name, trigger=Triggers.END_OF_TURN, effect=effect)]
+
+class StrengthCharmPassive(Passive):
+    """+N to the holder's attacks, applied either before the Weakness/
+    Resistance stage or immediately after it; the Tool leaves play once the
+    holder's attack has resolved."""
+
+    def __init__(self, amount, after_weakness, to_active_only, damage_required):
+        self.amount = amount
+        self.after_weakness = after_weakness
+        self.to_active_only = to_active_only
+        self.damage_required = damage_required
+
+    def _applies(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return False
+        if not (calc.is_attack and calc.is_opposing):
+            return False
+        return not (self.to_active_only and not calc.to_active)
+
+    def modify_damage_dealt(self, calc, carrier):
+        if self.after_weakness:
+            return
+        if self._applies(calc, carrier):
+            calc.amount += self.amount
+
+    def modify_damage_taken(self, calc, carrier):
+        if not self.after_weakness:
+            return
+        if calc.amount <= 0 or not self._applies(calc, carrier):
+            return
+        calc.amount += self.amount
+
+    async def attack_followup(self, ctx, carrier):
+        if carrier_pokemon(carrier) is not ctx.attacker:
+            return
+        if self.damage_required and not ctx.attack_damage:
+            return
+        await ctx.discard_cards([carrier])
+
+def strength_charm_tool(amount, after_weakness, to_active_only, damage_required):
+    """Strength Charm: continuous damage bonus plus the self-discard once the
+    holder attacks (the followup is the same turn edge the card names)."""
+    return StrengthCharmPassive(amount, after_weakness, to_active_only,
+                                damage_required)
+
+class CrystalShardPassive(Passive):
+    """The holder's type is Colorless while this Tool is attached; the Tool is
+    discarded once that holder attacks."""
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        if carrier_pokemon(carrier) is pokemon:
+            return [PokemonTypes.COLORLESS.value]
+        return types
+
+    async def attack_followup(self, ctx, carrier):
+        if carrier_pokemon(carrier) is ctx.attacker:
+            await ctx.discard_cards([carrier])
+
+def crystal_shard_tool():
+    return CrystalShardPassive()
+
+class BubbleCoatPassive(Passive):
+    """The holder has no Weakness; the Tool is discarded once an opponent's
+    attack damages that holder."""
+
+    def modify_weakness(self, calc, carrier):
+        if carrier_pokemon(carrier) is calc.target:
+            calc.weakness_applies = False
+
+    async def attack_followup(self, ctx, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is not None and holder.entity_id in ctx.attack_damage:
+            await ctx.discard_cards([carrier])
+
+def bubble_coat_tool():
+    return BubbleCoatPassive()
+
+def cessation_crystal_tool():
+    """While the holder is an Active Pokemon, every Pokemon in play (both
+    sides) has its Abilities turned off."""
+    def _holder_is_active(pokemon, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is not None and is_in_active_spot(holder)
+
+    return ability_lock_passive(_holder_is_active)
+
+def cessation_crystal_attach_to(pokemon):
+    """Cessation Crystal may only be attached to a non-Pokemon-ex."""
+    return not is_pokemon_ex(pokemon)
+
+def energy_link_ability(name, tool_guid):
+    """As long as this Tool is attached, move an Energy card off the holder
+    onto another of your Pokemon that also has it attached; usable any number
+    of times during your turn."""
+    def _partners(board, player_id, holder):
+        return [p for p in board.pokemon_in_play(player_id)
+                if p is not holder
+                and any(getattr(c, "archetype_id", None) == tool_guid
+                        for c in p.children)]
+
+    def condition(board, player_id, pokemon):
+        return bool(_partners(board, player_id, pokemon)) \
+            and any(is_energy_card(c) for c in pokemon.children)
+
+    async def effect(ctx):
+        holder = ctx.source
+        energies = ctx.attached_energies(holder)
+        partners = _partners(ctx.board, ctx.player_id, holder)
+        if not energies or not partners:
+            return
+        picks = await ctx.choose_cards(energies, 1,
+                                       prompt="Choose an Energy card to move")
+        if not picks:
+            return
+        target = await ctx.choose_pokemon(
+            partners, "Choose a Pokemon that has Energy Link attached")
+        if target is None:
+            return
+        await ctx.move_energy(picks[0], target)
+
+    return [Ability(title=name, activation=Activations.UNLIMITED,
+                    condition=condition, effect=effect)]
+
+def exp_all_energy_handoff(name):
+    """Your Active Pokemon Knocked Out by an opposing attack: you may move one
+    basic Energy card off it onto the holder, and if you do, discard this
+    Tool."""
+    async def effect(ctx):
+        holder = ctx.source
+        tool = ctx.ability_source
+        if holder is None or tool is None or tool is holder:
+            return
+        if not ctx.ko_from_attack or ctx.ko_pokemon is None:
+            return
+        if ctx.board.active_pokemon(ctx.player_id) is not ctx.ko_pokemon:
+            return
+        pool = [e for e in ctx.attached_energies(ctx.ko_pokemon)
+                if is_basic_energy_card(e)]
+        if not pool:
+            return
+        if not await ctx.ask_yes_no(
+                "Move a basic Energy card from your Knocked Out Active "
+                "Pokemon to the Pokemon " + name + " is attached to?"):
+            return
+        picks = await ctx.choose_cards(pool, 1,
+                                       prompt="Choose a basic Energy card to move")
+        if not picks:
+            return
+        if await ctx.move_energy(picks[0], holder):
+            await ctx.discard_cards([tool])
+    return [Ability(title=name, trigger=Triggers.ON_ALLY_KNOCKED_OUT,
+                    effect=effect)]
+
+def lucky_egg_ko_draw(hand_size):
+    """When the holder is Knocked Out by damage from an opponent's attack,
+    draw until its owner's hand holds `hand_size` cards."""
+    async def hook(ctx):
+        if not ctx.ko_from_attack:
+            return
+        await ctx.draw_until(hand_size)
+    return hook
+
+def healing_scarf_energy_attach(name, amount):
+    """Heal `amount` whenever an Energy card is attached from hand to the
+    holder."""
+    async def effect(ctx):
+        holder = ctx.source
+        if holder is None or ctx.energy_receiver is not holder:
+            return
+        if ctx.attaching_player_id != holder.owning_player_id:
+            return
+        await ctx.heal(amount, target=holder)
+    return [Ability(title=name, trigger=Triggers.ON_ENERGY_ATTACHED,
+                    effect=effect)]
+
+class HeavyBootsPassive(Passive):
+    """+N max HP and immunity to Confused while the holder's printed Retreat
+    Cost is `min_retreat` or more."""
+
+    def __init__(self, amount, min_retreat):
+        self.amount = amount
+        self.min_retreat = min_retreat
+
+    def _holder(self, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None:
+            return None
+        if (holder.get_attribute(AttrID.RETREAT_COST) or 0) < self.min_retreat:
+            return None
+        return holder
+
+    def max_hp_bonus(self, pokemon, carrier):
+        return self.amount if self._holder(carrier) is pokemon else 0
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        return condition == SpecialConditions.CONFUSED \
+            and self._holder(carrier) is target
+
+def heavy_boots_tool(amount, min_retreat):
+    return HeavyBootsPassive(amount, min_retreat)
+
+class PatrolCapPassive(Passive):
+    """While the holder is an Active Pokemon, cards in its owner's deck cannot
+    be discarded by the opponent's effects."""
+
+    def blocks_discard(self, card, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return False
+        if card.owning_player_id != holder.owning_player_id:
+            return False
+        return card._containing_area_name() == "deck"
+
+def patrol_cap_tool():
+    return PatrolCapPassive()
+
+def _prizes_ahead(board, player_id):
+    """Whether `player_id` has more Prize cards remaining than their opponent."""
+    mine = board.find_player_area(player_id, "prizePile")
+    theirs = [board.find_player_area(pid, "prizePile")
+              for pid in board.player_ids if pid != player_id]
+    if mine is None or not theirs or theirs[0] is None:
+        return False
+    return len(mine.children) > len(theirs[0].children)
+
+class PrizeAheadPassive(Passive):
+    """While its owner has more Prize cards remaining than the opponent:
+    +N to the holder's attacks on the opponent's Active Pokemon, or N less
+    damage taken by the holder from attacks."""
+
+    def __init__(self, amount, attacker_side, to_active_only):
+        self.amount = amount
+        self.attacker_side = attacker_side
+        self.to_active_only = to_active_only
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not self.attacker_side:
+            return
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if self.to_active_only and not calc.to_active:
+            return
+        if not _prizes_ahead(calc.board, holder.owning_player_id):
+            return
+        calc.amount += self.amount
+
+    def modify_damage_taken(self, calc, carrier):
+        if self.attacker_side:
+            return
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.target is not holder:
+            return
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if not _prizes_ahead(calc.board, holder.owning_player_id):
+            return
+        calc.amount -= self.amount
+
+def prize_ahead_tool(amount, attacker_side, to_active_only=False):
+    return PrizeAheadPassive(amount, attacker_side, to_active_only)
+
+
+def team_aqua_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team aqua" in name.lower()
+
+
+def team_magma_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Magma in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team magma" in name.lower()
+
+
+# --- Pokemon Tool passives and turn-boundary hooks -----------------------------
+
+
+
+def team_aqua_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team aqua" in name.lower()
+
+
+def team_magma_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Magma in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team magma" in name.lower()
+
+
+# --- Pokemon Tool passives and turn-boundary hooks -----------------------------
+
+
+
+def team_aqua_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team aqua" in name.lower()
+
+
+def team_magma_target(pokemon) -> bool:
+    """Tool attach target: a Pokemon with Team Magma in its printed name."""
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return "team magma" in name.lower()

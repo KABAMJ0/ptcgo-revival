@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import tool_draw_until_on_ko
+from ptcgo.game.card_effects.trainers import lucky_egg_ko_draw
 
 card = PokemonToolCardDef(
     guid="14a7695d-ff54-5e94-bbfa-f1dbfed733a1",
@@ -12,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=88,
     set_code="PL4",
     rarity=Rarities.Uncommon,
-    on_carrier_knocked_out=tool_draw_until_on_ko(7),
+    on_carrier_knocked_out=lucky_egg_ko_draw(7),
 )
