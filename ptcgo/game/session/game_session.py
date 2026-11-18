@@ -2688,12 +2688,18 @@ class GameSession:
             f"{len(moves)} Prize card(s)."
         )
         # Prize faces are the taker's knowledge only; the opponent sees the
-        # face-down cards fly to hand.
+        # face-down cards fly to hand -- except a Prize already turned face up
+        # (turn_prize_cards_face_up), which is public and stays public when
+        # taken.
+        public_intros = [
+            self._entity_introduced_msg(card) for card in cards
+            if card is not None and getattr(card, "face_up", False)
+        ]
         for pid, viewer in self.players.items():
             await self.send_game_sequence(
                 [viewer],
                 GameSequence.WITH_OPEN_PRIZE_CARDS,
-                ((intros + moves) if pid == player_id else list(moves)) + [gap_msg],
+                ((intros if pid == player_id else public_intros) + moves) + [gap_msg],
             )
         if destination == "hand":
             # Prize-take provenance window (Dream Ball's ON_TAKEN_AS_PRIZE).
