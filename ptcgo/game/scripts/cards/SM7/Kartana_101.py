@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+
+def _six_prizes_left(ctx):
+    return count_prizes_remaining("opponent")(ctx) == 6
 
 card = PokemonCardDef(
     guid="724a17a3-cc91-56ea-9887-e40b728edac6",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_six_prizes_left, 90),
         ),
     ],
 )
