@@ -13561,22 +13561,16 @@ def _t63_use_opponent_attack(m, ability):
     async def effect(ctx):
         pool = []
         for pokemon in ctx.opponent_pokemon_in_play():
-            attacks = ctx.attacks_of(pokemon)
-            for attack in attacks or []:
+            for attack in ctx.attacks_of(pokemon) or []:
                 pool.append((pokemon, attack))
         if not pool:
             return
-        picks = await ctx.choose_cards(
-            [attack for _, attack in pool], 1,
-            prompt="Choose an attack to use")
-        if not picks:
+        choice = await ctx.choose_attack_to_copy(
+            pool, prompt="Choose an attack to use")
+        if choice is None:
             return
-        chosen = picks[0]
-        for pokemon, attack in pool:
-            if attack is chosen or getattr(attack, "title", None) == \
-                    getattr(chosen, "title", None):
-                await ctx.use_attack(attack, source=pokemon)
-                return
+        pokemon, attack = choice
+        await ctx.use_attack(attack, source=pokemon)
     return effect
 
 
