@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+
+def _four_prizes_left(ctx):
+    return count_prizes_remaining("mine")(ctx) == 4
 
 card = PokemonCardDef(
     guid="8c05c978-a222-5a58-aac4-dedf70a66bab",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_four_prizes_left, 120),
         ),
         Attack(
             title="False Swipe",

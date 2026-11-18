@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+
+def _both_down_to_one(ctx):
+    return (count_prizes_remaining("mine")(ctx) == 1
+            and count_prizes_remaining("opponent")(ctx) == 1)
 
 card = PokemonCardDef(
     guid="6fde8418-5e7e-5616-baa5-f27bdf2f2e25",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_both_down_to_one, 130),
         ),
     ],
 )
