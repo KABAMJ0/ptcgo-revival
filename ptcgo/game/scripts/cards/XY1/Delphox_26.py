@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="c4bd9366-b4d4-5a31-b53f-287bac195dfd",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Mystical Fire",
             game_text="Once during your turn (before your attack), you may draw cards until you have 6 cards in your hand.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Blaze Ball",
