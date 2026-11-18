@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, retreat_discount
+
+
+def _own_active_while_benched(pokemon, carrier) -> bool:
+    return (pokemon.owning_player_id == carrier.owning_player_id
+            and is_in_active_spot(pokemon)
+            and not is_in_active_spot(carrier))
 
 card = PokemonCardDef(
     guid="e0fa0835-0507-57b9-8f4b-75cf45e3cc0e",
@@ -22,14 +30,14 @@ card = PokemonCardDef(
         Ability(
             title="Carry and Run",
             game_text="As long as this Pok\u00e9mon is on your Bench, your Active Pok\u00e9mon's Retreat Cost is ColorlessColorless less.",
-            effect=unimplemented,
+            passive=retreat_discount(2, target_pred=_own_active_while_benched),
         ),
         Attack(
             title="Lariat",
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )

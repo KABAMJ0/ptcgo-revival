@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="f2ebb804-6a99-5201-8eea-59e9b8d21947",
@@ -20,7 +21,8 @@ card = PokemonCardDef(
         Ability(
             title="Sleepy Voice",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Asleep. If you use this Ability, your turn ends.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True, damage=0),
+            ends_turn=True,
         ),
     ],
 )
