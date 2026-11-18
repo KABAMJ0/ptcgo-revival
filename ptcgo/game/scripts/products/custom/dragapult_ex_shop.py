@@ -47,7 +47,7 @@ product = ThemeDeckDef(
         DeckEntry("ME2PT5/198", 4),  # Poké Pad
         DeckEntry("SV1/168", 4),     # Crushing Hammer
         DeckEntry("SV1/196", 3),     # Ultra Ball
-        DeckEntry("SWSH2/200", 3),   # Boss's Orders
+        DeckEntry("SV4/160", 3),     # Counter Catcher (Standard-legal gust)
         DeckEntry("SV8/251", 2),     # Night Stretcher
         DeckEntry("SV8PT5/171", 2),  # Crispin
         DeckEntry("ME1/127", 2),     # Risky Ruins
@@ -55,8 +55,8 @@ product = ThemeDeckDef(
         DeckEntry("ME3/123", 1),     # Rosa's Encouragement
         DeckEntry("SV4PT5/228", 1),  # Judge
         DeckEntry("ME4/113", 1),     # Special Red Card
-        DeckEntry("SWSH8/284", 3),   # Fire Energy
-        DeckEntry("SWSH6/232", 3),   # Psychic Energy
-        DeckEntry("SWSH7/236", 2),   # Darkness Energy
+        DeckEntry("Free_Energy/2", 3),   # Fire Energy
+        DeckEntry("Free_Energy/5", 3),   # Psychic Energy
+        DeckEntry("Free_Energy/7", 2),   # Darkness Energy
     ],
 )
