@@ -8762,3 +8762,105 @@ def fluorite():
             if missing > 0:
                 await ctx.heal(missing, pokemon)
     return effect
+
+
+# --- Mystery Plate attack bodies --------------------------------------------
+
+def _opponent_prizes(ctx) -> int:
+    area = ctx.board.find_player_area(ctx.opponent_id, "prizePile")
+    return len(area.children) if area else 0
+
+
+def mystery_plate_desert_burn():
+    """Opponent has 5+ Prizes: take a Trainer card from the deck. Exactly 1
+    Prize left: the Defending Pokemon is Burned, Paralyzed and Poisoned."""
+    async def effect(ctx):
+        prizes = _opponent_prizes(ctx)
+        if prizes >= 5:
+            picks = await ctx.search_deck(
+                is_trainer_card, count=1, minimum=0,
+                prompt="Choose a Trainer card to put into your hand")
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+            await ctx.shuffle_deck()
+        elif prizes == 1:
+            defender = ctx.defender
+            if defender is None:
+                return
+            for condition in (SpecialConditions.BURNED, SpecialConditions.PARALYZED,
+                             SpecialConditions.POISONED):
+                await ctx.apply_special_condition(defender, condition)
+    return effect
+
+
+def mystery_plate_stone_crush():
+    """Opponent has 5+ Prizes: draw 3. Exactly 1 Prize left: the Defending
+    Pokemon's Energy (2, or 1 if that is all) shuffles into your opponent's
+    deck."""
+    async def effect(ctx):
+        prizes = _opponent_prizes(ctx)
+        if prizes >= 5:
+            await ctx.draw_cards(3)
+        elif prizes == 1:
+            defender = ctx.defender
+            pool = list(ctx.attached_energies(defender)) if defender else []
+            if not pool:
+                return
+            picks = await ctx.choose_cards(
+                pool, min(2, len(pool)), minimum=min(2, len(pool)),
+                prompt="Choose Energy cards to shuffle into their deck")
+            if picks:
+                await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+    return effect
+
+
+def mystery_plate_retro_cave():
+    """Opponent has 5+ Prizes: shuffle your hand in and draw 6. Exactly 2
+    Prizes left: the top card of 1 of your opponent's Evolved Pokemon goes to
+    the bottom of their deck."""
+    async def effect(ctx):
+        prizes = _opponent_prizes(ctx)
+        if prizes >= 5:
+            if ctx.hand():
+                await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+            await ctx.draw_cards(6)
+        elif prizes == 2:
+            pool = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                    if is_evolution_pokemon(pokemon)]
+            if not pool:
+                return
+            target = await ctx.choose_pokemon(
+                pool, "Choose an Evolved Pokemon to devolve") \
+                if len(pool) > 1 else pool[0]
+            if target is None:
+                return
+            removed = await ctx.devolve_pokemon(target, 1, destination="hand")
+            if removed:
+                await ctx.put_on_bottom_of_deck(removed[0])
+    return effect
+
+
+def mystery_plate_healing_oasis():
+    """Opponent has 5+ Prizes: up to 3 basic Energy from the deck into hand.
+    Exactly 2 Prizes left: remove all damage counters from 1 of your Pokemon."""
+    async def effect(ctx):
+        prizes = _opponent_prizes(ctx)
+        if prizes >= 5:
+            picks = await ctx.search_deck(
+                is_basic_energy_card, count=3, minimum=0,
+                prompt="Choose up to 3 basic Energy cards")
+            if picks:
+                await ctx.put_in_hand(picks, reveal=True)
+            await ctx.shuffle_deck()
+        elif prizes == 2:
+            pool = [pokemon for pokemon in ctx.my_pokemon_in_play()
+                    if (pokemon.get_attribute(AttrID.HP, 0) or 0) < ctx.max_hp(pokemon)]
+            if not pool:
+                return
+            target = await ctx.choose_pokemon(
+                pool, "Choose a Pokemon to heal") if len(pool) > 1 else pool[0]
+            if target is not None:
+                missing = ctx.max_hp(target) - (target.get_attribute(AttrID.HP, 0) or 0)
+                if missing > 0:
+                    await ctx.heal(missing, target)
+    return effect
