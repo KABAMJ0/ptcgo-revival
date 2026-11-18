@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.trainers import all_of, named
 
 card = PokemonCardDef(
     guid="f3221de7-403d-5312-947c-1127a3609db1",
@@ -27,7 +31,7 @@ card = PokemonCardDef(
             title="Call for Friend",
             game_text="Flip a coin. If heads, you may search your deck for a Basic Pok\u00e9mon with Misty in its name and put it onto your Bench. (You can't use this attack if your Bench is full.) Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=flip_or_nothing(then=search_to_bench(all_of(is_basic_pokemon, named("misty")), count=1)),
         ),
     ],
 )

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="4bbbb945-5b31-5b35-af54-f9789f32370f",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Quick Sign",
             game_text="If you go first, you can use this attack during your first turn. Search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic_pokemon, count=2),
         ),
         Attack(
             title="Coordinated Strike",
