@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import knocked_out_last_turn, shuffle_both_then_draw
 
 card = ItemCardDef(
     guid="bd44225c-a61d-56d6-a997-dd71b1debeb6",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=165,
     set_code="SV6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=shuffle_both_then_draw(5, 2), condition=knocked_out_last_turn()
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import team_magma_ball
 
 card = ItemCardDef(
     guid="918dc69a-2573-5528-a2c9-c892c386e373",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=80,
     set_code="EX4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=team_magma_ball()
 )

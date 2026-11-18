@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holon_farmer
 
 card = SupporterCardDef(
     guid="38f2715f-12ae-5e96-9eb4-6ec4a2aa8e65",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=91,
     set_code="EX11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=holon_farmer()
 )

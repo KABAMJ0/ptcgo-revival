@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.attributes import Rarities, SpecialConditions
+from ptcgo.game.card_effects.trainers import pokemon_of
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+
+
+_DARKNESS = pokemon_of("darkness")
+
+
+def _darkness_side(target, carrier):
+    """(target, carrier) pred for the stadium passive: a Darkness Pokemon."""
+    return _DARKNESS(target)
+
 
 card = StadiumCardDef(
     guid="755abe03-b6d9-5bf6-b528-7d69d32a5e04",
@@ -11,5 +22,8 @@ card = StadiumCardDef(
     collector_number=82,
     set_code="EX16",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=condition_immunity_passive(
+        (SpecialConditions.ASLEEP, SpecialConditions.CONFUSED,
+         SpecialConditions.PARALYZED),
+        protects=_darkness_side),
 )

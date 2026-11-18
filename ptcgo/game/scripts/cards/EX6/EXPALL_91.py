@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import exp_all_energy_handoff
 
 card = PokemonToolCardDef(
     guid="89b46eb3-469d-54ba-9b84-154d808a71c6",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=91,
     set_code="EX6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=exp_all_energy_handoff('EXP.ALL'),
 )

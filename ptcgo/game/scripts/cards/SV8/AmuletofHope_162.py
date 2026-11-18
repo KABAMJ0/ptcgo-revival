@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tool_search_deck_on_ko
 
 card = PokemonToolCardDef(
     guid="9db92760-2c3f-5a5e-aef3-6697ab656e4c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=162,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    on_carrier_knocked_out=tool_search_deck_on_ko(3),
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_to_deck_top_by_flip
 
 card = ItemCardDef(
     guid="6ae99315-490b-5117-9e06-db927d1bba0e",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=76,
     set_code="HGSS2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_to_deck_top_by_flip()
 )

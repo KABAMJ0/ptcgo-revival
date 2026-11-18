@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import end_of_turn_while_active_tool
 
 card = PokemonToolCardDef(
     guid="b0151dd5-68b4-5509-8def-0c9415905bae",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=97,
     set_code="DP4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=end_of_turn_while_active_tool('Amulet Coin', 1, 0),
 )

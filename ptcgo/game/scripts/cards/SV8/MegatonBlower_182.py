@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import megaton_blower
 
 card = ItemCardDef(
     guid="96a89aba-bd99-5fec-ac6e-f28de7f95273",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=182,
     set_code="SV8",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=megaton_blower()
 )

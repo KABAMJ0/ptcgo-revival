@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import shadow_triad
 
 card = SupporterCardDef(
     guid="459ba560-5f1b-5e37-8d5f-10648eb33d5d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=102,
     set_code="BW9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=shadow_triad()
 )

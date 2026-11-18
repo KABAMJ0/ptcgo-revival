@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+
+async def _handy909(ctx):
+    await ctx.shuffle_deck()
+    await ctx.reorder_deck_top(6)
+
 
 card = ItemCardDef(
     guid="f7a7239d-41b0-513e-9374-b71d9d71612e",
@@ -11,5 +16,5 @@ card = ItemCardDef(
     collector_number=96,
     set_code="EX6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=_handy909
 )

@@ -512,6 +512,46 @@ async def run_tool_granted_ability(rig: Rig, ability: Ability, entities) -> None
     await resolve_activated_ability(session, P1, holder, ability)
 
 
+async def run_tool_damaged_trigger(rig: Rig, ability: Ability, entities) -> None:
+    """Granted ON_DAMAGED_BY_ATTACK on an attached Tool: hold the Tool on P1's
+    Active and fire the trigger with an opposing attack's damage recorded, so
+    the "damaged by an attack (even if this Pokemon is Knocked Out)" body runs
+    its real branch instead of returning early on a missing attacker."""
+    session, board = rig.session, rig.board
+    holder = entities["p1_active"]
+    board.attach_card(entities["target"].entity_id, holder.entity_id)
+    await session.refresh_granted_abilities(holder)
+    attacker = entities.get("p2_active")
+    if attacker is None:
+        raise _SkipTest("no opposing Active to attack with")
+
+    def _setup(ctx):
+        ctx.damaged_by = attacker
+        ctx.damage_amount = 300
+        ctx.pre_hit_hp = 300
+
+    await resolve_triggered_ability(session, P1, holder, ability, ctx_setup=_setup)
+
+
+async def run_tool_carrier_ko(rig: Rig, entities) -> None:
+    """A Tool's on_carrier_knocked_out hook, driven with the knockout evidence
+    the engine hands it (holder Knocked Out by an opposing attack)."""
+    session, board = rig.session, rig.board
+    tool = entities["target"]
+    holder = entities["p1_active"]
+    board.attach_card(tool.entity_id, holder.entity_id)
+    hook = rig.target_def.on_carrier_knocked_out
+    ctx = EffectContext(session, P1, tool, None)
+    ctx.ability_source = tool
+    ctx.ko_pokemon = holder
+    ctx.ko_from_attack = True
+    ctx.ko_attacker = entities.get("p2_active")
+    ctx.was_active_at_ko = True
+    ctx.pre_hit_hp = 300
+    await hook(ctx)
+    await _flush_ctx(session, ctx)
+
+
 async def run_energy_attach(rig: Rig, entities) -> None:
     session, board = rig.session, rig.board
     energy = entities["target"]
@@ -590,6 +630,8 @@ def _plan_tests(definition) -> List[Tuple[str, str, Any, bool]]:
         for ability in definition.granted_abilities:
             plans.append(("tool-ability", ability.title, ability,
                           callable(ability.effect)))
+        if callable(definition.on_carrier_knocked_out):
+            plans.append(("tool-ko", "(carrier KO hook)", "tool-ko", True))
         if definition.passive is not None:
             plans.append(("passive", "(tool passive)", "tool-passive", True))
         if callable(definition.effect):
@@ -638,7 +680,12 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
             elif kind == "trainer-trigger":
                 await run_trainer_trigger(rig, runner_key, entities)
             elif kind == "tool-ability":
-                await run_tool_granted_ability(rig, runner_key, entities)
+                if getattr(runner_key, "trigger", None) == Triggers.ON_DAMAGED_BY_ATTACK:
+                    await run_tool_damaged_trigger(rig, runner_key, entities)
+                else:
+                    await run_tool_granted_ability(rig, runner_key, entities)
+            elif kind == "tool-ko":
+                await run_tool_carrier_ko(rig, entities)
             else:
                 await run_pokemon_ability(rig, runner_key, entities)
         elif runner_key == "trainer":

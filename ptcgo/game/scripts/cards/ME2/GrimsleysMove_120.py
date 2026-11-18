@@ -1,5 +1,32 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+import random
+
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_darkness_pokemon
+
+
+def _not_first_turn(board, player_id):
+    state = getattr(board, "turn_state", None)
+    return state is None or state.turn_number > 2
+
+
+async def _grimsleys_move(ctx):
+    top = ctx.deck_top(7)
+    if not top:
+        return
+    benched = []
+    candidates = [card for card in top if is_darkness_pokemon(card)]
+    if candidates and len(ctx.my_bench()) < ctx.bench_limit():
+        picks = await ctx.choose_cards(
+            candidates, 1, minimum=0, display_cards=top,
+            prompt="Choose a Darkness Pok\u00e9mon to put onto your Bench")
+        if picks and await ctx.bench_pokemon(picks[0]):
+            benched = picks
+    rest = [card for card in top if card not in benched]
+    random.shuffle(rest)
+    for card in rest:
+        await ctx.put_on_bottom_of_deck(card)
+
 
 card = SupporterCardDef(
     guid="65fca044-fa84-559a-854a-64ed1699a2b8",
@@ -11,5 +38,6 @@ card = SupporterCardDef(
     collector_number=120,
     set_code="ME2",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    condition=_not_first_turn,
+    effect=_grimsleys_move
 )

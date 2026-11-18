@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import berry_between_turns
 
 card = PokemonToolCardDef(
     guid="5f5d9d4e-476f-56a0-8e63-c53791a6a19c",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=93,
     set_code="NEO1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=berry_between_turns("Gold Berry", 40, 4)
 )

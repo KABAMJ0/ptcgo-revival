@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import ItemCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
 
+
 card = ItemCardDef(
     guid="49aba60a-3e19-5b0a-9239-3e9cf12ee117",
     key="ECARD2",

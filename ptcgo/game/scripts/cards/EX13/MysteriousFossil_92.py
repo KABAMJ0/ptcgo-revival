@@ -1,7 +1,8 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import FossilItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import FossilBodyPassive, fossil_discard_ability
 
-card = ItemCardDef(
+card = FossilItemCardDef(
     guid="46e64b90-32a3-501e-a328-02329cd5f84d",
     key="EX13",
     name="com.direwolfdigital.cake.data.archetypes.trainer.MysteriousFossil.Name",
@@ -11,5 +12,6 @@ card = ItemCardDef(
     collector_number=92,
     set_code="EX13",
     rarity=Rarities.Common,
-    effect=unimplemented
+    hp=50, passive=FossilBodyPassive(blocks_conditions=True), abilities=[fossil_discard_ability()]
 )
+card.prize_count = 0

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import abilities_off_for, is_evolution_pokemon
 
 card = StadiumCardDef(
     guid="f892c948-6533-566f-bafb-3c301c0b5dad",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=94,
     set_code="ME6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=abilities_off_for(is_evolution_pokemon)
 )

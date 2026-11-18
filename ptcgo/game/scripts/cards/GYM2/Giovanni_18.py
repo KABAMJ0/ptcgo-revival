@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_again_chosen, pokemon_named
 
 card = ItemCardDef(
     guid="43919234-6fbb-5ffa-b663-001b09ab8cd4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=18,
     set_code="GYM2",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=evolve_again_chosen(pokemon_named('giovanni'))
 )

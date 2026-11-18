@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
+async def _draw_to_eight(ctx):
+    await ctx.draw_until(8)
+
+
+async def _blues_tactics(ctx):
+    ctx.schedule_turn_effect("end_of_this_turn", _draw_to_eight)
+
 
 card = SupporterCardDef(
     guid="9031ea95-0e83-52a4-8287-7326fbda4a04",
@@ -11,5 +19,5 @@ card = SupporterCardDef(
     collector_number=188,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=_blues_tactics
 )
