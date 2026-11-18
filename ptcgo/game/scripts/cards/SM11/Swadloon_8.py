@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="f05c84ec-f942-5674-b101-ef8ba04830c1",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Swaddling Leaves",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Bug Bite",
