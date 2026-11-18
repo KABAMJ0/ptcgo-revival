@@ -16,7 +16,9 @@ unlocks the next Trainer (see `GameSession.end_game`).
 import logging
 
 from ptcgo.database import trainer_challenge_data
+from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.content import trainer_challenge as content
+from ptcgo.game.decks.theme_decks import theme_decks
 from ptcgo.game.session.manager import GameSessionManager
 
 from .base import BaseHandler, handle
@@ -41,32 +43,58 @@ def _player_deck(client):
     return None
 
 
-def _selected_opponent(request):
-    """The opponent the Play request names, or None when it names none."""
+# The client names its chosen Trainer in the *matchmaking* request, not in a
+# league message: `InitiateTCGameOnSelect.playGame` sends `RequestQueueMatch`
+# with queueName "TrainerChallenge" and one clientOptions entry carrying the
+# selected scenario id. Both spellings of that key are read.
+_CHALLENGE_QUEUE_MARKERS = ("trainerchallenge", "trainer challenge")
+_CHALLENGE_OPTION_KEYS = ("scenarios", "scenario", "scenarioID", "scenarioId")
+
+
+def is_challenge_queue(queue_name, client_options):
+    """Whether a matchmaking request is the Trainer Challenge's Play button."""
+    name = str(queue_name or "").strip().casefold()
+    if any(marker in name for marker in _CHALLENGE_QUEUE_MARKERS):
+        return True
+    return any(key in (client_options or {}) for key in _CHALLENGE_OPTION_KEYS)
+
+
+def option_values(client_options):
+    """Every string a clientOptions map carries, in order."""
+    values = []
+    for key, value in (client_options or {}).items():
+        if str(key) in _CHALLENGE_OPTION_KEYS or "scenario" in str(key).casefold():
+            values.append(value)
+    return [str(value) for value in values if value is not None]
+
+
+def request_values(request):
+    """Every string a league Play request carries under a known opponent key."""
     if not isinstance(request, dict):
-        return None
+        return []
     payload = request.get("request") if isinstance(request.get("request"), dict) else request
-    for key in _OPPONENT_KEYS:
+    values = []
+    for key in _OPPONENT_KEYS + _CHALLENGE_OPTION_KEYS:
         value = payload.get(key)
         if isinstance(value, dict):
             value = value.get("id") or value.get("key")
-        if not isinstance(value, str) or not value.strip():
-            continue
-        labelled = value.strip()
-        found = content.find(labelled.lower())
-        if found:
-            return found[1]
-        named = next((opponent for entry in content.leagues()
-                      for opponent in entry.opponents
-                      if opponent.name.casefold() == labelled.casefold()), None)
-        if named:
-            return named
+        if isinstance(value, (str, int)) and str(value).strip():
+            values.append(str(value))
     index = payload.get("opponentIndex", payload.get("index"))
     if isinstance(index, int):
-        opponents = [opponent for entry in content.leagues() for opponent in entry.opponents]
-        if 0 <= index < len(opponents):
-            return opponents[index]
-    return None
+        values.append(str(index))
+    return values
+
+
+def player_deck_images(client):
+    """Theme-deck keys for the player's decks — the names the TC deck panel renders."""
+    images = []
+    for deck in getattr(client.player, "decks", []) or []:
+        pile = ((deck.get("deck_data") or {}).get("piles") or {}).get("deck") or []
+        product = theme_decks.match_deck(pile) if pile else None
+        if product is not None and product.key not in images:
+            images.append(product.key)
+    return images
 
 
 class LeagueHandler(BaseHandler):
@@ -85,7 +113,7 @@ class LeagueHandler(BaseHandler):
             "messageName": "LeagueAndGymModeStatus",
             "status": {
                 "opponents": opponents,
-                "playerData": {"playerDeckImages": []},
+                "playerData": {"playerDeckImages": player_deck_images(self.client)},
                 # Payouts are paid the moment the result is recorded, so nothing
                 # is ever left waiting for the client to collect.
                 "waitingForRewards": False,
@@ -122,15 +150,14 @@ class LeagueHandler(BaseHandler):
 class ChallengePlayHandler(BaseHandler):
     """Play pressed on a league, gym or tutorial panel: start a real solo game."""
 
-    async def _start(self, request, request_id, label):
+    @staticmethod
+    def is_challenge_request(queue_name, client_options):
+        """Whether a matchmaking request came from the Trainer Challenge."""
+        return is_challenge_queue(queue_name, client_options)
+
+    async def _start(self, values, request_id, label, deck=None):
         account_id = self.client.player.account_id
-        progress = trainer_challenge_data.load(account_id)
-        playable = [opponent for league in content.leagues()
-                    for opponent in league.opponents
-                    if trainer_challenge_data.available(opponent.key, progress)]
-        opponent = _selected_opponent(request)
-        if opponent is None and playable:
-            opponent = playable[-1]
+        opponent = trainer_challenge_data.pick_opponent(account_id, values)
         if opponent is None:
             logging.info(f"[TCP] [{self.client.addr}] {label}: no league opponent is available")
             await self.client.send_packet({
@@ -138,14 +165,15 @@ class ChallengePlayHandler(BaseHandler):
                 "msg": {"id": UNAVAILABLE_KEY},
             }, request_id)
             return
-        if not trainer_challenge_data.available(opponent.key, progress):
+        if not trainer_challenge_data.available(
+                opponent.key, trainer_challenge_data.load(account_id)):
             logging.info(f"[TCP] [{self.client.addr}] {label}: {opponent.name} is not available")
             await self.client.send_packet({
                 "messageName": "LeagueAndGymModeError",
                 "msg": {"id": UNAVAILABLE_KEY},
             }, request_id)
             return
-        deck = _player_deck(self.client)
+        deck = deck or _player_deck(self.client)
         if deck is None:
             logging.info(f"[TCP] [{self.client.addr}] {label}: player has no complete deck")
             await self.client.send_packet({
@@ -162,13 +190,29 @@ class ChallengePlayHandler(BaseHandler):
             solo_context={"account_id": account_id, "opponent": opponent.key},
         )
 
+    async def start_from_queue(self, queue_name, client_options, deck=None):
+        """The Trainer Challenge Play button.
+
+        `InitiateTCGameOnSelect.playGame` sends `RequestQueueMatch` with the
+        Trainer Challenge queue name and the chosen Trainer in clientOptions;
+        there is no league-specific play message on the wire. The client is put
+        into the matchmaking state first (MatchQueueEntered), exactly as a
+        versus queue entry does, before the match is confirmed.
+        """
+        await self.client.send_packet({
+            "messageName": OutboundMsg.MATCH_QUEUE_ENTERED.value,
+            "estimatedWaitTime": 0,
+        }, 0)
+        await self._start(option_values(client_options), 0,
+                          f"queue '{queue_name}'", deck)
+
     @handle("LeagueAndGymModePlayGame")
     async def handle_league_play(self, request, request_id, flags):
-        await self._start(request, request_id, "LeagueAndGymModePlayGame")
+        await self._start(request_values(request), request_id, "LeagueAndGymModePlayGame")
 
     @handle("GymModeStart")
     async def handle_gym_start(self, request, request_id, flags):
-        await self._start(request, request_id, "GymModeStart")
+        await self._start(request_values(request), request_id, "GymModeStart")
 
     @handle("TutorialPlayGame")
     async def handle_tutorial_play(self, request, request_id, flags):

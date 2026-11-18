@@ -36,6 +36,8 @@ def _default_formats() -> List[GameFormat]:
         GameFormat("Legacy", DeckFormat.LEGACY.value, "Legacy", sets=legacy),
         GameFormat("Unlimited", DeckFormat.UNLIMITED.value, "Unlimited", all_sets=True),
         GameFormat("Theme", DeckFormat.THEME.value, "ThemeDeck", all_sets=True),
+        GameFormat("TrainerChallenge", DeckFormat.TRAINER_CHALLENGE.value,
+                   "TrainerChallenge", all_sets=True),
     ]
 
 
@@ -106,6 +108,13 @@ class FormatManager:
                 logging.error(f"[Formats] Could not write default formats.json: {e}")
         if not any(fmt.guid == DeckFormat.THEME.value for fmt in self.formats):
             self.formats.append(GameFormat("Theme", DeckFormat.THEME.value, "ThemeDeck", all_sets=True))
+        # Trainer Challenge decks are what the client's Trainer Challenge deck list
+        # offers and what enables its Play button (`SetColliderStatusFromSelectedTCDeck`
+        # enables the collider only while a deck is selected). The format is plain
+        # deck-building legality, so any complete deck can be played in the mode.
+        if not any(fmt.guid == DeckFormat.TRAINER_CHALLENGE.value for fmt in self.formats):
+            self.formats.append(GameFormat("TrainerChallenge", DeckFormat.TRAINER_CHALLENGE.value,
+                                           "TrainerChallenge", all_sets=True))
         self._by_guid = {fmt.guid: fmt for fmt in self.formats}
 
     def by_guid(self, format_guid: str) -> Optional[GameFormat]:

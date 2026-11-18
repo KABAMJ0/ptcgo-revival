@@ -76,6 +76,15 @@ def leagues():
     return LEAGUES
 
 
+def opponents():
+    """Every opponent in match order: league order, then position within the league.
+
+    The client's panels are indexed by this order (`IndexedMatchPanel.matchIndex`),
+    and so is the reward schedule, so the two must line up exactly.
+    """
+    return [opponent for entry in LEAGUES for opponent in entry.opponents]
+
+
 def find(opponent_key):
     """The (league, opponent, position) for an opponent key, or None."""
     for league in LEAGUES:
@@ -85,26 +94,57 @@ def find(opponent_key):
     return None
 
 
+def select_opponent(raw):
+    """The opponent a client-supplied value names, or None.
+
+    Values arrive unlabelled (the client sends a scenario id from its own
+    progression data), so a key, a display name, a league key and a match index
+    are all accepted.
+    """
+    if raw is None:
+        return None
+    text = str(raw).strip()
+    if not text:
+        return None
+    found = find(text.casefold())
+    if found:
+        return found[1]
+    for opponent in opponents():
+        if opponent.name.casefold() == text.casefold():
+            return opponent
+    entry = league(text.casefold())
+    if entry:
+        return entry.opponents[0]
+    if text.isdigit():
+        index = int(text)
+        if 0 <= index < len(opponents()):
+            return opponents()[index]
+    return None
+
+
 def league(league_key):
     """One league by key, or None."""
     return next((entry for entry in LEAGUES if entry.key == league_key), None)
 
 
 def reward_schedule():
-    """`LeagueAndGymModeRewards.totalRewardSchedule`: league index -> reward items.
+    """`LeagueAndGymModeRewards.totalRewardSchedule`: match index -> reward items.
 
-    The client's `PvEModeRewardsData.UpdateRewards` copies the map into its own
-    array with `for (i = 0; i < map.Count; i++) array[i] = map[i]`, so it indexes
-    the map 0..Count-1 and throws `KeyNotFoundException` on the first key that is
-    not exactly its loop index. Keys are therefore 0-based and contiguous — a
-    schedule keyed from 1 crashes the client in the trainer challenge scene.
+    The client stores this as `PvEModeRewardsData.allMatchRewards` — one reward
+    list per *match panel*, indexed by `IndexedMatchPanel.matchIndex` — so the map
+    is keyed by opponent position, not by league.
+
+    `UpdateRewards` copies the map into its own array with
+    `for (i = 0; i < map.Count; i++) array[i] = map[i]`, so it indexes the map
+    0..Count-1 and throws `KeyNotFoundException` on any key that is not exactly
+    its loop index: keys are 0-based and contiguous.
 
     Each item is the client's shared reward object, whose only member `A` carries
     a currency amount that is `{name: <currency id>, value: <amount>}`.
     """
     return {
-        str(index): [{"A": {"amount": {"name": TOKENS, "value": entry.coins}}}]
-        for index, entry in enumerate(LEAGUES)
+        str(index): [{"A": {"amount": {"name": TOKENS, "value": opponent.coins}}}]
+        for index, opponent in enumerate(opponents())
     }
 
 

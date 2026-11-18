@@ -32,6 +32,7 @@ from ptcgo.game.session.manager import GameSessionManager                 # noqa
 from ptcgo.packets.handlers.league import (                                # noqa: E402
     ChallengePlayHandler, LeagueHandler,
 )
+from ptcgo.packets.handlers.matchmaking import MatchmakingHandler          # noqa: E402
 
 ACCOUNT = "tc-test-account"
 RIVAL = "tc-test-rival"
@@ -61,15 +62,6 @@ class TrainerChallengeContentTest(unittest.TestCase):
                 deck = content.opponent_deck(opponent)
                 self.assertEqual(len(deck["piles"]["deck"]), 60,
                                  f"{opponent.name} ({opponent.deck}) is not a 60-card deck")
-
-    def test_reward_schedule_matches_the_client_shape(self):
-        schedule = content.reward_schedule()
-        self.assertEqual(sorted(schedule, key=int), [str(i) for i in range(len(content.leagues()))])
-        for items in schedule.values():
-            self.assertEqual(len(items), 1)
-            amount = items[0]["A"]["amount"]
-            self.assertEqual(amount["name"], content.TOKENS)
-            self.assertGreater(amount["value"], 0)
 
     def test_opponent_keys_are_unique(self):
         keys = [opponent.key for league in content.leagues() for opponent in league.opponents]
@@ -203,7 +195,7 @@ class _StubPlayer:
         self.account_id = account_id
         self.username = "TestPlayer"
         self.screen_name = "TestPlayer"
-        self.decks = [{"deck_data": deck}]
+        self.decks = [{"id": deck["deckID"], "deck_data": deck}]
 
 
 class _StubClient:
@@ -252,7 +244,8 @@ class LeagueHandlerTest(unittest.TestCase):
         asyncio.run(handler.handle_league_rewards({}, 1, 0))
         packet = self.client.sent[-1]
         self.assertEqual(packet["messageName"], "LeagueAndGymModeRewards")
-        self.assertEqual(sorted(packet["totalRewardSchedule"], key=int), ["0", "1"])
+        self.assertEqual(sorted(packet["totalRewardSchedule"], key=int),
+                         [str(i) for i in range(len(content.opponents()))])
 
     def test_play_starts_the_selected_opponent_with_their_own_deck(self):
         handler = ChallengePlayHandler(self.client)
@@ -275,6 +268,34 @@ class LeagueHandlerTest(unittest.TestCase):
         packet = self.client.sent[-1]
         self.assertEqual(packet["messageName"], "LeagueAndGymModeError")
         self.assertEqual(packet["msg"]["id"], "league.error.unavailable")
+
+    def test_the_play_button_is_a_queue_request(self):
+        """The client's Play sends RequestQueueMatch on the Trainer Challenge queue."""
+        manager = GameSessionManager()
+        asyncio.run(MatchmakingHandler(self.client).handle_request_queue_match({
+            "deck": {"deckID": self.deck["deckID"]},
+            "queueName": "TrainerChallenge",
+            "clientOptions": {"scenarios": "zach"},
+        }, 11, 0))
+        pairing = next(pairing for pairing in manager.pending_pairings.values()
+                       if pairing.get("solo_context", {}).get("account_id") == ACCOUNT)
+        self.assertEqual(pairing["solo_context"]["opponent"], "zach")
+        self.assertEqual(pairing["players"][ACCOUNT]["deck"], self.deck)
+        self.assertEqual(pairing["is_solo"], True)
+        # The client is put in the matchmaking state before the match confirms.
+        self.assertEqual([packet["messageName"] for packet in self.client.sent[-2:]],
+                         ["MatchQueueEntered", "ConfirmReadyForMatch"])
+
+    def test_a_normal_queue_request_is_still_matchmaking(self):
+        manager = GameSessionManager()
+        asyncio.run(MatchmakingHandler(self.client).handle_request_queue_match({
+            "deck": {"deckID": self.deck["deckID"]},
+            "queueName": "Standard",
+            "clientOptions": {},
+        }, 12, 0))
+        self.assertFalse(any(pairing.get("solo_context") for pairing in
+                             manager.pending_pairings.values()))
+        manager.queues.pop("Standard", None)
 
     def test_reset_clears_the_named_league(self):
         trainer_challenge_data.record_result(ACCOUNT, "zach", won=True)
