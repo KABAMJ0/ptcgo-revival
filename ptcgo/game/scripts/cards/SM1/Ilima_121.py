@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import each_player_shuffle_flip_draw
 
 card = SupporterCardDef(
     guid="8bbdf369-8699-5d83-8207-40cda6b434b6",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=121,
     set_code="SM1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=each_player_shuffle_flip_draw(6, 3)
 )

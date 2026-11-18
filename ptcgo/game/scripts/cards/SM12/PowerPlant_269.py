@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import abilities_off_for, any_of, is_pokemon_EX, is_pokemon_gx
 
 card = StadiumCardDef(
     guid="e8a68e1d-2d9b-5b51-8acc-21cdd274776a",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=269,
     set_code="SM12",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    passive=abilities_off_for(any_of(is_pokemon_gx, is_pokemon_EX))
 )

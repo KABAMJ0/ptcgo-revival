@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import lost_zone_per_typed, pokemon_of
 
 card = SupporterCardDef(
     guid="89bf6e51-6769-5f5b-b1b4-f0aec5c9ea0c",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=110,
     set_code="SM6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=lost_zone_per_typed(pokemon_of("fire"), 1)
 )

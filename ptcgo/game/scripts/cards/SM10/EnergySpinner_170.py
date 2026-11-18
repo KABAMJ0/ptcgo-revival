@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, search_going_second
 
 card = ItemCardDef(
     guid="db1ba32a-1034-5a63-b73d-1597c45a988e",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=170,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_going_second(is_basic_energy_card, 1, 3)
 )

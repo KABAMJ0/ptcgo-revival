@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_energy_opponent, knocked_out_last_turn
 
 card = SupporterCardDef(
     guid="e5f466a6-562d-5ad7-914a-d8a55e5c7e4d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=81,
     set_code="ME5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_energy_opponent(), condition=knocked_out_last_turn()
 )

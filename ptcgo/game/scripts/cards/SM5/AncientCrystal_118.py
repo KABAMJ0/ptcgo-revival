@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, pokemon_named, takes_less_from
 
 card = PokemonToolCardDef(
     guid="3e83a386-39a7-5482-82bb-5a651fe574c6",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=118,
     set_code="SM5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=takes_less_from(30, any_of(pokemon_named("regirock"), pokemon_named("regice"), pokemon_named("registeel"), pokemon_named("regigigas")))
 )

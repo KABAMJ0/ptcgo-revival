@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holder_boost_per_prize_taken, pokemon_of_subtype
 
 card = PokemonToolCardDef(
     guid="b3138bdc-662a-53b3-b63f-dbf4ab9d0414",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=185,
     set_code="SM12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_boost_per_prize_taken(10, pokemon_of_subtype("Ultra Beast"))
 )

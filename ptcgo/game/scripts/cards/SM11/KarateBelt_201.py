@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holder_attack_discount_typed
 
 card = PokemonToolCardDef(
     guid="06cf15ae-a698-5e9a-aca6-5cbeda20e770",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=201,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_attack_discount_typed("fighting", prize_behind=True)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_switch_either
 
 card = SupporterCardDef(
     guid="4f5fcdd8-f3c4-52b0-857d-c0f1742d5557",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=243,
     set_code="SV4",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=flip_switch_either()
 )

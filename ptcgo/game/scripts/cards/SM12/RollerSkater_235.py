@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_then_draw_energy_bonus
 
 card = SupporterCardDef(
     guid="c50c4932-c2a5-5d52-be21-8fe62a68b513",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=235,
     set_code="SM12",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=discard_then_draw_energy_bonus(2, 2)
 )

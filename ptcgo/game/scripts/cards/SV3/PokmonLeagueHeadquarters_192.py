@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_basic_pokemon, stadium_attack_tax
 
 card = StadiumCardDef(
     guid="e8f78bfd-5a07-572b-a543-4adaeeab84b1",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=192,
     set_code="SV3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_attack_tax(1, is_basic_pokemon)
 )

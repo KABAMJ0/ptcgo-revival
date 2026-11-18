@@ -550,6 +550,16 @@ CAT = r"(?P<cat>[a-z0-9][a-z0-9 ]*?)"
 # the same thing, so one fragment covers them.
 SHUFFLE_TAIL = r"(?: then)? shuffle your deck(?: afterward)?"
 
+def _name_list(phrase):
+    """"regirock regice registeel or regigigas" -> an any_of name predicate."""
+    words = [w for w in phrase.replace(" or ", " ").split() if w]
+    if not words or len(words) > 5:
+        raise Unresolved(phrase)
+    if len(words) == 1:
+        return 'pokemon_named("%s")' % words[0]
+    return "any_of(%s)" % ", ".join('pokemon_named("%s")' % w for w in words)
+
+
 def _cat_with_cards(cat):
     """A printed card-category phrase, given back a trailing "card" word."""
     text = (cat or "").strip()
@@ -2172,7 +2182,7 @@ RULES = [
          "each_player_shuffle_discard_into_deck", lambda m: []),
     Rule("search-one-of-each",
          r"search your deck for (?P<a>\d+ [a-z ]+?) (?P<b>\d+ [a-z ]+?) and (?P<c>\d+ [a-z ]+?) "
-         r"show them to your opponent and put them into your hand" + SHUFFLE_TAIL,
+         r"(?:show|reveal) them(?: to your opponent)? and put them into your hand" + SHUFFLE_TAIL,
          "search_one_of_each",
          lambda m: ["[%s]" % ", ".join(_pred(m.group(k)) for k in ("a", "b", "c"))],
          module="support_common"),
@@ -2552,6 +2562,54 @@ RULES = [
          r"the amount or type of energy attached to it",
          "free_attack_cost_passive", lambda m: [], kind="passive"),
 
+    Rule('search-hand-prism-star', 'search your deck for up to (?P<n>\\d+) prism star cards reveal them and put them into your hand(?: then)? shuffle your deck', 'search_to_hand', lambda m: ["is_prism_star", "count=" + m.group("n")], kind='effect'),
+    Rule('search-hand-tool-word', 'search your deck for up to (?P<n>\\d+) pokemon tool cards that have (?P<word>[a-z0-9 ]+?) in their name reveal them and put them into your hand(?: then)? shuffle your deck', 'search_to_hand', lambda m: ['all_of(is_tool_card, card_named_contains("%s"))' % m.group("word"), "count=" + m.group("n")], kind='effect'),
+    Rule('search-same-name-as-opponent', 'search your deck for (?P<n>\\d+) pokemon with the same name as \\d+ of your opponents pokemon in play reveal it and put it into your hand(?: then)? shuffle your deck', 'search_matching_opponent', lambda m: ["is_pokemon_card", 'match="name"', "count=" + m.group("n")], kind='effect'),
+    Rule('discard-hand-search-one-of-each', 'discard your hand and search your deck for (?P<a>\\d+ [a-z0-9 ]+?) (?P<b>\\d+ [a-z0-9 ]+?) and (?P<c>\\d+ [a-z0-9 ]+?) reveal them and put them into your hand(?: then)? shuffle your deck', 'discard_hand_then_search', lambda m: ["[%s]" % ", ".join(_pred(m.group(k)) for k in ("a", "b", "c"))], kind='effect'),
+    Rule('discard-typed-then-search-cards', 'discard (?P<n>\\d+) (?P<type>[a-z]+) energy cards from your hand if you do search your deck for up to (?P<take>\\d+) cards and put them into your hand then shuffle your deck', 'discard_typed_then_search', lambda m: [m.group("n"), 'basic_energy_of("%s")' % m.group("type"), m.group("take")], kind='effect'),
+    Rule('discard-then-draw-energy-bonus', 'discard (?P<n>\\d+) card from your hand if you do draw (?P<base>\\d+) cards if you discarded \\d+ energy card in this way draw (?P<bonus>\\d+) more cards', 'discard_then_draw_energy_bonus', lambda m: [m.group("base"), m.group("bonus")], kind='effect'),
+    Rule('look-top-reveal-up-to-cat', 'look at the top (?P<n>\\d+) cards of your deck you may reveal up to (?P<take>\\d+) (?P<cat>[a-z0-9 ]+?) you find there and put them into your hand shuffle the other cards back into your deck', 'look_at_top', lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")), "minimum=0"], kind='effect'),
+    Rule('look-top-reorder-or-shuffle', 'look at the top (?P<n>\\d+) cards of your deck and put them back in any order or shuffle them into your deck', 'look_top_reorder_or_shuffle', lambda m: [m.group("n")], kind='effect'),
+    Rule('look-top-opponent-pick-one-back', 'look at the top (?P<n>\\d+) cards of your opponents deck and choose \\d+ of them your opponent shuffles the other cards back into their deck then put the card you chose on top of their deck', 'look_top_pick_one_back', lambda m: [m.group("n"), 'owner="opponent"'], kind='effect'),
+    Rule('opponent-switch-their-active', 'your opponent switches their active pokemon with (?P<n>\\d+) of their benched pokemon', 'opponent_bench_to_active', lambda m: ["opponent_chooses=True"], kind='effect'),
+    Rule('draw-then-opponent-switch', 'draw (?P<n>\\d+) cards switch out your opponents active pokemon to the bench your opponent chooses the new active pokemon', 'draw_then_opponent_switch', lambda m: [m.group("n")], kind='effect'),
+    Rule('flip-switch-either-side', 'flip 1 coin if heads switch in (?P<n>\\d+) of your opponents benched pokemon to the active spot if tails switch your active pokemon with (?P<m>\\d+) of your benched pokemon', 'flip_switch_either', lambda m: [], kind='effect'),
+    Rule('opponent-hand-pokemon-to-bottom', 'your opponent reveals their hand and you put (?P<n>\\d+) (?P<cat>[a-z0-9 ]+?) you find there on the bottom of their deck', 'opponent_hand_card_to_bottom', lambda m: [_pred(m.group("cat"))], kind='effect'),
+    Rule('opponent-discard-to-bottom', 'put (?P<n>\\d+) card from your opponents discard pile on the bottom of their deck', 'opponent_discard_to_bottom', lambda m: [m.group("n")], kind='effect'),
+    Rule('identity-swap-from-discard', 'choose (?P<n>\\d+) (?P<cat>[a-z0-9 ]+?) in your discard pile switch it with (?P<m>\\d+) of your pokemon in play any attached cards damage counters special conditions turns in play and any other effects remain on the new pokemon', 'identity_swap_from_discard', lambda m: [_pred(m.group("cat"))], kind='effect'),
+    Rule('identity-swap-named-ex', 'choose (?P<n>\\d+) pokemon ex in your discard pile that has (?P<word>[a-z]+) in its name and switch it with \\d+ of your pokemon ex in play that has (?P=word) in its name any attached cards damage counters special conditions turns in play and any other effects remain on the new pokemon', 'identity_swap_from_discard', lambda m: ['all_of(is_pokemon_ex, card_named_contains("%s"))' % m.group("word")], kind='effect'),
+    Rule('tool-attack-discount-typed', 'if you have more prize cards remaining than your opponent the attacks of the pokemon this card is attached to cost (?P<type>[a-z]+) less', 'holder_attack_discount_typed', lambda m: [_typed_or_decline(m.group("type")), "prize_behind=True"], kind='passive'),
+    Rule('tool-discount-and-boost', 'attacks used by the (?P<holder>[a-z0-9 ]+?) this card is attached to cost (?P<count>colorless) less and do (?P<amount>\\d+) more damage to your opponents active pokemon before applying weakness and resistance', 'holder_discount_and_boost', lambda m: [str(_colorless_count(m.group("count"))), m.group("amount"), _holder(m.group("holder"))], kind='passive'),
+    Rule('tool-takes-less-named-list', 'the (?P<names>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\\d+) less damage from your opponents attacks after applying weakness and resistance', 'takes_less_from', lambda m: [m.group("amount"), _name_list(m.group("names"))], kind='passive'),
+    Rule('tool-retaliate-counters', 'if the pokemon this card is attached to is knocked out by damage from (?P<n>\\d+) attack from your opponents pokemon put (?P<counters>\\d+) damage counters on the attacking pokemon', 'retaliate_on_attack', lambda m: [m.group("counters")], kind='passive'),
+    Rule('tool-boost-when-poisoned', 'attacks used by the poisoned pokemon this card is attached to do (?P<amount>\\d+) more damage to your opponents active pokemon before applying weakness and resistance', 'holder_boost_when_conditioned', lambda m: [m.group("amount"), "SpecialConditions.POISONED"], kind='passive'),
+    Rule('tool-boost-low-hp', 'if the pokemon this card is attached to has (?P<hp>\\d+) hp or less remaining and has any damage counters on it its attacks do (?P<amount>\\d+) more damage to your opponents active pokemon before applying weakness and resistance', 'low_hp_holder_boost', lambda m: [m.group("amount"), m.group("hp")], kind='passive'),
+    Rule('tool-retreat-energy-to-hand', 'if the pokemon this card is attached to discards energy for its retreat cost put that energy into your hand instead of the discard pile', 'retreat_energy_to_hand', lambda m: [], kind='passive'),
+    Rule('tool-hp-retreat-four', 'if the pokemon this card is attached to has (?P<n>\\d+) retreat cost of exactly (?P<cost>\\d+) it gets (?P<hp>\\d+) hp', 'hp_bonus_tool', lambda m: [m.group("hp"), "retreat_cost_is(%s)" % m.group("cost")], kind='passive'),
+    Rule('tool-ability-shield', 'prevent all effects of your opponents abilities done to the pokemon this card is attached to remove any such existing effects', 'holder_ability_shield', lambda m: [], kind='passive'),
+    Rule('tool-terra-attack-discount', 'when the tera pokemon this card is attached to uses (?P<n>\\d+) attack that attack costs (?P<count>\\d+) energy less the energy can be of any type', 'holder_attack_discount', lambda m: [m.group("count")], kind='passive'),
+    Rule('stadium-abilities-off-rule-box', 'pokemon gx and pokemon ex in play both yours and your opponents have no abilities', 'abilities_off_for', lambda m: ["any_of(is_pokemon_gx, is_pokemon_EX)"], kind='passive'),
+    Rule('stadium-abilities-off-typed', '(?P<cat>[a-z0-9 ]+?) pokemon in play both yours and your opponents have no abilities', 'abilities_off_for', lambda m: [_stadium_cat(m.group("cat"))], kind='passive'),
+    Rule('stadium-tools-off-plain', 'pokemon tool cards in play both yours and your opponents have no effect', 'ToolsSuppressedStadiumPassive', lambda m: [], kind='passive'),
+    Rule('stadium-hp-basic', 'each basic pokemon in play both yours and your opponents gets (?P<amount>\\d+) hp(?: put it into the active spot and discard it if another stadium comes into play)?', 'stadium_hp_bonus', lambda m: [m.group("amount"), "is_basic_pokemon"], kind='passive'),
+    Rule('shuffle-one-hand-draw-plain', 'shuffle (?P<n>\\d+) card from your hand into your deck if you do draw (?P<draw>\\d+) cards', 'shuffle_one_hand_draw', lambda m: [m.group("draw")], kind='effect'),
+    Rule('each-player-flip-draw', 'each player shuffles their hand into their deck and flips (?P<n>\\d+) coin if heads that player draws (?P<heads>\\d+) cards if tails they draw (?P<tails>\\d+) cards', 'each_player_shuffle_flip_draw', lambda m: [m.group("heads"), m.group("tails")], kind='effect'),
+    Rule('discard-ultra-beast-draw-per', 'discard up to (?P<count>\\d+) ultra beast cards from your hand draw (?P<per>\\d+) cards for each card you discarded in this way', 'discard_pred_draw_per', lambda m: ['pokemon_of_subtype("Ultra Beast")', m.group("count"), m.group("per")], kind='effect'),
+    Rule('discard-not-rule-box-draw-per', 'discard up to (?P<count>\\d+) pokemon that arent pokemon gx or pokemon ex from your hand draw (?P<per>\\d+) cards for each card you discarded in this way', 'discard_pred_draw_per', lambda m: ["all_of(is_pokemon_card, excluding(any_of(is_pokemon_gx, is_pokemon_EX)))", m.group("count"), m.group("per")], kind='effect'),
+    Rule('each-player-discard-to', 'each player discards cards from their hand until they have (?P<keep>\\d+) cards in their hand your opponent discards first if \\d+ player has (?P=keep) or fewer cards in their hand they do not discard', 'each_player_discard_to', lambda m: [m.group("keep")], kind='effect'),
+    Rule('opponent-hand-bottom-draw-same', 'your opponent counts the cards in their hand shuffles those cards and puts them on the bottom of their deck if they do they draw that many cards', 'opponent_hand_to_bottom_draw_same', lambda m: [], kind='effect'),
+    Rule('opponent-hand-bottom-draw-optional', 'your opponent reveals their hand you may have your opponent count the cards in their hand shuffle those cards into their deck then draw that many cards', 'opponent_hand_to_bottom_draw_same', lambda m: ["optional=True"], kind='effect'),
+    Rule('flip-counters-either', 'flip 1 coin if heads put (?P<n>\\d+) damage counters on (?P<m>\\d+) of your opponents pokemon if tails put (?P<k>\\d+) damage counters on your active pokemon', 'flip_counters_either', lambda m: [m.group("n")], kind='effect'),
+    Rule('flip-heal-amount-cure', 'flip 1 coin if heads heal (?P<amount>\\d+) damage and remove all special conditions from (?P<n>\\d+) of your pokemon', 'flip_heal_cure', lambda m: ["None", m.group("amount")], kind='effect'),
+    Rule('search-going-second-energy', 'search your deck for (?P<n>\\d+) (?P<cat>[a-z0-9 ]+?) reveal it and put it into your hand if you go second and its your first turn search for up to (?P<bigger>\\d+) (?P=cat)s? instead of \\d+ then shuffle your deck', 'search_going_second', lambda m: [_pred(m.group("cat")), m.group("n"), m.group("bigger")], kind='effect'),
+    Rule('lost-zone-per-typed', 'for each of your (?P<type>[a-z]+) pokemon in play put (?P<n>\\d+) card from your opponents discard pile in the lost zone(?: prism star rule you cant have more than \\d+ card with the same name in your deck if \\d+ card would go to the discard pile put it in the lost zone instead)?', 'lost_zone_per_typed', lambda m: [_type_or_predicate(m.group("type")), m.group("n")], kind='effect'),
+    Rule('stadium-ability-draw-if-supporter', 'once during each players turn if they played (?P<n>\\d+) supporter card that has (?P<word>[a-z ]+?) in its name from their hand this turn they may draw (?P<count>\\d+) cards', 'stadium_draw_if_named_supporter', lambda m: ['"%s"' % m.group("word"), m.group("count")], kind='effect'),
+    Rule('draw-then-discard-plain', 'draw (?P<n>\\d+) cards then discard (?P<k>\\d+) card from your hand(?: if you have no cards in your deck you cant play this card)?', 'draw_then_discard', lambda m: [m.group("n"), m.group("k")], kind='effect'),
+    Rule('look-top-attach-up-to', 'look at the top (?P<n>\\d+) cards of your deck and attach up to (?P<take>\\d+) (?P<cat>[a-z0-9 ]+?) you find there to your (?P<which>[a-z0-9 ]*?)pokemon in any way you like shuffle the other cards back into your deck', 'look_top_attach_up_to', lambda m: [m.group("n"), m.group("take"), "predicate=" + _pred(m.group("cat")), "target_pred=" + str(_attach_target(m.group("which")))], kind='effect'),
+    Rule('tool-boost-per-prize-taken', 'the attacks of the (?P<holder>[a-z0-9 ]+?) this card is attached to do (?P<amount>\\d+) more damage to your opponents active pokemon for each prize card you have taken before applying weakness and resistance', 'holder_boost_per_prize_taken', lambda m: [m.group("amount"), _holder(m.group("holder"))], kind='passive'),
+    Rule('stadium-no-weakness-two-types', '(?P<a>[a-z]+) pokemon and (?P<b>[a-z]+) pokemon both yours and your opponents have no weakness', 'stadium_no_weakness', lambda m: ["any_of(%s, %s)" % (_type_or_predicate(m.group("a")), _type_or_predicate(m.group("b")))], kind='passive'),
+    Rule('stadium-attack-tax-basic', 'attacks used by each basic pokemon in play both yours and your opponents cost (?P<count>colorless) more', 'stadium_attack_tax', lambda m: [str(_colorless_count(m.group("count"))), "is_basic_pokemon"], kind='passive'),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -2636,6 +2694,7 @@ CONDITION_PREFIXES = [
      "hand_is_last"),
     (re.compile(r"^you can (?:use|play) this card only if you have more prize cards (?:remaining|left) "
                 r"than your opponent "), "behind_on_prizes"),
+    (re.compile(r"^you can (?:use|play) this card only if (?:any of )?(?:your )?(?:\d+ of your )?(?:[a-z]+ )?pokemon (?:was|were) knocked out during your opponents last turn "), "knocked_out_last_turn"),
     (re.compile(r"^you can (?:use|play) this card only if you have any (?P<sub>[a-z]+) pokemon "
                 r"in play "), "has_subtype_in_play"),
     (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "

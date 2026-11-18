@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_pred_draw_per, pokemon_of_subtype
 
 card = SupporterCardDef(
     guid="c09dd4bc-6c3f-50c1-ac9b-32d90a284c16",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=131,
     set_code="SM6",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=discard_pred_draw_per(pokemon_of_subtype("Ultra Beast"), 2, 3)
 )
