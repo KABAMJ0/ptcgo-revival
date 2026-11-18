@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="18ada343-4fae-5009-b63a-dfea89075e46",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Cure",
             game_text="When you attach a Water Energy card from your hand to Marshtomp, remove all Special Conditions from Marshtomp.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(PokemonTypes.WATER),
         ),
         Attack(
             title="Aqua Sonic",
