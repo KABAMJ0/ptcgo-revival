@@ -5,7 +5,8 @@ from ptcgo.database.models import (
     RedemptionCode, CodeRedemptionEntry, ShopItem, TradeOffer, DynamicPage,
     VersusProgress, DailyLoginProgress,
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim,
-    TrainerChallengeProgress, LEAGUE_ROW
+    TrainerChallengeProgress, LEAGUE_ROW,
+    TutorialProgress,
 )
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "TournamentLeaderboardClaim",
     "TrainerChallengeProgress",
     "LEAGUE_ROW",
+    "TutorialProgress",
 ]

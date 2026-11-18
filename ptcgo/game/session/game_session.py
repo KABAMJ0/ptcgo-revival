@@ -99,7 +99,7 @@ from ptcgo.game.data_utils import (
 from ptcgo.database.player_data import (
     COINS_PER_WIN, COINS_PER_LOSS, get_merged_collection_payload, grant_coins,
 )
-from ptcgo.database import trainer_challenge_data
+from ptcgo.database import trainer_challenge_data, tutorial_data
 from ptcgo.database.versus_data import award_match_points, get_progress
 from ptcgo.database.async_utils import run_db
 from ptcgo.server import activity
@@ -3140,6 +3140,8 @@ class GameSession:
                     "index": 0,
                     "openedReward": None,
                 })
+            reward_list.extend(await self._record_tutorial_result(
+                pid, player, pid == winner_id))
             reward_list.extend(await self._record_trainer_challenge_result(
                 pid, player, pid == winner_id))
             reward_list.extend(await self._progress_daily_challenges(pid, player, winner_id, reason))
@@ -3956,6 +3958,31 @@ class GameSession:
             f"{attack['selectableAction']['actionID']}."
         )
         await self._run_state_unit(self._apply_player_action(active_id, attack, []))
+
+    async def _record_tutorial_result(self, pid: str, player, is_winner: bool):
+        """Scores a finished tutorial match.
+
+        The funnel's own payout is not an end-of-game item: the scene reports it
+        as pending on its next status load and collects it with
+        `TutorialClaimRewards`, which is also where the client is told no further
+        match follows. This only records the result.
+        """
+        context = self.pairing.get("solo_context") or {}
+        match_key = context.get("tutorial")
+        if not match_key or pid != context.get("account_id"):
+            return []
+        try:
+            result = await run_db(tutorial_data.record_result,
+                                  player.account_id, match_key, is_winner)
+        except Exception:
+            logging.exception("[Session %s] Tutorial result recording failed for %s",
+                              self.game_id, player.account_id)
+            return []
+        if not result or not result.get("ok"):
+            return []
+        logging.info(f"[Session {self.game_id}] Tutorial {match_key}: "
+                     f"{'win' if is_winner else 'loss'}, funnel complete {result['completed']}")
+        return []
 
     async def _record_trainer_challenge_result(self, pid: str, player, is_winner: bool):
         """Scores a finished league match and returns the reward items to show."""

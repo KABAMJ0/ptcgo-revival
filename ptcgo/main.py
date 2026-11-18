@@ -58,6 +58,15 @@ async def run_server():
         lag_task.cancel()
         await tcp_server.stop()
 
+def _mark_oldtimer_accounts_out_of_the_tutorial():
+    """Accounts that predate the scripted tutorial are done with it already."""
+    from ptcgo.database import tutorial_data
+    try:
+        tutorial_data.backfill_completed()
+    except Exception as e:
+        logging.error(f"[Main] Tutorial backfill failed: {e}")
+
+
 def main():
     telemetry.install_log_capture()
     logging.info(f"[Main] Public host: {config.PUBLIC_HOST} (HTTP {config.HTTP_PORT}, TCP {config.TCP_PORT})")
@@ -69,6 +78,7 @@ def main():
     Base.metadata.create_all(engine)
     run_light_migrations()
     bootstrap_admins_from_env()
+    _mark_oldtimer_accounts_out_of_the_tutorial()
     # Prime the tournament cache off-loop (handlers only read it afterwards)
     TournamentManager()
     load_catalog()

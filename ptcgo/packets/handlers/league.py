@@ -22,6 +22,10 @@ from ptcgo.game.decks.theme_decks import theme_decks
 from ptcgo.game.session.manager import GameSessionManager
 
 from .base import BaseHandler, handle
+from .tutorial import (
+    TUTORIAL_SUB_MODE, start_tutorial_match as tutorial_start,
+    sub_mode, tutorial_rewards, tutorial_status,
+)
 
 NO_DECK_KEY = "league.error.nodeck"
 UNAVAILABLE_KEY = "league.error.unavailable"
@@ -100,7 +104,14 @@ def player_deck_images(client):
 class LeagueHandler(BaseHandler):
     @handle("LeagueAndGymModeGetStatus")
     async def handle_league_status(self, request, request_id, flags):
-        """League status: the opponent list, this player's decks, losses, payouts."""
+        """League status: the opponent list, this player's decks, losses, payouts.
+
+        The tutorial funnel is the same message with `subMode: "tutorial"`, so it
+        answers from the tutorial's own two scripted matches.
+        """
+        if sub_mode(request) == TUTORIAL_SUB_MODE:
+            await self._send_tutorial_status(request_id)
+            return
         account_id = self.client.player.account_id
         opponents = [
             {"name": {"id": row["name"]}, "image": row["image"], "status": row["status"]}
@@ -121,9 +132,27 @@ class LeagueHandler(BaseHandler):
             },
         }, request_id)
 
+    async def _send_tutorial_status(self, request_id):
+        """The funnel scene's own status: its matches and any payout waiting."""
+        status = tutorial_status(self.client.player.account_id)
+        logging.info(f"[TCP] [{self.client.addr}] Tutorial status: "
+                     f"{len(status['opponents'])} matches, waiting {status['waitingForRewards']}")
+        await self.client.send_packet({
+            "messageName": "LeagueAndGymModeStatus",
+            "status": status,
+        }, request_id)
+
     @handle("LeagueAndGymModeGetRewards")
     async def handle_league_rewards(self, request, request_id, flags):
         """The reward schedule: one entry per league, paid by clearing it."""
+        if sub_mode(request) == TUTORIAL_SUB_MODE:
+            logging.info(f"[TCP] [{self.client.addr}] Tutorial rewards: "
+                         f"{len(tutorial_rewards())} matches")
+            await self.client.send_packet({
+                "messageName": "LeagueAndGymModeRewards",
+                "totalRewardSchedule": tutorial_rewards(),
+            }, request_id)
+            return
         schedule = content.reward_schedule()
         logging.info(f"[TCP] [{self.client.addr}] League rewards: {len(schedule)} leagues")
         await self.client.send_packet({
@@ -208,26 +237,13 @@ class ChallengePlayHandler(BaseHandler):
 
     @handle("LeagueAndGymModePlayGame")
     async def handle_league_play(self, request, request_id, flags):
+        """Play on a league panel — or, with the tutorial subMode, the funnel's own Play."""
+        if sub_mode(request) == TUTORIAL_SUB_MODE:
+            await tutorial_start(self.client, "LeagueAndGymModePlayGame", None, request_id)
+            return
         await self._start(request_values(request), request_id, "LeagueAndGymModePlayGame")
 
     @handle("GymModeStart")
     async def handle_gym_start(self, request, request_id, flags):
         await self._start(request_values(request), request_id, "GymModeStart")
 
-    @handle("TutorialPlayGame")
-    async def handle_tutorial_play(self, request, request_id, flags):
-        """The tutorial's own Play button: a practice match, not a league opponent.
-
-        The tutorial flow itself is not scripted (see handlers/tutorial.py), so the
-        player's deck gets the generic practice opponent rather than a Trainer.
-        """
-        deck = _player_deck(self.client)
-        if deck is None:
-            await self.client.send_packet({
-                "messageName": "LeagueAndGymModeError",
-                "msg": {"id": NO_DECK_KEY},
-            }, request_id)
-            return
-        logging.info(f"[TCP] [{self.client.addr}] TutorialPlayGame: starting a practice match")
-        await GameSessionManager().start_solo_match(
-            self.client, deck, "tutorial_bot", {}, request_id=request_id)
