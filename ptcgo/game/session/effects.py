@@ -42,6 +42,7 @@ from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.session.sequence_packets import NestedSequence
 from ptcgo.game.content.visualizations import VisualizationArrow, VisualizationLifetime, VisualizationType
 from .constants import PROMPT_NO, PROMPT_YES
+from .scheduling import TurnBoundary, TurnScheduler
 from .passives import (
     TempPassive,
     TargetDamageModifier,
@@ -733,6 +734,9 @@ class EffectContext:
 
         Composition: modifiers stack additively as one flat step after
         Weakness/Resistance; see passives.TargetDamageModifier.
+
+        Example: ctx.add_damage_taken_modifier(50, ctx.defender,
+                                               through="your_next_turn")
         """
         state = self.session.turn_state
         turn = state.turn_number
@@ -788,6 +792,9 @@ class EffectContext:
         For "during your opponent's next turn ..." wording (a LIFETIME rather
         than a delayed resolution) use add_passive_through_opponents_turn or
         add_damage_taken_modifier instead.
+
+        Example: ctx.schedule_turn_effect(TurnBoundary.END_OF_OPPONENT_NEXT_TURN,
+                                          _six_counters_on_a_bench_pokemon)
         """
         return self.session.turn_scheduler.schedule(
             boundary,
