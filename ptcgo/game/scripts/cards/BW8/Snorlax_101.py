@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_retreat_passive, opposing_active, is_in_active_spot
 
 card = PokemonCardDef(
     guid="9391f1fb-f06e-593c-a694-559cbcbe2734",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Block",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Active Pok\u00e9mon can't retreat.",
-            effect=unimplemented,
+            passive=no_retreat_passive(lambda p, c: opposing_active(p, c) and is_in_active_spot(c)),
         ),
         Attack(
             title="Teampact",
