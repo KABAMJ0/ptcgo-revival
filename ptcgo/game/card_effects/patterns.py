@@ -14514,6 +14514,259 @@ def _t66_prevent_effects_from_gx_ex(m, ability):
         return "gx" in subtypes or "ex" in subtypes
     return PredicatePreventionPassive(lambda calc, c: is_gx_or_ex(calc))
 
+
+def _t68_bonus_per_self_counters_then_heal(m, ability):
+    base, per, heal = int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        counters = 0
+        if attacker is not None:
+            counters = (ctx.max_hp(attacker)
+                        - attacker.get_attribute(AttrID.HP, 0)) // 10
+        await ctx.deal_damage(base + per * counters)
+        if attacker is not None and heal:
+            await ctx.heal(heal, attacker)
+    return effect
+
+
+def _t68_optional_typed_all_base_swap(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+    changed = int(m.group(2))
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        pool = []
+        if attacker is not None:
+            pool = [energy for energy in ctx.attached_energies(attacker)
+                    if energy_provides_type(energy, type_value)]
+        if pool and await ctx.ask_yes_no(prompt="Discard that Energy?"):
+            await ctx.discard_cards(pool)
+            await ctx.deal_damage(changed)
+            return
+        await ctx.deal_damage()
+    return effect
+
+
+def _t68_optional_discard_hand_bonus(m, ability):
+    limit = _count(m.group(1))
+    per = int(m.group(2))
+
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        pool = list(ctx.hand())
+        picks = []
+        if pool:
+            picks = await ctx.choose_cards(pool, limit, minimum=0, prompt=(
+                f"Choose up to {limit} cards to discard"))
+            if picks:
+                await ctx.discard_cards(list(picks))
+        await ctx.deal_damage(printed + per * len(picks))
+    return effect
+
+
+def _t68_scale_two_typed_energy_all_own(m, ability):
+    per = int(m.group(1))
+    first = TYPE_WORDS[m.group(2)].value
+    second = TYPE_WORDS[m.group(3)].value
+
+    def count(ctx) -> int:
+        total = 0
+        for pokemon in ctx.my_pokemon_in_play():
+            for energy in ctx.attached_energies(pokemon):
+                if energy_provides_type(energy, first) or \
+                        energy_provides_type(energy, second):
+                    total += 1
+        return total
+    return damage_per(count, per)
+
+
+def _t68_damage_opponent_chosen_ignoring(m, ability):
+    amount = int(m.group(1))
+    targets = 1
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        pool = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+                if not ctx.effects_blocked(pokemon)]
+        if not pool:
+            return
+        picks = pool if len(pool) <= targets else await ctx.choose_cards(
+            pool, targets, prompt=f"Choose {targets} Pokémon")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, ignore_weakness=True,
+                                  ignore_resistance=True)
+    return effect
+
+
+def _t68_search_basic_energy_to_hand_many(m, ability):
+    limit = _count(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        picks = await ctx.search_deck(is_basic_energy_card, count=limit,
+                                      minimum=0, prompt="Choose Energy cards")
+        if picks:
+            await ctx.put_in_hand(list(picks), reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def _t68_prevent_from_tag_team(m, ability):
+    from ptcgo.game.card_effects.passives_common import (
+        PredicatePreventionPassive)
+    from ptcgo.game.data_utils import subtypes_for
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        attacker = ctx.attacker
+        if attacker is None:
+            return
+
+        def is_tag_team(calc) -> bool:
+            source = getattr(calc, "attacker", None)
+            if source is None:
+                return False
+            subtypes = [sub.lower() for sub in subtypes_for(source.archetype_id)]
+            return "tag team" in subtypes or "tagteam" in subtypes
+        ctx.add_passive_through_opponents_turn(
+            attacker, PredicatePreventionPassive(lambda calc, c: is_tag_team(calc)))
+    return effect
+
+
+def _t68_bonus_bench_typed_ignoring(m, ability):
+    per = int(m.group(1))
+    type_value = TYPE_WORDS[m.group(2)].value
+
+    async def effect(ctx):
+        count = sum(1 for pokemon in ctx.my_bench()
+                    if type_value in (pokemon.get_attribute(AttrID.POKEMON_TYPES)
+                                      or []))
+        await ctx.deal_damage(per * count, ignore_weakness=True)
+    return effect
+
+
+def _t68_bonus_bench_with_typed_energy(m, ability):
+    per = int(m.group(1))
+    type_value = TYPE_WORDS[m.group(2)].value
+
+    def count(ctx) -> int:
+        return sum(1 for pokemon in ctx.my_bench()
+                   if any(energy_provides_type(energy, type_value)
+                          for energy in ctx.attached_energies(pokemon)))
+    return damage_per(count, per)
+
+
+def _t68_attach_typed_hand_bench_heal_all(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        pool = [card for card in ctx.hand() if is_basic_energy_card(card)
+                and energy_provides_type(card, type_value)]
+        candidates = ctx.my_bench()
+        if not pool or not candidates:
+            return
+        picks = await ctx.choose_cards(pool, 1, prompt="Choose an Energy card")
+        if not picks:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates, "Choose a Benched Pokémon")
+        if target is not None:
+            await ctx.attach_energy(picks[0], target)
+            await ctx.heal(9990, target)
+    return effect
+
+
+def _t68_attach_typed_hand_any(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        pool = [card for card in ctx.hand() if is_basic_energy_card(card)
+                and energy_provides_type(card, type_value)]
+        candidates = ctx.my_pokemon_in_play()
+        if not pool or not candidates:
+            return
+        picks = await ctx.choose_cards(pool, 1, prompt="Choose an Energy card")
+        if not picks:
+            return
+        target = candidates[0] if len(candidates) == 1 else \
+            await ctx.choose_pokemon(candidates, "Choose a Pokémon")
+        if target is not None:
+            await ctx.attach_energy(picks[0], target)
+    return effect
+
+
+def _t68_bench_own_name_from_discard(m, ability):
+    limit = _count(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        source = ctx.source
+        own = normalize(getattr(source, "display_name", "") or "")
+        if not own:
+            return
+        pool = [card for card in ctx.discard_pile()
+                if _is_pokemon_card(card)
+                and normalize(getattr(card, "display_name", "") or "") == own]
+        if not pool:
+            return
+        picks = await ctx.choose_cards(pool, limit, minimum=0, prompt=(
+            f"Choose up to {limit} Pokémon"))
+        for card in picks:
+            await ctx.bench_pokemon(card)
+    return effect
+
+
+def _t69_spread_opponent_ex(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from ptcgo.game.data_utils import subtypes_for
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if ctx.effects_blocked(pokemon):
+                continue
+            subtypes = [sub.lower() for sub in subtypes_for(pokemon.archetype_id)]
+            if "ex" in subtypes:
+                await ctx.deal_damage(amount, target=pokemon,
+                                      ignore_weakness=True,
+                                      ignore_resistance=True)
+    return effect
+
+
+def _t69_attach_typed_from_discard_self(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        attacker = ctx.attacker
+        pile = [card for card in ctx.discard_pile() if is_energy_card(card)
+                and energy_provides_type(card, type_value)]
+        if attacker is None or not pile:
+            return
+        picks = await ctx.choose_cards(pile, 1, prompt="Choose an Energy card")
+        if picks:
+            await ctx.attach_energy(picks[0], attacker)
+    return effect
+
+
+def _t69_search_self_name_to_hand(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        own = normalize(getattr(ctx.source, "display_name", "") or "")
+        if not own:
+            return
+        picks = await ctx.search_deck(
+            lambda card: normalize(getattr(card, "display_name", "") or "") == own,
+            count=1, minimum=0, prompt="Choose this Pokémon")
+        if picks:
+            await ctx.put_in_hand(list(picks), reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -15929,6 +16182,63 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
+    # -- batch 69: typed prevention, self search and spreads ----------------
+    ("spread.opponent-ex-ignoring-mods",
+     re.compile(r"this attack does (\d+) damage to each of your opponent's "
+                r"pokemon ex\. \(don't apply weakness and resistance for "
+                r"benched pokemon\.\)"), _t69_spread_opponent_ex),
+    ("attach.typed-energy-from-discard-self",
+     re.compile(r"attach a (" + _TYPE_WORDS + r") energy card from your discard "
+                r"pile to this pokemon\."), _t69_attach_typed_from_discard_self),
+    ("search.self-name-to-hand",
+     re.compile(r"search your deck for (?:m )?this pokemon, reveal it, and put it "
+                r"into your hand\..*"), _t69_search_self_name_to_hand),
+    ("bonus.per-self-counters-then-heal",
+     re.compile(r"does (\d+) damage plus (\d+) more damage for each damage "
+                r"counter on this pokemon\. then, remove (\d+) damage counters "
+                r"from this pokemon\."), _t68_bonus_per_self_counters_then_heal),
+    ("damage.base-swap-optional-typed-all",
+     re.compile(r"you may discard all (" + _TYPE_WORDS + r") energy attached to "
+                r"this pokemon\. if you do, this attack's base damage is (\d+) "
+                r"instead of (\d+)\."), _t68_optional_typed_all_base_swap),
+    ("bonus.optional-hand-discard-per-card",
+     re.compile(r"you may discard up to (\d+) energy cards from your hand, and "
+                r"this attack does (\d+) more damage for each card you discarded "
+                r"in this way\."), _t68_optional_discard_hand_bonus),
+    ("scale.per-two-typed-energy-all-own",
+     re.compile(r"this attack does (\d+) damage for each (" + _TYPE_WORDS +
+                r") energy and each (" + _TYPE_WORDS + r") energy attached to all "
+                r"of your pokemon\."), _t68_scale_two_typed_energy_all_own),
+    ("damage.chosen-opponent-ignoring-mods",
+     re.compile(r"this attack does (\d+) damage to (?:an?|\d+) of your "
+                r"opponent's pokemon\. this damage isn't affected by weakness or "
+                r"resistance\."), _t68_damage_opponent_chosen_ignoring),
+    ("search.basic-energy-to-hand-many",
+     re.compile(r"search your deck for up to (\d+) basic energy cards, reveal "
+                r"them, and put them into your hand\. shuffle your deck "
+                r"afterward\."), _t68_search_basic_energy_to_hand_many),
+    ("prevent.damage-from-tag-team",
+     re.compile(r"during your opponent's next turn, prevent all damage done to "
+                r"this pokemon by attacks from tag team pokemon\."),
+     _t68_prevent_from_tag_team),
+    ("bonus.benched-typed-ignoring-weakness",
+     re.compile(r"this attack does (\d+) more damage for each of your benched (" +
+                _TYPE_WORDS + r") pokemon\. this attack's damage isn't affected by "
+                r"weakness\."), _t68_bonus_bench_typed_ignoring),
+    ("scale.benched-with-typed-energy",
+     re.compile(r"this attack does (\d+) more damage for each of your benched "
+                r"pokemon that has any (" + _TYPE_WORDS + r") energy attached\."),
+     _t68_bonus_bench_with_typed_energy),
+    ("attach.typed-hand-bench-then-heal-all",
+     re.compile(r"attach a basic (" + _TYPE_WORDS + r") energy card from your hand "
+                r"to (?:an?|\d+) of your benched pokemon\. if you do, heal all "
+                r"damage from that pokemon\."), _t68_attach_typed_hand_bench_heal_all),
+    ("attach.typed-hand-any-target",
+     re.compile(r"attach a basic (" + _TYPE_WORDS + r") energy card from your hand "
+                r"to (?:an?|\d+) of your pokemon\."), _t68_attach_typed_hand_any),
+    ("bench.own-name-from-discard",
+     re.compile(r"put up to (\d+) this pokemon from your discard pile onto your "
+                r"bench\."), _t68_bench_own_name_from_discard),
     # -- batch 66: recoil, peeks, prevention and the tail ------------------
     ("recoil.per-typed-energy",
      re.compile(r"this pokemon does damage to itself equal to (\d+) times the "
