@@ -371,6 +371,27 @@ def active_vs_active_debuff_passive(amount) -> Passive:
     return ActiveVsActiveDebuffPassive(amount)
 
 
+class AdditiveDamageTakenPassive(Passive):
+    """"During your next turn, the Defending Pokemon takes N more damage from
+    attacks (after W/R)" -- a target-side rider for one turn."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if not calc.is_attack or holder is None or calc.target is not holder:
+            return
+        if calc.attacker is not None and \
+                calc.attacker.owning_player_id == holder.owning_player_id:
+            return
+        calc.amount += self.amount
+
+
+def additive_damage_taken_passive(amount) -> Passive:
+    return AdditiveDamageTakenPassive(amount)
+
+
 class BenchedFullShieldPassive(Passive):
     """"As long as this Pokemon is on your Bench, prevent all damage from and
     effects of attacks from your opponent's Pokemon done to this Pokemon"."""
