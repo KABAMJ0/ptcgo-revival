@@ -70,6 +70,8 @@ from spirit.game.card_effects.attacks_common import (
 )
 from spirit.game.card_effects.passives_common import (
     debuff_defender_attacks,
+    carrier_pokemon,
+    opponent_retreat_tax_passive,
     retreat_free_when,
     flip_prevent_damage_passive,
     is_in_active_spot,
@@ -3112,6 +3114,16 @@ def _passive_survive_full_hp(m, ability):
     return guts_survive_passive(hp_floor=int(m.group(1)), flip=False,
                                 require_full_hp=True)
 
+
+def _passive_bench_damage_shield(m, ability):
+    return prevent_damage_when(
+        lambda calc, carrier: calc.target is carrier_pokemon(carrier)
+        and not is_in_active_spot(calc.target), any_side=True)
+
+
+def _passive_opponent_retreat_tax(m, ability):
+    return opponent_retreat_tax_passive(1)
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4489,6 +4501,14 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"during your next turn, each of this pokemon's attacks does "
                 r"(\d+) more damage(?: \(before applying weakness and "
                 r"resistance\))?\."), _own_next_turn_all_boost),
+    # -- batch 27: bench damage shield and opponent retreat tax ------------
+    ("ability.bench-damage-shield",
+     re.compile(r"as long as this pokemon is on your bench, prevent all damage "
+                r"done to this pokemon by attacks \(both yours and your "
+                r"opponent's\)\."), _passive_bench_damage_shield),
+    ("ability.opponent-retreat-tax",
+     re.compile(r"the retreat cost of each of your opponent's pokemon in play "
+                r"is colorless more\."), _passive_opponent_retreat_tax),
     ("ability.survive-at-full-hp",
      re.compile(r"if this pokemon has full hp and would be knocked out by "
                 r"damage from an attack, it is not knocked out, and its "

@@ -133,20 +133,23 @@ def team_damage_boost_passive(amount, attacker_pred=None, target_pred=None,
 class PredicatePreventionPassive(Passive):
     """prevents_damage generic: pred(calc, carrier) decides the block."""
 
-    def __init__(self, pred, attacks_only=True):
+    def __init__(self, pred, attacks_only=True, any_side=False):
         self.pred = pred
         self.attacks_only = attacks_only
+        self.any_side = any_side
 
     def prevents_damage(self, calc, carrier):
-        if self.attacks_only and not (calc.is_attack and calc.is_opposing):
+        if self.attacks_only and not (
+                calc.is_attack and (self.any_side or calc.is_opposing)):
             return False
         return bool(self.pred(calc, carrier))
 
 
-def prevent_damage_when(pred, attacks_only=True) -> Passive:
+def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     """Full damage prevention whenever pred(calc, carrier) holds; by default
-    only versus opposing attacks (Wave Veil discipline)."""
-    return PredicatePreventionPassive(pred, attacks_only)
+    only versus opposing attacks (Wave Veil discipline). any_side lifts the
+    "opposing" half so attacks from either player are covered."""
+    return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
 class TypedDamageBoostPassive(Passive):
@@ -233,6 +236,24 @@ class RetreatFreeWhenPassive(Passive):
 def retreat_free_when(pred) -> Passive:
     """Free retreat while pred(pokemon, carrier) holds."""
     return RetreatFreeWhenPassive(pred)
+
+
+class OpponentRetreatTaxPassive(Passive):
+    """Every opposing Pokemon's retreat cost is N more."""
+
+    def __init__(self, amount=1):
+        self.amount = amount
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        return cost + self.amount
+
+
+def opponent_retreat_tax_passive(amount=1) -> Passive:
+    """"The retreat cost of each of your opponent's Pokemon in play is [C]
+    more"."""
+    return OpponentRetreatTaxPassive(amount)
 
 
 class OpponentAttackTaxPassive(Passive):
