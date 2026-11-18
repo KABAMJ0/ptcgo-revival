@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import move_counters_ability
+
+
+_move_counters, _can_move = move_counters_ability(3, "theirs")
 
 card = PokemonCardDef(
     guid="3fb22146-df1f-5afe-88ae-5b52135bd57c",
@@ -22,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Cursed Eyes",
             game_text="Once during your turn, when you put Absol ex from your hand onto your Bench, you may move 3 damage counters from 1 of your opponent's Pok\u00e9mon to another of his or her Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=_move_counters,
         ),
         Attack(
             title="Psychic Pulse",
