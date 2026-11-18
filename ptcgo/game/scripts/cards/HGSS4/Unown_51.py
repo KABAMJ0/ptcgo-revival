@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="CURE",
             game_text="Once during your turn, when you put Unown from your hand onto your Bench, remove all Special Conditions from your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=cure_conditions_effect(scope="active"),
         ),
         Attack(
             title="Hidden Power",
