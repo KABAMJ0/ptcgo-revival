@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+async def effect(ctx):
+    await ctx.reorder_deck_top(4)
+
 
 card = PokemonCardDef(
     guid="32a165eb-6441-5fc1-9f15-1920ee6654c0",
@@ -22,7 +26,10 @@ card = PokemonCardDef(
         Ability(
             title="Terraforming",
             game_text="Once during your turn (before your attack), you may look at the top 4 cards of your deck and rearrange them as you like. This power can't be used if Machamp is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(
+                AttrID.SPECIAL_CONDITIONS),
+            effect=effect,
         ),
         Attack(
             title="Iron Fist",
