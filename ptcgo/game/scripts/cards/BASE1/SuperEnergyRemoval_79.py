@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_own_energy_opponent_two
 
 card = ItemCardDef(
     guid="d6fb7dd9-912b-5b19-b73e-7cd907c300ac",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=79,
     set_code="BASE1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=discard_own_energy_opponent_two()
 )

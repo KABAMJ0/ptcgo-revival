@@ -5895,3 +5895,51 @@ def search_same_type_as_opponent(count: int = 1):
             await ctx.put_in_hand(picks, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+def discard_own_energy_heal(counters: int):
+    """Discard an Energy attached to 1 of your Pokemon to remove up to
+    `counters` damage counters from it (Super Potion)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play() if ctx.attached_energies(p)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to discard Energy from") \
+            if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        picks = await ctx.choose_cards(
+            ctx.attached_energies(target), 1, minimum=1,
+            prompt="Discard an Energy card from your Pokémon")
+        if not picks:
+            return
+        await ctx.discard_cards(picks)
+        await ctx.heal(counters * 10, target)
+    return effect
+
+
+def discard_tools_and_stadium(count: int = 2):
+    """Discard up to `count` Pokemon Tools or Stadium cards in play, either
+    side (Windstorm)."""
+    async def effect(ctx):
+        tools = [card for card, _ in ctx.tools_in_play()]
+        stadium = ctx.stadium_in_play()
+        options = list(tools) + ([stadium] if stadium is not None else [])
+        if not options:
+            return
+        picks = await ctx.choose_cards(
+            options, count, minimum=0,
+            prompt="Choose Pokémon Tools or the Stadium to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def mill_own_deck(count: int):
+    """Discard the top `count` cards of your deck (Hole-Digging Shovel)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if top:
+            await ctx.discard_cards(top)
+    return effect

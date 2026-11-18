@@ -2194,8 +2194,9 @@ RULES = [
          r"\d+ of your pokemon if it is not \d+ basic energy card return it to the top of your deck",
          "top_card_energy_attach", lambda m: []),
     Rule("super-energy-removal",
-         r"discard (?P<n>\d+) energy card attached to \d+ of your pokemon in order to choose \d+ of "
-         r"your opponents pokemon and up to (?P<k>\d+) energy cards attached to it discard those cards",
+         r"discard (?P<n>\d+) energy card attached to (?:\d+ of your|your own) pokemon in order to "
+         r"choose \d+ of your opponents pokemon and up to (?P<k>\d+) energy cards attached to it "
+         r"discard those energy cards",
          "discard_own_energy_opponent_two", lambda m: []),
     Rule("warp-point",
          r"your opponent switches the defending pokemon with (?P<n>\d+) of his or her benched pokemon "
@@ -2527,6 +2528,18 @@ RULES = [
          r"search your deck for (?P<n>\d+) pokemon with the same type as (?P<k>\d+) of your opponents "
          r"pokemon in play reveal it and put it into your hand then shuffle your deck",
          "search_same_type_as_opponent", lambda m: [m.group("n")]),
+
+    Rule("super-potion-old",
+         r"discard (?P<n>\d+) energy card attached to (?:\d+ of your|your own) pokemon in order to "
+         r"remove up to (?P<counters>\d+) damage counters from that pokemon",
+         "discard_own_energy_heal", lambda m: [m.group("counters")]),
+    Rule("windstorm",
+         r"choose up to (?P<n>\d+) in any combination of pokemon tool cards and stadium cards in play "
+         r"both yours and your opponents and discard them",
+         "discard_tools_and_stadium", lambda m: [m.group("n")]),
+    Rule("mill-own-deck",
+         r"discard the top (?P<n>\d+) cards of your deck",
+         "mill_own_deck", lambda m: [m.group("n")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",

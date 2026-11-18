@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import mill_own_deck
 
 card = ItemCardDef(
     guid="f2157432-6c82-5d4d-8240-bd1fdc2851b6",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=74,
     set_code="ME3",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=mill_own_deck(2)
 )
