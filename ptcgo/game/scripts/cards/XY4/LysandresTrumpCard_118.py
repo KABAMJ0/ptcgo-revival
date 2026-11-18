@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import each_player_shuffle_discard_into_deck
 
 card = SupporterCardDef(
     guid="dafac91a-ca68-5667-8a1f-f518503823e8",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=118,
     set_code="XY4",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=each_player_shuffle_discard_into_deck()
 )

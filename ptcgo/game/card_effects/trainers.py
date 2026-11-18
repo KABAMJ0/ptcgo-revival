@@ -5080,3 +5080,129 @@ def shuffle_random_from_opponent_hand(count: int):
         picks = hand[:count]
         await ctx.shuffle_into_deck(picks, ctx.opponent_id)
     return effect
+
+
+def each_player_shuffle_discard_into_deck(exclude_source: bool = True):
+    """Each player shuffles their discard pile into their deck (Lysandre's
+    Trump Card); `exclude_source` keeps the card being played out of it."""
+    async def effect(ctx):
+        source = getattr(ctx, "source", None) if exclude_source else None
+        for player_id in ctx.board.player_ids:
+            area = ctx.board.find_player_area(player_id, "discardPile")
+            cards = [c for c in (area.children if area is not None else [])
+                     if source is None or c.entity_id != source.entity_id]
+            if cards:
+                await ctx.shuffle_into_deck(list(cards), player_id)
+    return effect
+
+
+def search_one_of_each(kinds, draw_only: bool = False):
+    """Search the deck for 1 card of each named kind and put them into your
+    hand (Castaway, Cyrus's Conspiracy)."""
+    async def effect(ctx):
+        taken = []
+        for predicate in kinds:
+            picks = await ctx.search_deck(
+                predicate, count=1, minimum=0,
+                prompt="Choose a card to put into your hand")
+            taken.extend(picks)
+        if taken:
+            await ctx.put_in_hand(taken, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def search_going_second(predicate, count: int, bigger: int):
+    """Search the deck for `count` matching cards into hand — or `bigger` when
+    you went second and this is your first turn (Jasmine, Energy Spinner)."""
+    async def effect(ctx):
+        turn_state = getattr(ctx.board, "turn_state", None)
+        first_turn = turn_state is not None and turn_state.turn_number <= 2
+        picks = await ctx.search_deck(
+            predicate, count=bigger if first_turn else count, minimum=0,
+            prompt="Choose cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def flip_recover_discard(coins: int, predicate=None, per: int = 1):
+    """Flip `coins` coins; each heads takes `per` matching card from the
+    discard pile into your hand (Lure Ball)."""
+    async def effect(ctx):
+        heads = sum(1 for face in await ctx.flip_coins(coins, title="Recover from the discard pile")
+                    if face)
+        if heads <= 0:
+            return
+        cards = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, heads * per, minimum=0,
+            prompt="Choose cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def top_card_energy_attach():
+    """Reveal the top card of your deck; if it is a basic Energy card, attach
+    it to 1 of your Pokemon, otherwise put it back (Ether)."""
+    async def effect(ctx):
+        top = ctx.deck_top(1)
+        if not top:
+            return
+        card = top[0]
+        if not is_basic_energy_card(card):
+            return
+        pool = ctx.my_pokemon_in_play()
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to attach the Energy to") \
+            if len(pool) > 1 else pool[0]
+        if target is not None:
+            await ctx.attach_energy(card, target)
+    return effect
+
+
+def discard_own_energy_opponent_two():
+    """Discard an Energy attached to 1 of your Pokemon, then discard up to 2
+    Energy from 1 of the opponent's Pokemon (Super Energy Removal)."""
+    async def effect(ctx):
+        mine = [p for p in ctx.my_pokemon_in_play() if ctx.attached_energies(p)]
+        if not mine:
+            return
+        source = await ctx.choose_pokemon(
+            mine, "Choose a Pokémon to discard Energy from") \
+            if len(mine) > 1 else mine[0]
+        if source is None:
+            return
+        picks = await ctx.choose_cards(
+            ctx.attached_energies(source), 1, minimum=1,
+            prompt="Discard an Energy card from your Pokémon")
+        if picks:
+            await ctx.discard_cards(picks)
+        await discard_opponent_energy(2)(ctx)
+    return effect
+
+
+def both_sides_switch():
+    """Your opponent switches their Active for a Benched Pokemon, then you
+    switch yours (Warp Point)."""
+    async def effect(ctx):
+        bench = ctx.opponent_bench()
+        if bench and ctx.opponent_active() is not None:
+            target = await ctx.choose_pokemon(
+                bench, "Choose your new Active Pokémon",
+                player_id=ctx.opponent_id) or bench[0]
+            await ctx.switch_active(ctx.opponent_id, target)
+        mine = ctx.my_bench()
+        if mine and ctx.my_active() is not None:
+            target = await ctx.choose_pokemon(
+                mine, "Choose your new Active Pokémon") if len(mine) > 1 else mine[0]
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
+    return effect

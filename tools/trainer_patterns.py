@@ -439,7 +439,11 @@ def _stadium_cat(phrase):
         types = [two_energy.group("a"), two_energy.group("b")]
         if all(t in TYPE_NAMES.split("|") for t in types):
             return "any_of(basic_energy_of(\"%s\"), basic_energy_of(\"%s\"))" % tuple(types)
-    dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
+    named_any = re.match(r"^(?P<cat>[a-z0-9 ]+?) that has (?P<word>[a-z0-9 ]+?) in its name$", text)
+    if named_any:
+        return "all_of(%s, card_named_contains(\"%s\"))" % (_pred(named_any.group("cat")),
+                                                             named_any.group("word"))
+        dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
     if dark:
         return 'pokemon_named("%s")' % dark.group("word")
     if text.endswith(" pokemon"):
@@ -2158,6 +2162,42 @@ RULES = [
          r"(?:at random )?from your opponents hand(?: dont look at them)? your opponent shuffles "
          r"those cards into his or her deck",
          "shuffle_random_from_opponent_hand", lambda m: [m.group("n")]),
+
+    Rule("each-shuffle-discard-into-deck",
+         r"each player shuffles all cards in his or her discard pile into his or her deck except for "
+         r"lysandres trump card",
+         "each_player_shuffle_discard_into_deck", lambda m: []),
+    Rule("search-one-of-each",
+         r"search your deck for (?P<a>\d+ [a-z ]+?) (?P<b>\d+ [a-z ]+?) and (?P<c>\d+ [a-z ]+?) "
+         r"show them to your opponent and put them into your hand" + SHUFFLE_TAIL,
+         "search_one_of_each",
+         lambda m: ["[%s]" % ", ".join(_pred(m.group(k)) for k in ("a", "b", "c"))],
+         module="support_common"),
+    Rule("search-going-second",
+         r"search your deck for (?P<n>\d+) (?P<cat>[a-z0-9 ]+?) (?:reveal|show) it and put it into your "
+         r"hand if you go second and its your first turn search for (?P<bigger>\d+) (?P=cat) instead "
+         r"of \d+ then shuffle your deck",
+         "search_going_second",
+         lambda m: [_pred(m.group("cat")), m.group("n"), m.group("bigger")],
+         module="support_common"),
+    Rule("flip-recover-discard-cat",
+         r"flip (?P<coins>\d+) coins? for each heads (?:put|choose) (?P<per>\d+) (?P<cat>[a-z0-9 ]+?) "
+         r"from your discard pile(?: show (?:it|them) to your opponent)?(?: and )?(?:put (?:it|them) )?"
+         r"into your hand",
+         "flip_recover_discard",
+         lambda m: [m.group("coins"), _pred(m.group("cat")), m.group("per")]),
+    Rule("ether-top-energy-attach",
+         r"reveal the top card of your deck if that card is (?P<n>\d+) basic energy card attach it to "
+         r"\d+ of your pokemon if it is not \d+ basic energy card return it to the top of your deck",
+         "top_card_energy_attach", lambda m: []),
+    Rule("super-energy-removal",
+         r"discard (?P<n>\d+) energy card attached to \d+ of your pokemon in order to choose \d+ of "
+         r"your opponents pokemon and up to (?P<k>\d+) energy cards attached to it discard those cards",
+         "discard_own_energy_opponent_two", lambda m: []),
+    Rule("warp-point",
+         r"your opponent switches the defending pokemon with (?P<n>\d+) of his or her benched pokemon "
+         r"if any then you switch your active pokemon with (?P<m>\d+) of your benched pokemon if any",
+         "both_sides_switch", lambda m: []),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
