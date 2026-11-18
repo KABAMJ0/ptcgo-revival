@@ -134,10 +134,17 @@ class FormatManager:
         return None
 
     def format_name(self, format_guid: str) -> str:
-        fmt = self.by_guid(format_guid)
+        # The name we send back is not a label: DeckValidationManager.updateValidations
+        # compares it against its own literals to pick which `isValid…Deck` flag a row
+        # sets, so a renamed format in formats.json would silently clear every flag the
+        # deck list filters on. The client's own name always wins for a known id.
+        guid = (format_guid or "").lower()
+        if guid in FORMAT_WIRE_NAMES:
+            return FORMAT_WIRE_NAMES[guid]
+        fmt = self.by_guid(guid)
         if fmt:
             return fmt.format_name
-        return FORMAT_WIRE_NAMES.get((format_guid or "").lower(), "Modified")
+        return "Modified"
 
     def play_format_guids(self) -> List[str]:
         return [fmt.guid for fmt in self.formats]

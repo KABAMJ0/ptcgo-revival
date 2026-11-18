@@ -239,6 +239,14 @@ DEFAULT_VALIDATION_FORMATS = [
 ]
 
 
+def _log_requested_formats(addr, formats_list):
+    """Names the ids the client asked us to validate, so a reply can be traced."""
+    names = [FormatManager().format_name(str(guid)) for guid in formats_list]
+    logging.info(
+        f"[Rules] [{addr}] Validation requested for "
+        + ", ".join(f"{name} ({guid})" for name, guid in zip(names, formats_list)))
+
+
 def _is_avatar_deck(deck_dict):
     piles = deck_dict.get("piles", {}) or {}
     cards = deck_dict.get("cards", {}) or {}
@@ -704,7 +712,17 @@ class DataSyncHandler(BaseHandler):
         if self.client.player:
             res = self.client.player.get_decks_data()
             res["messageName"] = OutboundMsg.DECK_LIST.value
+        logging.info(f"[TCP] [{self.client.addr}] Sending {len(res.get('decks') or [])} decks.")
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
+        # DeckValidationManager.updateValidations only populates its per-deck models
+        # (isValidModifiedDeck & co, which the versus deck list filters on) when it
+        # receives DecksValidated. On the first call it does not consume rows: it asks
+        # for validation of every deck instead. Nothing else asks on a fresh client,
+        # so without this nudge the versus screen has no models and lists no decks in
+        # any queue until the player saves a deck.
+        await self.client.send_packet(
+            {"messageName": OutboundMsg.DECKS_VALIDATED.value, "results": []},
+            request_id)
 
     @handle(InboundMsg.GET_AVATAR_DECK_LIST)
     async def handle_get_avatar_deck_list(self, message, request_id, flags):
@@ -870,10 +888,7 @@ class DataSyncHandler(BaseHandler):
         
         decks_list = message.get("decks", [])
         formats_list = message.get("formats", []) or DEFAULT_VALIDATION_FORMATS
-        # Debug: what the client asked for and what we answered, so a deck list that
-        # never populates can be traced to a format id the client does not expect.
-        logging.info(f"[Rules] ValidateDecks asked for {len(decks_list)} deck(s), "
-                     f"formats {formats_list}")
+        _log_requested_formats(self.client.addr, formats_list)
 
         owned = None
         if self.client.player:
@@ -899,6 +914,7 @@ class DataSyncHandler(BaseHandler):
         logging.info(f"[TCP] [{self.client.addr}] Client requested validation of all decks.")
         
         formats_list = message.get("formats", []) or DEFAULT_VALIDATION_FORMATS
+        _log_requested_formats(self.client.addr, formats_list)
 
         results = []
         if self.client.player:
