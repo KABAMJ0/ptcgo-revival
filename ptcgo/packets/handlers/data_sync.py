@@ -171,23 +171,19 @@ def _load_localizations():
         except Exception as e:
             logging.error(f"[TCP] Failed to load localizations: {e}")
 
-    # Labels the 2020 client has no key for. It only ships keys for the four
-    # eras it knew (bw, hgss, sm, xy), so every other series we group sets under
-    # rendered as a raw key like "collection.filter.series.sv" in the collection
-    # filter. Supplying the missing keys is enough: the client looks them up in
-    # the table this handler sends.
-    series_labels = {
-        "base": "Base", "neo": "Neo", "ecard": "E-Card", "gym": "Gym",
-        "ex": "EX", "dp": "Diamond &amp; Pearl", "pl": "Platinum",
-        "hgss": "HeartGold &amp; SoulSilver", "bw": "Black &amp; White",
-        "xy": "XY", "sm": "Sun &amp; Moon", "swsh": "Sword &amp; Shield",
-        "sv": "Scarlet &amp; Violet", "me": "Mega Evolution",
-        "pop": "POP Series", "promos": "Promos", "custom": "Custom",
-    }
-    custom_strings = [
-        {"key": f"collection.filter.series.{slug}", "value": f"<i>{label}</i> Series"}
-        for slug, label in series_labels.items()
-    ]
+    # Labels the 2020 client has no key for. It renders a filter by looking up a
+    # key it derives from the value the server sent, so anything we introduce that
+    # it does not ship a string for appears as a raw key. tools/build_labels.py
+    # compares the two vocabularies and writes the gaps to custom_labels.json.
+    custom_strings = []
+    labels_path = os.path.join(
+        os.path.dirname(__file__), "..", "..", "database", "json_data", "custom_labels.json")
+    try:
+        with open(labels_path, encoding="utf-8") as f:
+            custom_strings.extend(
+                {"key": k, "value": v} for k, v in json.load(f).items())
+    except (OSError, ValueError) as e:
+        logging.warning(f"[TCP] custom labels unavailable: {e}")
     custom_strings += [
         {"key": "ids_card_name_spirit", "value": "Custom Card"},
         {"key": "minspec.init.collection", "value": "Initializing collection..."},
