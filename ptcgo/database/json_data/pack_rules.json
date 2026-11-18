@@ -1,0 +1,11 @@
+{
+  "ME55": {
+    "_comment": "30th Celebration: one Pikachu print is guaranteed in every pack and never repeats, the three Mew printings are the chase cards and appear only as rare one-of pulls.",
+    "guaranteed": [
+      { "names": ["Pikachu"], "count": 1 }
+    ],
+    "exclude_from_random": ["Pikachu"],
+    "weight_multiplier": { "Mew": 0.2 },
+    "unique_per_pack": ["Mew", "Pikachu"]
+  }
+}

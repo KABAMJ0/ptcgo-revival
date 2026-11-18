@@ -8,6 +8,7 @@ from ptcgo.game.attributes import AttrID, ProductType, CardType, Rarities, Defau
 from ptcgo.game.models.card import Card
 import ptcgo.server.state as state
 from ptcgo.game.scripts.cards import loader as card_loader
+from ptcgo.game.content import pack_rules
 
 SHOP_SKU_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "spiritptcgo.shop.sku")
 
@@ -146,8 +147,8 @@ class BoosterPack(Product):
             except:
                 return -1
             
-        def pick_random(card_pool: list[Card], count: int) -> list[str]:
-            """Pick random cards from a pool considering rarity"""
+        def pick_random(card_pool: list[Card], count: int, set_key: str = "") -> list[str]:
+            """Pick random cards from a pool considering rarity, scaled by any per-set weight rule"""
             card_guids = []
             weights = []
 
@@ -161,6 +162,9 @@ class BoosterPack(Product):
                     weight = 0.2
                 elif rarity == Rarities.RareSecret.value or rarity == Rarities.RareRainbow.value:
                     weight = 0.1
+
+                if set_key:
+                    weight *= pack_rules.multiplier_for(set_key, c)
 
                 weights.append(weight)
                 card_guids.append(c.guid)
@@ -244,39 +248,88 @@ class BoosterPack(Product):
             rev_holo_slot_1_pool = reverse_holos if reverse_holos else fallback_set_guids
             rev_holo_slot_2_pool = reverse_holos_and_hits if reverse_holos else fallback_set_guids
 
+            # Per-set rules: cards reserved for a guaranteed slot are kept out of the
+            # random pools so a pack can never hold one twice.
+            set_rules = pack_rules.rules_for(set_key)
+            reserved_names = {n.strip() for n in set_rules.get("exclude_from_random") or []}
+            if reserved_names:
+                def keep(c):
+                    return pack_rules.name_of(c) not in reserved_names
+
+                def narrowed(pool):
+                    filtered = [c for c in pool if keep(c)]
+                    return filtered if len(filtered) >= 4 else pool
+
+                commons_pool = narrowed(commons_pool)
+                uncommons_pool = narrowed(uncommons_pool)
+                rares_pool = narrowed(rares_pool)
+                hits_pool = narrowed(hits_pool)
+                rev_holo_slot_1_pool = narrowed(rev_holo_slot_1_pool)
+                rev_holo_slot_2_pool = narrowed(rev_holo_slot_2_pool)
+
             pack_guids = []
         
-            if set_key == "CEL25":
+            # Celebrations really did give 4 cards a pack; the branch stays behind an
+            # opt-in rule so fixing the set-key lookup above did not silently change it.
+            if set_key == "CEL25" and set_rules.get("four_card_pack"):
                 # Celebrations only has 4 cards
 
                 # 2 Rares Holos
-                pack_guids.extend(pick_random(rares_pool, 2))
+                pack_guids.extend(pick_random(rares_pool, 2, set_key))
 
                 # 1 Reverse Holo - a chance it's a card from the celebrations classic collection
-                pack_guids.extend(pick_random(rev_holo_slot_2_pool, 1))
+                pack_guids.extend(pick_random(rev_holo_slot_2_pool, 1, set_key))
 
                 # 1 Rare Holo / Hit
-                pack_guids.extend(pick_random(hits_pool, 1))
+                pack_guids.extend(pick_random(hits_pool, 1, set_key))
             else:
                 # 4 Commons
-                pack_guids.extend(pick_random(commons_pool, 4))
+                pack_guids.extend(pick_random(commons_pool, 4, set_key))
                 
                 # 4 Uncommons
-                pack_guids.extend(pick_random(uncommons_pool, 4))
+                pack_guids.extend(pick_random(uncommons_pool, 4, set_key))
                 
                 # # 1 Basic Energy
                 # pack_guids.extend(random.choices(energy_pool, k=1))
 
                 # 1 Reverse Holo
-                pack_guids.extend(pick_random(rev_holo_slot_2_pool, 1))
+                pack_guids.extend(pick_random(rev_holo_slot_2_pool, 1, set_key))
 
                 # 1 Rare / Hit
-                pack_guids.extend(pick_random(hits_pool, 1))
+                pack_guids.extend(pick_random(hits_pool, 1, set_key))
+
+            if set_rules:
+                pack_guids = apply_set_rules(set_key, pack_guids, set_cards, commons_pool)
+            return pack_guids
+
+        def apply_set_rules(set_key: str, pack_guids: list[str], set_cards, refill_pool) -> list[str]:
+            """Enforce a set's pack rules on one assembled pack: drop repeats of a name
+            that may appear once, keep the pack at its usual size, and place the
+            guaranteed cards in the final (rare) slot."""
+            cards_by_guid = {c.guid: c for c in set_cards}
+            size = len(pack_guids)
+            pack_guids = pack_rules.dedupe(pack_guids, cards_by_guid, set_key)
+
+            unique_names = {n.strip() for n in (pack_rules.rules_for(set_key).get("unique_per_pack") or [])}
+            while len(pack_guids) < size and refill_pool:
+                candidate = pick_random(refill_pool, 1, set_key)[0]
+                card = cards_by_guid.get(candidate)
+                if card is not None and pack_rules.name_of(card) in unique_names \
+                        and candidate in pack_guids:
+                    continue
+                pack_guids.append(candidate)
+
+            for pool in pack_rules.guaranteed_picks(set_key, set_cards):
+                if pack_guids:
+                    pack_guids.pop()
+                pack_guids.append(random.choice(pool).guid)
             return pack_guids
 
         set_key_attribute = str(AttrID.SET_KEY)
-        set_key_dict: dict = self.attributes[set_key_attribute] if set_key_attribute in self.attributes else {}
-        set_key: str = set_key_dict["value"] if "value" in self.attributes else ""
+        set_key_dict: dict = self.attributes.get(set_key_attribute) or {}
+        # The set key decides per-set pack composition; it used to read from the wrong
+        # dict and came back empty for every product, so no set-specific rule ever ran.
+        set_key: str = str(set_key_dict.get("value") or self.key or "")
 
         # 2. Assemble the pack (10 cards ordered from common up to rare)
         pack_guids = assemble_pack_contents(set_key)
