@@ -3145,6 +3145,48 @@ def _retaliate_counters_rider(m, ability):
                 ctx.attacker, retaliate_counters_passive(counters))
     return effect
 
+
+def _prevent_damage_at_most_next_turn(m, ability):
+    limit = int(m.group(1))
+    return _prevent_attack_damage_next_turn_limited(m, ability, limit)
+
+
+def _prevent_attack_damage_next_turn_limited(m, ability, limit=None):
+    if limit is None:
+        limit = int(m.group(2))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            ctx.add_passive_through_opponents_turn(
+                ctx.attacker,
+                prevent_damage_when(
+                    lambda calc, carrier: calc.amount <= limit))
+    return effect
+
+
+def _self_bench_spread(m, ability):
+    amount = int(m.group(1))
+    count = _count(m.group(2)) if m.group(2) else 1
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = [pokemon for pokemon in ctx.my_bench()
+                 if not ctx.effects_blocked(pokemon)]
+        if not bench:
+            return
+        picks = bench if len(bench) <= count else \
+            await ctx.choose_cards(bench, count,
+                                   prompt=f"Choose {count} Benched Pokémon")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
+
+def _base_plus_per_bench(m, ability):
+    return damage_per(count_bench("mine"), int(m.group(2)),
+                      base=int(m.group(1)))
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4523,6 +4565,23 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"(\d+) more damage(?: \(before applying weakness and "
                 r"resistance\))?\."), _own_next_turn_all_boost),
     # -- batch 27: bench damage shield and opponent retreat tax ------------
+    ("shield.prevent-damage-at-most",
+     re.compile(r"during your opponent's next turn, if this pokemon would be "
+                r"damaged by an attack, prevent that attack's damage done to "
+                r"this pokemon if that damage is (\d+) or less\."),
+     _prevent_damage_at_most_next_turn),
+    ("shield.prevent-damage-at-most-named",
+     re.compile(r"during your opponent's next turn, if .+? would be damaged by "
+                r"an attack, prevent that attack's damage done to .+? if that "
+                r"damage is (\d+) or less\."),
+     _prevent_damage_at_most_next_turn),
+    ("self.bench-spread",
+     re.compile(r"this attack also does (\d+) damage to (?:an?|(\d+)) of your "
+                r"benched pokemon\. \(don't apply weakness and resistance for "
+                r"benched pokemon\.\)"), _self_bench_spread),
+    ("bonus.base-plus-per-bench",
+     re.compile(r"does (\d+) damage plus (\d+) more damage for each of your "
+                r"benched pokemon\."), _base_plus_per_bench),
     ("shield.retaliate-counters-next-turn",
      re.compile(r"during your opponent's next turn, if this pokemon is damaged "
                 r"by an attack \(even if (?:this pokemon|it) is knocked out\), "
