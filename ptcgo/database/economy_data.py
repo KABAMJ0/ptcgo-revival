@@ -153,6 +153,16 @@ def redeem_code(code_string, account_id):
         return False, None, "shop.redeemcodes.error.invalidcode"
 
 
+def grant_reward_in_session(session, account_id, reward):
+    """Grants a reward dict inside the caller's session.
+
+    Public entry to the same grant that code redemption and shop payouts use, so
+    a reward paid elsewhere in the database lands in the collection and wallet
+    exactly the way a redeemed code does.
+    """
+    _grant_reward_in_session(session, account_id, reward)
+
+
 def _grant_reward_in_session(session, account_id, reward):
     """Applies a reward dict to an account inside an open session."""
     for guid, count in (reward.get("products") or {}).items():
