@@ -779,8 +779,16 @@ def compute_legal_actions(
                     ))
             elif trainer_type == TrainerType.POKEMON_TOOL.value:
                 tool_attach_to = getattr(definition, "attach_to", None)
+                # A Team Flare Hyper Gear targets the OPPOSING side.
+                if getattr(definition, "target_owners", "self") == "opponent":
+                    opponent_id = next((pid for pid in board.player_ids
+                                        if pid != player_id), None)
+                    tool_pool = board.pokemon_in_play(opponent_id) \
+                        if opponent_id else []
+                else:
+                    tool_pool = in_play
                 tool_targets = [
-                    p.entity_id for p in in_play
+                    p.entity_id for p in tool_pool
                     if tool_slots_free(board, p) > 0
                     and (tool_attach_to is None or tool_attach_to(p))
                 ]
