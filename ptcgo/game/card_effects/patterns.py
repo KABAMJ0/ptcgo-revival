@@ -24,7 +24,8 @@ import unicodedata
 from typing import Callable, List, Optional, Tuple
 
 from ptcgo.game.attributes import (
-    AttrID, PokemonTypes, SpecialConditions, TrainerType,
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, SpecialConditions,
+    TrainerType,
 )
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import (
@@ -9544,12 +9545,10 @@ def _flip_defender_condition_choice(m, ability):
         if not (results and results[0]) or defender is None or \
                 ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.CONFUSED,
-             SpecialConditions.PARALYZED, SpecialConditions.POISONED],
-            1, prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.CONFUSED,
+                                      SpecialConditions.PARALYZED,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -10524,11 +10523,8 @@ def _t59_choose_condition(m, ability):
         defender = ctx.defender
         if defender is None or ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.BURNED, SpecialConditions.POISONED], 1,
-            prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.BURNED,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -13274,11 +13270,8 @@ def _t62_choose_asleep_or_poisoned(m, ability):
         defender = ctx.defender
         if defender is None or ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.POISONED], 1,
-            prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -13708,6 +13701,20 @@ def _t64_mill_opponent_top(m, ability):
     return effect
 
 
+async def _choose_condition(ctx, choices, prompt="Choose a Special Condition"):
+    """Asks the player for one Special Condition out of `choices` and applies it
+    to the Defending Pokemon. Conditions are values, not cards, so the offer is
+    a button dialog -- handing them to ctx.choose_cards crashes on
+    `SpecialConditions.entity_id`."""
+    if not choices:
+        return None
+    labels = [CLIENT_SPECIAL_CONDITION_NAMES[condition] for condition in choices]
+    index = await ctx.choose(prompt, labels)
+    condition = choices[index] if 0 <= index < len(choices) else choices[0]
+    await ctx.apply_special_condition(ctx.defender, condition)
+    return condition
+
+
 def _t64_flip_choice_condition(m, ability):
     async def effect(ctx):
         await ctx.deal_damage()
@@ -13716,12 +13723,11 @@ def _t64_flip_choice_condition(m, ability):
         if not (results and results[0]) or defender is None or \
                 ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.BURNED,
-             SpecialConditions.CONFUSED, SpecialConditions.PARALYZED,
-             SpecialConditions.POISONED], 1, prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.BURNED,
+                                      SpecialConditions.CONFUSED,
+                                      SpecialConditions.PARALYZED,
+                                      SpecialConditions.POISONED])
     return effect
 
 
