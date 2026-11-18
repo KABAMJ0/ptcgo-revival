@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_from_deck, flip_or_nothing
 
 card = PokemonCardDef(
     guid="a20bf86c-5341-5553-acb8-883c552eeda3",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Moon Guidance",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, search your deck for a card that evolves from 1 of your Pok\u00e9mon and put it onto that Pok\u00e9mon. (This counts as evolving that Pok\u00e9mon.) Shuffle your deck afterward.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=flip_or_nothing(then=evolve_from_deck()),
         ),
         Attack(
             title="Moon Impact",
