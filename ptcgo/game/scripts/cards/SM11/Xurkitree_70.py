@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+
+def _three_opponent_prizes(ctx):
+    return count_prizes_remaining("opponent")(ctx) == 3
 
 card = PokemonCardDef(
     guid="6f05bd1a-6517-578f-86b9-884a02974006",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_three_opponent_prizes, 90),
         ),
         Attack(
             title="Signal Beam",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_energy_card, pokemon_of
 
 card = PokemonCardDef(
     guid="92f3fcf4-c07d-500a-ad7a-75cf755cf78f",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Star Search",
             game_text="Search your deck for an Energy card and attach it to 1 of your Psychic Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(is_energy_card, count=1, target_pred=pokemon_of("psychic")),
         ),
         Attack(
             title="Star Shield-GX",

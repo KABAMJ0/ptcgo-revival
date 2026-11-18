@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
+
+
+def _has_ability(pokemon):
+    return bool(getattr(def_for(pokemon.archetype_id), "abilities", None))
 
 card = PokemonCardDef(
     guid="2c264a50-44ae-50da-a90b-9f4db2e06a81",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("opponent", _has_ability), 20, base=10),
         ),
         Attack(
             title="Mind Shock",

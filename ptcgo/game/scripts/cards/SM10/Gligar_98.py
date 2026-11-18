@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+from ptcgo.game.models.board import BoardState
+
+
+def _no_energy_attached(pokemon, carrier):
+    return pokemon is carrier and not BoardState.attached_energies(pokemon)
 
 card = PokemonCardDef(
     guid="41dd81cd-a20b-5daf-aabc-87d1a0075647",
@@ -21,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Free Flight",
             game_text="If this Pok\u00e9mon has no Energy attached to it, it has no Retreat Cost.",
-            effect=unimplemented,
+            effect=retreat_free_when(_no_energy_attached),
         ),
         Attack(
             title="Shinobi Strike",
