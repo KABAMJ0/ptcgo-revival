@@ -5206,3 +5206,99 @@ def both_sides_switch():
             if target is not None:
                 await ctx.switch_active(ctx.player_id, target)
     return effect
+
+
+def look_top_discard_rest_back(count: int, discard_max=None):
+    """Look at the top `count` cards, discard any number of them, and put the
+    rest back on top in any order (Raifort)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        picks = await ctx.choose_cards(
+            top, discard_max or count, minimum=0,
+            prompt="Choose any number of cards to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def flip_heal_cure(predicate, amount: int, coins: int = 1):
+    """Flip a coin; on heads heal `amount` and remove all Special Conditions
+    from 1 of your (matching) Pokemon (Life Herb)."""
+    async def effect(ctx):
+        if not (await ctx.flip_coins(coins, title="Heal a Pokémon"))[0]:
+            return
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if predicate is None or predicate(p)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon to heal") if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        await ctx.heal(amount, target)
+        await ctx.cure_all_conditions(target)
+    return effect
+
+
+def search_top_energy_attach(count: int, predicate=None):
+    """Look at the top `count` cards and attach 1 matching Energy card you find
+    there to 1 of your Pokemon, then shuffle the rest back (Waitress)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        matches = [c for c in top
+                   if (predicate or is_basic_energy_card)(c)]
+        if matches:
+            picks = await ctx.choose_cards(
+                matches, 1, minimum=0,
+                prompt="Choose an Energy card to attach",
+                display_cards=top)
+            if picks:
+                pool = ctx.my_pokemon_in_play()
+                if pool:
+                    target = await ctx.choose_pokemon(
+                        pool, "Choose a Pokémon to attach the Energy to") \
+                        if len(pool) > 1 else pool[0]
+                    if target is not None:
+                        await ctx.attach_energy(picks[0], target)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def flip_both_recover(heads_predicate, tails_predicate):
+    """Flip 2 coins: both heads recovers a `heads_predicate` card from the
+    discard pile, both tails a `tails_predicate` one (Old Rod)."""
+    async def effect(ctx):
+        faces = await ctx.flip_coins(2, title="Recover from the discard pile")
+        predicate = heads_predicate if all(faces) else (
+            tails_predicate if not any(faces) else None)
+        if predicate is None:
+            return
+        cards = [c for c in ctx.discard_pile() if predicate(c)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, 1, minimum=0, prompt="Choose a card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+    return effect
+
+
+def search_for_shared_name(count: int, need: int):
+    """Reveal the top `count` cards; if at least `need` share a name, put all
+    cards with that name into your hand (Arcade Game)."""
+    async def effect(ctx):
+        await ctx.shuffle_deck()
+        top = ctx.deck_top(count)
+        names = {}
+        for card in top:
+            key = getattr(card, "archetype_id", None) or card.entity_id
+            names.setdefault(key, []).append(card)
+        best = max(names.values(), key=len) if names else []
+        if len(best) >= need:
+            await ctx.put_in_hand(best, reveal=True)
+        await ctx.shuffle_deck()
+    return effect

@@ -59,6 +59,7 @@ SIMPLE_PREDICATES = {
     "baby pokemon": 'pokemon_of_subtype("Baby")',
     "mega evolution pokemon": 'pokemon_of_subtype("MEGA")',
     "tag team card": 'pokemon_of_subtype("TAG TEAM")',
+    "team plasma pokemon": 'pokemon_of_subtype("Team Plasma")',
     "any card": "None",
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
@@ -617,8 +618,8 @@ RULES = [
          module="support_common"),
     Rule("search-hand-show",
          r"search your deck for (?:up to )?(?P<n>\d+ )?" + CAT +
-         r" (?:reveal|show) (?:it|them)(?: to your opponent)? and put (?:it|them) into your " +
-         r"hand" + SHUFFLE_TAIL,
+         r" (?:reveal|show) (?:it|them|those cards)(?: to your opponent)? and put (?:it|them) into "
+         r"your hand" + SHUFFLE_TAIL,
          "search_to_hand",
          lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
          module="support_common"),
@@ -2198,6 +2199,59 @@ RULES = [
          r"your opponent switches the defending pokemon with (?P<n>\d+) of his or her benched pokemon "
          r"if any then you switch your active pokemon with (?P<m>\d+) of your benched pokemon if any",
          "both_sides_switch", lambda m: []),
+
+    Rule("stadium-hp-two-stages",
+         r"each (?P<a>stage 1) and (?P<b>stage 2) pokemon in play both yours and your opponents gets "
+         r"(?P<amount>\d+) hp",
+         "stadium_hp_bonus",
+         lambda m: [m.group("amount"), "any_of(is_stage_one, is_stage_two)"],
+         kind="passive"),
+    Rule("look-top-discard-rest-back",
+         r"look at the top (?P<n>\d+) cards of your deck and discard any number of them put the other "
+         r"cards back in any order",
+         "look_top_discard_rest_back", lambda m: [m.group("n")]),
+    Rule("flip-heal-cure-excluded",
+         r"flip (?P<coins>\d+) coin if heads choose (?P<n>\d+) of your (?P<cat>[a-z0-9 ]+?) and "
+         r"remove all special conditions and (?P<per>\d+) damage counters from that pokemon all if "
+         r"there are less than (?P=per)",
+         "flip_heal_cure",
+         lambda m: [_pred(m.group("cat")), str(int(m.group("per")) * 10),
+                    m.group("coins")]),
+    Rule("discard-energy-from-hand-draw",
+         r"discard (?P<n>\d+) energy card from your hand then draw (?P<draw>\d+) cards?",
+         "discard_typed_from_hand_then",
+         lambda m: ["is_energy_card", m.group("n"),
+                    "lambda ctx: ctx.draw_cards(%s)" % m.group("draw")]),
+    Rule("search-top-energy-attach",
+         r"look at the top (?P<n>\d+) cards of your deck and attach (?P<k>\d+) basic energy card you "
+         r"find there to \d+ of your pokemon shuffle the other cards back into your deck",
+         "search_top_energy_attach", lambda m: [m.group("n")]),
+    Rule("old-rod",
+         r"flip 2 coins if both (?:of them )?are heads put (?P<n>\d+) (?P<a>[a-z0-9 ]+?) from your "
+         r"discard pile into your hand if both (?:of them )?are tails put (?P<k>\d+) "
+         r"(?P<b>[a-z0-9 ]+?) from your discard pile into your hand",
+         "flip_both_recover",
+         lambda m: [_pred(m.group("a")), _pred(m.group("b"))]),
+    Rule("arcade-game",
+         r"shuffle your deck then reveal the top (?P<n>\d+) cards of it if at least (?P<need>\d+) of "
+         r"those cards share the same name put all the ones with that name into your hand.*",
+         "search_for_shared_name", lambda m: [m.group("n"), m.group("need")]),
+    Rule("search-any-cards",
+         r"search your deck for any (?P<n>\d+) cards and put them into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["None", "count=" + m.group("n")], module="support_common"),
+    Rule("search-distinct-basic-excluding-baby",
+         r"search your deck for up to (?P<n>\d+) different types of basic pokemon cards excluding "
+         r"baby pokemon(?: show them to your opponent)? and put them into your hand" + SHUFFLE_TAIL,
+         "search_distinct_types",
+         lambda m: ["all_of(is_basic_pokemon, excluding(pokemon_of_subtype(\"Baby\")))",
+                    m.group("n")], module="support_common"),
+    Rule("look-top-one-of-them",
+         r"look at the top (?P<n>\d+) cards of your deck choose (?P<take>\d+) of them and put it "
+         r"into your hand put the other cards back on top of your deck shuffle your deck afterward",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="shuffle"', "minimum=1"],
+         module="support_common"),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",

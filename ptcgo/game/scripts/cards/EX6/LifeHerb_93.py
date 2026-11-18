@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, excluding, flip_heal_cure, is_pokemon_card, is_pokemon_ex
 
 card = ItemCardDef(
     guid="25f92163-6207-523b-83fc-4811270e30b4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=93,
     set_code="EX6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_heal_cure(all_of(is_pokemon_card, excluding(is_pokemon_ex)), 60, 1)
 )
