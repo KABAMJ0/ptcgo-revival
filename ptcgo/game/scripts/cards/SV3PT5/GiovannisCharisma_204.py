@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_energy_to_hand_then_attach
+
+card = SupporterCardDef(
+    guid="fc809b3a-88da-53a0-9c57-722fccecf4c8",
+    key="SV3PT5",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.GiovannisCharisma.Name",
+    display_name="Giovanni's Charisma",
+    searchable_by=["Giovanni's Charisma", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=204,
+    set_code="SV3PT5",
+    rarity=Rarities.Rare,
+    effect=opponent_energy_to_hand_then_attach()
+)

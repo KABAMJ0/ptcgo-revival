@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import rare_candy
+
+card = ItemCardDef(
+    guid="b3c053a3-7fb3-5fcc-805a-99f7f7c21ad2",
+    key="ME1",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.RareCandy.Name",
+    display_name="Rare Candy",
+    searchable_by=["Rare Candy", "Item"],
+    subtypes=["Item"],
+    collector_number=125,
+    set_code="ME1",
+    rarity=Rarities.Common,
+    effect=rare_candy()
+)

@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="c5e42a53-293d-5249-b823-6d7245e8f2cc",
+    key="SV3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Scizor.Name",
+    display_name="Scizor",
+    searchable_by=["Scizor", "Stage 1", "Scizor"],
+    subtypes=["Stage 1"],
+    collector_number=205,
+    set_code="SV3",
+    rarity=Rarities.Rare,
+    hp=140,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Scyther.Name",
+    family_id=123,
+    abilities=[
+        Attack(
+            title="Punishing Scissors",
+            game_text="This attack does 50 more damage for each of your opponent's Pok\u00e9mon in play that has an Ability.",
+            cost={PokemonTypes.METAL: 1},
+            damage=10,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Cut",
+            cost={PokemonTypes.METAL: 2},
+            damage=70,
+        ),
+    ],
+)

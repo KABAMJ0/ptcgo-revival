@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="07694e1a-5f3b-5084-87e9-ce32adb42f6d",
+    key="SV8",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.TapuLele.Name",
+    display_name="Tapu Lele",
+    searchable_by=["Tapu Lele", "Basic", "TapuLele"],
+    subtypes=["Basic"],
+    collector_number=92,
+    set_code="SV8",
+    rarity=Rarities.Rare,
+    hp=110,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.METAL,
+    family_id=786,
+    abilities=[
+        Attack(
+            title="Perplex",
+            game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Mental Crush",
+            game_text="If your opponent's Active Pok\u00e9mon is Confused, this attack does 90 more damage.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
+            damage=90,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -16,11 +16,11 @@ Then start the server again and the deck appears in the client's deck list.
 
 import argparse
 
-from spirit.database.player_data import save_deck
-from spirit.database.accounts import get_account_by_username
-from spirit.game.content.starter import build_deck_data, resolve_decklist
-from spirit.game.scripts.cards import loader as card_loader
-from spirit.game.attributes import AttrID
+from ptcgo.database.player_data import save_deck
+from ptcgo.database.accounts import get_account_by_username
+from ptcgo.game.content.starter import build_deck_data, resolve_decklist
+from ptcgo.game.scripts.cards import loader as card_loader
+from ptcgo.game.attributes import AttrID
 
 # (count, set code, collector number)
 CHARIZARD_EX_DECKLIST = [

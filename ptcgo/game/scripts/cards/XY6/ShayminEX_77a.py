@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="9b81cdb6-4ef9-57fd-8985-cee3d115060a",
+    key="XY6",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.ShayminEX.Name",
+    display_name="Shaymin-EX",
+    searchable_by=["Shaymin-EX", "Basic", "EX", "ShayminEX"],
+    subtypes=["Basic", "EX"],
+    collector_number=77,
+    set_code="XY6",
+    rarity=Rarities.RareUltra,
+    hp=110,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.LIGHTNING,
+    resistance_type=PokemonTypes.FIGHTING,
+    family_id=492,
+    abilities=[
+        Ability(
+            title="Set Up",
+            game_text="When you play this Pok\u00e9mon from your hand onto your Bench, you may draw cards until you have 6 cards in your hand.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sky Return",
+            game_text="Return this Pok\u00e9mon and all cards attached to it to your hand.",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=30,
+            effect=unimplemented,
+        ),
+    ],
+)

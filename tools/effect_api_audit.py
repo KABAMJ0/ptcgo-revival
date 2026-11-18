@@ -22,18 +22,18 @@ import builtins
 from typing import Dict, List, Tuple
 
 DEFAULT_PATHS = [
-    "spirit/game/card_effects/patterns.py",
-    "spirit/game/card_effects/attacks_common.py",
-    "spirit/game/card_effects/passives_common.py",
-    "spirit/game/card_effects/support_common.py",
-    "spirit/game/card_effects/pokemon.py",
-    "spirit/game/card_effects/trainers.py",
-    "spirit/game/card_effects/energies.py",
+    "ptcgo/game/card_effects/patterns.py",
+    "ptcgo/game/card_effects/attacks_common.py",
+    "ptcgo/game/card_effects/passives_common.py",
+    "ptcgo/game/card_effects/support_common.py",
+    "ptcgo/game/card_effects/pokemon.py",
+    "ptcgo/game/card_effects/trainers.py",
+    "ptcgo/game/card_effects/energies.py",
 ]
 
 
 def effect_context_methods() -> Dict[str, inspect.Signature]:
-    from spirit.game.session.effects import EffectContext
+    from ptcgo.game.session.effects import EffectContext
     methods = {}
     for name, member in inspect.getmembers(EffectContext):
         if name.startswith("__"):
@@ -163,7 +163,7 @@ def main():
     methods = effect_context_methods()
     total: List[str] = []
     if not sys.argv[1:]:
-        total.extend(audit_pattern_table("spirit/game/card_effects/patterns.py"))
+        total.extend(audit_pattern_table("ptcgo/game/card_effects/patterns.py"))
     for path in paths:
         try:
             total.extend(audit(path, methods))

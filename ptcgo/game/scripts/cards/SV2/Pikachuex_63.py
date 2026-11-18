@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="74e0da38-3bf3-5ce9-9ddd-cb1d422a6795",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Pikachuex.Name",
+    display_name="Pikachu ex",
+    searchable_by=["Pikachu ex", "Basic", "ex", "Pikachuex"],
+    subtypes=["Basic", "ex"],
+    collector_number=63,
+    set_code="SV2",
+    rarity=Rarities.Rare,
+    hp=190,
+    elements=[PokemonTypes.LIGHTNING],
+    stage=PokemonStage.BASIC,
+    retreat_cost=0,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=25,
+    abilities=[
+        Attack(
+            title="Pika Punch",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=30,
+        ),
+        Attack(
+            title="Dynamic Bolt",
+            game_text="Flip a coin. If tails, discard all Energy from this Pok\u00e9mon.",
+            cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
+            damage=220,
+            effect=unimplemented,
+        ),
+    ],
+)

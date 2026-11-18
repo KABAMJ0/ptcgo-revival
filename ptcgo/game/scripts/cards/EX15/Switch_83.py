@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import switch
+
+card = ItemCardDef(
+    guid="d1d0834d-a5bb-5f5c-9df3-c31a90df8f11",
+    key="EX15",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Switch.Name",
+    display_name="Switch",
+    searchable_by=["Switch", "Item"],
+    subtypes=["Item"],
+    collector_number=83,
+    set_code="EX15",
+    rarity=Rarities.Common,
+    effect=switch
+)

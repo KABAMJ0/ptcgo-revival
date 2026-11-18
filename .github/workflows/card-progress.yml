@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "spirit/game/scripts/cards/**"
+      - "ptcgo/game/scripts/cards/**"
       - "tools/github/**"
   workflow_dispatch:
 

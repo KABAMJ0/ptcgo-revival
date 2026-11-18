@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="388d0380-6f00-5954-b463-c1bb76769b49",
+    key="SV7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Morgrem.Name",
+    display_name="Morgrem",
+    searchable_by=["Morgrem", "Stage 1", "Morgrem"],
+    subtypes=["Stage 1"],
+    collector_number=95,
+    set_code="SV7",
+    rarity=Rarities.Common,
+    hp=90,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Impidimp.Name",
+    family_id=859,
+    abilities=[
+        Attack(
+            title="Gentle Slap",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=40,
+        ),
+        Attack(
+            title="Darkness Fang",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
+            damage=70,
+        ),
+    ],
+)

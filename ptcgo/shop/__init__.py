@@ -1,0 +1,123 @@
+import json
+import logging
+from ptcgo import config
+from ptcgo.game.models.shop import Shop, FeaturedProduct
+from ptcgo.game.models.product import Product
+from ptcgo.game.attributes import AttrID, ProductType
+from ptcgo.game.content.sets import eligible_booster_sets
+from ptcgo.game.scripts.products import loader as product_loader
+from ptcgo.database.economy_data import list_shop_items
+from ptcgo.game.scripts.cards import loader as card_loader
+
+DEFAULT_BOOSTER_PRICE = 200
+# Listed under SKU GUIDs: the client evicts real shop GUIDs from the collection on shop exit.
+SKU_LISTED_TYPES = frozenset(t.value for t in (
+    ProductType.PACKS, ProductType.DECKS, ProductType.DECK_BOX,
+    ProductType.COINS, ProductType.SLEEVE))
+LOCAL_IMG = config.PLACEHOLDER_IMG
+
+
+class ShopManager:
+    """Manages the global state of the Shop."""
+    def __init__(self):
+        self.shop = Shop()
+        product_loader.on_reload(self._products_reloaded)
+        self.reload_from_db()
+
+    def _products_reloaded(self):
+        self.reload_from_db(reload_products=False)
+
+    def _add_tokens_product(self):
+        cur_guid = "00000000-0000-0000-0000-000000000002"
+        cur_attrs = {
+            str(AttrID.NAME.value): {"type": "json", "value": json.dumps({"id": "ids_item_token"})},
+            str(AttrID.EXPANSION.value): {"type": "string", "value": "core"},
+            str(AttrID.PRODUCT_TYPE.value): {"type": "int", "value": 6},  # ProductType.CURRENCY
+            str(AttrID.CURRENCY_TYPE.value): {"type": "int", "value": -706482148},  # CurrencyType.VIRTUAL_CURRENCY
+            str(AttrID.ARCHETYPE_ID.value): {"type": "string", "value": cur_guid},
+            str(AttrID.IMAGE_URL.value): {"type": "string", "value": LOCAL_IMG},
+            str(AttrID.CATALOG_ID.value): {"type": "string", "value": cur_guid},
+            str(AttrID.SET_CACHE_KEY.value): {"type": "string", "value": "core"},
+            str(AttrID.SET_NUMBER.value): {"type": "int", "value": 100}
+        }
+        cur_prices = [{"name": AttrID.TRAINER_TOKENS.value, "value": 0}]
+        self.shop.add_product(Product(cur_guid, "core", cur_attrs, cur_prices))
+
+    def _feature(self, product):
+        img_url = product.get_attribute_value(AttrID.IMAGE_URL, LOCAL_IMG)
+        self.shop.featured_products.append(FeaturedProduct(product.guid, img_url))
+
+    def reload_from_db(self, *, reload_products=True):
+        logging.info("[Shop] Reloading shop from database...")
+
+        if not card_loader.cards:
+            card_loader.load_all()
+        if reload_products:
+            previous = product_loader.products
+            product_loader.load_all()
+            if product_loader.products is not previous:
+                return
+        self.shop.clear()
+
+        try:
+            self._add_tokens_product()
+
+            products = product_loader.products
+
+            # Admin-configured shop items override/extend the automatic listing
+            try:
+                shop_items = list_shop_items()
+            except Exception as e:
+                logging.warning(f"[Shop] Could not load shop items from DB ({e}); using automatic listing only.")
+                shop_items = []
+            items_by_guid = {i["product_guid"].lower(): i for i in shop_items}
+
+            # 1. Automatic booster offerings: every set with >10 scripted cards
+            eligible = {code.upper() for code in eligible_booster_sets()}
+            for product in products:
+                if product.product_type != ProductType.PACKS.value:
+                    continue
+                if product.key.upper() not in eligible:
+                    continue
+                if product.guid.lower() in items_by_guid:
+                    continue  # admin row takes precedence
+                product.prices = [{"name": AttrID.TRAINER_TOKENS.value, "value": DEFAULT_BOOSTER_PRICE}]
+                sku = self.shop.add_as_sku(product)  # listed under a SKU GUID so the owned pack survives shop exit
+                self.shop.top_selling_products.append(sku.guid)
+
+            # 2. Admin-configured items (enabled only; disabled rows suppress auto listing)
+            for item in shop_items:
+                if not item["enabled"]:
+                    continue
+                product = product_loader.products_by_guid.get(item["product_guid"]) or \
+                    product_loader.products_by_guid.get(item["product_guid"].lower())
+                if not product:
+                    logging.warning(f"[Shop] Shop item references unknown product {item['product_guid']}")
+                    continue
+                product.prices = [{"name": item["currency"], "value": item["price"]}]
+                listed = self.shop.add_as_sku(product) \
+                    if product.product_type in SKU_LISTED_TYPES else product
+                if listed is product:
+                    self.shop.add_product(product)
+                if item["featured"]:
+                    self._feature(listed)
+                if item["top_selling"] and listed.guid not in self.shop.top_selling_products:
+                    self.shop.top_selling_products.insert(0, listed.guid)
+
+            # Always feature something so the shop landing isn't empty
+            if not self.shop.featured_products and self.shop.top_selling_products:
+                first = self.shop.available_products.get(self.shop.top_selling_products[0])
+                if first:
+                    self._feature(first)
+
+            logging.info(f"[Shop] Loaded {len(self.shop.available_products)} products "
+                         f"({len(self.shop.featured_products)} featured).")
+        except Exception as e:
+            logging.error(f"[Shop] Failed to reload shop: {e}", exc_info=True)
+
+    def get_shop(self) -> Shop:
+        return self.shop
+
+
+# Global instance
+shop_manager = ShopManager()

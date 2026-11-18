@@ -17,8 +17,8 @@ import urllib.request
 
 from PIL import Image
 
-CARDS_DIR = "spirit/game/scripts/cards"
-ASSETS_DIR = "spirit/assets/cards"
+CARDS_DIR = "ptcgo/game/scripts/cards"
+ASSETS_DIR = "ptcgo/assets/cards"
 
 
 def api_cards(code):

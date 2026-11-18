@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="f4ade3fa-949f-54cf-8748-0c7b02f21da5",
+    key="SM9",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Klefki.Name",
+    display_name="Klefki",
+    searchable_by=["Klefki", "Basic", "Klefki"],
+    subtypes=["Basic"],
+    collector_number=110,
+    set_code="SM9",
+    rarity=Rarities.Common,
+    hp=60,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.PSYCHIC,
+    family_id=707,
+    abilities=[
+        Ability(
+            title="Key of Secrets",
+            game_text="Each of your Metal Pok\u00e9mon's Resistance is now -40.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Ram",
+            cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+        ),
+    ],
+)

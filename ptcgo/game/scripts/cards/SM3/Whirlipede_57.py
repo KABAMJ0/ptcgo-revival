@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="f78dd85d-d26a-54cb-abc1-4e7df17e661a",
+    key="SM3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Whirlipede.Name",
+    display_name="Whirlipede",
+    searchable_by=["Whirlipede", "Stage 1", "Whirlipede"],
+    subtypes=["Stage 1"],
+    collector_number=57,
+    set_code="SM3",
+    rarity=Rarities.Uncommon,
+    hp=90,
+    elements=[PokemonTypes.PSYCHIC],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.PSYCHIC,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Venipede.Name",
+    family_id=543,
+    abilities=[
+        Attack(
+            title="Spin Turn",
+            game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
+            cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Rollout",
+            cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
+            damage=60,
+        ),
+    ],
+)

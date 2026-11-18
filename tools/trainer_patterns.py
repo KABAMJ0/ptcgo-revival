@@ -4,7 +4,7 @@ The card pool repeats itself: "Draw 3 cards." is printed in four sets, "Search
 your deck for a Basic Pokemon..." in a dozen wordings across twenty years of
 type names. This table turns that repetition into one wired implementation per
 SHAPE, with the card's own numbers and type names as arguments, so a script
-stays data and the behaviour lives in spirit/game/card_effects/trainers.py and
+stays data and the behaviour lives in ptcgo/game/card_effects/trainers.py and
 support_common.py.
 
 Every pattern is anchored at both ends against `trainer_coverage.canonical_text`:
@@ -28,7 +28,7 @@ class Unresolved(Exception):
 
 # --- Phrase -> predicate ----------------------------------------------------
 
-# Predicate names are all importable from spirit.game.card_effects.trainers.
+# Predicate names are all importable from ptcgo.game.card_effects.trainers.
 SIMPLE_PREDICATES = {
     "pokemon": "is_pokemon_card",
     "basic pokemon": "is_basic_pokemon",
@@ -37,6 +37,7 @@ SIMPLE_PREDICATES = {
     "stage 1 pokemon": "is_stage_one",
     "stage 2 pokemon": "is_stage_two",
     "pokemon that doesnt have 1 rule box": "is_rule_box_free_pokemon",
+    "basic pokemon that doesnt have 1 rule box": "all_of(is_basic_pokemon, is_rule_box_free_pokemon)",
     "pokemon ex": "is_pokemon_ex",
     "pokemon that has any damage counters on it": "is_damaged_pokemon",
     "pokemon that dont have 1 rule box": "is_rule_box_free_pokemon",
@@ -55,6 +56,9 @@ SIMPLE_PREDICATES = {
     "special energy card": "is_special_energy",
     "special energy": "is_special_energy",
     "card": "None",
+    "baby pokemon": 'pokemon_of_subtype("Baby")',
+    "judge card": 'named_exactly("Judge")',
+    "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
 }
 
 TYPE_NAMES = "grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless"
@@ -70,7 +74,7 @@ OWNER_NAMES = {
     "giovannis": "giovanni", "surges": "surge", "lanas": "lana",
     "guzmas": "guzma", "lusamines": "lusamine", "sadas": "sada",
     "turos": "turo", "nemonas": "nemona", "kukuis": "kukui", "draytons": "drayton",
-    "cyllenes": "cyllene", "colresss": "colress", "klaras": "klara",
+    "cyllenes": "cyllene", "colresss": "colress", "klaras": "klara", "lillies": "lillie",
 }
 
 _TYPED_ENERGY = re.compile(
@@ -89,7 +93,11 @@ def resolve_predicate(phrase):
     decline rather than pick a wrong filter.
     """
     text = re.sub(r"\s+", " ", (phrase or "").strip().lower())
+    text = re.sub(r" and or ", " or ", text)
     text = re.sub(r"^(up to|any number of) ", "", text)
+    bare = re.sub(r" cards?$", "", text)
+    if text not in SIMPLE_PREDICATES and bare in SIMPLE_PREDICATES:
+        text = bare
     text = re.sub(r"^(1|a|an) ", "", text)
     combination = _any_combination(text)
     if combination is not None:
@@ -127,7 +135,15 @@ def resolve_predicate(phrase):
             pass
     for joiner, combinator in ((" or ", "any_of"),):
         if joiner in text:
-            parts = [resolve_predicate(part) for part in text.split(joiner)]
+            # "Basic Pokemon, Evolution card, or Energy card" loses its comma,
+            # so the first choice still reads "basic pokemon evolution card".
+            expanded = []
+            for part in text.split(joiner):
+                if part.startswith("basic pokemon ") and part != "basic pokemon":
+                    expanded.extend(["basic pokemon", part[len("basic pokemon "):]])
+                else:
+                    expanded.append(part)
+            parts = [resolve_predicate(part) for part in expanded]
             parts = [part for part in parts if part != "None"]
             if len(parts) > 1:
                 return "%s(%s)" % (combinator, ", ".join(parts))
@@ -262,7 +278,7 @@ def _owned_category(text):
         remainder = " ".join(tokens[:start] + tokens[start + span:])
         if not remainder:
             raise Unresolved(text)
-        owner = 'named("%s")' % owner_word
+        owner = 'owned_by("%s")' % owner_word
         try:
             category = resolve_predicate(remainder)
         except Unresolved:
@@ -332,6 +348,122 @@ def _typed_boost(match):
 def _pred(phrase):
     """Predicate source for a captured category phrase; Unresolved declines."""
     return resolve_predicate(phrase)
+
+
+_NAMED_RULE_BOX = re.compile(r"^(?P<name>[a-z][a-z ]*?) (?P<suffix>ex|gx)$")
+
+
+def _holder(phrase):
+    """Predicate source for a tool's holder phrase; plain "pokemon" is any,
+    and a named "<pokemon> ex/gx" holder matches that Pokemon by name."""
+    text = phrase.strip()
+    if text == "pokemon":
+        return "None"
+    if text in TYPE_NAMES.split("|"):
+        return 'pokemon_of("%s")' % text
+    try:
+        resolved = resolve_predicate(text)
+    except Unresolved:
+        named = _NAMED_RULE_BOX.match(text)
+        if named is None or named.group("name") in ("pokemon", "ultra beast"):
+            raise
+        return 'named_rule_box("%s", "%s")' % (named.group("name"), named.group("suffix"))
+    if resolved == "None":
+        raise Unresolved(phrase)
+    return resolved
+
+
+def _attacker_types(phrase):
+    """Attacker-type list ("grass fire water or lightning") -> predicate."""
+    words = [word for word in phrase.replace(" or ", " ").split() if word]
+    if not words or any(word not in TYPE_NAMES.split("|") for word in words):
+        raise Unresolved(phrase)
+    return "attacker_of_types(%s)" % ", ".join('"%s"' % word for word in words)
+
+
+def _name_choice(phrase):
+    """A printed "A or B" choice of Pokemon names -> a name predicate.
+
+    Canonical text turns the printed commas into spaces, so a list of three or
+    more names is indistinguishable from a multi-word name: only a single
+    "or" resolves."""
+    parts = [part.strip() for part in phrase.split(" or ")]
+    if len(parts) != 2 or any(" " in part or not part for part in parts):
+        raise Unresolved(phrase)
+    return "named_one_of(%s)" % ", ".join('"%s"' % part for part in parts)
+
+
+_STADIUM_CATEGORY_SUBTYPES = {
+    "pokemon sp": "SP", "pokemon team plasma": "Team Plasma",
+}
+
+
+def _stadium_cat(phrase):
+    """A both-sides stadium's affected-Pokemon phrase -> predicate source.
+
+    "psychic and darkness pokemon" means either type, and a bare type name is
+    a Pokemon of that type, so the parts join with any_of."""
+    text = re.sub(r" (?:in|is) play$", "", phrase.strip())
+    if text in _STADIUM_CATEGORY_SUBTYPES:
+        return 'pokemon_of_subtype("%s")' % _STADIUM_CATEGORY_SUBTYPES[text]
+    basic_non = re.match(r"^basic non (?P<type>[a-z]+)(?: pokemon)?$", text)
+    if basic_non:
+        return 'all_of(is_basic_pokemon, excluding(pokemon_of("%s")))' % basic_non.group("type")
+    energy = re.match(r"^pokemon that has any (?P<types>[a-z ]+?) energy attached to it$", text)
+    if energy:
+        words = [w for w in energy.group("types").replace(" or ", " ").split() if w]
+        if words and all(w in TYPE_NAMES.split("|") for w in words):
+            return "has_energy_of(%s)" % ", ".join('"%s"' % w for w in words)
+        raise Unresolved(phrase)
+    dark = re.match(r"^pokemon with (?P<word>[a-z]+) in its name$", text)
+    if dark:
+        return 'pokemon_named("%s")' % dark.group("word")
+    if text.endswith(" pokemon"):
+        text = text[:-len(" pokemon")]
+    parts = [_type_or_predicate(part) for part in text.split(" and ")]
+    return parts[0] if len(parts) == 1 else "any_of(%s)" % ", ".join(parts)
+
+
+def _type_or_predicate(phrase):
+    """A bare type name is a Pokemon of that type; else a full predicate."""
+    text = phrase.strip()
+    if text in TYPE_NAMES.split("|"):
+        return 'pokemon_of("%s")' % text
+    if text == "pokemon":
+        return "is_pokemon_card"
+    return resolve_predicate(text)
+
+
+def _subtype_literal(phrase):
+    """'ultra beasts' -> '"Ultra Beast"' (the printed subtype name)."""
+    text = re.sub(r"^(\d+ )?", "", phrase.strip())
+    text = re.sub(r"s$", "", text)
+    if not text:
+        raise Unresolved(phrase)
+    return '"%s"' % text.title()
+
+
+_TYPED_SUBTYPE = re.compile(r"^(?P<type>[a-z]+) pokemon (?P<sub>gx|ex|v|vmax|vstar)$")
+
+
+def _pred_typed_subtype(phrase):
+    """'lightning pokemon gx' -> type + subtype predicate; else Unresolved."""
+    found = _TYPED_SUBTYPE.match(phrase.strip())
+    if found is None:
+        raise Unresolved(phrase)
+    return 'pokemon_type_subtype("%s", "%s")' % (found.group("type"), found.group("sub"))
+
+
+def _union(phrase):
+    """A stadium's "<X> pokemon and <Y> pokemon" names every Pokemon that is
+    either, so the parts join with any_of."""
+    text = phrase.strip()
+    if text == "pokemon":
+        return "is_pokemon_card"
+    parts = [resolve_predicate(part) for part in text.split(" and ")]
+    if "None" in parts:
+        raise Unresolved(phrase)
+    return parts[0] if len(parts) == 1 else "any_of(%s)" % ", ".join(parts)
 
 
 # --- Rules ------------------------------------------------------------------
@@ -411,6 +543,22 @@ RULES = [
          r"hand" + SHUFFLE_TAIL,
          "search_to_hand",
          lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-show-that",
+         r"search your deck for (?:up to |any )?(?P<n>\d+ )?" + CAT +
+         r" (?:reveal|show) that card(?:s)?(?: to your opponent)? then put (?:it|them) into your "
+         r"hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: [_pred(m.group("cat")), "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-named-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<base>[a-z0-9 ]+?) with "
+         r"(?P<word>[a-z]+) in its name (?:reveal|show) (?:it|them)(?: to your opponent)? and put "
+         r"(?:it|them) into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, card_named_contains(\"%s\"))"
+                    % (_pred(m.group("base")), m.group("word")),
+                    "count=" + str(_count(m.group("n")))],
          module="support_common"),
     Rule("search-hand-plain",
          r"search your deck for (?:up to )?(?P<n>\d+ )?" + CAT +
@@ -611,14 +759,20 @@ RULES = [
 
     # --- Damage modifiers -------------------------------------------------
     Rule("turn-damage-boost",
-         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
-         r"your opponents active pokemon(?: ex| v| vstar| gx)?(?: before applying weakness and "
-         r"resistance)?",
+         r"during this turn (?:attacks used by your pokemon|your pokemons attacks) do "
+         r"(?P<amount>\d+) more damage to (?:your opponents|the) active pokemon(?: before "
+         r"applying weakness and resistance)?",
          "turn_damage_boost", lambda m: [m.group("amount")]),
+    Rule("turn-damage-boost-ex-and-v",
+         r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
+         r"your opponents active pokemon ex and active pokemon v(?: before applying weakness "
+         r"and resistance)?",
+         "turn_damage_boost_vs",
+         lambda m: [m.group("amount"), "any_of(is_pokemon_ex, is_pokemon_v_card)"]),
     Rule("turn-damage-boost-ex",
          r"during this turn attacks used by your pokemon do (?P<amount>\d+) more damage to "
-         r"your opponents active pokemon ex",
-         "turn_damage_boost", lambda m: [m.group("amount")]),
+         r"your opponents active pokemon ex(?: before applying weakness and resistance)?",
+         "turn_damage_boost_vs", lambda m: [m.group("amount"), "is_pokemon_ex"]),
     Rule("turn-damage-boost-no-rule-box",
          r"during this turn attacks used by your pokemon that dont have 1 rule box do "
          r"(?P<amount>\d+) more damage to your opponents active pokemon(?: before applying weakness "
@@ -876,7 +1030,7 @@ RULES = [
     Rule("heal-all-then-energy-to-hand",
          r"heal all damage from (?P<n>\d+) of your mega evolution pokemon ex if you healed any "
          r"damage in this way put all energy attached to that pokemon into your hand",
-         "heal_all_then_energy_to_hand", lambda m: []),
+         "heal_all_then_energy_to_hand", lambda m: ['pokemon_of_subtype("MEGA")']),
     Rule("trade-pokemon",
          r"trade (?P<n>\d+) of the basic pokemon or evolution cards in your hand for (?P<c>\d+) "
          r"of the basic pokemon or evolution cards from your deck.*",
@@ -1057,6 +1211,467 @@ RULES = [
          r"the pokemon this card is attached to has (?P<amount>\d+) more hp",
          "holder_hp_bonus", lambda m: [m.group("amount")], kind="passive"),
 
+    # --- Holder-gated tools ---------------------------------------------
+    Rule("gated-hp",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to gets (?P<amount>\d+) hp"
+         r"(?: ace spec you cant have more than 1 ace spec card in your deck)?",
+         "gated_hp_bonus", lambda m: [m.group("amount"), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("gated-no-weakness",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no weakness",
+         "gated_no_weakness", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("gated-no-retreat",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no retreat cost",
+         "gated_retreat_free", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("gated-takes-less",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less "
+         r"damage from attacks from your opponents (?P<attacker>[a-z0-9 ]*?)pokemon after "
+         r"applying weakness and resistance",
+         "gated_takes_less",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    "attacker=" + _holder((m.group("attacker") + "pokemon").strip())],
+         kind="passive"),
+    Rule("gated-damage-boost",
+         r"(?:attacks used by|the attacks of) the (?P<holder>[a-z0-9 ]+?) this card is attached "
+         r"to do (?P<amount>\d+) more damage to your opponents active pokemon(?P<ex> ex)? "
+         r"before applying weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    "target=" + ("is_pokemon_ex" if m.group("ex") else "None")],
+         kind="passive"),
+    Rule("gated-hp-and-boost",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to gets (?P<hp>\d+) hp and its "
+         r"attacks do (?P<amount>\d+) more damage to your opponents active pokemon before "
+         r"applying weakness and resistance",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, %s)" % (m.group("hp"), _holder(m.group("holder"))),
+                    "gated_damage_boost(%s, %s)" % (m.group("amount"),
+                                                    _holder(m.group("holder")))],
+         kind="passive"),
+    Rule("gated-no-retreat-and-boost",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to has no retreat cost and the "
+         r"attacks it uses do (?P<amount>\d+) more damage to your opponents active pokemon "
+         r"before applying weakness and resistance",
+         "combined",
+         lambda m: ["gated_retreat_free(%s)" % _holder(m.group("holder")),
+                    "gated_damage_boost(%s, %s)" % (m.group("amount"),
+                                                    _holder(m.group("holder")))],
+         kind="passive"),
+    Rule("gated-boost-rule-box-free",
+         r"if the pokemon this card is attached to doesnt have 1 rule box the attacks it uses "
+         r"do (?P<amount>\d+) more damage to your opponents active pokemon ex before applying "
+         r"weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), "is_rule_box_free_pokemon", "target=is_pokemon_ex"],
+         kind="passive"),
+    Rule("gated-boost-non-ex",
+         r"the attacks of the pokemon this card is attached to excluding pokemon ex do "
+         r"(?P<amount>\d+) more damage to active pokemon ex before applying weakness and "
+         r"resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), "excluding(is_pokemon_EX)", "target=is_pokemon_EX"],
+         kind="passive"),
+
+    Rule("gated-type",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to is 1 (?P<type>[a-z]+) pokemon",
+         "gated_type",
+         lambda m: [_typed_or_decline(m.group("type")), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("low-hp-retreat",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless(?: "
+         r"?colorless)*) less if that pokemons remaining hp is (?P<hp>\d+) or less it has no "
+         r"retreat cost",
+         "low_hp_retreat",
+         lambda m: [str(_colorless_count(m.group("count"))), m.group("hp")], kind="passive"),
+    Rule("active-holder-retreat-tax",
+         r"as long as the pokemon this card is attached to is in the active spot the retreat "
+         r"cost of both active pokemon is (?P<count>colorless(?: ?colorless)*) more",
+         "active_holder_retreat_tax",
+         lambda m: [str(_colorless_count(m.group("count")))], kind="passive"),
+    Rule("tool-reduced-by-opponents-attack",
+         r"any damage done to the pokemon this card is attached to by 1 opponents attack is "
+         r"reduced by (?P<amount>\d+) after applying weakness and resistance",
+         "holder_takes_less", lambda m: [m.group("amount")], kind="passive"),
+    Rule("holder-coin-reroll",
+         r"once during your turn after you flip any coins for 1 attack of the "
+         r"(?P<holder>[a-z0-9 ]+?) this card is attached to you may ignore all (?:results|"
+         r"effects) of those coin flips and begin flipping those coins again(?: you may only "
+         r"use effects that let you flip coins again including effects from other cards once "
+         r"during your turn)?",
+         "holder_coin_reroll", lambda m: [_holder(m.group("holder"))], kind="passive"),
+    Rule("if-attached-boost",
+         r"if this card is attached to (?:1 )?(?P<holder>[a-z0-9 ]+?) each of (?:its attacks|the "
+         r"attacks of that pokemon) does (?P<amount>\d+) more damage to the active pokemon "
+         r"before applying weakness and resistance",
+         "gated_damage_boost",
+         lambda m: [m.group("amount"), _holder(m.group("holder"))], kind="passive"),
+
+    # --- Prize count on Knock Out ---------------------------------------
+    Rule("holder-prize-fewer-any-ko",
+         r"if the pokemon this card is attached to is knocked out your opponent takes "
+         r"(?P<n>\d+) fewer prize cards?",
+         "holder_prize_shift", lambda m: ["-" + m.group("n"), "None", "attack_only=False"],
+         kind="passive"),
+    Rule("holder-prize-fewer",
+         r"if the (?P<holder>[a-z0-9 ]+?) this card is attached to is knocked out by damage from "
+         r"1 attack from your opponents pokemon that player takes (?P<n>\d+) fewer prize cards?",
+         "holder_prize_shift", lambda m: ["-" + m.group("n"), _holder(m.group("holder"))],
+         kind="passive"),
+    Rule("amulet-hp-and-prize-fewer",
+         r"the pokemon gx or pokemon ex this card is attached to gets (?P<hp>\d+) hp and when it "
+         r"is knocked out by damage from 1 opponents attack that player takes (?P<n>\d+) fewer "
+         r"prize cards?",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, any_of(is_pokemon_gx, is_pokemon_EX))" % m.group("hp"),
+                    "holder_prize_shift(-%s, any_of(is_pokemon_gx, is_pokemon_EX))" % m.group("n")],
+         kind="passive"),
+    Rule("cape-hp-and-prize-more",
+         r"if the pokemon this card is attached to doesnt have 1 rule box it gets (?P<hp>\d+) hp "
+         r"and if it is knocked out by damage from 1 attack from your opponents pokemon that "
+         r"player takes (?P<n>\d+) more prize cards?",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, is_rule_box_free_pokemon)" % m.group("hp"),
+                    "holder_prize_shift(%s, is_rule_box_free_pokemon)" % m.group("n")],
+         kind="passive"),
+    Rule("stadium-prize-fewer",
+         r"whenever 1 (?P<cat>[a-z0-9 ]+?) yours or your opponents is knocked out by damage from "
+         r"1 attack from the opponents pokemon that player takes (?P<n>\d+) fewer prize cards?",
+         "stadium_prize_shift", lambda m: ["-" + m.group("n"), _union(m.group("cat"))],
+         kind="passive"),
+
+    Rule("tool-takes-less-special-energy-attacker",
+         r"any damage done to the pokemon this card is attached to by attacks from your opponents "
+         r"pokemon that have any special energy attached to them is reduced by (?P<amount>\d+) "
+         r"after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None", "attacker_has_special_energy()"],
+         kind="passive"),
+    Rule("tool-takes-less-ability-attacker",
+         r"the pokemon this card is attached to takes (?P<amount>\d+) less damage from attacks "
+         r"from your opponents pokemon that have 1 ability after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None", "attacker_has_ability()"], kind="passive"),
+    Rule("tool-takes-less-typed-attacker",
+         r"the (?P<holder>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less damage "
+         r"from attacks from your opponents (?P<types>[a-z ]+?) pokemon after applying weakness "
+         r"and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), _holder(m.group("holder")),
+                    _attacker_types(m.group("types"))], kind="passive"),
+    Rule("tool-takes-less-named-holder",
+         r"the (?P<names>[a-z0-9 ]+?) this card is attached to takes (?P<amount>\d+) less damage "
+         r"from your opponents attacks after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), _name_choice(m.group("names"))], kind="passive"),
+    Rule("tool-takes-less-from-mega",
+         r"if the pokemon this card is attached to isnt 1 mega evolution pokemon ex it takes "
+         r"(?P<amount>\d+) less damage from attacks from your opponents mega evolution pokemon ex "
+         r"after applying weakness and resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "excluding(pokemon_of_subtype(\"MEGA\"))",
+                    'attacker_has_subtypes("MEGA", "ex")'], kind="passive"),
+    Rule("stadium-retreat-zero",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: pokemon)? both yours and your "
+         r"opponents is 0",
+         "stadium_no_retreat", lambda m: [_stadium_cat(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-retreat-shift-cat",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: pokemon)?(?: in play)? both "
+         r"yours and your opponents is (?P<count>colorless(?: ?colorless)*) (?P<dir>less|more)",
+         "stadium_retreat_shift",
+         lambda m: [("-" if m.group("dir") == "less" else "")
+                    + str(_colorless_count(m.group("count"))),
+                    _stadium_cat(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-retreat-shift-attached-energy",
+         r"the retreat cost of each pokemon both yours and your opponents that has any "
+         r"(?P<types>[a-z ]+?) energy attached to it is (?P<count>colorless(?: ?colorless)*) less",
+         "stadium_retreat_shift",
+         lambda m: ["-" + str(_colorless_count(m.group("count"))),
+                    _stadium_cat("pokemon that has any " + m.group("types")
+                                 + " energy attached to it")],
+         kind="passive"),
+    Rule("stadium-no-retreat-energy",
+         r"each pokemon that has any (?P<types>[a-z ]+?) energy attached to it both yours and "
+         r"your opponents has no retreat cost",
+         "stadium_no_retreat",
+         lambda m: [_stadium_cat("pokemon that has any " + m.group("types")
+                                 + " energy attached to it")],
+         kind="passive"),
+    Rule("stadium-hp-named",
+         r"each pokemon(?: in play)? with (?P<word>[a-z]+) in its name even your opponents gets "
+         r"(?P<amount>\d+) hp",
+         "stadium_hp_bonus",
+         lambda m: [m.group("amount"), _stadium_cat("pokemon with %s in its name"
+                                                    % m.group("word"))],
+         kind="passive"),
+    Rule("stadium-retreat-named",
+         r"the retreat cost of each (?P<word>[a-z]+) in play both yours and your opponents is "
+         r"(?P<count>colorless(?: ?colorless)*) less",
+         "stadium_retreat_shift",
+         lambda m: ["-" + str(_colorless_count(m.group("count"))),
+                    'pokemon_named("%s")' % m.group("word")], kind="passive"),
+    Rule("tool-prevent-all-from-typed-subtype",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents (?P<type>[a-z]+) pokemon gx and (?P=type) pokemon ex",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")),
+                    'attacker_of_types("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("tool-prevent-all-from-ability-attacker",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents pokemon gx and pokemon ex that have abilities",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")), "attacker_has_ability()"], kind="passive"),
+    Rule("tool-prevent-all-from-ultra-beast",
+         r"prevent all damage done to the (?P<holder>[a-z]+) pokemon this card is attached to by "
+         r"attacks from your opponents ultra beast pokemon gx and ultra beast pokemon ex",
+         "prevents_all_from",
+         lambda m: [_holder(m.group("holder")),
+                    'attacker_has_subtypes("Ultra Beast", "gx")'], kind="passive"),
+    Rule("tool-prevent-effects-and-damage-from-named-team",
+         r"prevent all effects of attacks including damage done to the pokemon this card is "
+         r"attached to excluding pokemon ex by your opponents team plasma pokemon",
+         "prevents_all_from",
+         lambda m: ["None", 'attacker_named_team("team plasma")', "effects_too=True"],
+         kind="passive"),
+    Rule("tool-condition-immunity",
+         r"the pokemon this card is attached to cant be affected by any special conditions "
+         r"remove any special conditions affecting that pokemon",
+         "holder_condition_immunity", lambda m: [], kind="passive"),
+    Rule("ancient-booster",
+         r"the ancient pokemon this card is attached to gets (?P<hp>\d+) hp recovers from all "
+         r"special conditions and cant be affected by any special conditions",
+         "combined",
+         lambda m: ["gated_hp_bonus(%s, pokemon_of_subtype(\"Ancient\"))" % m.group("hp"),
+                    'holder_condition_immunity(pokemon_of_subtype("Ancient"))'],
+         kind="passive"),
+    Rule("look-top-one-of-shuffle",
+         r"look at the top (?P<n>\d+) cards from your deck choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) from those cards show it to your opponent and put it into your "
+         r"hand put the other (?P<rest>\d+) cards back on top of your deck shuffle your deck "
+         r"afterward",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="shuffle"'],
+         module="support_common"),
+    Rule("look-top-one-of-back",
+         r"look at the top (?P<n>\d+) cards of your deck and choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) show it to your opponent and put it into your hand put the "
+         r"(?P<rest>\d+) other cards back on top of your deck in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"'],
+         module="support_common"),
+    Rule("look-top-trainer-except",
+         r"look at the top (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) trainer card "
+         r"you find there except (?P<except>[a-z0-9 ]+?) and put it into your hand shuffle the "
+         r"other cards back into your deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"),
+                    'predicate=trainer_card_other_than("%s")' % m.group("except"),
+                    'rest="shuffle"', "minimum=0"],
+         module="support_common"),
+    Rule("protect-chosen-next-turn",
+         r"choose (?P<n>\d+) of your pokemon in play during your opponents next turn prevent all "
+         r"damage from and effects of attacks done to that pokemon(?: by your opponents "
+         r"pokemon(?: ex)?)?",
+         "protect_chosen_next_turn", lambda m: [m.group("n")]),
+    Rule("extra-prize-on-tera-ko",
+         r"during this turn if your opponents active pokemon is knocked out by damage from 1 "
+         r"attack used by your tera pokemon take (?P<n>\d+) more prize cards?",
+         "extra_prize_on_ko", lambda m: ["tera_attacker()", m.group("n")]),
+    Rule("look-top-pokemon-or-energy-back",
+         r"look at the top (?P<n>\d+) cards of your deck you may reveal (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) you find there and put it into your hand put the other cards back "
+         r"in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"', "minimum=0"],
+         module="support_common"),
+    Rule("look-top-two-of-back",
+         r"look at the top (?P<n>\d+) cards of your deck and choose (?P<take>\d+) "
+         r"(?P<cat>[a-z0-9 ]+?) show it to your opponent and put it into your hand put the "
+         r"(?P<rest>\d+) other cards back on top of your deck in any order",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), "predicate=" + _pred(m.group("cat")),
+                    'rest="back"'],
+         module="support_common"),
+    Rule("beast-ring",
+         r"search your deck for up to (?P<n>\d+) basic energy cards and attach them to "
+         r"(?P<target>\d+) of your (?P<sub>[a-z ]+?) then shuffle your deck",
+         "search_attach_energy",
+         lambda m: ["is_basic_energy_card", "count=" + m.group("n"),
+                    "target_pred=pokemon_of_subtype(%s)" % _subtype_literal(m.group("sub")),
+                    "distribute=False"],
+         module="support_common"),
+    Rule("search-rule-box-free-plus-students",
+         r"search your deck for (?P<n>\d+) pokemon that doesnt have 1 rule box reveal it and put "
+         r"it into your hand for each (?P<extra>[a-z ]+?) card not including this card in your "
+         r"discard pile you may search for (?P<more>\d+) additional pokemon in this way then "
+         r"shuffle your deck",
+         "search_rule_box_free_plus_students",
+         lambda m: ['"%s"' % m.group("extra")]),
+    Rule("switch-team-then-gust",
+         r"switch your active (?P<owner>[a-z ]+?) pokemon with (?P<n>\d+) of your benched "
+         r"(?P=owner) pokemon if you do switch in (?P<gust>\d+) of your opponents benched pokemon "
+         r"to the active spot",
+         "switch_team_then_gust",
+         lambda m: ['"%s"' % OWNER_NAMES.get(m.group("owner"), m.group("owner"))]),
+    Rule("discard-energy-draw-per-typed",
+         r"discard (?P<n>\d+) energy card from your hand in order to draw cards until you have as "
+         r"many cards in your hand as you have (?P<type>[a-z]+) pokemon in play",
+         "with_discard_cost",
+         lambda m: [m.group("n"),
+                    'draw_until_per_typed_pokemon("%s")' % m.group("type")]),
+    Rule("gambler",
+         r"shuffle your hand into your deck flip (?P<coins>\d+) coin if heads draw (?P<a>\d+) "
+         r"cards? if tails draw (?P<b>\d+) cards?",
+         "shuffle_hand_flip_draw", lambda m: [m.group("a"), m.group("b")]),
+    Rule("dual-ball",
+         r"flip (?P<coins>\d+) coins for each heads search your deck for (?P<n>\d+) basic pokemon "
+         r"card other than (?P<skip>\d+) baby pokemon card show it to your opponent and put it "
+         r"into your hand",
+         "flip_search_basic_count", lambda m: [m.group("coins")]),
+    Rule("look-top-choose-discard-rest",
+         r"look at the top (?P<n>\d+) cards of your deck choose (?P<take>\d+) of those cards and "
+         r"put them into your hand discard the rest",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="discard"', "minimum=0"],
+         module="support_common"),
+    Rule("retaliate-on-attack",
+         r"if the pokemon this card is attached to is (?:your active pokemon|in the active spot) "
+         r"and is damage(?:d)? by (?P<n>\d+) (?:opponents attack|attack from your opponents "
+         r"pokemon) even if (?:that pokemon|it) is knocked out put (?P<counters>\d+) damage "
+         r"counters? on the attacking pokemon",
+         "retaliate_on_attack", lambda m: [m.group("counters")], kind="passive"),
+    Rule("look-top-reorder",
+         r"look at the top (?P<n>\d+) cards of your deck and put them back on top of your deck in "
+         r"any order",
+         "look_top_reorder", lambda m: [m.group("n")]),
+    Rule("look-top-same-order",
+         r"look at the top (?P<n>\d+) cards of your deck and put them back in the same order",
+         "look_top_peek", lambda m: [m.group("n")]),
+    Rule("search-hand-hp-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) with (?P<hp>\d+) hp or "
+         r"less (?:reveal|show) (?:it|them)(?: to your opponent)? and put (?:it|them) into your "
+         r"hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, pokemon_with_hp_at_most(%s))"
+                    % (_pred(m.group("cat")), m.group("hp")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-retreat-qualifier",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) with (?P<n2>\d+) retreat "
+         r"cost of (?P<cost>\d+) or more (?:reveal|show) (?:it|them)(?: to your opponent)? and put "
+         r"(?:it|them) into your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, pokemon_with_retreat_at_least(%s))"
+                    % (_pred(m.group("cat")), m.group("cost")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("search-hand-word-in-name",
+         r"search your deck for (?:up to )?(?P<n>\d+ )?(?P<cat>[a-z0-9 ]+?) that have the word "
+         r"(?P<word>[a-z]+) in their name (?:reveal|show) (?:it|them) and put (?:it|them) into "
+         r"your hand" + SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["all_of(%s, card_named_contains(\"%s\"))"
+                    % (_pred(m.group("cat")), m.group("word")),
+                    "count=" + str(_count(m.group("n")))],
+         module="support_common"),
+    Rule("recycle-from-discard",
+         r"flip (?P<coins>\d+) coin if heads put (?P<n>\d+) card in your discard pile on top of "
+         r"your deck",
+         "recycle_from_discard", lambda m: [m.group("n")]),
+    Rule("look-top-two-take-one-bottom",
+         r"look at the top (?P<n>\d+) cards of your deck choose (?P<take>\d+) of them and put it "
+         r"into your hand put the other card on the bottom of your deck",
+         "look_at_top",
+         lambda m: [m.group("n"), "take=" + m.group("take"), 'rest="bottom"', "minimum=0"],
+         module="support_common"),
+    Rule("tool-takes-less-from-typed-attacker",
+         r"if the pokemon this card is attached to is damaged by (?P<n>\d+) attack from your "
+         r"opponents (?P<type>[a-z]+) pokemon it takes (?P<amount>\d+) less damage after applying "
+         r"weakness and resistance(?: and discard this card)?",
+         "takes_less_from",
+         lambda m: [m.group("amount"), "None",
+                    'attacker_of_types("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("tool-retreat-discount-and-return",
+         r"the retreat cost of the pokemon this card is attached to is (?P<count>colorless) less "
+         r"if this card is discarded from play put it into your hand instead of the discard pile",
+         "holder_retreat_discount",
+         lambda m: [str(_colorless_count(m.group("count")))], kind="passive"),
+    Rule("retaliate-poison",
+         r"if the pokemon this card is attached to is your active pokemon and is damaged by "
+         r"(?P<n>\d+) opponents attack even if this pokemon is knocked out the attacking pokemon "
+         r"is now poisoned",
+         "retaliate_poison", lambda m: [], kind="passive"),
+    Rule("tool-takes-less-metal-holder",
+         r"if this card is attached to (?P<n>\d+) of your pokemon discard it at the end of your "
+         r"opponents turn the (?P<type>[a-z]+) pokemon this card is attached to takes "
+         r"(?P<amount>\d+) less damage from your opponents attacks after applying weakness and "
+         r"resistance",
+         "takes_less_from",
+         lambda m: [m.group("amount"), 'pokemon_of("%s")' % m.group("type")],
+         kind="passive"),
+    Rule("search-any-combination-of-two",
+         r"search your deck for up to (?P<n>\d+) in any combination of (?P<a>[a-z0-9 ]+?) and "
+         r"(?P<b>[a-z0-9 ]+?) (?:reveal|show) (?:it|them) and put (?:it|them) into your hand" +
+         SHUFFLE_TAIL,
+         "search_to_hand",
+         lambda m: ["any_of(%s, %s)" % (_pred_typed_subtype(m.group("a")),
+                                        _pred_typed_subtype(m.group("b"))),
+                    "count=" + m.group("n")],
+         module="support_common"),
+    Rule("shuffle-hand-draw-lock-trainers",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) cards you cant play any more "
+         r"trainer cards this turn",
+         "shuffle_hand_draw_lock_trainers", lambda m: [m.group("n")]),
+    Rule("discard-typed-pokemon-bench-then-draw",
+         r"put (?P<n>\d+) (?P<type>[a-z]+) pokemon from your discard pile onto your bench then draw "
+         r"(?P<draw>\d+) cards",
+         "discard_typed_pokemon_to_bench_then_draw",
+         lambda m: ['"%s"' % m.group("type"), m.group("draw")]),
+    Rule("breeder-stage-two-onto-basic",
+         r"put (?P<n>\d+) stage 2 evolution card from your hand on the matching basic pokemon(?: you "
+         r"can only play this card when you would be allowed to evolve that pokemon anyway| you "
+         r"can play this card only when you would be allowed to evolve that pokemon anyway)",
+         "rare_candy", lambda m: []),
+    Rule("colress-draw",
+         r"shuffle your hand into your deck then draw (?P<n>\d+) number of cards equal to the "
+         r"number of benched pokemon both yours and your opponents",
+         "colress_draw", lambda m: []),
+    # --- Both-sides stadiums -------------------------------------------
+    Rule("stadium-boost",
+         r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
+         r"yours and your opponents do (?P<amount>\d+) more damage to the (?:opponents active "
+         r"pokemon|defending pokemon(?P<ex> ex)?) before applying weakness and resistance",
+         "stadium_damage_boost",
+         lambda m: [m.group("amount"), _union(m.group("cat")),
+                    "target=" + ("is_pokemon_EX" if m.group("ex") else "None")],
+         kind="passive"),
+    Rule("stadium-takes-less-for",
+         r"(?P<cat>[a-z0-9 ]+?) both yours and your opponents take (?P<amount>\d+) less damage "
+         r"from (?:attacks from the opponents pokemon|the opponents attacks) after applying "
+         r"weakness and resistance",
+         "stadium_takes_less_for",
+         lambda m: [m.group("amount"), _union(m.group("cat"))], kind="passive"),
+    Rule("stadium-no-retreat",
+         r"(?P<cat>[a-z0-9 ]+?) in play both yours and your opponents (?:have|has) no retreat "
+         r"cost",
+         "stadium_no_retreat", lambda m: [_union(m.group("cat"))], kind="passive"),
+    Rule("stadium-retreat-shift",
+         r"the retreat cost (?:of|for) each (?P<cat>[a-z0-9 ]+?)(?: (?:in|is) play)?(?: both "
+         r"yours and your opponents)? is (?P<count>colorless(?: ?colorless)*) (?P<dir>less|more)",
+         "stadium_retreat_shift",
+         lambda m: [("-" if m.group("dir") == "less" else "")
+                    + str(_colorless_count(m.group("count"))), _union(m.group("cat"))],
+         kind="passive"),
+    Rule("stadium-no-resistance",
+         r"each pokemon in play has no resistance",
+         "stadium_no_resistance", lambda m: [], kind="passive"),
+
     # --- Evolution shortcuts ---------------------------------------------
     Rule("evolve-from-hand",
          r"choose (?P<n>\d+) of your basic pokemon in play if you have (?P<stages>1 stage 1 or "
@@ -1103,6 +1718,8 @@ CONDITION_PREFIXES = [
                 r"prize cards remaining "), "opponent_prizes_at_most"),
     (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<n>\d+) "
                 r"prize cards remaining "), "opponent_prizes_exactly"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<low>\d+) "
+                r"or (?P<high>\d+) prize cards remaining "), "opponent_prizes_in"),
     (re.compile(r"^you can (?:use|play) this card only if you have (?P<n>\d+) or fewer other "
                 r"cards in your hand "), "hand_at_most"),
     (re.compile(r"^you can (?:use|play) this card only when it is the last card in your hand "),
@@ -1113,17 +1730,22 @@ CONDITION_PREFIXES = [
                 r"in play "), "has_subtype_in_play"),
     (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
                 r"(?P<cond>[a-z]+) "), "opponent_active_has"),
+    (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
+                r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
 ENDS_TURN = re.compile(r" your turn ends$")
 
 WRAPPERS = [
     (re.compile(r"^flip 1 coin if heads "), "if_heads", None),
+    (re.compile(r"^you may "), None, None),
     (re.compile(r"^you can (?:use|play) this card only if you discard (?P<n>\d+) other cards? "
                 r"from your hand "), "with_discard_cost", None),
     (re.compile(r"^you can (?:use|play) this card only if you discard another card from your "
                 r"hand "), "with_discard_cost", "1"),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you do "),
+     "with_discard_cost", None),
+    (re.compile(r"^discard (?P<n>\d+) card from your hand in order to play this card "),
      "with_discard_cost", None),
     (re.compile(r"^discard (?P<n>\d+) cards? from your hand if you cant discard \d+ cards "
                 r"you cant play this card "), "with_discard_cost", None),
@@ -1160,6 +1782,12 @@ def resolve(text, depth=0):
             condition = '%s("%s")' % (factory, groups["sub"].capitalize())
         elif factory == "opponent_active_has":
             condition = '%s("%s")' % (factory, groups["cond"].upper())
+        elif factory == "opponent_active_is":
+            stage_pred = {"stage 1": "is_stage_one", "stage 2": "is_stage_two",
+                          "basic": "is_basic_pokemon"}[groups["stage"]]
+            condition = "opponent_active_is(%s)" % stage_pred
+        elif factory == "opponent_prizes_in":
+            condition = "opponent_prizes_in(%s, %s)" % (groups["low"], groups["high"])
         elif "n" in groups:
             condition = "%s(%s)" % (factory, groups["n"])
         else:
@@ -1202,7 +1830,7 @@ def resolve(text, depth=0):
 
 # --- Modal cards ------------------------------------------------------------
 
-MODAL_HEAD = re.compile(r"^\s*choose (1|one|1 or both)(?:\s+of the following)?\s*:?\s*", re.I)
+MODAL_HEAD = re.compile(r"^\s*choose (1 or both|1|one)(?:\s+of the following)?\s*:?\s*", re.I)
 
 
 def resolve_modal(raw_text):
@@ -1250,3 +1878,56 @@ def canonicalize(text):
     """Same normalization trainer_coverage applies, for bullet sub-text."""
     import trainer_coverage
     return trainer_coverage.canonical_text([text])
+
+
+STADIUM_ABILITY_HEADS = (
+    "once during each players turn that player may ",
+    "once during each players turn the player may ",
+    "once during each players turn before attacking that player may ",
+    "once during each players turn before attacking the player may ",
+)
+
+
+def resolve_stadium_ability(text):
+    """A Stadium's "Once during each player's turn, that player may <X>":
+    <X> is worded for "that player", so it is rewritten in the second person
+    and resolved like any trainer effect. Text that also names the opponent
+    is declined, because "their" can no longer be told apart."""
+    head = next((h for h in STADIUM_ABILITY_HEADS if text.startswith(h)), None)
+    if head is None:
+        return None
+    inner = text[len(head):]
+    if "opponent" in inner:
+        return None
+    inner = inner.replace("then that player shuffles their deck", "then shuffle your deck")
+    inner = inner.replace("and shuffle their deck", "then shuffle your deck")
+    inner = inner.replace("they have", "you have").replace("they do", "you do")
+    inner = (inner.replace("he or she", "you").replace("his or her", "your")
+             .replace("that player", "you").replace("the player", "you")
+             .replace("their", "your"))
+    THIRD_PERSON = {"draws": "draw", "searches": "search", "chooses": "choose",
+                    "discards": "discard", "flips": "flip", "puts": "put",
+                    "shuffles": "shuffle", "removes": "remove", "heals": "heal",
+                    "attaches": "attach", "reveals": "reveal", "takes": "take",
+                    "shows": "show", "places": "place"}
+    inner = re.sub(r"\b(%s)\b" % "|".join(THIRD_PERSON),
+                   lambda m: THIRD_PERSON[m.group(1)], inner)
+    inner = inner.replace("if heads you ", "if heads ")
+    inner = inner.replace("if you do you ", "if you do ")
+    ends_turn = False
+    tail = re.search(r" if \d+ player searches (?:their|your) deck in this way "
+                    r"(?:their|your) turn ends$", inner)
+    if tail is not None:
+        inner = inner[:tail.start()]
+        ends_turn = True
+    found = resolve(inner)
+    if found is None or found.get("kind", "effect") != "effect" or found.get("condition"):
+        return None
+    expr = found["expr"]
+    symbols = found["symbols"] | {"stadium_ability"}
+    if ends_turn:
+        expr = "ends_turn_after(%s)" % expr
+        symbols.add("ends_turn_after")
+    return {"rule": "stadium-ability:" + found["rule"], "expr": expr,
+            "symbols": symbols, "kind": "ability"}
+

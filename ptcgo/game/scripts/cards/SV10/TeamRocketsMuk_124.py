@@ -1,0 +1,38 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="2a80cbfb-b688-59bb-a0ce-20ef447c97de",
+    key="SV10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.TeamRocketsMuk.Name",
+    display_name="Team Rocket's Muk",
+    searchable_by=["Team Rocket's Muk", "Stage 1", "TeamRocketsMuk"],
+    subtypes=["Stage 1"],
+    collector_number=124,
+    set_code="SV10",
+    rarity=Rarities.Uncommon,
+    hp=150,
+    elements=[PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=4,
+    weakness_type=PokemonTypes.FIGHTING,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.TeamRocketsGrimer.Name",
+    family_id=88,
+    abilities=[
+        Attack(
+            title="Gooped Up",
+            game_text="Your opponent's Active Pok\u00e9mon is now Confused. During your opponent's next turn, that Pok\u00e9mon can't retreat.",
+            cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
+            damage=40,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Hazardous Venom",
+            game_text="This attack does 100 damage for each Special Condition affecting your opponent's Active Pok\u00e9mon.",
+            cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
+            damage=100,
+            damage_operator="x",
+            effect=unimplemented,
+        ),
+    ],
+)

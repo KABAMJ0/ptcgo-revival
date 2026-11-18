@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="97b4d5f1-f54c-54bc-9466-18bcb8f3f335",
+    key="RSV10PT5",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Sawsbuck.Name",
+    display_name="Sawsbuck",
+    searchable_by=["Sawsbuck", "Stage 1", "Sawsbuck"],
+    subtypes=["Stage 1"],
+    collector_number=92,
+    set_code="RSV10PT5",
+    rarity=Rarities.Rare,
+    hp=130,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Deerling.Name",
+    family_id=585,
+    abilities=[
+        Attack(
+            title="Push Down",
+            game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=50,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Solar Beam",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
+            damage=100,
+        ),
+    ],
+)

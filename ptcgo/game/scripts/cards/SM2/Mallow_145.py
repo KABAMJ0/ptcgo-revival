@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_to_top
+
+card = SupporterCardDef(
+    guid="8950d6b8-765a-59c0-91b7-e44b5cc149b3",
+    key="SM2",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.Mallow.Name",
+    display_name="Mallow",
+    searchable_by=["Mallow", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=145,
+    set_code="SM2",
+    rarity=Rarities.RareUltra,
+    effect=search_to_top(2)
+)

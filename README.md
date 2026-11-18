@@ -1,5 +1,5 @@
-# SpiritPTCGO
-SpiritPTCGO is a Python server emulator for the **NOW** sunseted [Pokemon Trading Card Game Online (PTCGO)](https://en.wikipedia.org/wiki/Pok%C3%A9mon_TCG_Online) client.
+# PTCGO Revival
+PTCGO Revival is a Python server emulator for the **NOW** sunseted [Pokemon Trading Card Game Online (PTCGO)](https://en.wikipedia.org/wiki/Pok%C3%A9mon_TCG_Online) client.
 
 ## Prequisites & Warning
 - This server was developed using the 2023 client (**2.95.0.5815**)
@@ -41,23 +41,23 @@ SpiritPTCGO is a Python server emulator for the **NOW** sunseted [Pokemon Tradin
 
 2. Generate the SSL Certificates
    ```powershell
-   python spirit/network/generate_cert.py
+   python ptcgo/network/generate_cert.py
    ```
    **DO NOT** install this certificate into your Windows Trusted Root Store. If the certificate is trusted by Windows, the game's validator will actually reject it due to a Unity hostname parsing bug with IP addresses. As long as the `.crt` and `.key` files are next to the server script, the Python server will use them, and the client will accept them.
 
 3. Run the database initialization script to create the local SQLite database (`ptcgo_server.db`) using SQLAlchemy ORM and seed the default test account (Username: `brandon` / Password: `password`):
    ```powershell
-   python spirit/database/setup_db.py
+   python ptcgo/database/setup_db.py
    ```
 
 4. Run the main Python script from the root directory to start both the TCP (Game) and HTTP (Asset/MOTD) servers:
    ```powershell
-   $env:PYTHONPATH=(Get-Location).Path; python -m spirit.main
+   $env:PYTHONPATH=(Get-Location).Path; python -m ptcgo.main
    ```
    Do note that on the first initial run, the server will download any initial asset bundles it needs determined by the ``game/scripts/`` and ``assets/cards/`` directories (more info on card injections below)
 
 5. **(Optional)** If you have original game cache files (like UI elements, logos, etc.) that you want the server to serve:
-   - You can copy them into `spirit/assets/externalCache/`.
+   - You can copy them into `ptcgo/assets/externalCache/`.
    - OR set the `PTCGO_CACHE_DIR` environment variable to point to your original game cache folder before running the server.
 
 6. Run the ``Pokemon Trading Card Game Online.exe`` in your client's installation folder and you should be able to see logs in your servers as you login!
@@ -70,11 +70,11 @@ The reason is that the login handshake redirects the client to a follow-up addre
 
 1. On the **server** machine, set `PUBLIC_HOST` to your public IP or domain. Either edit `spirit/config.py`:
    ```python
-   PUBLIC_HOST = os.environ.get("SPIRIT_PUBLIC_HOST", "your.public.ip.or.domain")
+   PUBLIC_HOST = os.environ.get("PTCGO_PUBLIC_HOST", "your.public.ip.or.domain")
    ```
    ...or leave the file alone and just export the env var before launching:
    ```powershell
-   $env:SPIRIT_PUBLIC_HOST="your.public.ip.or.domain"
+   $env:PTCGO_PUBLIC_HOST="your.public.ip.or.domain"
    ```
 2. Make sure the HTTP port (`8000`) and TCP game port (`39389`) are forwarded/open on your router and firewall.
 3. On each **connecting** machine, point that same public address into `cake.cfg` instead of `127.0.0.1`:
@@ -87,27 +87,104 @@ The reason is that the login handshake redirects the client to a follow-up addre
 > **Hosting on a VPS?** Follow the [nginx deployment guide](deploy/README.md).
 > nginx is not needed for local development.
 
+## Installing the server
+
+### What you need
+
+A Linux box with a public IP that can answer on **two ports**:
+
+| Port | What it carries |
+|---|---|
+| `8000/tcp` | config, patch manifest, card art, admin panel |
+| `39389/tcp` | the game socket |
+
+Sizing: 2 vCPU, 4 GB RAM and 80 GB of disk. The disk holds about 26 GB of card art and generated bundles; 4 GB of RAM only matters while it is packing. Open both ports in the OS firewall *and* in any cloud security group.
+
+### Install
+
+```bash
+git clone https://github.com/KABAMJ0/ptcgo-revival.git
+cd ptcgo-revival
+sudo ./install.sh --host play.example.com
+```
+
+`--host` is the name players will dial and it must be the real public hostname, because the TLS certificate is generated with that name in its CN and the client validates it.
+
+The script creates a Python 3.12 environment and installs the dependencies, generates the certificate, builds the database, downloads about 14 GB of card art, installs a systemd service that starts on boot and restarts on failure, and opens the firewall. Options: `--no-art` (fetch later with `tools/fetch_art.py`), `--no-service` (start it by hand), `--user NAME` (account the service runs as).
+
+### First start
+
+**It takes 45–60 minutes** before the ports open, because it packs card bundles for about 180 sets. Nothing answers until that finishes. Watch it:
+
+```bash
+journalctl -u ptcgo -f
+```
+
+Later restarts take about a minute, since the bundles are cached. Only a change to card art makes it pack again.
+
+### Check it is alive
+
+```bash
+systemctl status ptcgo                                  # active (running)
+ss -ltn | grep -E '8000|39389'                          # both listening
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8000/admin   # 200
+```
+
+The dashboard is at `http://play.example.com:8000/admin`. The seeded admin account is **brandon / password** — change it before anyone else can reach the panel. The Players tab lets you inspect collections, wipe them, edit currency, ban and delete accounts.
+
+### Pointing players at it
+
+In `Pokemon Trading Card Game Online_Data/cake.cfg`, in the folder beside the game's `.exe`, change the top three lines and leave the `*AppSecret` lines alone:
+
+```ini
+hostname=play.example.com
+versionURL=http://play.example.com:8000/
+assetURL=http://play.example.com:8000/
+```
+
+There is nothing else to install. The first login pulls the card art: slow once, cached after.
+
+### Updating
+
+```bash
+git pull
+sudo systemctl restart ptcgo
+```
+
+The database, card art and bundles are untouched by a pull. If the update changed card scripts the restart picks them up; if it changed art, expect a longer boot.
+
+### Backups
+
+Two files matter. `ptcgo_server.db` holds every account, collection, deck and trade, and `server.crt` / `server.key` are the identity clients already trust. Copy them somewhere on a schedule. Everything else — code, art, bundles — can be rebuilt.
+
+### Things that catch people out
+
+- **The client only ever dials port 39389.** `cake.cfg` carries a hostname and no port, so a reverse proxy or a random-port tunnel logs in and then hangs. That one constraint rules out most cheap tunnel hosting.
+- **`PTCGO_PUBLIC_HOST` must match the certificate's name.** It also drives the mid-login redirect, so a mismatch means clients connect and then drop.
+- **Do not install the certificate into a client machine's trust store.** The client's validator rejects a certificate it trusts, which is why the server ships a self-signed one.
+- **A fresh clone has no card art.** `tools/fetch_art.py` fills it in from pokemontcg.io, then from the upstream project for its own Sword & Shield scans, then by drawing a face from the card's data. It is resumable.
+
 ## Custom Card Creation
 
-SpiritPTCGO supports a modular card injection system. You add a custom card by dropping an image and a python script into the designated folders, and the server handles the Unity AssetBundle generation automatically on startup. A card is two things: a **data definition** (its name, HP, cost, weakness, etc.) and, if you want it to actually *do* something in a match, a bit of **scripted behavior**. We'll cover both.
+PTCGO Revival supports a modular card injection system. You add a custom card by dropping an image and a python script into the designated folders, and the server handles the Unity AssetBundle generation automatically on startup. A card is two things: a **data definition** (its name, HP, cost, weakness, etc.) and, if you want it to actually *do* something in a match, a bit of **scripted behavior**. We'll cover both.
 
 ### 1. Place the Card Image
 Save your card art as a **1024x1024 PNG** in the following directory:
-`spirit/assets/cards/<SET_CODE>/<NAME>_<NUMBER>.png`
+`ptcgo/assets/cards/<SET_CODE>/<NAME>_<NUMBER>.png`
 
-Example: `spirit/assets/cards/CUSTOM/LugiaV_1.png`
+Example: `ptcgo/assets/cards/CUSTOM/LugiaV_1.png`
 
 IMPORTANT: It's important to note that my card bundling script will add padding to images to make them 1024x1024, so using card images from say a popular pokemon tcg api would work ;)
 
 ### 2. Create the Card Script
 Create a Python script to define the card's data and attributes:
-`spirit/game/scripts/cards/<SET_CODE>/<NAME>_<NUMBER>.py`
+`ptcgo/game/scripts/cards/<SET_CODE>/<NAME>_<NUMBER>.py`
 
-Example: `spirit/game/scripts/cards/CUSTOM/LugiaV_1.py`
+Example: `ptcgo/game/scripts/cards/CUSTOM/LugiaV_1.py`
 
 ```python
-from spirit.game.data_utils import PokemonCardDef, Ability, Attack
-from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities, AbilityTypes
+from ptcgo.game.data_utils import PokemonCardDef, Ability, Attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AbilityTypes
 
 # Define the card object
 card = PokemonCardDef(
@@ -143,13 +220,13 @@ The block above defines the card, but the client itself does **no** rules logic 
 
 * **Leave `effect` off entirely**: the engine treats it as a *vanilla* attack and just deals the printed `damage` (auto-applying weakness ×2 / resistance −30 against the opponent's Active) and ends the turn. Perfectly fine for plain hitters.
 * **`effect=unimplemented`**: the card has real effect text you haven't scripted yet. Base damage still resolves, but the server logs a warning so you know it's a stub. Handy for getting a whole set playable-at-base quickly and coming back later.
-* **`effect=<an async function>`**: full scripted behavior. You write an `async def effect(ctx):` coroutine, and `ctx` is your handle on the whole game (see `spirit/game/session/effects.py` for the complete API).
+* **`effect=<an async function>`**: full scripted behavior. You write an `async def effect(ctx):` coroutine, and `ctx` is your handle on the whole game (see `ptcgo/game/session/effects.py` for the complete API).
 
 Here's Aero Ball code. The printed text says "20 damage for each Energy attached," so instead of a flat number we count the energy and deal it ourselves:
 
 ```python
-from spirit.game.data_utils import PokemonCardDef, Attack, unimplemented
-from spirit.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 async def aero_ball(ctx):
     attached = ctx.attached_energies(ctx.source)   # every Energy on this Pokémon
@@ -194,8 +271,8 @@ The entire API list (searching decks, moving cards between zones, special condit
 Trainers work the same way. An `ItemCardDef` / `SupporterCardDef` / `StadiumCardDef` takes the same `effect=` coroutine:
 
 ```python
-from spirit.game.data_utils import ItemCardDef, unimplemented
-from spirit.game.attributes import Rarities
+from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
 
 async def field_notes(ctx):
     """Draw 2 cards."""
@@ -212,42 +289,42 @@ card = ItemCardDef(
 )
 ```
 
-A couple of things worth knowing as you go deeper: an `Ability` can be a passive body (`ability_type=AbilityTypes.POKE_BODY` with a `passive=`), a triggered ability (`trigger=Triggers.ON_PLAY`), or an activated one — and both cards and trainers take a `condition=` to gate when they're even offered (Ultra Ball needing two cards to discard, etc.). Read references from an existing card under `spirit/game/scripts/cards/` since the two starter decks are fully scripted.
+A couple of things worth knowing as you go deeper: an `Ability` can be a passive body (`ability_type=AbilityTypes.POKE_BODY` with a `passive=`), a triggered ability (`trigger=Triggers.ON_PLAY`), or an activated one — and both cards and trainers take a `condition=` to gate when they're even offered (Ultra Ball needing two cards to discard, etc.). Read references from an existing card under `ptcgo/game/scripts/cards/` since the two starter decks are fully scripted.
 
 If you want to see what's already scripted versus stubbed across a set, there's a tool:
 ```powershell
-python -m spirit.tools.effect_coverage
+python -m ptcgo.tools.effect_coverage
 ```
 
 ### 3. Get the Card Into a Collection
 A fresh account only starts with the two starter decks and some booster packs. To give yourself your custom card in for testing, start the server and open the **Admin Dashboard** at `http://127.0.0.1:8000/admin`. Log in with the seeded admin account (`brandon` / `password`), go to the **Accounts** tab, and hit **Grant All Cards** on your account.
 
 ### 4. Run the Server
-Start the server as usual. On startup, the `AutoBundle` system detects the new script, finds the corresponding PNG, and generates a `.unity3d` AssetBundle automatically in `spirit/assets/`.
+Start the server as usual. On startup, the `AutoBundle` system detects the new script, finds the corresponding PNG, and generates a `.unity3d` AssetBundle automatically in `ptcgo/assets/`.
 ```powershell
-$env:PYTHONPATH=(Get-Location).Path; python -m spirit.main
+$env:PYTHONPATH=(Get-Location).Path; python -m ptcgo.main
 ```
 
 ## Custom Sleeve / Coin Creation
 
-SpiritPTCGO supports an advanced **Dynamic Cosmetic Asset Injection** system. You can add fully custom card sleeves, gameplay coins, and 3D deck boxes by placing your PNG textures in the designated folders. The server will dynamically expand the master asset templates and generate the client-prefixed AssetBundles automatically on startup.
+PTCGO Revival supports an advanced **Dynamic Cosmetic Asset Injection** system. You can add fully custom card sleeves, gameplay coins, and 3D deck boxes by placing your PNG textures in the designated folders. The server will dynamically expand the master asset templates and generate the client-prefixed AssetBundles automatically on startup.
 
 ### 1. Place your Custom Textures
-Save your custom textures as PNGs under the respective subdirectories inside `spirit/assets/products/`:
+Save your custom textures as PNGs under the respective subdirectories inside `ptcgo/assets/products/`:
 
-* **Sleeves:** Place in `spirit/assets/products/custom_sleeves/`
+* **Sleeves:** Place in `ptcgo/assets/products/custom_sleeves/`
   * *Recommended Resolution:* **`512x512`** or **`256x256`** pixels (Square `1:1`).
-* **Coins:** Place in `spirit/assets/products/custom_coins/`
+* **Coins:** Place in `ptcgo/assets/products/custom_coins/`
   * *Recommended Resolution:* **`256x256`** pixels (Square `1:1`). Transparent background outside the circular border is recommended.
 
 *Note: Filenames must be lowercase and use underscores/numbers (e.g., `my_cool_sleeve.png`). The filename (without extension) becomes the logical asset ID. Non-standard dimensions are automatically scaled to the proper size on server boot.*
 
 ### 2. Define the Scripts
-To assign your custom cosmetics to players or set them as defaults, use their lowercase filenames as the logical `image_url` property in your product definitions (located inside `spirit/game/scripts/products/`):
+To assign your custom cosmetics to players or set them as defaults, use their lowercase filenames as the logical `image_url` property in your product definitions (located inside `ptcgo/game/scripts/products/`):
 
-Example: In `spirit/game/scripts/products/noset/basic_sleeve.py`
+Example: In `ptcgo/game/scripts/products/noset/basic_sleeve.py`
 ```python
-from spirit.game.data_utils import SleeveDef
+from ptcgo.game.data_utils import SleeveDef
 
 product = SleeveDef(
     guid="e079c0d3-b934-4fbd-b021-545106c75693", # Client Default Sleeve GUID
@@ -260,12 +337,12 @@ product = SleeveDef(
 
 ## Custom Booster Pack
 
-SpiritPTCGO supports the exact same system for **Booster Packs**. You can customize the look of pack foils and deck boxes in the Shop and Opening scenes by placing your PNG textures in the designated folders.
+PTCGO Revival supports the exact same system for **Booster Packs**. You can customize the look of pack foils and deck boxes in the Shop and Opening scenes by placing your PNG textures in the designated folders.
 
 ### 1. Place your Custom Textures
-Save your custom textures as PNGs under the respective subdirectories inside `spirit/assets/products/`:
+Save your custom textures as PNGs under the respective subdirectories inside `ptcgo/assets/products/`:
 
-* **Booster Packs:** Place in `spirit/assets/products/custom_packs/`
+* **Booster Packs:** Place in `ptcgo/assets/products/custom_packs/`
   * *Image Specifications (to prevent stretching):* The game client renders booster packs using a square **`512x512`** transparent canvas. To prevent the vertical booster pack art from being stretched horizontally, your image must be laid out on a transparent square canvas as follows:
     * **Canvas Dimensions:** `512x512` pixels (RGBA transparent background).
     * **Booster Art Position:** The visible booster pack artwork should be scaled to a height of **`496`** pixels, with exactly **`16`** pixels of top padding (stretching from Y=16 to Y=512).
@@ -274,11 +351,11 @@ Save your custom textures as PNGs under the respective subdirectories inside `sp
 *Note: Filenames must be lowercase (e.g., `xy_breakthrough_booster.png`). The filename (without extension) becomes the logical asset ID inside the client packs/pcdBoxes bundle.*
 
 ### 2. Define the Booster Pack Script
-To link your custom booster pack image the item, use its lowercase filename as the `image_url` property in your product scripts (located inside `spirit/game/scripts/products/`):
+To link your custom booster pack image the item, use its lowercase filename as the `image_url` property in your product scripts (located inside `ptcgo/game/scripts/products/`):
 
-Example: In `spirit/game/scripts/products/xy8/booster_7df512a8.py` (Breakthrough Booster Pack)
+Example: In `ptcgo/game/scripts/products/xy8/booster_7df512a8.py` (Breakthrough Booster Pack)
 ```python
-from spirit.game.data_utils import BoosterPackDef
+from ptcgo.game.data_utils import BoosterPackDef
 
 product = BoosterPackDef(
     guid="7df512a8-8f81-432d-ae52-9d3df3902341",
@@ -296,7 +373,7 @@ To be written..
 
 ## Custom Versus Season Rewards
 
-SpiritPTCGO features a configuration-driven **Versus Season Reward System** that allows server administrators to easily customize, add, or schedule different seasons and tiers of rewards (Trainer Coins, Booster Packs, Cards, Deck Boxes, Sleeves, etc.) without writing any code. Simply just log into the admin dashboard at http://127.0.0.1:8000/admin and configure the Season Rewards that way. It'll automatically update the JSON file that stores the season reward configurations for you!
+PTCGO Revival features a configuration-driven **Versus Season Reward System** that allows server administrators to easily customize, add, or schedule different seasons and tiers of rewards (Trainer Coins, Booster Packs, Cards, Deck Boxes, Sleeves, etc.) without writing any code. Simply just log into the admin dashboard at http://127.0.0.1:8000/admin and configure the Season Rewards that way. It'll automatically update the JSON file that stores the season reward configurations for you!
 
 ### 2. Supported Reward Types & Fields
 Each reward object inside the `rewards` list supports these core fields:

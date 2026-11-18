@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="c809fa75-e3f8-526a-86f2-17d7153b4956",
+    key="SV2",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Floragato.Name",
+    display_name="Floragato",
+    searchable_by=["Floragato", "Stage 1", "Floragato"],
+    subtypes=["Stage 1"],
+    collector_number=14,
+    set_code="SV2",
+    rarity=Rarities.Uncommon,
+    hp=90,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Sprigatito.Name",
+    family_id=906,
+    abilities=[
+        Attack(
+            title="Seed Bomb",
+            cost={PokemonTypes.GRASS: 1},
+            damage=30,
+        ),
+        Attack(
+            title="Magic Whip",
+            game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=50,
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,38 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="48b90675-78b2-502c-a927-a7388df03590",
+    key="HGSS3",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Magcargo.Name",
+    display_name="Magcargo",
+    searchable_by=["Magcargo", "Stage 1", "Magcargo"],
+    subtypes=["Stage 1"],
+    collector_number=6,
+    set_code="HGSS3",
+    rarity=Rarities.RareHolo,
+    hp=100,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Slugma.Name",
+    family_id=218,
+    abilities=[
+        Attack(
+            title="Searing Flame",
+            game_text="The Defending Pok\u00e9mon is now Burned.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Lava Flow",
+            game_text="You may discard any number of Fire Energy cards attached to Magcargo. If you do , this attack does 60 damage plus 20 more damage for each Fire Energy card you discarded.",
+            cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
+            damage=60,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

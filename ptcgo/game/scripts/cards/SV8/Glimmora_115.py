@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="98a78df9-1a92-5d15-87f7-0acbbabd8690",
+    key="SV8",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Glimmora.Name",
+    display_name="Glimmora",
+    searchable_by=["Glimmora", "Stage 1", "Glimmora"],
+    subtypes=["Stage 1"],
+    collector_number=115,
+    set_code="SV8",
+    rarity=Rarities.Common,
+    hp=130,
+    elements=[PokemonTypes.FIGHTING],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.GRASS,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Glimmet.Name",
+    family_id=969,
+    abilities=[
+        Attack(
+            title="Corrosive Shards",
+            game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pok\u00e9mon.",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=20,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Rock Throw",
+            cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
+            damage=60,
+        ),
+    ],
+)

@@ -1,0 +1,16 @@
+from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
+
+card = SupporterCardDef(
+    guid="6dccea49-7207-52db-b670-d04a53c66105",
+    key="EX16",
+    name="com.direwolfdigital.cake.data.archetypes.trainer.ProfessorBirch.Name",
+    display_name="Professor Birch",
+    searchable_by=["Professor Birch", "Supporter"],
+    subtypes=["Supporter"],
+    collector_number=80,
+    set_code="EX16",
+    rarity=Rarities.Uncommon,
+    effect=draw_until_effect(6)
+)

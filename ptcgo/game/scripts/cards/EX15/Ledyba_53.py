@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="07cb1fc9-fc81-5669-9395-0408bf7d29dc",
+    key="EX15",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Ledyba.Name",
+    display_name="Ledyba δ",
+    searchable_by=["Ledyba \u03b4", "Basic", "Ledyba"],
+    subtypes=["Basic"],
+    collector_number=53,
+    set_code="EX15",
+    rarity=Rarities.Common,
+    hp=40,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    family_id=165,
+    abilities=[
+        Attack(
+            title="Tackle",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=10,
+        ),
+        Attack(
+            title="Supersonic",
+            game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
+            cost={PokemonTypes.METAL: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

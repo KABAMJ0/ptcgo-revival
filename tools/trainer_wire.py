@@ -27,7 +27,7 @@ sys.path.insert(0, _REPO_ROOT)
 
 import trainer_coverage as coverage
 import trainer_patterns as patterns
-from spirit.game.card_effects import support_common, trainers
+from ptcgo.game.card_effects import support_common, trainers
 
 STUB = "effect=unimplemented"
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -86,18 +86,18 @@ def rewrite(source, expr, symbols=None, kind="effect", condition=None):
 
 def _finish(wired, symbols):
     # The stub marker is gone by now, so drop the unused import too.
-    wired = re.sub(r"(from spirit\.game\.data_utils import [^\n]*?), unimplemented",
+    wired = re.sub(r"(from ptcgo\.game\.data_utils import [^\n]*?), unimplemented",
                    r"\1", wired)
-    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented, )", "", wired)
-    wired = re.sub(r"(from spirit\.game\.data_utils import unimplemented)", "", wired)
+    wired = re.sub(r"(from ptcgo\.game\.data_utils import unimplemented, )", "", wired)
+    wired = re.sub(r"(from ptcgo\.game\.data_utils import unimplemented)", "", wired)
     by_module = {}
     for symbol in symbols:
         by_module.setdefault(module_for(symbol), []).append(symbol)
-    lines = [f"from spirit.game.card_effects.{module} import {', '.join(sorted(names))}"
+    lines = [f"from ptcgo.game.card_effects.{module} import {', '.join(sorted(names))}"
              for module, names in sorted(by_module.items())]
     newline_imports = "\n".join(lines)
-    # Place the effect imports right after the last spirit.game import line.
-    anchors = list(re.finditer(r"^from spirit\.game\.[^\n]*\n", wired, re.M))
+    # Place the effect imports right after the last ptcgo.game import line.
+    anchors = list(re.finditer(r"^from ptcgo\.game\.[^\n]*\n", wired, re.M))
     if anchors:
         at = anchors[-1].end()
         wired = wired[:at] + newline_imports + "\n" + wired[at:]
@@ -124,6 +124,11 @@ def main(argv=None):
         if found is None:
             # Modal cards keep their shape only in the printed bullets.
             found = patterns.resolve_modal(script.raw_text)
+        if found is None and script.card_class == "StadiumCardDef":
+            found = patterns.resolve_stadium_ability(script.game_text)
+            if found is not None:
+                found = dict(found, expr="stadium_ability(%r, %s)"
+                             % (script.display_name, found["expr"]))
         if found is None:
             continue
         if rule_filter and not rule_filter.search(found["rule"]):

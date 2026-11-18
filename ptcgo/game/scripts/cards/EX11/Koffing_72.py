@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="7e238448-8b15-5977-b7d2-17c118c84a94",
+    key="EX11",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Koffing.Name",
+    display_name="Koffing",
+    searchable_by=["Koffing", "Basic", "Koffing"],
+    subtypes=["Basic"],
+    collector_number=72,
+    set_code="EX11",
+    rarity=Rarities.Common,
+    hp=50,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.PSYCHIC,
+    family_id=109,
+    abilities=[
+        Attack(
+            title="Confusion Gas",
+            game_text="The Defending Pok\u00e9mon is now Confused.",
+            cost={PokemonTypes.GRASS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Ram",
+            cost={PokemonTypes.COLORLESS: 2},
+            damage=20,
+        ),
+    ],
+)

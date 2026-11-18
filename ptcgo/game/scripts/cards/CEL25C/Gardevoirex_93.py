@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="9c02c8dd-32b3-5c55-833f-e97378b495e2",
+    key="CEL25C",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Gardevoirex.Name",
+    display_name="Gardevoir ex δ",
+    searchable_by=["Gardevoir ex \u03b4", "Stage 2", "ex", "Gardevoirex"],
+    subtypes=["Stage 2", "ex"],
+    collector_number=93,
+    set_code="CEL25C",
+    rarity=Rarities.Common,
+    hp=150,
+    elements=[PokemonTypes.FIRE],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.PSYCHIC,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Kirlia.Name",
+    family_id=282,
+    abilities=[
+        Ability(
+            title="Imprison",
+            game_text="Once during your turn (before your attack), if Gardevoir ex is your Active Pok\u00e9mon, you may put an Imprison marker on 1 of your opponent's Pok\u00e9mon. Any Pok\u00e9mon that has any Imprison markers on it can't use any Pok\u00e9-Powers or Pok\u00e9-Bodies. This power can't be used if Gardevoir ex is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Flame Ball",
+            game_text="You may move a Fire Energy card attached to Gardevoir ex to 1 of your Benched Pok\u00e9mon.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
+            damage=80,
+            effect=unimplemented,
+        ),
+    ],
+)

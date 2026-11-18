@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="8a9083b2-4dc6-5495-80f1-6fecde736c4f",
+    key="SWSH12TG",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.CorviknightV.Name",
+    display_name="Corviknight V",
+    searchable_by=["Corviknight V", "Basic", "V", "CorviknightV"],
+    subtypes=["Basic", "V"],
+    collector_number=18,
+    set_code="SWSH12TG",
+    rarity=Rarities.RareHoloV,
+    hp=210,
+    elements=[PokemonTypes.METAL],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.GRASS,
+    family_id=823,
+    abilities=[
+        Attack(
+            title="Clutch",
+            game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
+            cost={PokemonTypes.METAL: 1},
+            damage=30,
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Sky Hurricane",
+            game_text="During your next turn, this Pok\u00e9mon can't use Sky Hurricane.",
+            cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
+            damage=190,
+            effect=unimplemented,
+        ),
+    ],
+)

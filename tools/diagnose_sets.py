@@ -5,8 +5,8 @@ from pathlib import Path
 
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SETS_JSON_PATH = PROJECT_ROOT / "spirit" / "database" / "json_data" / "sets.json"
-CARDS_DIR = PROJECT_ROOT / "spirit" / "game" / "scripts" / "cards"
+SETS_JSON_PATH = PROJECT_ROOT / "ptcgo" / "database" / "json_data" / "sets.json"
+CARDS_DIR = PROJECT_ROOT / "ptcgo" / "game" / "scripts" / "cards"
 
 def diagnose():
     if not os.path.exists(SETS_JSON_PATH):

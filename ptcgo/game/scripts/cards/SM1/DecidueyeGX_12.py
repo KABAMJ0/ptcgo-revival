@@ -1,0 +1,39 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="a016454f-7b7f-5a5f-ab91-a12dd9cabe05",
+    key="SM1",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.DecidueyeGX.Name",
+    display_name="Decidueye-GX",
+    searchable_by=["Decidueye-GX", "Stage 2", "GX", "DecidueyeGX"],
+    subtypes=["Stage 2", "GX"],
+    collector_number=12,
+    set_code="SM1",
+    rarity=Rarities.RareHolo,
+    hp=240,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=2,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Dartrix.Name",
+    family_id=722,
+    abilities=[
+        Ability(
+            title="Feather Arrow",
+            game_text="Once during your turn (before your attack), you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Razor Leaf",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
+            damage=90,
+        ),
+        Attack(
+            title="Hollow Hunt-GX",
+            game_text="Put 3 cards from your discard pile into your hand. (You can't use more than 1 GX attack in a game.)",
+            cost={PokemonTypes.GRASS: 1},
+            effect=unimplemented,
+        ),
+    ],
+)
