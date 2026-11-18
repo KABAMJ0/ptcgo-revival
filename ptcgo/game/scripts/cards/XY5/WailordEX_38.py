@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="1b582673-dc78-54d3-9895-52cc33aa6788",
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Water Veil",
             game_text="Whenever you attach an Energy card from your hand to this Pok\u00e9mon, remove all Special Conditions from it.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(),
         ),
         Attack(
             title="High Breaching",

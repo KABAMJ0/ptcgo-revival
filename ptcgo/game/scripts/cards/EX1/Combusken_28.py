@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="efc74db5-96c9-571f-b5fc-ca10cfa13e59",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Cure",
             game_text="When you attach a Fire Energy card from your hand to Combusken, remove all Special Conditions from Combusken.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(PokemonTypes.FIRE),
         ),
         Attack(
             title="Lunge",

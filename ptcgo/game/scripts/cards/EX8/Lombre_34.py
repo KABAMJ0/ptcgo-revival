@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="10e3b03f-bcb6-52ac-b8fd-08689012c6a0",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Cure",
             game_text="When you attach a Water Energy card from your hand to Lombre, remove all Special Conditions from Lombre.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(PokemonTypes.WATER),
         ),
         Attack(
             title="Blot",
