@@ -69,6 +69,9 @@ def main():
     Base.metadata.create_all(engine)
     run_light_migrations()
     bootstrap_admins_from_env()
+    # Shop rows we ship (a product without a row never reaches the shop)
+    from ptcgo.database.shop_defaults import ensure_default_shop_items
+    ensure_default_shop_items()
     # Prime the tournament cache off-loop (handlers only read it afterwards)
     TournamentManager()
     load_catalog()
