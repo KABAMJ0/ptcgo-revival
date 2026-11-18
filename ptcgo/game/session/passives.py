@@ -101,6 +101,118 @@ class TargetDamageModifier:
 
 
 @dataclass
+class EnergyTypeOverride:
+    """Effect-created "all Energy attached to this Pokemon provide X Energy
+    instead of their usual type" (Steelix, Erika's Oddish) and "treat [X]
+    Energy as [Y]" -- a read-time rewrite, so the attached cards never change.
+
+    Composition: every applicable override replaces the card's provision with
+    its own types, and when two apply the LAST one registered wins (the most
+    recent effect is the one the player just created). Card-bound rewrites
+    (Passive.modify_energy_provided) run first and are therefore the base a
+    later effect overrides.
+    """
+
+    types: List[int]
+    holder_entity_id: Optional[str] = None
+    player_id: Optional[str] = None
+    # Only basic Energy cards ("each basic Grass Energy attached to ...").
+    basic_only: bool = False
+    # Only cards currently providing exactly Colorless ("Energy cards that
+    # provide only Colorless Energy").
+    colorless_only: bool = False
+    # Only cards whose printed provision is one of these types ("treat Fire
+    # Energy as Fighting Energy").
+    from_types: Optional[List[int]] = None
+    through_turn: Optional[int] = None
+    source_entity_id: Optional[str] = None
+
+    def applies(self, energy: BoardEntity, holder: Optional[PokemonEntity],
+                board: BoardState) -> bool:
+        turn = getattr(getattr(board, "turn_state", None), "turn_number", 0)
+        if self.through_turn is not None and turn > self.through_turn:
+            return False
+        if self.holder_entity_id is not None:
+            if holder is None or holder.entity_id != self.holder_entity_id:
+                return False
+        elif self.player_id is not None:
+            if holder is None or holder.owning_player_id != self.player_id:
+                return False
+        if self.basic_only and not is_basic_energy(energy):
+            return False
+        printed = [
+            list(option)
+            for option in (energy.get_attribute(AttrID.ENERGY_INFO) or {}).get("options", [])
+        ]
+        provided = {t for option in printed for t in option}
+        if self.colorless_only and provided != {PokemonTypes.COLORLESS.value}:
+            return False
+        if self.from_types is not None and not provided.issubset(set(self.from_types)):
+            return False
+        return True
+
+    def apply(self, options: List[List[int]], energy: BoardEntity,
+              holder: Optional[PokemonEntity], board: BoardState) -> List[List[int]]:
+        return [list(self.types)] if self.applies(energy, holder, board) else options
+
+
+@dataclass
+class BurnOverride:
+    """Effect-created change to what Burn does at Pokemon Checkup: "put 4
+    damage counters instead of 2 on your opponent's Burned Pokemon between
+    turns" and "instead of flipping a coin for Burned Pokemon".
+
+    Composition: the highest explicit `counters` among applicable overrides
+    replaces the base 2, `extra_counters` add on top, and `no_flip` sticks if
+    any applicable override sets it. Scope is one Pokemon (target_entity_id) or
+    one side (player_id, keyed to the Burned Pokemon's owner).
+    """
+
+    counters: Optional[int] = None
+    extra_counters: int = 0
+    no_flip: bool = False
+    target_entity_id: Optional[str] = None
+    player_id: Optional[str] = None
+    through_turn: Optional[int] = None
+    source_entity_id: Optional[str] = None
+
+    def applies(self, pokemon: PokemonEntity, board: BoardState) -> bool:
+        turn = getattr(getattr(board, "turn_state", None), "turn_number", 0)
+        if self.through_turn is not None and turn > self.through_turn:
+            return False
+        if self.target_entity_id is not None:
+            return pokemon.entity_id == self.target_entity_id
+        return self.player_id is None or pokemon.owning_player_id == self.player_id
+
+
+def is_basic_energy(energy: BoardEntity) -> bool:
+    """Whether an attached card is a basic Energy card (not a Special Energy)."""
+    return not bool(energy.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
+
+def burn_checkup_counters(board: BoardState, pokemon: PokemonEntity) -> int:
+    """Damage counters a Burned Pokemon takes at checkup: base 2, replaced by
+    an effect override, then shifted by burn passives and extra overrides."""
+    counters = 2
+    overrides = [o for o in (getattr(board, "burn_overrides", None) or [])
+                 if o.applies(pokemon, board)]
+    explicit = [o.counters for o in overrides if o.counters is not None]
+    if explicit:
+        counters = max(explicit)
+    for passive, carrier in active_passives(board):
+        counters = passive.modify_burn_counters(counters, pokemon, carrier)
+    counters += sum(o.extra_counters for o in overrides)
+    return max(0, counters)
+
+
+def burn_recovery_suppressed(board: BoardState, pokemon: PokemonEntity) -> bool:
+    """"Instead of flipping a coin for Burned Pokemon": True when an override
+    removes the checkup flip, so the Burned Pokemon cannot recover."""
+    return any(o.no_flip and o.applies(pokemon, board)
+               for o in (getattr(board, "burn_overrides", None) or []))
+
+
+@dataclass
 class TempPassive:
     """An effect-granted passive with a lifetime. expires_after_turn None =
     until the carrier leaves the Active spot / play (clear_pokemon_effects)."""
@@ -278,6 +390,14 @@ class Passive:
     ) -> List[List[int]]:
         """Rewrites an energy's provided-type options (Charizard PGO doubling)."""
         return options
+
+    def modify_subtypes(
+        self, subtypes: List[str], pokemon: BoardEntity, carrier: BoardEntity
+    ) -> List[str]:
+        """"This Pokemon counts as a [subtype]": rewrites the subtype list a
+        card counts against (Single Strike, Fusion Strike, Stage 1 ...). Runs
+        after the printed subtypes, before any effect-created override."""
+        return subtypes
 
     def modify_pokemon_types(
         self, types: List[Any], pokemon: BoardEntity, carrier: BoardEntity
@@ -646,7 +766,8 @@ def compute_damage(
         for mod in (turn_state.damage_modifiers if turn_state else []):
             if attacker is None or attacker.owning_player_id != mod.player_id:
                 continue
-            if mod.requires_subtype and mod.requires_subtype not in subtypes_for(attacker.archetype_id):
+            if mod.requires_subtype \
+                    and not has_subtype(board, attacker, mod.requires_subtype):
                 continue
             if mod.source_entity_id and attacker.entity_id != mod.source_entity_id:
                 continue
@@ -918,6 +1039,47 @@ def energy_removal_blocked(board: BoardState, mover_player_id: str,
     )
 
 
+def effective_subtypes(board: Optional[BoardState],
+                       pokemon: PokemonEntity) -> List[str]:
+    """A Pokemon's live subtypes: its printed ones, then type-rewriting
+    passives, then effect-created overrides (ctx.add_subtype) that have not
+    expired. Order is printed-first and deduped, so a caller that only cares
+    about membership can use `has_subtype`."""
+    subtypes = list(subtypes_for(pokemon.archetype_id))
+    if board is None:
+        return subtypes
+    for passive, carrier in active_passives(board):
+        subtypes = passive.modify_subtypes(subtypes, pokemon, carrier)
+    turn = getattr(getattr(board, "turn_state", None), "turn_number", 0)
+    for subtype, through_turn in (getattr(board, "subtype_overrides", None) or {}).get(
+            pokemon.entity_id, []):
+        if through_turn is not None and turn > through_turn:
+            continue
+        if subtype not in subtypes:
+            subtypes.append(subtype)
+    return subtypes
+
+
+def has_subtype(board: Optional[BoardState], pokemon: PokemonEntity,
+                subtype: str) -> bool:
+    """Whether `pokemon` counts as `subtype` right now (printed or granted)."""
+    return subtype in effective_subtypes(board, pokemon)
+
+
+def effective_stage(board: Optional[BoardState],
+                    pokemon: PokemonEntity) -> Any:
+    """A Pokemon's live stage: an effect-created override ("treat this Pokemon
+    as a Stage 1") when one is in force, else its printed stage."""
+    if board is not None:
+        entry = (getattr(board, "stage_overrides", None) or {}).get(pokemon.entity_id)
+        turn = getattr(getattr(board, "turn_state", None), "turn_number", 0)
+        if entry is not None:
+            stage, through_turn = entry
+            if through_turn is None or turn <= through_turn:
+                return stage
+    return pokemon.get_attribute(AttrID.STAGE)
+
+
 def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) -> List[List[int]]:
     """An energy card's provided-type options after suppression (a suppressed
     Special Energy provides only Colorless) and modify_energy_provided hooks."""
@@ -930,6 +1092,8 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     holder = carrier_pokemon(energy)
     for passive, carrier in active_passives(board):
         options = passive.modify_energy_provided(options, energy, holder, board)
+    for rewrite in (getattr(board, "energy_type_overrides", None) or []):
+        options = rewrite.apply(options, energy, holder, board)
     return options
 
 
