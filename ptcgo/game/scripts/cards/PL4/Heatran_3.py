@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import any_of
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -31,7 +34,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_scaled_damage(
+                3, 20, base=60,
+                pred=any_of(
+                    lambda card: energy_provides_type(card, PokemonTypes.FIRE.value),
+                    lambda card: energy_provides_type(card, PokemonTypes.METAL.value),
+                ),
+            ),
         ),
     ],
 )
