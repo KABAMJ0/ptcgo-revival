@@ -149,6 +149,14 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         "on_attach",
     ),
     (
+        "effect-shield",
+        r"prevent all effects of attacks?(,? excluding damage,?)? (used by|from) your opponent's pokemon "
+        r"done to (that pokemon|the pokemon this card is attached to|the (water|fighting|darkness|psychic) pokemon this card is attached to)",
+        None,
+        ("shield",),
+        "passive",
+    ),
+    (
         "pairs-provision",
         r"provides (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) "
         r"(?:and ?/ ?or|and|or) (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) energy "
@@ -170,6 +178,7 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
 # Wording that asks for a primitive the engine does not have yet. Reported, never
 # wired, because a half-wired card plays by different rules than it is printed with.
 BLOCKED = [
+    (r"also has a basic \w+ energy card attached", "conditional on another energy attached"),
     (r"at the end of every turn, put \d+ damage counter", "end-of-turn damage counter tick missing"),
     (r"ultra beast", "Ultra Beast subtype gate plus a damage passive"),
     (r"1 fewer prize", "prize-count passive with a once-per-game gate"),
@@ -241,17 +250,22 @@ def _resolve(name, low, snippet, extra, target):
     if extra == ("heal",):
         matched = re.search(r"remove (\d+) damage counters?", low)
         counters = matched.group(1) if matched else "1"
-        cure = "all special conditions" in low
-        tail = ", cure_conditions=True" if cure else ""
+        tail = ", cure_conditions=True" if "all special conditions" in low else ""
         return name, f"on_attach=heal_on_attach({counters}{tail})", "", target
+    if extra == ("shield",):
+        listed = re.search(r"the (water|fighting|darkness|psychic) pokemon", low)
+        if listed:
+            return name, f"passive=EffectShieldPassive({TYPE_NAMES[listed.group(1)]})", "", target
+        return name, "passive=EffectShieldPassive()", "", target
     if extra == ("pairs",):
-        listed = re.findall(
+        listed = re.search(
+            r"provides (grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) "
+            r"(?:and ?/ ?or|and|or) "
             r"(grass|fire|water|lightning|psychic|fighting|darkness|metal|fairy|dragon|colorless) energy",
             low)
-        if len(listed) < 2:
+        if not listed:
             return None, None, "pair not parsed", None
-        args = ", ".join(TYPE_NAMES[t] for t in listed[:2])
-        return name, f"provides=pairs_of({args})", "", target
+        return name, f"provides=pairs_of({TYPE_NAMES[listed.group(1)]}, {TYPE_NAMES[listed.group(2)]})", "", target
     if extra == ("reduction",):
         amount = re.search(r"reduced by (\d+)", low)
         gated = "isn't metal" in low or "is not metal" in low
@@ -368,6 +382,7 @@ NEEDED = {
     "on_attach=heal_on_attach(": ["heal_on_attach"],
     "provides=pairs_of(": ["pairs_of"],
     "on_attach=cure_on_attach": ["cure_on_attach"],
+    "passive=EffectShieldPassive(": ["EffectShieldPassive"],
 }
 
 

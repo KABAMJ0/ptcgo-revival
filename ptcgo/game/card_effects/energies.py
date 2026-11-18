@@ -339,3 +339,22 @@ async def cure_on_attach(ctx):
     target = ctx.attached_to
     if target is not None:
         await ctx.cure_all_conditions(target)
+
+
+class EffectShieldPassive(Passive):
+    """Opposing attack effects are prevented on the carrier.
+
+    Mist Energy, Wash Water Energy and Rocky Fighting Energy name the protected
+    type; the plain wording protects whatever carries the energy.
+    """
+
+    def __init__(self, pokemon_type=None):
+        self.pokemon_type = pokemon_type
+
+    def blocks_attack_effects(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or holder is not target:
+            return False
+        if self.pokemon_type is not None and not _pokemon_has_type(holder, self.pokemon_type):
+            return False
+        return True

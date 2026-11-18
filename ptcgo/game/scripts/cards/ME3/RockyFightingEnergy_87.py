@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import EffectShieldPassive
 card = EnergyCardDef(
     guid="611d1f76-0535-5826-bcbc-c62ec7d3a89b",
     key="ME3",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="ME3",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=EffectShieldPassive(PokemonTypes.FIGHTING),
 )

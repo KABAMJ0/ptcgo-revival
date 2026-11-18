@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.energies import heal_on_attach
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
@@ -12,5 +13,6 @@ card = EnergyCardDef(
     set_code="SV4",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    on_attach=heal_on_attach(3),
 )

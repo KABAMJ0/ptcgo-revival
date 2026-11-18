@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
 
-from ptcgo.game.card_effects.energies import pokemon_named_like
+from ptcgo.game.card_effects.energies import pokemon_named_like, pairs_of
 card = EnergyCardDef(
     guid="d39dd7f6-5354-535d-9c96-836c92be088a",
     key="EX4",
@@ -16,4 +16,5 @@ card = EnergyCardDef(
     energy_type=PokemonTypes.COLORLESS,
     is_special=True,
     attach_to=pokemon_named_like("Team Magma"),
+    provides=pairs_of(PokemonTypes.FIGHTING, PokemonTypes.DARKNESS),
 )
