@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import evolution_lock_passive
 
 card = PokemonCardDef(
     guid="c46546cf-1e8c-52e8-a10d-53b49941a0ec",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Ancient Power",
             game_text="Each play can't play any Pok\u00e9mon from his or her hand to evolve his or her Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=evolution_lock_passive(),
         ),
         Attack(
             title="Rock Slide",
