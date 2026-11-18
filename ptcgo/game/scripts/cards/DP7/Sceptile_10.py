@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="669e91c1-0b1c-592f-a160-34afe3b1fbaa",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Slice Drain",

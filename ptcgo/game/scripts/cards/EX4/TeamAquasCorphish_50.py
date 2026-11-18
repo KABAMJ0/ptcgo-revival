@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="14e8d2ea-c2c9-593f-b341-ace17f498b23",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Toxic Grip",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
     ],
 )

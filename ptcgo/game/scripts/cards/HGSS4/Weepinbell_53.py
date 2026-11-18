@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="3130c563-2aa3-5761-88cb-79a48fe41daf",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Poisonpowder",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Corrode Target",
