@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import evolution_lock_passive
 
 card = PokemonCardDef(
     guid="5da3fb05-cd3a-5fa0-b4bb-598d9dd765de",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Primal Vibes",
             game_text="As long as Cradily ex is your Active Pok\u00e9mon, your opponent can't play a Pok\u00e9mon from his or her hand to evolve his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=evolution_lock_passive(active_only=True),
         ),
         Attack(
             title="Eerie Light",

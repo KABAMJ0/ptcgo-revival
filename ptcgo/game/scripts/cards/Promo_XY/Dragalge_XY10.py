@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
 card = PokemonCardDef(
     guid="28114aec-8b71-55a4-ad24-f9d093f71a4e",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Poison Barrier",
             game_text="Your opponent's Poisoned Pok\u00e9mon can't retreat.",
-            effect=unimplemented,
+            passive=condition_retreat_lock_passive(conditions=(SpecialConditions.POISONED,)),
         ),
         Attack(
             title="Poison Breath",
