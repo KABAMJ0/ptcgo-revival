@@ -6086,6 +6086,126 @@ def _schedule_knock_out_defender(m, ability):
             ctx, (defender.owning_player_id, defender.entity_id), apply)
     return effect
 
+
+def _last_turn_damage(ctx) -> int:
+    attacker = ctx.attacker
+    if attacker is None:
+        return 0
+    return ctx.damage_taken_last_turn(attacker)
+
+
+def _bonus_last_turn_damage(m, ability):
+    async def effect(ctx):
+        printed = getattr(ctx.ability, "damage", 0) or 0
+        await ctx.deal_damage(printed + _last_turn_damage(ctx))
+    return effect
+
+
+def _condition_if_damaged_last_turn(m, ability):
+    condition = CONDITIONS[m.group(1)]
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if not _last_turn_damage(ctx) or defender is None or \
+                ctx.effects_blocked(defender):
+            return
+        await ctx.apply_special_condition(defender, condition)
+    return effect
+
+
+def _repeat_last_turn_damage(m, ability):
+    async def effect(ctx):
+        taken = _last_turn_damage(ctx)
+        if taken:
+            await ctx.deal_damage(taken)
+    return effect
+
+
+def _ko_flip_active_or_bench_basic(m, ability):
+    from ptcgo.game.session.effects import is_basic_pokemon
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        results = await ctx.flip_coins(1, getattr(ability, "title", ""))
+        heads = bool(results and results[0])
+        if heads:
+            active = ctx.opponent_active()
+            candidates = [active] if active is not None and \
+                is_basic_pokemon(active) and not ctx.effects_blocked(active) else []
+        else:
+            candidates = [pokemon for pokemon in ctx.opponent_bench()
+                          if is_basic_pokemon(pokemon)
+                          and not ctx.effects_blocked(pokemon)]
+        if candidates:
+            await ctx.knock_out(candidates[0])
+    return effect
+
+
+def _gate_must_be_asleep(m, ability):
+    asleep = SpecialConditions.ASLEEP.value
+
+    async def effect(ctx):
+        attacker = ctx.attacker
+        if attacker is None or asleep not in _condition_values(attacker):
+            return
+        await ctx.deal_damage()
+    return effect
+
+
+def _flip_prevent_all_damage_next_turn(m, ability):
+    return flip_protection(prevent=True)
+
+
+def _spread_ex_only(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if not _is_gx_or_ex_pokemon(pokemon) or ctx.effects_blocked(pokemon):
+                continue
+            if pokemon is ctx.opponent_active():
+                await ctx.deal_damage(amount, target=pokemon)
+            else:
+                await ctx.deal_damage(amount, target=pokemon,
+                                      apply_modifiers=False)
+    return effect
+
+
+def _place_counters_chosen_any(m, ability):
+    counters = int(m.group(1))
+    count = _count(m.group(2)) if m.group(2) else 1
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose {count} Pokémon")
+        for target in picks:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(counters * 10, target=target,
+                                      as_counters=True)
+    return effect
+
+
+def _return_defender_unless_ko(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        if defender.get_attribute(AttrID.HP, 0) <= 0:
+            return
+        cards = [defender]
+        for child in list(defender.children or []):
+            cards.append(child)
+        await ctx.put_in_hand(cards, reveal=False)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -7501,6 +7621,41 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
+    # -- batch 50: last-turn memory and its conditional tails --------------
+    ("lastturn.damage-taken-bonus",
+     re.compile(r"if this pokemon was damaged by an attack during your "
+                r"opponent's last turn, this attack does that much more "
+                r"damage\."), _bonus_last_turn_damage),
+    ("lastturn.condition-on-defender",
+     re.compile(r"if this pokemon was damaged by an attack during your "
+                r"opponent's last turn, the defending pokemon is now ("
+                + _CONDITION_WORDS + r")\."), _condition_if_damaged_last_turn),
+    ("lastturn.repeat-damage",
+     re.compile(r"if this pokemon was attacked last turn, do the final result of "
+                r"that attack on this pokemon to the defending pokemon\."),
+     _repeat_last_turn_damage),
+    ("ko.flip-active-or-bench-basic",
+     re.compile(r"flip a coin\. if heads, knock out your opponent's active basic "
+                r"pokemon\. if tails, knock out (?:an?|1) of your opponent's "
+                r"benched basic pokemon\."), _ko_flip_active_or_bench_basic),
+    ("gate.must-be-asleep",
+     re.compile(r"this attack can be used if this pokemon is asleep\. if it is "
+                r"not asleep, this attack does nothing\."), _gate_must_be_asleep),
+    ("protect.flip-prevent-damage-next-turn",
+     re.compile(r"flip a coin\. if heads, prevent all damage done by attacks to "
+                r"this pokemon during your opponent's next turn\. \(any other "
+                r"effects of attacks still happen\.\)"),
+     _flip_prevent_all_damage_next_turn),
+    ("spread.opponent-ex-only",
+     re.compile(r"this attack does (\d+) damage to each of your opponent's "
+                r"pokemon ex\."), _spread_ex_only),
+    ("counters.place-chosen-any",
+     re.compile(r"place (\d+) damage counters on (?:an?|(\d+)) of your "
+                r"opponent's pokemon\."), _place_counters_chosen_any),
+    ("discard.return-defender-unless-ko",
+     re.compile(r"unless this attack knocks out the defending pokemon, return the "
+                r"defending pokemon and all cards attached to it to your "
+                r"opponent's hand\."), _return_defender_unless_ko),
     # -- batch 48: discard-pile attaches with their conditional tails ------
     ("attach.flip-discard-energy-self",
      re.compile(r"flip a coin\. if heads, attach (?P<count>an?|\d+) (?:(?P<type>"
