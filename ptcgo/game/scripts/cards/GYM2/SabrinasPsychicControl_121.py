@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.support_common import sabrinas_psychic_control
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=121,
     set_code="GYM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=sabrinas_psychic_control
 )

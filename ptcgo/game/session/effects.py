@@ -833,6 +833,31 @@ class EffectContext:
         the lock until it leaves the Active spot."""
         self.session.turn_state.lock_retreat(target.entity_id, through_turn)
 
+    async def use_trainer_from_opponent_discard(
+        self, prompt: str = "Choose a Trainer card to use"
+    ) -> Optional[CardEntity]:
+        """"Choose a Trainer card in your opponent's discard pile that isn't
+        put in play ... You may use that card as if it were in your hand"
+        (Sabrina's Psychic Control). The card never leaves its owner's discard
+        pile: its effect resolves for this player, who pays any cost it names."""
+        discard = self.session.board_state.find_player_area(self.opponent_id, "discard")
+        candidates = [
+            card for card in (discard.children if discard else [])
+            if _usable_from_opponent_discard(card)
+        ]
+        if not candidates:
+            return None
+        picks = await self.choose_cards(candidates, 1, minimum=1, prompt=prompt)
+        if not picks:
+            return None
+        card = picks[0]
+        inner = await resolve_trainer_effect(self.session, self.player_id, card)
+        if inner is None:
+            return None
+        await self.session._flush_effect_runs(inner)
+        inner._messages.clear()
+        return card
+
     def lock_player_attacks(self, player_id: Optional[str] = None,
                             through_turn: Optional[int] = None) -> None:
         """"During this turn, your Pokemon can't attack" (Geeta): a
@@ -3083,6 +3108,18 @@ async def _send_ability_brackets(session, ctx: EffectContext,
     for hook in ctx.deferred_actions:
         await hook()
     await session.enforce_bench_capacity()
+
+
+def _usable_from_opponent_discard(card) -> bool:
+    """A Trainer card "that isn't put in play": an Item/Supporter-style card
+    rather than a Pokemon Tool, Stadium or Fossil (Sabrina's Psychic Card)."""
+    if card.get_attribute(AttrID.CARD_TYPE) != CardType.TRAINER.value:
+        return False
+    if getattr(def_for(card.archetype_id), "plays_as_pokemon", False):
+        return False
+    kind = card.get_attribute(AttrID.TRAINER_TYPE)
+    return kind not in (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value,
+                        TrainerType.STADIUM.value)
 
 
 async def resolve_trainer_effect(session, player_id: str, card,

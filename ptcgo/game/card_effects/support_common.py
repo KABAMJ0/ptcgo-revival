@@ -701,3 +701,14 @@ def search_attach_energy_then_lock_attacks(count=2, prompt=""):
         ctx.lock_player_attacks()
 
     return effect
+
+
+async def sabrinas_psychic_control(ctx):
+    """"Flip a coin. If heads, choose a Trainer card in your opponent's discard
+    pile that isn't put in play ... You may use that card as if it were in your
+    hand" (Sabrina's Psychic Control)."""
+    if not await ctx.flip_coins(1):
+        return
+    await ctx.use_trainer_from_opponent_discard(
+        "Choose a Trainer card in your opponent's discard pile to use"
+    )
