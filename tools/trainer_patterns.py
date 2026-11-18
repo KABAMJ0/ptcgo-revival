@@ -2541,6 +2541,17 @@ RULES = [
          r"discard the top (?P<n>\d+) cards of your deck",
          "mill_own_deck", lambda m: [m.group("n")]),
 
+    Rule("memory-berry",
+         r"attach memory berry to \d+ of your pokemon that doesnt (?:already )?have \d+ pokemon tool "
+         r"attached to it if that pokemon is knocked out discard this card the pokemon this card is "
+         r"attached to can use any attack from its basic pokemon(?: card)? or (?:its stage 1 evolution "
+         r"card|any evolution card from which the pokemon evolved).*",
+         "previous_evolution_grant_passive", lambda m: [], kind="passive"),
+    Rule("holder-ignores-attack-cost",
+         r"if this card is attached to (?P<word>[a-z]+) ex (?P=word) ex can use its attacks regardless of "
+         r"the amount or type of energy attached to it",
+         "free_attack_cost_passive", lambda m: [], kind="passive"),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "

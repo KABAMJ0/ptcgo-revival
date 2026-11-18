@@ -33,6 +33,8 @@ from ptcgo.game.session.passives import (
 )
 from ptcgo.game.card_effects.passives_common import (
     attack_discount_passive,
+    free_attack_cost_passive,
+    previous_evolution_grant_passive,
     condition_immunity_passive,
     is_in_active_spot,
     TempShieldPassive,
