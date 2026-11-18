@@ -568,6 +568,18 @@ def previous_evolution_grant_passive(extra_sources=None) -> Passive:
     return PreviousEvolutionAttacksPassive(extra_sources)
 
 
+class BurnCountersPassive(Passive):
+    """Burn checkup puts `counters` damage counters instead of the usual two:
+    "Put 4 damage counters instead of 2 on your opponent's Burned Pokemon
+    between turns"."""
+
+    def __init__(self, counters):
+        self.counters = counters
+
+    def modify_burn_counters(self, counters, pokemon, carrier):
+        return max(counters, self.counters)
+
+
 class NoWeaknessPassive(Passive):
     """Protected Pokemon have no Weakness."""
 

@@ -14767,6 +14767,11 @@ def _t69_search_self_name_to_hand(m, ability):
     return effect
 
 
+def _t70_burn_counters_passive(m, ability):
+    from ptcgo.game.card_effects.passives_common import BurnCountersPassive
+    return BurnCountersPassive(int(m.group(1)))
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -16182,6 +16187,10 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
+    # -- batch 70: the Burn checkup override -------------------------------
+    ("burn.counters-instead-of",
+     re.compile(r"put (\d+) damage counters instead of \d+ on your opponent's "
+                r"burned pokemon between turns\."), _t70_burn_counters_passive),
     # -- batch 69: typed prevention, self search and spreads ----------------
     ("spread.opponent-ex-ignoring-mods",
      re.compile(r"this attack does (\d+) damage to each of your opponent's "
