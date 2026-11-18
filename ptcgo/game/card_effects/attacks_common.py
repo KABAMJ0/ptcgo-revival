@@ -217,7 +217,11 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             else (base if base is not None else _printed(ctx))
         if require_all:
             success = total > 0 and tails == 0
-            amount = base_val + bonus if success else (base_val if bonus else 0)
+            # The per-heads term still lands on an all-heads run ("30 plus 10
+            # more for each heads, if all of them are heads" paid nothing for
+            # the heads before this).
+            amount = base_val + heads * per_heads + bonus if success \
+                else (base_val if bonus else 0)
         else:
             amount = base_val + heads * (per_heads + bonus_per_heads) \
                 + (bonus if heads else 0)
