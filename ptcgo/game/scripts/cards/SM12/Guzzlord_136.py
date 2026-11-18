@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="41b09ef6-6017-5bc3-a904-82be31337a0d",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Mountain Munch",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Red Banquet",
