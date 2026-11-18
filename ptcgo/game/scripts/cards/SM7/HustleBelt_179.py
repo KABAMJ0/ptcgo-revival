@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import low_hp_holder_boost
 
 card = PokemonToolCardDef(
     guid="bac1091a-a266-56bc-9231-bd9b8cc614eb",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=179,
     set_code="SM7",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    passive=low_hp_holder_boost(60, 30)
 )

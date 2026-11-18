@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_counters_either
 
 card = ItemCardDef(
     guid="5460e3d4-49af-5cb8-afd6-415e1e42a87b",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=179,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_counters_either(2)
 )

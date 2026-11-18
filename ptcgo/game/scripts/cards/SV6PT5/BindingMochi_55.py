@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import SpecialConditions, holder_boost_when_conditioned
 
 card = PokemonToolCardDef(
     guid="7da8b72f-6d18-56c6-b9e2-442a18b55511",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=55,
     set_code="SV6PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_boost_when_conditioned(40, SpecialConditions.POISONED)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import retreat_energy_to_hand
 
 card = PokemonToolCardDef(
     guid="12426934-c087-57bc-afef-a4042c424aed",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=92,
     set_code="SM4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=retreat_energy_to_hand()
 )

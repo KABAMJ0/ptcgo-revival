@@ -13,6 +13,7 @@ from ptcgo.game.data_utils import (
 )
 from ptcgo.game.session.constants import BENCH_CAPACITY
 from ptcgo.game.session.effects import (
+    CLIENT_TYPE_NAMES,
     full_stack,
     is_basic_pokemon,
     is_evolution_pokemon,
@@ -5945,3 +5946,608 @@ def mill_own_deck(count: int):
         if top:
             await ctx.discard_cards(top)
     return effect
+
+# --- search-hand-prism-star ---
+def is_prism_star(card) -> bool:
+    """A Prism Star card (the printed ◇ marker is a subtype)."""
+    return "Prism Star" in subtypes_for(card.archetype_id)
+
+
+# --- search-same-name-as-opponent ---
+def _printed_name(entity) -> str:
+    """A card's printed display name, lowercased; AttrID.NAME is a dict."""
+    definition = def_for(getattr(entity, "archetype_id", None))
+    return (getattr(definition, "display_name", "") or "").lower()
+
+
+def search_matching_opponent(predicate, match="name", count=1):
+    """Search your deck for a card that shares a property with one of the
+    opponent's Pokemon in play (Love Ball: same name, Friend Ball: same
+    type), reveal it, and put it into your hand."""
+    async def effect(ctx):
+        others = ctx.opponent_pokemon_in_play()
+        if match == "name":
+            names = {_printed_name(p) for p in others} - {""}
+
+            def matches(card):
+                return (predicate is None or predicate(card)) \
+                    and _printed_name(card) in names
+        else:
+            types = {t for p in others
+                     for t in (p.get_attribute(AttrID.POKEMON_TYPES) or [])}
+            def matches(card):
+                return (predicate is None or predicate(card)) \
+                    and bool(types & set(card.get_attribute(AttrID.POKEMON_TYPES) or []))
+        picks = await ctx.search_deck(
+            matches, count=count, minimum=0,
+            prompt="Choose a card to reveal and put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+# --- discard-hand-search-one-of-each ---
+async def discard_hand_then(inner, ctx):
+    """Pit helper: discard the whole hand, then run `inner`."""
+    hand = ctx.hand()
+    if hand:
+        await ctx.discard_cards(hand)
+    await inner(ctx)
+
+
+def discard_hand_then_search(kinds):
+    """Discard your hand, then search the deck for 1 card of each kind
+    (Larry's Skill)."""
+    async def effect(ctx):
+        await discard_hand_then(search_one_of_each(kinds), ctx)
+    return effect
+
+
+# --- discard-typed-then-search-cards ---
+def discard_typed_then_search(amount, predicate, take, prompt="Choose a card"):
+    """Discard `amount` matching Energy cards from your hand as the card's cost,
+    then search the deck for up to `take` cards into your hand (Crasher Wake)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if predicate(c)]
+        if len(hand) < amount:
+            return
+        picks = await ctx.choose_cards(
+            hand, amount, minimum=amount,
+            prompt=f"Discard {amount} card(s) from your hand")
+        if len(picks) < amount:
+            return
+        await ctx.discard_cards(picks)
+        found = await ctx.search_deck(None, count=take, minimum=0, prompt=prompt)
+        if found:
+            await ctx.put_in_hand(found, reveal=False)
+        await ctx.shuffle_deck()
+    return effect
+
+
+# --- discard-then-draw-energy-bonus ---
+def discard_then_draw_energy_bonus(base: int, bonus: int):
+    """Discard 1 card, draw `base`; if the discarded card was an Energy card,
+    draw `bonus` more (Roller Skater)."""
+    async def effect(ctx):
+        discarded = await ctx.discard_from_hand(
+            1, minimum=1, prompt="Discard a card from your hand")
+        if not discarded:
+            return
+        await ctx.draw_cards(base)
+        if any(is_energy_card(c) for c in discarded):
+            await ctx.draw_cards(bonus)
+    return effect
+
+
+# --- look-top-reorder-or-shuffle ---
+def look_top_reorder_or_shuffle(count):
+    """Look at the top `count` cards and either put them back in any order or
+    shuffle them into the deck (Rotom Dex Poke Finder Mode)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        await ctx.reveal_cards(top)
+        if await ctx.ask_yes_no("Shuffle these cards into your deck?"):
+            await ctx.shuffle_into_deck(top)
+        else:
+            await ctx.reorder_deck_top(len(top))
+    return effect
+
+
+# --- look-top-opponent-pick-one-back ---
+def look_top_pick_one_back(count, owner="mine"):
+    """Look at the top `count` cards of a deck, keep 1 on top, and shuffle the
+    rest back into it (Chip-Chip Ice Axe, Hiker)."""
+    async def effect(ctx):
+        pid = ctx.opponent_id if owner == "opponent" else ctx.player_id
+        top = ctx.deck_top(count, pid)
+        if not top:
+            return
+        picks = await ctx.choose_cards(
+            top, 1, minimum=1,
+            prompt="Choose the card to put on top of the deck")
+        if not picks:
+            return
+        others = [c for c in top if c is not picks[0]]
+        if others:
+            await ctx.shuffle_into_deck(others, pid)
+        await ctx.put_on_top_of_deck(picks[0])
+    return effect
+
+
+# --- draw-then-opponent-switch ---
+def draw_then_opponent_switch(draw: int):
+    """Draw `draw` cards, then the opponent moves their Active to the Bench and
+    chooses the new Active (Ryme)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        bench = ctx.opponent_bench()
+        if not bench:
+            return
+        target = await ctx.choose_pokemon(
+            bench, "Choose your new Active Pokemon", player_id=ctx.opponent_id
+        ) or bench[0]
+        await ctx.switch_active(ctx.opponent_id, target)
+    return effect
+
+
+# --- flip-switch-either-side ---
+def flip_switch_either():
+    """Heads: the opponent switches in a Benched Pokemon; tails: you switch
+    your Active for a Benched one (Shauntal)."""
+    async def effect(ctx):
+        if (await ctx.flip_coins(1, title="Shauntal"))[0]:
+            bench = ctx.opponent_bench()
+            if bench:
+                target = await ctx.choose_play_target(
+                    bench, "Choose the opponent's new Active Pokemon")
+                if target is not None:
+                    await ctx.switch_active(ctx.opponent_id, target)
+            return
+        mine = ctx.my_bench()
+        if mine:
+            target = await ctx.choose_play_target(
+                mine, "Choose your new Active Pokemon")
+            if target is not None:
+                await ctx.switch_active(ctx.player_id, target)
+    return effect
+
+
+# --- opponent-discard-to-bottom ---
+def opponent_discard_to_bottom(count: int = 1):
+    """Choose `count` cards in the opponent's discard pile and put them on the
+    bottom of their deck (Return Label)."""
+    async def effect(ctx):
+        pile = ctx.discard_pile(ctx.opponent_id)
+        if not pile:
+            return
+        picks = await ctx.choose_cards(
+            pile, count, minimum=min(count, len(pile)),
+            prompt="Choose a card to put on the bottom of your opponent's deck")
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.shuffle_deck(ctx.opponent_id)
+    return effect
+
+
+# --- identity-swap-from-discard ---
+def identity_swap_from_discard(predicate):
+    """Swap a Pokemon from the discard pile into play under an existing one,
+    keeping its attached cards, damage and conditions (Nanu, Ogre's Mask)."""
+    async def effect(ctx):
+        pool = [c for c in ctx.discard_pile()
+                if predicate is None or predicate(c)]
+        if not pool:
+            return
+        incoming = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt="Choose a Pokemon to put into play")
+        if not incoming:
+            return
+        targets = ctx.my_pokemon_in_play()
+        outgoing = await ctx.choose_pokemon(
+            targets, "Choose the Pokemon it replaces")
+        if outgoing is not None:
+            await ctx.identity_swap(outgoing, incoming[0])
+    return effect
+
+
+# --- tool-attack-discount-typed ---
+class TypedAttackDiscountPassive(Passive):
+    """The holder's attacks cost `count` of `energy_type` less (Karate Belt)."""
+
+    def __init__(self, count, energy_type, prize_behind=False):
+        self.count = count
+        self.key = CLIENT_TYPE_NAMES[PokemonTypes[energy_type.upper()].value]
+        self.prize_behind = prize_behind
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        if self.prize_behind and not behind_on_prizes(board):
+            return cost
+        lowered = dict(cost)
+        lowered[self.key] = max(0, lowered.get(self.key, 0) - self.count)
+        return {k: v for k, v in lowered.items() if v}
+
+
+def holder_attack_discount_typed(energy_type, prize_behind=False):
+    return TypedAttackDiscountPassive(1, energy_type, prize_behind)
+
+
+# --- tool-discount-and-boost ---
+class HolderDiscountAndBoostPassive(Passive):
+    """The holder's attacks cost `count` Colorless less and do +`amount` to the
+    opponent's Active (Hop's Choice Band)."""
+
+    def __init__(self, count, amount, holder=None):
+        self.count = count
+        self.amount = amount
+        self.holder = holder
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is pokemon and (
+                self.holder is None or self.holder(pokemon)):
+            key = CLIENT_TYPE_NAMES[PokemonTypes.COLORLESS]
+            lowered = dict(cost)
+            lowered[key] = max(0, lowered.get(key, 0) - self.count)
+            return {k: v for k, v in lowered.items() if v}
+        return cost
+
+    def modify_damage_dealt(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if self.holder is not None and not self.holder(holder):
+            return
+        if calc.target is None or calc.target.owning_player_id == holder.owning_player_id:
+            return
+        calc.amount += self.amount
+
+
+def holder_discount_and_boost(count: int, amount: int, holder=None):
+    return HolderDiscountAndBoostPassive(count, amount, holder)
+
+
+# --- tool-boost-when-poisoned ---
+class ConditionedHolderBoostPassive(Passive):
+    """The holder's attacks do +amount to the opponent's Active while the holder
+    has `condition` (Binding Mochi: Poisoned)."""
+
+    def __init__(self, amount, condition):
+        self.amount = amount
+        self.condition = condition
+
+    def modify_damage_dealt(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if calc.target is None or calc.target.owning_player_id == holder.owning_player_id:
+            return
+        conditions = holder.get_attribute(AttrID.SPECIAL_CONDITIONS) or []
+        if self.condition in conditions:
+            calc.amount += self.amount
+
+
+def holder_boost_when_conditioned(amount: int, condition):
+    return ConditionedHolderBoostPassive(amount, condition)
+
+
+# --- tool-boost-low-hp ---
+class LowHpHolderBoostPassive(Passive):
+    """The holder's attacks do +amount to the opponent's Active while it has
+    `hp` or less HP remaining and any damage counters on it (Hustle Belt)."""
+
+    def __init__(self, amount, hp):
+        self.amount = amount
+        self.hp = hp
+
+    def modify_damage_dealt(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if calc.target is None or calc.target.owning_player_id == holder.owning_player_id:
+            return
+        remaining = holder.get_attribute(AttrID.HP) or 0
+        if remaining <= self.hp and remaining < effective_max_hp(calc.board, holder):
+            calc.amount += self.amount
+
+
+def low_hp_holder_boost(amount: int, hp: int):
+    return LowHpHolderBoostPassive(amount, hp)
+
+
+# --- tool-retreat-energy-to-hand ---
+class RetreatEnergyToHandPassive(Passive):
+    """Energy paid for the holder's Retreat Cost goes to hand, not the discard
+    pile (Dashing Pouch)."""
+
+    def retreat_cost_destination(self, pokemon, energy, carrier):
+        return "hand" if carrier_pokemon(carrier) is pokemon else None
+
+
+def retreat_energy_to_hand():
+    return RetreatEnergyToHandPassive()
+
+
+# --- stadium-abilities-off-rule-box ---
+class AbilityLockPredicatePassive(Passive):
+    """Abilities are off on every Pokemon matching `pred`, both sides
+    (Power Plant, Team Rocket's Watchtower)."""
+
+    def __init__(self, pred):
+        self.pred = pred
+
+    def blocks_abilities(self, pokemon, carrier):
+        return self.pred(pokemon)
+
+
+def abilities_off_for(pred):
+    return AbilityLockPredicatePassive(pred)
+
+
+# --- stadium-abilities-off-typed ---
+class AbilityLockPredicatePassive(Passive):
+    """Abilities are off on every Pokemon matching `pred`, both sides
+    (Power Plant, Team Rocket's Watchtower)."""
+
+    def __init__(self, pred):
+        self.pred = pred
+
+    def blocks_abilities(self, pokemon, carrier):
+        return self.pred(pokemon)
+
+
+def abilities_off_for(pred):
+    return AbilityLockPredicatePassive(pred)
+
+
+# --- each-player-flip-draw ---
+def each_player_shuffle_flip_draw(heads: int, tails: int):
+    """Each player shuffles their hand into their deck and flips a coin, then
+    draws `heads` or `tails` (Ilima)."""
+    async def effect(ctx):
+        for pid in (ctx.player_id, ctx.opponent_id):
+            await ctx.shuffle_into_deck(ctx.hand(pid), pid)
+        for pid in (ctx.player_id, ctx.opponent_id):
+            coin = (await ctx.flip_coins(1, title="Ilima", source=None))[0]
+            await ctx.draw_cards(heads if coin else tails, pid)
+    return effect
+
+
+# --- discard-ultra-beast-draw-per ---
+def discard_pred_draw_per(predicate, count: int, per: int):
+    """Discard up to `count` matching cards from your hand, then draw `per` for
+    each (Ultra Recon Squad, Roxie)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if predicate is None or predicate(c)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=0, prompt="Choose cards to discard")
+        if not picks:
+            return
+        await ctx.discard_cards(picks)
+        await ctx.draw_cards(per * len(picks))
+    return effect
+
+
+# --- discard-not-rule-box-draw-per ---
+def discard_pred_draw_per(predicate, count: int, per: int):
+    """Discard up to `count` matching cards from your hand, then draw `per` for
+    each (Ultra Recon Squad, Roxie)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if predicate is None or predicate(c)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=0, prompt="Choose cards to discard")
+        if not picks:
+            return
+        await ctx.discard_cards(picks)
+        await ctx.draw_cards(per * len(picks))
+    return effect
+
+
+# --- each-player-discard-to ---
+def each_player_discard_to(keep: int):
+    """Each player discards down to `keep` cards, the opponent first (Hand
+    Trimmer)."""
+    async def effect(ctx):
+        for pid in (ctx.opponent_id, ctx.player_id):
+            excess = len(ctx.hand(pid)) - keep
+            if excess > 0:
+                await ctx.discard_from_hand(
+                    excess, minimum=excess, player_id=pid,
+                    prompt=f"Discard {excess} card(s) from your hand")
+    return effect
+
+
+# --- opponent-hand-bottom-draw-same ---
+def opponent_hand_to_bottom_draw_same(optional: bool = False):
+    """The opponent counts their hand, puts it on the bottom of their deck, and
+    draws that many (Meddling Memo; Peeking Red Card makes it optional)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        if optional and not await ctx.ask_yes_no(
+                "Have your opponent shuffle their hand into their deck?"):
+            return
+        count = len(hand)
+        for card in hand:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.shuffle_deck(ctx.opponent_id)
+        await ctx.draw_cards(count, ctx.opponent_id)
+    return effect
+
+
+# --- opponent-hand-bottom-draw-optional ---
+def opponent_hand_to_bottom_draw_same(optional: bool = False):
+    """The opponent counts their hand, puts it on the bottom of their deck, and
+    draws that many (Meddling Memo; Peeking Red Card makes it optional)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        if optional and not await ctx.ask_yes_no(
+                "Have your opponent shuffle their hand into their deck?"):
+            return
+        count = len(hand)
+        for card in hand:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.shuffle_deck(ctx.opponent_id)
+        await ctx.draw_cards(count, ctx.opponent_id)
+    return effect
+
+
+# --- flip-counters-either ---
+def flip_counters_either(counters: int):
+    """Heads: `counters` on 1 of the opponent's Pokemon; tails: on your Active
+    (Team Rocket's Venture Bomb)."""
+    async def effect(ctx):
+        if (await ctx.flip_coins(1, title="Flip a coin"))[0]:
+            await ctx.place_damage_counters(counters, ctx.opponent_pokemon_in_play())
+        else:
+            active = ctx.my_active()
+            if active is not None:
+                await ctx.place_damage_counters(counters, [active])
+    return effect
+
+
+# --- lost-zone-per-typed ---
+def lost_zone_per_typed(predicate, per_pokemon: int = 1):
+    """Put `per_pokemon` cards from the opponent's discard pile into the Lost
+    Zone for each of your matching Pokemon in play (Lysandre Prism Star)."""
+    async def effect(ctx):
+        count = sum(1 for p in ctx.my_pokemon_in_play() if predicate(p))
+        count *= per_pokemon
+        pile = ctx.discard_pile(ctx.opponent_id)
+        count = min(count, len(pile))
+        if count <= 0:
+            return
+        picks = await ctx.choose_cards(
+            pile, count, minimum=count,
+            prompt="Choose cards to put in the Lost Zone")
+        await ctx.move_to_lost_zone(picks)
+    return effect
+
+
+# --- stadium-ability-draw-if-supporter ---
+def stadium_heal_all_if_supporter(amount: int):
+    """Once during each player's turn, if they played a Supporter this turn,
+    heal `amount` from each of their Pokemon (Community Center)."""
+    async def effect(ctx):
+        if ctx.supporters_played_this_turn() <= 0:
+            return
+        for pokemon in ctx.my_pokemon_in_play():
+            await ctx.heal(amount, pokemon)
+    return effect
+
+
+def stadium_draw_if_named_supporter(word: str, count: int):
+    """Once during each player's turn, if they played a Supporter whose name
+    contains `word`, draw `count` (Team Rocket's Factory)."""
+    async def effect(ctx):
+        played = ctx.played_trainer_this_turn(
+            lambda record: record[2] == TrainerType.SUPPORTER.value
+            and word in (record[1] or "").lower())
+        if not played:
+            return
+        await ctx.draw_cards(count)
+    return effect
+
+
+# --- look-top-attach-up-to ---
+def look_top_attach_up_to(n, take, predicate=is_energy_card, target_pred=None,
+                          distribute=True, minimum=0):
+    """Look at the top `n` cards and attach up to `take` matching Energy you
+    find there to your Pokemon in any way you like (Electric Generator)."""
+    async def effect(ctx):
+        top = ctx.deck_top(n)
+        matches = [c for c in top if predicate(c)]
+        if top:
+            picks = await ctx.choose_cards(
+                matches, min(take, len(matches)), minimum=minimum,
+                prompt="Choose Energy cards to attach to your Pokemon.",
+                display_cards=top,
+            )
+            candidates = [p for p in ctx.my_pokemon_in_play()
+                          if target_pred is None or target_pred(p)]
+            if picks and candidates:
+                if distribute:
+                    await distribute_energy(ctx, picks, candidates)
+                else:
+                    target = await ctx.choose_pokemon(
+                        candidates, "Choose a Pokemon to attach the Energy to")
+                    if target is not None:
+                        await _attach_all(ctx, picks, target)
+        await ctx.shuffle_deck()
+    return effect
+
+
+# --- tool-boost-per-prize-taken ---
+class HolderBoostPerPrizePassive(Passive):
+    """The holder's attacks do +amount to the opponent's Active for each Prize
+    card its owner has taken (Beastite)."""
+
+    def __init__(self, amount, holder=None):
+        self.amount = amount
+        self.holder = holder
+
+    def modify_damage_dealt(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if self.holder is not None and not self.holder(holder):
+            return
+        if calc.target is None or calc.target.owning_player_id == holder.owning_player_id:
+            return
+        taken = calc.board.prizes_taken(holder.owning_player_id)
+        calc.amount += self.amount * taken
+
+
+def holder_boost_per_prize_taken(amount: int, holder=None):
+    return HolderBoostPerPrizePassive(amount, holder)
+
+
+# --- stadium-no-weakness-two-types ---
+class EveryoneNoWeaknessPassive(Passive):
+    """<pred> Pokemon in play (both sides) have no Weakness (Altar of the
+    Sunne)."""
+
+    def __init__(self, pred):
+        self.pred = pred
+
+    def modify_weakness(self, calc, carrier):
+        target = calc.target
+        if target is not None and self.pred(target):
+            calc.weakness_applies = False
+
+
+def stadium_no_weakness(pred):
+    return EveryoneNoWeaknessPassive(pred)
+
+
+# --- stadium-attack-tax-basic ---
+class EveryoneAttackTaxPassive(Passive):
+    """Attacks used by <pred> Pokemon in play (both sides) cost `count` more
+    Colorless (Pokemon League Headquarters)."""
+
+    def __init__(self, count, pred):
+        self.count = count
+        self.pred = pred
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if not self.pred(pokemon):
+            return cost
+        key = CLIENT_TYPE_NAMES[PokemonTypes.COLORLESS]
+        taxed = dict(cost)
+        taxed[key] = taxed.get(key, 0) + self.count
+        return taxed
+
+
+def stadium_attack_tax(count: int, pred):
+    return EveryoneAttackTaxPassive(count, pred)

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import any_of, pokemon_of, stadium_no_weakness
 
 card = StadiumCardDef(
     guid="28c092f5-d671-5e44-9cd2-70284abb38a9",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=118,
     set_code="SM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_no_weakness(any_of(pokemon_of("fire"), pokemon_of("metal")))
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_hand_then_search, is_basic_energy_card, is_pokemon_card, is_supporter_card
 
 card = SupporterCardDef(
     guid="fabf1406-9ee9-5fb6-bedc-eb6e170faffb",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=139,
     set_code="SV8PT5",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=discard_hand_then_search([is_pokemon_card, is_supporter_card, is_basic_energy_card])
 )

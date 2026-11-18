@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_hand_to_bottom_draw_same
 
 card = ItemCardDef(
     guid="a6084b29-e8d0-5287-93c4-1d2c316dfec4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=169,
     set_code="SM5",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=opponent_hand_to_bottom_draw_same(optional=True)
 )

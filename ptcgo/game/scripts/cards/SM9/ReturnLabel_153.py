@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_discard_to_bottom
 
 card = ItemCardDef(
     guid="c60ee87a-7414-5475-ab8f-29dfa49dd9bb",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=153,
     set_code="SM9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_discard_to_bottom(1)
 )

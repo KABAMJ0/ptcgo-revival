@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import holder_ability_shield
 
 card = PokemonToolCardDef(
     guid="54bb7825-24ff-5e2d-bc5f-48985460adc4",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=186,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_ability_shield()
 )

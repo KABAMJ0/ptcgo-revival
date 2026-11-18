@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import look_top_pick_one_back
 
 card = ItemCardDef(
     guid="06f9d510-ef03-5437-b9bd-5f1e0cfa3d77",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=165,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_top_pick_one_back(3, owner="opponent")
 )

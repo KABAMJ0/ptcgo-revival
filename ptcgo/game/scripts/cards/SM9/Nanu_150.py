@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, identity_swap_from_discard, is_basic_pokemon, pokemon_of
 
 card = SupporterCardDef(
     guid="f91f713c-dd7e-59a5-9c62-6be92884231f",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=150,
     set_code="SM9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=identity_swap_from_discard(all_of(is_basic_pokemon, pokemon_of("darkness")))
 )

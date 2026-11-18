@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_heal_cure
 
 card = ItemCardDef(
     guid="bf702ca9-b6b6-5726-b53d-00fb3670569f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=180,
     set_code="SM7",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=flip_heal_cure(None, 60)
 )
