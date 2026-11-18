@@ -42,6 +42,12 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         (), "passive"
     ),
     (
+        "sp-energy",
+        r"attached to is a pokemon sp, sp energy provides every type of energy",
+        'passive=SubtypeProvisionPassive("SP")',
+        (), "passive"
+    ),
+    (
         "super-boost-energy",
         r"attached to a stage 2 pokemon, it provides every type of energy but provides only 1 energy at a time",
         "passive=SuperBoostEnergyPassive()",
@@ -414,6 +420,7 @@ NEEDED = {
     "passive=EffectShieldPassive(": ["EffectShieldPassive"],
     "passive=SubtypeProvisionPassive(": ["SubtypeProvisionPassive"],
     "passive=SuperBoostEnergyPassive()": ["SuperBoostEnergyPassive"],
+    "passive=SubtypeProvisionPassive(\"SP\")": ["SubtypeProvisionPassive"],
     "on_attach=warp_on_attach": ["warp_on_attach"],
     "on_attach=cyclone_on_attach": ["cyclone_on_attach"],
     "on_attach=jet_on_attach": ["jet_on_attach"],
