@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 
 card = PokemonCardDef(
     guid="ca6e3ebb-9758-5c68-9a85-93fa00679c1b",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Pika Shield",
             game_text="This Pok\u00e9mon can't be Paralyzed.",
-            effect=unimplemented,
+            passive=condition_immunity_passive(SpecialConditions.PARALYZED),
         ),
         Attack(
             title="Static Shock",

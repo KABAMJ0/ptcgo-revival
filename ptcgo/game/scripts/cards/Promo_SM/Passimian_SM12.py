@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    count_bench,
+    damage_per,
+    snipe_attack,
+)
+
+
+def _is_passimian(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Passimian"
 
 card = PokemonCardDef(
     guid="1cf199c4-157d-511d-a13e-3514108792e7",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
             title="Fling",
             game_text="This attack does 30 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=snipe_attack(30, count=1),
         ),
         Attack(
             title="Team Play",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", _is_passimian), 30, base=10),
         ),
     ],
 )

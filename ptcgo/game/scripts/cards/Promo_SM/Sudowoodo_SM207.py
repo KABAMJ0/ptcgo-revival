@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
 
 card = PokemonCardDef(
     guid="2486334b-02ae-5c1f-966d-d5e1c4f348f7",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="If you don't have a Stadium card in play, this attack does nothing.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=80,
-            effect=unimplemented,
+            effect=bonus_if(stadium_in_play_cond, 0, else_nothing=True),
         ),
     ],
 )
