@@ -574,6 +574,30 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
     return effect
 
 
+def condition_if(cond_fn, *conditions, target: str = "defender",
+                 damage: Optional[int] = None, checkup_coins: int = 1,
+                 also=None):
+    """"If <board or Pokemon condition>, the Defending Pokemon is now
+    <conditions>" — applies the conditions only when `cond_fn(ctx)` holds.
+
+    condition_attack applies unconditionally, so this is the gate it lacks
+    ("if this Pokemon has any Plasma Energy attached", "if the Defending
+    Pokemon is a Pokemon ex", "if Nidoran is on your bench"). Printed damage
+    first; pass damage=0 for a pure rider."""
+    async def effect(ctx):
+        base_val = damage if damage is not None else _printed(ctx)
+        if base_val > 0:
+            await ctx.deal_damage(base_val)
+        if cond_fn(ctx):
+            holder = ctx.attacker if target in ("self", "attacker") else ctx.defender
+            for condition in conditions:
+                await ctx.apply_special_condition(
+                    holder, condition, checkup_coins=checkup_coins)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
 def condition_bonus_attack(bonus: int, *required_conditions,
                            base: Optional[int] = None, also=None):
     """"If the Defending Pokemon is already <condition>, this attack does

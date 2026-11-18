@@ -1459,7 +1459,10 @@ def is_stage_two(card) -> bool:
 
 
 def is_pokemon_ex(card) -> bool:
-    return is_pokemon_card(card) and "ex" in " ".join(subtypes_for(card.archetype_id))
+    """SV "Pokemon ex". Shared implementation in card_effects.pokemon, which
+    takes a card entity, a definition or an archetype GUID."""
+    from ptcgo.game.card_effects.pokemon import is_pokemon_ex as _shared
+    return _shared(card)
 
 
 def is_rule_box_pokemon(card) -> bool:
@@ -2467,11 +2470,13 @@ def discard_from_opponent_hand(predicate=None, count: int = 1):
 
 
 def is_pokemon_gx(card) -> bool:
-    return is_pokemon_card(card) and "GX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_gx as _shared
+    return _shared(card)
 
 
 def is_pokemon_vstar(card) -> bool:
-    return is_pokemon_card(card) and "VSTAR" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_vstar as _shared
+    return _shared(card)
 
 
 def retreat_cost_is(cost: int):
@@ -3408,7 +3413,8 @@ def stadium_ability(title: str, effect):
 def is_pokemon_EX(card) -> bool:
     """Black & White / XY era "Pokemon-EX" (printed subtype "EX"), which the
     Scarlet & Violet "Pokemon ex" predicate deliberately does not match."""
-    return is_pokemon_card(card) and "EX" in subtypes_for(card.archetype_id)
+    from ptcgo.game.card_effects.pokemon import is_pokemon_EX as _shared
+    return _shared(card)
 
 
 # --- Bespoke tool shapes on existing engine hooks ---------------------------
