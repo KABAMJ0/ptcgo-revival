@@ -13,5 +13,5 @@ card = SupporterCardDef(
     collector_number=156,
     set_code="SV3PT5",
     rarity=Rarities.Uncommon,
-    effect=look_at_top(8, take=1, predicate=is_pokemon_card)
+    effect=look_at_top(8, take=8, predicate=is_pokemon_card, minimum=0)
 )

@@ -521,6 +521,21 @@ CAT = r"(?P<cat>[a-z0-9][a-z0-9 ]*?)"
 # the same thing, so one fragment covers them.
 SHUFFLE_TAIL = r"(?: then)? shuffle your deck(?: afterward)?"
 
+def _look_top_reveal_args(m):
+    """"you may reveal any number of X" takes every match, "you may reveal 2 X"
+    takes up to 2, and a bare "a X" takes 1; all are optional."""
+    cat = m.group("cat")
+    many = re.match(r"^any number of ", cat)
+    counted = re.match(r"^(?:up to )?(?P<k>\d+) ", cat)
+    if many:
+        take = m.group("n")
+    elif counted:
+        take = counted.group("k")
+    else:
+        take = "1"
+    return [m.group("n"), "take=" + take, "predicate=" + _pred(cat), "minimum=0"]
+
+
 RULES = [
     # --- Draw -------------------------------------------------------------
     Rule("draw", r"draw (?P<n>\d+) cards?", "draw_n",
@@ -583,7 +598,9 @@ RULES = [
          r"search your deck for (?:up to )?(?P<n>\d+ )?" + CAT +
          r" and put (?:it|them) onto your bench" + SHUFFLE_TAIL,
          "search_to_bench",
-         lambda m: [_pred(m.group("cat")), str(_count(m.group("n")))],
+         lambda m: [_pred(m.group("cat")),
+                    "BENCH_CAPACITY" if m.group("cat").startswith("any number of ")
+                    else str(_count(m.group("n")))],
          module="support_common"),
     Rule("search-bench-low-hp",
          r"search your deck for (?:up to )?(?P<n>\d+) basic pokemon with (?P<hp>\d+) hp or "
@@ -709,7 +726,7 @@ RULES = [
          r"look at the top (?P<n>\d+) cards of your deck you may reveal (?P<cat>.+?) you find "
          r"there and put (?:it|them) into your hand shuffle the other cards? back into your deck",
          "look_at_top",
-         lambda m: [m.group("n"), "take=1", "predicate=" + _pred(m.group("cat"))],
+         lambda m: _look_top_reveal_args(m),
          module="support_common"),
 
     # --- Special conditions / hand return ---------------------------------
@@ -1593,7 +1610,7 @@ RULES = [
                     "count=" + str(_count(m.group("n")))],
          module="support_common"),
     Rule("recycle-from-discard",
-         r"flip (?P<coins>\d+) coin if heads put (?P<n>\d+) card in your discard pile on top of "
+         r"flip (?P<coins>\d+) coin if heads put (?P<n>\d+) card (?:in|from) your discard pile on top of "
          r"your deck",
          "recycle_from_discard", lambda m: [m.group("n")]),
     Rule("look-top-two-take-one-bottom",
@@ -1769,6 +1786,21 @@ RULES = [
          "return_pokemon_to_hand",
          lambda m: ["predicate=" + _pred((m.group("cat") + "pokemon" + (m.group("ex") or "")).strip())]),
 
+    Rule("recover-search-show",
+         r"search your discard pile for (?:up to )?(?P<n>\d+) " + CAT +
+         r" show (?:it|them) to your opponent and (?P<dest>put (?:it|them) into your hand|"
+         r"shuffle (?:it|them) into your deck|put (?:it|them) on top of your deck)",
+         "recover_from_discard",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"),
+                    {"put": 'to="hand"', "shu": 'to="deck_shuffle"'}[m.group("dest")[:3]]
+                    if "top" not in m.group("dest") else 'to="deck_top"', "reveal=True"],
+         module="support_common"),
+    Rule("recover-to-top",
+         r"put (?P<n>\d+) " + CAT + r" from your discard pile on top of your deck",
+         "recover_from_discard",
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"), 'to="deck_top"'],
+         module="support_common"),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1862,6 +1894,7 @@ CONDITION_PREFIXES = [
 ]
 
 CONDITION_SUFFIXES = [
+    (re.compile(r" ace spec you cant have more than 1 ace spec card in your deck$"), None),
     (re.compile(r" if this is the only card in your hand you cant play this card$"),
      "hand_size_at_least(2)"),
 ]
@@ -1933,7 +1966,11 @@ def resolve(text, depth=0):
         if not found:
             continue
         inner = resolve(text[:found.start()], depth + 1)
-        if inner is not None and not inner.get("condition"):
+        if inner is None:
+            continue
+        if condition is None:
+            return inner
+        if not inner.get("condition"):
             return dict(inner, condition=condition)
 
     match = ENDS_TURN.search(text)

@@ -13,5 +13,5 @@ card = ItemCardDef(
     collector_number=127,
     set_code="SV8PT5",
     rarity=Rarities.Common,
-    effect=look_at_top(4, take=1, predicate=is_supporter_card)
+    effect=look_at_top(4, take=4, predicate=is_supporter_card, minimum=0)
 )
