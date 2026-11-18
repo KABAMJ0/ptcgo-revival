@@ -42,6 +42,25 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         (), "passive"
     ),
     (
+        "scramble-energy",
+        r"if you have more prize cards left than your opponent, scramble energy provides every type of energy "
+        r"but provides only 3 in any combination at a time",
+        "passive=ScrambleEnergyPassive()",
+        (), "passive"
+    ),
+    (
+        "upper-energy",
+        r"if you have more prize cards left than your opponent and this card is attached to a pokemon",
+        "passive=UpperEnergyPassive()",
+        (), "passive"
+    ),
+    (
+        "crystal-energy",
+        r"provides 1 energy of all types \(colors\) of basic energy cards attached",
+        "passive=CrystalEnergyPassive()",
+        (), "passive"
+    ),
+    (
         "sp-energy",
         r"attached to is a pokemon sp, sp energy provides every type of energy",
         'passive=SubtypeProvisionPassive("SP")',
@@ -420,6 +439,9 @@ NEEDED = {
     "passive=EffectShieldPassive(": ["EffectShieldPassive"],
     "passive=SubtypeProvisionPassive(": ["SubtypeProvisionPassive"],
     "passive=SuperBoostEnergyPassive()": ["SuperBoostEnergyPassive"],
+    "passive=UpperEnergyPassive()": ["UpperEnergyPassive"],
+    "passive=ScrambleEnergyPassive()": ["ScrambleEnergyPassive"],
+    "passive=CrystalEnergyPassive()": ["CrystalEnergyPassive"],
     "passive=SubtypeProvisionPassive(\"SP\")": ["SubtypeProvisionPassive"],
     "on_attach=warp_on_attach": ["warp_on_attach"],
     "on_attach=cyclone_on_attach": ["cyclone_on_attach"],
