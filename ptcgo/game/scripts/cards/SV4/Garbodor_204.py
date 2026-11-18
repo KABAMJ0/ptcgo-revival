@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import is_tool_card
 
 card = PokemonCardDef(
     guid="01628220-7838-5a1c-b6da-bdc61cfcae9b",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=is_tool_card, max_count=99, per=50, base=0),
         ),
         Attack(
             title="Venomous Hit",
