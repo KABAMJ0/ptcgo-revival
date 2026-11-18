@@ -57,6 +57,7 @@ SIMPLE_PREDICATES = {
     "special energy": "is_special_energy",
     "card": "None",
     "baby pokemon": 'pokemon_of_subtype("Baby")',
+    "mega evolution pokemon": 'pokemon_of_subtype("MEGA")',
     "any card": "None",
     "judge card": 'named_exactly("Judge")',
     "unidentified fossil card": 'named_exactly("Unidentified Fossil")',
@@ -521,6 +522,19 @@ CAT = r"(?P<cat>[a-z0-9][a-z0-9 ]*?)"
 # the same thing, so one fragment covers them.
 SHUFFLE_TAIL = r"(?: then)? shuffle your deck(?: afterward)?"
 
+def _attach_target(which):
+    """Target predicate for "to 1 of your <which>pokemon": "benched" keeps it
+    off the Active Spot and any remaining words name a category."""
+    words = (which or "").strip()
+    benched = words.startswith("benched")
+    rest = words[len("benched"):].strip() if benched else words
+    pred = _pred(rest if rest.endswith("pokemon") else rest + " pokemon") if rest else None
+    bench = "excluding(is_in_active_spot)"
+    if benched and pred:
+        return "all_of(%s, %s)" % (bench, pred)
+    return bench if benched else pred
+
+
 def _look_top_reveal_args(m):
     """"you may reveal any number of X" takes every match, "you may reveal 2 X"
     takes up to 2, and a bare "a X" takes 1; all are optional."""
@@ -853,8 +867,9 @@ RULES = [
          r"less damage from your opponents attacks(?: after applying weakness and resistance)? "
          r"and has no weakness",
          "combined",
-         lambda m: ["combined(holder_takes_less(%s), holder_no_weakness())"
-                    % _tool_takes_less(m)[0]] if True else [], kind="passive"),
+         lambda m: ["combined(holder_takes_less(%s), holder_no_weakness(%s))"
+                    % (", ".join(_tool_takes_less(m)),
+                       ", ".join(_tool_takes_less(m)[1:]))], kind="passive"),
     Rule("tool-boost-and-no-weakness",
          r"the attacks of the pokemon this card is attached to do (?P<amount>\d+) more damage "
          r"to your opponents active pokemon(?: before applying weakness and resistance)? and "
@@ -974,7 +989,8 @@ RULES = [
          r"(?P<per>\d+) (?P<energy>[a-z0-9 ]+?) from your discard pile to each of them",
          "attach_discard_energy_to_each",
          lambda m: [_pred(m.group("energy")), "per_target=" + m.group("per"),
-                    "targets=" + m.group("targets")]),
+                    "targets=" + m.group("targets"),
+                    "target_pred=" + str(_attach_target(m.group("cat")))]),
     Rule("switch-then-move-energy",
          r"switch your active pokemon with (?P<n>\d+) of your benched pokemon if you do move "
          r"(?P<c>\d+) energy from the pokemon you moved to your bench to the new active pokemon",
@@ -1088,7 +1104,8 @@ RULES = [
          r"them if you attached any energy in this way draw (?P<draw>\d+) cards?",
          "attach_discard_energy_each_then_draw",
          lambda m: [_pred(m.group("energy")), "per_target=" + m.group("per"),
-                    "targets=" + m.group("targets"), "draw=" + m.group("draw")]),
+                    "targets=" + m.group("targets"), "draw=" + m.group("draw"),
+                    "target_pred=" + str(_attach_target(m.group("cat")))]),
     Rule("look-top-choose-back-on-top",
          r"look at the top (?P<n>\d+) cards (?:of|from) your deck(?: and)? choose (?P<take>\d+) "
          + CAT + r"(?: from those cards)? show it to your opponent and put it into your hand put "
@@ -1134,7 +1151,8 @@ RULES = [
          r"attach (?:up to )?(?P<n>\d+) " + CAT +
          r" from your discard pile to (?P<target>\d+) of your (?P<which>[a-z0-9 ]*?)pokemon",
          "attach_from_discard",
-         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"), 'target="choice"'],
+         lambda m: [_pred(m.group("cat")), "count=" + m.group("n"),
+                    "target=" + (_attach_target(m.group("which")) or '"choice"')],
          module="support_common"),
     Rule("search-split-energy",
          r"search your deck for up to (?P<n>\d+) basic energy cards of different types reveal "

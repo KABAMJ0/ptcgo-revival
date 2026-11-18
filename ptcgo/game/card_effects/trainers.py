@@ -1965,9 +1965,15 @@ def holder_retreat_discount(count: int):
     return retreat_discount(count)
 
 
-def holder_no_weakness():
-    """The Pokemon this card is attached to has no Weakness."""
-    return no_weakness_passive()
+def holder_no_weakness(protect_type=None):
+    """The Pokemon this card is attached to has no Weakness; protect_type
+    restricts it to one typed holder."""
+    if protect_type is None:
+        return no_weakness_passive()
+    holder_pred = pokemon_of(protect_type)
+    return no_weakness_passive(
+        protects=lambda target, carrier: carrier_pokemon(carrier) is target
+        and holder_pred(target))
 
 
 def holder_takes_less(amount: int, protect_type=None):
@@ -2322,23 +2328,36 @@ def heal_chosen(amount: int, count: int = 1, hp_at_most=None):
     return effect
 
 
-def attach_discard_energy_to_each(predicate, per_target: int = 1, targets: int = 1):
+async def _attach_discard_to_each(ctx, predicate, per_target, targets, target_pred):
+    available = [c for c in ctx.discard_pile()
+                 if predicate is None or predicate(c)]
+    candidates = [p for p in ctx.my_pokemon_in_play()
+                  if target_pred is None or target_pred(p)]
+    if not available or not candidates:
+        return 0
+    picks = await ctx.choose_cards(
+        candidates, targets, minimum=0,
+        prompt=f"Choose up to {targets} Pokémon to attach Energy to")
+    attached = 0
+    for pokemon in picks:
+        if not available:
+            break
+        take = await ctx.choose_cards(
+            available, per_target, minimum=min(per_target, len(available)),
+            prompt="Choose Energy from your discard pile to attach")
+        for card in take:
+            available.remove(card)
+            await ctx.attach_energy(card, pokemon)
+            attached += 1
+    return attached
+
+
+def attach_discard_energy_to_each(predicate, per_target: int = 1, targets: int = 1,
+                                  target_pred=None):
     """Attach `per_target` matching Energy from the discard pile to each of up
-    to `targets` of your Pokemon."""
+    to `targets` of your (matching) Pokemon."""
     async def effect(ctx):
-        available = [c for c in ctx.discard_pile()
-                     if predicate is None or predicate(c)]
-        candidates = ctx.my_pokemon_in_play()
-        if not available or not candidates:
-            return
-        picks = await ctx.choose_cards(
-            candidates, targets, minimum=0,
-            prompt=f"Choose up to {targets} Pokémon to attach Energy to")
-        for pokemon in picks:
-            take = available[:per_target]
-            available = available[per_target:]
-            for card in take:
-                await ctx.attach_energy(card, pokemon)
+        await _attach_discard_to_each(ctx, predicate, per_target, targets, target_pred)
     return effect
 
 
@@ -2865,23 +2884,13 @@ def search_three_stages():
 
 
 def attach_discard_energy_each_then_draw(predicate, per_target: int = 1,
-                                         targets: int = 1, draw: int = 3):
+                                         targets: int = 1, draw: int = 3,
+                                         target_pred=None):
     """Attach Energy from the discard pile to each of up to `targets` of your
-    Pokemon, then draw `draw` if any was attached."""
+    (matching) Pokemon, then draw `draw` if any was attached."""
     async def effect(ctx):
-        available = [c for c in ctx.discard_pile() if predicate(c)]
-        candidates = ctx.my_pokemon_in_play()
-        if not available or not candidates:
-            return
-        picks = await ctx.choose_cards(
-            candidates, targets, minimum=0,
-            prompt=f"Choose up to {targets} Pokémon to attach Energy to")
-        attached = 0
-        for pokemon in picks:
-            for card in available[:per_target]:
-                await ctx.attach_energy(card, pokemon)
-                attached += 1
-            available = available[per_target:]
+        attached = await _attach_discard_to_each(ctx, predicate, per_target, targets,
+                                                 target_pred)
         if attached and draw:
             await ctx.draw_cards(draw)
     return effect

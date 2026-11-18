@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.trainers import all_of, excluding, is_basic_energy_card, is_in_active_spot, is_pokemon_card, owned_by
 
 card = ItemCardDef(
     guid="a66d34b1-ce65-53d9-938c-1c8176a55a94",
@@ -13,5 +13,5 @@ card = ItemCardDef(
     collector_number=153,
     set_code="SV9",
     rarity=Rarities.Uncommon,
-    effect=attach_from_discard(is_basic_energy_card, count=1, target="choice")
+    effect=attach_from_discard(is_basic_energy_card, count=1, target=all_of(excluding(is_in_active_spot), all_of(is_pokemon_card, owned_by("n"))))
 )

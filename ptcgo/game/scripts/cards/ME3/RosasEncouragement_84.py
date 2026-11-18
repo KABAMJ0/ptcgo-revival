@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import behind_on_prizes, is_basic_energy_card
+from ptcgo.game.card_effects.trainers import behind_on_prizes, is_basic_energy_card, is_stage_two
 
 card = SupporterCardDef(
     guid="d999eb9a-921a-5d50-abc7-a907f4d7b9a8",
@@ -13,5 +13,5 @@ card = SupporterCardDef(
     collector_number=84,
     set_code="ME3",
     rarity=Rarities.Uncommon,
-    effect=attach_from_discard(is_basic_energy_card, count=2, target="choice"), condition=behind_on_prizes()
+    effect=attach_from_discard(is_basic_energy_card, count=2, target=is_stage_two), condition=behind_on_prizes()
 )
