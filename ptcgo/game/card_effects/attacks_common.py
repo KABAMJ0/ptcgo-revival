@@ -760,9 +760,13 @@ def mill_attack(count: int, opponent: bool = True,
     async def effect(ctx):
         await ctx.deal_damage(then_damage)
         pid = ctx.opponent_id if opponent else ctx.player_id
-        await ctx.discard_cards(ctx.deck_top(count, player_id=pid))
+        milled = ctx.deck_top(count, player_id=pid)
+        if milled:
+            await ctx.discard_cards(milled)
         if also is not None:
             await also(ctx)
+        # The milled cards are the signal for "if any of those are Energy, ...".
+        return milled
     return effect
 
 
@@ -820,24 +824,32 @@ def place_counters(count_or_fn, target: str = "opponent_active", also=None):
 
     async def effect(ctx):
         count = _resolve_count(ctx, count_or_fn)
+        placed = 0
         if count > 0:
             if target == "opponent_active":
                 if ctx.defender is not None:
                     await ctx.deal_damage(count * 10, target=ctx.defender,
                                           as_counters=True)
+                    placed = count
             elif target == "choose_any_opponent":
-                await ctx.place_damage_counters(count, ctx.opponent_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.opponent_pokemon_in_play())
             elif target == "each_opponent":
                 for pokemon in ctx.opponent_pokemon_in_play():
                     await ctx.deal_damage(count * 10, target=pokemon,
                                           as_counters=True)
+                    placed += count
             elif target == "self":
                 await ctx.deal_damage(count * 10, target=ctx.attacker,
                                       as_counters=True)
+                placed = count
             else:  # choose_own
-                await ctx.place_damage_counters(count, ctx.my_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.my_pokemon_in_play())
         if also is not None:
             await also(ctx)
+        # Counters that actually landed are the "if you placed any" signal.
+        return placed
     return effect
 
 
@@ -1020,14 +1032,18 @@ def energy_move_attack(count: int = 1, energy_type=None,
             return
         picks = pool if len(pool) <= count else await ctx.choose_cards(
             pool, count, prompt="Choose Energy to move to your Benched Pokémon")
+        moved = []
         for energy in picks:
             bench = ctx.my_bench()
             if not bench:
-                return
+                break
             target = await ctx.choose_pokemon(
                 bench, "Choose a Pokémon to move the Energy to")
             if target is not None:
                 await ctx.move_energy(energy, target)
+                moved.append(energy)
+        # The moved Energy is the signal for a second move gated on the first.
+        return moved
     return effect
 
 

@@ -699,12 +699,16 @@ class PokemonToolCardDef(TrainerCardDef):
                  granted_abilities: Optional[List[Ability]] = None,
                  attach_to: Optional[Callable] = None,
                  on_carrier_knocked_out: Optional[Callable] = None,
+                 target_owners: str = "self",
                  **kwargs):
         kwargs['trainer_type'] = TrainerType.POKEMON_TOOL
         super().__init__(**kwargs)
         self.passive = passive
         self.attach_to = attach_to
         self.on_carrier_knocked_out = on_carrier_knocked_out
+        # "Attach it to 1 of your opponent's Pokemon-EX" (Head Ringer):
+        # "opponent" widens the offer's target pool to their side.
+        self.target_owners = target_owners
         self.granted_abilities: List[Ability] = granted_abilities or []
         for idx, a in enumerate(self.granted_abilities):
             if not a.ability_id:
