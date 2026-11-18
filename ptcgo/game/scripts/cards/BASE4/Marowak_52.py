@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.trainers import all_of
 
 card = PokemonCardDef(
     guid="e8767f56-994d-5514-8357-2f4ce442dbb4",
@@ -32,7 +36,7 @@ card = PokemonCardDef(
             title="Call for Friend",
             game_text="Search your deck for a Fighting Basic Pok\u00e9mon card and put it onto your Bench. Shuffle your deck afterward. (You can't use this attack if your Bench is full.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(all_of(is_basic_pokemon, lambda card: is_pokemon_of_type(card, "fighting")), count=1),
         ),
     ],
 )
