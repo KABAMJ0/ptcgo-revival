@@ -331,6 +331,17 @@ def _cached_card_archetypes_bytes(key):
     return _cached_payload(f"archproto:{key}", build)
 
 
+def _client_format_rows(results):
+    """Drop formats the client does not name in `DeckFormat`.
+
+    `TrainerChallenge` is ours - the deck list and the trainer challenge picker
+    read it through other paths - but it travels in this response, and a deck map
+    keyed on a name the client's switch does not know leaves every deck in no
+    category: the deck tabs read 0 and the versus picker lists nothing.
+    """
+    return [r for r in results if str(r.get("formatName")) != "TrainerChallenge"]
+
+
 class DataSyncHandler(BaseHandler):
     @handle(InboundMsg.ACKNOWLEDGE_NOTIFICATION)
     async def handle_acknowledge_notification(self, message, request_id, flags):
@@ -901,6 +912,7 @@ class DataSyncHandler(BaseHandler):
                 continue
             results.extend(validate_deck(deck_dict, formats_list, owned_counts=owned))
 
+        results = _client_format_rows(results)
         logging.info("[Rules] ValidateDecks answered: "
                      + ", ".join(f"{r['formatName']}={r['valid']}" for r in results[:18]))
         res = {
@@ -925,6 +937,7 @@ class DataSyncHandler(BaseHandler):
                     continue
                 results.extend(validate_deck(deck_dict, formats_list, owned_counts=owned))
 
+        results = _client_format_rows(results)
         res = {
             "messageName": OutboundMsg.DECKS_VALIDATED.value,
             "results": results
