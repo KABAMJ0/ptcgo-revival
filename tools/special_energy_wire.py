@@ -36,6 +36,18 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
         (), "passive"
     ),
     (
+        "beast-energy",
+        r"attached to an ultra beast, it provides every type of energy but provides only 1 energy at a time",
+        'passive=SubtypeProvisionPassive("Ultra Beast")',
+        (), "passive"
+    ),
+    (
+        "super-boost-energy",
+        r"attached to a stage 2 pokemon, it provides every type of energy but provides only 1 energy at a time",
+        "passive=SuperBoostEnergyPassive()",
+        (), "passive"
+    ),
+    (
         # Multi Energy: every type, but only Colorless once another Special Energy
         # sits on the same Pokemon.
         "multi-energy",
@@ -180,12 +192,8 @@ FAMILIES = [   # (name, pattern, snippet-or-None, kind, target-kwarg)
 BLOCKED = [
     (r"also has a basic \w+ energy card attached", "conditional on another energy attached"),
     (r"at the end of every turn, put \d+ damage counter", "end-of-turn damage counter tick missing"),
-    (r"ultra beast", "Ultra Beast subtype gate plus a damage passive"),
     (r"1 fewer prize", "prize-count passive with a once-per-game gate"),
-    (r"put it in the lost zone instead|lost zone instead", "Prism Star lost-zone rule"),
     (r"\bδ\b|delta species", "delta-species marker not tracked on cards"),
-    (r"provides? 4 energy at a time", "four-at-once provision not expressible"),
-    (r"if you have 3 or more stage 2", "conditional on board count"),
     (r"discard .{0,40} at the end of (the|your) turn", "no end-of-turn discard timer for energies"),
     (r"can('|no)t retreat", "retreat lock from an energy needs the passive wired (batch 3)"),
 ]
@@ -331,9 +339,10 @@ def plans_for(text):
     for pattern, reason in BLOCKED:
         if re.search(pattern, low):
             return []          # a blocked clause means the card needs a primitive
-    prism = bool(re.search(FAMILIES[0][1], low))
+    conditional = any(
+        re.search(f[1], low) for f in FAMILIES if f[0] in ("prism-energy", "beast-energy", "super-boost-energy"))
     plans = []
-    seen_targets = {"provides"} if prism else set()
+    seen_targets = {"provides"} if conditional else set()
     for family, pattern, snippet, extra, target in FAMILIES:
         if target in seen_targets:
             continue           # one hook per target: the first (most specific) wins
@@ -383,6 +392,8 @@ NEEDED = {
     "provides=pairs_of(": ["pairs_of"],
     "on_attach=cure_on_attach": ["cure_on_attach"],
     "passive=EffectShieldPassive(": ["EffectShieldPassive"],
+    "passive=SubtypeProvisionPassive(": ["SubtypeProvisionPassive"],
+    "passive=SuperBoostEnergyPassive()": ["SuperBoostEnergyPassive"],
 }
 
 

@@ -358,3 +358,45 @@ class EffectShieldPassive(Passive):
         if self.pokemon_type is not None and not _pokemon_has_type(holder, self.pokemon_type):
             return False
         return True
+
+
+class SubtypeProvisionPassive(Passive):
+    """Every type one at a time while the carrier has a printed subtype.
+
+    Beast Energy's rule is Prism Energy's with "Ultra Beast" in place of "Basic
+    Pokemon", so both read from the archetype's subtypes.
+    """
+
+    def __init__(self, marker: str):
+        self.marker = marker
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        archetype_id = getattr(holder, "archetype_id", None) if holder is not None else None
+        if archetype_id is not None and self.marker in subtypes_for(archetype_id):
+            return ALL_TYPES_ONE_AT_A_TIME
+        return options
+
+
+class SuperBoostEnergyPassive(Passive):
+    """Super Boost: every type on a Stage 2, four at a time with three Stage 2 in
+    play (the four-at-once form is reported, not offered, when unsupported)."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        archetype_id = getattr(holder, "archetype_id", None) if holder is not None else None
+        if archetype_id is None or "Stage 2" not in subtypes_for(archetype_id):
+            return options
+        if board is not None:
+            owner = getattr(holder, "owning_player_id", None)
+            stage_twos = 0
+            for pokemon in board.pokemon_in_play(owner) if owner else []:
+                other = getattr(pokemon, "archetype_id", None)
+                if other is not None and "Stage 2" in subtypes_for(other):
+                    stage_twos += 1
+            if stage_twos >= 3:
+                return [[t, t, t, t] for t in (PokemonTypes.GRASS, PokemonTypes.FIRE,
+                                               PokemonTypes.WATER, PokemonTypes.LIGHTNING,
+                                               PokemonTypes.PSYCHIC, PokemonTypes.FIGHTING,
+                                               PokemonTypes.DARKNESS, PokemonTypes.METAL,
+                                               PokemonTypes.FAIRY, PokemonTypes.DRAGON,
+                                               PokemonTypes.COLORLESS)]
+        return ALL_TYPES_ONE_AT_A_TIME
