@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import raise_defender_attack_cost_next_turn
 
 card = PokemonCardDef(
     guid="d8a37b55-3735-524a-a8d7-978c2d660fd8",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the attack cost of each of the Defending Pok\u00e9mon's attacks is ColorlessColorless more.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=raise_defender_attack_cost_next_turn(extra=2),
         ),
         Attack(
             title="Quick Attack",
