@@ -72,6 +72,7 @@ from spirit.game.card_effects.passives_common import (
     debuff_defender_attacks,
     carrier_pokemon,
     opponent_retreat_tax_passive,
+    retaliate_counters_passive,
     retreat_free_when,
     flip_prevent_damage_passive,
     is_in_active_spot,
@@ -3129,6 +3130,21 @@ def _flip_per_self_energy(m, ability):
     per = int(m.group(1))
     return flip_damage(coins_from=count_energy("self", cards=True), per_heads=per)
 
+
+def _prevent_attack_damage_next_turn(m, ability):
+    return protect_next_turn(prevent=True)
+
+
+def _retaliate_counters_rider(m, ability):
+    counters = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            ctx.add_passive_through_opponents_turn(
+                ctx.attacker, retaliate_counters_passive(counters))
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4507,6 +4523,16 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"(\d+) more damage(?: \(before applying weakness and "
                 r"resistance\))?\."), _own_next_turn_all_boost),
     # -- batch 27: bench damage shield and opponent retreat tax ------------
+    ("shield.retaliate-counters-next-turn",
+     re.compile(r"during your opponent's next turn, if this pokemon is damaged "
+                r"by an attack \(even if (?:this pokemon|it) is knocked out\), "
+                r"put (\d+) damage counters on the attacking pokemon\."),
+     _retaliate_counters_rider),
+    ("shield.prevent-attack-damage-next-turn",
+     re.compile(r"during your opponent's next turn, if this pokemon would be "
+                r"damaged by an attack, prevent that attack's damage done to "
+                r"this pokemon\."),
+     _prevent_attack_damage_next_turn),
     ("flip.per-self-energy-per-heads",
      re.compile(r"flip a coin for each energy attached to this pokemon\. this "
                 r"attack does (\d+) damage (?:times the number of heads|for "

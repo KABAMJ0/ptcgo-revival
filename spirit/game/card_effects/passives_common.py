@@ -478,6 +478,32 @@ class FlipPreventDamagePassive(Passive):
         return None
 
 
+class RetaliateCountersPassive(Passive):
+    """"During your opponent's next turn, if this Pokemon is damaged by an
+    attack (even if it is Knocked Out), put N damage counters on the
+    attacking Pokemon" (Counter Press shape, fixed counter count)."""
+
+    def __init__(self, counters=1):
+        self.counters = counters
+
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.amount > 0):
+            return None
+        if target is not carrier_pokemon(carrier):
+            return None
+        attacker = calc.attacker
+        if attacker is not None:
+            await ctx.deal_damage(self.counters * 10, target=attacker,
+                                  apply_modifiers=False, as_counters=True)
+        return None
+
+
+def retaliate_counters_passive(counters=1) -> Passive:
+    """Strike-back shield for the opponent's next turn: N counters on whoever
+    damages this Pokemon (the damage itself still lands)."""
+    return RetaliateCountersPassive(counters)
+
+
 def flip_prevent_damage_passive(title="") -> Passive:
     """Flip-to-prevent shield: heads prevents the whole attack hit; the flip
     choreographs inside the attack bracket (queued on the attack ctx)."""
