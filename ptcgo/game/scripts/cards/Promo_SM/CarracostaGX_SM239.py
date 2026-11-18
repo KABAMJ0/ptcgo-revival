@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+
+def _at_full_hp(target, carrier) -> bool:
+    remaining = target.get_attribute(AttrID.HP, 0)
+    return (target is carrier
+            and remaining == target.attribute_originals.get(AttrID.HP.value, remaining))
 
 card = PokemonCardDef(
     guid="6d49c709-36f0-5e9b-bc64-c132bdb29805",
@@ -22,14 +30,14 @@ card = PokemonCardDef(
         Ability(
             title="High Density Armor",
             game_text="If this Pok\u00e9mon has full HP, it takes 90 less damage from your opponent's attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(90, protects=_at_full_hp),
         ),
         Attack(
             title="Ground Crush",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=160,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Stone Age-GX",

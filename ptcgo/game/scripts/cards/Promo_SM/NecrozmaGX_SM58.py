@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+def _attacker_is_colorless(calc, carrier) -> bool:
+    return (calc.target is carrier
+            and calc.attacker is not None
+            and PokemonTypes.COLORLESS.value
+            in (calc.attacker.get_attribute(AttrID.POKEMON_TYPES) or []))
+
+
+def _is_psychic_energy(card) -> bool:
+    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.PSYCHIC.value)
 
 card = PokemonCardDef(
     guid="997a24ad-3af5-52be-aa84-d2e8930b7d07",
@@ -21,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Light's End",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from Colorless Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_attacker_is_colorless),
         ),
         Attack(
             title="Prismatic Burst",
@@ -29,7 +43,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="self-energy", predicate=_is_psychic_energy,
+                              max_count=99, per=60, optional=False, base=10),
         ),
         Attack(
             title="Black Ray-GX",
