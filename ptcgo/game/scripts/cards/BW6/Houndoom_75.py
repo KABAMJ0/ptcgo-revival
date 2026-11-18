@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="cb80a2df-d59f-565e-b478-513213af5e9f",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
     ],
 )
