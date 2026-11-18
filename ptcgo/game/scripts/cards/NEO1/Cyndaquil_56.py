@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness, Resistance, Pok\u00e9mon Powers, or any other effects on the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )

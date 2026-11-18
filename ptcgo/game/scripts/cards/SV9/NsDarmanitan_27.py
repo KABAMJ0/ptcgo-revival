@@ -1,4 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters, damage_per, count_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("opponent", is_basic_energy_card), per=30),
         ),
         Attack(
             title="Flamebody Cannon",
