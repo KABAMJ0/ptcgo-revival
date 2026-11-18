@@ -1154,6 +1154,27 @@ def discard_self_on_retreat() -> Passive:
     return DiscardSelfOnRetreatPassive()
 
 
+def composed(first, then=None, on_success=None, on_fail=None):
+    """"body, then rider" for an ability, as HOME-13 specified it.
+
+    `then` always runs after `first`; `on_success` runs only when `first`
+    returned a truthy result and `on_fail` when it returned falsy. Each element
+    is an ordinary `async def effect(ctx)` (a factory call already is one), and
+    `ctx` carries through unchanged. A step without a signal (returns None)
+    is treated as success; pass `first` through do_a_then_b directly for the
+    strict "if you do" reading."""
+    async def effect(ctx):
+        outcome = await first(ctx)
+        happened = True if outcome is None else bool(outcome)
+        if then is not None:
+            await then(ctx)
+        if happened and on_success is not None:
+            await on_success(ctx)
+        if not happened and on_fail is not None:
+            await on_fail(ctx)
+    return effect
+
+
 async def do_a_then_b(first, then, ctx, on_none: bool = True):
     """"Do A. If you do, B" for an ability: runs `first`, and runs `then` only
     when `first` reports that something happened.

@@ -782,12 +782,12 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
     async def effect(ctx):
         hand = [card for card in ctx.hand() if predicate(card)]
         if not hand:
-            return
+            return []
         picks = await ctx.choose_cards(
             hand, count, minimum=minimum,
             prompt=prompt or f"Choose up to {count} card(s) to attach")
         if not picks:
-            return
+            return []
         attached = []
         if target == "self":
             for card in picks:
@@ -796,7 +796,7 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
         else:
             candidates = _targets(ctx)
             if not candidates:
-                return
+                return []
             if distribute:
                 attached = await distribute_energy(ctx, picks, candidates)
             else:
@@ -808,6 +808,9 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
                 attached = [(card, pokemon) for card in picks]
         if then is not None and attached:
             await then(ctx, attached)
+        # The (card, target) pairs are the "did an Energy actually land" signal
+        # for composed()/do_a_then_b riders.
+        return attached
 
     return effect
 
