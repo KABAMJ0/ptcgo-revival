@@ -1,0 +1,432 @@
+# Who uses each client message
+
+Built by `tools_client_usage.py` from `client-metadata.jsonl`: for each message type, the classes that name it in a field, property or method signature, or expose a method named after it.
+
+This is a **lower bound**, not a usage oracle. The client subscribes to most messages through generic base classes (`Subscription<EntityAdded>`) or by type at runtime, and neither shows up as a concrete field type, so a message in the unreferenced list below is still very likely in use. What the map is good for: finding the class that owns a message when you need to know what a screen does with it.
+
+- messages with a user: **145** of **417**
+- messages nothing references: **272**
+
+## No direct type reference (see the caveat above)
+
+`AcceptMatchWithSpecificClient`, `AccountDuplicateLogin`, `AccountPropertyRemoved`, `AccountPropertyRemoved2`, `AchievementProgress`, `ActiveAsyncTournaments`, `ActiveDrafts`, `ActivePlayerSet`, `AllAbilitiesFound`, `AllArchetypesChecksumMatch`, `AllAvatarArchetypesChecksumMatch`, `AllAvatarArchetypesFound`, `AllBannedCards`, `AllFeatureStatuses`, `AllLocalizationReleases`, `AllPurchasedDisplayProducts`, `AllQuests`, `ArchetypeContentData`, `ArchetypeFlagsForTradeSet`, `ArchetypeFlagsRequested`, `ArchetypeFlagsSet`, `ArchetypeForReviewSet`, `ArchetypeForTradeSet`, `ArchetypeIDsByFamily`, `ArchetypeKeys`, `ArchetypeReviewSet`, `ArchetypeWantedSet`, `ArchetypesFound`, `ArchetypesPurchaseFailure`, `ArchetypesPurchased`, `ArchetypesSellFailure`, `ArchetypesSold`, `AsyncTournamentDeckUpdated`, `AsyncTournamentGameHistory`, `AsyncTournamentGameHistoryList`, `AsyncTournamentHasClaimedLeaderboardReward`, `AsyncTournamentJoined`, `AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings`, `AsyncTournamentLeaderboardRewards`, `AsyncTournamentLeaderboardTopRankedStandings`, `AsyncTournamentNumberOfPlayerRuns`, `AsyncTournamentProgressUpdated`, `AsyncTournamentRewards`, `AsyncTournamentStandings`, `AttributeModified`, `AttributeRemoved`, `AttributesReset`, `AuthenticationResultMessage`, `AvailableTournamentList`, `BonusProductsFulfilled`, `CakeRevealOpened`, `CakeSaveDeck`, `CakeSelectionWithTargetsRequired`, `CampaignStarted`, `CanClaimLeaderboardRewardsForTournament`, `ChangeTimerEvent`, `ChatPartnerError`, `ChecksumMatch`, `ClaimAsyncTournamentRewardError`, `ClientStorageError`, `ClientStorageRetrieved`, `CodeIsValid`, `CodeRedemptionFailure`, `CollectionCountFound`, `CollectionFoundPart`, `CommerceHistory`, `CommerceHistoryEntriesFound`, `ConfirmReadyForMatch`, `ConnectionService`, `ContentData`, `CounterCreated`, `CounterRejected`, `CreateLotPrices`, `CreateTimer`, `CurrentDailyRewardTrack`, `CurrentGames`, `CurrentVersusSeason`, `DailyRewardTier`, `DailyRewardTrackID`, `DeckNotValidForQueue`, `DeckRetrievalFailed`, `DeckSaveFailed`, `DecksDeleted`, `DeleteDeckFailed`, `DeleteTimer`, `DematerializeEntity`, `DeviceAccountUpgradeFailed`, `DeviceAccountUpgraded`, `DireBytesFound`, `DraftChoiceException`, `DraftError`, `DraftStateUpdated`, `EffectPlayed`, `EntityAdded`, `EntityDestroyed`, `EntityIntroduced`, `EntityMoved`, `EntityMovedWithoutID`, `ErrorCreatingLot`, `ErrorPurchasingLot`, `ErrorRemovingLot`, `EulaSetForAccount`, `FirstLoginEverMessage`, `ForceSelectionFinished`, `FormatLegalityForArchetypes`, `GameCustomChoice`, `GameDoesNotExist`, `GameEnded`, `GameMessage`, `GamePaused`, `GameTermsAsDict`, `GameUnPaused`, `GetAchievements`, `GetAllPurchasedDisplayProducts`, `GetArchetypeCorrections`, `GetChecksummedDataError`, `GetDailyQuests`, `GetDataTable`, `GetDataTableNoChecksum`, `GetFeatureStatuses_v2`, `GetNotifications`, `GetProtobufAllArchetypesList`, `GetProtobufArchetypesList`, `GetProtobufArchetypesLists`, `GetWallet`, `GetXCostChoiceRequired`, `HasAvailableTutorialMatches`, `InfiniteLoopDetected`, `InvalidCode`, `InvalidCurrency`, `ItemsLocked`, `ItemsRemovedFromCollectionById`, `ItemsUnlocked`, `JoinAsyncTournamentError`, `JoinTournamentFailed`, `JoinTournamentFailedInvalidDeck`, `LeaderBoardQueryFailed`, `LeaderBoardRankings`, `LeaderBoardUserRank`, `LeaderBoardUserRankings`, `LeaderBoards`, `LeagueAndGymModeError`, `LeagueAndGymModeRewards`, `LeagueAndGymModeStatus`, `LeagueTiebreakersRemaining`, `ListAchievements`, `ListingsRetrieved`, `LoggedClientError`, `LoginReward`, `LotCreated`, `LotRemoved`, `LotRemovedAndRejected`, `LotSold`, `LotsRetrieved`, `LotsRetrievedCount`, `MatchFailure`, `MatchGameEnded`, `MatchQueueEntered`, `MatchQueueJoinFailed`, `MatchQueueLeft`, `MatchRequestAccepted`, `MatchRequestCancelled`, `MatchRequestError`, `MatchRequestRejected`, `MatchRequestWithSpecificClientDeckCheckFailed`, `MatchRequestWithSpecificClientFailed`, `MaterializeEntity`, `MyLotsRetrieved`, `MyLotsRetrievedCount`, `NoGuidOverride`, `NoMotdSet`, `NotificationsRequested`, `ObserveGame`, `ObserveGameError`, `ObserveGameForAccountID`, `OfferRetrievalFailure`, `OverLimit`, `OverridePrices`, `PhoenixRequestXboxMatchWithSpecificClient`, `PlayerInteractedWithEntityEffect`, `PlayerInteractedWithEntityEffectV2`, `PlayerReconnected`, `PlayerStillInGame`, `PlayerStoppedInteractingEffect`, `Pong`, `PrivacyPolicyExpired`, `PrivacyPolicySetForAccount`, `PrivacyPolicySuccessful`, `PrivateLotsRetrieved`, `PrivateLotsRetrievedCount`, `ProductPurchaseFailure`, `ProductRetrievalFailure`, `ProductsOpenedFailure`, `QuestComplete`, `QuestConfigurationUpdated`, `QuestsProgressed`, `QuestsUpdated`, `RefreshContent`, `RegisterGuestAccountWithToken`, `RemoveLotWrongAccount`, `RemoveOfferWrongAccount`, `Replay`, `RequestAuthToken`, `RequestDeviceID`, `RequestMatchWithSpecificClient`, `RequestOverridePrices`, `RequestSinglesPrices`, `RequestTimeOutConfirmation`, `RequestedAID`, `RequestedAuthType`, `RequestedGASKey`, `RequestedRandomAvatarDeck`, `RequestedUsername`, `ResetTimer`, `ResignMatch`, `RevealClosed`, `RevealOpened`, `SaveDeck`, `ScenarioDiff`, `ScenarioNotAvailable`, `ScenarioServerError`, `SearchLotsRetrieved`, `SelectQuest`, `SelectionFinished`, `SetDataList`, `SetIdleTimer`, `Shuffled`, `SinglesPrices`, `SpecialQuestBegan`, `SpecialQuestEnded`, `SpectatedMatchRequestSent`, `StartAsyncTournamentGameError`, `StopObserving`, `StopSequence`, `StoppedObserving`, `StoreEmailError`, `StoreEmailSuccess`, `StoreIsClosed`, `StoreIsOpen`, `SubscribeToTournamentChannelSuccessful`, `SuddenDeathGameMessage`, `SystemMessage`, `TimerStopped`, `TournamentActive`, `TournamentCancelled`, `TournamentDraftChoices`, `TournamentDraftComplete`, `TournamentHistoryList`, `TournamentInActive`, `TournamentJoinFailed`, `TournamentLeft`, `TournamentMessage`, `TournamentNextRoundStarting`, `TournamentQueueJoined`, `TournamentQueueLeft`, `TournamentQueueLeftFailed`, `TournamentQueueStatus`, `TournamentRoundUpdated`, `TournamentStarted`, `TournamentsInProgressData`, `TradeHasBeenReported`, `TradeHistoryRetrieved`, `TradeHistoryRetrievedCount`, `TradeReported`, `TutorialDeckUnlock`, `UnSubscribeToTournamentChannelSuccessful`, `Unparseable`, `UpdateWantedFlagsForArchetypes`, `UserInActiveTournament`, `UsersInTournamentQueue`, `VersusSeasonBegan`, `VersusSeasonEnded`
+
+## Full map
+
+- **GameCompletedMessage** (15) — `Z`, `EOGAnimationController_TCResults`, `EOGModule`, `EndGameDialog`, `EndGameRewardsPrizeWheelItemRenderer`, `EndGameRewardsTabPanel`, `EndGameScoreTabPanel`, `EndGameStatsTabPanel`, `EndGameSummaryDataInitializer`, `EndGameSummaryTabPanel`, `E`, `GameCompletedMessageUtil`, `g`, `L`, `l`
+- **Notification** (6) — `W`, `w`, `k`, `L`, `Notifications`, `WargNotificationsSource`
+- **SelectionMessage** (5) — `a`, `RootSelection`, `SelectionNodeFactory`, `SelectionOffer`, `SelectionWithTargets`
+- **ChecksumDiff** (4) — `CachedDataProvider`, `ChecksumDiffUtil`, `IDataCacheRepository`, `RawJsonDataCacheRepository`
+- **ProductsOpened** (4) — `m`, `c`, `SocialNotificationsController`, `ProductsOpenedUtil`
+- **TournamentCompleted** (4) — `V`, `SocialNotificationsController`, `TournamentFinalStandingsView`, `ViewTournamentCompletedNotification`
+- **AuthenticationFailed** (3) — `n`, `PieLoginViewMediator`, `AuthenticationResult`
+- **DailyLogin** (3) — `w`, `x`, `f`
+- **DailyRewardTrack** (3) — `DailyRewardTrackListDataSource`, `w`, `t`
+- **EventNotice** (3) — `PromotionsMediator`, `X`, `V`
+- **FriendError** (3) — `I`, `WargSocialProvider`3`, `<sendMessageAndAwaitResponse>d__77`1`
+- **GatewayThrottled** (3) — `Connect`, `ConnectionStatus`, `ConnectionResponse`
+- **MatchRequested** (3) — `Y`, `s`, `t`
+- **ProductsFulfilled** (3) — `s`, `s`, `SocialNotificationsController`
+- **ProtoAllArchetypesFound** (3) — `LoadArchetypesFromServer`, `LoadProtoCacheArchetypes`, `SaveArchetypesToDisk`
+- **VersusSeason** (3) — `s`, `VersusSeasonManager`, `K`
+- **AuthenticationSuccessful** (2) — `AuthenticationResult`, `r`
+- **AvailableProducts** (2) — `W`, `X`
+- **ContentDataNotify** (2) — `T`, `F`
+- **DynamicLandingPages** (2) — `P`, `m`
+- **DynamicVersions** (2) — `T`, `t`
+- **FriendAdded** (2) — `F`, `<>c__DisplayClass71_0`
+- **FriendInvitation** (2) — `J`, `<>c__DisplayClass50_0`
+- **FriendPresence** (2) — `K`, `<>c__DisplayClass70_0`
+- **FriendRemoved** (2) — `L`, `<>c__DisplayClass72_0`
+- **GatewayError** (2) — `J`, `PieLoginViewMediator`
+- **LotCreatedForYou** (2) — `n`, `SocialNotificationsController`
+- **LotExpired** (2) — `CakeExtensions`, `SocialNotificationsController`
+- **NetworkNotificationMessage** (2) — `NotificationType`, `TournamentManager`
+- **NotifyPrivateChat** (2) — `PrivateChatMessage`, `F`
+- **ScenarioProgress** (2) — `y`, `Status`
+- **SetRate** (2) — `C`, `MutableTimer`
+- **TournamentItemsAddedToCollection** (2) — `U`, `V`
+- **TradeCompleted** (2) — `r`, `SocialNotificationsController`
+- **AccountPropertiesUpdated** (1) — `k`
+- **AccountUpdated** (1) — `i`
+- **AchievementCompleted** (1) — `o`
+- **AcknowledgeNotification** (1) — `n`
+- **AddDuration** (1) — `MutableTimer`
+- **AllArchetypesFound** (1) — `LoadArchetypesFromServer`
+- **AllBannedCardsByFormat** (1) — `G`
+- **AllFeatureStatuses_v2** (1) — `Z`
+- **AllScenarios** (1) — `p`
+- **ArchetypeCorrections** (1) — `K`
+- **ArchetypeCustomChoiceRequired** (1) — `ArchetypeCustomChoiceNode`
+- **ArchetypesChecksumMatch** (1) — `h`
+- **ArchetypesUpdated** (1) — `<>c`
+- **AsyncTournamentUnacknowledgedPacks** (1) — `AsyncTournamentsProvider`
+- **AuthenticationError** (1) — `AuthenticationResult`
+- **AvailableRooms** (1) — `w`
+- **BanArchetypeIDs** (1) — `F`
+- **BigNetworkMessageEvent** (1) — `o`
+- **BundleContentData** (1) — `c`
+- **CakeMonthlyLeaderboardRewards** (1) — `X`
+- **CakeWeeklyLeaderboardRewards** (1) — `X`
+- **ChatConnected** (1) — `B`
+- **ChatDisconnected** (1) — `C`
+- **CodeSuccessfullyRedeemed** (1) — `SocialNotificationsController`
+- **CohortsForAccount** (1) — `CohortsForAccountUpdatedCommand`
+- **CoinFlipChoiceRequired** (1) — `S`
+- **CollectionFound** (1) — `v`
+- **ConnectionDenied** (1) — `I`
+- **ConnectionError** (1) — `p`
+- **ConsoleLogData** (1) — `L`
+- **ContentCompleted** (1) — `d`
+- **CurrencyAmount** (1) — `N`
+- **CurrencyCaps** (1) — `O`
+- **CurrencyChanged** (1) — `X`
+- **CurrentGuidOverride** (1) — `s`
+- **CurrentWallet** (1) — `P`
+- **CustomChoiceOfferMessage** (1) — `x`
+- **CustomChoiceRequired** (1) — `CustomChoiceNode`
+- **CustomChoiceWithTargetsRequired** (1) — `CustomChoiceWithTargetsNode`
+- **DeckDeleted** (1) — `D`
+- **DeckPropertiesSaved** (1) — `D`
+- **DeckSaved** (1) — `V`
+- **DeckUpdated** (1) — `SocialNotificationsController`
+- **DecksValidated** (1) — `Z`
+- **DefaultTrainerChallengeDeckMessage** (1) — `e`
+- **DigestSalt** (1) — `p`
+- **DraftEnded** (1) — `DraftProvider`
+- **EulaExpired** (1) — `m`
+- **EulaSuccessful** (1) — `P`
+- **FeatureIsClosed** (1) — `t`
+- **FeatureIsOpen** (1) — `u`
+- **FeaturedProducts** (1) — `W`
+- **ForceLoadAssetBundle** (1) — `r`
+- **FriendBlocked** (1) — `G`
+- **FriendDeclined** (1) — `H`
+- **FriendRoster** (1) — `M`
+- **FriendUnblocked** (1) — `N`
+- **GetAvailableProducts** (1) — `c`
+- **GetWalletFailed** (1) — `CommerceErrorCodes`
+- **GoFirstChoiceRequired** (1) — `r`
+- **GrantedSession** (1) — `WargSession`
+- **ItemsAddedToCollection** (1) — `m`
+- **ItemsRemovedFromCollection** (1) — `n`
+- **LocalizationContentData** (1) — `G`
+- **LocalizedSystemMessage** (1) — `h`
+- **MapEntityID** (1) — `Entities`
+- **MatchFound** (1) — `w`
+- **MatchRequestSent** (1) — `U`
+- **Motd** (1) — `J`
+- **MulliganChoiceRequired** (1) — `MulliganChoiceNode`
+- **MultipleSelectionWithTargetsRequired** (1) — `MultipleSelectionWithTargetsNode`
+- **NetworkStatusIndicatorConfiguration** (1) — `r`
+- **NonMatchingArchetypesChecksums** (1) — `K`
+- **NotifyActiveTournamentChat** (1) — `A`
+- **NotifyChat** (1) — `B`
+- **NotifyGameChat** (1) — `C`
+- **NotifyJoin** (1) — `D`
+- **NotifyLeave** (1) — `E`
+- **NotifyTournamentQueueChat** (1) — `G`
+- **ObserverCustomChoiceOfferMessage** (1) — `O`
+- **OnlineAvatarDecksFound** (1) — `C`
+- **OnlineDecksFound** (1) — `d`
+- **PackAcknowledged** (1) — `<>c__DisplayClass23_0`
+- **ParameterizedLocCustomChoiceRequired** (1) — `R`
+- **PlayerDisconnected** (1) — `q`
+- **PlayerNotInGame** (1) — `k`
+- **PokemonFamilyMap** (1) — `k`
+- **PrivateChat** (1) — `f`
+- **ProductsPurchased** (1) — `SocialNotificationsController`
+- **ReloadManifest** (1) — `l`
+- **ReportFailed** (1) — `p`
+- **ReportSent** (1) — `q`
+- **RequestHeartbeat** (1) — `g`
+- **RequestedHelpTips** (1) — `<>c__DisplayClass29_0`
+- **ResignGame** (1) — `n`
+- **RunClientAction** (1) — `ClientEventResponder`
+- **SelectionWithTargetsAndActionsRequired** (1) — `SelectionWithTargetsAndActionsNode`
+- **SelectionWithTargetsRequired** (1) — `SelectionWithTargetsNode`
+- **SequenceMessage** (1) — `SequenceParser`
+- **SerializedGameState** (1) — `x`
+- **SetAccountSettings** (1) — `n`
+- **StartSequence** (1) — `ProductOpeningProvider`
+- **SystemMessageULB** (1) — `A`
+- **ThemeDeckContentsMap** (1) — `P`
+- **TimeLockedArchetypes** (1) — `B`
+- **TopSellingProducts** (1) — `W`
+- **UnBanArchetypeIDForFormat** (1) — `H`
+- **UnBanArchetypeIDs** (1) — `I`
+- **UpgradeClient** (1) — `U`
+- **UserHasBeenReported** (1) — `SocialNotificationsController`
+- **WeeklyLeaderboardRewards** (1) — `j`
+- **AcceptMatchWithSpecificClient** (0) — 
+- **AccountDuplicateLogin** (0) — 
+- **AccountPropertyRemoved** (0) — 
+- **AccountPropertyRemoved2** (0) — 
+- **AchievementProgress** (0) — 
+- **ActiveAsyncTournaments** (0) — 
+- **ActiveDrafts** (0) — 
+- **ActivePlayerSet** (0) — 
+- **AllAbilitiesFound** (0) — 
+- **AllArchetypesChecksumMatch** (0) — 
+- **AllAvatarArchetypesChecksumMatch** (0) — 
+- **AllAvatarArchetypesFound** (0) — 
+- **AllBannedCards** (0) — 
+- **AllFeatureStatuses** (0) — 
+- **AllLocalizationReleases** (0) — 
+- **AllPurchasedDisplayProducts** (0) — 
+- **AllQuests** (0) — 
+- **ArchetypeContentData** (0) — 
+- **ArchetypeFlagsForTradeSet** (0) — 
+- **ArchetypeFlagsRequested** (0) — 
+- **ArchetypeFlagsSet** (0) — 
+- **ArchetypeForReviewSet** (0) — 
+- **ArchetypeForTradeSet** (0) — 
+- **ArchetypeIDsByFamily** (0) — 
+- **ArchetypeKeys** (0) — 
+- **ArchetypeReviewSet** (0) — 
+- **ArchetypeWantedSet** (0) — 
+- **ArchetypesFound** (0) — 
+- **ArchetypesPurchaseFailure** (0) — 
+- **ArchetypesPurchased** (0) — 
+- **ArchetypesSellFailure** (0) — 
+- **ArchetypesSold** (0) — 
+- **AsyncTournamentDeckUpdated** (0) — 
+- **AsyncTournamentGameHistory** (0) — 
+- **AsyncTournamentGameHistoryList** (0) — 
+- **AsyncTournamentHasClaimedLeaderboardReward** (0) — 
+- **AsyncTournamentJoined** (0) — 
+- **AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings** (0) — 
+- **AsyncTournamentLeaderboardRewards** (0) — 
+- **AsyncTournamentLeaderboardTopRankedStandings** (0) — 
+- **AsyncTournamentNumberOfPlayerRuns** (0) — 
+- **AsyncTournamentProgressUpdated** (0) — 
+- **AsyncTournamentRewards** (0) — 
+- **AsyncTournamentStandings** (0) — 
+- **AttributeModified** (0) — 
+- **AttributeRemoved** (0) — 
+- **AttributesReset** (0) — 
+- **AuthenticationResultMessage** (0) — 
+- **AvailableTournamentList** (0) — 
+- **BonusProductsFulfilled** (0) — 
+- **CakeRevealOpened** (0) — 
+- **CakeSaveDeck** (0) — 
+- **CakeSelectionWithTargetsRequired** (0) — 
+- **CampaignStarted** (0) — 
+- **CanClaimLeaderboardRewardsForTournament** (0) — 
+- **ChangeTimerEvent** (0) — 
+- **ChatPartnerError** (0) — 
+- **ChecksumMatch** (0) — 
+- **ClaimAsyncTournamentRewardError** (0) — 
+- **ClientStorageError** (0) — 
+- **ClientStorageRetrieved** (0) — 
+- **CodeIsValid** (0) — 
+- **CodeRedemptionFailure** (0) — 
+- **CollectionCountFound** (0) — 
+- **CollectionFoundPart** (0) — 
+- **CommerceHistory** (0) — 
+- **CommerceHistoryEntriesFound** (0) — 
+- **ConfirmReadyForMatch** (0) — 
+- **ConnectionService** (0) — 
+- **ContentData** (0) — 
+- **CounterCreated** (0) — 
+- **CounterRejected** (0) — 
+- **CreateLotPrices** (0) — 
+- **CreateTimer** (0) — 
+- **CurrentDailyRewardTrack** (0) — 
+- **CurrentGames** (0) — 
+- **CurrentVersusSeason** (0) — 
+- **DailyRewardTier** (0) — 
+- **DailyRewardTrackID** (0) — 
+- **DeckNotValidForQueue** (0) — 
+- **DeckRetrievalFailed** (0) — 
+- **DeckSaveFailed** (0) — 
+- **DecksDeleted** (0) — 
+- **DeleteDeckFailed** (0) — 
+- **DeleteTimer** (0) — 
+- **DematerializeEntity** (0) — 
+- **DeviceAccountUpgradeFailed** (0) — 
+- **DeviceAccountUpgraded** (0) — 
+- **DireBytesFound** (0) — 
+- **DraftChoiceException** (0) — 
+- **DraftError** (0) — 
+- **DraftStateUpdated** (0) — 
+- **EffectPlayed** (0) — 
+- **EntityAdded** (0) — 
+- **EntityDestroyed** (0) — 
+- **EntityIntroduced** (0) — 
+- **EntityMoved** (0) — 
+- **EntityMovedWithoutID** (0) — 
+- **ErrorCreatingLot** (0) — 
+- **ErrorPurchasingLot** (0) — 
+- **ErrorRemovingLot** (0) — 
+- **EulaSetForAccount** (0) — 
+- **FirstLoginEverMessage** (0) — 
+- **ForceSelectionFinished** (0) — 
+- **FormatLegalityForArchetypes** (0) — 
+- **GameCustomChoice** (0) — 
+- **GameDoesNotExist** (0) — 
+- **GameEnded** (0) — 
+- **GameMessage** (0) — 
+- **GamePaused** (0) — 
+- **GameTermsAsDict** (0) — 
+- **GameUnPaused** (0) — 
+- **GetAchievements** (0) — 
+- **GetAllPurchasedDisplayProducts** (0) — 
+- **GetArchetypeCorrections** (0) — 
+- **GetChecksummedDataError** (0) — 
+- **GetDailyQuests** (0) — 
+- **GetDataTable** (0) — 
+- **GetDataTableNoChecksum** (0) — 
+- **GetFeatureStatuses_v2** (0) — 
+- **GetNotifications** (0) — 
+- **GetProtobufAllArchetypesList** (0) — 
+- **GetProtobufArchetypesList** (0) — 
+- **GetProtobufArchetypesLists** (0) — 
+- **GetWallet** (0) — 
+- **GetXCostChoiceRequired** (0) — 
+- **HasAvailableTutorialMatches** (0) — 
+- **InfiniteLoopDetected** (0) — 
+- **InvalidCode** (0) — 
+- **InvalidCurrency** (0) — 
+- **ItemsLocked** (0) — 
+- **ItemsRemovedFromCollectionById** (0) — 
+- **ItemsUnlocked** (0) — 
+- **JoinAsyncTournamentError** (0) — 
+- **JoinTournamentFailed** (0) — 
+- **JoinTournamentFailedInvalidDeck** (0) — 
+- **LeaderBoardQueryFailed** (0) — 
+- **LeaderBoardRankings** (0) — 
+- **LeaderBoardUserRank** (0) — 
+- **LeaderBoardUserRankings** (0) — 
+- **LeaderBoards** (0) — 
+- **LeagueAndGymModeError** (0) — 
+- **LeagueAndGymModeRewards** (0) — 
+- **LeagueAndGymModeStatus** (0) — 
+- **LeagueTiebreakersRemaining** (0) — 
+- **ListAchievements** (0) — 
+- **ListingsRetrieved** (0) — 
+- **LoggedClientError** (0) — 
+- **LoginReward** (0) — 
+- **LotCreated** (0) — 
+- **LotRemoved** (0) — 
+- **LotRemovedAndRejected** (0) — 
+- **LotSold** (0) — 
+- **LotsRetrieved** (0) — 
+- **LotsRetrievedCount** (0) — 
+- **MatchFailure** (0) — 
+- **MatchGameEnded** (0) — 
+- **MatchQueueEntered** (0) — 
+- **MatchQueueJoinFailed** (0) — 
+- **MatchQueueLeft** (0) — 
+- **MatchRequestAccepted** (0) — 
+- **MatchRequestCancelled** (0) — 
+- **MatchRequestError** (0) — 
+- **MatchRequestRejected** (0) — 
+- **MatchRequestWithSpecificClientDeckCheckFailed** (0) — 
+- **MatchRequestWithSpecificClientFailed** (0) — 
+- **MaterializeEntity** (0) — 
+- **MyLotsRetrieved** (0) — 
+- **MyLotsRetrievedCount** (0) — 
+- **NoGuidOverride** (0) — 
+- **NoMotdSet** (0) — 
+- **NotificationsRequested** (0) — 
+- **ObserveGame** (0) — 
+- **ObserveGameError** (0) — 
+- **ObserveGameForAccountID** (0) — 
+- **OfferRetrievalFailure** (0) — 
+- **OverLimit** (0) — 
+- **OverridePrices** (0) — 
+- **PhoenixRequestXboxMatchWithSpecificClient** (0) — 
+- **PlayerInteractedWithEntityEffect** (0) — 
+- **PlayerInteractedWithEntityEffectV2** (0) — 
+- **PlayerReconnected** (0) — 
+- **PlayerStillInGame** (0) — 
+- **PlayerStoppedInteractingEffect** (0) — 
+- **Pong** (0) — 
+- **PrivacyPolicyExpired** (0) — 
+- **PrivacyPolicySetForAccount** (0) — 
+- **PrivacyPolicySuccessful** (0) — 
+- **PrivateLotsRetrieved** (0) — 
+- **PrivateLotsRetrievedCount** (0) — 
+- **ProductPurchaseFailure** (0) — 
+- **ProductRetrievalFailure** (0) — 
+- **ProductsOpenedFailure** (0) — 
+- **QuestComplete** (0) — 
+- **QuestConfigurationUpdated** (0) — 
+- **QuestsProgressed** (0) — 
+- **QuestsUpdated** (0) — 
+- **RefreshContent** (0) — 
+- **RegisterGuestAccountWithToken** (0) — 
+- **RemoveLotWrongAccount** (0) — 
+- **RemoveOfferWrongAccount** (0) — 
+- **Replay** (0) — 
+- **RequestAuthToken** (0) — 
+- **RequestDeviceID** (0) — 
+- **RequestMatchWithSpecificClient** (0) — 
+- **RequestOverridePrices** (0) — 
+- **RequestSinglesPrices** (0) — 
+- **RequestTimeOutConfirmation** (0) — 
+- **RequestedAID** (0) — 
+- **RequestedAuthType** (0) — 
+- **RequestedGASKey** (0) — 
+- **RequestedRandomAvatarDeck** (0) — 
+- **RequestedUsername** (0) — 
+- **ResetTimer** (0) — 
+- **ResignMatch** (0) — 
+- **RevealClosed** (0) — 
+- **RevealOpened** (0) — 
+- **SaveDeck** (0) — 
+- **ScenarioDiff** (0) — 
+- **ScenarioNotAvailable** (0) — 
+- **ScenarioServerError** (0) — 
+- **SearchLotsRetrieved** (0) — 
+- **SelectQuest** (0) — 
+- **SelectionFinished** (0) — 
+- **SetDataList** (0) — 
+- **SetIdleTimer** (0) — 
+- **Shuffled** (0) — 
+- **SinglesPrices** (0) — 
+- **SpecialQuestBegan** (0) — 
+- **SpecialQuestEnded** (0) — 
+- **SpectatedMatchRequestSent** (0) — 
+- **StartAsyncTournamentGameError** (0) — 
+- **StopObserving** (0) — 
+- **StopSequence** (0) — 
+- **StoppedObserving** (0) — 
+- **StoreEmailError** (0) — 
+- **StoreEmailSuccess** (0) — 
+- **StoreIsClosed** (0) — 
+- **StoreIsOpen** (0) — 
+- **SubscribeToTournamentChannelSuccessful** (0) — 
+- **SuddenDeathGameMessage** (0) — 
+- **SystemMessage** (0) — 
+- **TimerStopped** (0) — 
+- **TournamentActive** (0) — 
+- **TournamentCancelled** (0) — 
+- **TournamentDraftChoices** (0) — 
+- **TournamentDraftComplete** (0) — 
+- **TournamentHistoryList** (0) — 
+- **TournamentInActive** (0) — 
+- **TournamentJoinFailed** (0) — 
+- **TournamentLeft** (0) — 
+- **TournamentMessage** (0) — 
+- **TournamentNextRoundStarting** (0) — 
+- **TournamentQueueJoined** (0) — 
+- **TournamentQueueLeft** (0) — 
+- **TournamentQueueLeftFailed** (0) — 
+- **TournamentQueueStatus** (0) — 
+- **TournamentRoundUpdated** (0) — 
+- **TournamentStarted** (0) — 
+- **TournamentsInProgressData** (0) — 
+- **TradeHasBeenReported** (0) — 
+- **TradeHistoryRetrieved** (0) — 
+- **TradeHistoryRetrievedCount** (0) — 
+- **TradeReported** (0) — 
+- **TutorialDeckUnlock** (0) — 
+- **UnSubscribeToTournamentChannelSuccessful** (0) — 
+- **Unparseable** (0) — 
+- **UpdateWantedFlagsForArchetypes** (0) — 
+- **UserInActiveTournament** (0) — 
+- **UsersInTournamentQueue** (0) — 
+- **VersusSeasonBegan** (0) — 
+- **VersusSeasonEnded** (0) — 

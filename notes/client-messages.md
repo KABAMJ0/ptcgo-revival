@@ -1,421 +1,421 @@
 # Client message index
 
-One line per message type with its top-level JSON keys. Full shapes are in `client-protocol.md`.
+One line per message type with its direction and top-level JSON keys. Direction comes from the client's own `incoming`/`outgoing` namespaces, otherwise from this server's InboundMsg/OutboundMsg enums. Full shapes are in `client-protocol.md`.
 
-- **AccountUpdated** — `account`
-- **ActiveAsyncTournaments** — `tournamentDefinitions`, `tournamentProgress`, `claimedLeaderboard`
-- **ActivePlayerSet** — `accountID`
-- **AllArchetypesChecksumMatch** — _no fields_
-- **AllAvatarArchetypesChecksumMatch** — _no fields_
-- **AllAvatarArchetypesFound** — `archetypes`, `checksum`, `protoMsg`
-- **AllBannedCards** — `bannedArchetypeIDs`
-- **AllBannedCardsByFormat** — `cards`
-- **AllPurchasedDisplayProducts** — `displayProducts`
-- **ArchetypeCommands.GetProtobufAllArchetypesList** — `checksum`
-- **ArchetypeCommands.GetProtobufArchetypesList** — `key`, `checksum`
-- **ArchetypeCommands.GetProtobufArchetypesLists** — `keyedChecksums`
-- **ArchetypeCommands.SaveDeck** — `deck`
-- **ArchetypeCustomChoiceRequired** — `buttons`, `sourceEntity`, `selectionParams`
-- **ArchetypeFlagsForTradeSet** — `archetypeFlags`
-- **ArchetypeFlagsRequested** — `archetypeFlags`
-- **ArchetypeFlagsSet** — `archetypeFlags`
-- **ArchetypeForReviewSet** — `archetypeID`, `review`
-- **ArchetypeForTradeSet** — `archetypeID`, `forTrade`
-- **ArchetypeIDsByFamily** — `familyMap`
-- **ArchetypeKeys** — `keys`
-- **ArchetypeReviewSet** — `archetypeID`, `review`
-- **ArchetypeWantedSet** — `archetypeID`, `wanted`
-- **ArchetypesChecksumMatch** — `key`
-- **AsyncTournamentHasClaimedLeaderboardReward** — `tournamentID`, `claimed`
-- **AsyncTournamentJoined** — `tournamentID`, `entryID`, `deck`, `progress`
-- **AsyncTournamentLeaderboardRewards** — `tournamentID`, `rank`, `rewards`
-- **AsyncTournamentProgressUpdated** — `tournamentID`, `entryID`, `wins`, `losses`, `rank`, `tiebreakers`
-- **AsyncTournamentRewards** — `entryID`, `wins`, `losses`, `rewards`
-- **AsyncTournamentStandings** — `standings`
-- **AttributesReset** — `entityID`
-- **AuthenticationError** — `reason`
-- **AuthenticationFailed** — `reason`
-- **AvailableProducts** — `availableProducts`, `priceMap`, `newArchetypes`, `archetypeProperties`
-- **AvailableTournamentList** — `tournamentList`, `tournamentQueues`
-- **BanArchetypeIDs** — `cards`
-- **BonusProductsFulfilled** — _no fields_
-- **CakeMonthlyLeaderboardRewards** — `current`, `nextWeek`, `endDate`
-- **CakeRevealOpened** — `revealID`, `entityIDs`, `revealSource`, `revealTypes`, `revealTitle`, `RevealType_RevealDialog`, `RevealType_SelectionDialog`, `RevealType_SelectionOrderedDialog`
-- **CakeSelectionWithTargetsRequired** — `prompt`
-- **CakeWeeklyLeaderboardRewards** — `current`, `nextWeek`, `endDate`
-- **CampaignStarted** — `scenarioID`
-- **ChatPartnerError** — `reason`
-- **ClaimAsyncTournamentRewardError** — `error`
-- **CodeIsValid** — `code`, `products`, `couponGroup`, `maxRedemptionsForGroup`
-- **CodeRedemptionFailure** — `code`, `reason`
-- **CodeSuccessfullyRedeemed** — `code`
-- **CoinFlipChoiceRequired** — `sortType`, `buttons`, `sourceEntity`
-- **CommerceHistory** — `entries`, `total`, `startIndex`, `count`, `missingEntries`
-- **CommerceHistoryEntriesFound** — `entries`
-- **ConnectionDenied** — `reason`
-- **ConnectionError** — `reason`
-- **ConnectionService** — `connectionEndPoint`
-- **CounterCreated** — _no fields_
-- **CounterRejected** — `offerID`
-- **CreateLotPrices** — `prices`
-- **CurrencyCaps** — `currencies`
-- **CurrentDailyRewardTrack** — `dailyRewardTrack`, `nextExpiry`
-- **CurrentGames** — `gameIDs`
-- **CurrentVersusSeason** — `versusSeason`
-- **CustomChoiceOfferMessage** — `selectingPlayer`, `prompt`, `buttons`, `offerLength`, `sourceEntity`, `selection`, `correctChoice`
-- **CustomChoiceRequired** — `sortType`, `buttons`, `sourceEntity`, `kind`
-- **DailyLogin** — `activations`, `rewardDay`, `weeksRewards`, `firstDailyLogin`
-- **DailyRewardTier** — `wins`, `rewards`, `isDefaultReward`, `isSpecialReward`
-- **DailyRewardTrack** — `name`, `rewardTiers`, `isDefault`
-- **DailyRewardTrackID** — _no fields_
-- **DeckRetrievalFailed** — _no fields_
-- **DeckUpdated** — `deckID`, `cardsAdded`, `cardsRemoved`
-- **DeviceAccountUpgradeFailed** — _no fields_
-- **DeviceAccountUpgraded** — `account`
-- **DigestSalt** — `salt`
-- **DraftChoiceException** — `tournamentEntryID`
-- **EffectPlayed** — `effectMessage`
-- **EntityMoved** — `entityID`, `destinationID`, `positionInParent`, `animDuration`
-- **ErrorCreatingLot** — `error`
-- **ErrorPurchasingLot** — `error`
-- **ErrorRemovingLot** — `error`
-- **EventNotice** — `eventName`, `message`, `title`, `items`
-- **FeaturedProducts** — `products`
-- **FirstLoginEverMessage** — _no fields_
-- **ForceLoadAssetBundle** — `archetypeids`
-- **ForceSelectionFinished** — _no fields_
-- **FormatLegalityForArchetypes** — `archLegality`
-- **GameCompletedMessage** — `coins`, `exp`, `share`, `endOfGameText`, `rewardList`, `winner`, `loser`, `additionalParameters`
-- **GameDoesNotExist** — _no fields_
-- **GameMessage** — _no fields_
-- **GameUnPaused** — `accountID`
-- **GatewayError** — `reason`
-- **GatewayThrottled** — `sessionID`, `positionInQueue`, `waitTime`
-- **GetXCostChoiceRequired** — `lowBound`, `highBound`
-- **GoFirstChoiceRequired** — `sortType`, `buttons`, `sourceEntity`
-- **GrantedSession** — `version`, `serverTime`, `options`, `session`
-- **HasAvailableTutorialMatches** — `hasAvailableMatches`
-- **InfiniteLoopDetected** — _no fields_
-- **InvalidCode** — `code`, `reason`
-- **ItemsAddedToCollection** — `items`
-- **ItemsLocked** — `lockID`, `items`, `archCounts`
-- **ItemsRemovedFromCollection** — `items`
-- **ItemsUnlocked** — `items`, `archCounts`
-- **JoinAsyncTournamentError** — `error`
-- **JoinTournamentFailed** — `reason`
-- **JoinTournamentFailedInvalidDeck** — `deckValidationResult`
-- **LeaderBoardRankings** — `entries`
-- **LeaderBoards** — `names`
-- **ListingsRetrieved** — `listings`
-- **LotCreated** — `lotID`
-- **LotCreatedForYou** — `byUserName`
-- **LotExpired** — `lot`
-- **LotRemoved** — `lotID`, `reason`
-- **LotRemovedAndRejected** — `lotID`
-- **LotSold** — `lotID`
-- **LotsRetrieved** — `lots`
-- **LotsRetrievedCount** — `count`
-- **MatchQueueJoinFailed** — `failureType`
-- **MatchRequestAccepted** — `requestID`
-- **MatchRequestWithSpecificClientDeckCheckFailed** — `failureType`, `challenger`, `format`
-- **Motd** — `id`, `title`, `text`
-- **MulliganChoiceRequired** — `mulliganRound`, `maxMulligans`, `cardsDrawn`
-- **MultipleSelectionWithTargetsRequired** — `forcedTargets`, `forcedSecondStageTargets`, `targetMap`, `forced`
-- **MyLotsRetrieved** — `lots`, `offers`
-- **MyLotsRetrievedCount** — `count`
-- **NetworkNotificationMessage** — `notification`, `BehaviorType`
-- **NoMotdSet** — _no fields_
-- **NonMatchingArchetypesChecksums** — `keys`
-- **ObserverCustomChoiceOfferMessage** — `selectingPlayer`, `prompt`, `buttons`, `offerLength`, `sourceEntity`, `selection`, `correctChoice`
-- **OfferRetrievalFailure** — `reason`
-- **ParameterizedLocCustomChoiceRequired** — `buttons`
-- **PlayerDisconnected** — `accountID`, `waitTime`
-- **PlayerReconnected** — `accountID`
-- **PokemonFamilyMap** — `pokemonFamilyMap`
-- **Pong** — `timestamp`
-- **PrivateLotsRetrieved** — `lots`, `counterOffers`
-- **PrivateLotsRetrievedCount** — `count`
-- **ProductRetrievalFailure** — _no fields_
-- **ProductsFulfilled** — `items`
-- **ProductsPurchased** — `invoiceID`, `items`
-- **RefreshContent** — `content`
-- **RemoveLotWrongAccount** — `error`
-- **RemoveOfferWrongAccount** — `error`
-- **ReportFailed** — _no fields_
-- **ReportSent** — _no fields_
-- **RequestDeviceID** — _no fields_
-- **RequestedAID** — `accountID`
-- **RequestedAuthType** — `validAuthTypes`
-- **RequestedGASKey** — _no fields_
-- **RequestedRandomAvatarDeck** — `deck`
-- **RequestedUsername** — _no fields_
-- **RevealClosed** — `revealID`
-- **SearchLotsRetrieved** — `currentPage`, `totalPages`, `totalItems`, `lots`
-- **SelectionFinished** — _no fields_
-- **SelectionWithTargetsRequired** — `targetMap`, `optimalPlayMap`, `forced`, `targetType`, `ignoreFirst`, `selectionParams`, `sourceID`
-- **SetDataList** — `setDataList`
-- **SetIdleTimer** — `playerID`, `inactivityDuration`, `endTurnDuration`, `forced`
-- **Shuffled** — `entityID`
-- **StartAsyncTournamentGameError** — `error`
-- **StoreIsClosed** — _no fields_
-- **StoreIsOpen** — _no fields_
-- **SubscribeToTournamentChannelSuccessful** — `tournamentQueues`
-- **SuddenDeathGameMessage** — `suddenDeathRound`
-- **SystemMessage** — `message`
-- **SystemMessageULB** — `message`
-- **ThemeDeckContentsMap** — `themeDeckContentsMap`
-- **TimeLockedArchetypes** — `currentServerTime`, `timeLockedArchetypes`
-- **TopSellingProducts** — `invoiceID`, `products`
-- **TournamentActive** — `tournamentID`
-- **TournamentCancelled** — `tournamentID`
-- **TournamentCompleted** — `tournamentData`, `finalStandings`, `prizes`
-- **TournamentDraftChoices** — `tournamentEntryID`, `choices`, `draftedCards`, `choiceNumber`, `packSize`, `packNumber`, `numPacks`
-- **TournamentDraftComplete** — `tournamentEntryID`, `selections`
-- **TournamentHistoryList** — `tournamentHistoryList`
-- **TournamentInActive** — `tournamentID`
-- **TournamentItemsAddedToCollection** — `items`
-- **TournamentJoinFailed** — `reason`
-- **TournamentLeft** — `activeTournamentID`
-- **TournamentMessage** — _no fields_
-- **TournamentNextRoundStarting** — `activeTournamentID`, `countdown`, `suppressPopup`
-- **TournamentQueueJoined** — `tournamentID`
-- **TournamentQueueLeft** — `tournamentID`
-- **TournamentQueueLeftFailed** — `tournamentID`
-- **TournamentQueueStatus** — `tournamentID`, `size`
-- **TournamentRoundUpdated** — `activeTournamentID`, `tournamentData`
-- **TournamentStarted** — `activeTournamentID`, `size`
-- **TournamentsInProgressData** — `tournamentData`
-- **TradeCompleted** — `itemsReceived`, `itemsLost`, `role`
-- **TradeHasBeenReported** — _no fields_
-- **TradeHistoryRetrieved** — `offset`, `history`
-- **TradeHistoryRetrievedCount** — `count`
-- **TradeReported** — _no fields_
-- **UnBanArchetypeIDForFormat** — `card`, `format`
-- **UnBanArchetypeIDs** — `bannedArchetypeIDs`
-- **UnSubscribeToTournamentChannelSuccessful** — _no fields_
-- **UpdateWantedFlagsForArchetypes** — `archetypeFlags`
-- **UserHasBeenReported** — _no fields_
-- **UserInActiveTournament** — `activeTournamentID`
-- **UsersInTournamentQueue** — `usernames`
-- **VersusSeason** — `seasonID`, `startTime`, `endTime`, `description`, `tiers`, `resetRewardID`
-- **VersusSeasonBegan** — `versusSeason`
-- **VersusSeasonEnded** — `versusSeason`
-- **W.e+CakeSaveDeck** — `deck`, `eventReason`
-- **WeeklyLeaderboardRewards** — `archIDs`, `rank`, `tournamentRep`, `weeklyRankIcon`, `tournamentRepIcon`, `NotificationID`
-- **core.campaign.messages.incoming.ScenarioDiff** — `completed`, `available`, `unavailable`, `invisible`, `visible`
-- **dwd.core.abilities.messages.incoming.AllAbilitiesFound** — `abilities`
-- **dwd.core.abtesting.CohortsForAccount** — `cohorts`, `redirectScenes`, `cohortFeatures`
-- **dwd.core.account.eula.incoming.EulaExpired** — `version`, `eulaContent`
-- **dwd.core.account.eula.incoming.EulaSetForAccount** — `accountID`
-- **dwd.core.account.eula.incoming.EulaSuccessful** — `version`
-- **dwd.core.account.messages.AuthenticationSuccessful** — `account`, `sessionID`, `supplementaryInfo`
-- **dwd.core.account.messages.incoming.AccountPropertiesUpdated** — `accountID`, `attributes`
-- **dwd.core.account.messages.incoming.AccountPropertyRemoved** — `accountID`, `attribute`
-- **dwd.core.account.messages.incoming.AccountPropertyRemoved2** — `accountID`, `attribute`
-- **dwd.core.account.messages.outgoing.SetAccountSettings** — `settings`
-- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicyExpired** — `version`, `privacyPolicyContent`
-- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicySetForAccount** — `accountID`
-- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicySuccessful** — `version`
-- **dwd.core.achievements.messages.incoming.AchievementCompleted** — `achievement`
-- **dwd.core.achievements.messages.incoming.AchievementProgress** — `achievement`, `activations`, `activationsNeeded`, `activatedDttm`
-- **dwd.core.achievements.messages.incoming.ListAchievements** — `achievements`
-- **dwd.core.achievements.messages.outgoing.GetAchievements** — _no fields_
-- **dwd.core.achievements.messages.outgoing.GetDailyQuests** — _no fields_
-- **dwd.core.archetypes.messages.AllArchetypesFound** — `A`, `A`
-- **dwd.core.archetypes.messages.ArchetypesUpdated** — `A`, `A`, `A`, `A`
-- **dwd.core.archetypes.messages.ProtoAllArchetypesFound** — `A`, `A`, `A`
-- **dwd.core.asynctournament.messages.AsyncTournamentDeckUpdated** — `tournamentID`, `entryID`, `deck`, `limitedCollection`
-- **dwd.core.asynctournament.messages.AsyncTournamentGameHistory** — `opponentID`, `opponentName`, `gameResult`
-- **dwd.core.asynctournament.messages.AsyncTournamentGameHistoryList** — `tournamentID`, `entryID`, `games`
-- **dwd.core.asynctournament.messages.AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings** — `standingMap`
-- **dwd.core.asynctournament.messages.AsyncTournamentLeaderboardTopRankedStandings** — `standings`, `playerRank`, `playerStanding`
-- **dwd.core.asynctournament.messages.AsyncTournamentNumberOfPlayerRuns** — `tournamentID`, `runs`
-- **dwd.core.asynctournament.messages.AsyncTournamentUnacknowledgedPacks** — `tournamentEntryID`, `packs`, `additionalRewards`
-- **dwd.core.asynctournament.messages.CanClaimLeaderboardRewardsForTournament** — `tournamentID`, `hasParticipated`, `claimAvailable`, `rank`, `availableIn`
-- **dwd.core.asynctournament.messages.LeagueTiebreakersRemaining** — `tournamentID`, `entryID`, `week`, `tiebreakersPlayedThisWeek`, `tiebreakersRemaining`
-- **dwd.core.asynctournament.messages.PackAcknowledged** — `tournamentEntryID`, `packID`
-- **dwd.core.attributes.messages.AttributeModified** — `entityID`, `attribute`
-- **dwd.core.attributes.messages.AttributeRemoved** — `entityID`, `attributeName`
-- **dwd.core.cacheableMessages.messages.incoming.ChecksumDiff** — `dataType`, `ckSumDiff`, `xOfY`
-- **dwd.core.cacheableMessages.messages.incoming.ChecksumMatch** — `dataType`
-- **dwd.core.cacheableMessages.messages.incoming.GetChecksummedDataError** — `dataType`, `reason`
-- **dwd.core.chat.messages.incoming.NotifyPrivateChat** — `userInfo`, `toUserInfo`, `message`, `purpose`, `targetWasOnline`
-- **dwd.core.chat.messages.outgoing.PrivateChat** — `accountID`, `message`, `purpose`
-- **dwd.core.collection.messages.incoming.CollectionCountFound** — `collectionCountList`
-- **dwd.core.collection.messages.incoming.ItemsRemovedFromCollectionById** — `archCounts`
-- **dwd.core.commerce.messages.incoming.ArchetypesPurchaseFailure** — `error`
-- **dwd.core.commerce.messages.incoming.ArchetypesPurchased** — `archetypes`
-- **dwd.core.commerce.messages.incoming.ArchetypesSellFailure** — `error`
-- **dwd.core.commerce.messages.incoming.ArchetypesSold** — `archetypes`
-- **dwd.core.commerce.messages.incoming.CurrencyChanged** — `newAmount`
-- **dwd.core.commerce.messages.incoming.CurrentWallet** — `currencies`
-- **dwd.core.commerce.messages.incoming.GetWalletFailed** — `error`
-- **dwd.core.commerce.messages.incoming.OverridePrices** — `prices`
-- **dwd.core.commerce.messages.incoming.ProductPurchaseFailure** — `error`
-- **dwd.core.commerce.messages.incoming.ProductsOpened** — `accountID`, `items`, `products`, `additionalData`
-- **dwd.core.commerce.messages.incoming.ProductsOpenedFailure** — `error`
-- **dwd.core.commerce.messages.incoming.SinglesPrices** — `sellPrices`, `buyPrices`
-- **dwd.core.commerce.messages.outgoing.GetAllPurchasedDisplayProducts** — _no fields_
-- **dwd.core.commerce.messages.outgoing.GetAvailableProducts** — `version`, `catalogs`
-- **dwd.core.commerce.messages.outgoing.GetWallet** — _no fields_
-- **dwd.core.commerce.messages.outgoing.RequestOverridePrices** — _no fields_
-- **dwd.core.commerce.messages.outgoing.RequestSinglesPrices** — _no fields_
-- **dwd.core.data.dataTable.messages.outgoing.GetDataTable** — `checksums`, `dataType`
-- **dwd.core.data.dataTable.messages.outgoing.GetDataTableNoChecksum** — `dataType`
-- **dwd.core.data.leaderboards.LeaderBoardQueryFailed** — `error`
-- **dwd.core.data.leaderboards.LeaderBoardUserRank** — `entries`
-- **dwd.core.data.leaderboards.LeaderBoardUserRankings** — `entries`
-- **dwd.core.data.login.RegisterGuestAccountWithToken** — `accountData`
-- **dwd.core.data.matchmaking.messages.AcceptMatchWithSpecificClient** — `deck`, `opponentID`, `path`
-- **dwd.core.data.matchmaking.messages.PhoenixRequestXboxMatchWithSpecificClient** — `opponentXuid`, `deck`, `matchOptions`
-- **dwd.core.data.matchmaking.messages.RequestMatchWithSpecificClient** — `deck`, `matchOptions`, `opponentID`
-- **dwd.core.data.message.game.DematerializeEntity** — `entityID`, `destinationID`, `positionInParent`
-- **dwd.core.data.message.game.EntityMovedWithoutID** — `sourceID`, `destinationID`, `positionInParent`
-- **dwd.core.data.message.game.MapEntityID** — `oldID`, `newID`
-- **dwd.core.data.message.game.MaterializeEntity** — `entityID`, `entityName`, `attributeMap`, `owningPlayerID`, `sourceID`, `destinationID`, `positionInParent`, `animDuration`, `children`, `presentationPile`
-- **dwd.core.deck.messages.DeckDeleted** — `deckID`
-- **dwd.core.deck.messages.DeckPropertiesSaved** — `deckID`, `attributes`
-- **dwd.core.deck.messages.DeckSaveFailed** — `deckID`
-- **dwd.core.deck.messages.DeckSaved** — `deckID`, `deck`, `validationResults`
-- **dwd.core.deck.messages.DecksDeleted** — `deckIDs`
-- **dwd.core.deck.messages.DecksValidated** — `results`
-- **dwd.core.deck.messages.DeleteDeckFailed** — `deckID`
-- **dwd.core.deck.messages.OnlineDecksFound** — `decks`
-- **dwd.core.demoMode.messages.StoreEmailError** — `msg`
-- **dwd.core.demoMode.messages.StoreEmailSuccess** — _no fields_
-- **dwd.core.direBytes.messages.DireBytesFound** — `tiles`
-- **dwd.core.draft.messages.incoming.ActiveDrafts** — `states`
-- **dwd.core.draft.messages.incoming.DraftEnded** — `instanceID`, `result`, `chestRewards`, `rewards`
-- **dwd.core.draft.messages.incoming.DraftError** — `text`
-- **dwd.core.draft.messages.incoming.DraftStateUpdated** — `instanceID`, `state`
-- **dwd.core.eventTriggers.messages.incoming.RunClientAction** — `clientAction`
-- **dwd.core.gameTerms.messages.incoming.GameTermsAsDict** — `dict`
-- **dwd.core.localization.service.messages.incoming.AllLocalizationReleases** — `locale`, `releases`, `version`
-- **dwd.core.loginRewards.messages.incoming.LoginReward** — `rolledOver`, `maybeReward`, `schedule`, `progress`, `scheduleName`, `scheduleType`, `timestamp`
-- **dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffect** — `gameID`, `playerID`, `entityID`, `flavor`
-- **dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffectV2** — `gameID`, `playerID`, `parent`, `flavor`
-- **dwd.core.match.interaction.messages.incoming.PlayerStoppedInteractingEffect** — `gameID`, `playerID`, `flavor`
-- **dwd.core.match.messages.EntityAdded** — `entityID`, `owningPlayerID`, `parentEntityID`
-- **dwd.core.match.messages.EntityDestroyed** — `entityID`
-- **dwd.core.match.messages.EntityIntroduced** — `attributeMap`, `entityID`, `entityName`
-- **dwd.core.match.messages.GameEnded** — `winnerList`, `loserMap`, `draw`
-- **dwd.core.match.messages.MatchGameEnded** — `winnerList`, `loserMap`, `draw`, `gameNumber`
-- **dwd.core.match.messages.SerializedGameState** — `entities`, `playerAccounts`, `gameOptions`
-- **dwd.core.match.messages.incoming.GamePaused** — `accountID`, `pauseClock`, `forcePause`
-- **dwd.core.match.messages.incoming.PlayerNotInGame** — _no fields_
-- **dwd.core.match.messages.incoming.PlayerStillInGame** — _no fields_
-- **dwd.core.match.messages.incoming.RevealOpened** — `revealID`, `entityIDs`
-- **dwd.core.match.messages.outgoing.GameCustomChoice** — `selection`, `counter`
-- **dwd.core.match.messages.outgoing.ObserveGame** — `gameID`
-- **dwd.core.match.messages.outgoing.ObserveGameForAccountID** — `accountToObserve`
-- **dwd.core.match.messages.outgoing.Replay** — `queueName`
-- **dwd.core.match.messages.outgoing.ResignGame** — `gameID`, `gameNum`
-- **dwd.core.match.messages.outgoing.ResignMatch** — `gameID`
-- **dwd.core.match.messages.outgoing.StopObserving** — `gameID`
-- **dwd.core.match.selection.messages.CustomChoiceWithTargetsRequired** — `forced`, `ignoreFirst`, `choiceKind`, `choices`, `choiceTargets`, `optimalChoices`, `sourceEntity`, `selectionParams`
-- **dwd.core.match.selection.messages.SelectionMessage** — `counter`, `prompt`, `offerLength`, `startingTimestamp`
-- **dwd.core.match.selection.messages.incoming.SelectionWithTargetsAndActionsRequired** — `targetMap`, `optimalPlayMap`, `forced`, `targetType`, `selectionParams`
-- **dwd.core.match.sequence.messages.SequenceMessage** — `sequenceID`, `msg`
-- **dwd.core.match.sequence.messages.StartSequence** — `sequenceID`, `name`, `attributes`
-- **dwd.core.match.sequence.messages.StopSequence** — `sequenceID`, `name`
-- **dwd.core.matchmaking.messages.incoming.ConfirmReadyForMatch** — `queueName`, `gameID`, `path`
-- **dwd.core.matchmaking.messages.incoming.DeckNotValidForQueue** — `deckID`, `reason`
-- **dwd.core.matchmaking.messages.incoming.MatchFailure** — _no fields_
-- **dwd.core.matchmaking.messages.incoming.MatchFound** — `gameID`, `players`, `gameOptions`
-- **dwd.core.matchmaking.messages.incoming.MatchQueueEntered** — `estimatedWaitTime`
-- **dwd.core.matchmaking.messages.incoming.MatchQueueLeft** — _no fields_
-- **dwd.core.matchmaking.messages.incoming.MatchRequestCancelled** — `path`
-- **dwd.core.matchmaking.messages.incoming.MatchRequestError** — `errorMsg`
-- **dwd.core.matchmaking.messages.incoming.MatchRequestRejected** — `path`, `failureType`
-- **dwd.core.matchmaking.messages.incoming.MatchRequestSent** — `path`, `opponentID`
-- **dwd.core.matchmaking.messages.incoming.MatchRequestWithSpecificClientFailed** — `failureType`
-- **dwd.core.matchmaking.messages.incoming.MatchRequested** — `path`, `opponentID`, `matchOptions`
-- **dwd.core.matchmaking.messages.incoming.ObserveGameError** — `error`
-- **dwd.core.matchmaking.messages.incoming.SpectatedMatchRequestSent** — `path`, `player1ID`, `player2ID`
-- **dwd.core.matchmaking.messages.incoming.StoppedObserving** — `gameID`, `reason`
-- **dwd.core.networking.NetworkStatusIndicatorConfiguration** — `pingWarningThreshold`, `pingErrorThreshold`, `thresholdManualSetting`, `thresholdProceduralSetting`
-- **dwd.core.networking.wargServer.messages.incoming.AccountDuplicateLogin** — _no fields_
-- **dwd.core.networking.wargServer.messages.incoming.LoggedClientError** — `logID`
-- **dwd.core.networking.wargServer.messages.incoming.UpgradeClient** — `reason`
-- **dwd.core.notifications.messages.incoming.Notification** — `notificationID`, `payload`, `Payload`, `notificationType`
-- **dwd.core.notifications.messages.incoming.NotificationsRequested** — `notificationList`
-- **dwd.core.notifications.messages.outgoing.AcknowledgeNotification** — `notificationID`
-- **dwd.core.notifications.messages.outgoing.GetNotifications** — _no fields_
-- **dwd.core.progression.messages.AllScenarios** — `A`
-- **dwd.core.progression.messages.ScenarioNotAvailable** — `scenarioID`
-- **dwd.core.progression.messages.ScenarioProgress** — `scenarioID`, `progress`
-- **dwd.core.progression.messages.ScenarioServerError** — `scenarioID`
-- **dwd.core.settings.cloudPrefs.messages.ClientStorageError** — `error`
-- **dwd.core.settings.cloudPrefs.messages.ClientStorageRetrieved** — `data`
-- **dwd.core.social.messages.incoming.FriendAdded** — `friend`
-- **dwd.core.social.messages.incoming.FriendBlocked** — `accountID`
-- **dwd.core.social.messages.incoming.FriendDeclined** — `friend`
-- **dwd.core.social.messages.incoming.FriendError** — `msg`
-- **dwd.core.social.messages.incoming.FriendInvitation** — `friend`
-- **dwd.core.social.messages.incoming.FriendPresence** — `accountID`, `presence`
-- **dwd.core.social.messages.incoming.FriendRemoved** — `accountID`
-- **dwd.core.social.messages.incoming.FriendRoster** — `roster`
-- **dwd.core.social.messages.incoming.FriendUnblocked** — `accountID`
-- **dwd.core.switchboard.messages.AllFeatureStatuses** — `service`, `open`, `closed`
-- **dwd.core.switchboard.messages.AllFeatureStatuses_v2** — `service`, `open`, `closed`
-- **dwd.core.switchboard.messages.FeatureIsClosed** — `feature`, `reason`, `platform`
-- **dwd.core.switchboard.messages.FeatureIsOpen** — `feature`, `platform`
-- **dwd.core.switchboard.messages.GetFeatureStatuses_v2** — _no fields_
-- **dwd.core.timers.messages.incoming.AddDuration** — `id`, `additionalTime`
-- **dwd.core.timers.messages.incoming.ChangeTimerEvent** — `id`, `name`, `remainingTime`
-- **dwd.core.timers.messages.incoming.CreateTimer** — `newTimer`
-- **dwd.core.timers.messages.incoming.DeleteTimer** — `id`
-- **dwd.core.timers.messages.incoming.ResetTimer** — `newTimer`
-- **dwd.core.timers.messages.incoming.SetRate** — `id`, `rate`, `timestamp`
-- **dwd.core.timers.messages.incoming.TimerStopped** — `id`
-- **dwd.core.tips.network.incoming.RequestedHelpTips** — `tips`, `dismissedTips`
-- **dwd.core.wargServer.authentication.AuthenticationResultMessage** — _no fields_
-- **dwd.core.wargServer.authentication.platform.incoming.RequestAuthToken** — _no fields_
-- **dwd.core.wargServer.messages.Unparseable** — `Message`
-- **dwd.legacy.CollectionFound** — `collection`, `protoMsg`, `itemsParsed`
-- **dwd.legacy.CollectionFoundPart** — `collection`, `chunkNum`, `chunkTotal`, `protoMsg`, `itemsParsed`
-- **dwd.legacy.CurrencyAmount** — `amount`
-- **dwd.legacy.InvalidCurrency** — `error`
-- **dwd.legacy.OnlineAvatarDecksFound** — `decks`
-- **dwd.legacy.messages.ArchetypesFound** — `ArchetypeIDs`, `archetypesParsed`, `totalArchetypes`, `protoMsg`
-- **dwd.legacy.messages.BigNetworkMessageEvent** — `coroutine`, `Progress`, `processingTime`
-- **landing.DynamicLandingPage.DynamicLandingPages** — `pageData`, `maintenanceData`
-- **pie.AllQuests** — `currentQuests`, `availableQuests`, `specialQuests`
-- **pie.QuestComplete** — `quest`, `xpLevel`
-- **pie.QuestConfigurationUpdated** — `questConfiguration`
-- **pie.QuestsProgressed** — `completedQuestsAndXPTotal`, `progressedQuests`
-- **pie.QuestsUpdated** — `updatedQuests`
-- **pie.SelectQuest** — `availableQuests`
-- **pie.SpecialQuestBegan** — `quest`
-- **pie.SpecialQuestEnded** — `quest`
-- **pie.code.gameModules.cheats.ConsoleLogData** — `data`
-- **pie.code.pie.Global.messages.LocalizedSystemMessage** — `message`
-- **pie.code.pie.commands.ReloadManifest** — _no fields_
-- **pie.code.pie.diffData.ArchetypeContentData** — `added`, `deleted`, `updated`
-- **pie.code.pie.diffData.BundleContentData** — _no fields_
-- **pie.code.pie.diffData.ContentCompleted** — _no fields_
-- **pie.code.pie.diffData.ContentData** — `contentType`, `revision`
-- **pie.code.pie.diffData.ContentDataNotify** — `msgOverride`, `contentUpdates`
-- **pie.code.pie.diffData.LocalizationContentData** — `added`, `deleted`, `updated`
-- **pie.code.pie.gameModules.login.messages.DynamicVersions** — `versionData`
-- **pie.code.pie.gameModules.messaging.OverLimit** — `error`
-- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeError** — `msg`
-- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeRewards** — `totalRewardSchedule`
-- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeStatus** — `status`
-- **pie.code.pie.gameModules.trainerChallenge.messages.TutorialDeckUnlock** — `unlock`
-- **pie.code.pie.gameModules.trainerChallengev3.DefaultTrainerChallengeDeckMessage** — `defaultDeckName`
-- **pie.code.pie.messages.CurrentGuidOverride** — `guid`
-- **pie.code.pie.messages.NoGuidOverride** — _no fields_
-- **pie.code.pie.networking.RequestHeartbeat** — _no fields_
-- **pie.playmat.code.cake.CustomMessages.RequestTimeOutConfirmation** — _no fields_
-- **pie.socialv2.messages.AvailableRooms** — `rooms`
-- **pie.socialv2.messages.ChatConnected** — `room`, `members`, `messageHistory`
-- **pie.socialv2.messages.ChatDisconnected** — `roomID`
-- **pie.socialv2.messages.NotifyActiveTournamentChat** — `activeTournamentID`, `userInfo`, `message`
-- **pie.socialv2.messages.NotifyChat** — `roomID`, `userInfo`, `message`
-- **pie.socialv2.messages.NotifyGameChat** — `gameID`, `userInfo`, `message`
-- **pie.socialv2.messages.NotifyJoin** — `roomID`, `userInfo`
-- **pie.socialv2.messages.NotifyLeave** — `roomID`, `accountID`
-- **pie.socialv2.messages.NotifyTournamentQueueChat** — `tournamentID`, `userInfo`, `message`
-- **pie.src.data.message.deck.ArchetypeCorrections** — `correctionMap`
-- **pie.src.data.message.deck.GetArchetypeCorrections** — _no fields_
+- **AccountUpdated** _(server → client)_ — `account`
+- **ActiveAsyncTournaments** _(server → client)_ — `tournamentDefinitions`, `tournamentProgress`, `claimedLeaderboard`
+- **ActivePlayerSet** _(server → client)_ — `accountID`
+- **AllArchetypesChecksumMatch** _(unclassified)_ — _no fields_
+- **AllAvatarArchetypesChecksumMatch** _(server → client)_ — _no fields_
+- **AllAvatarArchetypesFound** _(server → client)_ — `archetypes`, `checksum`, `protoMsg`
+- **AllBannedCards** _(unclassified)_ — `bannedArchetypeIDs`
+- **AllBannedCardsByFormat** _(server → client)_ — `cards`
+- **AllPurchasedDisplayProducts** _(unclassified)_ — `displayProducts`
+- **ArchetypeCommands.GetProtobufAllArchetypesList** _(unclassified)_ — `checksum`
+- **ArchetypeCommands.GetProtobufArchetypesList** _(client → server)_ — `key`, `checksum`
+- **ArchetypeCommands.GetProtobufArchetypesLists** _(unclassified)_ — `keyedChecksums`
+- **ArchetypeCommands.SaveDeck** _(unclassified)_ — `deck`
+- **ArchetypeCustomChoiceRequired** _(unclassified)_ — `buttons`, `sourceEntity`, `selectionParams`
+- **ArchetypeFlagsForTradeSet** _(server → client)_ — `archetypeFlags`
+- **ArchetypeFlagsRequested** _(unclassified)_ — `archetypeFlags`
+- **ArchetypeFlagsSet** _(server → client)_ — `archetypeFlags`
+- **ArchetypeForReviewSet** _(unclassified)_ — `archetypeID`, `review`
+- **ArchetypeForTradeSet** _(server → client)_ — `archetypeID`, `forTrade`
+- **ArchetypeIDsByFamily** _(server → client)_ — `familyMap`
+- **ArchetypeKeys** _(server → client)_ — `keys`
+- **ArchetypeReviewSet** _(server → client)_ — `archetypeID`, `review`
+- **ArchetypeWantedSet** _(unclassified)_ — `archetypeID`, `wanted`
+- **ArchetypesChecksumMatch** _(unclassified)_ — `key`
+- **AsyncTournamentHasClaimedLeaderboardReward** _(server → client)_ — `tournamentID`, `claimed`
+- **AsyncTournamentJoined** _(server → client)_ — `tournamentID`, `entryID`, `deck`, `progress`
+- **AsyncTournamentLeaderboardRewards** _(server → client)_ — `tournamentID`, `rank`, `rewards`
+- **AsyncTournamentProgressUpdated** _(server → client)_ — `tournamentID`, `entryID`, `wins`, `losses`, `rank`, `tiebreakers`
+- **AsyncTournamentRewards** _(server → client)_ — `entryID`, `wins`, `losses`, `rewards`
+- **AsyncTournamentStandings** _(server → client)_ — `standings`
+- **AttributesReset** _(server → client)_ — `entityID`
+- **AuthenticationError** _(server → client)_ — `reason`
+- **AuthenticationFailed** _(server → client)_ — `reason`
+- **AvailableProducts** _(server → client)_ — `availableProducts`, `priceMap`, `newArchetypes`, `archetypeProperties`
+- **AvailableTournamentList** _(server → client)_ — `tournamentList`, `tournamentQueues`
+- **BanArchetypeIDs** _(unclassified)_ — `cards`
+- **BonusProductsFulfilled** _(unclassified)_ — _no fields_
+- **CakeMonthlyLeaderboardRewards** _(unclassified)_ — `current`, `nextWeek`, `endDate`
+- **CakeRevealOpened** _(unclassified)_ — `revealID`, `entityIDs`, `revealSource`, `revealTypes`, `revealTitle`, `RevealType_RevealDialog`, `RevealType_SelectionDialog`, `RevealType_SelectionOrderedDialog`
+- **CakeSelectionWithTargetsRequired** _(unclassified)_ — `prompt`
+- **CakeWeeklyLeaderboardRewards** _(server → client)_ — `current`, `nextWeek`, `endDate`
+- **CampaignStarted** _(unclassified)_ — `scenarioID`
+- **ChatPartnerError** _(unclassified)_ — `reason`
+- **ClaimAsyncTournamentRewardError** _(server → client)_ — `error`
+- **CodeIsValid** _(server → client)_ — `code`, `products`, `couponGroup`, `maxRedemptionsForGroup`
+- **CodeRedemptionFailure** _(server → client)_ — `code`, `reason`
+- **CodeSuccessfullyRedeemed** _(server → client)_ — `code`
+- **CoinFlipChoiceRequired** _(server → client)_ — `sortType`, `buttons`, `sourceEntity`
+- **CommerceHistory** _(unclassified)_ — `entries`, `total`, `startIndex`, `count`, `missingEntries`
+- **CommerceHistoryEntriesFound** _(unclassified)_ — `entries`
+- **ConnectionDenied** _(unclassified)_ — `reason`
+- **ConnectionError** _(unclassified)_ — `reason`
+- **ConnectionService** _(server → client)_ — `connectionEndPoint`
+- **CounterCreated** _(unclassified)_ — _no fields_
+- **CounterRejected** _(unclassified)_ — `offerID`
+- **CreateLotPrices** _(server → client)_ — `prices`
+- **CurrencyCaps** _(unclassified)_ — `currencies`
+- **CurrentDailyRewardTrack** _(server → client)_ — `dailyRewardTrack`, `nextExpiry`
+- **CurrentGames** _(unclassified)_ — `gameIDs`
+- **CurrentVersusSeason** _(server → client)_ — `versusSeason`
+- **CustomChoiceOfferMessage** _(server → client)_ — `selectingPlayer`, `prompt`, `buttons`, `offerLength`, `sourceEntity`, `selection`, `correctChoice`
+- **CustomChoiceRequired** _(server → client)_ — `sortType`, `buttons`, `sourceEntity`, `kind`
+- **DailyLogin** _(server → client)_ — `activations`, `rewardDay`, `weeksRewards`, `firstDailyLogin`
+- **DailyRewardTier** _(unclassified)_ — `wins`, `rewards`, `isDefaultReward`, `isSpecialReward`
+- **DailyRewardTrack** _(unclassified)_ — `name`, `rewardTiers`, `isDefault`
+- **DailyRewardTrackID** _(unclassified)_ — _no fields_
+- **DeckRetrievalFailed** _(unclassified)_ — _no fields_
+- **DeckUpdated** _(unclassified)_ — `deckID`, `cardsAdded`, `cardsRemoved`
+- **DeviceAccountUpgradeFailed** _(unclassified)_ — _no fields_
+- **DeviceAccountUpgraded** _(unclassified)_ — `account`
+- **DigestSalt** _(unclassified)_ — `salt`
+- **DraftChoiceException** _(unclassified)_ — `tournamentEntryID`
+- **EffectPlayed** _(unclassified)_ — `effectMessage`
+- **EntityMoved** _(server → client)_ — `entityID`, `destinationID`, `positionInParent`, `animDuration`
+- **ErrorCreatingLot** _(server → client)_ — `error`
+- **ErrorPurchasingLot** _(server → client)_ — `error`
+- **ErrorRemovingLot** _(server → client)_ — `error`
+- **EventNotice** _(unclassified)_ — `eventName`, `message`, `title`, `items`
+- **FeaturedProducts** _(server → client)_ — `products`
+- **FirstLoginEverMessage** _(unclassified)_ — _no fields_
+- **ForceLoadAssetBundle** _(unclassified)_ — `archetypeids`
+- **ForceSelectionFinished** _(server → client)_ — _no fields_
+- **FormatLegalityForArchetypes** _(server → client)_ — `archLegality`
+- **GameCompletedMessage** _(server → client)_ — `coins`, `exp`, `share`, `endOfGameText`, `rewardList`, `winner`, `loser`, `additionalParameters`
+- **GameDoesNotExist** _(unclassified)_ — _no fields_
+- **GameMessage** _(unclassified)_ — _no fields_
+- **GameUnPaused** _(unclassified)_ — `accountID`
+- **GatewayError** _(unclassified)_ — `reason`
+- **GatewayThrottled** _(unclassified)_ — `sessionID`, `positionInQueue`, `waitTime`
+- **GetXCostChoiceRequired** _(unclassified)_ — `lowBound`, `highBound`
+- **GoFirstChoiceRequired** _(server → client)_ — `sortType`, `buttons`, `sourceEntity`
+- **GrantedSession** _(server → client)_ — `version`, `serverTime`, `options`, `session`
+- **HasAvailableTutorialMatches** _(unclassified)_ — `hasAvailableMatches`
+- **InfiniteLoopDetected** _(unclassified)_ — _no fields_
+- **InvalidCode** _(server → client)_ — `code`, `reason`
+- **ItemsAddedToCollection** _(unclassified)_ — `items`
+- **ItemsLocked** _(unclassified)_ — `lockID`, `items`, `archCounts`
+- **ItemsRemovedFromCollection** _(unclassified)_ — `items`
+- **ItemsUnlocked** _(unclassified)_ — `items`, `archCounts`
+- **JoinAsyncTournamentError** _(server → client)_ — `error`
+- **JoinTournamentFailed** _(server → client)_ — `reason`
+- **JoinTournamentFailedInvalidDeck** _(server → client)_ — `deckValidationResult`
+- **LeaderBoardRankings** _(unclassified)_ — `entries`
+- **LeaderBoards** _(unclassified)_ — `names`
+- **ListingsRetrieved** _(unclassified)_ — `listings`
+- **LotCreated** _(server → client)_ — `lotID`
+- **LotCreatedForYou** _(unclassified)_ — `byUserName`
+- **LotExpired** _(unclassified)_ — `lot`
+- **LotRemoved** _(server → client)_ — `lotID`, `reason`
+- **LotRemovedAndRejected** _(unclassified)_ — `lotID`
+- **LotSold** _(server → client)_ — `lotID`
+- **LotsRetrieved** _(server → client)_ — `lots`
+- **LotsRetrievedCount** _(server → client)_ — `count`
+- **MatchQueueJoinFailed** _(unclassified)_ — `failureType`
+- **MatchRequestAccepted** _(unclassified)_ — `requestID`
+- **MatchRequestWithSpecificClientDeckCheckFailed** _(unclassified)_ — `failureType`, `challenger`, `format`
+- **Motd** _(server → client)_ — `id`, `title`, `text`
+- **MulliganChoiceRequired** _(server → client)_ — `mulliganRound`, `maxMulligans`, `cardsDrawn`
+- **MultipleSelectionWithTargetsRequired** _(unclassified)_ — `forcedTargets`, `forcedSecondStageTargets`, `targetMap`, `forced`
+- **MyLotsRetrieved** _(server → client)_ — `lots`, `offers`
+- **MyLotsRetrievedCount** _(server → client)_ — `count`
+- **NetworkNotificationMessage** _(unclassified)_ — `notification`, `BehaviorType`
+- **NoMotdSet** _(unclassified)_ — _no fields_
+- **NonMatchingArchetypesChecksums** _(unclassified)_ — `keys`
+- **ObserverCustomChoiceOfferMessage** _(server → client)_ — `selectingPlayer`, `prompt`, `buttons`, `offerLength`, `sourceEntity`, `selection`, `correctChoice`
+- **OfferRetrievalFailure** _(unclassified)_ — `reason`
+- **ParameterizedLocCustomChoiceRequired** _(unclassified)_ — `buttons`
+- **PlayerDisconnected** _(server → client)_ — `accountID`, `waitTime`
+- **PlayerReconnected** _(server → client)_ — `accountID`
+- **PokemonFamilyMap** _(server → client)_ — `pokemonFamilyMap`
+- **Pong** _(unclassified)_ — `timestamp`
+- **PrivateLotsRetrieved** _(server → client)_ — `lots`, `counterOffers`
+- **PrivateLotsRetrievedCount** _(server → client)_ — `count`
+- **ProductRetrievalFailure** _(unclassified)_ — _no fields_
+- **ProductsFulfilled** _(server → client)_ — `items`
+- **ProductsPurchased** _(server → client)_ — `invoiceID`, `items`
+- **RefreshContent** _(unclassified)_ — `content`
+- **RemoveLotWrongAccount** _(unclassified)_ — `error`
+- **RemoveOfferWrongAccount** _(unclassified)_ — `error`
+- **ReportFailed** _(unclassified)_ — _no fields_
+- **ReportSent** _(unclassified)_ — _no fields_
+- **RequestDeviceID** _(unclassified)_ — _no fields_
+- **RequestedAID** _(unclassified)_ — `accountID`
+- **RequestedAuthType** _(server → client)_ — `validAuthTypes`
+- **RequestedGASKey** _(unclassified)_ — _no fields_
+- **RequestedRandomAvatarDeck** _(unclassified)_ — `deck`
+- **RequestedUsername** _(unclassified)_ — _no fields_
+- **RevealClosed** _(unclassified)_ — `revealID`
+- **SearchLotsRetrieved** _(unclassified)_ — `currentPage`, `totalPages`, `totalItems`, `lots`
+- **SelectionFinished** _(unclassified)_ — _no fields_
+- **SelectionWithTargetsRequired** _(server → client)_ — `targetMap`, `optimalPlayMap`, `forced`, `targetType`, `ignoreFirst`, `selectionParams`, `sourceID`
+- **SetDataList** _(server → client)_ — `setDataList`
+- **SetIdleTimer** _(server → client)_ — `playerID`, `inactivityDuration`, `endTurnDuration`, `forced`
+- **Shuffled** _(server → client)_ — `entityID`
+- **StartAsyncTournamentGameError** _(server → client)_ — `error`
+- **StoreIsClosed** _(unclassified)_ — _no fields_
+- **StoreIsOpen** _(unclassified)_ — _no fields_
+- **SubscribeToTournamentChannelSuccessful** _(server → client)_ — `tournamentQueues`
+- **SuddenDeathGameMessage** _(unclassified)_ — `suddenDeathRound`
+- **SystemMessage** _(unclassified)_ — `message`
+- **SystemMessageULB** _(unclassified)_ — `message`
+- **ThemeDeckContentsMap** _(server → client)_ — `themeDeckContentsMap`
+- **TimeLockedArchetypes** _(server → client)_ — `currentServerTime`, `timeLockedArchetypes`
+- **TopSellingProducts** _(server → client)_ — `invoiceID`, `products`
+- **TournamentActive** _(unclassified)_ — `tournamentID`
+- **TournamentCancelled** _(server → client)_ — `tournamentID`
+- **TournamentCompleted** _(server → client)_ — `tournamentData`, `finalStandings`, `prizes`
+- **TournamentDraftChoices** _(unclassified)_ — `tournamentEntryID`, `choices`, `draftedCards`, `choiceNumber`, `packSize`, `packNumber`, `numPacks`
+- **TournamentDraftComplete** _(unclassified)_ — `tournamentEntryID`, `selections`
+- **TournamentHistoryList** _(unclassified)_ — `tournamentHistoryList`
+- **TournamentInActive** _(unclassified)_ — `tournamentID`
+- **TournamentItemsAddedToCollection** _(unclassified)_ — `items`
+- **TournamentJoinFailed** _(unclassified)_ — `reason`
+- **TournamentLeft** _(server → client)_ — `activeTournamentID`
+- **TournamentMessage** _(unclassified)_ — _no fields_
+- **TournamentNextRoundStarting** _(server → client)_ — `activeTournamentID`, `countdown`, `suppressPopup`
+- **TournamentQueueJoined** _(server → client)_ — `tournamentID`
+- **TournamentQueueLeft** _(server → client)_ — `tournamentID`
+- **TournamentQueueLeftFailed** _(server → client)_ — `tournamentID`
+- **TournamentQueueStatus** _(server → client)_ — `tournamentID`, `size`
+- **TournamentRoundUpdated** _(server → client)_ — `activeTournamentID`, `tournamentData`
+- **TournamentStarted** _(server → client)_ — `activeTournamentID`, `size`
+- **TournamentsInProgressData** _(server → client)_ — `tournamentData`
+- **TradeCompleted** _(unclassified)_ — `itemsReceived`, `itemsLost`, `role`
+- **TradeHasBeenReported** _(unclassified)_ — _no fields_
+- **TradeHistoryRetrieved** _(server → client)_ — `offset`, `history`
+- **TradeHistoryRetrievedCount** _(server → client)_ — `count`
+- **TradeReported** _(unclassified)_ — _no fields_
+- **UnBanArchetypeIDForFormat** _(unclassified)_ — `card`, `format`
+- **UnBanArchetypeIDs** _(unclassified)_ — `bannedArchetypeIDs`
+- **UnSubscribeToTournamentChannelSuccessful** _(unclassified)_ — _no fields_
+- **UpdateWantedFlagsForArchetypes** _(unclassified)_ — `archetypeFlags`
+- **UserHasBeenReported** _(unclassified)_ — _no fields_
+- **UserInActiveTournament** _(server → client)_ — `activeTournamentID`
+- **UsersInTournamentQueue** _(server → client)_ — `usernames`
+- **VersusSeason** _(unclassified)_ — `seasonID`, `startTime`, `endTime`, `description`, `tiers`, `resetRewardID`
+- **VersusSeasonBegan** _(unclassified)_ — `versusSeason`
+- **VersusSeasonEnded** _(unclassified)_ — `versusSeason`
+- **W.e+CakeSaveDeck** _(unclassified)_ — `deck`, `eventReason`
+- **WeeklyLeaderboardRewards** _(unclassified)_ — `archIDs`, `rank`, `tournamentRep`, `weeklyRankIcon`, `tournamentRepIcon`, `NotificationID`
+- **core.campaign.messages.incoming.ScenarioDiff** _(server → client)_ — `completed`, `available`, `unavailable`, `invisible`, `visible`
+- **dwd.core.abilities.messages.incoming.AllAbilitiesFound** _(server → client)_ — `abilities`
+- **dwd.core.abtesting.CohortsForAccount** _(server → client)_ — `cohorts`, `redirectScenes`, `cohortFeatures`
+- **dwd.core.account.eula.incoming.EulaExpired** _(server → client)_ — `version`, `eulaContent`
+- **dwd.core.account.eula.incoming.EulaSetForAccount** _(server → client)_ — `accountID`
+- **dwd.core.account.eula.incoming.EulaSuccessful** _(server → client)_ — `version`
+- **dwd.core.account.messages.AuthenticationSuccessful** _(server → client)_ — `account`, `sessionID`, `supplementaryInfo`
+- **dwd.core.account.messages.incoming.AccountPropertiesUpdated** _(server → client)_ — `accountID`, `attributes`
+- **dwd.core.account.messages.incoming.AccountPropertyRemoved** _(server → client)_ — `accountID`, `attribute`
+- **dwd.core.account.messages.incoming.AccountPropertyRemoved2** _(server → client)_ — `accountID`, `attribute`
+- **dwd.core.account.messages.outgoing.SetAccountSettings** _(client → server)_ — `settings`
+- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicyExpired** _(server → client)_ — `version`, `privacyPolicyContent`
+- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicySetForAccount** _(server → client)_ — `accountID`
+- **dwd.core.account.privacyPolicy.incoming.PrivacyPolicySuccessful** _(server → client)_ — `version`
+- **dwd.core.achievements.messages.incoming.AchievementCompleted** _(server → client)_ — `achievement`
+- **dwd.core.achievements.messages.incoming.AchievementProgress** _(server → client)_ — `achievement`, `activations`, `activationsNeeded`, `activatedDttm`
+- **dwd.core.achievements.messages.incoming.ListAchievements** _(server → client)_ — `achievements`
+- **dwd.core.achievements.messages.outgoing.GetAchievements** _(client → server)_ — _no fields_
+- **dwd.core.achievements.messages.outgoing.GetDailyQuests** _(client → server)_ — _no fields_
+- **dwd.core.archetypes.messages.AllArchetypesFound** _(unclassified)_ — `A`, `A`
+- **dwd.core.archetypes.messages.ArchetypesUpdated** _(unclassified)_ — `A`, `A`, `A`, `A`
+- **dwd.core.archetypes.messages.ProtoAllArchetypesFound** _(unclassified)_ — `A`, `A`, `A`
+- **dwd.core.asynctournament.messages.AsyncTournamentDeckUpdated** _(server → client)_ — `tournamentID`, `entryID`, `deck`, `limitedCollection`
+- **dwd.core.asynctournament.messages.AsyncTournamentGameHistory** _(unclassified)_ — `opponentID`, `opponentName`, `gameResult`
+- **dwd.core.asynctournament.messages.AsyncTournamentGameHistoryList** _(server → client)_ — `tournamentID`, `entryID`, `games`
+- **dwd.core.asynctournament.messages.AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings** _(server → client)_ — `standingMap`
+- **dwd.core.asynctournament.messages.AsyncTournamentLeaderboardTopRankedStandings** _(server → client)_ — `standings`, `playerRank`, `playerStanding`
+- **dwd.core.asynctournament.messages.AsyncTournamentNumberOfPlayerRuns** _(server → client)_ — `tournamentID`, `runs`
+- **dwd.core.asynctournament.messages.AsyncTournamentUnacknowledgedPacks** _(server → client)_ — `tournamentEntryID`, `packs`, `additionalRewards`
+- **dwd.core.asynctournament.messages.CanClaimLeaderboardRewardsForTournament** _(server → client)_ — `tournamentID`, `hasParticipated`, `claimAvailable`, `rank`, `availableIn`
+- **dwd.core.asynctournament.messages.LeagueTiebreakersRemaining** _(server → client)_ — `tournamentID`, `entryID`, `week`, `tiebreakersPlayedThisWeek`, `tiebreakersRemaining`
+- **dwd.core.asynctournament.messages.PackAcknowledged** _(server → client)_ — `tournamentEntryID`, `packID`
+- **dwd.core.attributes.messages.AttributeModified** _(server → client)_ — `entityID`, `attribute`
+- **dwd.core.attributes.messages.AttributeRemoved** _(unclassified)_ — `entityID`, `attributeName`
+- **dwd.core.cacheableMessages.messages.incoming.ChecksumDiff** _(server → client)_ — `dataType`, `ckSumDiff`, `xOfY`
+- **dwd.core.cacheableMessages.messages.incoming.ChecksumMatch** _(server → client)_ — `dataType`
+- **dwd.core.cacheableMessages.messages.incoming.GetChecksummedDataError** _(server → client)_ — `dataType`, `reason`
+- **dwd.core.chat.messages.incoming.NotifyPrivateChat** _(server → client)_ — `userInfo`, `toUserInfo`, `message`, `purpose`, `targetWasOnline`
+- **dwd.core.chat.messages.outgoing.PrivateChat** _(client → server)_ — `accountID`, `message`, `purpose`
+- **dwd.core.collection.messages.incoming.CollectionCountFound** _(server → client)_ — `collectionCountList`
+- **dwd.core.collection.messages.incoming.ItemsRemovedFromCollectionById** _(server → client)_ — `archCounts`
+- **dwd.core.commerce.messages.incoming.ArchetypesPurchaseFailure** _(server → client)_ — `error`
+- **dwd.core.commerce.messages.incoming.ArchetypesPurchased** _(server → client)_ — `archetypes`
+- **dwd.core.commerce.messages.incoming.ArchetypesSellFailure** _(server → client)_ — `error`
+- **dwd.core.commerce.messages.incoming.ArchetypesSold** _(server → client)_ — `archetypes`
+- **dwd.core.commerce.messages.incoming.CurrencyChanged** _(server → client)_ — `newAmount`
+- **dwd.core.commerce.messages.incoming.CurrentWallet** _(server → client)_ — `currencies`
+- **dwd.core.commerce.messages.incoming.GetWalletFailed** _(server → client)_ — `error`
+- **dwd.core.commerce.messages.incoming.OverridePrices** _(server → client)_ — `prices`
+- **dwd.core.commerce.messages.incoming.ProductPurchaseFailure** _(server → client)_ — `error`
+- **dwd.core.commerce.messages.incoming.ProductsOpened** _(server → client)_ — `accountID`, `items`, `products`, `additionalData`
+- **dwd.core.commerce.messages.incoming.ProductsOpenedFailure** _(server → client)_ — `error`
+- **dwd.core.commerce.messages.incoming.SinglesPrices** _(server → client)_ — `sellPrices`, `buyPrices`
+- **dwd.core.commerce.messages.outgoing.GetAllPurchasedDisplayProducts** _(client → server)_ — _no fields_
+- **dwd.core.commerce.messages.outgoing.GetAvailableProducts** _(client → server)_ — `version`, `catalogs`
+- **dwd.core.commerce.messages.outgoing.GetWallet** _(client → server)_ — _no fields_
+- **dwd.core.commerce.messages.outgoing.RequestOverridePrices** _(client → server)_ — _no fields_
+- **dwd.core.commerce.messages.outgoing.RequestSinglesPrices** _(client → server)_ — _no fields_
+- **dwd.core.data.dataTable.messages.outgoing.GetDataTable** _(client → server)_ — `checksums`, `dataType`
+- **dwd.core.data.dataTable.messages.outgoing.GetDataTableNoChecksum** _(client → server)_ — `dataType`
+- **dwd.core.data.leaderboards.LeaderBoardQueryFailed** _(unclassified)_ — `error`
+- **dwd.core.data.leaderboards.LeaderBoardUserRank** _(unclassified)_ — `entries`
+- **dwd.core.data.leaderboards.LeaderBoardUserRankings** _(unclassified)_ — `entries`
+- **dwd.core.data.login.RegisterGuestAccountWithToken** _(unclassified)_ — `accountData`
+- **dwd.core.data.matchmaking.messages.AcceptMatchWithSpecificClient** _(client → server)_ — `deck`, `opponentID`, `path`
+- **dwd.core.data.matchmaking.messages.PhoenixRequestXboxMatchWithSpecificClient** _(unclassified)_ — `opponentXuid`, `deck`, `matchOptions`
+- **dwd.core.data.matchmaking.messages.RequestMatchWithSpecificClient** _(client → server)_ — `deck`, `matchOptions`, `opponentID`
+- **dwd.core.data.message.game.DematerializeEntity** _(unclassified)_ — `entityID`, `destinationID`, `positionInParent`
+- **dwd.core.data.message.game.EntityMovedWithoutID** _(unclassified)_ — `sourceID`, `destinationID`, `positionInParent`
+- **dwd.core.data.message.game.MapEntityID** _(unclassified)_ — `oldID`, `newID`
+- **dwd.core.data.message.game.MaterializeEntity** _(unclassified)_ — `entityID`, `entityName`, `attributeMap`, `owningPlayerID`, `sourceID`, `destinationID`, `positionInParent`, `animDuration`, `children`, `presentationPile`
+- **dwd.core.deck.messages.DeckDeleted** _(server → client)_ — `deckID`
+- **dwd.core.deck.messages.DeckPropertiesSaved** _(unclassified)_ — `deckID`, `attributes`
+- **dwd.core.deck.messages.DeckSaveFailed** _(unclassified)_ — `deckID`
+- **dwd.core.deck.messages.DeckSaved** _(server → client)_ — `deckID`, `deck`, `validationResults`
+- **dwd.core.deck.messages.DecksDeleted** _(unclassified)_ — `deckIDs`
+- **dwd.core.deck.messages.DecksValidated** _(server → client)_ — `results`
+- **dwd.core.deck.messages.DeleteDeckFailed** _(unclassified)_ — `deckID`
+- **dwd.core.deck.messages.OnlineDecksFound** _(server → client)_ — `decks`
+- **dwd.core.demoMode.messages.StoreEmailError** _(unclassified)_ — `msg`
+- **dwd.core.demoMode.messages.StoreEmailSuccess** _(unclassified)_ — _no fields_
+- **dwd.core.direBytes.messages.DireBytesFound** _(unclassified)_ — `tiles`
+- **dwd.core.draft.messages.incoming.ActiveDrafts** _(server → client)_ — `states`
+- **dwd.core.draft.messages.incoming.DraftEnded** _(server → client)_ — `instanceID`, `result`, `chestRewards`, `rewards`
+- **dwd.core.draft.messages.incoming.DraftError** _(server → client)_ — `text`
+- **dwd.core.draft.messages.incoming.DraftStateUpdated** _(server → client)_ — `instanceID`, `state`
+- **dwd.core.eventTriggers.messages.incoming.RunClientAction** _(server → client)_ — `clientAction`
+- **dwd.core.gameTerms.messages.incoming.GameTermsAsDict** _(server → client)_ — `dict`
+- **dwd.core.localization.service.messages.incoming.AllLocalizationReleases** _(server → client)_ — `locale`, `releases`, `version`
+- **dwd.core.loginRewards.messages.incoming.LoginReward** _(server → client)_ — `rolledOver`, `maybeReward`, `schedule`, `progress`, `scheduleName`, `scheduleType`, `timestamp`
+- **dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffect** _(server → client)_ — `gameID`, `playerID`, `entityID`, `flavor`
+- **dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffectV2** _(server → client)_ — `gameID`, `playerID`, `parent`, `flavor`
+- **dwd.core.match.interaction.messages.incoming.PlayerStoppedInteractingEffect** _(server → client)_ — `gameID`, `playerID`, `flavor`
+- **dwd.core.match.messages.EntityAdded** _(server → client)_ — `entityID`, `owningPlayerID`, `parentEntityID`
+- **dwd.core.match.messages.EntityDestroyed** _(server → client)_ — `entityID`
+- **dwd.core.match.messages.EntityIntroduced** _(server → client)_ — `attributeMap`, `entityID`, `entityName`
+- **dwd.core.match.messages.GameEnded** _(unclassified)_ — `winnerList`, `loserMap`, `draw`
+- **dwd.core.match.messages.MatchGameEnded** _(unclassified)_ — `winnerList`, `loserMap`, `draw`, `gameNumber`
+- **dwd.core.match.messages.SerializedGameState** _(server → client)_ — `entities`, `playerAccounts`, `gameOptions`
+- **dwd.core.match.messages.incoming.GamePaused** _(server → client)_ — `accountID`, `pauseClock`, `forcePause`
+- **dwd.core.match.messages.incoming.PlayerNotInGame** _(server → client)_ — _no fields_
+- **dwd.core.match.messages.incoming.PlayerStillInGame** _(server → client)_ — _no fields_
+- **dwd.core.match.messages.incoming.RevealOpened** _(server → client)_ — `revealID`, `entityIDs`
+- **dwd.core.match.messages.outgoing.GameCustomChoice** _(client → server)_ — `selection`, `counter`
+- **dwd.core.match.messages.outgoing.ObserveGame** _(client → server)_ — `gameID`
+- **dwd.core.match.messages.outgoing.ObserveGameForAccountID** _(client → server)_ — `accountToObserve`
+- **dwd.core.match.messages.outgoing.Replay** _(client → server)_ — `queueName`
+- **dwd.core.match.messages.outgoing.ResignGame** _(client → server)_ — `gameID`, `gameNum`
+- **dwd.core.match.messages.outgoing.ResignMatch** _(client → server)_ — `gameID`
+- **dwd.core.match.messages.outgoing.StopObserving** _(client → server)_ — `gameID`
+- **dwd.core.match.selection.messages.CustomChoiceWithTargetsRequired** _(unclassified)_ — `forced`, `ignoreFirst`, `choiceKind`, `choices`, `choiceTargets`, `optimalChoices`, `sourceEntity`, `selectionParams`
+- **dwd.core.match.selection.messages.SelectionMessage** _(unclassified)_ — `counter`, `prompt`, `offerLength`, `startingTimestamp`
+- **dwd.core.match.selection.messages.incoming.SelectionWithTargetsAndActionsRequired** _(server → client)_ — `targetMap`, `optimalPlayMap`, `forced`, `targetType`, `selectionParams`
+- **dwd.core.match.sequence.messages.SequenceMessage** _(server → client)_ — `sequenceID`, `msg`
+- **dwd.core.match.sequence.messages.StartSequence** _(server → client)_ — `sequenceID`, `name`, `attributes`
+- **dwd.core.match.sequence.messages.StopSequence** _(server → client)_ — `sequenceID`, `name`
+- **dwd.core.matchmaking.messages.incoming.ConfirmReadyForMatch** _(server → client)_ — `queueName`, `gameID`, `path`
+- **dwd.core.matchmaking.messages.incoming.DeckNotValidForQueue** _(server → client)_ — `deckID`, `reason`
+- **dwd.core.matchmaking.messages.incoming.MatchFailure** _(server → client)_ — _no fields_
+- **dwd.core.matchmaking.messages.incoming.MatchFound** _(server → client)_ — `gameID`, `players`, `gameOptions`
+- **dwd.core.matchmaking.messages.incoming.MatchQueueEntered** _(server → client)_ — `estimatedWaitTime`
+- **dwd.core.matchmaking.messages.incoming.MatchQueueLeft** _(server → client)_ — _no fields_
+- **dwd.core.matchmaking.messages.incoming.MatchRequestCancelled** _(server → client)_ — `path`
+- **dwd.core.matchmaking.messages.incoming.MatchRequestError** _(server → client)_ — `errorMsg`
+- **dwd.core.matchmaking.messages.incoming.MatchRequestRejected** _(server → client)_ — `path`, `failureType`
+- **dwd.core.matchmaking.messages.incoming.MatchRequestSent** _(server → client)_ — `path`, `opponentID`
+- **dwd.core.matchmaking.messages.incoming.MatchRequestWithSpecificClientFailed** _(server → client)_ — `failureType`
+- **dwd.core.matchmaking.messages.incoming.MatchRequested** _(server → client)_ — `path`, `opponentID`, `matchOptions`
+- **dwd.core.matchmaking.messages.incoming.ObserveGameError** _(server → client)_ — `error`
+- **dwd.core.matchmaking.messages.incoming.SpectatedMatchRequestSent** _(server → client)_ — `path`, `player1ID`, `player2ID`
+- **dwd.core.matchmaking.messages.incoming.StoppedObserving** _(server → client)_ — `gameID`, `reason`
+- **dwd.core.networking.NetworkStatusIndicatorConfiguration** _(server → client)_ — `pingWarningThreshold`, `pingErrorThreshold`, `thresholdManualSetting`, `thresholdProceduralSetting`
+- **dwd.core.networking.wargServer.messages.incoming.AccountDuplicateLogin** _(server → client)_ — _no fields_
+- **dwd.core.networking.wargServer.messages.incoming.LoggedClientError** _(server → client)_ — `logID`
+- **dwd.core.networking.wargServer.messages.incoming.UpgradeClient** _(server → client)_ — `reason`
+- **dwd.core.notifications.messages.incoming.Notification** _(server → client)_ — `notificationID`, `payload`, `Payload`, `notificationType`
+- **dwd.core.notifications.messages.incoming.NotificationsRequested** _(server → client)_ — `notificationList`
+- **dwd.core.notifications.messages.outgoing.AcknowledgeNotification** _(client → server)_ — `notificationID`
+- **dwd.core.notifications.messages.outgoing.GetNotifications** _(client → server)_ — _no fields_
+- **dwd.core.progression.messages.AllScenarios** _(server → client)_ — `A`
+- **dwd.core.progression.messages.ScenarioNotAvailable** _(unclassified)_ — `scenarioID`
+- **dwd.core.progression.messages.ScenarioProgress** _(unclassified)_ — `scenarioID`, `progress`
+- **dwd.core.progression.messages.ScenarioServerError** _(unclassified)_ — `scenarioID`
+- **dwd.core.settings.cloudPrefs.messages.ClientStorageError** _(unclassified)_ — `error`
+- **dwd.core.settings.cloudPrefs.messages.ClientStorageRetrieved** _(unclassified)_ — `data`
+- **dwd.core.social.messages.incoming.FriendAdded** _(server → client)_ — `friend`
+- **dwd.core.social.messages.incoming.FriendBlocked** _(server → client)_ — `accountID`
+- **dwd.core.social.messages.incoming.FriendDeclined** _(server → client)_ — `friend`
+- **dwd.core.social.messages.incoming.FriendError** _(server → client)_ — `msg`
+- **dwd.core.social.messages.incoming.FriendInvitation** _(server → client)_ — `friend`
+- **dwd.core.social.messages.incoming.FriendPresence** _(server → client)_ — `accountID`, `presence`
+- **dwd.core.social.messages.incoming.FriendRemoved** _(server → client)_ — `accountID`
+- **dwd.core.social.messages.incoming.FriendRoster** _(server → client)_ — `roster`
+- **dwd.core.social.messages.incoming.FriendUnblocked** _(server → client)_ — `accountID`
+- **dwd.core.switchboard.messages.AllFeatureStatuses** _(unclassified)_ — `service`, `open`, `closed`
+- **dwd.core.switchboard.messages.AllFeatureStatuses_v2** _(server → client)_ — `service`, `open`, `closed`
+- **dwd.core.switchboard.messages.FeatureIsClosed** _(unclassified)_ — `feature`, `reason`, `platform`
+- **dwd.core.switchboard.messages.FeatureIsOpen** _(unclassified)_ — `feature`, `platform`
+- **dwd.core.switchboard.messages.GetFeatureStatuses_v2** _(client → server)_ — _no fields_
+- **dwd.core.timers.messages.incoming.AddDuration** _(server → client)_ — `id`, `additionalTime`
+- **dwd.core.timers.messages.incoming.ChangeTimerEvent** _(server → client)_ — `id`, `name`, `remainingTime`
+- **dwd.core.timers.messages.incoming.CreateTimer** _(server → client)_ — `newTimer`
+- **dwd.core.timers.messages.incoming.DeleteTimer** _(server → client)_ — `id`
+- **dwd.core.timers.messages.incoming.ResetTimer** _(server → client)_ — `newTimer`
+- **dwd.core.timers.messages.incoming.SetRate** _(server → client)_ — `id`, `rate`, `timestamp`
+- **dwd.core.timers.messages.incoming.TimerStopped** _(server → client)_ — `id`
+- **dwd.core.tips.network.incoming.RequestedHelpTips** _(server → client)_ — `tips`, `dismissedTips`
+- **dwd.core.wargServer.authentication.AuthenticationResultMessage** _(unclassified)_ — _no fields_
+- **dwd.core.wargServer.authentication.platform.incoming.RequestAuthToken** _(server → client)_ — _no fields_
+- **dwd.core.wargServer.messages.Unparseable** _(unclassified)_ — `Message`
+- **dwd.legacy.CollectionFound** _(unclassified)_ — `collection`, `protoMsg`, `itemsParsed`
+- **dwd.legacy.CollectionFoundPart** _(unclassified)_ — `collection`, `chunkNum`, `chunkTotal`, `protoMsg`, `itemsParsed`
+- **dwd.legacy.CurrencyAmount** _(unclassified)_ — `amount`
+- **dwd.legacy.InvalidCurrency** _(unclassified)_ — `error`
+- **dwd.legacy.OnlineAvatarDecksFound** _(server → client)_ — `decks`
+- **dwd.legacy.messages.ArchetypesFound** _(server → client)_ — `ArchetypeIDs`, `archetypesParsed`, `totalArchetypes`, `protoMsg`
+- **dwd.legacy.messages.BigNetworkMessageEvent** _(unclassified)_ — `coroutine`, `Progress`, `processingTime`
+- **landing.DynamicLandingPage.DynamicLandingPages** _(server → client)_ — `pageData`, `maintenanceData`
+- **pie.AllQuests** _(server → client)_ — `currentQuests`, `availableQuests`, `specialQuests`
+- **pie.QuestComplete** _(unclassified)_ — `quest`, `xpLevel`
+- **pie.QuestConfigurationUpdated** _(server → client)_ — `questConfiguration`
+- **pie.QuestsProgressed** _(server → client)_ — `completedQuestsAndXPTotal`, `progressedQuests`
+- **pie.QuestsUpdated** _(unclassified)_ — `updatedQuests`
+- **pie.SelectQuest** _(unclassified)_ — `availableQuests`
+- **pie.SpecialQuestBegan** _(unclassified)_ — `quest`
+- **pie.SpecialQuestEnded** _(unclassified)_ — `quest`
+- **pie.code.gameModules.cheats.ConsoleLogData** _(unclassified)_ — `data`
+- **pie.code.pie.Global.messages.LocalizedSystemMessage** _(unclassified)_ — `message`
+- **pie.code.pie.commands.ReloadManifest** _(unclassified)_ — _no fields_
+- **pie.code.pie.diffData.ArchetypeContentData** _(unclassified)_ — `added`, `deleted`, `updated`
+- **pie.code.pie.diffData.BundleContentData** _(unclassified)_ — _no fields_
+- **pie.code.pie.diffData.ContentCompleted** _(unclassified)_ — _no fields_
+- **pie.code.pie.diffData.ContentData** _(unclassified)_ — `contentType`, `revision`
+- **pie.code.pie.diffData.ContentDataNotify** _(unclassified)_ — `msgOverride`, `contentUpdates`
+- **pie.code.pie.diffData.LocalizationContentData** _(unclassified)_ — `added`, `deleted`, `updated`
+- **pie.code.pie.gameModules.login.messages.DynamicVersions** _(server → client)_ — `versionData`
+- **pie.code.pie.gameModules.messaging.OverLimit** _(unclassified)_ — `error`
+- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeError** _(unclassified)_ — `msg`
+- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeRewards** _(unclassified)_ — `totalRewardSchedule`
+- **pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeStatus** _(unclassified)_ — `status`
+- **pie.code.pie.gameModules.trainerChallenge.messages.TutorialDeckUnlock** _(unclassified)_ — `unlock`
+- **pie.code.pie.gameModules.trainerChallengev3.DefaultTrainerChallengeDeckMessage** _(server → client)_ — `defaultDeckName`
+- **pie.code.pie.messages.CurrentGuidOverride** _(unclassified)_ — `guid`
+- **pie.code.pie.messages.NoGuidOverride** _(server → client)_ — _no fields_
+- **pie.code.pie.networking.RequestHeartbeat** _(unclassified)_ — _no fields_
+- **pie.playmat.code.cake.CustomMessages.RequestTimeOutConfirmation** _(unclassified)_ — _no fields_
+- **pie.socialv2.messages.AvailableRooms** _(server → client)_ — `rooms`
+- **pie.socialv2.messages.ChatConnected** _(server → client)_ — `room`, `members`, `messageHistory`
+- **pie.socialv2.messages.ChatDisconnected** _(server → client)_ — `roomID`
+- **pie.socialv2.messages.NotifyActiveTournamentChat** _(unclassified)_ — `activeTournamentID`, `userInfo`, `message`
+- **pie.socialv2.messages.NotifyChat** _(server → client)_ — `roomID`, `userInfo`, `message`
+- **pie.socialv2.messages.NotifyGameChat** _(server → client)_ — `gameID`, `userInfo`, `message`
+- **pie.socialv2.messages.NotifyJoin** _(server → client)_ — `roomID`, `userInfo`
+- **pie.socialv2.messages.NotifyLeave** _(server → client)_ — `roomID`, `accountID`
+- **pie.socialv2.messages.NotifyTournamentQueueChat** _(unclassified)_ — `tournamentID`, `userInfo`, `message`
+- **pie.src.data.message.deck.ArchetypeCorrections** _(server → client)_ — `correctionMap`
+- **pie.src.data.message.deck.GetArchetypeCorrections** _(client → server)_ — _no fields_

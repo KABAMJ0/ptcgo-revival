@@ -1,0 +1,275 @@
+# Client message registry
+
+Read from the assemblies by `tools_client_registrations.py`. `DwdModelAnalyzer` is filled by `dwd.core.data.ReflectionTypeInitializer.Initialize`, which reflects over types rather than reading a literal table — so the wire name of a message is the **CLR type name**, and the type-hint map is keyed by the class names below.
+
+- `[DwdJsonMessage]` types: **192**
+- `[DwdJsonEffect]` types: **44**
+- `[TypeHinting]` types: **4**
+
+## Type hints (polymorphic payloads)
+
+A field named in the second column carries a class name that selects which of these types the client instantiates.
+
+| type | hinting field | base |
+| --- | --- | --- |
+| `P.Q` | `name` | `System.Object` |
+| `dwd.core.draft.serialization.DraftResult` | `name` | `System.Object` |
+| `dwd.core.draft.serialization.DraftUserState` | `name` | `System.Object` |
+| `playmat.code.cake.common.PieAbilityDescription` | `abilityType` | `System.Object` |
+
+## Hint values (subclasses of each hinted base)
+
+A payload field can carry any of these class names; the client instantiates the matching subclass.
+
+**P.Q** → `NavigateToScene`, `NavigateToUrl`, `NavigateToUrls`
+
+**dwd.core.draft.serialization.DraftResult** → 
+
+**dwd.core.draft.serialization.DraftUserState** → 
+
+**playmat.code.cake.common.PieAbilityDescription** → `AncientTrait`, `Attack`, `EnergyAbility`, `PlayAbility`, `PokeAbility`, `PokeBody`, `PokePower`, `RetreatAbility`, `StadiumAbility`, `TechnicalMachine`, `TrainerAbility`
+
+
+## JSON message types
+
+Every type the client will deserialize as a wire message. Names here are the exact `messageName` strings; shapes are in `client-protocol.md`.
+
+- `AccountUpdated` — base `NetworkMessageEvent`
+- `AllAvatarArchetypesChecksumMatch` — base `NetworkMessageEvent`
+- `AllAvatarArchetypesFound` — base `NetworkMessageEvent`
+- `AllBannedCards` — base `NetworkMessageEvent`
+- `AllBannedCardsByFormat` — base `NetworkMessageEvent`
+- `ArchFormatLegality` — base `System.Object`
+- `ArchetypeFlagsForTradeSet` — base `NetworkMessageEvent`
+- `ArchetypeFlagsRequested` — base `NetworkMessageEvent`
+- `ArchetypeFlagsSet` — base `NetworkMessageEvent`
+- `ArchetypeForTradeSet` — base `NetworkMessageEvent`
+- `ArchetypeIDsByFamily` — base `NetworkMessageEvent`
+- `ArchetypeKeys` — base `NetworkMessageEvent`
+- `ArchetypeReviewSet` — base `NetworkMessageEvent`
+- `ArchetypeWantedSet` — base `NetworkMessageEvent`
+- `BanArchetypeIDs` — base `NetworkMessageEvent`
+- `BonusProductsFulfilled` — base `ProductsFulfilled`
+- `CakeMonthlyLeaderboardRewards` — base `TournamentMessage`
+- `CakeRevealOpened` — base `GameMessage`
+- `CakeSelectionWithTargetsRequired` — base `SelectionWithTargetsRequired`
+- `CakeWeeklyLeaderboardRewards` — base `TournamentMessage`
+- `CodeIsValid` — base `NetworkMessageEvent`
+- `CodeRedemptionFailure` — base `NetworkMessageEvent`
+- `CodeSuccessfullyRedeemed` — base `NetworkNotificationMessage`
+- `CoinFlipChoiceRequired` — base `dwd.core.match.selection.messages.SelectionMessage`
+- `CommerceHistory` — base `NetworkNotificationMessage`
+- `CommerceHistoryEntriesFound` — base `NetworkMessageEvent`
+- `CreateLotPrices` — base `NetworkMessageEvent`
+- `CurrencyCaps` — base `NetworkMessageEvent`
+- `CurrentDailyRewardTrack` — base `NetworkMessageEvent`
+- `CurrentVersusSeason` — base `NetworkMessageEvent`
+- `CustomChoiceOfferMessage` — base `GameMessage`
+- `DailyLogin` — base `NetworkMessageEvent`
+- `DailyRewardTier` — base `NetworkMessageEvent`
+- `DailyRewardTrack` — base `NetworkMessageEvent`
+- `DailyRewardTrackID` — base `NetworkMessageEvent`
+- `DailyRewardTrackProgress` — base `System.Object`
+- `DeckUpdated` — base `NetworkMessageEvent`
+- `DeviceAccountUpgradeFailed` — base `NetworkMessageEvent`
+- `DeviceAccountUpgraded` — base `NetworkMessageEvent`
+- `ErrorCreatingLot` — base `NetworkMessageEvent`
+- `ErrorPurchasingLot` — base `NetworkMessageEvent`
+- `ErrorRemovingLot` — base `NetworkMessageEvent`
+- `EventNotice` — base `NetworkNotificationMessage`
+- `FeaturedProducts` — base `NetworkMessageEvent`
+- `ForceSelectionFinished` — base `NetworkMessageEvent`
+- `FormatLegalityForArchetypes` — base `NetworkMessageEvent`
+- `GameCompletedMessage` — base `GameMessage`
+- `GameUnPaused` — base `GameMessage`
+- `GoFirstChoiceRequired` — base `dwd.core.match.selection.messages.SelectionMessage`
+- `HasAvailableTutorialMatches` — base `NetworkMessageEvent`
+- `InvalidCode` — base `NetworkMessageEvent`
+- `ItemsLocked` — base `NetworkMessageEvent`
+- `ItemsUnlocked` — base `NetworkMessageEvent`
+- `LotCreated` — base `NetworkMessageEvent`
+- `LotCreatedForYou` — base `NetworkMessageEvent`
+- `LotExpired` — base `NetworkMessageEvent`
+- `LotRemoved` — base `NetworkMessageEvent`
+- `LotRemovedAndRejected` — base `NetworkMessageEvent`
+- `LotSold` — base `NetworkMessageEvent`
+- `LotsRetrieved` — base `NetworkMessageEvent`
+- `LotsRetrievedCount` — base `NetworkMessageEvent`
+- `ManifestMessage` — base `System.Object`
+- `ManifestMessagingData` — base `System.Object`
+- `MatchRequestWithSpecificClientDeckCheckFailed` — base `NetworkMessageEvent`
+- `Motd` — base `NetworkMessageEvent`
+- `MyLotsRetrieved` — base `NetworkMessageEvent`
+- `MyLotsRetrievedCount` — base `NetworkMessageEvent`
+- `NoMotdSet` — base `NetworkMessageEvent`
+- `NonMatchingArchetypesChecksums` — base `NetworkMessageEvent`
+- `ObserverCustomChoiceOfferMessage` — base `GameMessage`
+- `OfferRetrievalFailure` — base `NetworkMessageEvent`
+- `PileReordered` — base `EffectMessage`
+- `PokemonFamilyMap` — base `NetworkMessageEvent`
+- `PrivateLotsRetrieved` — base `NetworkMessageEvent`
+- `PrivateLotsRetrievedCount` — base `NetworkMessageEvent`
+- `RefreshContent` — base `NetworkNotificationMessage`
+- `RemoveLotWrongAccount` — base `NetworkMessageEvent`
+- `ReportFailed` — base `NetworkNotificationMessage`
+- `ReportSent` — base `NetworkNotificationMessage`
+- `RequestDeviceID` — base `NetworkMessageEvent`
+- `RequestedRandomAvatarDeck` — base `NetworkMessageEvent`
+- `SearchLotsRetrieved` — base `NetworkMessageEvent`
+- `SetDataList` — base `NetworkMessageEvent`
+- `SetIdleTimer` — base `NetworkMessageEvent`
+- `StoreIsClosed` — base `NetworkMessageEvent`
+- `StoreIsOpen` — base `NetworkMessageEvent`
+- `Streak` — base `System.Object`
+- `SuddenDeathGameMessage` — base `GameMessage`
+- `SystemMessage` — base `NetworkMessageEvent`
+- `SystemMessageULB` — base `NetworkMessageEvent`
+- `TimeLockedArchetypeInformation` — base `System.Object`
+- `TimeLockedArchetypes` — base `NetworkMessageEvent`
+- `TopSellingProducts` — base `NetworkNotificationMessage`
+- `TournamentCompleted` — base `NetworkMessageEvent`
+- `TournamentMessage` — base `NetworkMessageEvent`
+- `TradeCompleted` — base `NetworkMessageEvent`
+- `TradeHasBeenReported` — base `NetworkMessageEvent`
+- `TradeHistoryRetrieved` — base `NetworkMessageEvent`
+- `TradeHistoryRetrievedCount` — base `NetworkMessageEvent`
+- `UnBanArchetypeIDForFormat` — base `NetworkMessageEvent`
+- `UnBanArchetypeIDs` — base `NetworkMessageEvent`
+- `UpdateWantedFlagsForArchetypes` — base `NetworkMessageEvent`
+- `UserHasBeenReported` — base `NetworkMessageEvent`
+- `VersusSeason` — base `NetworkMessageEvent`
+- `VersusSeasonBegan` — base `NetworkMessageEvent`
+- `VersusSeasonEnded` — base `NetworkMessageEvent`
+- `WeeklyLeaderboardRewards` — base `NetworkNotificationMessage`
+- `core.campaign.messages.incoming.ScenarioDiff` — base `NetworkMessageEvent`
+- `dwd.core.abilities.messages.incoming.AllAbilitiesFound` — base `NetworkMessageEvent`
+- `dwd.core.abilities.messages.outgoing.GetAllAbilitiesList` — base `dwd.core.cacheableMessages.messages.outgoing.CacheableDataRequest`
+- `dwd.core.achievements.messages.incoming.AchievementCompleted` — base `NetworkMessageEvent`
+- `dwd.core.achievements.messages.incoming.AchievementProgress` — base `NetworkMessageEvent`
+- `dwd.core.achievements.messages.incoming.ListAchievements` — base `NetworkMessageEvent`
+- `dwd.core.achievements.messages.outgoing.GetAchievements` — base `NetworkMessageEvent`
+- `dwd.core.achievements.messages.outgoing.GetDailyQuests` — base `NetworkMessageEvent`
+- `dwd.core.attributes.messages.AttributeModified` — base `GameMessage`
+- `dwd.core.attributes.messages.AttributeRemoved` — base `GameMessage`
+- `dwd.core.collection.messages.incoming.ItemsRemovedFromCollectionById` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DeckDeleted` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DeckPropertiesSaved` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DeckSaveFailed` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DeckSaved` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DecksDeleted` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.DeleteDeck` — base `System.Object`
+- `dwd.core.deck.messages.DeleteDeckFailed` — base `NetworkMessageEvent`
+- `dwd.core.deck.messages.OnlineDecksFound` — base `NetworkMessageEvent`
+- `dwd.core.draft.messages.incoming.ActiveDrafts` — base `NetworkMessageEvent`
+- `dwd.core.draft.messages.incoming.DraftEnded` — base `NetworkMessageEvent`
+- `dwd.core.draft.messages.incoming.DraftStateUpdated` — base `NetworkMessageEvent`
+- `dwd.core.draft.messages.outgoing.GetActiveDrafts` — base `System.Object`
+- `dwd.core.match.messages.EntityAdded` — base `GameMessage`
+- `dwd.core.match.messages.EntityDestroyed` — base `GameMessage`
+- `dwd.core.match.messages.EntityIntroduced` — base `GameMessage`
+- `dwd.core.match.messages.MatchGameEnded` — base `GameMessage`
+- `dwd.core.match.messages.incoming.GamePaused` — base `GameMessage`
+- `dwd.core.match.messages.incoming.PlayerNotInGame` — base `NetworkMessageEvent`
+- `dwd.core.match.messages.outgoing.GameCustomChoice` — base `GameMessage`
+- `dwd.core.match.messages.outgoing.ReconnectToGame` — base `System.Object`
+- `dwd.core.match.messages.outgoing.ResignGame` — base `NetworkMessageEvent`
+- `dwd.core.match.messages.outgoing.ResignMatch` — base `NetworkMessageEvent`
+- `dwd.core.progression.messages.ScenarioNotAvailable` — base `NetworkMessageEvent`
+- `dwd.core.progression.messages.ScenarioProgress` — base `NetworkMessageEvent`
+- `dwd.core.progression.messages.ScenarioServerError` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.AddDuration` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.ChangeTimerEvent` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.CreateTimer` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.DeleteTimer` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.ResetTimer` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.SetRate` — base `NetworkMessageEvent`
+- `dwd.core.timers.messages.incoming.TimerStopped` — base `NetworkMessageEvent`
+- `dwd.legacy.CollectionFound` — base `dwd.legacy.messages.BigNetworkMessageEvent`
+- `dwd.legacy.CollectionFoundPart` — base `dwd.legacy.messages.BigNetworkMessageEvent`
+- `dwd.legacy.CurrencyAmount` — base `NetworkMessageEvent`
+- `dwd.legacy.InvalidCurrency` — base `NetworkMessageEvent`
+- `dwd.legacy.OnlineAvatarDecksFound` — base `NetworkMessageEvent`
+- `landing.DynamicLandingPage.DynamicLandingPages` — base `NetworkMessageEvent`
+- `pie.AllQuests` — base `NetworkMessageEvent`
+- `pie.QuestComplete` — base `NetworkMessageEvent`
+- `pie.QuestConfigurationData` — base `System.Object`
+- `pie.QuestConfigurationUpdated` — base `NetworkMessageEvent`
+- `pie.QuestDefinition` — base `System.Object`
+- `pie.QuestDefinitionPlayerData` — base `dwd.core.data.composition.DataComponent`
+- `pie.QuestProgress` — base `System.Object`
+- `pie.QuestsProgressed` — base `NetworkMessageEvent`
+- `pie.QuestsUpdated` — base `NetworkMessageEvent`
+- `pie.SelectQuest` — base `NetworkMessageEvent`
+- `pie.SpecialQuestBegan` — base `NetworkMessageEvent`
+- `pie.SpecialQuestEnded` — base `NetworkMessageEvent`
+- `pie.Tournament.data.TournamentAdminMessageData` — base `System.Object`
+- `pie.code.gameModules.cheats.ConsoleLogDataElement` — base `System.Object`
+- `pie.code.pie.commands.ReloadManifest` — base `NetworkMessageEvent`
+- `pie.code.pie.diffData.ArchetypeContentData` — base `pie.code.pie.diffData.ContentData`
+- `pie.code.pie.diffData.BundleContentData` — base `pie.code.pie.diffData.ContentData`
+- `pie.code.pie.diffData.ContentCompleted` — base `NetworkMessageEvent`
+- `pie.code.pie.diffData.ContentData` — base `NetworkMessageEvent`
+- `pie.code.pie.diffData.ContentDataNotify` — base `NetworkMessageEvent`
+- `pie.code.pie.diffData.LocalizationContentData` — base `pie.code.pie.diffData.ContentData`
+- `pie.code.pie.gameModules.messaging.OverLimit` — base `NetworkMessageEvent`
+- `pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeError` — base `NetworkMessageEvent`
+- `pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeRewards` — base `NetworkMessageEvent`
+- `pie.code.pie.gameModules.trainerChallenge.messages.LeagueAndGymModeStatus` — base `NetworkMessageEvent`
+- `pie.code.pie.gameModules.trainerChallenge.messages.TutorialDeckUnlock` — base `NetworkMessageEvent`
+- `pie.playmat.code.cake.CustomMessages.RequestTimeOutConfirmation` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.AvailableRooms` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.ChatConnected` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.ChatDisconnected` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.NotifyChat` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.NotifyGameChat` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.NotifyJoin` — base `NetworkMessageEvent`
+- `pie.socialv2.messages.NotifyLeave` — base `NetworkMessageEvent`
+- `pie.src.data.message.deck.ArchetypeCorrections` — base `NetworkMessageEvent`
+- `pie.src.data.message.deck.GetArchetypeCorrections` — base `NetworkMessageEvent`
+
+## JSON effect types
+
+- `AbilityFinishedEffect` — base `EffectMessage`
+- `AbilityPlayedEffect` — base `EffectMessage`
+- `AddSpecialConditionEffect` — base `EffectMessage`
+- `BurnEffect` — base `EffectMessage`
+- `CakeAbilitySelectedEffect` — base `EffectMessage`
+- `CakeAttackEffect` — base `EffectMessage`
+- `CleanupAttackEffect` — base `EffectMessage`
+- `ClosePauseOnPromptEffect` — base `EffectMessage`
+- `ConfuseEffect` — base `EffectMessage`
+- `CreatureHealEvent` — base `EffectMessage`
+- `CreatureHealWithContextEvent` — base `EffectMessage`
+- `DoneWaitingForOpponentEffect` — base `EffectMessage`
+- `EvolveEffect` — base `EffectMessage`
+- `EvolveWithContextEffect` — base `EffectMessage`
+- `GXAttackUsedEffect` — base `EffectMessage`
+- `HealWithContextEvent` — base `EffectMessage`
+- `MulliganRevealCardsEffect` — base `EffectMessage`
+- `MultipleCoinFlipEffect` — base `EffectMessage`
+- `MultipleCoinFlipWithContextEffect` — base `EffectMessage`
+- `NonDamagingTargetsEffect` — base `EffectMessage`
+- `ParalyzeEffect` — base `EffectMessage`
+- `PauseOnPromptEffect` — base `EffectMessage`
+- `PlaceDamageEffect` — base `EffectMessage`
+- `PoisonEffect` — base `EffectMessage`
+- `PostActionPhaseEffect` — base `EffectMessage`
+- `RemoveBurnEffect` — base `EffectMessage`
+- `RemoveConfuseEffect` — base `EffectMessage`
+- `RemoveParalyzeEffect` — base `EffectMessage`
+- `RemovePoisonEffect` — base `EffectMessage`
+- `RemoveSleepEffect` — base `EffectMessage`
+- `RemoveSpecialConditionEffect` — base `EffectMessage`
+- `RevealCardToAllEffect` — base `EffectMessage`
+- `RevealCardsToAllEffect` — base `EffectMessage`
+- `RevealCardsToPlayerEffect` — base `EffectMessage`
+- `RockPaperScissorsEffect` — base `EffectMessage`
+- `ShieldTargetsEffect` — base `EffectMessage`
+- `SleepEffect` — base `EffectMessage`
+- `WaitingForOpponentEffect` — base `EffectMessage`
+- `dwd.core.match.effects.AttackEffect` — base `EffectMessage`
+- `dwd.core.match.effects.ClearAttackEffect` — base `EffectMessage`
+- `dwd.core.match.effects.SwapAttackerEffect` — base `EffectMessage`
+- `pie.code.pie.gameModules.playmat.messages.EnergySwapEffect` — base `EffectMessage`
+- `pie.playmat.code.cake.core.data.message.game.effect.DrawFromBottom` — base `EffectMessage`
+- `pie.playmat.code.cake.core.data.message.game.effect.PlaceOnBottom` — base `EffectMessage`

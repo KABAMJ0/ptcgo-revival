@@ -10,10 +10,14 @@
   "AccountUpdated": {
    "account": {
     "username": "string",
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "attributes": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    }
@@ -21,7 +25,7 @@
   "ActiveAsyncTournaments": {
    "tournamentDefinitions": [
     {
-     "id": "dwd.core.tournament.TournamentID",
+     "id": "Guid",
      "name": "string",
      "title": {
       "trimChars": [
@@ -109,7 +113,7 @@
      },
      "active": "bool",
      "game": {
-      "format": "dwd.core.deck.DeckFormatID",
+      "format": "Guid",
       "matchStructure": "string",
       "strategy": "string",
       "options": {
@@ -121,20 +125,20 @@
       "draftFormat": "string",
       "randomProduct": [
        [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ]
       ],
       "selectedProduct": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "additionalProduct": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "randomDeck": [
-       "dwd.core.deck.DeckID"
+       "Guid"
       ],
       "selectedDeck": [
-       "dwd.core.deck.DeckID"
+       "Guid"
       ],
       "keep": "bool"
      },
@@ -143,7 +147,7 @@
       "interval": "long",
       "productsPerInterval": [
        [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ]
       ],
       "tiebreakerGamesPerInterval": "int"
@@ -153,22 +157,26 @@
    ],
    "tournamentProgress": [
     {
-     "tournamentDefID": "dwd.core.tournament.TournamentID",
-     "entryID": "dwd.core.tournament.TournamentEntryID",
+     "tournamentDefID": "Guid",
+     "entryID": "Guid",
      "deck": {
-      "EMPTY_DECKID": "dwd.core.deck.DeckID",
+      "EMPTY_DECKID": "Guid",
       "deckName": "string",
       "deckLocked": "string",
       "attributes": {
        "source": {
-        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-        "data": "dwd.core.attributes.AttributeDictionary",
+        "globalDefaults": {
+         "<key>": null
+        },
+        "data": {
+         "<key>": null
+        },
         "useGlobalDefaults": "bool"
        }
       },
       "piles": {
        "<key>": [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ]
       }
      },
@@ -176,7 +184,7 @@
      "losses": "int",
      "lastUpdate": "long",
      "limitedCollection": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ],
      "tiebreakers": "int"
     }
@@ -186,7 +194,7 @@
    }
   },
   "ActivePlayerSet": {
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "AllArchetypesChecksumMatch": {},
   "AllAvatarArchetypesChecksumMatch": {},
@@ -203,7 +211,7 @@
   },
   "AllBannedCards": {
    "bannedArchetypeIDs": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ]
   },
   "AllBannedCardsByFormat": {
@@ -213,7 +221,7 @@
   },
   "AllPurchasedDisplayProducts": {
    "displayProducts": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ]
   },
   "ArchetypeCommands.GetProtobufAllArchetypesList": {
@@ -230,19 +238,23 @@
   },
   "ArchetypeCommands.SaveDeck": {
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    }
@@ -251,13 +263,17 @@
    "buttons": [
     {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
    ],
-   "sourceEntity": "dwd.core.match.EntityID",
+   "sourceEntity": "Guid",
    "selectionParams": {
     "<key>": "object"
    }
@@ -304,7 +320,7 @@
    "familyMap": {
     "<key>": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    }
@@ -326,46 +342,54 @@
    "key": "string"
   },
   "AsyncTournamentHasClaimedLeaderboardReward": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
+   "tournamentID": "Guid",
    "claimed": "bool"
   },
   "AsyncTournamentJoined": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentID": "Guid",
+   "entryID": "Guid",
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
    "progress": {
-    "tournamentDefID": "dwd.core.tournament.TournamentID",
-    "entryID": "dwd.core.tournament.TournamentEntryID",
+    "tournamentDefID": "Guid",
+    "entryID": "Guid",
     "deck": {
-     "EMPTY_DECKID": "dwd.core.deck.DeckID",
+     "EMPTY_DECKID": "Guid",
      "deckName": "string",
      "deckLocked": "string",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      },
      "piles": {
       "<key>": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ]
      }
     },
@@ -373,13 +397,13 @@
     "losses": "int",
     "lastUpdate": "long",
     "limitedCollection": [
-     "dwd.core.archetypes.ArchetypeID"
+     "Guid"
     ],
     "tiebreakers": "int"
    }
   },
   "AsyncTournamentLeaderboardRewards": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
+   "tournamentID": "Guid",
    "rank": "int",
    "rewards": [
     {
@@ -390,15 +414,15 @@
    ]
   },
   "AsyncTournamentProgressUpdated": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentID": "Guid",
+   "entryID": "Guid",
    "wins": "int",
    "losses": "int",
    "rank": "int",
    "tiebreakers": "int"
   },
   "AsyncTournamentRewards": {
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "entryID": "Guid",
    "wins": "int",
    "losses": "int",
    "rewards": [
@@ -412,7 +436,7 @@
   "AsyncTournamentStandings": {
    "standings": [
     {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "displayName": "string",
      "points": "double",
      "rank": "int",
@@ -421,7 +445,7 @@
    ]
   },
   "AttributesReset": {
-   "entityID": "dwd.core.match.EntityID"
+   "entityID": "Guid"
   },
   "AuthenticationError": {
    "reason": {
@@ -441,7 +465,7 @@
   },
   "AvailableProducts": {
    "availableProducts": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ],
    "priceMap": {
     "<key>": [
@@ -501,7 +525,7 @@
       {
        "prizeType": {
         "type": "string",
-        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+        "archetypeID": "Guid"
        },
        "amount": "int",
        "startPlace": "int",
@@ -574,7 +598,7 @@
        "id": "string"
       },
       "tournamentRep": "int",
-      "tierReward": "dwd.core.archetypes.ArchetypeID",
+      "tierReward": "Guid",
       "minNumTourney": "int"
      }
     ]
@@ -589,7 +613,7 @@
        "id": "string"
       },
       "tournamentRep": "int",
-      "tierReward": "dwd.core.archetypes.ArchetypeID",
+      "tierReward": "Guid",
       "minNumTourney": "int"
      }
     ]
@@ -601,13 +625,17 @@
    "entityIDs": [
     {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
    ],
-   "revealSource": "dwd.core.match.EntityID",
+   "revealSource": "Guid",
    "revealTypes": "string",
    "revealTitle": {
     "trimChars": [
@@ -640,7 +668,7 @@
      {
       "threshold": "int",
       "rewards": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "topEnd": "int",
       "bottomEnd": "int",
@@ -653,7 +681,7 @@
      {
       "threshold": "int",
       "rewards": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "topEnd": "int",
       "bottomEnd": "int",
@@ -668,7 +696,7 @@
      {
       "threshold": "int",
       "rewards": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "topEnd": "int",
       "bottomEnd": "int",
@@ -681,7 +709,7 @@
      {
       "threshold": "int",
       "rewards": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "topEnd": "int",
       "bottomEnd": "int",
@@ -756,7 +784,7 @@
      }
     }
    ],
-   "sourceEntity": "dwd.core.match.EntityID"
+   "sourceEntity": "Guid"
   },
   "CommerceHistory": {
    "entries": [
@@ -882,7 +910,7 @@
    }
   },
   "CustomChoiceOfferMessage": {
-   "selectingPlayer": "dwd.core.account.AccountID",
+   "selectingPlayer": "Guid",
    "prompt": {
     "trimChars": [
      "char"
@@ -898,7 +926,7 @@
     }
    ],
    "offerLength": "long",
-   "sourceEntity": "dwd.core.match.EntityID",
+   "sourceEntity": "Guid",
    "selection": "int",
    "correctChoice": "int"
   },
@@ -919,7 +947,7 @@
      }
     }
    ],
-   "sourceEntity": "dwd.core.match.EntityID",
+   "sourceEntity": "Guid",
    "kind": "string"
   },
   "DailyLogin": {
@@ -978,7 +1006,7 @@
   "DailyRewardTrackID": {},
   "DeckRetrievalFailed": {},
   "DeckUpdated": {
-   "deckID": "dwd.core.deck.DeckID",
+   "deckID": "Guid",
    "cardsAdded": [
     "System.Guid"
    ],
@@ -990,10 +1018,14 @@
   "DeviceAccountUpgraded": {
    "account": {
     "username": "string",
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "attributes": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    }
@@ -1005,11 +1037,13 @@
    "tournamentEntryID": "System.Guid"
   },
   "EffectPlayed": {
-   "effectMessage": "EffectMessage"
+   "effectMessage": {
+    "name": "string"
+   }
   },
   "EntityMoved": {
-   "entityID": "dwd.core.match.EntityID",
-   "destinationID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
+   "destinationID": "Guid",
    "positionInParent": "int",
    "animDuration": "int"
   },
@@ -1075,14 +1109,14 @@
   "FirstLoginEverMessage": {},
   "ForceLoadAssetBundle": {
    "archetypeids": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ]
   },
   "ForceSelectionFinished": {},
   "FormatLegalityForArchetypes": {
    "archLegality": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "formatLegality": [
       "bool"
      ],
@@ -1137,7 +1171,7 @@
    }
   },
   "GatewayThrottled": {
-   "sessionID": "dwd.core.session.SessionID",
+   "sessionID": "Guid",
    "positionInQueue": "int",
    "waitTime": "long"
   },
@@ -1162,7 +1196,7 @@
      }
     }
    ],
-   "sourceEntity": "dwd.core.match.EntityID"
+   "sourceEntity": "Guid"
   },
   "GrantedSession": {
    "version": "string",
@@ -1195,9 +1229,9 @@
   "ItemsAddedToCollection": {
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -1205,8 +1239,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -1220,7 +1258,7 @@
    ],
    "archCounts": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "tradable": "int",
      "nontradable": "int"
     }
@@ -1229,9 +1267,9 @@
   "ItemsRemovedFromCollection": {
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -1239,8 +1277,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -1253,7 +1295,7 @@
    ],
    "archCounts": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "tradable": "int",
      "nontradable": "int"
     }
@@ -1278,8 +1320,8 @@
   "JoinTournamentFailedInvalidDeck": {
    "deckValidationResult": [
     {
-     "deckID": "dwd.core.deck.DeckID",
-     "format": "dwd.core.deck.DeckFormatID",
+     "deckID": "Guid",
+     "format": "Guid",
      "formatName": "string",
      "valid": "bool",
      "results": [
@@ -1292,7 +1334,7 @@
        },
        "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
        "offendingArchetypeIDs": [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ],
        "additionalData": "object"
       }
@@ -1304,7 +1346,7 @@
    "entries": {
     "<key>": [
      {
-      "accountID": "dwd.core.account.AccountID",
+      "accountID": "Guid",
       "username": "string",
       "rank": "int",
       "displayRank": "string",
@@ -1325,7 +1367,13 @@
   },
   "ListingsRetrieved": {
    "listings": [
-    "Listing"
+    {
+     "contents": [
+      "System.Guid"
+     ],
+     "price": "int",
+     "number": "int"
+    }
    ]
   },
   "LotCreated": {
@@ -1339,9 +1387,9 @@
     "id": "System.Guid",
     "items": [
      {
-      "itemID": "dwd.core.commerce.ItemID",
-      "ownerID": "dwd.core.account.AccountID",
-      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "itemID": "Guid",
+      "ownerID": "Guid",
+      "archetypeID": "Guid",
       "lockID": "System.Guid",
       "created": "long",
       "isTradable": "bool",
@@ -1349,8 +1397,12 @@
       "invoiceID": "System.Guid",
       "attributes": {
        "source": {
-        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-        "data": "dwd.core.attributes.AttributeDictionary",
+        "globalDefaults": {
+         "<key>": null
+        },
+        "data": {
+         "<key>": null
+        },
         "useGlobalDefaults": "bool"
        }
       }
@@ -1388,9 +1440,9 @@
      "id": "System.Guid",
      "items": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1398,8 +1450,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1468,10 +1524,10 @@
   },
   "MultipleSelectionWithTargetsRequired": {
    "forcedTargets": [
-    "dwd.core.match.EntityID"
+    "Guid"
    ],
    "forcedSecondStageTargets": [
-    "dwd.core.match.EntityID"
+    "Guid"
    ],
    "targetMap": {
     "<key>": {
@@ -1490,14 +1546,14 @@
      },
      "targets": [
       {
-       "entity": "dwd.core.match.EntityID",
+       "entity": "Guid",
        "noDupe": "bool",
        "pickFirst": "bool"
       }
      ],
      "numberToSelect": "int",
      "mustBeSelectedAlone": "bool",
-     "accountID": "dwd.core.account.AccountID"
+     "accountID": "Guid"
     }
    },
    "forced": "bool"
@@ -1508,9 +1564,9 @@
      "id": "System.Guid",
      "items": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1518,8 +1574,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1545,9 +1605,9 @@
     {
      "contents": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1555,8 +1615,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1593,7 +1657,7 @@
    ]
   },
   "ObserverCustomChoiceOfferMessage": {
-   "selectingPlayer": "dwd.core.account.AccountID",
+   "selectingPlayer": "Guid",
    "prompt": {
     "trimChars": [
      "char"
@@ -1609,7 +1673,7 @@
     }
    ],
    "offerLength": "long",
-   "sourceEntity": "dwd.core.match.EntityID",
+   "sourceEntity": "Guid",
    "selection": "int",
    "correctChoice": "int"
   },
@@ -1639,11 +1703,11 @@
    ]
   },
   "PlayerDisconnected": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "waitTime": "int"
   },
   "PlayerReconnected": {
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "PokemonFamilyMap": {
    "pokemonFamilyMap": {
@@ -1664,9 +1728,9 @@
      "id": "System.Guid",
      "items": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1674,8 +1738,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1701,9 +1769,9 @@
     {
      "contents": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1711,8 +1779,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1736,9 +1808,9 @@
   "ProductsFulfilled": {
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -1746,8 +1818,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -1758,9 +1834,9 @@
    "invoiceID": "string",
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -1768,8 +1844,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -1801,12 +1881,16 @@
   "RequestedGASKey": {},
   "RequestedRandomAvatarDeck": {
    "deck": {
-    "deckID": "dwd.core.deck.DeckID",
+    "deckID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     },
     "piles": {
@@ -1829,9 +1913,9 @@
      "id": "System.Guid",
      "items": [
       {
-       "itemID": "dwd.core.commerce.ItemID",
-       "ownerID": "dwd.core.account.AccountID",
-       "archetypeID": "dwd.core.archetypes.ArchetypeID",
+       "itemID": "Guid",
+       "ownerID": "Guid",
+       "archetypeID": "Guid",
        "lockID": "System.Guid",
        "created": "long",
        "isTradable": "bool",
@@ -1839,8 +1923,12 @@
        "invoiceID": "System.Guid",
        "attributes": {
         "source": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        }
@@ -1869,7 +1957,7 @@
     "<key>": [
      {
       "selected": "bool",
-      "accountID": "dwd.core.account.AccountID",
+      "accountID": "Guid",
       "name": "string",
       "targetPrompt": {
        "textVars": {
@@ -1889,7 +1977,7 @@
    },
    "optimalPlayMap": [
     [
-     "dwd.core.match.EntityID"
+     "Guid"
     ]
    ],
    "forced": "bool",
@@ -1898,7 +1986,7 @@
    "selectionParams": {
     "<key>": "object"
    },
-   "sourceID": "dwd.core.match.EntityID"
+   "sourceID": "Guid"
   },
   "SetDataList": {
    "setDataList": [
@@ -1929,7 +2017,7 @@
    ]
   },
   "SetIdleTimer": {
-   "playerID": "dwd.core.account.AccountID",
+   "playerID": "Guid",
    "inactivityDuration": "int",
    "endTurnDuration": "int",
    "forced": "bool"
@@ -1974,7 +2062,7 @@
   "ThemeDeckContentsMap": {
    "themeDeckContentsMap": {
     "<key>": [
-     "dwd.core.archetypes.ArchetypeID"
+     "Guid"
     ]
    }
   },
@@ -2045,7 +2133,7 @@
       {
        "prizeType": {
         "type": "string",
-        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+        "archetypeID": "Guid"
        },
        "amount": "int",
        "startPlace": "int",
@@ -2102,10 +2190,14 @@
       "A": {
        "account": {
         "username": "string",
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "attributes": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        },
@@ -2118,14 +2210,14 @@
       "gameID": "System.Guid",
       "B": "System.Guid",
       "winner": {
-       "accountID": "dwd.core.account.AccountID",
+       "accountID": "Guid",
        "username": "string"
       },
       "round": "int",
       "table": "int",
       "players": [
        {
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "username": "string"
        }
       ]
@@ -2135,7 +2227,7 @@
    },
    "finalStandings": [
     {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "username": "string"
     }
    ],
@@ -2205,7 +2297,7 @@
        {
         "prizeType": {
          "type": "string",
-         "archetypeID": "dwd.core.archetypes.ArchetypeID"
+         "archetypeID": "Guid"
         },
         "amount": "int",
         "startPlace": "int",
@@ -2259,7 +2351,7 @@
      "rounds": "int",
      "players": [
       {
-       "accountID": "dwd.core.account.AccountID",
+       "accountID": "Guid",
        "username": "string"
       }
      ],
@@ -2268,7 +2360,7 @@
        "A": {
         "account": {
          "username": "string",
-         "accountID": "dwd.core.account.AccountID",
+         "accountID": "Guid",
          "attributes": {
           "globalDefaults": "dwd.core.attributes.AttributeDictionary",
           "data": "dwd.core.attributes.AttributeDictionary",
@@ -2284,14 +2376,14 @@
        "gameID": "System.Guid",
        "B": "System.Guid",
        "winner": {
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "username": "string"
        },
        "round": "int",
        "table": "int",
        "players": [
         {
-         "accountID": "dwd.core.account.AccountID",
+         "accountID": "Guid",
          "username": "string"
         }
        ]
@@ -2303,7 +2395,7 @@
      "prizeList": [
       {
        "accountIDUsername": {
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "username": "string"
        },
        "prizes": [
@@ -2324,9 +2416,9 @@
   "TournamentItemsAddedToCollection": {
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -2334,8 +2426,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -2403,7 +2499,7 @@
       {
        "prizeType": {
         "type": "string",
-        "archetypeID": "dwd.core.archetypes.ArchetypeID"
+        "archetypeID": "Guid"
        },
        "amount": "int",
        "startPlace": "int",
@@ -2460,10 +2556,14 @@
       "A": {
        "account": {
         "username": "string",
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "attributes": {
-         "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-         "data": "dwd.core.attributes.AttributeDictionary",
+         "globalDefaults": {
+          "<key>": null
+         },
+         "data": {
+          "<key>": null
+         },
          "useGlobalDefaults": "bool"
         }
        },
@@ -2476,14 +2576,14 @@
       "gameID": "System.Guid",
       "B": "System.Guid",
       "winner": {
-       "accountID": "dwd.core.account.AccountID",
+       "accountID": "Guid",
        "username": "string"
       },
       "round": "int",
       "table": "int",
       "players": [
        {
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "username": "string"
        }
       ]
@@ -2532,7 +2632,7 @@
        {
         "prizeType": {
          "type": "string",
-         "archetypeID": "dwd.core.archetypes.ArchetypeID"
+         "archetypeID": "Guid"
         },
         "amount": "int",
         "startPlace": "int",
@@ -2589,7 +2689,7 @@
        "A": {
         "account": {
          "username": "string",
-         "accountID": "dwd.core.account.AccountID",
+         "accountID": "Guid",
          "attributes": {
           "globalDefaults": "dwd.core.attributes.AttributeDictionary",
           "data": "dwd.core.attributes.AttributeDictionary",
@@ -2605,14 +2705,14 @@
        "gameID": "System.Guid",
        "B": "System.Guid",
        "winner": {
-        "accountID": "dwd.core.account.AccountID",
+        "accountID": "Guid",
         "username": "string"
        },
        "round": "int",
        "table": "int",
        "players": [
         {
-         "accountID": "dwd.core.account.AccountID",
+         "accountID": "Guid",
          "username": "string"
         }
        ]
@@ -2673,12 +2773,12 @@
   },
   "TradeReported": {},
   "UnBanArchetypeIDForFormat": {
-   "card": "dwd.core.archetypes.ArchetypeID",
+   "card": "Guid",
    "format": "string"
   },
   "UnBanArchetypeIDs": {
    "bannedArchetypeIDs": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ]
   },
   "UnSubscribeToTournamentChannelSuccessful": {},
@@ -2785,19 +2885,23 @@
   },
   "W.e+CakeSaveDeck": {
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
@@ -2805,39 +2909,43 @@
   },
   "WeeklyLeaderboardRewards": {
    "archIDs": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ],
    "rank": "int",
    "tournamentRep": "int",
    "weeklyRankIcon": "string",
    "tournamentRepIcon": "string",
-   "NotificationID": "dwd.core.notifications.NotificationID"
+   "NotificationID": "Guid"
   },
   "core.campaign.messages.incoming.ScenarioDiff": {
    "completed": [
-    "dwd.core.progression.ScenarioID"
+    "Guid"
    ],
    "available": [
-    "dwd.core.progression.ScenarioID"
+    "Guid"
    ],
    "unavailable": [
-    "dwd.core.progression.ScenarioID"
+    "Guid"
    ],
    "invisible": [
-    "dwd.core.progression.ScenarioID"
+    "Guid"
    ],
    "visible": [
     {
-     "scenarioID": "dwd.core.progression.ScenarioID",
+     "scenarioID": "Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      },
      "children": [
-      "dwd.core.progression.ScenarioID"
+      "Guid"
      ],
      "entryRequirements": "string",
      "completionRequirements": "string"
@@ -2847,7 +2955,7 @@
   "dwd.core.abilities.messages.incoming.AllAbilitiesFound": {
    "abilities": [
     [
-     "dwd.core.match.AbilityID"
+     "Guid"
     ]
    ]
   },
@@ -2875,35 +2983,43 @@
   "dwd.core.account.messages.AuthenticationSuccessful": {
    "account": {
     "username": "string",
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "attributes": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    },
-   "sessionID": "dwd.core.session.SessionID",
+   "sessionID": "Guid",
    "supplementaryInfo": "object"
   },
   "dwd.core.account.messages.incoming.AccountPropertiesUpdated": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "attributes": {
     "source": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    }
   },
   "dwd.core.account.messages.incoming.AccountPropertyRemoved": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "attribute": {
     "Name": "int",
     "ValueType": "System.Type"
    }
   },
   "dwd.core.account.messages.incoming.AccountPropertyRemoved2": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "attribute": "int"
   },
   "dwd.core.account.messages.outgoing.SetAccountSettings": {
@@ -2923,7 +3039,7 @@
   },
   "dwd.core.achievements.messages.incoming.AchievementCompleted": {
    "achievement": {
-    "achievementID": "dwd.core.achievements.AchievementID",
+    "achievementID": "Guid",
     "name": {
      "trimChars": [
       "char"
@@ -2932,8 +3048,12 @@
     },
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
@@ -2941,7 +3061,7 @@
   },
   "dwd.core.achievements.messages.incoming.AchievementProgress": {
    "achievement": {
-    "achievementID": "dwd.core.achievements.AchievementID",
+    "achievementID": "Guid",
     "name": {
      "trimChars": [
       "char"
@@ -2950,8 +3070,12 @@
     },
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
@@ -2964,7 +3088,7 @@
    "achievements": [
     {
      "achievement": {
-      "achievementID": "dwd.core.achievements.AchievementID",
+      "achievementID": "Guid",
       "name": {
        "trimChars": [
         "char"
@@ -2973,8 +3097,12 @@
       },
       "attributes": {
        "source": {
-        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-        "data": "dwd.core.attributes.AttributeDictionary",
+        "globalDefaults": {
+         "<key>": null
+        },
+        "data": {
+         "<key>": null
+        },
         "useGlobalDefaults": "bool"
        }
       }
@@ -2990,10 +3118,14 @@
   "dwd.core.archetypes.messages.AllArchetypesFound": {
    "A": [
     {
-     "ArchetypeID": "dwd.core.archetypes.ArchetypeID",
+     "ArchetypeID": "Guid",
      "attributes": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
@@ -3008,40 +3140,44 @@
    }
   },
   "dwd.core.asynctournament.messages.AsyncTournamentDeckUpdated": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentID": "Guid",
+   "entryID": "Guid",
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
    "limitedCollection": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ]
   },
   "dwd.core.asynctournament.messages.AsyncTournamentGameHistory": {
-   "opponentID": "dwd.core.account.AccountID",
+   "opponentID": "Guid",
    "opponentName": "string",
    "gameResult": "string"
   },
   "dwd.core.asynctournament.messages.AsyncTournamentGameHistoryList": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentID": "Guid",
+   "entryID": "Guid",
    "games": [
     {
-     "opponentID": "dwd.core.account.AccountID",
+     "opponentID": "Guid",
      "opponentName": "string",
      "gameResult": "string"
     }
@@ -3050,7 +3186,7 @@
   "dwd.core.asynctournament.messages.AsyncTournamentLeaderboardPlayerRankAndSurroundingStandings": {
    "standingMap": {
     "<key>": {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "displayName": "string",
      "points": "double",
      "rank": "int",
@@ -3061,7 +3197,7 @@
   "dwd.core.asynctournament.messages.AsyncTournamentLeaderboardTopRankedStandings": {
    "standings": [
     {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "displayName": "string",
      "points": "double",
      "rank": "int",
@@ -3070,7 +3206,7 @@
    ],
    "playerRank": "int",
    "playerStanding": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string",
     "points": "double",
     "rank": "int",
@@ -3078,49 +3214,49 @@
    }
   },
   "dwd.core.asynctournament.messages.AsyncTournamentNumberOfPlayerRuns": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
+   "tournamentID": "Guid",
    "runs": "int"
   },
   "dwd.core.asynctournament.messages.AsyncTournamentUnacknowledgedPacks": {
-   "tournamentEntryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentEntryID": "Guid",
    "packs": [
     {
      "packID": "System.Guid",
-     "packArchetypeID": "dwd.core.archetypes.ArchetypeID",
+     "packArchetypeID": "Guid",
      "packContents": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    ],
    "additionalRewards": "bool"
   },
   "dwd.core.asynctournament.messages.CanClaimLeaderboardRewardsForTournament": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
+   "tournamentID": "Guid",
    "hasParticipated": "bool",
    "claimAvailable": "bool",
    "rank": "int",
    "availableIn": "long"
   },
   "dwd.core.asynctournament.messages.LeagueTiebreakersRemaining": {
-   "tournamentID": "dwd.core.tournament.TournamentID",
-   "entryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentID": "Guid",
+   "entryID": "Guid",
    "week": "int",
    "tiebreakersPlayedThisWeek": "int",
    "tiebreakersRemaining": "int"
   },
   "dwd.core.asynctournament.messages.PackAcknowledged": {
-   "tournamentEntryID": "dwd.core.tournament.TournamentEntryID",
+   "tournamentEntryID": "Guid",
    "packID": "System.Guid"
   },
   "dwd.core.attributes.messages.AttributeModified": {
-   "entityID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
    "attribute": {
     "Name": "int",
     "ValueType": "System.Type"
    }
   },
   "dwd.core.attributes.messages.AttributeRemoved": {
-   "entityID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
    "attributeName": {
     "Key": "int",
     "ValueType": "System.Type",
@@ -3133,7 +3269,9 @@
     {
      "groupKey": "string",
      "ckSum": "string",
-     "newData": "NetworkMessageEvent"
+     "newData": {
+      "source": "object"
+     }
     }
    ],
    "xOfY": [
@@ -3149,11 +3287,11 @@
   },
   "dwd.core.chat.messages.incoming.NotifyPrivateChat": {
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "toUserInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "message": "string",
@@ -3161,14 +3299,14 @@
    "targetWasOnline": "bool"
   },
   "dwd.core.chat.messages.outgoing.PrivateChat": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "message": "string",
    "purpose": "string"
   },
   "dwd.core.collection.messages.incoming.CollectionCountFound": {
    "collectionCountList": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "tradable": "int",
      "nontradable": "int"
     }
@@ -3177,7 +3315,7 @@
   "dwd.core.collection.messages.incoming.ItemsRemovedFromCollectionById": {
    "archCounts": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "tradable": "int",
      "nontradable": "int"
     }
@@ -3234,7 +3372,7 @@
   "dwd.core.commerce.messages.incoming.OverridePrices": {
    "prices": [
     {
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "quantityForSell": "int",
      "newPrice": {
       "name": "int",
@@ -3263,12 +3401,12 @@
    }
   },
   "dwd.core.commerce.messages.incoming.ProductsOpened": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "items": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -3276,8 +3414,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -3285,9 +3427,9 @@
    ],
    "products": [
     {
-     "itemID": "dwd.core.commerce.ItemID",
-     "ownerID": "dwd.core.account.AccountID",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "itemID": "Guid",
+     "ownerID": "Guid",
+     "archetypeID": "Guid",
      "lockID": "System.Guid",
      "created": "long",
      "isTradable": "bool",
@@ -3295,8 +3437,12 @@
      "invoiceID": "System.Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      }
@@ -3347,7 +3493,7 @@
   "dwd.core.data.leaderboards.LeaderBoardUserRank": {
    "entries": {
     "<key>": {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "username": "string",
      "rank": "int",
      "displayRank": "string",
@@ -3364,7 +3510,7 @@
    "entries": {
     "<key>": [
      {
-      "accountID": "dwd.core.account.AccountID",
+      "accountID": "Guid",
       "username": "string",
       "rank": "int",
       "displayRank": "string",
@@ -3385,41 +3531,49 @@
   },
   "dwd.core.data.matchmaking.messages.AcceptMatchWithSpecificClient": {
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
-   "opponentID": "dwd.core.account.AccountID",
+   "opponentID": "Guid",
    "path": "string"
   },
   "dwd.core.data.matchmaking.messages.PhoenixRequestXboxMatchWithSpecificClient": {
    "opponentXuid": "string",
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
@@ -3429,100 +3583,116 @@
   },
   "dwd.core.data.matchmaking.messages.RequestMatchWithSpecificClient": {
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
    "matchOptions": {
     "<key>": "string"
    },
-   "opponentID": "dwd.core.account.AccountID"
+   "opponentID": "Guid"
   },
   "dwd.core.data.message.game.DematerializeEntity": {
-   "entityID": "dwd.core.match.EntityID",
-   "destinationID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
+   "destinationID": "Guid",
    "positionInParent": "int"
   },
   "dwd.core.data.message.game.EntityMovedWithoutID": {
-   "sourceID": "dwd.core.match.EntityID",
-   "destinationID": "dwd.core.match.EntityID",
+   "sourceID": "Guid",
+   "destinationID": "Guid",
    "positionInParent": "int"
   },
   "dwd.core.data.message.game.MapEntityID": {
-   "oldID": "dwd.core.match.EntityID",
-   "newID": "dwd.core.match.EntityID"
+   "oldID": "Guid",
+   "newID": "Guid"
   },
   "dwd.core.data.message.game.MaterializeEntity": {
-   "entityID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
    "entityName": "string",
    "attributeMap": {
     "source": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    },
-   "owningPlayerID": "dwd.core.account.AccountID",
-   "sourceID": "dwd.core.match.EntityID",
-   "destinationID": "dwd.core.match.EntityID",
+   "owningPlayerID": "Guid",
+   "sourceID": "Guid",
+   "destinationID": "Guid",
    "positionInParent": "int",
    "animDuration": "int",
    "children": [
     "dwd.core.data.message.game.MaterializeEntity"
    ],
-   "presentationPile": "dwd.core.match.EntityID"
+   "presentationPile": "Guid"
   },
   "dwd.core.deck.messages.DeckDeleted": {
-   "deckID": "dwd.core.deck.DeckID"
+   "deckID": "Guid"
   },
   "dwd.core.deck.messages.DeckPropertiesSaved": {
-   "deckID": "dwd.core.deck.DeckID",
+   "deckID": "Guid",
    "attributes": {
     "source": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    }
   },
   "dwd.core.deck.messages.DeckSaveFailed": {
-   "deckID": "dwd.core.deck.DeckID"
+   "deckID": "Guid"
   },
   "dwd.core.deck.messages.DeckSaved": {
-   "deckID": "dwd.core.deck.DeckID",
+   "deckID": "Guid",
    "deck": {
-    "EMPTY_DECKID": "dwd.core.deck.DeckID",
+    "EMPTY_DECKID": "Guid",
     "deckName": "string",
     "deckLocked": "string",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
     "piles": {
      "<key>": [
-      "dwd.core.archetypes.ArchetypeID"
+      "Guid"
      ]
     }
    },
    "validationResults": [
     {
-     "deckID": "dwd.core.deck.DeckID",
-     "format": "dwd.core.deck.DeckFormatID",
+     "deckID": "Guid",
+     "format": "Guid",
      "formatName": "string",
      "valid": "bool",
      "results": [
@@ -3535,7 +3705,7 @@
        },
        "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
        "offendingArchetypeIDs": [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ],
        "additionalData": "object"
       }
@@ -3545,14 +3715,14 @@
   },
   "dwd.core.deck.messages.DecksDeleted": {
    "deckIDs": [
-    "dwd.core.deck.DeckID"
+    "Guid"
    ]
   },
   "dwd.core.deck.messages.DecksValidated": {
    "results": [
     {
-     "deckID": "dwd.core.deck.DeckID",
-     "format": "dwd.core.deck.DeckFormatID",
+     "deckID": "Guid",
+     "format": "Guid",
      "formatName": "string",
      "valid": "bool",
      "results": [
@@ -3565,7 +3735,7 @@
        },
        "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
        "offendingArchetypeIDs": [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ],
        "additionalData": "object"
       }
@@ -3574,24 +3744,28 @@
    ]
   },
   "dwd.core.deck.messages.DeleteDeckFailed": {
-   "deckID": "dwd.core.deck.DeckID"
+   "deckID": "Guid"
   },
   "dwd.core.deck.messages.OnlineDecksFound": {
    "decks": [
     {
-     "EMPTY_DECKID": "dwd.core.deck.DeckID",
+     "EMPTY_DECKID": "Guid",
      "deckName": "string",
      "deckLocked": "string",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      },
      "piles": {
       "<key>": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ]
      }
     }
@@ -3627,7 +3801,7 @@
      "collection": {
       "previousPicks": [
        [
-        "dwd.core.archetypes.ArchetypeID"
+        "Guid"
        ]
       ]
      }
@@ -3635,7 +3809,7 @@
    }
   },
   "dwd.core.draft.messages.incoming.DraftEnded": {
-   "instanceID": "dwd.core.draft.DraftEntryID",
+   "instanceID": "Guid",
    "result": "dwd.core.draft.serialization.DraftResult",
    "chestRewards": [
     {
@@ -3661,13 +3835,13 @@
    }
   },
   "dwd.core.draft.messages.incoming.DraftStateUpdated": {
-   "instanceID": "dwd.core.draft.DraftEntryID",
+   "instanceID": "Guid",
    "state": {
     "currentSubState": "dwd.core.draft.serialization.DraftSubState",
     "collection": {
      "previousPicks": [
       [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ]
      ]
     }
@@ -3735,44 +3909,48 @@
    }
   },
   "dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffect": {
-   "gameID": "dwd.core.match.GameID",
-   "playerID": "dwd.core.match.EntityID",
-   "entityID": "dwd.core.match.EntityID",
+   "gameID": "Guid",
+   "playerID": "Guid",
+   "entityID": "Guid",
    "flavor": "string"
   },
   "dwd.core.match.interaction.messages.incoming.PlayerInteractedWithEntityEffectV2": {
-   "gameID": "dwd.core.match.GameID",
-   "playerID": "dwd.core.match.EntityID",
-   "parent": "dwd.core.match.EntityID",
+   "gameID": "Guid",
+   "playerID": "Guid",
+   "parent": "Guid",
    "flavor": "string"
   },
   "dwd.core.match.interaction.messages.incoming.PlayerStoppedInteractingEffect": {
-   "gameID": "dwd.core.match.GameID",
-   "playerID": "dwd.core.match.EntityID",
+   "gameID": "Guid",
+   "playerID": "Guid",
    "flavor": "string"
   },
   "dwd.core.match.messages.EntityAdded": {
-   "entityID": "dwd.core.match.EntityID",
-   "owningPlayerID": "dwd.core.account.AccountID",
-   "parentEntityID": "dwd.core.match.EntityID"
+   "entityID": "Guid",
+   "owningPlayerID": "Guid",
+   "parentEntityID": "Guid"
   },
   "dwd.core.match.messages.EntityDestroyed": {
-   "entityID": "dwd.core.match.EntityID"
+   "entityID": "Guid"
   },
   "dwd.core.match.messages.EntityIntroduced": {
    "attributeMap": {
     "source": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    },
-   "entityID": "dwd.core.match.EntityID",
+   "entityID": "Guid",
    "entityName": "string"
   },
   "dwd.core.match.messages.GameEnded": {
    "winnerList": [
-    "dwd.core.account.AccountID"
+    "Guid"
    ],
    "loserMap": {
     "<key>": "string"
@@ -3781,7 +3959,7 @@
   },
   "dwd.core.match.messages.MatchGameEnded": {
    "winnerList": [
-    "dwd.core.account.AccountID"
+    "Guid"
    ],
    "loserMap": {
     "<key>": "string"
@@ -3791,15 +3969,19 @@
   },
   "dwd.core.match.messages.SerializedGameState": {
    "entities": {
-    "entityID": "dwd.core.match.EntityID",
-    "parentID": "dwd.core.match.EntityID",
-    "owningPlayerID": "dwd.core.account.AccountID",
+    "entityID": "Guid",
+    "parentID": "Guid",
+    "owningPlayerID": "Guid",
     "entityName": "string",
-    "archetypeID": "dwd.core.archetypes.ArchetypeID",
+    "archetypeID": "Guid",
     "attributes": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     },
@@ -3808,14 +3990,14 @@
     ]
    },
    "playerAccounts": [
-    "dwd.core.account.AccountID"
+    "Guid"
    ],
    "gameOptions": {
     "<key>": "string"
    }
   },
   "dwd.core.match.messages.incoming.GamePaused": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "pauseClock": "int",
    "forcePause": "bool"
   },
@@ -3826,8 +4008,12 @@
    "entityIDs": {
     "<key>": {
      "source": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      }
     }
@@ -3838,23 +4024,23 @@
    "counter": "int"
   },
   "dwd.core.match.messages.outgoing.ObserveGame": {
-   "gameID": "dwd.core.match.GameID"
+   "gameID": "Guid"
   },
   "dwd.core.match.messages.outgoing.ObserveGameForAccountID": {
-   "accountToObserve": "dwd.core.account.AccountID"
+   "accountToObserve": "Guid"
   },
   "dwd.core.match.messages.outgoing.Replay": {
    "queueName": "string"
   },
   "dwd.core.match.messages.outgoing.ResignGame": {
-   "gameID": "dwd.core.match.GameID",
+   "gameID": "Guid",
    "gameNum": "int"
   },
   "dwd.core.match.messages.outgoing.ResignMatch": {
-   "gameID": "dwd.core.match.GameID"
+   "gameID": "Guid"
   },
   "dwd.core.match.messages.outgoing.StopObserving": {
-   "gameID": "dwd.core.match.GameID"
+   "gameID": "Guid"
   },
   "dwd.core.match.selection.messages.CustomChoiceWithTargetsRequired": {
    "forced": "bool",
@@ -3862,15 +4048,19 @@
    "choiceKind": "string",
    "choices": [
     {
-     "entityID": "dwd.core.match.EntityID",
-     "parentID": "dwd.core.match.EntityID",
-     "owningPlayerID": "dwd.core.account.AccountID",
+     "entityID": "Guid",
+     "parentID": "Guid",
+     "owningPlayerID": "Guid",
      "entityName": "string",
-     "archetypeID": "dwd.core.archetypes.ArchetypeID",
+     "archetypeID": "Guid",
      "attributes": {
       "source": {
-       "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-       "data": "dwd.core.attributes.AttributeDictionary",
+       "globalDefaults": {
+        "<key>": null
+       },
+       "data": {
+        "<key>": null
+       },
        "useGlobalDefaults": "bool"
       }
      },
@@ -3883,7 +4073,7 @@
     [
      {
       "selected": "bool",
-      "accountID": "dwd.core.account.AccountID",
+      "accountID": "Guid",
       "name": "string",
       "targetPrompt": {
        "textVars": {
@@ -3904,7 +4094,7 @@
    "optimalChoices": [
     "Optimal | Suboptimal | ForcedAttacker | Depleted | Super | Negative | Unselectable"
    ],
-   "sourceEntity": "dwd.core.match.EntityID",
+   "sourceEntity": "Guid",
    "selectionParams": {
     "<key>": "object"
    }
@@ -3930,10 +4120,10 @@
   "dwd.core.match.selection.messages.incoming.SelectionWithTargetsAndActionsRequired": {
    "targetMap": [
     {
-     "entityID": "dwd.core.match.EntityID",
+     "entityID": "Guid",
      "selectableAction": {
-      "gameID": "dwd.core.match.GameID",
-      "actionID": "dwd.core.match.AbilityID",
+      "gameID": "Guid",
+      "actionID": "Guid",
       "description": "string",
       "selectionType": "string",
       "actionHint": "Optimal | Suboptimal | ForcedAttacker | Depleted | Super | Negative | Unselectable"
@@ -3941,7 +4131,7 @@
      "targetInfoLst": [
       {
        "selected": "bool",
-       "accountID": "dwd.core.account.AccountID",
+       "accountID": "Guid",
        "name": "string",
        "targetPrompt": {
         "textVars": {
@@ -3962,7 +4152,7 @@
    ],
    "optimalPlayMap": [
     [
-     "dwd.core.match.EntityID"
+     "Guid"
     ]
    ],
    "forced": "bool",
@@ -3972,34 +4162,38 @@
    }
   },
   "dwd.core.match.sequence.messages.SequenceMessage": {
-   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "sequenceID": "Guid",
    "msg": "dwd.core.match.IGameMessage"
   },
   "dwd.core.match.sequence.messages.StartSequence": {
-   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "sequenceID": "Guid",
    "name": "string",
    "attributes": {
     "source": {
-     "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-     "data": "dwd.core.attributes.AttributeDictionary",
+     "globalDefaults": {
+      "<key>": null
+     },
+     "data": {
+      "<key>": null
+     },
      "useGlobalDefaults": "bool"
     }
    }
   },
   "dwd.core.match.sequence.messages.StopSequence": {
-   "sequenceID": "dwd.core.match.sequence.SequenceID",
+   "sequenceID": "Guid",
    "name": "string"
   },
   "dwd.core.matchmaking.messages.incoming.ConfirmReadyForMatch": {
    "queueName": "string",
-   "gameID": "dwd.core.match.GameID",
+   "gameID": "Guid",
    "path": "string"
   },
   "dwd.core.matchmaking.messages.incoming.DeckNotValidForQueue": {
-   "deckID": "dwd.core.deck.DeckID",
+   "deckID": "Guid",
    "reason": {
-    "deckID": "dwd.core.deck.DeckID",
-    "format": "dwd.core.deck.DeckFormatID",
+    "deckID": "Guid",
+    "format": "Guid",
     "formatName": "string",
     "valid": "bool",
     "results": [
@@ -4012,7 +4206,7 @@
       },
       "failureType": "AtLeastXWithAttribute | MaxXWithAttribute | DeckContainsBannedCards | BoolRestriction | DeckAttributeQuery | ExactArchetypesMatchingQuery | ExactlyXWithAttribute | ExactSize | MutuallyExclusiveCards | MaxDuplicates | MaximumNotRatio | MaxMatches | MaxUniqueAttributeValues | MaxSize | MinimumNotRatio | MinimumRatio | MinSize | MustContain | MustNotContain | UnownedCards | MustContainThatsNot",
       "offendingArchetypeIDs": [
-       "dwd.core.archetypes.ArchetypeID"
+       "Guid"
       ],
       "additionalData": "object"
      }
@@ -4021,9 +4215,9 @@
   },
   "dwd.core.matchmaking.messages.incoming.MatchFailure": {},
   "dwd.core.matchmaking.messages.incoming.MatchFound": {
-   "gameID": "dwd.core.match.GameID",
+   "gameID": "Guid",
    "players": [
-    "dwd.core.account.AccountID"
+    "Guid"
    ],
    "gameOptions": {
     "<key>": "string"
@@ -4050,7 +4244,7 @@
   },
   "dwd.core.matchmaking.messages.incoming.MatchRequestSent": {
    "path": "string",
-   "opponentID": "dwd.core.account.AccountID"
+   "opponentID": "Guid"
   },
   "dwd.core.matchmaking.messages.incoming.MatchRequestWithSpecificClientFailed": {
    "failureType": {
@@ -4062,7 +4256,7 @@
   },
   "dwd.core.matchmaking.messages.incoming.MatchRequested": {
    "path": "string",
-   "opponentID": "dwd.core.account.AccountID",
+   "opponentID": "Guid",
    "matchOptions": {
     "<key>": "string"
    }
@@ -4077,11 +4271,11 @@
   },
   "dwd.core.matchmaking.messages.incoming.SpectatedMatchRequestSent": {
    "path": "string",
-   "player1ID": "dwd.core.account.AccountID",
-   "player2ID": "dwd.core.account.AccountID"
+   "player1ID": "Guid",
+   "player2ID": "Guid"
   },
   "dwd.core.matchmaking.messages.incoming.StoppedObserving": {
-   "gameID": "dwd.core.match.GameID",
+   "gameID": "Guid",
    "reason": "string"
   },
   "dwd.core.networking.NetworkStatusIndicatorConfiguration": {
@@ -4103,23 +4297,27 @@
    }
   },
   "dwd.core.notifications.messages.incoming.Notification": {
-   "notificationID": "dwd.core.notifications.NotificationID",
+   "notificationID": "Guid",
    "payload": "string",
-   "Payload": "NetworkMessageEvent",
+   "Payload": {
+    "source": "object"
+   },
    "notificationType": "Normal | AutoAcknowledge | NoPopup"
   },
   "dwd.core.notifications.messages.incoming.NotificationsRequested": {
    "notificationList": [
     {
-     "notificationID": "dwd.core.notifications.NotificationID",
+     "notificationID": "Guid",
      "payload": "string",
-     "Payload": "NetworkMessageEvent",
+     "Payload": {
+      "source": "object"
+     },
      "notificationType": "Normal | AutoAcknowledge | NoPopup"
     }
    ]
   },
   "dwd.core.notifications.messages.outgoing.AcknowledgeNotification": {
-   "notificationID": "dwd.core.notifications.NotificationID"
+   "notificationID": "Guid"
   },
   "dwd.core.notifications.messages.outgoing.GetNotifications": {},
   "dwd.core.progression.messages.AllScenarios": {
@@ -4128,14 +4326,14 @@
    }
   },
   "dwd.core.progression.messages.ScenarioNotAvailable": {
-   "scenarioID": "dwd.core.progression.ScenarioID"
+   "scenarioID": "Guid"
   },
   "dwd.core.progression.messages.ScenarioProgress": {
-   "scenarioID": "dwd.core.progression.ScenarioID",
+   "scenarioID": "Guid",
    "progress": "NotStarted | InProgress | Completed"
   },
   "dwd.core.progression.messages.ScenarioServerError": {
-   "scenarioID": "dwd.core.progression.ScenarioID"
+   "scenarioID": "Guid"
   },
   "dwd.core.settings.cloudPrefs.messages.ClientStorageError": {
    "error": "string"
@@ -4150,11 +4348,11 @@
    }
   },
   "dwd.core.social.messages.incoming.FriendBlocked": {
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "dwd.core.social.messages.incoming.FriendDeclined": {
    "friend": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    }
   },
@@ -4168,16 +4366,16 @@
   },
   "dwd.core.social.messages.incoming.FriendInvitation": {
    "friend": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    }
   },
   "dwd.core.social.messages.incoming.FriendPresence": {
-   "accountID": "dwd.core.account.AccountID",
+   "accountID": "Guid",
    "presence": "string"
   },
   "dwd.core.social.messages.incoming.FriendRemoved": {
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "dwd.core.social.messages.incoming.FriendRoster": {
    "roster": [
@@ -4188,7 +4386,7 @@
    ]
   },
   "dwd.core.social.messages.incoming.FriendUnblocked": {
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "dwd.core.switchboard.messages.AllFeatureStatuses": {
    "service": "string",
@@ -4240,17 +4438,17 @@
   },
   "dwd.core.switchboard.messages.GetFeatureStatuses_v2": {},
   "dwd.core.timers.messages.incoming.AddDuration": {
-   "id": "dwd.core.timers.TimerID",
+   "id": "Guid",
    "additionalTime": "long"
   },
   "dwd.core.timers.messages.incoming.ChangeTimerEvent": {
-   "id": "dwd.core.timers.TimerID",
+   "id": "Guid",
    "name": "string",
    "remainingTime": "long"
   },
   "dwd.core.timers.messages.incoming.CreateTimer": {
    "newTimer": {
-    "id": "dwd.core.timers.TimerID",
+    "id": "Guid",
     "changeRate": "long",
     "initialDuration": "long",
     "lastModified": {
@@ -4267,11 +4465,11 @@
    }
   },
   "dwd.core.timers.messages.incoming.DeleteTimer": {
-   "id": "dwd.core.timers.TimerID"
+   "id": "Guid"
   },
   "dwd.core.timers.messages.incoming.ResetTimer": {
    "newTimer": {
-    "id": "dwd.core.timers.TimerID",
+    "id": "Guid",
     "changeRate": "long",
     "initialDuration": "long",
     "lastModified": {
@@ -4288,7 +4486,7 @@
    }
   },
   "dwd.core.timers.messages.incoming.SetRate": {
-   "id": "dwd.core.timers.TimerID",
+   "id": "Guid",
    "rate": "long",
    "timestamp": {
     "timestamp": "long",
@@ -4297,12 +4495,12 @@
    }
   },
   "dwd.core.timers.messages.incoming.TimerStopped": {
-   "id": "dwd.core.timers.TimerID"
+   "id": "Guid"
   },
   "dwd.core.tips.network.incoming.RequestedHelpTips": {
    "tips": [
     {
-     "id": "dwd.core.tips.network.TipID",
+     "id": "Guid",
      "name": "string",
      "eventJSON": "string",
      "flavors": [
@@ -4312,7 +4510,7 @@
     }
    ],
    "dismissedTips": [
-    "dwd.core.tips.network.TipID"
+    "Guid"
    ]
   },
   "dwd.core.wargServer.authentication.AuthenticationResultMessage": {},
@@ -4324,9 +4522,9 @@
    "collection": {
     "items": [
      {
-      "itemID": "dwd.core.commerce.ItemID",
-      "ownerID": "dwd.core.account.AccountID",
-      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "itemID": "Guid",
+      "ownerID": "Guid",
+      "archetypeID": "Guid",
       "lockID": "System.Guid",
       "created": "long",
       "isTradable": "bool",
@@ -4334,8 +4532,12 @@
       "invoiceID": "System.Guid",
       "attributes": {
        "source": {
-        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-        "data": "dwd.core.attributes.AttributeDictionary",
+        "globalDefaults": {
+         "<key>": null
+        },
+        "data": {
+         "<key>": null
+        },
         "useGlobalDefaults": "bool"
        }
       }
@@ -4352,9 +4554,9 @@
    "collection": {
     "items": [
      {
-      "itemID": "dwd.core.commerce.ItemID",
-      "ownerID": "dwd.core.account.AccountID",
-      "archetypeID": "dwd.core.archetypes.ArchetypeID",
+      "itemID": "Guid",
+      "ownerID": "Guid",
+      "archetypeID": "Guid",
       "lockID": "System.Guid",
       "created": "long",
       "isTradable": "bool",
@@ -4362,8 +4564,12 @@
       "invoiceID": "System.Guid",
       "attributes": {
        "source": {
-        "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-        "data": "dwd.core.attributes.AttributeDictionary",
+        "globalDefaults": {
+         "<key>": null
+        },
+        "data": {
+         "<key>": null
+        },
         "useGlobalDefaults": "bool"
        }
       }
@@ -4390,12 +4596,16 @@
   "dwd.legacy.OnlineAvatarDecksFound": {
    "decks": [
     {
-     "deckID": "dwd.core.deck.DeckID",
+     "deckID": "Guid",
      "deckName": "string",
      "deckLocked": "string",
      "attributes": {
-      "globalDefaults": "dwd.core.attributes.AttributeDictionary",
-      "data": "dwd.core.attributes.AttributeDictionary",
+      "globalDefaults": {
+       "<key>": null
+      },
+      "data": {
+       "<key>": null
+      },
       "useGlobalDefaults": "bool"
      },
      "piles": {
@@ -4408,7 +4618,7 @@
   },
   "dwd.legacy.messages.ArchetypesFound": {
    "ArchetypeIDs": [
-    "dwd.core.archetypes.ArchetypeID"
+    "Guid"
    ],
    "archetypesParsed": "int",
    "totalArchetypes": "int",
@@ -4479,7 +4689,7 @@
    "currentQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4537,7 +4747,7 @@
    "availableQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4595,7 +4805,7 @@
    "specialQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4653,7 +4863,7 @@
   },
   "pie.QuestComplete": {
    "quest": {
-    "questID": "p.D",
+    "questID": "Guid",
     "name": "string",
     "title": {
      "trimChars": [
@@ -4735,7 +4945,7 @@
    "completedQuestsAndXPTotal": [
     [
      {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4788,7 +4998,7 @@
    "progressedQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4848,7 +5058,7 @@
    "updatedQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4908,7 +5118,7 @@
    "availableQuests": [
     {
      "questDefinition": {
-      "questID": "p.D",
+      "questID": "Guid",
       "name": "string",
       "title": {
        "trimChars": [
@@ -4967,7 +5177,7 @@
   "pie.SpecialQuestBegan": {
    "quest": {
     "questDefinition": {
-     "questID": "p.D",
+     "questID": "Guid",
      "name": "string",
      "title": {
       "trimChars": [
@@ -5024,7 +5234,7 @@
   },
   "pie.SpecialQuestEnded": {
    "quest": {
-    "questID": "p.D",
+    "questID": "Guid",
     "name": "string",
     "title": {
      "trimChars": [
@@ -5197,7 +5407,7 @@
    }
   },
   "pie.code.pie.gameModules.trainerChallenge.messages.TutorialDeckUnlock": {
-   "unlock": "dwd.core.archetypes.ArchetypeID"
+   "unlock": "Guid"
   },
   "pie.code.pie.gameModules.trainerChallengev3.DefaultTrainerChallengeDeckMessage": {
    "defaultDeckName": "string"
@@ -5214,7 +5424,7 @@
      "roomID": "string",
      "displayName": "string",
      "roomType": "Lobby | Tournament_Strategy | Battle_Challenge | Deck_Discussion | New_Players | Pokemon_Fan_Chat | Trading_Post | Casual_Strategy | Team_Recruitement | Rules | Game | Private | Active_Tournament | Queue_Tournament",
-     "A": "dwd.core.account.AccountID"
+     "A": "Guid"
     }
    ]
   },
@@ -5223,11 +5433,11 @@
     "roomID": "string",
     "displayName": "string",
     "roomType": "Lobby | Tournament_Strategy | Battle_Challenge | Deck_Discussion | New_Players | Pokemon_Fan_Chat | Trading_Post | Casual_Strategy | Team_Recruitement | Rules | Game | Private | Active_Tournament | Queue_Tournament",
-    "A": "dwd.core.account.AccountID"
+    "A": "Guid"
    },
    "members": [
     {
-     "accountID": "dwd.core.account.AccountID",
+     "accountID": "Guid",
      "displayName": "string"
     }
    ],
@@ -5241,7 +5451,7 @@
   "pie.socialv2.messages.NotifyActiveTournamentChat": {
    "activeTournamentID": "string",
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "message": "string"
@@ -5249,7 +5459,7 @@
   "pie.socialv2.messages.NotifyChat": {
    "roomID": "string",
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "message": "string"
@@ -5257,7 +5467,7 @@
   "pie.socialv2.messages.NotifyGameChat": {
    "gameID": "string",
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "message": "string"
@@ -5265,25 +5475,25 @@
   "pie.socialv2.messages.NotifyJoin": {
    "roomID": "string",
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    }
   },
   "pie.socialv2.messages.NotifyLeave": {
    "roomID": "string",
-   "accountID": "dwd.core.account.AccountID"
+   "accountID": "Guid"
   },
   "pie.socialv2.messages.NotifyTournamentQueueChat": {
    "tournamentID": "string",
    "userInfo": {
-    "accountID": "dwd.core.account.AccountID",
+    "accountID": "Guid",
     "displayName": "string"
    },
    "message": "string"
   },
   "pie.src.data.message.deck.ArchetypeCorrections": {
    "correctionMap": {
-    "<key>": "dwd.core.archetypes.ArchetypeID"
+    "<key>": "Guid"
    }
   },
   "pie.src.data.message.deck.GetArchetypeCorrections": {}
