@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Ruler of the Night",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent can't play any Pok\u00e9mon Tool, Special Energy, or Stadium cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("tool", "special_energy", "stadium"),
         ),
         Attack(
             title="Feather Storm",

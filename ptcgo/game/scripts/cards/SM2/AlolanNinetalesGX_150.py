@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, move_counters_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -37,7 +37,7 @@ card = PokemonCardDef(
             title="Ice Path-GX",
             game_text="Move all damage counters from this Pok\u00e9mon to your opponent's Active Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=move_counters_attack(),
         ),
     ],
 )

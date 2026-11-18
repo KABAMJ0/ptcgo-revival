@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_condition
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="22bbdf6c-e6f5-55db-8a6e-867f9f36f05a",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage_condition(2, per_heads=40, min_heads=1, condition=SpecialConditions.PARALYZED),
         ),
         Attack(
             title="Frost Breath",

@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, move_counters_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             title="Damakinesis",
             game_text="Move 6 damage counters from any of your Pok\u00e9mon to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=move_counters_attack(6),
         ),
     ],
 )

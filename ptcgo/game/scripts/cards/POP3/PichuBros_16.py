@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_condition
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="fb642272-a358-586e-ad4e-5d05efe1f019",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage_condition(2, per_heads=20, min_heads=1, condition=SpecialConditions.CONFUSED),
         ),
     ],
 )

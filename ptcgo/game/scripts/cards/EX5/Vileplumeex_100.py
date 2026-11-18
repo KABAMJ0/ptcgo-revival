@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Block Dust",
             game_text="As long as Vileplume ex is your Active Pok\u00e9mon, your opponent can't play any Trainer cards (except for Supporter cards) from his or her hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("trainer", excluding="supporter"),
         ),
         Attack(
             title="Special Formula",
