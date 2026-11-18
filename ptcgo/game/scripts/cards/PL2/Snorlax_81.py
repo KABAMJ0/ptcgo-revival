@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
 card = PokemonCardDef(
     guid="00ddee41-3038-580e-a46d-e1489578274d",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Bad Sleeping Habits",
             game_text="As long as Snorlax is Asleep, your opponent's Active Pok\u00e9mon can't retreat.",
-            effect=unimplemented,
+            passive=condition_retreat_lock_passive(carrier_conditions=(SpecialConditions.ASLEEP,)),
         ),
         Attack(
             title="Toss and Turn",
