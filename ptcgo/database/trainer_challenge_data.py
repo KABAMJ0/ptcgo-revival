@@ -57,6 +57,29 @@ def available(opponent_key, progress):
     return all(_beaten(progress, other.key) for other in league.opponents[:position])
 
 
+def playable(account_id):
+    """The opponents this account can play right now, in match order."""
+    progress = load(account_id)
+    return [opponent for opponent in content.opponents()
+            if available(opponent.key, progress)]
+
+
+def pick_opponent(account_id, values=()):
+    """The opponent to field: the one the request names, else the last unlocked one.
+
+    `values` are the unlabelled strings a client request carried (a scenario id).
+    A named Trainer is returned as-is — the caller decides whether it is playable,
+    so asking for a locked Trainer is refused instead of quietly fielding another.
+    `None` means the request named nobody and nothing is unlocked yet.
+    """
+    for value in values:
+        opponent = content.select_opponent(value)
+        if opponent is not None:
+            return opponent
+    unlocked = playable(account_id)
+    return unlocked[-1] if unlocked else None
+
+
 def status_rows(account_id):
     """The panel's opponent list: every opponent with its availability.
 
