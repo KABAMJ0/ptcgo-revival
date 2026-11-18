@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="309b7f6e-a253-5ca6-baaf-727a3dcc38d7",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Nicked Nibble",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Gentle Slap",
