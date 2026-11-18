@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import (
+    holder_takes_less, tool_discard_after_opponents_turn,
+)
 
 card = PokemonToolCardDef(
     guid="2156c9b9-71dd-5cc2-a75f-abff81a01197",
@@ -11,5 +14,6 @@ card = PokemonToolCardDef(
     collector_number=72,
     set_code="EX15",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=holder_takes_less(20),
+    granted_abilities=[tool_discard_after_opponents_turn("Buffer Piece")]
 )

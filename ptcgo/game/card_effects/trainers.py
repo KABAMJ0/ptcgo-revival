@@ -10,7 +10,8 @@ from ptcgo.game.attributes import (
 from ptcgo.game.models.board import PokemonEntity
 from ptcgo.game.data_utils import (
     Triggers,
-    Ability, Activations, Attack, def_for, evolves_from, has_rule_box,
+    Ability, Activations, Attack, ability_id_for, def_for, evolves_from,
+    has_rule_box,
     is_pokemon_v, subtypes_for, VisualizationArrow, VisualizationType,
 )
 from ptcgo.game.session.constants import BENCH_CAPACITY
@@ -1791,16 +1792,40 @@ def if_heads(inner):
     return effect
 
 
-def with_discard_cost(n: int, inner):
+def with_discard_cost(n: int, inner, predicate=None, pass_discarded=False):
     """Discard `n` other cards from your hand as the card's cost, then run
-    `inner` (declines when the hand cannot pay)."""
+    `inner` (declines when the hand cannot pay). A `predicate` narrows what may
+    be spent ("discard a Team Plasma card", "discard a Pokemon that has Holon
+    in its name"), and the card then declines unless that many matching cards
+    are in hand. pass_discarded=True hands the spent cards to `inner(ctx,
+    discarded)` for a payoff that reads them ("if you discarded a Pokemon that
+    has Holon in its name, draw 2 more")."""
     async def effect(ctx):
+        if predicate is not None:
+            matching = [c for c in ctx.hand() if predicate(c)]
+            if len(matching) < n:
+                return
+            picks = await ctx.choose_cards(
+                matching, n, minimum=n,
+                prompt=f"Discard {n} card(s) from your hand",
+            )
+            if len(picks) < n:
+                return
+            await ctx.discard_cards(picks)
+            if pass_discarded:
+                await inner(ctx, picks)
+            else:
+                await inner(ctx)
+            return
         discarded = await ctx.discard_from_hand(
             n, minimum=n, prompt=f"Discard {n} card(s) from your hand",
         )
         if len(discarded) < n:
             return
-        await inner(ctx)
+        if pass_discarded:
+            await inner(ctx, discarded)
+        else:
+            await inner(ctx)
     return effect
 
 
@@ -7500,6 +7525,20 @@ def tool_confuse_attacker():
     return effect
 
 
+def tool_sleep_attacker():
+    """Tool, granted ON_DAMAGED_BY_ATTACK: the Active holder was damaged by an
+    attack, so the Attacking Pokemon is now Asleep. Fires on a knockout too
+    (Team Rocket's Hypnotizer: "even if this Pokemon is Knocked Out")."""
+    async def effect(ctx):
+        attacker = ctx.damaged_by
+        if attacker is None or attacker.owning_player_id == ctx.player_id:
+            return
+        if not is_in_active_spot(ctx.source):
+            return
+        await ctx.apply_special_condition(attacker, SpecialConditions.ASLEEP)
+    return effect
+
+
 def tool_move_attacker_energy_to_bench():
     """Tool, granted ON_DAMAGED_BY_ATTACK: the Active holder was damaged by an
     attack, so move 1 Energy from the Attacking Pokemon to the opponent's
@@ -8303,6 +8342,35 @@ def search_one_of_each_into_hand(kinds):
         await ctx.shuffle_deck()
     return effect
 
+class GxAttackWhenHolderHasPassive(Passive):
+    """The holder may use `gx_attack` only while it prints the attack named
+    `prereq_title` (Flyinium Z: Air Slash, Normalium Z: Tackle)."""
+
+    def __init__(self, prereq_title, gx_attack):
+        self.prereq_title = prereq_title
+        self.gx_attack = gx_attack
+        # granted_extra_attacks dedupes by ability_id, so a passive-granted
+        # attack needs one; the title is stable across the card's printings.
+        if not gx_attack.ability_id:
+            gx_attack.ability_id = ability_id_for(gx_attack.title, 0)
+
+    def granted_attacks(self, board, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return []
+        printed = getattr(def_for(pokemon.archetype_id), "abilities", None) or []
+        if not any(isinstance(a, Attack) and a.title == self.prereq_title
+                   for a in printed):
+            return []
+        return [self.gx_attack]
+
+
+def gx_attack_when_holder_has(prereq_title, gx_attack):
+    """Tool wording: "If the Pokemon this card is attached to has the <X>
+    attack, it can use the GX attack on this card." The grant is conditional on
+    the holder's PRINTED attacks, so it appears and disappears with them."""
+    return GxAttackWhenHolderHasPassive(prereq_title, gx_attack)
+
+
 # --- batch-01 switch/gust/discard shapes -----------------------------------
 
 def switch_then_move_any_energy():
@@ -8449,4 +8517,45 @@ def search_fossil_or_fossil_evolution(count: int = 1):
             await ctx.put_in_hand(picks, reveal=True)
             if any(card in deck_cards for card in picks):
                 await ctx.shuffle_deck()
+    return effect
+
+def tool_discard_after_opponents_turn(title: str):
+    """Granted BETWEEN_TURNS ability: discard the Tool that granted it once the
+    OPPONENT's turn ends ("discard this card at the end of your opponent's
+    next turn"). BETWEEN_TURNS fires for both sides at every checkup, and the
+    checkup runs while the just-ended turn's player is still the active one,
+    so the ability only acts when that player is not the holder's owner."""
+    async def effect(ctx):
+        ending = getattr(getattr(ctx.session, "turn_state", None),
+                         "active_player_id", None)
+        if ending is None or ending == ctx.player_id:
+            return
+        tool = ctx.ability_source
+        if tool is not None and tool is not ctx.source:
+            await ctx.discard_cards([tool])
+    return Ability(title=title, trigger=Triggers.BETWEEN_TURNS, effect=effect)
+
+# --- flip-pair deck search ---
+def flip_search_pair(heads_predicate, heads_count, tails_predicate, tails_count):
+    """Flip a coin: heads searches the deck for `heads_count` cards matching
+    `heads_predicate`, tails for `tails_count` matching `tails_predicate`
+    (Team Aqua Ball, Team Rocket's Great Ball, Larry). Picks are revealed into
+    hand, then the deck is shuffled. A single-card branch with a match is a
+    mandatory pick; a multi-card branch is "up to" (the card prints "up to
+    N")."""
+    async def _branch(ctx, predicate, count):
+        available = any(predicate(card) for card in ctx.deck())
+        picks = await ctx.search_deck(
+            predicate, count=count,
+            minimum=1 if count == 1 and available else 0,
+            prompt="Choose a card to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+
+    async def effect(ctx):
+        if (await ctx.flip_coins(1, title="Search your deck"))[0]:
+            await _branch(ctx, heads_predicate, heads_count)
+        else:
+            await _branch(ctx, tails_predicate, tails_count)
+        await ctx.shuffle_deck()
     return effect
