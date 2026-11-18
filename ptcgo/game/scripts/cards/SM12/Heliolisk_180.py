@@ -1,11 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import bonus_if, count_in_play
-from ptcgo.game.card_effects.trainers import pokemon_of
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
 
-def _opponent_has_lightning(ctx):
-    return count_in_play("opponent", pokemon_of("lightning"))(ctx) > 0
+def _opponent_has_lightning(ctx) -> bool:
+    return any(PokemonTypes.LIGHTNING.value
+               in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+               for pokemon in ctx.opponent_pokemon_in_play())
 
 card = PokemonCardDef(
     guid="bef72908-6d50-52fd-a28b-4f5798498cec",

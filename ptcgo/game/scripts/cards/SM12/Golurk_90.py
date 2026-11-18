@@ -1,11 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import bonus_if, count_discard
-from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
+from ptcgo.game.card_effects.attacks_common import (
+    bonus_if,
+    count_discard,
+    ignore_modifier_attack,
+)
 
 
-def _no_supporter_in_discard(ctx):
-    return count_discard("mine", is_supporter_card)(ctx) == 0
+def _no_supporter_in_discard(ctx) -> bool:
+    return count_discard("mine", _is_supporter)(ctx) == 0
+
+
+def _is_supporter(card) -> bool:
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value
 
 card = PokemonCardDef(
     guid="18ca5fa0-d9c5-51e3-b369-007cef785248",
@@ -31,7 +38,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=40,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
         Attack(
             title="Fist of Antiquity",

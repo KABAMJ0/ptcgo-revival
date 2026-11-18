@@ -1,7 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
-from ptcgo.game.card_effects.trainers import named
+from ptcgo.game.card_effects.attacks_common import (
+    count_discard,
+    damage_per,
+    ignore_modifier_attack,
+)
+from ptcgo.game.data_utils import def_for
+
+
+def _is_unidentified_fossil(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Unidentified Fossil"
 
 card = PokemonCardDef(
     guid="e51a8197-9b2e-5131-9fc4-b402a4562299",
@@ -27,14 +36,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=damage_per(count_discard("mine", named("unidentified", "fossil")), 50, base=20),
+            effect=damage_per(count_discard("mine", _is_unidentified_fossil), 50, base=20),
         ),
         Attack(
             title="Mach Claw",
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

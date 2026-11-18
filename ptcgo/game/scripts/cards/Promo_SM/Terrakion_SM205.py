@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _all_bench_damaged(ctx) -> bool:
+    bench = ctx.my_bench()
+    return bool(bench) and all(
+        pokemon.get_attribute(AttrID.HP, 0)
+        < pokemon.attribute_originals.get(AttrID.HP.value,
+                                          pokemon.get_attribute(AttrID.HP, 0))
+        for pokemon in bench)
 
 card = PokemonCardDef(
     guid="66c5a872-4438-5b2e-a069-40e34bbaca10",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_all_bench_damaged, 150),
         ),
         Attack(
             title="Boulder Crush",

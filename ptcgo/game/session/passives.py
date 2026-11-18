@@ -577,6 +577,30 @@ def previous_evolution_attacks(pokemon: PokemonEntity) -> List[Any]:
     return out
 
 
+def ability_granting_card(board: BoardState, pokemon: PokemonEntity,
+                          ability: Any) -> Optional[BoardEntity]:
+    """The card that grants `ability` to `pokemon`: the attached Tool that
+    prints it (a Technical-Machine-style tool's attack, Forest Seal Stone's
+    Star Alchemy, Memory Capsule's borrowed attacks), else the Pokemon itself
+    when the ability is printed on it.
+
+    Card text served: "Discard this card after using this attack" and any tool
+    effect that has to act on its own card rather than on the holder -- the
+    card scripts read it as ctx.ability_source.
+    """
+    if ability is None:
+        return pokemon
+    ability_id = getattr(ability, "ability_id", None)
+    for child in pokemon.children:
+        definition = def_for(child.archetype_id)
+        for granted in getattr(definition, "granted_abilities", None) or []:
+            if granted is ability:
+                return child
+            if ability_id and getattr(granted, "ability_id", None) == ability_id:
+                return child
+    return pokemon
+
+
 def _descendants(entity: BoardEntity) -> List[BoardEntity]:
     out: List[BoardEntity] = []
     for child in entity.children:
@@ -910,13 +934,18 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
 
 
 def effective_bench_capacity(board: BoardState, player_id: str) -> int:
-    """Bench size for `player_id` after capacity passives; the smallest
-    override wins (Collapsed Stadium caps an Eternatus board at 4)."""
+    """Bench size for `player_id`: a game-long override when one was set
+    (bench_limit_overrides, "for the rest of the game your Bench is 6"), then
+    capacity passives, smallest winning (Collapsed Stadium caps an Eternatus
+    board at 4). An override only replaces the printed default -- a passive
+    that caps lower still caps, so the two compose as "the tighter wins"."""
+    overrides = getattr(board, "bench_limit_overrides", None) or {}
+    base = overrides.get(player_id, BENCH_SLOT_COUNT)
     values = [
         v for passive, carrier in active_passives(board)
         for v in [passive.bench_capacity(player_id, carrier)] if v is not None
     ]
-    return max(1, min(values)) if values else BENCH_SLOT_COUNT
+    return max(1, min(values)) if values else base
 
 
 def tool_slots_free(board: Optional[BoardState], pokemon: PokemonEntity) -> int:

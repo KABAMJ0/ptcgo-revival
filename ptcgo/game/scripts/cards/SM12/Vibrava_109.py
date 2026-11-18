@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import trainer_effect_shield_passive
 
 card = PokemonCardDef(
     guid="7420fffc-12a7-5ce3-a3fe-579476a115cb",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Obnoxious Whirring",
             game_text="Whenever your opponent plays a Supporter card from their hand, prevent all effects of that card done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=trainer_effect_shield_passive(),
         ),
         Attack(
             title="Flap",

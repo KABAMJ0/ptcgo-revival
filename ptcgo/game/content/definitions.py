@@ -660,15 +660,32 @@ class PokemonToolCardDef(TrainerCardDef):
     """`passive` is the tool's continuous effect while attached (a
     passives.Passive); `effect` stays unused for plain stat tools.
     `granted_abilities` are Abilities the tool grants its holder while
-    attached (Forest Seal Stone). `attach_to(pokemon_entity) -> bool`
-    restricts legal attach targets (Hero's Medal)."""
+    attached (Forest Seal Stone); an item in that list may be an `Attack`
+    (Single Strike Scroll of Scorn's Furious Anger), and it is then offered in
+    the same attack list as the holder's printed attacks -- same cost, same
+    panel row, paid from the holder's Energy -- because PIE_ABILITIES carries
+    tool grants and the attack offer reads that attribute. `attach_to(
+    pokemon_entity) -> bool` restricts legal attach targets (Hero's Medal).
+
+    `on_carrier_knocked_out` is `async def hook(ctx)` run once when the holder
+    is Knocked Out, BEFORE the stack leaves play: "if the Pokemon this card is
+    attached to is Knocked Out by damage from an attack from your opponent's
+    Pokemon, put 8 damage counters on the Attacking Pokemon" (Box of Disaster).
+    ctx.source is THIS tool, and the knockout evidence rides on it:
+    ko_pokemon (the holder), ko_attacker, ko_from_attack, was_active_at_ko,
+    pre_hit_hp. It fires for knockouts from any cause -- the card checks
+    ctx.ko_from_attack when its text says "by damage from an attack".
+    """
     def __init__(self, passive: Optional[Any] = None,
                  granted_abilities: Optional[List[Ability]] = None,
-                 attach_to: Optional[Callable] = None, **kwargs):
+                 attach_to: Optional[Callable] = None,
+                 on_carrier_knocked_out: Optional[Callable] = None,
+                 **kwargs):
         kwargs['trainer_type'] = TrainerType.POKEMON_TOOL
         super().__init__(**kwargs)
         self.passive = passive
         self.attach_to = attach_to
+        self.on_carrier_knocked_out = on_carrier_knocked_out
         self.granted_abilities: List[Ability] = granted_abilities or []
         for idx, a in enumerate(self.granted_abilities):
             if not a.ability_id:

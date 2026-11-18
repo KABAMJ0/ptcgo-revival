@@ -1,4 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.trainers import pokemon_named
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", pokemon_named("Charjabug")), 80, base=120),
         ),
     ],
 )

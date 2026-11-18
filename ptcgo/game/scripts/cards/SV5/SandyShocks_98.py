@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy
+
+
+async def magnetic_burst(ctx):
+    bonus = 70 if count_energy("mine", cards=True)(ctx) >= 3 else 0
+    await ctx.deal_damage((ctx.ability.damage or 0) + bonus, ignore_weakness=True)
+
 
 card = PokemonCardDef(
     guid="bfad2777-0e65-5264-a477-88d5a7fd958e",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=magnetic_burst,
         ),
         Attack(
             title="Power Gem",

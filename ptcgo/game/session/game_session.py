@@ -120,7 +120,7 @@ from .effects import (
     resolve_triggered_ability,
 )
 from .passives import (
-    ability_locked, active_passives, active_to_bench_counters,
+    ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_recovery_blocked, effective_bench_capacity, effective_max_hp,
     effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
@@ -2191,7 +2191,7 @@ class GameSession:
         # Snapshot ON_KNOCKED_OUT triggers BEFORE any stack moves: ability_locked
         # reads board position, so the carrier must still be top-level in-play;
         # was_active is captured here too (Radiant Jirachi's Active-spot gate).
-        ko_triggers: List[Tuple[PokemonEntity, str, Ability, bool]] = []
+        ko_triggers: List[Tuple[PokemonEntity, str, Ability, bool, Any]] = []
         for pokemon in ctx.knockouts:
             owner_id = pokemon.owning_player_id
             if owner_id is None or ability_locked(self.board_state, pokemon):
@@ -2203,7 +2203,12 @@ class GameSession:
                 ability_id = entry.get("abilityID")
                 ability = ABILITIES_BY_ID.get(ability_id) if ability_id else None
                 if ability is not None and ability.has_trigger(Triggers.ON_KNOCKED_OUT):
-                    ko_triggers.append((pokemon, owner_id, ability, was_active))
+                    # Resolved NOW: by trigger time the stack has been moved and
+                    # the granting tool is no longer one of the holder's cards.
+                    granting = ability_granting_card(
+                        self.board_state, pokemon, ability)
+                    ko_triggers.append(
+                        (pokemon, owner_id, ability, was_active, granting))
 
         # Special-energy leave-play hooks (Gift Energy's draw) snapshotted with
         # the KO'd carrier before any stack moves; run only for attack KOs.
@@ -2223,6 +2228,27 @@ class GameSession:
                 hook = getattr(definition, "on_carrier_knocked_out", None)
                 if hook is not None and hook is not unimplemented:
                     energy_ko_hooks.append((owner_id, hook))
+
+        # Tool KO hooks (Box of Disaster): a Tool that reacts to its holder
+        # being Knocked Out, snapshotted pre-move with the evidence the text
+        # needs. A jammed Tool has "no effect" and does not fire.
+        tool_ko_hooks: List[Tuple[str, Any, Any, bool, bool, int]] = []
+        for pokemon in ctx.knockouts:
+            owner_id = pokemon.owning_player_id
+            if owner_id is None:
+                continue
+            pre_hit = ctx.attack_damage.get(pokemon.entity_id, (0, 0))[1]
+            for tool in pokemon.children:
+                definition = def_for(tool.archetype_id)
+                hook = getattr(definition, "on_carrier_knocked_out", None)
+                if hook is None or hook is unimplemented:
+                    continue
+                if tool_suppressed(self.board_state, tool):
+                    continue
+                tool_ko_hooks.append((
+                    owner_id, pokemon, tool, ctx.is_attack_effect(),
+                    self.board_state.active_pokemon(owner_id) is pokemon, pre_hit,
+                ))
 
         # Prize counts/destinations evaluate BEFORE any stack moves so the
         # KO'd Pokemon's own passives and Special Conditions still count.
@@ -2401,16 +2427,21 @@ class GameSession:
                     f"depth exceeded ({_ko_depth}); skipping further triggers."
                 )
             else:
-                for pokemon, owner_id, ability, was_active in ko_triggers:
+                for pokemon, owner_id, ability, was_active, granting in ko_triggers:
                     ko_from_attack = _damage_ko(pokemon) \
                         and ctx.attacker.owning_player_id != owner_id
                     ko_attacker = ctx.attacker if ko_from_attack else None
 
                     def _setup(c, _from_attack=ko_from_attack, _attacker=ko_attacker,
-                               _was_active=was_active):
+                               _was_active=was_active, _pokemon=pokemon,
+                               _source=granting):
                         c.ko_from_attack = _from_attack
                         c.ko_attacker = _attacker
                         c.was_active_at_ko = _was_active
+                        c.ko_pokemon = _pokemon
+                        # A Tool's granted trigger knows its own card, so it
+                        # can read the tool and not just the holder.
+                        c.ability_source = _source
 
                     trigger_ctx = await resolve_triggered_ability(
                         self, owner_id, pokemon, ability, ctx_setup=_setup,
@@ -2424,6 +2455,23 @@ class GameSession:
             await hook(hook_ctx)
             if hook_ctx._messages:
                 await self._flush_effect_runs(hook_ctx)
+
+        for owner_id, pokemon, tool, by_attack, was_active, pre_hit in tool_ko_hooks:
+            definition = def_for(tool.archetype_id)
+            hook = definition.on_carrier_knocked_out
+            from_attack = by_attack and ctx.attacker is not None \
+                and ctx.attacker.owning_player_id != owner_id
+            hook_ctx = EffectContext(self, owner_id, tool, None)
+            hook_ctx.ability_source = tool
+            hook_ctx.ko_pokemon = pokemon
+            hook_ctx.ko_from_attack = from_attack
+            hook_ctx.ko_attacker = ctx.attacker if from_attack else None
+            hook_ctx.was_active_at_ko = was_active
+            hook_ctx.pre_hit_hp = pre_hit
+            await hook(hook_ctx)
+            if hook_ctx._messages:
+                await self._flush_effect_runs(hook_ctx)
+            await self.resolve_knockouts(hook_ctx, _ko_depth=_ko_depth + 1)
 
         for (taker_id, mode), count in prize_awards.items():
             await self._take_prizes(taker_id, count, destination=mode)

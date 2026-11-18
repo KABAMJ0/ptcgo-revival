@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import UpperEnergyPassive
 card = EnergyCardDef(
     guid="68a8763f-d458-5fbd-afa5-33a5bab8722e",
     key="PL2",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="PL2",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=UpperEnergyPassive(),
 )

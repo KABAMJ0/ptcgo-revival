@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +24,8 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 2 Basic Energy cards and attach them to your Future Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=search_attach_energy(is_basic_energy_card, count=2,
+                                        target_pred=pokemon_of_subtype("Future")),
         ),
         Attack(
             title="Sparking Strike",

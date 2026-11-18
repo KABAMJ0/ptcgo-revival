@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _is_basic_ex(pokemon) -> bool:
+    if pokemon is None:
+        return False
+    if pokemon.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+        return False
+    return "ex" in [name.lower() for name in subtypes_for(pokemon.archetype_id)]
+
 
 card = PokemonCardDef(
     guid="8cbf43d5-bb9d-552f-8233-e0a0d52d2aa8",
@@ -22,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Armor Tail",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Basic Pok\u00e9mon ex.",
-            effect=unimplemented,
+            passive=prevent_damage_when(
+                lambda calc, carrier: calc.target is carrier
+                and _is_basic_ex(calc.attacker)),
         ),
         Attack(
             title="Dirty Beam",

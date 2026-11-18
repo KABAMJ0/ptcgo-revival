@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_in_play, damage_per
+
+
+def _is_wishiwashi(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) in ("Wishiwashi", "Wishiwashi-GX")
 
 card = PokemonCardDef(
     guid="bb2b48f4-178e-5efd-8aee-5981dca87f8f",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", _is_wishiwashi), 20),
         ),
         Attack(
             title="Massive Catch-GX",

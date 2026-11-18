@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import is_energy, search_to_hand
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Drawup Power",
             game_text="Search your deck for an Energy card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_energy, count=1, reveal=True),
         ),
     ],
 )

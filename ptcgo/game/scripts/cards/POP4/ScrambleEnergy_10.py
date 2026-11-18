@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
 
-from ptcgo.game.card_effects.energies import evolved_excluding_ex
+from ptcgo.game.card_effects.energies import evolved_excluding_ex, ScrambleEnergyPassive
 card = EnergyCardDef(
     guid="b94128f0-6fcc-5f27-9354-2627a698d14c",
     key="POP4",
@@ -16,4 +16,5 @@ card = EnergyCardDef(
     energy_type=PokemonTypes.COLORLESS,
     is_special=True,
     attach_to=evolved_excluding_ex,
+    passive=ScrambleEnergyPassive(),
 )

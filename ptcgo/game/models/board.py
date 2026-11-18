@@ -363,6 +363,11 @@ class BoardState:
         # Effect-granted TempPassive entries (passives.py); pruned by
         # TurnState.begin_turn expiry and GameSession.clear_pokemon_effects.
         self.temporary_passives: List[Any] = []
+        # player_id -> a Bench limit set for the rest of the game by an effect
+        # ("from now on, your Bench is 6"); effective_bench_capacity reads it.
+        # No expiry: unlike the turn-scoped state this outlives every turn, so
+        # it lives with the board rather than in TurnState.
+        self.bench_limit_overrides: Dict[str, int] = {}
 
         self._initialize_board()
 
