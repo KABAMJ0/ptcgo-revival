@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import is_energy_card
 
 card = PokemonCardDef(
     guid="153a3603-8c56-5cb6-9247-493e09256646",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=is_energy_card, max_count=5, per=10, base=10),
         ),
         Attack(
             title="Twister",
