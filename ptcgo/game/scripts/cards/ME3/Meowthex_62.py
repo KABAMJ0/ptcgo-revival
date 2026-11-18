@@ -3,6 +3,11 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_supporter_card
 
+async def tuck_tail(ctx):
+    """Put this Pokemon and all cards attached to it into your hand."""
+    await ctx.return_pokemon_to_hand(lambda p: p is ctx.attacker, with_attachments="same")
+
+
 card = PokemonCardDef(
     guid="7d3d149a-981d-50b7-b994-4a3168465463",
     key="ME3",
@@ -32,7 +37,7 @@ card = PokemonCardDef(
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=tuck_tail,
         ),
     ],
 )

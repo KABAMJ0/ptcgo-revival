@@ -1,6 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+def flip_the_script_available(board, player_id, pokemon) -> bool:
+    """Flip the Script is offered only when one of your Pokemon was Knocked Out
+    during your opponent's last turn."""
+    ledger = getattr(board, "pokemon_left_play_last_turn", None)
+    if ledger is None:
+        return True
+    return any(r.get("owner_id") == player_id for r in ledger)
+
+from ptcgo.game.card_effects.trainers import draw_n
 
 card = PokemonCardDef(
     guid="63c0d524-7418-5ddd-a050-e1ccdcad6a04",
@@ -22,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Flip the Script",
             game_text="Once during your turn, if any of your Pok\u00e9mon were Knocked Out during your opponent's last turn, you may draw 3 cards. You can't use more than 1 Flip the Script Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=flip_the_script_available,
+            effect=draw_n(3),
         ),
         Attack(
             title="Cruel Arrow",

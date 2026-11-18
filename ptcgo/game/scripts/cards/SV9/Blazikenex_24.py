@@ -1,6 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="4d0771bd-0d12-5569-ad70-89b54168b209",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Seething Spirit",
             game_text="Once during your turn, you may attach a Basic Energy card from your discard pile to 1 of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="choice"),
         ),
         Attack(
             title="Smolder-sault",
