@@ -75,6 +75,7 @@ class Assembly:
         self.field_owner = {}
         self.method_owner = {}
         self.json_names = {}      # field row -> json key
+        self.field_attrs = {}     # field row -> [attribute names]
         self.type_attrs = {}      # typedef row -> [attr names]
         self._index()
 
@@ -114,6 +115,9 @@ class Assembly:
             if parent_table == "Field":
                 if attr_name.endswith("JsonNameAttribute") and args:
                     self.json_names[row] = args[0]
+                if attr_name:
+                    self.field_attrs.setdefault(row, []).append(
+                        ".".join(part for part in (attr_name.rsplit(".", 1)[-1], *args) if part))
             elif parent_table == "TypeDef":
                 self.type_attrs.setdefault(row, []).append(".".join(
                     part for part in (attr_name, *args) if part))
@@ -259,6 +263,7 @@ class Assembly:
                     "name": name,
                     "json": self.json_names.get(fi, name),
                     "type": typ,
+                    "attributes": self.field_attrs.get(fi, []),
                 })
         if row.MethodList:
             begin = row.MethodList[0].row_index
@@ -467,7 +472,8 @@ def main():
                     "base": asm.base_name(position),
                     "attributes": asm.type_attrs.get(position, []),
                     "fields": [
-                        {"name": f["name"], "json": f["json"], "type": type_label(f["type"])}
+                        {"name": f["name"], "json": f["json"], "type": type_label(f["type"]),
+                         "attributes": [a for a in f.get("attributes", [])]}
                         for f in members["fields"]],
                     "properties": [
                         {"name": p["name"], "type": type_label(p["type"])}
@@ -515,14 +521,35 @@ def main():
             out.write("```\n\n")
     print(f"wrote {proto_path}: {len(messages)} messages")
 
+    try:
+        from ptcgo.network.message_names import InboundMsg, OutboundMsg
+        inbound = {m.value for m in InboundMsg}
+        outbound = {m.value for m in OutboundMsg}
+    except Exception:
+        inbound, outbound = set(), set()
+
+    def direction(full_name, simple_name):
+        lowered = full_name.lower()
+        if ".outgoing." in lowered:
+            return "client → server"
+        if ".incoming." in lowered:
+            return "server → client"
+        if simple_name in inbound:
+            return "client → server"
+        if simple_name in outbound:
+            return "server → client"
+        return "unclassified"
+
     index_path = os.path.join(NOTES, "client-messages.md")
     with open(index_path, "w", encoding="utf-8") as out:
         out.write("# Client message index\n\n")
-        out.write("One line per message type with its top-level JSON keys. Full shapes are in "
-                  "`client-protocol.md`.\n\n")
+        out.write("One line per message type with its direction and top-level JSON keys. "
+                  "Direction comes from the client's own `incoming`/`outgoing` namespaces, "
+                  "otherwise from this server's InboundMsg/OutboundMsg enums. Full shapes "
+                  "are in `client-protocol.md`.\n\n")
         for name, members in messages:
             keys = ", ".join(f"`{f['json']}`" for f in members["fields"]) or "_no fields_"
-            out.write(f"- **{name}** — {keys}\n")
+            out.write(f"- **{name}** _({direction(name, name.rsplit('.', 1)[-1])})_ — {keys}\n")
     print(f"wrote {index_path}: {len(messages)} messages")
 
     json_path = os.path.join(NOTES, "client-protocol.json")
