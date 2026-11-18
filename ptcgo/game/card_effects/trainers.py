@@ -5447,3 +5447,111 @@ def look_top_put_back(count: int):
             await ctx.choose_cards(
                 top, count, minimum=0, prompt="Look at these cards, then put them back")
     return effect
+
+
+def draw_then_opponent_card_to_bottom(draw: int, count: int = 1):
+    """Draw `draw` cards, then put `count` cards from the opponent's hand on
+    the bottom of their deck without looking (Team Galactic's Mars)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        picks = hand[:count]
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+    return effect
+
+
+def hand_to_bottom_draw_per_card():
+    """Put any number of cards from your hand on the bottom of your deck, then
+    draw 1 for each card put there (Caitlin)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, len(hand), minimum=0,
+            prompt="Choose any number of cards to put on the bottom of your deck")
+        if not picks:
+            return
+        for card in picks:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.draw_cards(len(picks))
+    return effect
+
+
+def discard_energy_from_hand_draw_steps(predicate, steps):
+    """Discard up to N matching Energy from your hand, then draw according to how
+    many were discarded: `steps` maps the count to the draw (Juggler)."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand() if predicate(c)]
+        if not hand:
+            return
+        limit = max(steps)
+        picks = await ctx.choose_cards(
+            hand, limit, minimum=0,
+            prompt=f"Discard up to {limit} Energy cards from your hand")
+        if not picks:
+            return
+        await ctx.discard_cards(picks)
+        await ctx.draw_cards(steps.get(len(picks), 0))
+    return effect
+
+
+def shuffle_discard_then_mill():
+    """Shuffle your discard pile into your deck, then discard that many cards
+    from the top of your deck (Trash Exchange)."""
+    async def effect(ctx):
+        area = ctx.board.find_player_area(ctx.player_id, "discardPile")
+        cards = list(area.children) if area is not None else []
+        if not cards:
+            return
+        count = len(cards)
+        await ctx.shuffle_into_deck(cards, ctx.player_id)
+        top = ctx.deck_top(count)
+        if top:
+            await ctx.discard_cards(top)
+    return effect
+
+
+def flip_both_search_attach(predicate, coins: int = 2):
+    """Flip `coins` coins; if all come up heads, search the deck for a matching
+    Energy card and attach it (Energy Coin)."""
+    async def effect(ctx):
+        faces = await ctx.flip_coins(coins, title="Search and attach")
+        if not all(faces):
+            return
+        picks = await ctx.search_deck(
+            predicate, count=1, minimum=0,
+            prompt="Choose an Energy card to attach")
+        if picks:
+            pool = ctx.my_pokemon_in_play()
+            if pool:
+                target = await ctx.choose_pokemon(
+                    pool, "Choose a Pokémon to attach the Energy to") \
+                    if len(pool) > 1 else pool[0]
+                if target is not None:
+                    await ctx.attach_energy(picks[0], target)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def opponent_energy_to_hand(count: int = 1):
+    """Put `count` Energy attached to the opponent's Pokemon into their hand
+    (Chill Teaser Toy)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.opponent_pokemon_in_play() if ctx.attached_energies(p)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(
+            pool, "Choose a Pokémon with Energy") if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        energies = ctx.attached_energies(target)
+        picks = await ctx.choose_cards(
+            energies, count, minimum=min(count, len(energies)),
+            prompt="Choose Energy to put into their hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=False)
+    return effect

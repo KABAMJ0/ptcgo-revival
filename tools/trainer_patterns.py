@@ -2336,6 +2336,43 @@ RULES = [
          r"onto that pokemon to evolve it" + SHUFFLE_TAIL + r"(?: you cant use this card.*)?",
          "evolve_from_deck_matching", lambda m: ["is_pokemon_gx"]),
 
+    Rule("draw-then-opponent-card-to-bottom",
+         r"draw (?P<draw>\d+) cards? then choose (?P<n>\d+) card from your opponents hand without "
+         r"looking and put it on the bottom of his or her deck",
+         "draw_then_opponent_card_to_bottom",
+         lambda m: [m.group("draw"), m.group("n")]),
+    Rule("hand-to-bottom-draw-per-card",
+         r"put as many cards from your hand as you like on the bottom of your deck in any order then "
+         r"draw (?P<per>\d+) card for each card you put on the bottom of your deck",
+         "hand_to_bottom_draw_per_card", lambda m: []),
+    Rule("search-any-number-distinct-energy",
+         r"search your deck for any number of basic energy cards of different types reveal them and "
+         r"put them into your hand then shuffle your deck",
+         "search_distinct_types",
+         lambda m: ["is_basic_energy_card", "9"], module="support_common"),
+    Rule("juggler",
+         r"discard up to (?P<limit>\d+) basic energy cards from your hand if you discarded 1 basic "
+         r"energy card draw (?P<a>\d+) cards if you discarded (?P<b>\d+) basic energy cards draw "
+         r"(?P<c>\d+)",
+         "discard_energy_from_hand_draw_steps",
+         lambda m: ["is_basic_energy_card", "{1: %s, %s: %s}" % (m.group("a"), m.group("b"),
+                                                                m.group("c"))]),
+    Rule("trash-exchange",
+         r"count the number of cards in your discard pile and shuffle them into your deck then "
+         r"discard that many cards from the top of your deck",
+         "shuffle_discard_then_mill", lambda m: []),
+    Rule("stadium-hp-stage-two",
+         r"each stage 2 pokemon in play both yours and your opponents gets (?P<amount>\d+) hp.*",
+         "stadium_hp_bonus", lambda m: [m.group("amount"), "is_stage_two"], kind="passive"),
+    Rule("flip-both-search-attach",
+         r"flip (?P<coins>\d+) coins if both of them are heads search your deck for (?P<n>\d+) basic "
+         r"energy card and attach it to \d+ of your pokemon then shuffle your deck",
+         "flip_both_search_attach",
+         lambda m: ["is_basic_energy_card", m.group("coins")]),
+    Rule("opponent-energy-to-hand",
+         r"put (?P<n>\d+) energy attached to (?P<t>\d+) of your opponents pokemon into their hand",
+         "opponent_energy_to_hand", lambda m: [m.group("n")]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
