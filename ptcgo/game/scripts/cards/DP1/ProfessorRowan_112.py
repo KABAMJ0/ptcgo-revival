@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import hand_size_at_least, keep_one_shuffle_rest_draw
 
 card = SupporterCardDef(
     guid="4cf3e77b-6467-5346-9ec7-9ba7aae897be",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=112,
     set_code="DP1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=keep_one_shuffle_rest_draw(4), condition=hand_size_at_least(2)
 )

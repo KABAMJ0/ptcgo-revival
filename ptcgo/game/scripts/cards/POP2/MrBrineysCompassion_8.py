@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_of, excluding, is_pokemon_card, is_pokemon_ex, return_pokemon_to_hand
 
 card = SupporterCardDef(
     guid="19d6bada-d5a6-5c40-b604-f2b4854f0674",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=8,
     set_code="POP2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=return_pokemon_to_hand(predicate=all_of(is_pokemon_card, excluding(is_pokemon_ex)))
 )

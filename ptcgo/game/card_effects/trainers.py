@@ -4312,3 +4312,45 @@ def rival_reveal(count: int = 5, take: int = 3):
             await ctx.put_in_hand(picks, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+def keep_one_shuffle_rest_draw(draw: int):
+    """Choose 1 card in your hand, shuffle the rest of your hand into your
+    deck, then draw `draw` cards (Professor Rowan)."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        if not hand:
+            return
+        kept = await ctx.choose_cards(
+            hand, 1, minimum=1, prompt="Choose a card to keep in your hand")
+        rest = [c for c in hand if c not in kept]
+        if rest:
+            await ctx.shuffle_into_deck(rest)
+        await ctx.draw_cards(draw)
+    return effect
+
+
+def discard_tool_or_special_energy(count: int = 1):
+    """Discard `count` Pokemon Tool or Special Energy card attached to any
+    Pokemon in play, yours or your opponent's (Xerosic)."""
+    async def effect(ctx):
+        cards = [card for card, _ in ctx.tools_in_play()]
+        for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
+            cards += [e for e in ctx.attached_energies(pokemon) if is_special_energy(e)]
+        if not cards:
+            return
+        picks = await ctx.choose_cards(
+            cards, count, minimum=min(count, len(cards)),
+            prompt="Choose a Pokémon Tool or Special Energy to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def confuse_both_actives(predicate=None):
+    """Both Active Pokemon (that match) are now Confused (Dark Bell)."""
+    async def effect(ctx):
+        for pokemon in (ctx.my_active(), ctx.opponent_active()):
+            if pokemon is not None and (predicate is None or predicate(pokemon)):
+                await ctx.apply_special_condition(pokemon, SpecialConditions.CONFUSED)
+    return effect

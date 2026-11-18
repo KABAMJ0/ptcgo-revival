@@ -1751,6 +1751,24 @@ RULES = [
          lambda m: ["all_of(is_basic_pokemon, pokemon_with_hp_at_most(%s))" % m.group("hp"),
                     "count=" + m.group("n")],
          module="support_common"),
+    Rule("keep-one-shuffle-rest-draw",
+         r"choose (?P<k>1) card in your hand and shuffle the rest of your cards into your deck "
+         r"then draw (?P<n>\d+) cards",
+         "keep_one_shuffle_rest_draw", lambda m: [m.group("n")]),
+    Rule("discard-tool-or-special-energy",
+         r"choose (?P<n>\d+) pokemon tool or special energy card attached to \d+ pokemon in "
+         r"play yours or your opponents and discard it",
+         "discard_tool_or_special_energy", lambda m: [m.group("n")]),
+    Rule("confuse-both-actives-non-type",
+         r"both active non (?P<type>[a-z]+) pokemon are now confused",
+         "confuse_both_actives",
+         lambda m: ['excluding(pokemon_of("%s"))' % m.group("type")]),
+    Rule("return-pokemon-to-hand-choose",
+         r"choose (?P<n>1) of your (?P<cat>[a-z0-9 ]*?)pokemon in play(?P<ex> excluding [a-z ]+?)? "
+         r"return that pokemon and all cards attached to it to your hand",
+         "return_pokemon_to_hand",
+         lambda m: ["predicate=" + _pred((m.group("cat") + "pokemon" + (m.group("ex") or "")).strip())]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -1843,6 +1861,11 @@ CONDITION_PREFIXES = [
                 r"(?P<n>\d+) (?P<stage>stage 1|stage 2|basic) pokemon "), "opponent_active_is"),
 ]
 
+CONDITION_SUFFIXES = [
+    (re.compile(r" if this is the only card in your hand you cant play this card$"),
+     "hand_size_at_least(2)"),
+]
+
 ENDS_TURN = re.compile(r" your turn ends$")
 
 WRAPPERS = [
@@ -1904,6 +1927,14 @@ def resolve(text, depth=0):
         else:
             condition = "%s()" % factory
         return dict(inner, condition=condition)
+
+    for pattern, condition in CONDITION_SUFFIXES:
+        found = pattern.search(text)
+        if not found:
+            continue
+        inner = resolve(text[:found.start()], depth + 1)
+        if inner is not None and not inner.get("condition"):
+            return dict(inner, condition=condition)
 
     match = ENDS_TURN.search(text)
     if match:
