@@ -1154,6 +1154,28 @@ def discard_self_on_retreat() -> Passive:
     return DiscardSelfOnRetreatPassive()
 
 
+def _wants_outcome(fn) -> bool:
+    """Whether a follow-up takes the first part's outcome as a second argument
+    (`async def then(ctx, outcome)`) rather than `then(ctx)`."""
+    import inspect
+
+    try:
+        parameters = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    positional = [p for p in parameters
+                  if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+    if any(p.kind == p.VAR_POSITIONAL for p in parameters):
+        return False
+    return len(positional) >= 2
+
+
+async def _run_step(ctx, fn, outcome=None):
+    if outcome is None or not _wants_outcome(fn):
+        return await fn(ctx)
+    return await fn(ctx, outcome)
+
+
 def composed(first, then=None, on_success=None, on_fail=None):
     """"body, then rider" for an ability, as HOME-13 specified it.
 
@@ -1167,11 +1189,12 @@ def composed(first, then=None, on_success=None, on_fail=None):
         outcome = await first(ctx)
         happened = True if outcome is None else bool(outcome)
         if then is not None:
-            await then(ctx)
+            await _run_step(ctx, then, outcome)
         if happened and on_success is not None:
-            await on_success(ctx)
+            await _run_step(ctx, on_success, outcome)
         if not happened and on_fail is not None:
-            await on_fail(ctx)
+            await _run_step(ctx, on_fail, outcome)
+        return outcome
     return effect
 
 
@@ -1193,7 +1216,7 @@ async def do_a_then_b(first, then, ctx, on_none: bool = True):
     else:
         happened = bool(outcome)
     if happened and then is not None:
-        await then(ctx)
+        await _run_step(ctx, then, outcome)
     return happened
 
 
@@ -1236,15 +1259,61 @@ def put_counters_then(count: int, then, candidates=None):
     return effect
 
 
+async def self_knockout(ctx):
+    """"This Pokemon is Knocked Out" as a rider; True when it happened."""
+    holder = ctx.source
+    if holder is None or ctx.effects_blocked(holder):
+        return False
+    await ctx.knock_out(holder)
+    return True
+
+
+def self_ko_rider():
+    """`composed(..., then=self_ko_rider())` — the Cofagrigus shape."""
+    async def effect(ctx):
+        await self_knockout(ctx)
+    return effect
+
+
 def self_ko_ability(then=None):
     """"If you use this ability, this Pokemon is Knocked Out": runs the body,
     then Knocks Out the ability's Pokemon (Unown, Crobat)."""
     async def effect(ctx):
         if then is not None:
             await then(ctx)
-        holder = ctx.source
-        if holder is not None and not ctx.effects_blocked(holder):
-            await ctx.knock_out(holder)
+        await self_knockout(ctx)
+    return effect
+
+
+def attach_energy_from_cards(target="choice", predicate=None):
+    """Follow-up for a first part that produced cards: attach the Energy among
+    them ("if any of those are Energy, attach them"). Takes
+    `(ctx, cards)`, so it composes with `composed(..., on_success=...)` or
+    with `mill_attack`/`look_at_top` through the outcome argument."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+
+    def matches(card) -> bool:
+        return (predicate or is_energy_card)(card)
+
+    async def effect(ctx, cards):
+        energies = [card for card in (cards or []) if matches(card)]
+        if not energies:
+            return []
+        if target == "self":
+            holder = ctx.source
+        else:
+            candidates = ctx.my_pokemon_in_play()
+            if not candidates:
+                return []
+            holder = await ctx.choose_pokemon(
+                candidates, "Choose a Pokémon to attach the Energy to")
+            if holder is None:
+                return []
+        attached = []
+        for energy in energies:
+            await ctx.attach_energy(energy, holder)
+            attached.append((energy, holder))
+        return attached
     return effect
 
 

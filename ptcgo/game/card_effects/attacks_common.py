@@ -824,24 +824,32 @@ def place_counters(count_or_fn, target: str = "opponent_active", also=None):
 
     async def effect(ctx):
         count = _resolve_count(ctx, count_or_fn)
+        placed = 0
         if count > 0:
             if target == "opponent_active":
                 if ctx.defender is not None:
                     await ctx.deal_damage(count * 10, target=ctx.defender,
                                           as_counters=True)
+                    placed = count
             elif target == "choose_any_opponent":
-                await ctx.place_damage_counters(count, ctx.opponent_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.opponent_pokemon_in_play())
             elif target == "each_opponent":
                 for pokemon in ctx.opponent_pokemon_in_play():
                     await ctx.deal_damage(count * 10, target=pokemon,
                                           as_counters=True)
+                    placed += count
             elif target == "self":
                 await ctx.deal_damage(count * 10, target=ctx.attacker,
                                       as_counters=True)
+                placed = count
             else:  # choose_own
-                await ctx.place_damage_counters(count, ctx.my_pokemon_in_play())
+                placed = await ctx.place_damage_counters(
+                    count, ctx.my_pokemon_in_play())
         if also is not None:
             await also(ctx)
+        # Counters that actually landed are the "if you placed any" signal.
+        return placed
     return effect
 
 
