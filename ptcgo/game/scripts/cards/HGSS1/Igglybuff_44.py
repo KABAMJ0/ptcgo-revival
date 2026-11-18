@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import raise_defender_attack_cost_next_turn
 
 card = PokemonCardDef(
     guid="6652da20-3cc6-5700-a22b-46dadd85cc1b",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             title="Graffiti",
             game_text="Igglybuff is now Asleep. During your opponent's next turn, the attack cost of each of the Defending Pok\u00e9mon's attacks is Colorless more.",
             cost={},
-            effect=unimplemented,
+            effect=condition_attack(damage=0, self_conditions=(SpecialConditions.ASLEEP,), also=raise_defender_attack_cost_next_turn(1)),
         ),
     ],
 )

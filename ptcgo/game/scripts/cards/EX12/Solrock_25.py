@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="9cef0127-3a66-5c89-bb04-3bb73065658b",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Lunatone and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("lunatone"), count=1),
         ),
         Attack(
             title="Hyper Beam",

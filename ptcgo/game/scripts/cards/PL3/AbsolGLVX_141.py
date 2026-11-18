@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 
 card = PokemonCardDef(
     guid="2771cdd0-0b40-56ca-b916-1f599ebf70d4",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(max_count=1, flat=30),
         ),
     ],
 )

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="bcdbba5a-44a1-56ee-b568-24dc781d444f",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Nidoran \u2640 or Nidoran \u2642 card and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("nidoran"), count=1),
         ),
         Attack(
             title="Double Stab",

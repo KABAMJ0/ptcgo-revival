@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_in_play, flip_damage
+from ptcgo.game.card_effects.energies import pokemon_named_like
 
 card = PokemonCardDef(
     guid="991d1389-1649-5a8b-ad91-f25d3b3da1ea",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_in_play("mine", pokemon_named_like("Tauros")), per_heads=20),
         ),
         Attack(
             title="Thrash",

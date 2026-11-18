@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_each_from_deck
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="b77f5e3e-20b9-5187-86ba-ccaca7125a9e",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Dark Awakening",
             game_text="Choose up to 2 of your Darkness Pok\u00e9mon. For each of those Pok\u00e9mon, search your deck for a card that evolves from that Pok\u00e9mon and put it onto that Pok\u00e9mon to evolve it. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=evolve_each_from_deck(target_pred=lambda card: is_pokemon_of_type(card, "darkness"), max_targets=2),
         ),
         Attack(
             title="Scratch",

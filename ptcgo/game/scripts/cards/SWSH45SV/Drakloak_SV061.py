@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="cf658580-4663-545b-a736-1f966e27d998",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Summon",
             game_text="Search your deck for a Dreepy and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("dreepy"), count=1),
         ),
         Attack(
             title="Bite",

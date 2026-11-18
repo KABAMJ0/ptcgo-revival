@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="5d5fad42-62dc-5759-80f5-7e35ef694438",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=basic_energy_of("metal"), max_count=99, per=30, base=0),
         ),
     ],
 )

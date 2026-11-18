@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="99f5197e-cf68-5ef5-8314-c2f6aa85ed11",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Dizziness",
             game_text="Draw a card.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Water Gun",

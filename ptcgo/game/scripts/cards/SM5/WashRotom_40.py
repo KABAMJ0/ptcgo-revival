@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
+from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+
+
+_TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
+
+
+def _nine_tools_in_discard(board, pokemon, carrier) -> bool:
+    area = board.find_player_area(carrier.owning_player_id, "discard")
+    tools = [card for card in (area.children if area else [])
+             if card.get_attribute(AttrID.TRAINER_TYPE) in _TOOL_TYPES]
+    return len(tools) >= 9
 
 card = PokemonCardDef(
     guid="6df0d541-c00a-5e38-a716-8378169d6f75",
@@ -21,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Roto Motor",
             game_text="If you have 9 or more Pok\u00e9mon Tool cards in your discard pile, ignore all Energy in the attack cost of each of this Pok\u00e9mon's attacks.",
-            effect=unimplemented,
+            passive=free_attack_cost_passive(condition=_nine_tools_in_discard),
         ),
         Attack(
             title="Wash Arrow",
