@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _defender_has_special_energy(ctx) -> bool:
+    defender = ctx.defender
+    if defender is None:
+        return False
+    return any(energy.get_attribute(AttrID.IS_SPECIAL_ENERGY)
+               for energy in ctx.attached_energies(defender))
 
 card = PokemonCardDef(
     guid="268b4b34-6414-5f0e-8b24-8fede913c5f1",
@@ -30,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_has_special_energy, 70),
         ),
     ],
 )

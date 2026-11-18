@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    AttrID,
+    CLIENT_SPECIAL_CONDITION_NAMES,
+    PokemonTypes,
+    PokemonStage,
+    Rarities,
+    SpecialConditions,
+)
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _is_asleep(ctx) -> bool:
+    attacker = ctx.attacker
+    return (attacker is not None
+            and CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP]
+            in (attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or []))
 
 card = PokemonCardDef(
     guid="50ea346f-fd23-5e30-ae8c-297ca0b75c17",
@@ -28,7 +43,8 @@ card = PokemonCardDef(
             game_text="This attack can be used if this Pok\u00e9mon is Asleep. If it is not Asleep, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=bonus_if(_is_asleep, 0, else_nothing=True),
+            usable_despite_conditions=True,
         ),
     ],
 )

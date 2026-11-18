@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+
+
+def _is_meltan(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Meltan"
 
 card = PokemonCardDef(
     guid="2e776f79-c1b2-52f1-871c-8c970c6c7fa7",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             title="Multiply",
             game_text="Search your deck for Meltan and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=search_to_bench(_is_meltan),
         ),
         Attack(
             title="Beam",
