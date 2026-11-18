@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="b76c41e3-2804-54c3-88fd-30ce195066a3",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Withdraw",
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=flip_protection(prevent=True),
         ),
         Attack(
             title="Skull Bash",
