@@ -9113,3 +9113,88 @@ def active_is_water_or_metal():
         types = active.get_attribute(AttrID.POKEMON_TYPES) or []
         return PokemonTypes.WATER.value in types or PokemonTypes.METAL.value in types
     return check
+
+
+# --- Bench-capacity stadiums and multi-copy items ---------------------------
+
+def pokemon_in_play_from(entity):
+    """Every in-play Pokemon, found by walking the board from `entity` (a card
+    whose hook only hands over its carrier)."""
+    node = entity
+    while node.parent is not None:
+        node = node.parent
+    stack, areas = [node], []
+    while stack:
+        current = stack.pop()
+        for child in getattr(current, "children", None) or []:
+            if child.get_attribute(AttrID.NAME) in ("bench", "activePokemonArea"):
+                areas.append(child)
+            stack.append(child)
+    return [mon for area in areas for mon in area.children
+            if isinstance(mon, PokemonEntity)]
+
+
+class TeraBenchCapPassive(Passive):
+    """A player with any Tera Pokemon in play may have 8 on the Bench (Area
+    Zero Underdepths). The engine's bench-capacity enforcement discards back
+    down to 5 once the last Tera Pokemon or the Stadium leaves play."""
+
+    def bench_capacity(self, player_id, carrier):
+        return 8 if any(mon.owning_player_id == player_id
+                        and "tera" in [str(subtype).lower()
+                                       for subtype in subtypes_for(mon.archetype_id)]
+                        for mon in pokemon_in_play_from(carrier)) else None
+
+
+def tera_bench_cap():
+    return TeraBenchCapPassive()
+
+
+def _copies_on_trainer(ctx) -> int:
+    """How many copies of this card sit on the trainer slot right now.
+
+    "Play N at the same time" is resolved one card after the other, and each
+    copy stays on `activeTrainer` while its own effect runs, so the last copy
+    of the group sees all of them (including itself) and knows the size."""
+    area = ctx.board.find_global_area("activeTrainer")
+    return sum(1 for card in (area.children if area else [])
+               if card.archetype_id == ctx.source.archetype_id)
+
+
+async def _offer_partner(ctx, prompt: str) -> bool:
+    """Play another copy of this card on top of the current one; True when the
+    partner was played and resolved."""
+    partner = next((card for card in ctx.hand()
+                    if card.archetype_id == ctx.source.archetype_id), None)
+    if partner is None or not await ctx.ask_yes_no(prompt):
+        return False
+    await ctx.session._execute_play_trainer(ctx.player_id, partner)
+    return True
+
+
+async def _missing_clover(ctx):
+    """1 Missing Clover: look at the top card. 4 played at once: take 1 Prize
+    card."""
+    if _copies_on_trainer(ctx) >= 4:
+        await ctx.take_prizes(1)
+        return
+    if await _offer_partner(ctx, "Play another Missing Clover?"):
+        return
+    if _copies_on_trainer(ctx) == 1:
+        await ctx.reveal_cards(ctx.deck_top(1))
+
+
+async def _poke_drawer(ctx):
+    """1 Poke Drawer: draw a card. 2 played at once: search up to 2 cards."""
+    if _copies_on_trainer(ctx) >= 2:
+        picks = await ctx.search_deck(
+            None, count=2, minimum=0,
+            prompt="Choose up to 2 cards to put into your hand")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+        return
+    if await _offer_partner(ctx, "Play a second Poke Drawer at once?"):
+        return
+    if _copies_on_trainer(ctx) == 1:
+        await ctx.draw_cards(1)
