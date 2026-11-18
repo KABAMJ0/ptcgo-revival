@@ -24,6 +24,7 @@ db_connection.DB_PATH = os.path.join(_TMP_DIR, "test.db")
 from ptcgo.database import Base, engine, db_session, Collection, Wallet   # noqa: E402
 from ptcgo.database import trainer_challenge_data                         # noqa: E402
 from ptcgo.game.content import trainer_challenge as content               # noqa: E402
+from ptcgo.packets.handlers.league import UNAVAILABLE_TEXT                # noqa: E402
 from ptcgo.game.session.ai_player import AIPlayer                         # noqa: E402
 from ptcgo.game.session.constants import GamePhase                        # noqa: E402
 from ptcgo.game.session.legal_actions import ACTION_USE_ATTACK           # noqa: E402
@@ -267,7 +268,7 @@ class LeagueHandlerTest(unittest.TestCase):
         asyncio.run(handler.handle_league_play({"opponentName": "Tyson"}, 8, 0))
         packet = self.client.sent[-1]
         self.assertEqual(packet["messageName"], "LeagueAndGymModeError")
-        self.assertEqual(packet["msg"]["id"], "league.error.unavailable")
+        self.assertEqual(packet["msg"]["id"], UNAVAILABLE_TEXT)
 
     def test_the_play_button_is_a_queue_request(self):
         """The client's Play sends RequestQueueMatch on the Trainer Challenge queue."""

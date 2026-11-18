@@ -215,3 +215,8 @@ TEXT_ATTACK_FLIP_FAILS = "The attack didn't happen!"
 TEXT_ATTACH_TAX_CHECK = "Energy Attach Check"
 TEXT_ATTACH_TAX_OK = "Attached!"
 TEXT_ATTACH_TAX_DISCARD = "Discarded instead!"
+
+# End-of-game reward line. The client's own key for it
+# ("playmat.endgame.gamereward") is not in its localization database, so the
+# label rides as text and is drawn as written.
+ENDGAME_REWARD_TEXT = "Game Reward"

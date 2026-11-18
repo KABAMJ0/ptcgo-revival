@@ -184,10 +184,8 @@ def _load_localizations():
                 {"key": k, "value": v} for k, v in json.load(f).items())
     except (OSError, ValueError) as e:
         logging.warning(f"[TCP] custom labels unavailable: {e}")
-    custom_strings += [
-        {"key": "ids_card_name_spirit", "value": "Custom Card"},
-        {"key": "minspec.init.collection", "value": "Initializing collection..."},
-    ]
+    custom_strings.append(
+        {"key": "minspec.init.collection", "value": "Initializing collection..."})
 
     # Register card-specific display names
     for card in CARDS_DB:
@@ -268,6 +266,16 @@ def _write_attr(attr, vt, vd, coerce=False):
     elif vt == "uuid":
         attr.value.objectType = obj_type.UUID
         _proto_uuid_write(uuid.UUID(str(vd)), attr.value.guidValue)
+
+
+# The three PvE league scenarios. The seed keeps each scenario's GUID, which the
+# client keys its own progress by, so it must not follow the label: the names are
+# plain text because the client ships no `ids_league_*` strings.
+LEAGUE_SCENARIOS = (
+    ("ids_league_gold", "Gold League", "Clear the Gold League's Trainers.", 1),
+    ("ids_league_platinum", "Platinum League", "Clear the Platinum League's Trainers.", 2),
+    ("ids_league_city", "City League", "Clear the City League's Trainers.", 3),
+)
 
 
 def _card_final_attrs(card_data, key):
@@ -411,9 +419,10 @@ class DataSyncHandler(BaseHandler):
 
     @staticmethod
     def _build_family_map():
-        # Default family 0 MUST exist to prevent KeyNotFoundException (idk why)
+        # Default family 0 MUST exist to prevent KeyNotFoundException (idk why).
+        # Plain text: the client has no `ids_family_none` string.
         family_map = {
-            "0": json.dumps({"id": "ids_family_none"})
+            "0": json.dumps({"id": "None"})
         }
         for card in CARDS_DB:
             if not isinstance(card, PokemonCard):
@@ -903,17 +912,15 @@ class DataSyncHandler(BaseHandler):
     @handle(InboundMsg.GET_PROTOBUF_SCENARIOS)
     async def handle_get_protobuf_scenarios(self, message, request_id, flags):
         sc_proto = progression_pb2.AllScenarios()
-        leagues = [("ids_league_gold", 1), ("ids_league_platinum", 2),
-                   ("ids_league_city", 3)]
-        for token, lid in leagues:
+        for seed, name, description, lid in LEAGUE_SCENARIOS:
             scenario = progression_pb2.Scenario()
-            u_obj = uuid.UUID(bytes=hashlib.md5(token.encode()).digest())
+            u_obj = uuid.UUID(bytes=hashlib.md5(seed.encode()).digest())
             self._to_proto_uuid(u_obj, scenario.scenarioID)
             a_list = [
                 (AttrID.SCENARIO_LEAGUE_ID, base_pb2.Object.Type.INT, lid),
-                (AttrID.NAME, base_pb2.Object.Type.JSON, json.dumps({"id": token})),
+                (AttrID.NAME, base_pb2.Object.Type.JSON, json.dumps({"id": name})),
                 (AttrID.SCENARIO_DESCRIPTION, base_pb2.Object.Type.JSON,
-                 json.dumps({"id": token + "_desc"})),
+                 json.dumps({"id": description})),
                 (AttrID.SCENARIO_IMAGE, base_pb2.Object.Type.JSON,
                  json.dumps({"id": ""})),
                 (201470, base_pb2.Object.Type.JSON, "{}"),
