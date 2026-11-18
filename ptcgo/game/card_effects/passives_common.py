@@ -14,7 +14,10 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 
 from typing import Any, Callable, Optional
 
-from ptcgo.game.attributes import AttrID, CLIENT_SPECIAL_CONDITION_NAMES, TrainerType
+from ptcgo.game.attributes import (
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
+    TrainerType,
+)
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
@@ -1040,36 +1043,58 @@ def energy_attach_tax_passive(opponents_only=True, while_active=True) -> Passive
 # at damage 0), then the rider. The apply_* helpers are riders only.
 
 class TempShieldPassive(Passive):
-    """reduce-N / prevent / effects_too shield on its carrier vs opposing attacks."""
+    """reduce-N / prevent / effects_too shield on its carrier vs opposing attacks.
 
-    def __init__(self, reduce=None, prevent=False, effects_too=False):
+    `attacker_pred(attacker)` narrows WHICH attackers the shield answers
+    ("damage from the Defending Pokemon", "prevent all damage from Basic
+    Pokemon"), and `max_damage` caps it to hits of that size or smaller."""
+
+    def __init__(self, reduce=None, prevent=False, effects_too=False,
+                 attacker_pred=None, max_damage=None):
         self.reduce = reduce
         self.prevent = prevent
         self.effects_too = effects_too
+        self.attacker_pred = attacker_pred
+        self.max_damage = max_damage
+
+    def _answers(self, calc, carrier) -> bool:
+        if not (calc.is_attack and calc.is_opposing):
+            return False
+        if carrier_pokemon(carrier) is not calc.target:
+            return False
+        if self.attacker_pred is not None and not self.attacker_pred(calc.attacker):
+            return False
+        if self.max_damage is not None and calc.amount > self.max_damage:
+            return False
+        return True
 
     def modify_damage_taken(self, calc, carrier):
-        if (self.reduce and calc.is_attack and calc.is_opposing
-                and carrier_pokemon(carrier) is calc.target):
+        if self.reduce and self._answers(calc, carrier):
             calc.amount = max(0, calc.amount - self.reduce)
 
     def prevents_damage(self, calc, carrier):
-        return bool(self.prevent and calc.is_attack and calc.is_opposing
-                    and carrier_pokemon(carrier) is calc.target)
+        return bool(self.prevent and self._answers(calc, carrier))
 
     def blocks_attack_effects(self, target, carrier):
         return bool(self.effects_too and carrier_pokemon(carrier) is target)
 
 
 async def apply_protection(ctx, target=None, reduce=None, prevent=False,
-                           effects_too=False, through_own_next_turn=False):
+                           effects_too=False, through_own_next_turn=False,
+                           attacker_pred=None, max_damage=None):
     """Rider: shield `target` (default the attack's user) through the
     opponent's next turn; the shield ends early if the carrier leaves the
-    Active spot / play (clear_pokemon_effects)."""
+    Active spot / play (clear_pokemon_effects).
+
+    `attacker_pred(attacker)` scopes the shield to some attackers and
+    `max_damage` to hits no bigger than that."""
     target = target if target is not None else ctx.attacker
     if target is None:
         return False
     shield = TempShieldPassive(reduce=reduce, prevent=prevent,
-                               effects_too=effects_too)
+                               effects_too=effects_too,
+                               attacker_pred=attacker_pred,
+                               max_damage=max_damage)
     if through_own_next_turn:
         ctx.add_passive_through_own_next_turn(target, shield)
     else:
@@ -1080,7 +1105,7 @@ async def apply_protection(ctx, target=None, reduce=None, prevent=False,
 
 
 def protect_next_turn(reduce=None, prevent=False, effects_too=False,
-                      self_target=True):
+                      self_target=True, attacker_pred=None, max_damage=None):
     """Complete attack effect: printed damage, then shield the user (or the
     Defending Pokemon when self_target=False) during the opponent's next
     turn -- reduce=N takes-less, prevent=True full prevention, effects_too
@@ -1089,7 +1114,9 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
         await ctx.deal_damage()
         target = ctx.attacker if self_target else ctx.defender
         await apply_protection(ctx, target=target, reduce=reduce,
-                               prevent=prevent, effects_too=effects_too)
+                               prevent=prevent, effects_too=effects_too,
+                               attacker_pred=attacker_pred,
+                               max_damage=max_damage)
     return effect
 
 
@@ -1154,6 +1181,28 @@ def discard_self_on_retreat() -> Passive:
     return DiscardSelfOnRetreatPassive()
 
 
+def _wants_outcome(fn) -> bool:
+    """Whether a follow-up takes the first part's outcome as a second argument
+    (`async def then(ctx, outcome)`) rather than `then(ctx)`."""
+    import inspect
+
+    try:
+        parameters = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    positional = [p for p in parameters
+                  if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+    if any(p.kind == p.VAR_POSITIONAL for p in parameters):
+        return False
+    return len(positional) >= 2
+
+
+async def _run_step(ctx, fn, outcome=None):
+    if outcome is None or not _wants_outcome(fn):
+        return await fn(ctx)
+    return await fn(ctx, outcome)
+
+
 def composed(first, then=None, on_success=None, on_fail=None):
     """"body, then rider" for an ability, as HOME-13 specified it.
 
@@ -1167,11 +1216,12 @@ def composed(first, then=None, on_success=None, on_fail=None):
         outcome = await first(ctx)
         happened = True if outcome is None else bool(outcome)
         if then is not None:
-            await then(ctx)
+            await _run_step(ctx, then, outcome)
         if happened and on_success is not None:
-            await on_success(ctx)
+            await _run_step(ctx, on_success, outcome)
         if not happened and on_fail is not None:
-            await on_fail(ctx)
+            await _run_step(ctx, on_fail, outcome)
+        return outcome
     return effect
 
 
@@ -1193,7 +1243,7 @@ async def do_a_then_b(first, then, ctx, on_none: bool = True):
     else:
         happened = bool(outcome)
     if happened and then is not None:
-        await then(ctx)
+        await _run_step(ctx, then, outcome)
     return happened
 
 
@@ -1236,15 +1286,142 @@ def put_counters_then(count: int, then, candidates=None):
     return effect
 
 
+async def self_knockout(ctx):
+    """"This Pokemon is Knocked Out" as a rider; True when it happened."""
+    holder = ctx.source
+    if holder is None or ctx.effects_blocked(holder):
+        return False
+    await ctx.knock_out(holder)
+    return True
+
+
+def self_ko_rider():
+    """`composed(..., then=self_ko_rider())` — the Cofagrigus shape."""
+    async def effect(ctx):
+        await self_knockout(ctx)
+    return effect
+
+
 def self_ko_ability(then=None):
     """"If you use this ability, this Pokemon is Knocked Out": runs the body,
     then Knocks Out the ability's Pokemon (Unown, Crobat)."""
     async def effect(ctx):
         if then is not None:
             await then(ctx)
-        holder = ctx.source
-        if holder is not None and not ctx.effects_blocked(holder):
-            await ctx.knock_out(holder)
+        await self_knockout(ctx)
+    return effect
+
+
+def attacker_is_basic(include_colorless: bool = True):
+    """"damage from Basic Pokemon" (include_colorless=False for "Basic
+    non-Colorless Pokemon")."""
+    def pred(attacker) -> bool:
+        if attacker is None:
+            return False
+        if attacker.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+            return False
+        if include_colorless:
+            return True
+        types = attacker.get_attribute(AttrID.POKEMON_TYPES) or []
+        return PokemonTypes.COLORLESS.value not in types
+
+    return pred
+
+
+def attacker_is_evolution():
+    """""damage from Evolution Pokemon"."""
+    def pred(attacker) -> bool:
+        return attacker is not None and attacker.get_attribute(AttrID.STAGE) in (
+            PokemonStage.STAGE1.value, PokemonStage.STAGE2.value)
+
+    return pred
+
+
+def attacker_is_gx_or_ex():
+    """"damage from Pokemon-GX and Pokemon-EX"."""
+    from ptcgo.game.card_effects.pokemon import (
+        is_pokemon_EX, is_pokemon_ex, is_pokemon_gx,
+    )
+
+    def pred(attacker) -> bool:
+        return is_pokemon_gx(attacker) or is_pokemon_ex(attacker) \
+            or is_pokemon_EX(attacker)
+
+    return pred
+
+
+def attacker_is_tag_team():
+    """"damage from TAG TEAM Pokemon"."""
+    from ptcgo.game.data_utils import subtypes_for
+
+    def pred(attacker) -> bool:
+        if attacker is None:
+            return False
+        return "TAG TEAM" in (subtypes_for(attacker.archetype_id) or [])
+
+    return pred
+
+
+def reorder_top(where: str = "top"):
+    """Follow-up for a look-at body: "put them back on top of your deck in any
+    order" (where="bottom" for "put the rest on the bottom"). Takes
+    `(ctx, cards)` and prompts for the order -- the first card chosen ends on
+    top, the way the deck reads."""
+    async def effect(ctx, cards):
+        looked = [card for card in (cards or []) if card is not None]
+        if not looked:
+            return []
+        if len(looked) == 1:
+            ordered = looked
+        else:
+            ordered = await ctx.choose_cards(
+                looked, len(looked), minimum=len(looked), ordered=True,
+                prompt=("Choose the order to put the cards back on top; the "
+                        "first one chosen ends on top"))
+            ordered = list(ordered) or looked
+        place = (ctx.put_on_bottom_of_deck if where == "bottom"
+                 else ctx.put_on_top_of_deck)
+        for card in reversed(ordered):
+            await place(card)
+        return ordered
+    return effect
+
+
+def attach_energy_from_cards(target="choice", predicate=None,
+                             distribute: bool = False):
+    """Follow-up for a first part that produced cards: attach the Energy among
+    them ("if any of those are Energy, attach them"). Takes
+    `(ctx, cards)`, so it composes with `composed(..., on_success=...)` or
+    with `mill_attack`/`look_at_top` through the outcome argument."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+
+    def matches(card) -> bool:
+        return (predicate or is_energy_card)(card)
+
+    async def effect(ctx, cards):
+        from ptcgo.game.card_effects.support_common import distribute_energy
+
+        energies = [card for card in (cards or []) if matches(card)]
+        if not energies:
+            return []
+        if distribute:
+            # "attach them to your Pokemon in any way you like"
+            return await distribute_energy(ctx, energies, ctx.my_pokemon_in_play())
+        if target == "self":
+            holder = ctx.source
+        else:
+            candidates = ctx.my_pokemon_in_play()
+            if not candidates:
+                return []
+            holder = await ctx.choose_pokemon(
+                candidates, "Choose a Pokémon to attach the Energy to")
+            if holder is None:
+                return []
+        attached = []
+        for energy in energies:
+            await ctx.attach_energy(energy, holder)
+            attached.append((energy, holder))
+        return attached
     return effect
 
 

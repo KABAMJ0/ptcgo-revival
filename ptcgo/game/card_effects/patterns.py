@@ -13495,15 +13495,16 @@ def _free_cost_if_tools_in_discard(m, ability):
 
 def _free_cost_if_stadiums_in_discard(m, ability):
     from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
-    from ptcgo.game.attributes import CardType
     needed = int(m.group(1))
 
     def condition(board, pokemon, carrier):
         holder = carrier_pokemon(carrier) or pokemon
         owner = getattr(holder, "owning_player_id", None)
+        # A Stadium is a Trainer SUBTYPE; CardType has no STADIUM member, so the
+        # old test raised AttributeError on every resolution.
         stadiums = [card for card in _t63_discard_cards(board, owner)
-                    if card.get_attribute(AttrID.CARD_TYPE)
-                    == CardType.STADIUM.value]
+                    if card.get_attribute(AttrID.TRAINER_TYPE)
+                    == TrainerType.STADIUM.value]
         return len(stadiums) >= needed
     return free_attack_cost_passive(condition=condition)
 

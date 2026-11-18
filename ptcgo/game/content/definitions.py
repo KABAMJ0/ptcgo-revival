@@ -40,8 +40,18 @@ def def_for(archetype_id: Optional[str]) -> Optional["CardDefinition"]:
     return CARD_DEFS_BY_GUID.get((archetype_id or "").lower())
 
 
+def _archetype_id(value) -> Optional[str]:
+    """The archetype GUID behind a card entity, a definition or a bare GUID.
+
+    Callers in the effect layer hold entities, so the helpers here accept
+    either rather than raising on `PokemonEntity has no attribute lower`."""
+    if value is None or isinstance(value, str):
+        return value
+    return getattr(value, "archetype_id", None) or getattr(value, "guid", None)
+
+
 def subtypes_for(archetype_id: Optional[str]) -> List[str]:
-    definition = def_for(archetype_id)
+    definition = def_for(_archetype_id(archetype_id))
     return definition.subtypes if definition else []
 
 
@@ -699,12 +709,16 @@ class PokemonToolCardDef(TrainerCardDef):
                  granted_abilities: Optional[List[Ability]] = None,
                  attach_to: Optional[Callable] = None,
                  on_carrier_knocked_out: Optional[Callable] = None,
+                 target_owners: str = "self",
                  **kwargs):
         kwargs['trainer_type'] = TrainerType.POKEMON_TOOL
         super().__init__(**kwargs)
         self.passive = passive
         self.attach_to = attach_to
         self.on_carrier_knocked_out = on_carrier_knocked_out
+        # "Attach it to 1 of your opponent's Pokemon-EX" (Head Ringer):
+        # "opponent" widens the offer's target pool to their side.
+        self.target_owners = target_owners
         self.granted_abilities: List[Ability] = granted_abilities or []
         for idx, a in enumerate(self.granted_abilities):
             if not a.ability_id:
