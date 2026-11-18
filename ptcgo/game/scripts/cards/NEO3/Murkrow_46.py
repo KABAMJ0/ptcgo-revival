@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, flip_damage
+from ptcgo.game.card_effects.energies import pokemon_named_like
 
 card = PokemonCardDef(
     guid="3a8dbeeb-5fbe-50ba-b352-5ae0225e37c9",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_bench("mine", pokemon_named_like("Murkrow")), base=10, per_heads=10),
         ),
     ],
 )
