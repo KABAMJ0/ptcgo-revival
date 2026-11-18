@@ -14718,6 +14718,55 @@ def _t68_bench_own_name_from_discard(m, ability):
             await ctx.bench_pokemon(card)
     return effect
 
+
+def _t69_spread_opponent_ex(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from ptcgo.game.data_utils import subtypes_for
+        for pokemon in ctx.opponent_pokemon_in_play():
+            if ctx.effects_blocked(pokemon):
+                continue
+            subtypes = [sub.lower() for sub in subtypes_for(pokemon.archetype_id)]
+            if "ex" in subtypes:
+                await ctx.deal_damage(amount, target=pokemon,
+                                      ignore_weakness=True,
+                                      ignore_resistance=True)
+    return effect
+
+
+def _t69_attach_typed_from_discard_self(m, ability):
+    type_value = TYPE_WORDS[m.group(1)].value
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        attacker = ctx.attacker
+        pile = [card for card in ctx.discard_pile() if is_energy_card(card)
+                and energy_provides_type(card, type_value)]
+        if attacker is None or not pile:
+            return
+        picks = await ctx.choose_cards(pile, 1, prompt="Choose an Energy card")
+        if picks:
+            await ctx.attach_energy(picks[0], attacker)
+    return effect
+
+
+def _t69_search_self_name_to_hand(m, ability):
+    async def effect(ctx):
+        await ctx.deal_damage()
+        own = normalize(getattr(ctx.source, "display_name", "") or "")
+        if not own:
+            return
+        picks = await ctx.search_deck(
+            lambda card: normalize(getattr(card, "display_name", "") or "") == own,
+            count=1, minimum=0, prompt="Choose this Pokémon")
+        if picks:
+            await ctx.put_in_hand(list(picks), reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -16133,7 +16182,17 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"next turn|at the end of your opponent's next turn, the "
                 r"defending pokemon will be knocked out)\."),
      _schedule_knock_out_defender),
-    # -- batch 68: counters, bench scaling and typed attachment ------------
+    # -- batch 69: typed prevention, self search and spreads ----------------
+    ("spread.opponent-ex-ignoring-mods",
+     re.compile(r"this attack does (\d+) damage to each of your opponent's "
+                r"pokemon ex\. \(don't apply weakness and resistance for "
+                r"benched pokemon\.\)"), _t69_spread_opponent_ex),
+    ("attach.typed-energy-from-discard-self",
+     re.compile(r"attach a (" + _TYPE_WORDS + r") energy card from your discard "
+                r"pile to this pokemon\."), _t69_attach_typed_from_discard_self),
+    ("search.self-name-to-hand",
+     re.compile(r"search your deck for (?:m )?this pokemon, reveal it, and put it "
+                r"into your hand\..*"), _t69_search_self_name_to_hand),
     ("bonus.per-self-counters-then-heal",
      re.compile(r"does (\d+) damage plus (\d+) more damage for each damage "
                 r"counter on this pokemon\. then, remove (\d+) damage counters "
