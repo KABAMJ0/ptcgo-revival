@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import shuffle_random_from_opponent_hand
 
 card = ItemCardDef(
     guid="1edcdd0e-f7ce-5a0d-8e37-2d7fc33d7699",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=19,
     set_code="GYM1",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=shuffle_random_from_opponent_hand(3)
 )

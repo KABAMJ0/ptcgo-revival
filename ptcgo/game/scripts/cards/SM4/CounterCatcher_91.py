@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import behind_on_prizes, opponent_bench_to_active
 
 card = ItemCardDef(
     guid="ddc7dd43-0e60-5821-bf9d-f0f65e848a70",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=91,
     set_code="SM4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_bench_to_active(), condition=behind_on_prizes()
 )

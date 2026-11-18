@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_bench_to_active
 
 card = ItemCardDef(
     guid="4eef2063-1115-58f7-932d-836a9e398199",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=99,
     set_code="HGSS1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=opponent_bench_to_active(flip=True)
 )

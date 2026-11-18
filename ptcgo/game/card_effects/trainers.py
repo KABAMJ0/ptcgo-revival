@@ -5068,3 +5068,15 @@ def discard_after(count: int, inner):
             count, minimum=min(count, len(ctx.hand())),
             prompt=f"Discard {count} card(s) from your hand")
     return effect
+
+
+def shuffle_random_from_opponent_hand(count: int):
+    """Choose `count` random cards from the opponent's hand; they shuffle them
+    into their deck (The Rocket's Trap, Hooligans Jim & Cas)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        picks = hand[:count]
+        await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+    return effect
