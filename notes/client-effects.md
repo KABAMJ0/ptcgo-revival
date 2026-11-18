@@ -8,7 +8,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "eID": <dwd.core.match.EntityID>
+  "eID": <Guid>
 }
 ```
 
@@ -16,7 +16,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "eID": <dwd.core.match.EntityID>,
+  "eID": <Guid>,
   "abilityID": <System.Guid>,
   "abilityTitle": {
     "trimChars": [<char>],
@@ -31,8 +31,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 ```json
 {
   "condition": "Asleep | Burned | Confused | Paralyzed | Poisoned | UNSET",
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>]
+  "source": <Guid>,
+  "targets": [<Guid>]
 }
 ```
 
@@ -48,7 +48,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "entityID": <dwd.core.match.EntityID>,
+  "entityID": <Guid>,
   "abilityName": {
     "trimChars": [<char>],
     "id": <string>
@@ -64,8 +64,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "damageSource": <dwd.core.match.EntityID>,
-  "entityID": <dwd.core.match.EntityID>,
+  "damageSource": <Guid>,
+  "entityID": <Guid>,
   "weaknessTriggered": <bool>,
   "resistanceTrigger": <bool>,
   "damageType": [<string>],
@@ -83,7 +83,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "entityID": <dwd.core.match.EntityID>,
+  "entityID": <Guid>,
   "cleanupCurvePrefix": <string>
 }
 ```
@@ -116,8 +116,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>],
+  "source": <Guid>,
+  "targets": [<Guid>],
   "amount": <int>
 }
 ```
@@ -142,8 +142,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>]
+  "source": <Guid>,
+  "targets": [<Guid>]
 }
 ```
 
@@ -151,7 +151,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "user": <dwd.core.account.AccountID>
+  "user": <Guid>
 }
 ```
 
@@ -159,8 +159,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>]
+  "source": <Guid>,
+  "targets": [<Guid>]
 }
 ```
 
@@ -168,13 +168,17 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "player": <dwd.core.account.AccountID>,
+  "player": <Guid>,
   "entityIDPiles": [
     {
-      "<dwd.core.match.EntityID key>": {
+      "<Guid key>": {
         "source": {
-          "globalDefaults": <dwd.core.attributes.AttributeDictionary>,
-          "data": <dwd.core.attributes.AttributeDictionary>,
+          "globalDefaults": {
+            "<string key>": null
+          },
+          "data": {
+            "<string key>": null
+          },
           "useGlobalDefaults": <bool>
         }
       }
@@ -188,7 +192,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
     "trimChars": [<char>],
     "id": <string>
   },
-  "revealSource": <dwd.core.match.EntityID>
+  "revealSource": <Guid>
 }
 ```
 
@@ -205,7 +209,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
     "trimChars": [<char>],
     "id": <string>
   },
-  "source": <dwd.core.match.EntityID>
+  "source": <Guid>
 }
 ```
 
@@ -218,8 +222,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
     "trimChars": [<char>],
     "id": <string>
   },
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>],
+  "source": <Guid>,
+  "targets": [<Guid>],
   "gameText": {
     "trimChars": [<char>],
     "id": <string>
@@ -231,7 +235,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "targets": [<dwd.core.match.EntityID>]
+  "targets": [<Guid>]
 }
 ```
 
@@ -272,8 +276,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "destinationID": <dwd.core.match.EntityID>,
-  "originID": <dwd.core.match.EntityID>,
+  "destinationID": <Guid>,
+  "originID": <Guid>,
   "amount": <int>,
   "abilityName": {
     "trimChars": [<char>],
@@ -343,8 +347,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 ```json
 {
   "condition": "Asleep | Burned | Confused | Paralyzed | Poisoned | UNSET",
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>]
+  "source": <Guid>,
+  "targets": [<Guid>]
 }
 ```
 
@@ -362,9 +366,9 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "entityID": [<dwd.core.match.EntityID>],
+  "entityID": [<Guid>],
   "playerPrompt": {
-    "<dwd.core.account.AccountID key>": {
+    "<Guid key>": {
       "trimChars": [<char>],
       "id": <string>
     }
@@ -373,7 +377,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
     "trimChars": [<char>],
     "id": <string>
   },
-  "revealSource": <dwd.core.match.EntityID>,
+  "revealSource": <Guid>,
   "prompt": {
     "trimChars": [<char>],
     "id": <string>
@@ -385,8 +389,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "player": <dwd.core.account.AccountID>,
-  "entityID": [<dwd.core.match.EntityID>],
+  "player": <Guid>,
+  "entityID": [<Guid>],
   "prompt": {
     "textVars": {
       "numberMap": {
@@ -404,7 +408,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
     "trimChars": [<char>],
     "id": <string>
   },
-  "revealSource": <dwd.core.match.EntityID>
+  "revealSource": <Guid>
 }
 ```
 
@@ -413,7 +417,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 ```json
 {
   "choices": {
-    "<dwd.core.account.AccountID key>": <int>
+    "<Guid key>": <int>
   }
 }
 ```
@@ -422,8 +426,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>],
+  "source": <Guid>,
+  "targets": [<Guid>],
   "wasDamage": <bool>
 }
 ```
@@ -450,8 +454,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "attackerID": <dwd.core.match.EntityID>,
-  "defenderID": <dwd.core.match.EntityID>,
+  "attackerID": <Guid>,
+  "defenderID": <Guid>,
   "effectType": <string>
 }
 ```
@@ -460,8 +464,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "attackerID": <dwd.core.match.EntityID>,
-  "defenderList": [<dwd.core.match.EntityID>],
+  "attackerID": <Guid>,
+  "defenderList": [<Guid>],
   "effectType": <string>
 }
 ```
@@ -470,8 +474,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "oldAttackerID": <dwd.core.match.EntityID>,
-  "newAttackerID": <dwd.core.match.EntityID>
+  "oldAttackerID": <Guid>,
+  "newAttackerID": <Guid>
 }
 ```
 
@@ -479,8 +483,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "source": <dwd.core.match.EntityID>,
-  "targets": [<dwd.core.match.EntityID>]
+  "source": <Guid>,
+  "targets": [<Guid>]
 }
 ```
 
@@ -488,7 +492,7 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "playerID": <dwd.core.match.EntityID>,
+  "playerID": <Guid>,
   "numOfTargets": <int>
 }
 ```
@@ -497,8 +501,8 @@ Types carrying `[DwdJsonEffect]`: they are serialised inside game messages (enti
 
 ```json
 {
-  "entityID": <dwd.core.match.EntityID>,
-  "target": <dwd.core.match.EntityID>
+  "entityID": <Guid>,
+  "target": <Guid>
 }
 ```
 

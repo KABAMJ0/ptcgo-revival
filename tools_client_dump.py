@@ -242,7 +242,7 @@ class Assembly:
         return {"returns": ret, "params": params, "generic_params": generic}
 
     # ---------------------------------------------------------------- members
-    def members(self, position):
+    def members(self, position, include_private=False):
         out = {"fields": [], "properties": [], "methods": []}
         row = self.typedefs[position - 1]
         if row.FieldList:
@@ -252,7 +252,9 @@ class Assembly:
             for fi in range(begin, end):
                 field = self.fields[fi - 1]
                 name = str(field.Name)
-                if name.startswith("<") or name.startswith("_") or name == "value__":
+                if name.startswith("<") or name == "value__":
+                    continue
+                if name.startswith("_") and not include_private:
                     continue
                 try:
                     typ = self.field_signature(field)
@@ -370,6 +372,27 @@ class Protocol:
             seen += 1
         return False
 
+    def ancestry(self, name, limit=6):
+        current = name
+        out = []
+        for _ in range(limit):
+            found = self.resolve(current)
+            if not found:
+                break
+            asm, position = found
+            base = asm.base_name(position)
+            if not base:
+                break
+            out.append(base)
+            current = base
+        return out
+
+    def label_for(self, typ):
+        if typ and typ.get("kind") == "class":
+            if "dwd.core.ids.TypedID" in self.ancestry(typ["name"]):
+                return "Guid"
+        return type_label(typ)
+
     def shape(self, typ, depth=0, seen=None):
         seen = seen or set()
         if not typ:
@@ -380,11 +403,13 @@ class Protocol:
         if kind == "list":
             return {"list": self.shape(typ.get("of"), depth + 1, seen)}
         if kind == "dict":
-            return {"map": {"key": type_label(typ.get("key")),
+            return {"map": {"key": self.label_for(typ.get("key")),
                             "value": self.shape(typ.get("value"), depth + 1, seen)}}
         if kind != "class":
             return {"type": type_label(typ)}
         name = typ["name"]
+        if "dwd.core.ids.TypedID" in self.ancestry(name):
+            return {"type": "Guid"}          # TypedID carries a System.Guid, sent as a string
         found = self.resolve(name)
         if not found or depth > 7 or name in seen:
             return {"type": name}
@@ -393,9 +418,31 @@ class Protocol:
         if values is not None:
             return {"enum": name, "values": values}
         members = asm.members(position)
+        names = {m["name"] for m in members["methods"]}
+        base = asm.base_name(position) or ""
+        if "Dictionary" in base or ("get_Item" in names and "get_Count" in names):
+            value = None
+            for prop in members["properties"]:
+                if prop["name"] == "Item":
+                    value = prop["type"]
+            return {"map": {"key": "string", "value": self.shape(value, depth + 1, seen) if value else None}}
         fields = {}
         for field in members["fields"]:
             fields[field["json"]] = self.shape(field["type"], depth + 1, seen | {name})
+        if not fields:
+            for field in asm.members(position, include_private=True)["fields"]:
+                fields[field["json"].lstrip("_")] = self.shape(field["type"], depth + 1, seen | {name})
+        if not fields:
+            for parent in self.ancestry(name, limit=3):
+                found_parent = self.resolve(parent)
+                if not found_parent:
+                    continue
+                parent_fields = found_parent[0].members(found_parent[1], include_private=True)["fields"]
+                if parent_fields:
+                    for field in parent_fields:
+                        fields[field["json"].lstrip("_")] = self.shape(
+                            field["type"], depth + 1, seen | {name})
+                    break
         if not fields:
             return {"type": name}
         return {"type": name, "fields": fields}
