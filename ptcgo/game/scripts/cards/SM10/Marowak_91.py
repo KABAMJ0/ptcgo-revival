@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, active_is, has_tool
 
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(until_tails=True, per_heads=50),
         ),
         Attack(
             title="Assault Boom",
