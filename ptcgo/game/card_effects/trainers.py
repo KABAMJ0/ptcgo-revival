@@ -9198,3 +9198,64 @@ async def _poke_drawer(ctx):
         return
     if _copies_on_trainer(ctx) == 1:
         await ctx.draw_cards(1)
+
+
+# --- Stadium checkup pass --------------------------------------------------
+
+def _first_checkup_pass(ctx) -> bool:
+    """The Stadium's BETWEEN_TURNS slot resolves once per player in turn order;
+    a body that covers both sides acts only on the first pass."""
+    order = ctx.session._turn_order()
+    return bool(order) and order[0] == ctx.player_id
+
+
+def stadium_checkup_counters(counters: int, predicate, own_side_only=False):
+    """Between turns, `counters` damage counters on every in-play Pokemon that
+    matches `predicate` (both sides, or only the pass player's)."""
+    async def effect(ctx):
+        if own_side_only:
+            players = [ctx.player_id]
+        else:
+            if not _first_checkup_pass(ctx):
+                return
+            players = ctx.board.player_ids
+        for pid in players:
+            for pokemon in list(ctx.board.pokemon_in_play(pid)):
+                if predicate(pokemon):
+                    await ctx.deal_damage(10 * counters, target=pokemon,
+                                          apply_modifiers=False, as_counters=True)
+    return effect
+
+
+def pokemon_is_ex_with_hp(threshold: int):
+    """Predicate: a Pokemon-ex whose printed maximum HP is at least `threshold`."""
+
+    def predicate(pokemon):
+        if "EX" not in subtypes_for(pokemon.archetype_id):
+            return False
+        printed = pokemon.attribute_originals.get(
+            AttrID.HP.value, pokemon.get_attribute(AttrID.HP, 0))
+        return printed >= threshold
+    return predicate
+
+
+def pokemon_has_any_subtype(*wanted):
+    """Predicate: a Pokemon carrying any of the named printed subtypes."""
+    names = [name.upper() for name in wanted]
+
+    def predicate(pokemon):
+        return any(name.upper() in names
+                   for name in subtypes_for(pokemon.archetype_id))
+    return predicate
+
+
+async def championship_arena_checkup(ctx):
+    """At the end of the active player's turn, that player with 8 or more cards
+    in hand discards down to 7."""
+    if ctx.player_id != ctx.session.turn_state.active_player_id:
+        return
+    held = len(ctx.hand())
+    if held < 8:
+        return
+    await ctx.discard_from_hand(
+        held - 7, prompt="Discard down to 7 cards for Championship Arena")
