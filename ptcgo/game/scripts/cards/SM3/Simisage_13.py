@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             game_text="You may attach a Grass Energy card from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=attach_from_hand(basic_energy_of("grass"), minimum=0),
         ),
     ],
 )

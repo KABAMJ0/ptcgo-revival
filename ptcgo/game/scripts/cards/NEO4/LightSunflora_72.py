@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of, pokemon_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Reflected Sunlight",
             game_text="Attach up to 2 Grass Energy cards from your hand to 1 of your Grass Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=attach_from_hand(basic_energy_of("grass"), count=2, target_pred=pokemon_of("grass"), minimum=0),
         ),
         Attack(
             title="Solarbeam",

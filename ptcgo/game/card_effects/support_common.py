@@ -34,9 +34,19 @@ async def _deal_printed(ctx):
         await ctx.deal_damage()
 
 
+def entity_name(entity) -> str:
+    """A board entity's printed name.
+
+    A CardEntity carries no `display_name`; the name lives on the definition
+    (`card.card_obj` is the same card model). Resolve through `def_for`, the
+    way the rest of the effect library does, so a predicate that names a card
+    cannot silently read nothing."""
+    definition = def_for(getattr(entity, "archetype_id", None) or "")
+    return getattr(definition, "display_name", "") or ""
+
+
 def _card_label(card: CardEntity) -> str:
-    definition = def_for(card.archetype_id)
-    return getattr(definition, "display_name", None) or "the card"
+    return entity_name(card) or "the card"
 
 
 def _is_damaged(board, pokemon: PokemonEntity) -> bool:
@@ -728,13 +738,13 @@ def baby_evolution(*names):
     def _in_hand(board, player_id, pokemon) -> bool:
         area = board.find_player_area(player_id, "hand")
         return any(
-            " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted
+            " ".join(entity_name(card).lower().split()) in wanted
             for card in (area.children if area else [])
         )
 
     async def effect(ctx):
         cards = [card for card in ctx.hand()
-                 if " ".join((getattr(card, "display_name", "") or "").lower().split()) in wanted]
+                 if " ".join(entity_name(card).lower().split()) in wanted]
         if not cards:
             return
         picks = cards if len(cards) == 1 else await ctx.choose_cards(
@@ -750,3 +760,71 @@ def baby_evolution(*names):
         await ctx.heal(max(0, ctx.max_hp(evolution) - remaining), evolution)
 
     return effect, _in_hand
+
+
+def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
+                     distribute=False, minimum=1, then=None, prompt=""):
+    """"Attach up to N Energy from your hand to <target>": offers the matching
+    hand cards, then attaches them to this Pokemon ("self"), to one chosen
+    Pokemon of `ctx.my_pokemon_in_play()` filtered by `target_pred` ("choice"),
+    or one per card through distribute_energy ("in any way you like").
+
+    `then(ctx, attached)` runs afterwards with the (card, target) pairs, for the
+    "if you attached Energy to a Pokemon in this way, ..." riders. `minimum=0`
+    for "you may ... up to N" and repeatable abilities; `minimum=1` when
+    choosing the ability is the commitment."""
+    predicate = predicate or is_energy_card
+
+    def _targets(ctx):
+        return [pokemon for pokemon in ctx.my_pokemon_in_play()
+                if target_pred is None or target_pred(pokemon)]
+
+    async def effect(ctx):
+        hand = [card for card in ctx.hand() if predicate(card)]
+        if not hand:
+            return
+        picks = await ctx.choose_cards(
+            hand, count, minimum=minimum,
+            prompt=prompt or f"Choose up to {count} card(s) to attach")
+        if not picks:
+            return
+        attached = []
+        if target == "self":
+            for card in picks:
+                await _attach_all(ctx, [card], ctx.source)
+                attached.append((card, ctx.source))
+        else:
+            candidates = _targets(ctx)
+            if not candidates:
+                return
+            if distribute:
+                attached = await distribute_energy(ctx, picks, candidates)
+            else:
+                pokemon = await ctx.choose_pokemon(
+                    candidates, "Choose a Pokémon to attach the Energy to")
+                if pokemon is None:
+                    pokemon = candidates[0]
+                await _attach_all(ctx, picks, pokemon)
+                attached = [(card, pokemon) for card in picks]
+        if then is not None and attached:
+            await then(ctx, attached)
+
+    return effect
+
+
+def hand_attach_condition(predicate=None, target="choice", target_pred=None) -> Callable:
+    """Gate for a hand-attach ability: offering it would do nothing unless a
+    matching hand card and a legal target are both there. An UNLIMITED
+    activation MUST carry a condition or its offer never disappears."""
+    predicate = predicate or is_energy_card
+
+    def condition(board, player_id, pokemon) -> bool:
+        hand = board.find_player_area(player_id, "hand")
+        if not any(predicate(card) for card in (hand.children if hand else [])):
+            return False
+        if target == "self":
+            return True
+        return any(target_pred is None or target_pred(p)
+                   for p in board.pokemon_in_play(player_id))
+
+    return condition
