@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=unimplemented,
+            effect=heal_attack(20),
         ),
     ],
 )

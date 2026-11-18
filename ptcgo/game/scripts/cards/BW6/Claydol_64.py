@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, this attack does 30 more damage.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=flip_bonus(30),
         ),
     ],
 )
