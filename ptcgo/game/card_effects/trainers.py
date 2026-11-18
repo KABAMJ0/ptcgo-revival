@@ -1620,6 +1620,10 @@ def opponent_bench_to_active(flip: bool = False, opponent_chooses: bool = False)
 
 # --- Crooked deck searches -------------------------------------------------
 
+
+
+# --- Crooked deck searches -------------------------------------------------
+
 def search_two_kinds(first, first_count: int, second, second_count: int):
     """Search the deck for up to `first_count` matches of `first` and
     `second_count` of `second`, reveal them, put them into hand, shuffle
@@ -7270,3 +7274,91 @@ def hand_energy_to_deck_then_flip_search(count: int):
             await ctx.put_in_hand(found, reveal=True)
         await ctx.shuffle_deck()
     return effect
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --- stadium-named-rule-box-damage-boost ---
+class BothSidesDamageBoostPassive(Passive):
+    """Both players' copies of the named Pokemon do `amount` more to the
+    opponent's Active (Misty's Cerulean City Gym)."""
+
+    def __init__(self, amount: int, attacker_pred):
+        self.amount = amount
+        self.attacker_pred = attacker_pred
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.is_opposing and attacker is not None):
+            return
+        if not calc.to_active or not self.attacker_pred(attacker):
+            return
+        calc.amount += self.amount
+
+
+
+
+# --- flip-heal-actives-or-sleep ---
+def tropical_wind(counters: int = 2, single: int = 1):
+    """Flip a coin: heads removes `counters` damage counters from each Active
+    Pokemon (`single` when it has that few), tails puts every Active to
+    Sleep (Tropical Wind)."""
+    async def effect(ctx):
+        heads = (await ctx.flip_coins(1, title="Flip a coin"))[0]
+        actives = [p for p in (ctx.my_active(), ctx.opponent_active())
+                   if p is not None]
+        if not heads:
+            for pokemon in actives:
+                await ctx.apply_special_condition(pokemon, SpecialConditions.ASLEEP)
+            return
+        for pokemon in actives:
+            damage = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+            available = damage // 10
+            remove = counters if available > single else min(single, available)
+            if remove > 0:
+                await ctx.heal(remove * 10, pokemon)
+    return effect
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --- stadium-retreat-cost-increase-except-owner ---
+class RetreatCostIncreasePassive(Passive):
+    """Every Pokemon in play not matching `exclude_pred` pays `amount` more to
+    retreat (Team Aqua's Secret Base)."""
+
+    def __init__(self, amount, exclude_pred=None):
+        self.amount = amount
+        self.exclude_pred = exclude_pred
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if self.exclude_pred is not None and self.exclude_pred(pokemon):
+            return cost
+        return cost + self.amount
+
+
+
+
+
+
+
+

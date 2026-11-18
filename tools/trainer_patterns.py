@@ -2684,6 +2684,9 @@ RULES = [
     Rule('flip-cure-and-heal-active', 'flip (?P<n>\\d+) coin if heads your active pokemon is no longer asleep confused paralyzed or poisoned and remove (?P<counters>\\d+) damage counters from it if your active pokemon has fewer damage counters than that remove all of them', 'flip_cure_and_heal_active', lambda m: [m.group("counters")], kind='effect'),
     Rule('hand-to-deck-then-flip-search-energy', 'choose (?P<n>\\d+) energy card in your hand show it to your opponent and shuffle it into your deck then flip (?P<m>\\d+) coin if heads search your deck for up to (?P<count>\\d+) basic energy cards show them to your opponent and put them into your hand shuffle your deck afterward', 'hand_energy_to_deck_then_flip_search', lambda m: [m.group("count")], kind='effect'),
 
+    Rule('flip-heal-actives-or-sleep', 'flip (?P<n>\\d+) coin if heads remove (?P<c>\\d+) damage counters from each active pokemon remove (?P<one>\\d+) damage counter if (?P<p>\\d+) pokemon has only (?P<only>\\d+) if tails each active pokemon is now asleep', 'tropical_wind', lambda m: [m.group("c"), m.group("one")], kind='effect'),
+    Rule('opp-shuffle-draw-his-her', 'your opponent shuffles his or her hand into his or her deck and draws (?P<n>\\d+) cards', 'opponent_shuffle_hand_draw', lambda m: [m.group("n")], kind='effect'),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
