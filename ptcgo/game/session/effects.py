@@ -1447,7 +1447,7 @@ class EffectContext:
 
     async def place_damage_counters(
         self, count: int, candidates: Optional[List[PokemonEntity]] = None
-    ) -> None:
+    ) -> int:
         """Distributes `count` damage counters (10 HP each) over `candidates`
         (default: all of the opponent's in-play Pokemon) via the native
         click-to-place picker (one offer, Done gates on exactly `count`
@@ -1456,18 +1456,21 @@ class EffectContext:
         in_play_ids = {p.entity_id for p in self.my_pokemon_in_play() + self.opponent_pokemon_in_play()}
         pool = [p for p in pool if p.entity_id in in_play_ids]
         if not pool or count <= 0:
-            return
+            return 0
         placement = await self.session.prompt_damage_counter_placement(
             self.player_id, self.source.entity_id, pool, count,
             prompt=f"Place {count} damage counters on your opponent's Pokemon.",
         )
         by_id = {p.entity_id: p for p in pool}
+        placed = 0
         for entity_id, counters in placement.items():
             if counters <= 0 or entity_id not in by_id:
                 continue
+            placed += counters
             await self.deal_damage(
                 amount=counters * 10, target=by_id[entity_id], as_counters=True,
             )
+        return placed
 
     async def set_damage_counters(self, target: Optional[PokemonEntity],
                                   counters: int) -> None:
