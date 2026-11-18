@@ -752,8 +752,8 @@ RULES = [
          "return_pokemon_to_hand",
          lambda m: ["predicate=" + _pred(m.group("cat") + "pokemon")]),
     Rule("return-pokemon-to-hand-discard-attachments",
-         r"put (?P<n>\d+) of your pokemon in play into your hand discard all cards attached "
-         r"to that pokemon",
+         r"put (?P<n>\d+) (?:of your )?pokemon(?: in play)? into your hand discard all cards "
+         r"attached to that pokemon",
          "return_pokemon_to_hand", lambda m: ['with_attachments="discard"']),
     Rule("search-to-top",
          r"search your deck for (?P<n>\d+) cards? shuffle your deck then put those cards on "
@@ -1853,6 +1853,34 @@ RULES = [
          r"remaining",
          "heal_chosen",
          lambda m: [m.group("amount"), "count=1", "hp_at_most=" + m.group("hp")]),
+
+    Rule("opponent-discard-to-hand-size",
+         r"your opponent discards cards from their hand until they have (?P<keep>\d+) cards? in "
+         r"their hand",
+         "discard_opponent_hand_to", lambda m: [m.group("keep")]),
+    Rule("mill-opponent-per-heads",
+         r"flip (?P<coins>\d+) coins? for each heads discard (?P<per>\d+) cards? from the top of "
+         r"your opponents deck",
+         "mill_opponent_per_heads", lambda m: [m.group("coins"), m.group("per")]),
+    Rule("discard-tool-and-special-energy-opponent",
+         r"discard (?P<n>\d+) pokemon tool and (?P<e>\d+) special energy from (?P<t>\d+) of your "
+         r"opponents pokemon",
+         "discard_tool_and_special_energy_from_opponent", lambda m: []),
+    Rule("super-potion",
+         r"heal (?P<amount>\d+) damage from (?P<n>\d+) of your pokemon if you (?:do |healed any "
+         r"damage in this way )discard (?P<e>\d+) energy (?:card )?(?:attached )?(?:to|from) that "
+         r"pokemon",
+         "super_potion", lambda m: [m.group("amount")]),
+    Rule("switch-then-maybe-discard-heal",
+         r"switch your active pokemon with (?P<n>\d+) of your benched pokemon when you play this "
+         r"card you may discard (?P<count>\d+) other cards from your hand if you do heal "
+         r"(?P<amount>\d+) damage from the pokemon you moved to your bench",
+         "switch_then_optional_discard_heal",
+         lambda m: [m.group("count"), m.group("amount")]),
+    Rule("great-catcher",
+         r"switch (?P<n>\d+) of your opponents benched pokemon gx or pokemon ex with their active "
+         r"pokemon",
+         "gust_bench_gx_ex", lambda m: [m.group("n")]),
 
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",

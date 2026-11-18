@@ -4388,3 +4388,106 @@ def heal_where(amount: int, where: str = "choice", predicate=None, min_energy: i
         for pokemon in pool:
             await ctx.heal(amount, pokemon)
     return effect
+
+
+def discard_opponent_hand_to(keep: int):
+    """Your opponent discards cards from their hand until they have `keep`
+    cards left (Xerosic's Machinations)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        excess = len(hand) - keep
+        if excess <= 0:
+            return
+        await ctx.discard_from_hand(
+            excess, minimum=excess, player_id=ctx.opponent_id,
+            prompt=f"Discard down to {keep} cards")
+    return effect
+
+
+def mill_opponent_per_heads(coins: int, per: int = 2):
+    """Flip `coins` coins; each heads puts `per` cards from the top of the
+    opponent's deck into their discard pile (Team Rocket's Handiwork)."""
+    async def effect(ctx):
+        heads = sum(1 for face in await ctx.flip_coins(coins, title="Discard from the deck")
+                    if face)
+        if not heads:
+            return
+        top = ctx.deck_top(per * heads, ctx.opponent_id)
+        if top:
+            await ctx.discard_cards(top)
+    return effect
+
+
+def discard_tool_and_special_energy_from_opponent():
+    """Discard a Pokemon Tool and a Special Energy from 1 of the opponent's
+    Pokemon (Ruffian)."""
+    async def effect(ctx):
+        for pokemon in ctx.opponent_pokemon_in_play():
+            tool = next((c for c in pokemon.children if is_tool_card(c)), None)
+            energy = next((c for c in ctx.attached_energies(pokemon)
+                           if is_special_energy(c)), None)
+            if tool is not None and energy is not None:
+                await ctx.discard_cards([tool, energy])
+                return
+    return effect
+
+
+def super_potion(amount: int):
+    """Heal `amount` from 1 of your Pokemon, then discard an Energy attached
+    to it (Super Potion)."""
+    async def effect(ctx):
+        pool = [p for p in ctx.my_pokemon_in_play()
+                if ctx.attached_energies(p)
+                and ctx.max_hp(p) > p.get_attribute(AttrID.HP, 0)]
+        if not pool:
+            return
+        target = await ctx.choose_pokemon(pool, "Choose a Pokémon to heal") \
+            if len(pool) > 1 else pool[0]
+        if target is None:
+            return
+        await ctx.heal(amount, target)
+        energies = ctx.attached_energies(target)
+        if not energies:
+            return
+        picks = await ctx.choose_cards(
+            energies, 1, minimum=1, prompt="Choose an Energy to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    return effect
+
+
+def switch_then_optional_discard_heal(count: int, amount: int):
+    """Switch your Active with a Benched Pokemon; you may discard `count`
+    other cards from your hand to heal `amount` from the Pokemon that went to
+    the Bench (Mallow & Lana)."""
+    async def effect(ctx):
+        bench = ctx.my_bench()
+        active = ctx.my_active()
+        if active is None or not bench:
+            return
+        target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon") \
+            if len(bench) > 1 else bench[0]
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        picks = await ctx.discard_from_hand(
+            count, minimum=0, prompt=f"Discard {count} cards to heal {amount} damage")
+        if len(picks) == count:
+            await ctx.heal(amount, active)
+    return effect
+
+
+def gust_bench_gx_ex(count: int = 1):
+    """Switch `count` of the opponent's Benched Pokemon-GX or Pokemon-EX into
+    their Active Spot (Great Catcher)."""
+    async def effect(ctx):
+        bench = [p for p in ctx.opponent_bench()
+                 if is_pokemon_gx(p) or is_pokemon_ex(p)]
+        if not bench or ctx.opponent_active() is None:
+            return
+        picks = await ctx.choose_cards(
+            bench, count, minimum=min(count, len(bench)),
+            prompt="Choose the opponent's new Active Pokémon")
+        for card in picks:
+            if not await ctx.switch_active(ctx.opponent_id, card):
+                break
+    return effect
