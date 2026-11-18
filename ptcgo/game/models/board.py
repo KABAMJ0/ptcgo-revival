@@ -357,6 +357,9 @@ class BoardState:
         }
         # player_id -> prize cards dealt at setup; prizes taken = dealt - remaining.
         self.prizes_dealt: Dict[str, int] = {}
+        # entity_id -> the face a Stadium was played on ("up"/"down"). Outlives
+        # turns: a facing Stadium stays facing that way until it leaves play.
+        self.stadium_facings: Dict[str, str] = {}
         # Set by GameSession once both exist; damage/condition lookups read it
         # defensively (getattr(board, "turn_state", None)) for bare test boards.
         self.turn_state = None

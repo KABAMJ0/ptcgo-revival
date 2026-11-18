@@ -198,13 +198,13 @@ def attach_from_discard(predicate=is_energy, count=1, target="self",
         await _deal_printed(ctx)
         cards = [c for c in ctx.discard_pile() if predicate(c)]
         if not cards:
-            return
+            return []
         picks = await ctx.choose_cards(
             cards, count, minimum=minimum,
             prompt=prompt or "Choose card(s) from your discard pile to attach",
         )
         if not picks:
-            return
+            return []
         if target == "self":
             holder: Optional[PokemonEntity] = ctx.source
         else:
@@ -212,13 +212,15 @@ def attach_from_discard(predicate=is_energy, count=1, target="self",
             candidates = [p for p in ctx.my_pokemon_in_play()
                           if pred is None or pred(p)]
             if not candidates:
-                return
+                return []
             holder = await ctx.choose_pokemon(
                 candidates, "Choose a Pokémon to attach the Energy to"
             ) or candidates[0]
         await _attach_all(ctx, picks, holder)
         if then is not None:
             await then(ctx, picks)
+        # Same contract as attach_from_hand: the attached pairs are the signal.
+        return [(card, holder) for card in picks]
     return effect
 
 
@@ -326,7 +328,7 @@ def look_at_top(n, take=1, predicate=None, rest="shuffle", minimum=None,
         await _deal_printed(ctx)
         top = ctx.deck_top(n)
         if not top:
-            return
+            return []
         candidates = [c for c in top if predicate is None or predicate(c)]
         picks: List[CardEntity] = []
         if take > 0:
@@ -348,6 +350,8 @@ def look_at_top(n, take=1, predicate=None, rest="shuffle", minimum=None,
             for card in top:
                 if card not in picks:
                     await ctx.discard_cards([card])
+        # The cards taken into hand are the signal for a follow-up rider.
+        return picks
     return effect
 
 
@@ -377,7 +381,7 @@ def heal_attack(amount=None, all_damage=False, discard_energy=0, target="self"):
         await _deal_printed(ctx)
         pokemon = ctx.attacker if target == "self" else ctx.my_active()
         if pokemon is None:
-            return
+            return 0
         if discard_energy > 0:
             await ctx.discard_energy_from(
                 pokemon, discard_energy,
@@ -385,8 +389,10 @@ def heal_attack(amount=None, all_damage=False, discard_energy=0, target="self"):
             )
         heal_amount = (ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)) \
             if all_damage else (amount or 0)
-        if heal_amount > 0:
-            await ctx.heal(heal_amount, pokemon)
+        if heal_amount <= 0:
+            return 0
+        # HP actually healed, so "if you healed" riders are testable.
+        return await ctx.heal(heal_amount, pokemon)
     return effect
 
 
@@ -395,8 +401,10 @@ def heal_targets(amount, scope="each_own"):
     yours), 'active', 'bench_choice', or 'choice' (pick one damaged)."""
     async def effect(ctx):
         await _deal_printed(ctx)
+        healed = 0
         for pokemon in await _heal_scope_targets(ctx, scope):
-            await ctx.heal(amount, pokemon)
+            healed += await ctx.heal(amount, pokemon)
+        return healed
     return effect
 
 
@@ -461,13 +469,15 @@ def switch_self_attack(damage=None, optional=False, bench_predicate=None):
         bench = [p for p in ctx.my_bench()
                  if bench_predicate is None or bench_predicate(p)]
         if not bench:
-            return
+            return None
         if optional and not await ctx.ask_yes_no(
                 "Switch this Pokémon with 1 of your Benched Pokémon?"):
-            return
+            return None
         target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
         if target is not None:
             await ctx.switch_active(ctx.player_id, target)
+        # The new Active (or None) is the signal for "then the opponent switches".
+        return target
     return effect
 
 
@@ -782,12 +792,12 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
     async def effect(ctx):
         hand = [card for card in ctx.hand() if predicate(card)]
         if not hand:
-            return
+            return []
         picks = await ctx.choose_cards(
             hand, count, minimum=minimum,
             prompt=prompt or f"Choose up to {count} card(s) to attach")
         if not picks:
-            return
+            return []
         attached = []
         if target == "self":
             for card in picks:
@@ -796,7 +806,7 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
         else:
             candidates = _targets(ctx)
             if not candidates:
-                return
+                return []
             if distribute:
                 attached = await distribute_energy(ctx, picks, candidates)
             else:
@@ -808,6 +818,9 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
                 attached = [(card, pokemon) for card in picks]
         if then is not None and attached:
             await then(ctx, attached)
+        # The (card, target) pairs are the "did an Energy actually land" signal
+        # for composed()/do_a_then_b riders.
+        return attached
 
     return effect
 

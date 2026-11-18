@@ -68,6 +68,7 @@ from .passives import (
     effective_pokemon_types,
     energy_removal_blocked,
     healing_blocked,
+    modified_heal_amount,
     supporter_effect_replacement,
     trainer_effects_blocked,
 )
@@ -553,6 +554,7 @@ class EffectContext:
                 f"prevented by a passive effect."
             )
             return 0
+        amount = modified_heal_amount(self.board, target, amount)
         current = target.get_attribute(AttrID.HP, 0)
         healed = min(self.max_hp(target), current + amount) - current
         if healed <= 0:
@@ -1445,7 +1447,7 @@ class EffectContext:
 
     async def place_damage_counters(
         self, count: int, candidates: Optional[List[PokemonEntity]] = None
-    ) -> None:
+    ) -> int:
         """Distributes `count` damage counters (10 HP each) over `candidates`
         (default: all of the opponent's in-play Pokemon) via the native
         click-to-place picker (one offer, Done gates on exactly `count`
@@ -1454,18 +1456,21 @@ class EffectContext:
         in_play_ids = {p.entity_id for p in self.my_pokemon_in_play() + self.opponent_pokemon_in_play()}
         pool = [p for p in pool if p.entity_id in in_play_ids]
         if not pool or count <= 0:
-            return
+            return 0
         placement = await self.session.prompt_damage_counter_placement(
             self.player_id, self.source.entity_id, pool, count,
             prompt=f"Place {count} damage counters on your opponent's Pokemon.",
         )
         by_id = {p.entity_id: p for p in pool}
+        placed = 0
         for entity_id, counters in placement.items():
             if counters <= 0 or entity_id not in by_id:
                 continue
+            placed += counters
             await self.deal_damage(
                 amount=counters * 10, target=by_id[entity_id], as_counters=True,
             )
+        return placed
 
     async def set_damage_counters(self, target: Optional[PokemonEntity],
                                   counters: int) -> None:
@@ -1558,6 +1563,16 @@ class EffectContext:
         return await self.choose(
             prompt, [PROMPT_YES, PROMPT_NO], player_id, use_panel=False
         ) == 0
+
+    async def ask_opponent(self, prompt: str, options: Sequence[str]) -> int:
+        """Puts a question with `options` in front of the OPPONENT and returns
+        the picked index ("your opponent guesses ...", Blaine's Quiz Show).
+
+        Button-list only: the client has no text-entry screen, so a wording
+        whose answer is a name, HP or length cannot be asked through this."""
+        return await self.session.prompt_player_choice(
+            self.opponent_id if self.opponent_id is not None else self.player_id,
+            prompt, list(options))
 
     async def choose_cards(
         self,
@@ -2706,7 +2721,8 @@ class EffectContext:
                                    if self.source is not None else stadium,
                                    affected_entity=stadium):
             return None
-        hook = getattr(def_for(stadium.archetype_id), "on_leave_play", None)
+        from ptcgo.game.session.passives import stadium_face
+        hook = stadium_face(self.board, stadium).get("on_leave_play")
         if hook is not None and hook is not unimplemented:
             await hook(self)
         owner_id = stadium.owning_player_id or self.player_id

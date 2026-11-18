@@ -24,7 +24,8 @@ import unicodedata
 from typing import Callable, List, Optional, Tuple
 
 from ptcgo.game.attributes import (
-    AttrID, PokemonTypes, SpecialConditions, TrainerType,
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, SpecialConditions,
+    TrainerType,
 )
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import (
@@ -5510,9 +5511,12 @@ def _optional_discard_energy_then_base_plus(m, ability):
 
 
 def _base_plus_if_self_has_tool(m, ability):
+    from ptcgo.game.card_effects.attacks_common import has_tool
     base, bonus = int(m.group(1)), int(m.group(2))
-    return bonus_if(lambda ctx: ctx.attacker is not None and has_tool(
-        ctx.attacker), bonus, base=base)
+
+    def cond(ctx) -> bool:
+        return ctx.attacker is not None and has_tool(ctx.attacker)
+    return bonus_if(cond, bonus, base=base)
 
 
 def _counters_equal_opponent_hand(m, ability):
@@ -7404,8 +7408,11 @@ def _bonus_if_defender_typed_resistance(m, ability):
         defender = ctx.defender
         if defender is None:
             return False
-        return type_value in (defender.get_attribute(AttrID.RESISTANCE_TYPES)
-                              or [])
+        # A single resistance is stored as a bare type value, not a list.
+        resist = defender.get_attribute(AttrID.RESISTANCE_TYPES)
+        if isinstance(resist, (list, tuple, set)):
+            return type_value in resist
+        return resist == type_value
     return bonus_if(cond, bonus)
 
 
@@ -9544,12 +9551,10 @@ def _flip_defender_condition_choice(m, ability):
         if not (results and results[0]) or defender is None or \
                 ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.CONFUSED,
-             SpecialConditions.PARALYZED, SpecialConditions.POISONED],
-            1, prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.CONFUSED,
+                                      SpecialConditions.PARALYZED,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -10524,11 +10529,8 @@ def _t59_choose_condition(m, ability):
         defender = ctx.defender
         if defender is None or ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.BURNED, SpecialConditions.POISONED], 1,
-            prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.BURNED,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -10624,11 +10626,13 @@ def _t59_search_typed_basic_bench(m, ability):
     type_value = TYPE_WORDS[m.group(2)].value
 
     async def effect(ctx):
+        from ptcgo.game.session.effects import is_basic_pokemon
+
         await ctx.deal_damage()
         picks = await ctx.search_deck(
             lambda card: _is_pokemon_card(card)
             and type_value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
-            and card.get_attribute(AttrID.EVOLUTION_STAGE) in (None, 0),
+            and is_basic_pokemon(card, ctx.board),
             count=limit, minimum=0, prompt="Choose Basic Pokémon")
         for card in picks:
             await ctx.bench_pokemon(card)
@@ -13274,11 +13278,8 @@ def _t62_choose_asleep_or_poisoned(m, ability):
         defender = ctx.defender
         if defender is None or ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.POISONED], 1,
-            prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.POISONED])
     return effect
 
 
@@ -13708,6 +13709,20 @@ def _t64_mill_opponent_top(m, ability):
     return effect
 
 
+async def _choose_condition(ctx, choices, prompt="Choose a Special Condition"):
+    """Asks the player for one Special Condition out of `choices` and applies it
+    to the Defending Pokemon. Conditions are values, not cards, so the offer is
+    a button dialog -- handing them to ctx.choose_cards crashes on
+    `SpecialConditions.entity_id`."""
+    if not choices:
+        return None
+    labels = [CLIENT_SPECIAL_CONDITION_NAMES[condition] for condition in choices]
+    index = await ctx.choose(prompt, labels)
+    condition = choices[index] if 0 <= index < len(choices) else choices[0]
+    await ctx.apply_special_condition(ctx.defender, condition)
+    return condition
+
+
 def _t64_flip_choice_condition(m, ability):
     async def effect(ctx):
         await ctx.deal_damage()
@@ -13716,12 +13731,11 @@ def _t64_flip_choice_condition(m, ability):
         if not (results and results[0]) or defender is None or \
                 ctx.effects_blocked(defender):
             return
-        picks = await ctx.choose_cards(
-            [SpecialConditions.ASLEEP, SpecialConditions.BURNED,
-             SpecialConditions.CONFUSED, SpecialConditions.PARALYZED,
-             SpecialConditions.POISONED], 1, prompt="Choose a Special Condition")
-        for condition in picks:
-            await ctx.apply_special_condition(defender, condition)
+        await _choose_condition(ctx, [SpecialConditions.ASLEEP,
+                                      SpecialConditions.BURNED,
+                                      SpecialConditions.CONFUSED,
+                                      SpecialConditions.PARALYZED,
+                                      SpecialConditions.POISONED])
     return effect
 
 

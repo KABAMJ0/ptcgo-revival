@@ -14,7 +14,7 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 
 from typing import Any, Callable, Optional
 
-from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.attributes import AttrID, CLIENT_SPECIAL_CONDITION_NAMES, TrainerType
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
@@ -754,6 +754,51 @@ class NoRetreatPassive(Passive):
         return bool(self.target_pred(pokemon, carrier))
 
 
+def condition_retreat_lock_passive(conditions=None, carrier_conditions=None,
+                                  carrier_clear: bool = False,
+                                  while_active: bool = True) -> Passive:
+    """"As long as this Pokemon is your Active Pokemon, your opponent's
+    <Confused/Poisoned/...> Pokemon can't retreat" (Poliwrath, Dragalge,
+    Snorlax).
+
+    `conditions` is one SpecialConditions member, an iterable of them, or
+    "any" for "affected by Special Conditions"; `carrier_conditions` gate the
+    lock on the CARRIER being affected (PL2 Snorlax's "as long as Snorlax is
+    Asleep"), and `carrier_clear` on the carrier being unaffected (BASEP
+    Snorlax's "this power stops working when Snorlax is affected")."""
+    def _as_names(spec):
+        if spec is None:
+            return ()
+        if spec == "any":
+            return ("any",)
+        if isinstance(spec, (list, tuple, set)):
+            return tuple(CLIENT_SPECIAL_CONDITION_NAMES[c] for c in spec)
+        return (CLIENT_SPECIAL_CONDITION_NAMES[spec],)
+
+    required = _as_names(conditions)
+    carrier_required = _as_names(carrier_conditions)
+
+    def predicate(pokemon, carrier) -> bool:
+        if not opposing_pokemon(pokemon, carrier):
+            return False
+        if while_active and not is_in_active_spot(carrier):
+            return False
+        carrier_now = set(carrier.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        if carrier_clear and carrier_now:
+            return False
+        if carrier_required and not all(name in carrier_now
+                                        for name in carrier_required):
+            return False
+        current = set(pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        if not required:
+            return True
+        if required == ("any",):
+            return bool(current)
+        return all(name in current for name in required)
+
+    return no_retreat_passive(predicate)
+
+
 def no_retreat_passive(target_pred) -> Passive:
     """Blocks retreat while target_pred(pokemon, carrier) holds (Flygon:
     `lambda p, c: opposing_active(p, c) and is_in_active_spot(c)`)."""
@@ -1048,11 +1093,261 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
-def flip_protection(prevent=True, reduce=None, effects_too=False, title=None):
+class HealAmountPassive(Passive):
+    """Rewrites heals done to the carrier (or its side): "whenever you heal a
+    Pokemon, heal 20 more" / a flat "heals 30 damage instead of 20"."""
+
+    def __init__(self, bonus=0, amount=None, protects="carrier", minimum=0):
+        self.bonus = bonus
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+        self.minimum = minimum
+
+    def modify_heal_amount(self, pokemon, carrier, amount):
+        if not self.protects(pokemon, carrier):
+            return amount
+        if self.minimum and amount < self.minimum:
+            return amount
+        return self.amount if self.amount is not None else amount + self.bonus
+
+
+def heal_multiplier(bonus: int = 0, amount: Optional[int] = None,
+                    protects="team", minimum: int = 0) -> Passive:
+    """`bonus` adds to every heal ("heal 20 more"); `amount` replaces the heal
+    outright ("heals 30 damage instead"), gated by `minimum` when given."""
+    return HealAmountPassive(bonus=bonus, amount=amount, protects=protects,
+                             minimum=minimum)
+
+
+class ExtraPoisonCountersPassive(Passive):
+    """Poisoned Pokemon take `amount` more damage counters at Checkup
+    (Virbank City Gym: "each Pokemon affected by Poison now takes 2 damage
+    from poison between turns")."""
+
+    def __init__(self, amount=2, opponents_only=False):
+        self.amount = amount
+        self.opponents_only = opponents_only
+
+    def poison_checkup_counters(self, pokemon, carrier, counters):
+        if self.opponents_only and pokemon.owning_player_id == carrier.owning_player_id:
+            return counters
+        return counters + self.amount
+
+
+def extra_poison_counters(amount: int = 2, opponents_only: bool = False) -> Passive:
+    """Stadium/passive factory for the Virbank wording."""
+    return ExtraPoisonCountersPassive(amount, opponents_only)
+
+
+class DiscardSelfOnRetreatPassive(Passive):
+    """Balloon Berry: "when the Pokemon this card is attached to retreats,
+    discard this card" (and pay no Energy for the retreat)."""
+
+    async def on_retreat(self, ctx, pokemon, carrier) -> None:
+        if carrier is pokemon:
+            return
+        await ctx.discard_cards([carrier])
+
+
+def discard_self_on_retreat() -> Passive:
+    """`on_retreat` half of Balloon Berry; compose with retreat_discount."""
+    return DiscardSelfOnRetreatPassive()
+
+
+def composed(first, then=None, on_success=None, on_fail=None):
+    """"body, then rider" for an ability, as HOME-13 specified it.
+
+    `then` always runs after `first`; `on_success` runs only when `first`
+    returned a truthy result and `on_fail` when it returned falsy. Each element
+    is an ordinary `async def effect(ctx)` (a factory call already is one), and
+    `ctx` carries through unchanged. A step without a signal (returns None)
+    is treated as success; pass `first` through do_a_then_b directly for the
+    strict "if you do" reading."""
+    async def effect(ctx):
+        outcome = await first(ctx)
+        happened = True if outcome is None else bool(outcome)
+        if then is not None:
+            await then(ctx)
+        if happened and on_success is not None:
+            await on_success(ctx)
+        if not happened and on_fail is not None:
+            await on_fail(ctx)
+    return effect
+
+
+async def do_a_then_b(first, then, ctx, on_none: bool = True):
+    """"Do A. If you do, B" for an ability: runs `first`, and runs `then` only
+    when `first` reports that something happened.
+
+    The step reports through its return value, the way the engine's verbs do:
+    an int is the amount it moved/placed/healed (0 = nothing), a list is what it
+    chose (empty = nothing), False is an explicit "no". None means the step has
+    no signal, and counts as success unless `on_none=False`."""
+    outcome = await first(ctx)
+    if outcome is None:
+        happened = on_none
+    elif isinstance(outcome, bool):
+        happened = outcome
+    elif isinstance(outcome, (int, float)):
+        happened = outcome > 0
+    else:
+        happened = bool(outcome)
+    if happened and then is not None:
+        await then(ctx)
+    return happened
+
+
+def ability_then(first, then, on_none: bool = True):
+    """`Ability(effect=...)` wrapper for a two-part body; see do_a_then_b."""
+    async def effect(ctx):
+        await do_a_then_b(first, then, ctx, on_none=on_none)
+    return effect
+
+
+def discard_from_hand_then(predicate, count: int, then,
+                           prompt: str = "Choose a card to discard"):
+    """"Discard N cards from your hand. If you do, B" — B runs only for cards
+    actually discarded (the discard verb reports nothing, so this counts)."""
+    async def first(ctx):
+        hand = ctx.hand()
+        matches = [card for card in hand if predicate is None or predicate(card)]
+        if not matches or count <= 0:
+            return 0
+        picks = matches if len(matches) <= count else await ctx.choose_cards(
+            matches, count, minimum=0, prompt=prompt)
+        if not picks:
+            return 0
+        await ctx.discard_cards(list(picks))
+        return len(picks)
+
+    async def effect(ctx):
+        await do_a_then_b(first, then, ctx)
+    return effect
+
+
+def put_counters_then(count: int, then, candidates=None):
+    """"Put N damage counters on <the opponent's Pokemon>. If you do, B" — B
+    runs only when at least one counter landed."""
+    async def first(ctx):
+        return await ctx.place_damage_counters(count, candidates)
+
+    async def effect(ctx):
+        await do_a_then_b(first, then, ctx)
+    return effect
+
+
+def self_ko_ability(then=None):
+    """"If you use this ability, this Pokemon is Knocked Out": runs the body,
+    then Knocks Out the ability's Pokemon (Unown, Crobat)."""
+    async def effect(ctx):
+        if then is not None:
+            await then(ctx)
+        holder = ctx.source
+        if holder is not None and not ctx.effects_blocked(holder):
+            await ctx.knock_out(holder)
+    return effect
+
+
+def move_counters_ability(count=1, side="mine", pred=None):
+    """"As often as you like during your turn, you may move N damage counter(s)
+    from 1 of your Pokemon to another of them" (Gengar, Alakazam).
+
+    Returns `(effect, condition)`; the condition is the offer gate, so an
+    UNLIMITED ability disappears while nothing can move. `side` is "mine" or
+    "theirs"; `pred` narrows both pools."""
+    def _pool(board, owner_id):
+        if side == "mine":
+            return board.pokemon_in_play(owner_id)
+        return [pokemon for player_id in board.player_ids if player_id != owner_id
+                for pokemon in board.pokemon_in_play(player_id)]
+
+    def condition(board, player_id, pokemon) -> bool:
+        owner_id = getattr(pokemon, "owning_player_id", None) or player_id
+        matching = [p for p in _pool(board, owner_id) if pred is None or pred(p)]
+        damaged = [p for p in matching
+                   if p.get_attribute(AttrID.HP, 0) < effective_max_hp(board, p)]
+        return bool(damaged) and len(matching) >= 2
+
+    async def effect(ctx):
+        pool = _pool(ctx.board, ctx.player_id)
+        if side != "mine":
+            pool = [p for pid in ctx.board.player_ids if pid != ctx.player_id
+                    for p in ctx.board.pokemon_in_play(pid)]
+        sources = [p for p in pool if (pred is None or pred(p))
+                   and p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+        if not sources:
+            return
+        source = sources[0] if len(sources) == 1 else await ctx.choose_pokemon(
+            sources, "Choose a Pokémon to move damage counters from")
+        if source is None:
+            return
+        targets = [p for p in pool if p is not source
+                   and (pred is None or pred(p))]
+        if not targets:
+            return
+        dest = targets[0] if len(targets) == 1 else await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to move damage counters to")
+        if dest is None:
+            return
+        await ctx.move_damage_counters(source, dest, max_count=count)
+
+    return effect, condition
+
+
+def heal_activation(amount, target_pred=None, flip=False,
+                    requires_benched=False):
+    """"Once during your turn, you may [flip a coin. If heads,] heal N damage
+    from your Active Pokemon" (Healing Leaves, Softboiled, Victory Kiss).
+
+    Returns `(effect, condition)`: the condition hides the offer while the
+    Active has nothing to heal, so an ONCE_PER_TURN ability's slot disappears
+    as soon as it is spent. `target_pred` narrows the Active (Water only,
+    Evolution only); `requires_benched` is the "if this Pokemon is on your
+    Bench" wording, which needs the carrier to stay off the Active spot."""
+    def condition(board, player_id, pokemon) -> bool:
+        if requires_benched and is_in_active_spot(pokemon):
+            return False
+        active = board.active_pokemon(player_id)
+        return active is not None \
+            and (target_pred is None or target_pred(active)) \
+            and active.get_attribute(AttrID.HP, 0) < effective_max_hp(board, active)
+
+    async def effect(ctx):
+        if requires_benched and is_in_active_spot(ctx.source):
+            return
+        active = ctx.my_active()
+        if active is None or (target_pred is not None and not target_pred(active)):
+            return
+        if flip:
+            results = await ctx.flip_coins(1, ctx.ability.title if ctx.ability else "")
+            if not (results and results[0]):
+                return
+        await ctx.heal(amount, active)
+
+    return effect, condition
+
+
+def on_ko_from_attack(then):
+    """"If this Pokemon is Knocked Out by damage from an attack" wrapper for an
+    ON_KNOCKED_OUT ability: runs `then(ctx)` only for attack damage, leaving
+    ability/effect knockouts alone (Final Wish)."""
+    async def effect(ctx):
+        if not getattr(ctx, "ko_from_attack", False):
+            return
+        await then(ctx)
+    return effect
+
+
+def flip_protection(prevent=True, reduce=None, effects_too=False, title=None,
+                    self_damage: int = 0):
     """Complete attack effect: printed damage, then flip a coin -- heads
-    shields the user during the opponent's next turn."""
+    shields the user during the opponent's next turn. `self_damage` is the
+    Rocket Tackle recoil, dealt before the flip with no W/R."""
     async def effect(ctx):
         await ctx.deal_damage()
+        if self_damage:
+            await ctx.deal_damage(self_damage, target=ctx.attacker,
+                                  apply_modifiers=False)
         flip_title = title if title is not None else (
             ctx.ability.title if ctx.ability else "")
         results = await ctx.flip_coins(1, flip_title)
@@ -1367,24 +1662,37 @@ def cure_on_energy_attach(energy_type=None):
 
 class EvolutionLockPassive(Passive):
     """"Your opponent can't evolve their <Active> Pokemon during their next
-    turn" (Evolution Lock): a turn-scoped passive on the attacker."""
+    turn" (Evolution Lock): a turn-scoped passive on the attacker.
 
-    def __init__(self, opponent_id=None, only=None, active_only=False):
+    blocks_evolution returns True to BLOCK. The earlier version returned False
+    for the opponent, so it blocked its own owner's evolutions and let the
+    opponent evolve."""
+
+    def __init__(self, opponent_id=None, only=None, active_only=False,
+                 opponents_only: bool = True):
         self.opponent_id = opponent_id
         self.only = only
         self.active_only = active_only
+        self.opponents_only = opponents_only
 
     def blocks_evolution(self, player_id, target, carrier):
-        if self.opponent_id is not None and player_id == self.opponent_id:
+        if self.opponents_only and player_id == carrier.owning_player_id:
+            return False
+        if self.opponent_id is not None and player_id != self.opponent_id:
+            return False
+        if self.active_only and not is_in_active_spot(target):
             return False
         if self.only is not None and target is not self.only:
             return False
         return True
 
 
-def evolution_lock_passive(active_only=False, opponent_id=None, only=None) -> Passive:
+def evolution_lock_passive(active_only=False, opponent_id=None, only=None,
+                           opponents_only: bool = True) -> Passive:
     """Blocks the opponent's evolutions for the passive's lifetime."""
-    return EvolutionLockPassive(opponent_id=opponent_id, only=only, active_only=active_only)
+    return EvolutionLockPassive(opponent_id=opponent_id, only=only,
+                                active_only=active_only,
+                                opponents_only=opponents_only)
 
 
 class SpiritLinkPassive(Passive):

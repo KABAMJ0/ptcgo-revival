@@ -646,18 +646,30 @@ class StadiumCardDef(TrainerCardDef):
     passives.Passive). `ability` is an Ability offered once during EACH
     player's turn while the stadium is in play (Training Court).
 
+    `faces`/`face_labels` carry a facing Stadium: `{"up": {...}, "down": {...}}`
+    of passive/ability/on_leave_play overrides, chosen by the player at play
+    time and stored per card, so one definition serves both sides.
+
     `on_leave_play` is `async def hook(ctx)` run when this Stadium leaves play
     -- replaced by another one or discarded by an effect -- "when this card
     leaves play, both players discard Pokemon from their Bench until they have
     N" (Area Zero Underdepths). ctx.source is the stadium."""
     def __init__(self, passive: Optional[Any] = None,
                  ability: Optional["Ability"] = None,
-                 on_leave_play: Optional[Any] = None, **kwargs):
+                 on_leave_play: Optional[Any] = None,
+                 faces: Optional[dict] = None,
+                 face_labels: Optional[dict] = None, **kwargs):
         kwargs['trainer_type'] = TrainerType.STADIUM
         super().__init__(**kwargs)
         self.passive = passive
         self.ability = ability
         self.on_leave_play = on_leave_play
+        # "Choose which way this card faces before you play it" (Chaos Tower,
+        # Parallel City, Reverse Valley): label -> {"passive", "ability",
+        # "on_leave_play"}, and the player picks one at play time. The chosen
+        # label rides BoardState.stadium_facings; see stadium_face().
+        self.faces = faces
+        self.face_labels = face_labels or {}
         if ability is not None:
             if not ability.ability_id:
                 ability.ability_id = ability_id_for(self.guid, 0)
