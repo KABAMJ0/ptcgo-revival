@@ -760,9 +760,13 @@ def mill_attack(count: int, opponent: bool = True,
     async def effect(ctx):
         await ctx.deal_damage(then_damage)
         pid = ctx.opponent_id if opponent else ctx.player_id
-        await ctx.discard_cards(ctx.deck_top(count, player_id=pid))
+        milled = ctx.deck_top(count, player_id=pid)
+        if milled:
+            await ctx.discard_cards(milled)
         if also is not None:
             await also(ctx)
+        # The milled cards are the signal for "if any of those are Energy, ...".
+        return milled
     return effect
 
 
@@ -1020,14 +1024,18 @@ def energy_move_attack(count: int = 1, energy_type=None,
             return
         picks = pool if len(pool) <= count else await ctx.choose_cards(
             pool, count, prompt="Choose Energy to move to your Benched Pokémon")
+        moved = []
         for energy in picks:
             bench = ctx.my_bench()
             if not bench:
-                return
+                break
             target = await ctx.choose_pokemon(
                 bench, "Choose a Pokémon to move the Energy to")
             if target is not None:
                 await ctx.move_energy(energy, target)
+                moved.append(energy)
+        # The moved Energy is the signal for a second move gated on the first.
+        return moved
     return effect
 
 
