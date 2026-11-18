@@ -40,8 +40,18 @@ def def_for(archetype_id: Optional[str]) -> Optional["CardDefinition"]:
     return CARD_DEFS_BY_GUID.get((archetype_id or "").lower())
 
 
+def _archetype_id(value) -> Optional[str]:
+    """The archetype GUID behind a card entity, a definition or a bare GUID.
+
+    Callers in the effect layer hold entities, so the helpers here accept
+    either rather than raising on `PokemonEntity has no attribute lower`."""
+    if value is None or isinstance(value, str):
+        return value
+    return getattr(value, "archetype_id", None) or getattr(value, "guid", None)
+
+
 def subtypes_for(archetype_id: Optional[str]) -> List[str]:
-    definition = def_for(archetype_id)
+    definition = def_for(_archetype_id(archetype_id))
     return definition.subtypes if definition else []
 
 
