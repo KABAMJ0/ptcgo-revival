@@ -1,4 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import (
+    is_basic, remove_self_from_play, search_to_bench,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import (
     is_basic, remove_self_from_play, search_to_bench,
@@ -34,7 +37,8 @@ card = PokemonCardDef(
             game_text="You may put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=130,
-            effect=remove_self_from_play("hand", optional=True),
+            effect=remove_self_from_play(destination="hand",
+                                         with_attachments="same", optional=True),
         ),
     ],
 )

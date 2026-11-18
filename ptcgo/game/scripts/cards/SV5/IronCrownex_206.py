@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.card_effects.trainers import pokemon_named, pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_is_future = pokemon_of_subtype("Future")
+_is_iron_crown = pokemon_named("Iron Crown")
+_future_non_crown = lambda pokemon: (bool(_is_future(pokemon))
+                                     and not _is_iron_crown(pokemon))
+
 
 card = PokemonCardDef(
     guid="6abbdb69-2938-5a29-a20b-833b546792aa",
@@ -21,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Cobalt Command",
             game_text="Attacks used by your Future Pok\u00e9mon, except any Iron Crown ex, do 20 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(20, attacker_pred=_future_non_crown),
         ),
         Attack(
             title="Twin Shotels",

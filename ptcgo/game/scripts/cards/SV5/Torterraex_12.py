@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import count_in_play, damage_per
+from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+_is_grass = lambda pokemon: PokemonTypes.GRASS.value in (
+    pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
 
 card = PokemonCardDef(
     guid="5dc14669-ef5f-50e3-851b-e29179de92dc",
@@ -25,14 +31,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", _is_grass), 30),
         ),
         Attack(
             title="Jungle Hammer",
             game_text="Heal 50 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=150,
-            effect=unimplemented,
+            effect=heal_attack(50),
         ),
     ],
 )

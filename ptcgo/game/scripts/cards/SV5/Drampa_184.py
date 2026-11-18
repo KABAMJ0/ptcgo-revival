@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _bench_all_damaged(ctx) -> bool:
+    bench = ctx.my_bench()
+    return bool(bench) and all(
+        ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0) > 0
+        for pokemon in bench)
+
 
 card = PokemonCardDef(
     guid="8e78e48d-7a3c-5143-af60-2be8c58abc59",
@@ -29,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_bench_all_damaged, 120),
         ),
     ],
 )
