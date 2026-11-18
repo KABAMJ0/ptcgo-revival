@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, knocked_out_last_turn
 
 card = ItemCardDef(
     guid="aefd08c6-46e8-5f44-bad9-b34a691eefce",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=189,
     set_code="SV3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(is_basic_energy_card, count=3), condition=knocked_out_last_turn()
 )

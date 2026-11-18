@@ -6551,3 +6551,59 @@ class EveryoneAttackTaxPassive(Passive):
 
 def stadium_attack_tax(count: int, pred):
     return EveryoneAttackTaxPassive(count, pred)
+
+
+def knocked_out_last_turn():
+    """Play condition: one of your Pokemon was Knocked Out during the
+    opponent's last turn."""
+    def check(board, player_id):
+        records = getattr(getattr(board, "turn_state", None),
+                          "pokemon_left_play_last_turn", None) or []
+        return any(record.get("owner_id") == player_id
+                   and record.get("by_attack") is not None for record in records)
+    return check
+
+
+def prize_face_up(count=None):
+    """Turn `count` (or all) of your Prize cards face up for the rest of the
+    game (Town Map, Island Hermit)."""
+    async def effect(ctx):
+        await ctx.turn_prize_cards_face_up(count=count)
+    return effect
+
+
+def all_prizes_face_up():
+    """Each player plays with their Prize cards face up for the rest of the
+    game (Here Comes Team Rocket!)."""
+    async def effect(ctx):
+        for player_id in ctx.board.player_ids:
+            await ctx.turn_prize_cards_face_up(player_id=player_id)
+    return effect
+
+
+def take_face_down_prize_shuffle_self():
+    """Put 1 of your face-down Prize cards into your hand, then shuffle this
+    card into your remaining Prizes (Gladion)."""
+    async def effect(ctx):
+        pool = ctx.face_down_prize_cards()
+        if not pool:
+            return
+        picks = await ctx.choose_cards(
+            pool, 1, minimum=1, prompt="Choose a face-down Prize card")
+        if not picks:
+            return
+        card = picks[0]
+        await ctx.put_in_hand([card], reveal=True)
+        source = getattr(ctx, "source", None)
+        if source is not None:
+            await ctx.put_in_prizes([source])
+    return effect
+
+
+def draw_then_prize_face_up(draw: int, count: int):
+    """Draw `draw` cards, then turn up to `count` Prize cards face up
+    (Island Hermit)."""
+    async def effect(ctx):
+        await ctx.draw_cards(draw)
+        await ctx.turn_prize_cards_face_up(count=count)
+    return effect

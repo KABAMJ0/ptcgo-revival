@@ -2182,7 +2182,7 @@ RULES = [
          "each_player_shuffle_discard_into_deck", lambda m: []),
     Rule("search-one-of-each",
          r"search your deck for (?P<a>\d+ [a-z ]+?) (?P<b>\d+ [a-z ]+?) and (?P<c>\d+ [a-z ]+?) "
-         r"show them to your opponent and put them into your hand" + SHUFFLE_TAIL,
+         r"(?:show|reveal) them(?: to your opponent)? and put them into your hand" + SHUFFLE_TAIL,
          "search_one_of_each",
          lambda m: ["[%s]" % ", ".join(_pred(m.group(k)) for k in ("a", "b", "c"))],
          module="support_common"),
@@ -2694,6 +2694,7 @@ CONDITION_PREFIXES = [
      "hand_is_last"),
     (re.compile(r"^you can (?:use|play) this card only if you have more prize cards (?:remaining|left) "
                 r"than your opponent "), "behind_on_prizes"),
+    (re.compile(r"^you can (?:use|play) this card only if (?:any of )?(?:your )?(?:\d+ of your )?(?:[a-z]+ )?pokemon (?:was|were) knocked out during your opponents last turn "), "knocked_out_last_turn"),
     (re.compile(r"^you can (?:use|play) this card only if you have any (?P<sub>[a-z]+) pokemon "
                 r"in play "), "has_subtype_in_play"),
     (re.compile(r"^you can (?:use|play) this card only if your opponents active pokemon is "
