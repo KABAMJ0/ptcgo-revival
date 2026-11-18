@@ -1485,11 +1485,36 @@ class GameSession:
         ]
         return had_conditions
 
-    def reset_pokemon_damage(self, pokemon) -> None:
+    def note_pokemon_left_play(self, pokemon, *, was_active: bool = False,
+                               by_attack: Optional[bool] = None) -> None:
+        """Records a Pokemon leaving play so next turn's cards can ask "if any
+        of your Pokemon were Knocked Out during your opponent's last turn" --
+        the card itself is in the discard pile by then. `by_attack` is the
+        narrower claim about a knockout: True = attack damage, False = any
+        other knockout (poison, an effect), None = it left play without being
+        Knocked Out (returned to hand, discarded to make bench room)."""
+        if not isinstance(pokemon, PokemonEntity) or pokemon.owning_player_id is None:
+            return
+        self.turn_state.pokemon_left_play.append({
+            "entity_id": pokemon.entity_id,
+            "archetype_id": pokemon.archetype_id,
+            "owner_id": pokemon.owning_player_id,
+            "was_active": was_active,
+            "by_attack": by_attack,
+        })
+
+    def reset_pokemon_damage(self, pokemon, *, left_play: bool = True) -> None:
         """A Pokemon leaving PLAY (to hand/deck/discard/lost zone) becomes a
         fresh card: restore HP to the printed max so no damage counters survive
         to be re-rendered or replayed. NOT for leave-Active moves (retreat/
-        switch keep their damage)."""
+        switch keep their damage). Every call also lands in the left-play
+        ledger unless `left_play=False` (a caller that already recorded it)."""
+        if left_play:
+            self.note_pokemon_left_play(
+                pokemon,
+                was_active=self.board_state.active_pokemon(
+                    pokemon.owning_player_id) is pokemon,
+            )
         printed_max = pokemon.attribute_originals.get(
             AttrID.HP.value, pokemon.get_attribute(AttrID.HP, 0)
         )
@@ -2339,7 +2364,10 @@ class GameSession:
                 )
             for name, run in trailing:
                 await self.send_game_sequence(list(self.players.values()), name, run)
-            if _damage_ko(pokemon) and ctx.attacker.owning_player_id != owner_id:
+            from_attack = _damage_ko(pokemon) and ctx.attacker.owning_player_id != owner_id
+            self.note_pokemon_left_play(
+                pokemon, was_active=was_active, by_attack=from_attack)
+            if from_attack:
                 self.turn_state.kos_by_attack.setdefault(owner_id, []).append({
                     "archetype_id": pokemon.archetype_id,
                     "subtypes": list(subtypes_for(pokemon.archetype_id)),
@@ -2890,8 +2918,7 @@ class GameSession:
                     player_id, PROMPT_CHOOSE_NEW_ACTIVE, candidates, TARGET_TYPE_ACTIVE
                 )
         board.move_card(picked.entity_id, active_area.entity_id)
-        self.turn_state.became_active_turn[picked.entity_id] = \
-            self.turn_state.turn_number
+        self.turn_state.mark_moved_to_active(picked.entity_id)
         logging.info(
             f"[Session {self.game_id}] {player.screen_name} promoted "
             f"{picked.entity_id} to Active."
@@ -5223,8 +5250,7 @@ class GameSession:
             )
         # History stamps AFTER the effect clear (it prunes entity-keyed maps).
         self.turn_state.retreated_entities.add(card.entity_id)
-        self.turn_state.became_active_turn[new_active.entity_id] = \
-            self.turn_state.turn_number
+        self.turn_state.mark_moved_to_active(new_active.entity_id)
         await self._apply_active_to_bench_counters(player_id, card)
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
