@@ -57,9 +57,74 @@ class ManifestManager:
             logging.error(f"CRC calculation error: {e}")
             return 0
 
+    # The manifest scan opens every bundle with UnityPy to read its version and
+    # variants. On a 2,000-bundle cache that peaks around 9 GB of RSS, which is
+    # enough to get the process OOM-killed on a 15 GB laptop while a browser is
+    # open. So the finished manifest is written to disk keyed by a cheap
+    # fingerprint of its inputs: an unchanged cache directory reuses it and the
+    # scan never runs.
+    MANIFEST_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".manifest_cache")
+
+    def _fingerprint(self) -> str:
+        """Cheap signature of everything the manifest is built from."""
+        digest = hashlib.sha256()
+        map_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "asset_map.json")
+        try:
+            st = os.stat(map_path)
+            digest.update(f"{st.st_size}:{int(st.st_mtime)}".encode())
+        except OSError:
+            digest.update(b"no-asset-map")
+        for asset_dir in sorted(self.asset_dirs):
+            try:
+                st = os.stat(asset_dir)
+                digest.update(f"{asset_dir}:{st.st_size}:{int(st.st_mtime)}".encode())
+                digest.update(str(len(os.listdir(asset_dir))).encode())
+            except OSError:
+                digest.update(f"{asset_dir}:missing".encode())
+        return digest.hexdigest()
+
+    def _cache_files(self):
+        base = os.path.join(self.MANIFEST_CACHE_DIR, "manifest")
+        return f"{base}.pc.gz", f"{base}.android.gz", f"{base}.json"
+
+    def _load_cached_manifest(self) -> bool:
+        pc_path, android_path, meta_path = self._cache_files()
+        try:
+            with open(meta_path, encoding="utf-8") as f:
+                meta = json.load(f)
+            if meta.get("fingerprint") != self._fingerprint():
+                return False
+            with open(pc_path, "rb") as f:
+                self.manifest_cache = f.read()
+            with open(android_path, "rb") as f:
+                self.android_manifest_cache = f.read()
+        except (OSError, ValueError):
+            return False
+        self.manifest_version = meta.get("version", 0)
+        self.android_manifest_version = meta.get("android_version", 0)
+        return True
+
+    def _store_cached_manifest(self) -> None:
+        pc_path, android_path, meta_path = self._cache_files()
+        try:
+            os.makedirs(self.MANIFEST_CACHE_DIR, exist_ok=True)
+            with open(pc_path, "wb") as f:
+                f.write(self.manifest_cache or b"")
+            with open(android_path, "wb") as f:
+                f.write(getattr(self, "android_manifest_cache", None) or b"")
+            with open(meta_path, "w", encoding="utf-8") as f:
+                json.dump({"fingerprint": self._fingerprint(),
+                           "version": self.manifest_version,
+                           "android_version": getattr(self, "android_manifest_version", 0)}, f)
+        except OSError as e:
+            logging.warning(f"[Manifest] Could not write manifest cache: {e}")
+
     def generate_manifest(self, force_refresh: bool = False) -> bytes:
         """Generates a GZipped manifest JSON for the client in the proprietary V3 format."""
         if self.manifest_cache and not force_refresh:
+            return self.manifest_cache
+        if force_refresh and self._load_cached_manifest():
+            logging.info(f"[Manifest] Reused cached manifest (version {self.manifest_version})")
             return self.manifest_cache
 
         logging.info(f"[Manifest] Generating V3 Manifest (Version: {self.manifest_version})...")
@@ -347,6 +412,7 @@ class ManifestManager:
         json_data = json.dumps(manifest_data).encode('utf-8')
         self.manifest_cache = gzip.compress(json_data)
         self._build_android_manifest(manifest_data)
+        self._store_cached_manifest()
         return self.manifest_cache
 
     def _build_android_manifest(self, manifest_data):
