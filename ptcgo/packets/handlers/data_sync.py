@@ -870,6 +870,10 @@ class DataSyncHandler(BaseHandler):
         
         decks_list = message.get("decks", [])
         formats_list = message.get("formats", []) or DEFAULT_VALIDATION_FORMATS
+        # Debug: what the client asked for and what we answered, so a deck list that
+        # never populates can be traced to a format id the client does not expect.
+        logging.info(f"[Rules] ValidateDecks asked for {len(decks_list)} deck(s), "
+                     f"formats {formats_list}")
 
         owned = None
         if self.client.player:
@@ -882,6 +886,8 @@ class DataSyncHandler(BaseHandler):
                 continue
             results.extend(validate_deck(deck_dict, formats_list, owned_counts=owned))
 
+        logging.info("[Rules] ValidateDecks answered: "
+                     + ", ".join(f"{r['formatName']}={r['valid']}" for r in results[:18]))
         res = {
             "messageName": OutboundMsg.DECKS_VALIDATED.value,
             "results": results
