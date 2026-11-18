@@ -5685,6 +5685,17 @@ BIND_COUNTS = {}
 BIND_ERRORS = {}
 
 
+# Wordings that changed between eras but mean the same thing in a one-Active
+# game; an unmatched text is retried with each side read as the other.
+_SYNONYMS = (
+    ("his or her", "their"),
+    ("him or her", "them"),
+    ("the defending pokemon", "your opponent's active pokemon"),
+    ("your opponent's active pokemon", "the defending pokemon"),
+    (" afterward.", "."),
+)
+
+
 def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
     """Bind a wording pattern to `ability`; returns the pattern name or None.
 
@@ -5728,6 +5739,12 @@ def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
                        + r"(?![\w'])", "this pokemon", text)
         if named != text:
             candidates.append(named)
+    for text in list(candidates):
+        for old, new in _SYNONYMS:
+            if old in text:
+                variant = text.replace(old, new)
+                if variant not in candidates:
+                    candidates.append(variant)
     for text in candidates:
         bound = _bind_text(ability, text, binder)
         if bound is not None:
