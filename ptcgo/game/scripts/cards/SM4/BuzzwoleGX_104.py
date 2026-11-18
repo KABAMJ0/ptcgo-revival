@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="7b475148-f996-56db-8e5c-712391e37316",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.FIGHTING: 3},
             damage=160,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Absorption-GX",
