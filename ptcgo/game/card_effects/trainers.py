@@ -1,5 +1,6 @@
 """Behaviors for the Trainer cards of the Lugia VSTAR and Mew VMAX decks."""
 
+import random
 import re
 
 from ptcgo.game.attributes import (
@@ -25,6 +26,7 @@ from ptcgo.game.session.effects import (
     is_water_pokemon,
 )
 from ptcgo.game.session.passives import (
+    effective_pokemon_types,
     Passive,
     TurnDamageModifier,
     carrier_pokemon,
@@ -7459,3 +7461,144 @@ def opponent_hand_bottom_then_draw(draw: int):
     return effect
 
 
+# --- Pokemon Tools that react to damage or a knockout ------------------------
+
+def tool_counters_on_attacker(counters, min_damage=0, discard_self=False,
+                              holder_type=None, holder_not_mega_ex=False,
+                              attacker_mega_ex=False):
+    """Tool, granted ON_DAMAGED_BY_ATTACK: the holder is Active and took attack
+    damage, so put `counters` damage counters on the Attacking Pokemon (Punk
+    Helmet, Giant Bomb, Tremendous Bomb, Deluxe Bomb, Bursting Balloon).
+    `holder_type` is a PokemonTypes name; `discard_self` covers "if you placed
+    any damage counters in this way, discard this card"."""
+    async def effect(ctx):
+        attacker = ctx.damaged_by
+        holder = ctx.source
+        if attacker is None or attacker.owning_player_id == ctx.player_id:
+            return
+        if not is_in_active_spot(holder) or ctx.damage_amount < min_damage:
+            return
+        if holder_type is not None and PokemonTypes[holder_type].value \
+                not in effective_pokemon_types(ctx.board, holder):
+            return
+        if holder_not_mega_ex and "MEGA" in subtypes_for(holder.archetype_id):
+            return
+        if attacker_mega_ex and "MEGA" not in subtypes_for(attacker.archetype_id):
+            return
+        placed = await ctx.deal_damage(counters * 10, target=attacker,
+                                       apply_modifiers=False, as_counters=True)
+        if discard_self and placed and ctx.ability_source is not None:
+            await ctx.discard_cards([ctx.ability_source])
+    return effect
+
+
+def tool_confuse_attacker():
+    """Tool, granted ON_DAMAGED_BY_ATTACK: the Active holder was damaged by an
+    attack, so the Attacking Pokemon is now Confused (Ear-Ringing Bell)."""
+    async def effect(ctx):
+        attacker = ctx.damaged_by
+        if attacker is None or attacker.owning_player_id == ctx.player_id:
+            return
+        if not is_in_active_spot(ctx.source):
+            return
+        await ctx.apply_special_condition(attacker, SpecialConditions.CONFUSED)
+    return effect
+
+
+def tool_move_attacker_energy_to_bench():
+    """Tool, granted ON_DAMAGED_BY_ATTACK: the Active holder was damaged by an
+    attack, so move 1 Energy from the Attacking Pokemon to the opponent's
+    Bench (Handheld Fan)."""
+    async def effect(ctx):
+        attacker = ctx.damaged_by
+        if attacker is None or attacker.owning_player_id == ctx.player_id:
+            return
+        if not is_in_active_spot(ctx.source):
+            return
+        bench = ctx.opponent_bench()
+        if not bench or not ctx.attached_energies(attacker):
+            return
+        await ctx.move_energy_freely(
+            [attacker], bench, max_count=1,
+            prompt="Choose an Energy to move to your opponent's Benched Pokemon")
+    return effect
+
+
+def tool_draw_on_damaged(count: int = 2):
+    """Tool, granted ON_DAMAGED_BY_ATTACK: the Active holder was damaged by an
+    attack, so draw `count` cards (Lucky Helmet)."""
+    async def effect(ctx):
+        attacker = ctx.damaged_by
+        if attacker is None or attacker.owning_player_id == ctx.player_id:
+            return
+        if not is_in_active_spot(ctx.source):
+            return
+        await ctx.draw_cards(count)
+    return effect
+
+
+def tool_discard_random_on_ko():
+    """Tool knockout hook: the holder was Knocked Out by an attack, so discard
+    1 random card from your opponent's hand (Cursed Duster)."""
+    async def effect(ctx):
+        if not ctx.ko_from_attack:
+            return
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        await ctx.discard_cards([hand[random.randrange(len(hand))]])
+    return effect
+
+
+def tool_search_deck_on_ko(count: int = 1, holder_subtype=None):
+    """Tool knockout hook: the holder was Knocked Out by an attack, so search
+    your deck for up to `count` cards into your hand and shuffle (Amulet of
+    Hope, Reversal Trigger). `holder_subtype` gates on the holder's printed
+    subtypes."""
+    async def effect(ctx):
+        if not ctx.ko_from_attack:
+            return
+        if holder_subtype is not None:
+            holder = ctx.ko_pokemon
+            if holder is None or holder_subtype not in subtypes_for(holder.archetype_id):
+                return
+        picks = await ctx.search_deck(
+            None, count=count, minimum=0,
+            prompt="Choose up to %d cards to put into your hand" % count)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
+    return effect
+
+
+def tool_draw_until_on_ko(hand_size: int = 7):
+    """Tool knockout hook: the holder was Knocked Out by an attack, so draw
+    until your hand holds `hand_size` cards (Lucky Egg)."""
+    async def effect(ctx):
+        if not ctx.ko_from_attack:
+            return
+        await ctx.draw_until(hand_size)
+    return effect
+
+
+def exp_share_on_ally_ko():
+    """Tool, granted ON_ALLY_KNOCKED_OUT: your Active was Knocked Out by an
+    attack, so you may move a basic Energy from it to the holder (Exp. Share;
+    the SWSH5 printing ships the same body inline)."""
+    async def effect(ctx):
+        if not ctx.ko_from_attack or ctx.ko_pokemon is None:
+            return
+        if ctx.board.active_pokemon(ctx.player_id) is not ctx.ko_pokemon:
+            return
+        pool = [e for e in ctx.attached_energies(ctx.ko_pokemon)
+                if is_basic_energy_card(e)]
+        if not pool:
+            return
+        if not await ctx.ask_yes_no(
+                "Move a Basic Energy from your Knocked Out Active to the "
+                "Pokemon this card is attached to?"):
+            return
+        picks = await ctx.choose_cards(pool, 1, prompt="Choose a Basic Energy to move")
+        if picks:
+            await ctx.move_energy(picks[0], ctx.source)
+    return effect
