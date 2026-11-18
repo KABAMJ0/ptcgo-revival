@@ -797,6 +797,7 @@ class EffectContext:
             effect=effect,
             label=self.ability.title if self.ability else "",
             guard=guard,
+            source=self.source,
             source_entity_id=getattr(self.source, "entity_id", None),
             require_source_in_play=require_source_in_play,
         )
