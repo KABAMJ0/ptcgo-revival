@@ -3303,6 +3303,35 @@ def _spread_ignore_weakness_resistance(m, ability):
                                       ignore_resistance=True)
     return effect
 
+
+def _bonus_if_opponent_prizes_exactly(m, ability):
+    limit, bonus = int(m.group(1)), int(m.group(2))
+    return bonus_if(
+        lambda ctx: count_prizes_remaining("opponent")(ctx) == limit, bonus)
+
+
+def _bonus_if_deck_at_most(m, ability):
+    limit, bonus = int(m.group(1)), int(m.group(2))
+    return bonus_if(lambda ctx: len(ctx.deck()) <= limit, bonus)
+
+
+def _bench_chosen_spread(m, ability):
+    count = _count(m.group(1))
+    amount = int(m.group(2))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        bench = [pokemon for pokemon in ctx.opponent_bench()
+                 if not ctx.effects_blocked(pokemon)]
+        if not bench:
+            return
+        picks = bench if len(bench) <= count else \
+            await ctx.choose_cards(bench, count,
+                                   prompt=f"Choose {count} Benched Pokémon")
+        for target in picks:
+            await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4695,6 +4724,17 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"this attack also does (\d+) damage to (?:an?|(\d+)) of your "
                 r"benched pokemon\. \(don't apply weakness and resistance for "
                 r"benched pokemon\.\)"), _self_bench_spread),
+    ("bonus.opponent-prizes-exactly",
+     re.compile(r"if your opponent has exactly (\d+) prize cards? remaining, "
+                r"this attack does (\d+) more damage\."),
+     _bonus_if_opponent_prizes_exactly),
+    ("bonus.deck-at-most",
+     re.compile(r"if there are (\d+) or fewer cards in your deck, this attack "
+                r"does (\d+) more damage\."), _bonus_if_deck_at_most),
+    ("snipe.bench-chosen-spread",
+     re.compile(r"choose (an?|\d+) of your opponent's benched pokemon\. this "
+                r"attack does (\d+) damage to each of them" + _SNIPE_TAIL),
+     _bench_chosen_spread),
     ("boost.next-turn-opposing-active",
      re.compile(r"during your next turn, attacks used by this pokemon do "
                 r"(\d+) more damage to your opponent's active pokemon(?: "
