@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="109809cb-899d-5bfc-ab45-1ccf0654717c",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Roast Reveal",
             game_text="Once during your turn (before your attack), you may discard a Fire Energy from your hand. If you do, draw 3 cards. This power can't be used if Ninetales is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=discard_then_draw(1, 3, optional=True, predicate=basic_energy_of("fire")),
         ),
         Attack(
             title="Will-o'-the-wisp",

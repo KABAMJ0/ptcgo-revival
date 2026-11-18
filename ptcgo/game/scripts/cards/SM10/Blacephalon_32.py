@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="1402ef31-b7da-517d-a2c7-e8020c2e1d2a",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=basic_energy_of("fire"), max_count=99, per=50, base=0),
         ),
     ],
 )
