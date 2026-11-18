@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import cyclone_on_attach
 card = EnergyCardDef(
     guid="ed1ae23e-df29-52ec-8303-76ce2738e1d2",
     key="DP7",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="DP7",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    on_attach=cyclone_on_attach,
 )

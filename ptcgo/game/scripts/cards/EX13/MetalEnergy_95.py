@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import DamageReductionPassive
 card = EnergyCardDef(
     guid="48984c1f-2f3c-5a05-b83f-72bc60d99726",
     key="EX13",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="EX13",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=DamageReductionPassive(10, PokemonTypes.METAL),
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import cure_on_attach
 card = EnergyCardDef(
     guid="4246b06b-7bbd-512d-9fb6-ced009bcbd4c",
     key="BASE5",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="BASE5",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    on_attach=cure_on_attach,
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import MetalEnergyLegacyPassive
 card = EnergyCardDef(
     guid="eecf2044-33f1-592a-bae9-9ebe70d45c5a",
     key="ECARD1",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="ECARD1",
     rarity=Rarities.Rare,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    passive=MetalEnergyLegacyPassive(),
 )

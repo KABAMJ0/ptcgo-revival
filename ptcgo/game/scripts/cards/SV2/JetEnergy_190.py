@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import jet_on_attach
 card = EnergyCardDef(
     guid="c54a2bd2-ab33-5b3a-9643-c7f02554b640",
     key="SV2",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SV2",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    on_attach=jet_on_attach,
 )

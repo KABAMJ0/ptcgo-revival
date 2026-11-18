@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import ALL_TYPES_ONE_AT_A_TIME, MultiEnergyPassive
 card = EnergyCardDef(
     guid="110114bd-d1cb-5149-afe8-4a1e1b002786",
     key="SV2",
@@ -12,5 +14,7 @@ card = EnergyCardDef(
     set_code="SV2",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    provides=ALL_TYPES_ONE_AT_A_TIME,
+    passive=MultiEnergyPassive(),
 )

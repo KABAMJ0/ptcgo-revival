@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.energies import DamageReductionPassive
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
@@ -11,6 +12,7 @@ card = EnergyCardDef(
     collector_number=164,
     set_code="SWSH4",
     rarity=Rarities.Uncommon,
-    energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    energy_type=PokemonTypes.FIGHTING,
+    is_special=True,
+    passive=DamageReductionPassive(20, PokemonTypes.FIGHTING),
 )

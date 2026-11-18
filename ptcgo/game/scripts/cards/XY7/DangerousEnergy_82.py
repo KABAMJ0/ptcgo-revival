@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import pokemon_of_type
 card = EnergyCardDef(
     guid="78e5fa25-878f-55e7-bcd4-b3384e0143aa",
     key="XY7",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="XY7",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    attach_to=pokemon_of_type(PokemonTypes.DARKNESS),
 )

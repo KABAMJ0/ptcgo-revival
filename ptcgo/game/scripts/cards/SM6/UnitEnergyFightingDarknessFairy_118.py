@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import EnergyCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 
+
+from ptcgo.game.card_effects.energies import one_at_a_time
 card = EnergyCardDef(
     guid="495d53df-e84d-5eaf-9104-d6389dddac5f",
     key="SM6",
@@ -12,5 +14,6 @@ card = EnergyCardDef(
     set_code="SM6",
     rarity=Rarities.Uncommon,
     energy_type=PokemonTypes.COLORLESS,
-    is_special=True
+    is_special=True,
+    provides=one_at_a_time(PokemonTypes.FIGHTING, PokemonTypes.DARKNESS, PokemonTypes.FAIRY),
 )
