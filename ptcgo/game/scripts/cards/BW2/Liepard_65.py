@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="bd1f34cf-6e54-5934-9d3f-99b538a869d9",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Feint Attack",
             game_text="Does 30 damage to 1 of your opponent's Pok\u00e9mon. This attack's damage isn't affected by Weakness, Resistance, or any other effects on that Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
         Attack(
             title="Claw Rend",

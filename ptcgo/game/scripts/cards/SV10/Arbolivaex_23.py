@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="4d18f28a-f141-5cbd-992f-7b08aa9b68c1",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Oil Salvo",
             game_text="Choose 1 of your opponent's Pok\u00e9mon 6 times. (You can choose the same Pok\u00e9mon more than once.) For each time you chose a Pok\u00e9mon, do 20 damage to it. This damage isn't affected by Weakness or Resistance.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
         Attack(
             title="Aroma Shot",

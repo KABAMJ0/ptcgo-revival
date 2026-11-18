@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="45958871-e4a9-5f10-9666-dc106bedbc3f",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Sonic Peridot",
             game_text="This attack does 100 damage to each of your opponent's Pok\u00e9mon ex and Pok\u00e9mon V. This attack's damage isn't affected by Weakness or Resistance.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )

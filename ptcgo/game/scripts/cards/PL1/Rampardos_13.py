@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="d866a598-cdaa-5376-b9e5-442db982a94c",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Iron Skull",
             game_text="Rampardos's attack's damage isn't affected by Resistance, Pok\u00e9-Powers, Pok\u00e9-Bodies, or any other effects on the Defending Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True, ignore_target_effects=True),
         ),
         Attack(
             title="Head Smash",
