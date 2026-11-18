@@ -3261,6 +3261,48 @@ def _times_self_damage_counters(m, ability):
 
     return damage_per(counters, per)
 
+
+def _next_turn_boost_opposing_active(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        from spirit.game.card_effects.passives_common import (
+            apply_own_next_turn_boost,
+        )
+        await apply_own_next_turn_boost(ctx, amount)
+    return effect
+
+
+def _named_self_damage(m, ability):
+    amount = int(m.group(1))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        if ctx.attacker is not None:
+            await ctx.deal_damage(amount, target=ctx.attacker,
+                                  apply_modifiers=False)
+    return effect
+
+
+def _spread_ignore_weakness_resistance(m, ability):
+    amount = int(m.group(1))
+    count = _count(m.group(2)) if m.group(2) else 1
+
+    async def effect(ctx):
+        candidates = ctx.opponent_pokemon_in_play()
+        if not candidates:
+            return
+        picks = candidates if len(candidates) <= count else \
+            await ctx.choose_cards(candidates, count,
+                                   prompt=f"Choose {count} Pokémon")
+        for target in picks:
+            if not ctx.effects_blocked(target):
+                await ctx.deal_damage(amount, target=target,
+                                      ignore_weakness=True,
+                                      ignore_resistance=True)
+    return effect
+
 def _scale_from_phrase(m, ability):
     phrase = m.group(2).strip()
     counter = COUNT_PHRASES.get(phrase)
@@ -4653,6 +4695,18 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"this attack also does (\d+) damage to (?:an?|(\d+)) of your "
                 r"benched pokemon\. \(don't apply weakness and resistance for "
                 r"benched pokemon\.\)"), _self_bench_spread),
+    ("boost.next-turn-opposing-active",
+     re.compile(r"during your next turn, attacks used by this pokemon do "
+                r"(\d+) more damage to your opponent's active pokemon(?: "
+                r"\(before applying weakness and resistance\))?\."),
+     _next_turn_boost_opposing_active),
+    ("self.named-damage-to-itself",
+     re.compile(r"[a-z][\w' -]* does (\d+) damage to itself\."),
+     _named_self_damage),
+    ("snipe.spread-ignoring-weakness-resistance",
+     re.compile(r"this attack does (\d+) damage to (?:an?|(\d+)) of your "
+                r"opponent's pokemon\. this attack's damage isn't affected by "
+                r"weakness or resistance\."), _spread_ignore_weakness_resistance),
     ("snipe.chosen-plain",
      re.compile(r"choose (an?|\d+) of your opponent's pokemon\. this attack "
                 r"does (\d+) damage to that pokemon" + _SNIPE_TAIL),
