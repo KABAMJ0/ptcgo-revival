@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    discard_stadium_attack,
+    ignore_modifier_attack,
+)
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, takes_less_passive
+
+
+def _protects_own_team(target, carrier) -> bool:
+    return (target.owning_player_id == carrier.owning_player_id
+            and is_in_active_spot(carrier))
 
 card = PokemonCardDef(
     guid="4403e893-9522-58ff-861b-7ce12ad80af5",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Dusty Defense",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, all of your Pok\u00e9mon take 30 less damage from your opponent's attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, protects=_protects_own_team),
         ),
         Attack(
             title="Desert Hurricane",
@@ -30,14 +40,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 3},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_stadium_attack(bonus=120),
         ),
         Attack(
             title="Sonic Edge-GX",
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIGHTING: 3},
             damage=220,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
     ],
 )

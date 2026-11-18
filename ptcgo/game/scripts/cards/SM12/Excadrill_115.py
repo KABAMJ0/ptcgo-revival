@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, mill_attack
+
+
+def _deck_has_few_cards(ctx) -> bool:
+    deck = ctx.board.find_player_area(ctx.player_id, "deck")
+    return deck is not None and len(deck.children) <= 3
 
 card = PokemonCardDef(
     guid="a8ee20d7-9f29-5581-bad3-3bf00a0f5102",
@@ -25,14 +31,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_deck_has_few_cards, 150),
         ),
         Attack(
             title="Drill Bazooka",
             game_text="Discard the top 4 cards of your deck.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=120,
-            effect=unimplemented,
+            effect=mill_attack(4, opponent=False),
         ),
     ],
 )

@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.data_utils import subtypes_for
+
+
+def _opponent_has_tag_team(ctx) -> bool:
+    return any("TAG TEAM" in subtypes_for(pokemon.archetype_id)
+               for pokemon in ctx.opponent_pokemon_in_play())
 
 card = PokemonCardDef(
     guid="0fa9c356-157f-5863-9ef8-0b2b36db10fd",
@@ -29,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_opponent_has_tag_team, 70),
         ),
     ],
 )

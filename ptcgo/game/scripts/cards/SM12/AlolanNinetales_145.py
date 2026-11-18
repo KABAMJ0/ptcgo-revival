@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
+
+_TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
+
+
+def _is_tool_card(card) -> bool:
+    return card.get_attribute(AttrID.TRAINER_TYPE) in _TOOL_TYPES
 
 card = PokemonCardDef(
     guid="0e4c292b-ba5d-5b69-8bb2-42fee7f9b8df",
@@ -26,7 +33,7 @@ card = PokemonCardDef(
             cost={},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", _is_tool_card), 10),
         ),
     ],
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="06a4136a-20ad-5ba1-86bd-e12e9fc0468f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Nice-Nice Catch",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Bye-Bye Throw",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(max_count=2, per=60, base=0),
         ),
     ],
 )

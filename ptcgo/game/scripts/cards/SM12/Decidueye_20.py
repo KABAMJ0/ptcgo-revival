@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
+def _is_damaged(pokemon) -> bool:
+    remaining = pokemon.get_attribute(AttrID.HP, 0)
+    return remaining < pokemon.attribute_originals.get(AttrID.HP.value, remaining)
 
 card = PokemonCardDef(
     guid="e757cef4-abc6-5a3d-9e62-3e021f67e56a",
@@ -23,14 +29,14 @@ card = PokemonCardDef(
             title="Skill Dive",
             game_text="This attack does 40 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any", count=1),
         ),
         Attack(
             title="Tracking Shot",
             game_text="This attack does 80 damage to 1 of your opponent's Benched Pok\u00e9mon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=snipe_attack(80, pool=_is_damaged, count=1),
         ),
     ],
 )
