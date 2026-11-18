@@ -2687,6 +2687,14 @@ RULES = [
     Rule('flip-heal-actives-or-sleep', 'flip (?P<n>\\d+) coin if heads remove (?P<c>\\d+) damage counters from each active pokemon remove (?P<one>\\d+) damage counter if (?P<p>\\d+) pokemon has only (?P<only>\\d+) if tails each active pokemon is now asleep', 'tropical_wind', lambda m: [m.group("c"), m.group("one")], kind='effect'),
     Rule('opp-shuffle-draw-his-her', 'your opponent shuffles his or her hand into his or her deck and draws (?P<n>\\d+) cards', 'opponent_shuffle_hand_draw', lambda m: [m.group("n")], kind='effect'),
 
+
+    # --- Late-era supporters -------------------------------------------------
+    Rule('all-prizes-face-up', 'each player plays with his or her prize cards face up for the rest of the game', 'all_prizes_face_up', lambda m: []),
+    Rule('mela', r'attach \d+ basic fire energy card from your discard pile to \d+ of your pokemon if you do draw cards until you have \d+ cards in your hand', 'mela_supporter', lambda m: []),
+    Rule('shuffle-both-draw-two', r'each player shuffles their hand into their deck then you draw (?P<a>\d+) cards and your opponent draws (?P<b>\d+) cards', 'shuffle_both_then_draw', lambda m: [m.group("a"), m.group("b")]),
+    Rule('look-top-take-rest-shuffle', r'look at the top (?P<c>\d+) cards of your deck and put up to (?P<t>\d+) of them into your hand shuffle the other cards back into your deck', 'look_top_take_rest_shuffle', lambda m: [m.group("c"), m.group("t")]),
+    Rule('opponent-hand-bottom-draw', r'your opponent shuffles their hand and puts it on the bottom of their deck if they put any cards on the bottom of their deck in this way they draw (?P<d>\d+) cards', 'opponent_hand_bottom_then_draw', lambda m: [m.group("d")]),
+
     # --- Both-sides stadiums -------------------------------------------
     Rule("stadium-boost",
          r"(?:the attacks of|attacks used by) (?:each )?(?P<cat>[a-z0-9 ]+?)(?: in play)? both "
@@ -2759,6 +2767,12 @@ def _argument_symbols(args):
 # the card rather than changing the effect: they land on condition= or wrap
 # the effect in ends_turn_after.
 CONDITION_PREFIXES = [
+
+    (re.compile(r"^you can (?:use|play) this card only if any of your team rockets "
+                r"pokemon were knocked out during your opponents last turn "),
+     "team_rocket_ko_last_turn"),
+    (re.compile(r"^you can (?:use|play) this card only if you have no pokemon with "
+                r"abilities in play "), "no_pokemon_with_abilities"),
     (re.compile(r"^you can (?:use|play) this card only if your opponent has (?P<n>\d+) or fewer "
                 r"prize cards remaining "), "opponent_prizes_at_most"),
     (re.compile(r"^you can (?:use|play) this card only if your opponent has exactly (?P<n>\d+) "

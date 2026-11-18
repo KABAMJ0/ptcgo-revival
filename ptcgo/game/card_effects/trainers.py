@@ -7356,9 +7356,106 @@ class RetreatCostIncreasePassive(Passive):
         return cost + self.amount
 
 
+# --- Late-era conditional supporters -----------------------------------------
+
+def team_rocket_ko_last_turn():
+    """Play condition: one of your Team Rocket's Pokemon was Knocked Out by
+    an attack during your opponent's last turn."""
+    def check(board, player_id):
+        records = getattr(getattr(board, "turn_state", None),
+                          "pokemon_left_play_last_turn", None) or []
+        for record in records:
+            if record.get("owner_id") != player_id \
+                    or record.get("by_attack") is None:
+                continue
+            archetype = record.get("archetype_id")
+            labels = [getattr(def_for(archetype), "display_name", "") or ""]
+            labels.extend(str(s) for s in subtypes_for(archetype))
+            if any("team rocket" in label.lower() for label in labels):
+                return True
+        return False
+    return check
 
 
+def no_pokemon_with_abilities():
+    """Play condition: none of your Pokemon in play has an Ability."""
+    def check(board, player_id):
+        for pokemon in board.pokemon_in_play(player_id):
+            for entry in pokemon.get_attribute(AttrID.PIE_ABILITIES) or []:
+                if isinstance(entry, dict):
+                    return False
+        return True
+    return check
 
 
+def mela_supporter():
+    """Attach a basic Fire Energy card from your discard pile to 1 of your
+    Pokemon; if you do, draw until your hand has 6 cards (Mela)."""
+    fire = basic_energy_of("fire")
+
+    async def effect(ctx):
+        energy = [card for card in ctx.discard_pile() if fire(card)]
+        targets = ctx.my_pokemon_in_play()
+        if not energy or not targets:
+            return
+        picks = await ctx.choose_cards(
+            energy, 1, minimum=1,
+            prompt="Choose a Fire Energy card to attach")
+        if not picks:
+            return
+        target = await ctx.choose_pokemon(
+            targets, "Choose a Pokemon to attach the Energy to") \
+            if len(targets) > 1 else targets[0]
+        if target is None:
+            return
+        await ctx.attach_energy(picks[0], target)
+        await ctx.draw_until(6)
+    return effect
+
+
+def shuffle_both_then_draw(mine: int, theirs: int):
+    """Each player shuffles their hand into their deck; then you draw `mine`
+    and your opponent draws `theirs` (Team Rocket's Archer, Unfair Stamp)."""
+    async def effect(ctx):
+        if ctx.hand():
+            await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+        opponent_hand = ctx.hand(ctx.opponent_id)
+        if opponent_hand:
+            await ctx.shuffle_into_deck(opponent_hand, ctx.opponent_id)
+        await ctx.draw_cards(mine)
+        await ctx.draw_cards(theirs, ctx.opponent_id)
+    return effect
+
+
+def look_top_take_rest_shuffle(count: int, take: int):
+    """Look at the top `count` cards, put up to `take` into your hand, and
+    shuffle the others back into the deck (Hassel)."""
+    async def effect(ctx):
+        top = ctx.deck_top(count)
+        if not top:
+            return
+        await ctx.reveal_cards(top)
+        picks = await ctx.choose_cards(
+            top, take, minimum=0,
+            prompt="Choose up to %d cards to put into your hand" % take)
+        if picks:
+            await ctx.put_in_hand(picks, reveal=True)
+        rest = [card for card in top if card not in picks]
+        if rest:
+            await ctx.shuffle_into_deck(rest)
+    return effect
+
+
+def opponent_hand_bottom_then_draw(draw: int):
+    """Your opponent puts their hand on the bottom of their deck, then draws
+    `draw` cards (Special Red Card)."""
+    async def effect(ctx):
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand:
+            return
+        for card in hand:
+            await ctx.put_on_bottom_of_deck(card)
+        await ctx.draw_cards(draw, ctx.opponent_id)
+    return effect
 
 

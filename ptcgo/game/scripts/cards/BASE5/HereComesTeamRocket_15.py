@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import all_prizes_face_up
 
 card = ItemCardDef(
     guid="c1823d45-d150-54bc-ac26-4dcedad8870d",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=15,
     set_code="BASE5",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=all_prizes_face_up()
 )

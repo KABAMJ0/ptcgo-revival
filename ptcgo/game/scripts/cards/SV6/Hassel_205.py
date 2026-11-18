@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import knocked_out_last_turn, look_top_take_rest_shuffle
 
 card = SupporterCardDef(
     guid="2c00bb26-4cf3-52e2-9b1e-145382667863",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=205,
     set_code="SV6",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=look_top_take_rest_shuffle(8, 3), condition=knocked_out_last_turn()
 )
