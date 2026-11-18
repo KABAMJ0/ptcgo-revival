@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="78d78bc4-cccd-5ece-b584-6fc9e1555920",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Seek Out",
             game_text="Search your deck for 1 card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=1, reveal=False),
         ),
         Attack(
             title="Pull Away",

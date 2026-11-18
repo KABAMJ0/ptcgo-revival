@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="a2523f97-5dd6-53f5-b3ee-cf1719bc6137",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Find Wildfire",
             game_text="Search your deck for up to 2 Fire Energy cards, show them to your opponent, and put them in your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("fire"), count=2, reveal=True),
         ),
         Attack(
             title="Brushfire",

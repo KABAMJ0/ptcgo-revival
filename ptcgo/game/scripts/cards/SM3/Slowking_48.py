@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="5c3f338e-78df-5f09-87bb-8d8e1c99326a",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Drift Ashore",
             game_text="Search your deck for a card and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=1, reveal=False),
         ),
         Attack(
             title="Unarmed",

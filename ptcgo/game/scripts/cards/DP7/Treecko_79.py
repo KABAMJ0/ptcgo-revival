@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="805748f7-1aba-5b46-ae93-fe677d5cf00e",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Call for Friends",
             game_text="Search your deck for a Basic Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_pokemon, count=1, reveal=True),
         ),
         Attack(
             title="Poison Breath",

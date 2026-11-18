@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="b5aa9775-b7d5-59cc-9f15-4389f838a6fc",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Quick Gift",
             game_text="If you go first, you can use this attack during your first turn. Search your deck for a card and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=1, reveal=False),
         ),
         Attack(
             title="Gentle Slap",

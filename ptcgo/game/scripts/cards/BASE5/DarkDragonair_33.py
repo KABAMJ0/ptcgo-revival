@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_evolution_pokemon
 
 card = PokemonCardDef(
     guid="5b9f684f-8c02-546d-a208-6745bc287541",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Evolutionary Light",
             game_text="Once during your turn (before your attack), you may search your deck for an Evolution card. Show it to your opponent and put it into your hand. Shuffle your deck afterward. This power can't be used if Dark Dragonair is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(is_evolution_pokemon, count=1, reveal=True),
         ),
         Attack(
             title="Tail Strike",

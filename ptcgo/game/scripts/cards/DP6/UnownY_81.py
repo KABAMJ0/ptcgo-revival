@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_trainer_card
 
 card = PokemonCardDef(
     guid="cc6a7f11-9bf5-5914-a512-65bb7968b6c8",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Hidden Power",
             game_text="Search your deck for up to 2 Trainer cards, show them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=search_to_hand(is_trainer_card, count=2, reveal=True),
         ),
     ],
 )

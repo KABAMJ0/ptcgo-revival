@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="a3b37f0e-c177-5a14-b91f-866eef524a92",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Wintry Call",
             game_text="Search your deck for up to 2 Melony cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(named("melony"), count=2, reveal=True),
         ),
         Attack(
             title="Icy Wind",

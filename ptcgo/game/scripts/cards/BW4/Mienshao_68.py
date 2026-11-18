@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_tool_card
 
 card = PokemonCardDef(
     guid="c0f25b3f-9877-5c6f-833e-4fd06efaca7b",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Haul In",
             game_text="Search your deck for 2 Pok\u00e9mon Tool cards, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_tool_card, count=2, reveal=True),
         ),
         Attack(
             title="Meditate",

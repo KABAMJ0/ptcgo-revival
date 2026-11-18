@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_supporter_card
 
 card = PokemonCardDef(
     guid="264a936a-889c-5840-aa30-b9e4f085d508",
@@ -23,7 +25,10 @@ card = PokemonCardDef(
         Ability(
             title="Fast Call",
             game_text="Once during your turn (before your attack), you may search your deck for a Supporter card, show it to your opponent, and put it into your hand. Shuffle your deck afterward. This power can't be used if Staraptor FB is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(
+                AttrID.SPECIAL_CONDITIONS),
+            effect=search_to_hand(is_supporter_card, count=1, reveal=True),
         ),
         Attack(
             title="Defog",

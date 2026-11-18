@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
 
 card = PokemonCardDef(
     guid="804f9b37-b361-5620-a1fa-e9337edd69c0",
@@ -21,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Scoundrel Ring",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench, you may search your deck for up to 3 Pok\u00e9mon-EX (except for Hoopa-EX), reveal them, and put them into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=search_to_hand(is_pokemon_ex, count=3, reveal=True),
         ),
         Attack(
             title="Hyperspace Fury",

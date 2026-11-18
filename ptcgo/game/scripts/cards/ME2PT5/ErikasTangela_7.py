@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="39243f1b-300e-5eed-b4d1-113ae4ce34a6",
@@ -21,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Gathering of Blossoms",
             game_text="Once during your turn, you may use this Ability. Search your deck for an Erika's Pok\u00e9mon, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(named("erika's"), count=1, reveal=True),
         ),
         Attack(
             title="Bind",
