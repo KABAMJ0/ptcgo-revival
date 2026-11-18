@@ -508,3 +508,71 @@ class ScrambleEnergyPassive(Passive):
         if _prizes_remaining(board, owner) > _prizes_remaining(board, opponent):
             return self.options
         return options
+
+
+# --- Holon Energies: two riders, each gated on a basic Energy attached -------
+def _has_basic_energy(board, holder, energy_type) -> bool:
+    if board is None or holder is None:
+        return False
+    for card in board.attached_energies(holder):
+        definition = def_for(getattr(card, "archetype_id", None))
+        if definition is None or getattr(definition, "is_special", False):
+            continue
+        if getattr(definition, "energy_type", None) == energy_type:
+            return True
+    return False
+
+
+class HolonEnergyPassive(Passive):
+    """Holon Energy FF/GL/WP.
+
+    Each card grants two riders, one while a basic Energy of a given type sits on
+    the carrier: `primary` and `secondary` are (type, behaviour) pairs, where the
+    behaviour is one of "no_weakness", "ignore_resistance", "no_conditions",
+    "ex_reduction", "effect_shield" or "free_retreat".
+    """
+
+    def __init__(self, primary, secondary):
+        self.primary = primary
+        self.secondary = secondary
+
+    def _active(self, behaviour, board, holder) -> bool:
+        for energy_type, name in (self.primary, self.secondary):
+            if name == behaviour and _has_basic_energy(board, holder, energy_type):
+                return True
+        return False
+
+    def modify_weakness(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is calc.target and self._active("no_weakness", getattr(calc, "board", None), holder):
+            calc.weakness_applies = False
+
+    def modify_resistance(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is calc.attacker and self._active("ignore_resistance", getattr(calc, "board", None), holder):
+            calc.resistance_applies = False
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and self._active("no_conditions", None, holder)
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is not calc.target or not calc.is_attack or not calc.is_opposing:
+            return
+        if not self._active("ex_reduction", getattr(calc, "board", None), holder):
+            return
+        attacker = getattr(calc, "attacker", None)
+        archetype_id = getattr(attacker, "archetype_id", None) if attacker is not None else None
+        if archetype_id is not None and "ex" in [s.lower() for s in subtypes_for(archetype_id)]:
+            calc.amount = max(0, calc.amount - 10)
+
+    def blocks_attack_effects(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        return holder is target and self._active("effect_shield", None, holder)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is pokemon and self._active("free_retreat", board, holder):
+            return 0
+        return cost
