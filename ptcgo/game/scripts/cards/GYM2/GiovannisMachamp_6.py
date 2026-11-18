@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import guts_survive_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Fortitude",
             game_text="If Giovanni's Machamp would be Knocked Out by an opponent's attack, flip a coin. If heads, Giovanni's Machamp is not Knocked Out and its remaining HP become 10 instead. This power can't be used if Giovanni's Machamp is already Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=guts_survive_passive(hp_floor=10, flip=True, title="Fortitude"),
         ),
         Attack(
             title="Hurricane Punch",
