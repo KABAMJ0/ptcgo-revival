@@ -13,6 +13,7 @@ from ptcgo.game.attributes import (
     AbilityTypes,
     AttrID,
     CLIENT_SPECIAL_CONDITION_NAMES,
+    PokemonStage,
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
@@ -975,4 +976,32 @@ def lock_chosen_defender_attack(damage: Optional[int] = None):
         state = ctx.session.turn_state
         state.attack_locks[(defender.entity_id, chosen.ability_id)] = \
             state.turn_number + 1
+    return effect
+
+
+def search_bench_as_basic(names, count, prompt):
+    """"Search your deck for <names> and put up to `count` of them onto your
+    Bench. Shuffle your deck afterward. Treat the new Benched Pokemon as
+    Basic Pokemon." (Anorith, Omanyte, Ninjask)
+
+    The stage override covers Benched evolutions put out this way, so
+    Basic-only effects (Fossil-style searches, Curse Powder) see them as
+    Basic until they leave play."""
+    wanted = {name.lower() for name in names}
+
+    async def effect(ctx):
+        picks = await ctx.search_deck(
+            lambda card: (getattr(def_for(card.archetype_id), "display_name", "") or "").lower() in wanted,
+            count=count, minimum=0, prompt=prompt, slot_prompt="Your Bench",
+        )
+        existing = {pokemon.entity_id for pokemon in ctx.my_bench()}
+        benched = False
+        for card in picks:
+            benched = await ctx.bench_pokemon(card) or benched
+        if benched:
+            for pokemon in ctx.my_bench():
+                if pokemon.entity_id not in existing:
+                    ctx.set_pokemon_stage(pokemon, PokemonStage.BASIC)
+        if picks:
+            await ctx.shuffle_deck()
     return effect
