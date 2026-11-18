@@ -24,6 +24,23 @@ def type_attrs(asm, position):
     return asm.type_attrs.get(position, [])
 
 
+def hint_subclasses(assemblies):
+    """Every subclass of a hinted base: those class names are the hint values."""
+    children = {}
+    for asm in assemblies:
+        for position in asm.typedef_names:
+            base = asm.base_name(position)
+            if base:
+                children.setdefault(base, []).append(asm.nested_name(position))
+    out = {}
+    for asm in assemblies:
+        for position in asm.typedef_names:
+            if any("TypeHintingAttribute" in attr for attr in asm.type_attrs.get(position, [])):
+                key = asm.nested_name(position)
+                out[key] = sorted(set(children.get(key, [])))
+    return out
+
+
 def collect(assemblies):
     messages, effects, hints = [], [], []
     for asm in assemblies:
@@ -69,6 +86,13 @@ def main():
         out.write("| type | hinting field | base |\n| --- | --- | --- |\n")
         for name, field, base, _ in sorted(hints):
             out.write(f"| `{name}` | `{field}` | `{base}` |\n")
+
+        out.write("\n## Hint values (subclasses of each hinted base)\n\n")
+        out.write("A payload field can carry any of these class names; the client "
+                  "instantiates the matching subclass.\n\n")
+        for base, kids in sorted(hint_subclasses(assemblies).items()):
+            out.write(f"**{base}** → " + ", ".join(f"`{simple}`" for simple in
+                                                   (k.rsplit(".", 1)[-1] for k in kids)) + "\n\n")
 
         out.write("\n## JSON message types\n\n")
         out.write("Every type the client will deserialize as a wire message. Names here are "

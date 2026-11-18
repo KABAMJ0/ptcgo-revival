@@ -17,6 +17,19 @@ A field named in the second column carries a class name that selects which of th
 | `dwd.core.draft.serialization.DraftUserState` | `name` | `System.Object` |
 | `playmat.code.cake.common.PieAbilityDescription` | `abilityType` | `System.Object` |
 
+## Hint values (subclasses of each hinted base)
+
+A payload field can carry any of these class names; the client instantiates the matching subclass.
+
+**P.Q** → `NavigateToScene`, `NavigateToUrl`, `NavigateToUrls`
+
+**dwd.core.draft.serialization.DraftResult** → 
+
+**dwd.core.draft.serialization.DraftUserState** → 
+
+**playmat.code.cake.common.PieAbilityDescription** → `AncientTrait`, `Attack`, `EnergyAbility`, `PlayAbility`, `PokeAbility`, `PokeBody`, `PokePower`, `RetreatAbility`, `StadiumAbility`, `TechnicalMachine`, `TrainerAbility`
+
+
 ## JSON message types
 
 Every type the client will deserialize as a wire message. Names here are the exact `messageName` strings; shapes are in `client-protocol.md`.

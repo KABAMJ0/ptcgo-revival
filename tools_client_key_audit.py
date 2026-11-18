@@ -85,6 +85,34 @@ def collect_payloads(path, messages):
     return found
 
 
+def ability_hint_check():
+    """The client only renders ability classes it knows; check the server's names."""
+    metadata = os.path.join(ROOT, "notes", "client-metadata.jsonl")
+    if not os.path.exists(metadata):
+        return None
+    bases = set()
+    known = set()
+    for line in open(metadata, encoding="utf-8"):
+        record = json.loads(line)
+        base = record.get("base") or ""
+        if base.endswith("PieAbilityDescription"):
+            bases.add(simple(record["name"]))
+        elif any("TypeHinting" in attr and "abilityType" in attr
+                 for attr in record.get("attributes", [])):
+            known.add(record["name"])
+    try:
+        from ptcgo.game.content.definitions import ABILITY_TYPE_HINTS
+        emitted = set(ABILITY_TYPE_HINTS.values())
+    except Exception:
+        return None
+    return {
+        "client": sorted(bases),
+        "server": sorted(emitted),
+        "unknown_to_client": sorted(emitted - bases),
+        "never_emitted": sorted(bases - emitted),
+    }
+
+
 def main():
     strict = "--strict" in sys.argv
     catalogue = json.load(open(PROTOCOL, encoding="utf-8"))["messages"]
@@ -127,6 +155,16 @@ def main():
             print(f"    client keys never sent: {problem['missing']}")
         print(f"    client keys: {', '.join(problem['allowed'][:14])}"
               + (" …" if len(problem["allowed"]) > 14 else ""))
+
+    hints = ability_hint_check()
+    if hints:
+        print("\nabilityType hints")
+        print(f"    client accepts: {', '.join(hints['client'])}")
+        print(f"    server emits:   {', '.join(hints['server'])}")
+        if hints["unknown_to_client"]:
+            print(f"    NOT VALID for the client: {hints['unknown_to_client']}")
+        if hints["never_emitted"]:
+            print(f"    accepted but never emitted: {hints['never_emitted']}")
 
     if strict and problems:
         return 1
