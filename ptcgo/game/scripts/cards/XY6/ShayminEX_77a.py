@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="9b81cdb6-4ef9-57fd-8985-cee3d115060a",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Set Up",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench, you may draw cards until you have 6 cards in your hand.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Sky Return",
