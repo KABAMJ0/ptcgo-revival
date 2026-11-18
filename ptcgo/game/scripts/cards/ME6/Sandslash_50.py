@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="dbd4e941-3b33-56eb-81cb-c544a2601866",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
     ],
 )
