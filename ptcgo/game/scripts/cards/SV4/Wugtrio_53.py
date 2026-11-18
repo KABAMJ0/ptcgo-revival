@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.card_effects.trainers import is_tool_card
 
 
@@ -45,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=70),
         ),
     ],
 )

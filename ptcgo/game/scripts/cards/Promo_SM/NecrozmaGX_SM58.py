@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.card_effects.passives_common import prevent_damage_when
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
@@ -50,7 +51,7 @@ card = PokemonCardDef(
             title="Black Ray-GX",
             game_text="This attack does 100 damage to each of your opponent's Pok\u00e9mon-GX and Pok\u00e9mon-EX. This damage isn't affected by Weakness or Resistance. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )

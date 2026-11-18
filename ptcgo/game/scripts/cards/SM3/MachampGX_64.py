@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="6dd09574-ce4a-5b24-a344-e667a0626aaa",
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIGHTING: 3},
             damage=180,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

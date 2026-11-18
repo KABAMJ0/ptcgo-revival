@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="a5063520-286d-5820-9fa3-f309bb3f09c2",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Smog",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Hoodwink",

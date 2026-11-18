@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_stadium_card
 
 card = PokemonCardDef(
     guid="cd854dc3-c455-5a99-94b7-7b4b708084de",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Geonavigation",
             game_text="Search your deck for up to 2 Stadium card, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_stadium_card, count=2, reveal=True),
         ),
         Attack(
             title="Aurora Horns",

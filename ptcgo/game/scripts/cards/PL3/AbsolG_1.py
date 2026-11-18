@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="7f1b95da-e651-5e0d-b15a-f2bd1e5eb02f",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Feint Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 20 damage to that Pok\u00e9mon. This attack's damage isn't affected by Weakness, Resistance, Pok\u00e9-Powers, Pok\u00e9-Bodies, or any other effects on that Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Doom News",

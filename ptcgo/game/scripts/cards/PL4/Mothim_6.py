@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
+from ptcgo.game.card_effects.trainers import any_of
 
 card = PokemonCardDef(
     guid="9fc821aa-fa08-5eab-a5e4-9e8750289850",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Cloak Party",
             game_text="Search your deck for up to 3 in any combination of Burmy and Wormadam, show them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(any_of(named("burmy"), named("wormadam")), count=3, reveal=True),
         ),
         Attack(
             title="Energy Assist",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
 
 card = PokemonCardDef(
     guid="8aa09ee4-ba31-5243-bc59-5a58b9a97829",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             title="Extra Call",
             game_text="Search your deck for a Pok\u00e9mon-ex, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_ex, count=1, reveal=True),
         ),
         Attack(
             title="Feint Attack",

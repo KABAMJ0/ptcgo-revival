@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="d6b13f98-30a9-5c2a-9466-9939e7044b3d",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack does 20 damage to 3 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=3, apply_modifiers=False),
         ),
         Attack(
             title="Land Crush",

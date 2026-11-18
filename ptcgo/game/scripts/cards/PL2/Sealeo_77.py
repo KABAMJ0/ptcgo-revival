@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="682049b0-9fba-5abb-ba0e-156421c63cc3",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Find Ice",
             game_text="Search your deck for up to 2 Water Energy cards, show them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("water"), count=2, reveal=True),
         ),
         Attack(
             title="Sheer Cold",

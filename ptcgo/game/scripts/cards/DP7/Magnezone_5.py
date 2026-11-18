@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.trainers import any_of
 
 card = PokemonCardDef(
     guid="c4c74e14-81c6-5634-95f7-06ed349c5572",
@@ -23,7 +26,17 @@ card = PokemonCardDef(
         Ability(
             title="Magnetic Search",
             game_text="Once during your turn (before your attack), you may search your deck for a Lightning or Metal Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward. This power can't be used if Magnezone is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(
+                AttrID.SPECIAL_CONDITIONS),
+            effect=search_to_hand(
+                any_of(
+                    lambda card: is_pokemon_of_type(card, "lightning"),
+                    lambda card: is_pokemon_of_type(card, "metal"),
+                ),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Speed Shot",

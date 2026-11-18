@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="ae4d162b-f27a-5ec7-ae63-b171ca9c13b1",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Telekinesis",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. Don't apply Weakness and Resistance for this attack. (Any other effects that would happen after applying Weakness and Resistance still happen.)",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

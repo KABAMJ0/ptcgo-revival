@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="2e9c1267-46a2-529d-b419-7268f6afd0eb",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Dream Calling",
             game_text="You may search your deck for any number of Fennel cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(named("fennel"), count=99, reveal=True),
         ),
         Attack(
             title="Sleep Pulse",

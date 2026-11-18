@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="7305955e-ec5f-57d4-8040-3fffc1eb578d",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Does 30 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1},
             damage=30,
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="bench", count=2, apply_modifiers=False),
         ),
         Attack(
             title="Inferno",

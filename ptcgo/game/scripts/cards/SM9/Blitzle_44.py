@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="58f360e3-44b7-5db3-bfc5-74d591461a37",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Delivery Dash",
             game_text="Search your deck for up to 2 Electropower cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=search_to_hand(named("electropower"), count=2, reveal=True),
         ),
         Attack(
             title="Zap Kick",

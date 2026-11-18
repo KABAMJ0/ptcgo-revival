@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="6adbc698-1490-5529-859b-fa1aa1ff5e2c",
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 3},
             damage=200,
             damage_operator="+",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
     ],
 )

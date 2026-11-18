@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="7c23401d-1ab9-568d-ba28-2ffa24535624",
@@ -23,7 +25,12 @@ card = PokemonCardDef(
         Ability(
             title="Illuminate",
             game_text="Once during your turn (before your attack), you may search your deck for a Fairy Pok\u00e9mon, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "fairy"),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Flickering Spores",
