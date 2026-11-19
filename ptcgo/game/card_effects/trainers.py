@@ -3,6 +3,7 @@
 import random
 import re
 
+from typing import List
 from ptcgo.game.attributes import (
     AttrID, CardType, CLIENT_POKEMON_TYPE_NAMES, PokemonStage, PokemonTypes,
     SpecialConditions, TrainerType,
@@ -2709,9 +2710,13 @@ def discard_tools(count: int = 1, sides: str = "any"):
     return effect
 
 
-def trade_to_hand(predicate=None, count: int = 1):
+def trade_to_hand(predicate=None, count: int = 1, to: str = "hand"):
     """Put a card from your hand on the bottom of your deck to take up to
-    `count` matching cards from your discard pile into your hand."""
+    `count` matching cards from your discard pile into your hand (or into your
+    deck with to="deck_shuffle").
+
+    `to` was read by the body and never taken as an argument, so the
+    deck_shuffle branch raised NameError at play time."""
     async def effect(ctx):
         hand = ctx.hand()
         if not hand:
