@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.passives_common import on_ko_from_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -35,7 +35,7 @@ card = PokemonCardDef(
             title="Seafaring",
             game_text="Flip 3 coins. For each heads, attach a Water Energy card from your discard pile to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=damage_per(count_energy('self', 'water'), 20),
+            effect=unimplemented,
         ),
     ],
 )
