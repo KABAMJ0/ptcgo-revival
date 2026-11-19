@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_prizes_remaining
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+async def _moon_eclipse_gx(ctx):
+    """Gate on the printed condition (more Prizes remaining than the opponent),
+    then shield this Pokemon through their next turn."""
+    if count_prizes_remaining("mine")(ctx) <= count_prizes_remaining("theirs")(ctx):
+        return
+    await protect_next_turn(prevent=True, effects_too=True)(ctx)
 
 card = PokemonCardDef(
     guid="ee6bbd7f-995c-5bbd-882c-e39a870148d6",
@@ -37,7 +46,7 @@ card = PokemonCardDef(
             game_text="You can use this attack only if you have more Prize cards remaining than your opponent. Prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=180,
-            effect=unimplemented,
+            effect=_moon_eclipse_gx,
         ),
     ],
 )
