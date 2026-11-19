@@ -495,6 +495,12 @@ class Passive:
         instead of the discard pile ("hand" for Ecogym); None keeps it."""
         return None
 
+    def discard_to_hand_blocked(self, card: BoardEntity,
+                                carrier: BoardEntity) -> bool:
+        """True to keep a card in its discard pile instead of returning it to
+        its owner's hand (Pokemon Tower)."""
+        return False
+
     def trainer_play_flips(self, card: BoardEntity, player_id: str,
                            carrier: BoardEntity) -> bool:
         """True to coin-flip a Trainer play before it resolves; tails makes the
@@ -1061,6 +1067,18 @@ def energy_discard_destination(board: BoardState, energy: BoardEntity,
         if destination:
             return destination
     return None
+
+
+def discard_to_hand_blocked(board: BoardState, card: BoardEntity) -> bool:
+    """Whether a Stadium keeps `card` in the discard pile instead of its hand.
+
+    Only a card already in a discard pile is covered; a card coming from the
+    deck, the prizes or play is not."""
+    source = getattr(card, "parent", None)
+    if source is None or source.get_attribute(AttrID.NAME) != "discard":
+        return False
+    return any(passive.discard_to_hand_blocked(card, carrier)
+               for passive, carrier in active_passives(board))
 
 
 def trainer_play_flips(board: BoardState, card: BoardEntity, player_id: str) -> bool:

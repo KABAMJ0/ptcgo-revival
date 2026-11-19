@@ -1169,6 +1169,17 @@ def energy_return_on_discard_passive(other_player_only: bool = True,
     return EnergyReturnPassive(other_player_only, non_colorless)
 
 
+class NoDiscardReturnPassive(Passive):
+    """Pokemon Tower: cards in a discard pile never return to a hand."""
+
+    def discard_to_hand_blocked(self, card, carrier):
+        return True
+
+
+def no_discard_return_passive() -> Passive:
+    return NoDiscardReturnPassive()
+
+
 class TrainerPlayFlipPassive(Passive):
     """Chaos Gym: every non-Stadium Trainer play is coin-flipped; tails makes
     the card do nothing."""

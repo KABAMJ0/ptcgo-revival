@@ -66,6 +66,7 @@ from .passives import (
     effective_bench_capacity,
     effective_max_hp,
     effective_pokemon_types,
+    discard_to_hand_blocked,
     energy_discard_destination,
     energy_removal_blocked,
     healing_blocked,
@@ -1803,6 +1804,10 @@ class EffectContext:
             if not hand:
                 continue
             if self._energy_removal_blocked(card):
+                continue
+            # Pokemon Tower: a card already in a discard pile stays there when
+            # an effect would return it to hand.
+            if discard_to_hand_blocked(self.board, card):
                 continue
             if isinstance(card, CompositePokemonEntity):
                 departed.update(self._queue_composite_departure(card, hand, cards))
