@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Your opponent can't play any Pok\u00e9mon from his or her hand to Evolve or to Level-Up the Defending Pok\u00e9mon during his or her next turn.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=lock_opponent_evolutions(defending_only=True),
         ),
     ],
 )
