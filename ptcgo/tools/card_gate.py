@@ -247,7 +247,11 @@ def _analyse_block(tree, kw, effect, src) -> List[Tuple[str, str, str]]:
         known.add(colorless)   # 'ColorlessColorless less' is 2
     known.add(99)              # sentinel: 99 means 'any number'
     if printed_damage is not None:
-        known.add(int(printed_damage))
+        # Some cards carry the operator in the damage field itself ("30+"), so take the
+        # leading number rather than assuming it parses as an int.
+        lead = __import__("re").match(r"\s*(\d+)", str(printed_damage))
+        if lead:
+            known.add(int(lead.group(1)))
     allowed = set(known)
     for a in known:
         for b in known:

@@ -1,10 +1,13 @@
-"""Coin Booster: a pack of 10 different coins, drawn from every loaded coin product.
+"""Coin Chest: a treasure box holding 2 different coins, drawn from every loaded coin product.
 
-It carries the BASE1 set key so the client files it, renders it and opens it like any
-booster (an unknown set key left it unopenable). Its contents still come from
-product.assemble_coin_pack: BoosterPack.open branches on this product's GUID, never on
-the set key, so a real Base Set booster is untouched. The art is base1_booster, which the
-packs bundle already holds (it is built from assets/products/custom_packs).
+The client opens an archetype as a treasure box, not a booster, when its set is
+`RewardItems` (`IsTreasureBox()`), and the treasure box sequence has two prize slots, so
+the chest grants two coins. It stays typed as a pack because the shop only lists routed
+product types; Packs files it under Booster Packs.
+
+Its contents come from product.assemble_coin_pack: BoosterPack.open branches on this
+product's GUID, never on the set key. The GUID is the one the earlier Coin Booster used,
+so its shop row and every copy players already own become chests.
 """
 import json
 import uuid
@@ -14,13 +17,12 @@ from ptcgo.game.data_utils import BoosterPackDef
 
 product = BoosterPackDef(
     guid=str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER")),
-    key="BASE1",
-    name="Coin Booster",
+    key="RewardItems",
+    name="Coin Chest",
     image_url="base1_booster",
     attributes={
-        # The pack's info popup lists its slots; ten coins rather than card rarities.
         str(AttrID.PACK_RARITY_DATA.value): {"type": "json", "value": json.dumps([
-            {"rarityIcon": Rarities.Common.value, "rarityName": {"id": "Coins"}, "count": 10},
+            {"rarityIcon": Rarities.Common.value, "rarityName": {"id": "Coins"}, "count": 2},
         ])},
     },
 )

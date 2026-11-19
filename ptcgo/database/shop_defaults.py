@@ -24,11 +24,18 @@ DEFAULT_OFFERS = (
         "sort_order": 10,
     },
     {
-        # Coin Booster: ten different coins for 1 Trainer Token, in the Booster Packs tab.
+        # Coin Chest: a treasure box of two different coins for 1 Trainer Token.
         "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER")),
-        "name": "Coin Booster",
+        "name": "Coin Chest",
         "price": 1,
         "sort_order": 20,
+    },
+    {
+        # Charizard ex + a Fusion Strike pack + 1000 tokens back: 500 net for card and pack.
+        "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:bundle:charizard-ex-collection")),
+        "name": "Charizard ex Collection",
+        "price": 1500,
+        "sort_order": 5,
     },
 )
 
