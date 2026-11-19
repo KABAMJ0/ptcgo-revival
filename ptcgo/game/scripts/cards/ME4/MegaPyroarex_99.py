@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="61f7fc1b-e33f-5924-b0a9-e532f3c9fc6f",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, attacks used by the Defending Pok\u00e9mon do 50 less damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=reduce_defender_attacks(50),
         ),
         Attack(
             title="Fiery Big Bang",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="8c717149-afec-51d3-9fa5-fda7cde58ca4",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Drag Off",
             game_text="Switch in 1 of your opponent's Benched Pok\u00e9mon to the Active Spot. This attack does 20 damage to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=20),
         ),
         Attack(
             title="Icicle",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="0c4bd656-8960-5360-898e-96ddbf563d32",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Syrup Catcher",
             game_text="Switch in 1 of your opponent's Benched Pok\u00e9mon to the Active Spot. This attack does 70 damage to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=70),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="82903d23-01f5-58d6-95d4-9aedd59cb712",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Dancing Tentacles",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused and Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, SpecialConditions.POISONED),
         ),
         Attack(
             title="Stick and Absorb",

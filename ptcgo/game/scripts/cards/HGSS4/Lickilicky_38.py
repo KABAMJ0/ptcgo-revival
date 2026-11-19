@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_counters_on, snipe_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +24,10 @@ card = PokemonCardDef(
             title="Licking Shot",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon for each Energy attached to Lickilicky. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=snipe_attack(10, pool="any"),
+            effect=snipe_attack(
+                lambda ctx: 10 * count_energy("self")(ctx),
+                pool="any", count=1, apply_modifiers=False,
+            ),
         ),
         Attack(
             title="Stick and Absorb",

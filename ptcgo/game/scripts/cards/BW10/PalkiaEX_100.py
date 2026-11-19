@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
 
 card = PokemonCardDef(
     guid="33eaa38d-f7dd-52fa-a91c-5e1c7e384799",

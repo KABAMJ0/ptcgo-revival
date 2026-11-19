@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="1946b2d1-4cd0-5e3c-bfe7-cfb82d24896b",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Charm",
             game_text="During your opponent's next turn, attacks used by the Defending Pok\u00e9mon do 20 less damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reduce_defender_attacks(20),
         ),
         Attack(
             title="Skip",

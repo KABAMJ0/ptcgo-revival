@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_bench_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(2, ctx.opponent_bench())
+
+
 card = PokemonCardDef(
     guid="a2620f05-ea23-538c-82a8-01d198cddec6",
     key="SV8PT5",
@@ -27,7 +32,7 @@ card = PokemonCardDef(
             game_text="Put 2 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=unimplemented,
+            effect=_place_bench_counters,
         ),
     ],
 )

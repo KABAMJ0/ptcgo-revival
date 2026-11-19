@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
 
 card = PokemonCardDef(
     guid="49a25195-b8ad-5616-bfd5-e5a3d9c6c9a2",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Solar Beam",

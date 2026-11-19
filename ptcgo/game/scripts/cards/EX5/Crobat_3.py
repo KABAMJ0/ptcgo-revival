@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="cd385bbe-6c44-52bd-907b-a034ec3a3435",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Poisoned. Put 3 damage counters instead of 1 on the Defending Pok\u00e9mon between turns.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=3),
         ),
     ],
 )
