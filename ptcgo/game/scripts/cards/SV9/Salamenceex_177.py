@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, spread_damage
 
 card = PokemonCardDef(
     guid="27fc99fd-6bf6-57a2-8126-7f087cd84834",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Wide Blast",
             game_text="This attack does 50 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=spread_damage(50, side="opponent"),
         ),
         Attack(
             title="Dragon Impact",
