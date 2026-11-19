@@ -1,6 +1,6 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 
 card = PokemonCardDef(
     guid="f5c40db9-7435-5d2b-aa57-e416868c5c22",

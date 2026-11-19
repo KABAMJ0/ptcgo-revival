@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 
 async def blazing_destruction(ctx):
     """Discard a Stadium in play."""

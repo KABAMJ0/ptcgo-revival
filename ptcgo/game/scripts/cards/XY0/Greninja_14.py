@@ -1,7 +1,7 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_discard_opponent_energy, flip_gate
 from ptcgo.game.card_effects.passives_common import composed
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 
 card = PokemonCardDef(
     guid="de0966e1-a9f4-52b2-90f6-dff0f5ec4fb1",

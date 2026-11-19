@@ -1,5 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import AttrID, PokemonStage, PokemonTypes, Rarities, TrainerType
 from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
 

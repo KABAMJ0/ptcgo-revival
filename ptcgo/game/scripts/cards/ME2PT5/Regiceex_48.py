@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="0e337701-2001-59f7-9f71-428771fa1f00",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Regi Charge",
             game_text="Attach up to 2 Basic Water Energy cards from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("water"), count=2, minimum=0, target="self"),
         ),
         Attack(
             title="Ice Prison",

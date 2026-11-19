@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_damage
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
 
 card = PokemonCardDef(
     guid="a50db5cf-0646-5671-9f0a-24b4ba87b5c8",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=80, until_tails=True),
         ),
         Attack(
             title="Searing Flame",

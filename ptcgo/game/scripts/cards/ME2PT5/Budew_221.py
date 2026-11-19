@@ -1,5 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 
 card = PokemonCardDef(

@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, self_energy_discard_attack
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 
 card = PokemonCardDef(
     guid="705fa3f6-c297-5eea-9553-c01ff67ee41c",

@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
 from ptcgo.game.attributes import AttrID, PokemonStage, PokemonTypes, Rarities, SpecialConditions
 from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
 from ptcgo.game.card_effects.attacks_common import condition_attack

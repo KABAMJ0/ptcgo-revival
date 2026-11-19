@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.passives_common import no_retreat_passive, opposing_active, is_in_active_spot
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, no_retreat_passive, opposing_active
 from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
