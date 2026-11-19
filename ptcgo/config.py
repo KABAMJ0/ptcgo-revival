@@ -9,6 +9,12 @@ from typing import Optional
 PUBLIC_HOST = os.environ.get("PTCGO_PUBLIC_HOST", "127.0.0.1")
 
 HTTP_PORT = int(os.environ.get("PTCGO_HTTP_PORT", "8000"))
+
+# The admin dashboard can be moved to its own port so a tunnel pointed at HTTP_PORT
+# carries card art to the internet and can never carry the panel. Defaults to HTTP_PORT,
+# where the admin routes are served by the same listener exactly as before.
+ADMIN_PORT = int(os.environ.get("PTCGO_ADMIN_PORT", str(HTTP_PORT)))
+ADMIN_ON_SEPARATE_PORT = ADMIN_PORT != HTTP_PORT
 TCP_PORT = int(os.environ.get("PTCGO_TCP_PORT", "39389"))
 
 # Player database. Leave unset for local SQLite, or set a mysql+pymysql:// or

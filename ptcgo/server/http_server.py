@@ -288,6 +288,31 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
+    # --- listener mode ---------------------------------------------------
+    # Two listeners can share this handler: the asset one (HTTP_PORT) and the admin
+    # one (ADMIN_PORT). `server.admin_only` selects the mode. With ADMIN_PORT unset
+    # (equal to HTTP_PORT) admin lives on the asset listener exactly as before.
+
+    @staticmethod
+    def _is_admin_path(path: str) -> bool:
+        return path == '/admin' or path.startswith('/admin/')
+
+    def _serves_admin(self) -> bool:
+        if getattr(self.server, 'admin_only', False):
+            return True
+        return not config.ADMIN_ON_SEPARATE_PORT
+
+    def _off_mode(self, parsed_path: str) -> bool:
+        return getattr(self.server, 'admin_only', False) and not self._is_admin_path(parsed_path)
+
+    def _not_found(self):
+        body = b'not found'
+        self.send_response(404)
+        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         logging.debug(f"[HTTP] GET Request received for path: {self.path}")
         metrics.inc("http_requests")
@@ -296,12 +321,14 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Clean the path to ignore query parameters
         parsed_path = urlparse(self.path).path
 
+        if self._off_mode(parsed_path):
+            return self._not_found()
+
         if parsed_path == '/health':
             return self._serve_health()
-        if parsed_path == '/admin/api/metrics':
-            return self.serve_admin('GET', parsed_path)
-
-        if parsed_path == '/admin' or parsed_path.startswith('/admin/'):
+        if self._is_admin_path(parsed_path):
+            if not self._serves_admin():
+                return self._not_found()
             return self.serve_admin('GET', parsed_path)
 
         # The client adds dynamic GUIDs to the path, so we catch anything ending in .unity3d
@@ -442,7 +469,12 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         telemetry.record_http(self.path)
         parsed_path = urlparse(self.path).path
 
-        if parsed_path == '/admin' or parsed_path.startswith('/admin/'):
+        if self._off_mode(parsed_path):
+            return self._not_found()
+
+        if self._is_admin_path(parsed_path):
+            if not self._serves_admin():
+                return self._not_found()
             return self.serve_admin('POST', parsed_path, post_data)
 
         # Routing dictionary
@@ -816,15 +848,29 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(payload)
 
 class AssetHTTPServer:
-    def __init__(self, host='0.0.0.0', port=config.HTTP_PORT):
+    def __init__(self, host='0.0.0.0', port=config.HTTP_PORT, admin_only=False):
         self.host = host
         self.port = port
+        self.admin_only = admin_only
         socketserver.ThreadingTCPServer.allow_reuse_address = True
-        self.server = socketserver.ThreadingTCPServer((self.host, self.port), MockHTTPRequestHandler)
+        try:
+            self.server = socketserver.ThreadingTCPServer(
+                (self.host, self.port), MockHTTPRequestHandler)
+        except OSError as exc:
+            # A second listener that never came up must not look like a healthy start.
+            logging.error(f"Asset HTTP Server could not bind {self.host}:{self.port} "
+                          f"({'admin' if admin_only else 'assets'} listener): {exc}")
+            raise
+        self.server.admin_only = admin_only
         self.thread = None
 
     def start(self):
-        logging.info(f"Asset HTTP Server listening on http://{self.host}:{self.port}")
+        bound = self.server.server_address
+        logging.info(f"{'Admin' if self.admin_only else 'Asset'} HTTP Server listening on "
+                     f"http://{bound[0]}:{bound[1]}")
+        if self.admin_only:
+            logging.info("[HTTP] /admin is served ONLY on this port; the asset port "
+                         "returns 404 for it.")
         self.thread = threading.Thread(target=self.server.serve_forever)
         self.thread.daemon = True
         self.thread.start()
