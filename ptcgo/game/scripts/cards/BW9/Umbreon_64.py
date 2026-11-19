@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import team_hp_bonus
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
 
 card = PokemonCardDef(
     guid="187da285-36e6-5ca6-a3bb-7b34e7efaad0",
@@ -23,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Dark Shade",
             game_text="Each of your Team Plasma Pok\u00e9mon in play gets +20 HP.",
-            effect=unimplemented,
+            passive=team_hp_bonus(20, protects="team", pred=lambda pokemon, carrier: (
+                has_pokemon_subtype(pokemon, "Team Plasma"))),
         ),
         Attack(
             title="Darkness Fang",

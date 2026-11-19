@@ -1,5 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+
+
+def _plasma_energy_attached(ctx) -> bool:
+    return any((getattr(def_for(energy.archetype_id), "display_name", "") or "")
+               == "Plasma Energy" for energy in ctx.attached_energies(ctx.attacker))
+
+
+def _dynamite_press_counters(ctx) -> int:
+    if not _plasma_energy_attached(ctx):
+        return 0
+    return damage_counters_on("defender")(ctx)
 
 card = PokemonCardDef(
     guid="a3fe87f5-acaa-57f4-b822-eb3d2bccc6f0",
@@ -32,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_dynamite_press_counters, 10, base=80),
         ),
     ],
 )

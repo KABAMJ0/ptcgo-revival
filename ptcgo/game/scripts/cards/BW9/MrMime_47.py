@@ -2,6 +2,15 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.session.passives import Passive
+
+
+class BenchBarrierPassive(Passive):
+    """Attack damage to this player's own Benched Pokemon is prevented."""
+
+    def blocks_bench_damage(self, calc, carrier):
+        return calc.target is not None and \
+            calc.target.owning_player_id == carrier.owning_player_id
 
 card = PokemonCardDef(
     guid="7ebe9ee1-6e30-59f4-b858-4f0081b39373",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Bench Barrier",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by attacks.",
-            effect=unimplemented,
+            passive=BenchBarrierPassive(),
         ),
         Attack(
             title="Psy Bolt",

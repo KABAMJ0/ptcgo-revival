@@ -1,7 +1,22 @@
 from ptcgo.game.card_effects.support_common import heal_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, \
+    Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 from ptcgo.game.card_effects.support_common import heal_attack
+
+
+async def flare_navigate(ctx):
+    """Search a Fire Energy out of the deck, attach it to a chosen Pokemon,
+    and put one damage counter on that same Pokemon."""
+    picks = await ctx.search_deck(is_fire_energy, count=1, minimum=0,
+                                  prompt="Choose a Fire Energy card to attach")
+    if picks:
+        holder = await ctx.choose_pokemon(
+            ctx.my_pokemon_in_play(), "Choose a Pok\u00e9mon to attach the Energy to")
+        if holder is not None and await ctx.attach_energy(picks[0], holder):
+            await ctx.deal_damage(10, target=holder, as_counters=True)
+    await ctx.shuffle_deck()
 
 card = PokemonCardDef(
     guid="ce9644f8-c5bc-526f-98ec-0d4d0d64be0b",
@@ -24,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Flare Navigate",
             game_text="Once during your turn (before your attack), you may search your deck for a Fire Energy card and attach it to 1 of your Pok\u00e9mon. If you do, put 1 damage counter on that Pok\u00e9mon. Shuffle your deck afterward.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=flare_navigate,
         ),
         Attack(
             title="Absorb Life",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 
 card = PokemonCardDef(
     guid="32070912-a6b7-5962-b225-d10897c0f58b",
@@ -26,7 +27,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", lambda p: p.get_attribute(
+                AttrID.EVOLUTION_LOGIC_NAME) == "Nidoqueen"), 40, base=20),
         ),
         Attack(
             title="Horn Drill",

@@ -1,5 +1,24 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
+
+
+def _plasma_energy_attached(ctx) -> bool:
+    return any((getattr(def_for(energy.archetype_id), "display_name", "") or "")
+               == "Plasma Energy" for energy in ctx.attached_energies(ctx.attacker))
+
+
+def _other_team_plasma(attacker) -> bool:
+    return attacker is not None and has_pokemon_subtype(attacker, "Team Plasma") and \
+        (getattr(def_for(attacker.archetype_id), "display_name", "") or "") != "Deoxys-EX"
+
+
+def _helix_force_count(ctx) -> int:
+    if not _plasma_energy_attached(ctx):
+        return 0
+    return count_energy("defender")(ctx)
 
 card = PokemonCardDef(
     guid="fec05193-bd18-57e2-bf8d-9c67a0a8560b",
@@ -21,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Power Connect",
             game_text="Your Team Plasma Pok\u00e9mon's attacks (excluding Deoxys-EX) do 10 more damage to the Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(10, attacker_pred=_other_team_plasma),
         ),
         Attack(
             title="Helix Force",
@@ -29,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_helix_force_count, 30, base=30),
         ),
     ],
 )
