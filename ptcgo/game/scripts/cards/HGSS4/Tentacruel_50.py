@@ -28,7 +28,7 @@ card = PokemonCardDef(
             game_text="If Tentacruel evolved from Tentacool during this turn, the Defending Pok\u00e9mon is now Paralyzed and Poisoned.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=unimplemented,
         ),
         Attack(
             title="Hyper Beam",
