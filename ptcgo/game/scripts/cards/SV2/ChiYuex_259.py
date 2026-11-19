@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="fac41ce2-1f3b-5930-86a6-916e110d8726",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Jealously Singe",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Flame Surge",

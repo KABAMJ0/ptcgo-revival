@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import mill_attack, snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard the top 3 cards of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=mill_attack(count=3),
         ),
         Attack(
             title="Obsidian",

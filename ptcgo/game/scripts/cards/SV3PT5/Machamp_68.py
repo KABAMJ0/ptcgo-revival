@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.passives_common import guts_survive_passive
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="80035623-1c02-5635-8182-3fea8432cd4b",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=100,
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="d7a422f5-ce0f-5c11-8a45-fbbb554b02de",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Stomp Off",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Darkness Fang",
