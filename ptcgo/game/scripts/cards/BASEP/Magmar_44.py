@@ -1,6 +1,28 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+def _fire_energy(card):
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+async def burning_fire(ctx):
+    """Discard any number of Fire Energy from your Pokemon in play, then 10 plus
+    10 for each one discarded."""
+    pool = [energy for pokemon in ctx.my_pokemon_in_play()
+            for energy in ctx.attached_energies(pokemon) if _fire_energy(energy)]
+    discarded = []
+    if pool:
+        discarded = await ctx.choose_cards(
+            pool, len(pool), minimum=0,
+            prompt="Choose any number of Fire Energy to discard")
+        if discarded:
+            await ctx.discard_cards(list(discarded))
+    await ctx.deal_damage(10 + 10 * len(discarded))
+
+
 card = PokemonCardDef(
     guid="da1bf7db-3f6b-5328-9e2b-536f3efb13b1",
     key="BASEP",
@@ -24,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=burning_fire,
         ),
         Attack(
             title="Magma Punch",

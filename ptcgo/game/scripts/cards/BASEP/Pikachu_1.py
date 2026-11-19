@@ -3,6 +3,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.passives_common import shield_from_defender_next_turn
+
+
+async def growl(ctx):
+    """The Defending Pokemon's attacks do 10 less to Pikachu next turn."""
+    await shield_from_defender_next_turn(reduce=10)(ctx)
+
 card = PokemonCardDef(
     guid="d363a296-6c60-56eb-b803-de2dd990c022",
     key="BASEP",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             title="Growl",
             game_text="If the Defending Pok\u00e9mon attacks Pikachu during your opponent's next turn, any damage done by the attack is reduced by 10 (after applying Weakness and Resistance). (Benching either Pok\u00e9mon ends this effect.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=growl,
         ),
         Attack(
             title="Thundershock",

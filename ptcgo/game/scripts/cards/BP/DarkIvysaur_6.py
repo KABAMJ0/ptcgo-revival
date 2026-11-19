@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.session.passives import Passive
+
+
+class VinePullPassive(Passive):
+    """When this Pokemon retreats, switch 1 of the opponent's Benched Pokemon
+    with their Active Pokemon."""
+
+    async def on_retreat(self, ctx, pokemon, carrier):
+        await gust_attack(damage_before=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="996b26a6-1acf-55fd-bee6-df88830c31a8",
@@ -22,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Vine Pull",
             game_text="Once during your turn when Dark Ivysaur retreats, choose 1 of your opponent's Benched Pok\u00e9mon and switch it with his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=VinePullPassive(),
         ),
         Attack(
             title="Fury Strikes",

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
+
 card = PokemonCardDef(
     guid="e58736f2-83d4-5e35-89d8-2d41005cd0f1",
     key="BASE2",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Swords Dance",
             game_text="During your next turn, Scyther's Slash attack's base damage is 60 instead of 30.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=boost_own_next_turn(30, attack_title="Slash"),
         ),
         Attack(
             title="Slash",

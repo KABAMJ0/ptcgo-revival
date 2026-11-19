@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def birthday_surprise(ctx):
+    """Printed 30 damage: the engine has no birthday to read, so the printed
+    branch is the one that always applies."""
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="30414eae-124e-5a3c-896e-93d1201cce36",
     key="CEL25C",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=birthday_surprise,
         ),
     ],
 )

@@ -2,6 +2,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
 
+
+import math
+from ptcgo.game.attributes import AttrID
+async def mega_drain(ctx):
+    """Printed 40, then heal Butterfree a number of damage counters equal to
+    half the damage dealt, rounded up to the nearest 10."""
+    dealt = await ctx.deal_damage()
+    if dealt <= 0 or ctx.attacker is None:
+        return
+    counters = math.ceil(math.ceil(dealt / 2) / 10)
+    await ctx.heal(10 * counters, target=ctx.attacker)
+
+
 card = PokemonCardDef(
     guid="2326ecfa-c2f2-53cd-b6bb-74f31321d870",
     key="BASE4",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             game_text="Remove a number of damage counters from Butterfree equal to half the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance) (rounded up to the nearest 10). If Butterfree has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.GRASS: 4},
             damage=40,
-            effect=unimplemented,
+            effect=mega_drain,
         ),
     ],
 )

@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def ram(ctx):
+    """Printed 50, 20 to Rhydon itself, then the opponent switches their Active
+    (the damage happens before the switch)."""
+    await ctx.deal_damage()
+    await ctx.deal_damage(20, target=ctx.attacker, apply_modifiers=False)
+    await opponent_switches(ctx)
+
 card = PokemonCardDef(
     guid="3513000e-572f-52dc-8aff-94abffe48f49",
     key="BASE2",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             game_text="Rhydon does 20 damage to itself. If your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches it with the Defending Pok\u00e9mon. (Do the damage before switching the Pok\u00e9mon. Switch the Pok\u00e9mon even if Rhydon is knocked out.)",
             cost={PokemonTypes.FIGHTING: 4},
             damage=50,
-            effect=unimplemented,
+            effect=ram,
         ),
     ],
 )

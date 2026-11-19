@@ -4,6 +4,21 @@ from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_evolved
 
 
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.attributes import AttrID
+
+
+def _danger_amount(calc, carrier):
+    holder = calc.attacker
+    if holder is None:
+        return 0
+    if holder.get_attribute(AttrID.HP, 0) > 100:
+        return 0
+    return 80
+
+
+_danger_perception = team_damage_boost_passive(_danger_amount)
+
 card = PokemonCardDef(
     guid="26f1c7b3-6bbd-5cef-a394-1e76396bfc2d",
     key="SVault",
@@ -26,7 +41,7 @@ card = PokemonCardDef(
         Ability(
             title="Danger Perception",
             game_text="If this Pok\u00e9mon's remaining HP is 100 or less, its attacks do 80 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=_danger_perception,
         ),
         Attack(
             title="Steel Wing",

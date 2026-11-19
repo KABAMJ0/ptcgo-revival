@@ -3,6 +3,16 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def selfdestruct(ctx):
+    """Printed 80, then 20 to every Benched Pokemon on both sides (no Weakness
+    or Resistance), then 80 to Magneton itself."""
+    await ctx.deal_damage()
+    for pid in (ctx.player_id, ctx.opponent_id):
+        for pokemon in ctx.board.find_player_area(pid, "bench").children:
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+    await ctx.deal_damage(80, target=ctx.attacker, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="e6477402-2da2-56ee-af38-59e2105d0494",
     key="BASE4",
@@ -33,7 +43,7 @@ card = PokemonCardDef(
             game_text="Does 20 damage to each player's Bench. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Magneton does 80 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=selfdestruct,
         ),
     ],
 )

@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def crush_and_burn_gx(ctx):
+    """Printed 30, then 50 more for each Energy card discarded from your Pokemon."""
+    pool = [energy for pokemon in ctx.my_pokemon_in_play()
+            for energy in ctx.attached_energies(pokemon)]
+    discarded = []
+    if pool:
+        discarded = await ctx.choose_cards(
+            pool, len(pool), minimum=0, prompt="Choose any amount of Energy to discard")
+        if discarded:
+            await ctx.discard_cards(list(discarded))
+    await ctx.deal_damage(30 + 50 * len(discarded or []))
+
 card = PokemonCardDef(
     guid="6571cafb-9b11-5e9e-b60b-1a8471f33cf7",
     key="SVault",
@@ -36,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=crush_and_burn_gx,
         ),
     ],
 )

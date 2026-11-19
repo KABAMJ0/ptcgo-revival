@@ -1,8 +1,23 @@
-from ptcgo.game.attributes import SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack, defender_has_any_condition,
+)
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import (
+    PokemonStage, PokemonTypes, Rarities, SpecialConditions,
+)
+
+
+async def _venom_tail(ctx):
+    """Printed damage, then -- only while the Defending Pokemon is affected by
+    a Special Condition -- discard an Energy attached to it."""
+    conditioned = defender_has_any_condition(ctx)
+    await ctx.deal_damage()
+    target = ctx.opponent_active()
+    if conditioned and target is not None and not ctx.effects_blocked(target):
+        await ctx.discard_energy_from(
+            target, 1,
+            prompt="Choose an Energy to discard from the Defending Pok\u00e9mon")
+
 
 card = PokemonCardDef(
     guid="ba7b8ffa-8af8-54f9-a135-3ec608b2590e",
@@ -33,7 +48,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon is affected by a Special Condition, discard an Energy attached to that Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=_venom_tail,
         ),
     ],
 )

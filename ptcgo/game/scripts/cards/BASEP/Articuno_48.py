@@ -3,6 +3,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
+
 card = PokemonCardDef(
     guid="3d8209a6-2261-58a8-be36-31eb3208e093",
     key="BASEP",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Aurora Veil",
             game_text="As long as Articuno is your Active Pok\u00e9mon, your Benched Pok\u00e9mon do not take damage from and are not affected by attacks. This power cannot be used if Articuno is affected by a Special Condition.",
-            effect=unimplemented,
+            passive=bench_damage_shield(effects_too=True),
         ),
         Attack(
             title="Ice Beam",

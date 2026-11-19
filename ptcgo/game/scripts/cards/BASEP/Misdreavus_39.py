@@ -4,6 +4,8 @@ from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+
 card = PokemonCardDef(
     guid="f3f91494-3610-59b5-9ca1-ddc8fa5dacc5",
     key="BASEP",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Pain Split",
             game_text="Put 1 damage counter on the Defending Pok\u00e9mon for each damage counter on Misdreavus.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 10),
         ),
         Attack(
             title="Confuse Ray",

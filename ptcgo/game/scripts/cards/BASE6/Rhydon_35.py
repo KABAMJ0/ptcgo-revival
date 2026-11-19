@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="5ad815b1-ed21-5f75-92f4-63fb1e6c6610",
@@ -30,7 +33,9 @@ card = PokemonCardDef(
             game_text="Rhydon does 20 damage to itself. Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon, if any. (Do the damage before switching the Pok\u00e9mon. Switch the Pok\u00e9mon even if Rhydon is Knocked Out.)",
             cost={PokemonTypes.FIGHTING: 4},
             damage=50,
-            effect=unimplemented,
+            effect=recoil_attack(20, damage=50,
+                                 also=gust_attack(damage_before=0,
+                                                  opponent_chooses=True)),
         ),
     ],
 )

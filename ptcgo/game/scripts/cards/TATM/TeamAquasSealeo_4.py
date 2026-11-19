@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, bonus_if, active_is
+from ptcgo.game.card_effects.trainers import team_magma_target
 
 card = PokemonCardDef(
     guid="b0a8223e-9738-5d00-a33a-aa696517e2ba",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(team_magma_target), 60),
         ),
     ],
 )

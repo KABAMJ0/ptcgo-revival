@@ -3,6 +3,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
 
 card = PokemonCardDef(
     guid="fc7aba24-fc75-5b2f-b8ed-3cf32f14e25b",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             game_text="Remove a number of damage counters from Zubat equal to the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance). If Zubat has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=heal_self_damage_dealt(),
         ),
     ],
 )

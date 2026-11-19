@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+class KabutoArmorPassive(Passive):
+    """Attack damage on Kabuto is halved and rounded down to the nearest 10,
+    applied after Weakness and Resistance. Works against its own attacks too."""
+
+    def modify_damage_taken(self, calc, carrier):
+        if not calc.is_attack or calc.target is not carrier_pokemon(carrier):
+            return
+        if calc.target.get_attribute(AttrID.SPECIAL_CONDITIONS) or []:
+            return
+        calc.amount = ((calc.amount // 2) // 10) * 10
+
 
 card = PokemonCardDef(
     guid="6b8753f4-e288-5867-85f5-72f18736d5b5",
@@ -22,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Kabuto Armor",
             game_text="Whenever an attack (even your own) does damage to Kabuto (after applying Weakness and Resistance), that attack does only half the damage to Kabuto (rounded down to the nearest 10). (Any other effects of attacks still happen.) This power stops working while Kabuto is affected by a Special Condition.",
-            effect=unimplemented,
+            passive=KabutoArmorPassive(),
         ),
         Attack(
             title="Scratch",
