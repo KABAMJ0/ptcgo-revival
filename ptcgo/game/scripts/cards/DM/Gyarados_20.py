@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="5614ad3d-1e7e-5573-a7e0-079ff8785fe4",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="You may discard any Stadium card in play.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=discard_stadium_attack(optional=True),
         ),
     ],
 )
