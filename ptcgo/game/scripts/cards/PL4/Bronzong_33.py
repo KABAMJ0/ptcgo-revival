@@ -34,7 +34,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
     ],
 )

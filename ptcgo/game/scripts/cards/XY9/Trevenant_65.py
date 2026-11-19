@@ -26,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Nervous Seed",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Basic Pok\u00e9mon's attacks cost Colorless more.",
-            effect=damage_per(count_energy("defender"), 10),
+            effect=unimplemented,
         ),
         Attack(
             title="Energy Press",

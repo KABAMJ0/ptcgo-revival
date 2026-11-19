@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Metal Fortress",
             game_text="Prevent all effects of your opponent's attacks, including damage, done to your Benched Pok\u00e9mon.",
-            effect=protect_next_turn(reduce=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Guard Press",

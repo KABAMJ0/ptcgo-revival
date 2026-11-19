@@ -27,7 +27,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=damage_per(count_energy("self", "water"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Hydro Pump",

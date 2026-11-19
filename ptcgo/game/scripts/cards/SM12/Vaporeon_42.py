@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Vitality Cheer",
             game_text="Your Pok\u00e9mon-GX in play that evolve from Eevee get +60 HP. You can't apply more than 1 Vitality Cheer Ability at a time.",
-            effect=heal_targets(30, scope="each_own"),
+            effect=unimplemented,
         ),
         Attack(
             title="Refreshing Rain",

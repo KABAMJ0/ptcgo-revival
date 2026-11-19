@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2},
             damage=100,
             damage_operator="+",
-            effect=mill_attack(2, opponent=True),
+            effect=unimplemented,
         ),
         Attack(
             title="Mountain Ramming",

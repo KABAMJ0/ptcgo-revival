@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Snow Coating",
             game_text="Double the number of damage counters on each of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Blizzard",

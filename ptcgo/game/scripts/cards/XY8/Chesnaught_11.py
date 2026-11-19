@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=protect_next_turn(reduce=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Adamantine Press",

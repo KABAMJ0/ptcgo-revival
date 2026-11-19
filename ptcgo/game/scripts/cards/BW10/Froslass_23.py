@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Cursed Glare",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent can't attach any Special Energy cards from his or her hand to his or her Pok\u00e9mon.",
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Blizzard",

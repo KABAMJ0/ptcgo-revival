@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
             damage_operator="+",
-            effect=spread_damage(50, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="High-Voltage Current",

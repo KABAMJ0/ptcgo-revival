@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="You may switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
-            effect=damage_per(count_energy("defender"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Mysterious Wave",

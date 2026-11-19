@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Bug's Radar",
             game_text="Once during your turn, you may look at the top 3 cards of your opponent's deck and put them back in any order.",
-            effect=damage_per(count_energy("self", "psychic"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Brainwave",

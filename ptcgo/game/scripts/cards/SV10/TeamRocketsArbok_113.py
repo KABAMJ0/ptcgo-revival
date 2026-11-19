@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Potent Glare",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't play any Pok\u00e9mon that has an Ability from their hand, except for Team Rocket's Pok\u00e9mon.",
-            effect=spread_damage(30, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Spinning Tail",

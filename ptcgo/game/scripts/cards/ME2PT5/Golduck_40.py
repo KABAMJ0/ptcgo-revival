@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Damp",
             game_text="Pok\u00e9mon in play (both yours and your opponent's) lose any Ability that requires the Pok\u00e9mon using it to Knock Out itself.",
-            effect=damage_per(count_energy("self", "water"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Hydro Pump",

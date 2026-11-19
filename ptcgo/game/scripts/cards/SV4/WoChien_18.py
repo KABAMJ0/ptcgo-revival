@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import (
     raise_defender_attack_cost_next_turn,
@@ -34,7 +34,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, attacks used by the Defending Pok\u00e9mon cost ColorlessColorless more.",
             cost={PokemonTypes.GRASS: 3, PokemonTypes.COLORLESS: 1},
             damage=140,
-            effect=raise_defender_attack_cost_next_turn(2),
+            effect=unimplemented,
         ),
     ],
 )

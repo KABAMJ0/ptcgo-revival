@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your deck. If that card is a basic Energy card, attach it to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=spread_damage(10, side="mine"),
+            effect=unimplemented,
         ),
         Attack(
             title="Break Ground",

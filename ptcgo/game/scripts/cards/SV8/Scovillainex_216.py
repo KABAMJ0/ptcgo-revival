@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Double Type",
             game_text="As long as this Pok\u00e9mon is in play, it is Grass and Fire type.",
-            effect=damage_per(damage_counters_on("self"), 70),
+            effect=unimplemented,
         ),
         Attack(
             title="Spicy Rage",

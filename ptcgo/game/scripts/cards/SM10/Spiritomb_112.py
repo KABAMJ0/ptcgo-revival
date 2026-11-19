@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Building Spite",
             game_text="Once during your turn (before your attack), you may put 1 damage counter on this Pok\u00e9mon.",
-            effect=damage_per(damage_counters_on("self"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Anguish Cry",

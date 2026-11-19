@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=draw_until_effect(6),
+            effect=unimplemented,
         ),
         Attack(
             title="Lock Gear",

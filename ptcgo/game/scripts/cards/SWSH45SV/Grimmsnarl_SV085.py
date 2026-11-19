@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Oath",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent's Active Pok\u00e9mon's attacks cost Colorless more.",
-            effect=damage_per(count_energy("defender"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Energy Press",

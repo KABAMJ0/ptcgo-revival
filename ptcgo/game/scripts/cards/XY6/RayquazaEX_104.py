@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=mill_attack(3, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dragon Pulse",

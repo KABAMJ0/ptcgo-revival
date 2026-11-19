@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Bubble Gathering",
             game_text="As often as you like during your turn, you may use this Ability. Move an Energy from 1 of your other Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=damage_per(count_energy("self", "psychic"), 40),
+            effect=unimplemented,
         ),
         Attack(
             title="Energized Balloon",

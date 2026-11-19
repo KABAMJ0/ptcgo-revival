@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Bring Down the Axe",
             game_text="If your opponent's Active Pok\u00e9mon has any Special Energy attached, it is Knocked Out.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=mill_attack(3, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dragon Pulse",
