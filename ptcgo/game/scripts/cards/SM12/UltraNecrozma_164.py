@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="5b28e8c3-8f98-589a-8c88-d7f4871047c1",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.METAL: 1},
             damage=170,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
     ],
 )
