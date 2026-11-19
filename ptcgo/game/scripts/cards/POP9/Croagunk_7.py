@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def nimble(ctx):
+    """30; with Turtwig in play Croagunk heals back the damage it dealt."""
+    dealt = await ctx.deal_damage(30)
+    if named_in_play("Turtwig")(ctx) and ctx.attacker is not None and dealt > 0:
+        await ctx.heal(dealt, ctx.attacker)
+
 card = PokemonCardDef(
     guid="b12194de-6831-5eb5-a621-e4c010d81b06",
     key="POP9",
@@ -29,7 +37,7 @@ card = PokemonCardDef(
             game_text="If you have Turtwig in play, remove from Croagunk the number of damage counters equal to the damage you did to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=30,
-            effect=unimplemented,
+            effect=nimble,
         ),
     ],
 )

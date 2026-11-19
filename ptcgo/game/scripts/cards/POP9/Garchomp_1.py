@@ -2,6 +2,17 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+async def jet_sword(ctx):
+    """100; discarding 2 Energy also puts 10 on each of the opponent's Benched."""
+    await ctx.deal_damage(100)
+    discarded = await ctx.discard_energy_from(ctx.attacker, 2)
+    if len(discarded) < 2:
+        return
+    for pokemon in ctx.opponent_bench():
+        await ctx.deal_damage(10, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="d8043f0f-b94b-561d-a11f-1a10b8192656",
     key="POP9",
@@ -32,7 +43,7 @@ card = PokemonCardDef(
             game_text="Discard 2 Energy attached to Garchomp and this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=jet_sword,
         ),
     ],
 )

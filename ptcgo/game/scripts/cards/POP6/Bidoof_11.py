@@ -1,7 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import (
+    AttrID, CardType, PokemonTypes, PokemonStage, Rarities,
+)
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
+
+def _is_trainer(card):
+    return card.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value
 
 card = PokemonCardDef(
     guid="eda8cbe2-e4b5-5ed2-9f5f-ac5e0d361117",
@@ -30,7 +36,7 @@ card = PokemonCardDef(
             title="Scavenge",
             game_text="Search your discard pile for a Trainer card, show it to your opponent, an put it into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(_is_trainer, count=1, to="hand"),
         ),
     ],
 )

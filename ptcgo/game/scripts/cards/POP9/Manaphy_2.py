@@ -2,6 +2,10 @@ from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import look_at_top
+
+
+
 card = PokemonCardDef(
     guid="869e9abf-2bda-5596-868b-5f29ed0b1797",
     key="POP9",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
             title="Dive",
             game_text="Look at the top 7 cards of your deck, choose 1 of them, and put it into your hand. Put the other cards back on top of your deck. Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=look_at_top(7, take=1, rest="shuffle"),
         ),
         Attack(
             title="Water Glow",

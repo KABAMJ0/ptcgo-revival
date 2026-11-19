@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.card_effects.trainers import is_stage_two
 
 card = PokemonCardDef(
     guid="348421e9-a8dc-53c3-be55-caf30537714b",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Mist",
             game_text="Any damage done to Pelipper by attacks from Stage 2 Evolved Pok\u00e9mon (both yours and your opponent's) is reduced by 30 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, attacker_pred=is_stage_two),
         ),
         Attack(
             title="Lightning Wing",

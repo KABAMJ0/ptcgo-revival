@@ -1,6 +1,27 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.data_utils import Activations
+
+
+async def form_change(ctx):
+    """Search the deck for another Deoxys ex and swap it in; the old
+    card goes on top of the deck."""
+    source = ctx.source
+    if source is None:
+        return
+    want = source.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+    pool = [card for card in ctx.deck()
+            if card.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == want]
+    if not pool:
+        return
+    picks = await ctx.choose_cards(
+        pool, 1, minimum=1,
+        prompt="Choose another Deoxys ex from your deck")
+    if not picks:
+        return
+    await ctx.identity_swap(source, picks[0], destination="deck")
+    await ctx.shuffle_deck()
 
 card = PokemonCardDef(
     guid="6206d2a1-dff5-57e6-abc9-24487f6ea918",
@@ -22,7 +43,9 @@ card = PokemonCardDef(
         Ability(
             title="Form Change",
             game_text="Once during your turn (before your attack), you may search your deck for another Deoxys ex and switch it with Deoxys ex. (Any cards attached to Deoxys ex, damage counters, Special Conditions, and effects on it are now on the new Pok\u00e9mon.) If you do, put Deoxys ex on top of your deck. Shuffle your deck afterward. You can't use more than 1 Form Change Pok\u00e9-Power each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Form Change",
+            effect=form_change,
         ),
         Attack(
             title="Fastwave",

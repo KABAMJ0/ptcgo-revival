@@ -1,8 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_per_heads
+from ptcgo.game.card_effects.passives_common import hp_bonus_tool
+from ptcgo.game.models.board import BoardState
+from ptcgo.game.session.effects import is_special_energy
 
-from ptcgo.game.card_effects.attacks_common import mill_per_heads
+
+def _has_special_energy(pokemon) -> bool:
+    return any(is_special_energy(energy)
+               for energy in BoardState.attached_energies(pokemon))
+
+
 card = PokemonCardDef(
     guid="e2588676-6eb2-58ac-b215-12f7cfdeaa93",
     key="ME3",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Tyrannically Gutsy",
             game_text="If this Pok\u00e9mon has any Special Energy attached, it gets +150 HP.",
-            effect=unimplemented,
+            passive=hp_bonus_tool(150, holder_pred=_has_special_energy),
         ),
         Attack(
             title="Wreak Havoc",

@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_energy
+
+def _has_fewer_energy(ctx) -> bool:
+    return count_energy("self")(ctx) < count_energy("defender")(ctx)
+
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def wavelet(ctx):
+    """40; with Buizel in play, 10 to each of the opponent's Benched."""
+    await ctx.deal_damage(40)
+    if not named_in_play("Buizel")(ctx):
+        return
+    for pokemon in ctx.opponent_bench():
+        await ctx.deal_damage(10, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="27395021-3304-5e2f-8822-46be3e0e2c56",
     key="POP9",
@@ -24,14 +39,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_has_fewer_energy, 10, base=10),
         ),
         Attack(
             title="Wavelet",
             game_text="If you have Buizel in play, this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=wavelet,
         ),
     ],
 )

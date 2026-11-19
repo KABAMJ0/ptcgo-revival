@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
 
 card = PokemonCardDef(
     guid="0ff8e615-0321-58d4-9b41-549f6960143c",
@@ -24,7 +27,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.WATER), 30,
+                              also=switch_self_attack(damage=0)),
         ),
         Attack(
             title="Surf",

@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    AttrID, CardType, PokemonTypes, PokemonStage, Rarities,
+)
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+
+
+def _holds_energy(pokemon, carrier) -> bool:
+    """Free retreat only while this Flygon has an Energy card on it."""
+    if pokemon is None:
+        return False
+    return any(card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value
+               for card in pokemon.children)
 
 card = PokemonCardDef(
     guid="cdf81a41-7dbd-520f-8e67-409f7e3c88d9",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Levitate",
             game_text="As long as Flygon has any Energy attached to it, the Retreat Cost for Flygon is 0.",
-            effect=unimplemented,
+            passive=retreat_free_when(_holds_energy),
         ),
         Attack(
             title="Bite",

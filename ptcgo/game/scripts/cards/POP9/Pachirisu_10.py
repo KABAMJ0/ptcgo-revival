@@ -3,6 +3,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def paired_attack(ctx):
+    """Printed damage plus the partner's extra 20 and Special Condition."""
+    partner = named_in_play('Croagunk')(ctx)
+    printed = getattr(ctx.ability, "damage", 0) or 0
+    await ctx.deal_damage(printed + (20 if partner else 0))
+    if partner:
+        defender = ctx.defender
+        if defender is not None:
+            await ctx.apply_special_condition(defender, SpecialConditions.POISONED)
+
+
 card = PokemonCardDef(
     guid="a07f06cb-8148-50bc-8518-b9a11ee855d3",
     key="POP9",
@@ -34,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=paired_attack,
         ),
     ],
 )

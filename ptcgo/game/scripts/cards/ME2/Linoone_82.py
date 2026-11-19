@@ -1,5 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    Activations, PokemonCardDef, Attack, Ability, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype, is_pokemon_ex
+
+
+async def excited_dash(ctx):
+    """Switch this Benched Pokemon with the Active Pokemon."""
+    await ctx.switch_active(ctx.player_id, ctx.source)
+
+
+def _excited_dash_condition(board, player_id, pokemon) -> bool:
+    """On the Bench, with a Mega Evolution Pokemon ex of yours in play."""
+    if pokemon is board.active_pokemon(player_id):
+        return False
+    return any(has_pokemon_subtype(other, "MEGA") and is_pokemon_ex(other)
+               for other in board.pokemon_in_play(player_id))
+
 
 card = PokemonCardDef(
     guid="fc68e24d-f92e-52fb-a166-cf3c5e735ccd",
@@ -22,7 +39,9 @@ card = PokemonCardDef(
         Ability(
             title="Excited Dash",
             game_text="Once during your turn, if this Pok\u00e9mon is on your Bench, and if you have any Mega Evolution Pok\u00e9mon ex in play, you may use this Ability. Switch this Pok\u00e9mon with your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_excited_dash_condition,
+            effect=excited_dash,
         ),
         Attack(
             title="Slash",

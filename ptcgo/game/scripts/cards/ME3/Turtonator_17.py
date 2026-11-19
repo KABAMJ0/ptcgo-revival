@@ -1,7 +1,19 @@
-from ptcgo.game.card_effects.attacks_common import flip_bonus
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+
+async def shell_spikes(ctx):
+    """Active Spot only: after being damaged by an attack (even if Knocked
+    Out), discard an Energy from the Attacking Pokemon."""
+    if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None or ctx.effects_blocked(attacker):
+        return
+    await ctx.discard_energy_from(attacker, 1)
+
 
 card = PokemonCardDef(
     guid="677c0ef6-05b9-5238-a1af-a608f0d978ca",
@@ -23,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Shell Spikes",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), discard an Energy from the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=shell_spikes,
         ),
         Attack(
             title="Heat Breath",
