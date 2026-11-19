@@ -3,7 +3,7 @@ from ptcgo.game.attributes import DeckBoxShape
 
 product = DeckBoxDef(
     guid="208c5565-31e8-57ad-8636-87f5360440eb",
-    key="NoSet",
+    key="core",
     name="Blastoisesleeve Deck Box",
     image_url="blastoisesleevedeckbox",
     shape=DeckBoxShape.KEEPER,

@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import CoinDef
 
 product = CoinDef(
     guid="16275d44-b094-5aec-bcc6-d756812a6731",
-    key="NoSet",
-    name="CTVM Blue Holo Piplup Coin Coin",
+    key="core",
+    name="CTVM Blue Holo Piplup Coin",
     image_url="ctvmblueholopiplup",
 )

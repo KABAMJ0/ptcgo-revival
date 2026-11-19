@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import CoinDef
 
 product = CoinDef(
     guid="f22f0740-cbb0-5b74-9010-eda6275592a5",
-    key="NoSet",
-    name="SPC Blue Mega Swampert Coin Coin",
+    key="core",
+    name="SPC Blue Mega Swampert Coin",
     image_url="spcbluemegaswampert",
 )

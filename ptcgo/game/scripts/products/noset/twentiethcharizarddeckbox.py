@@ -3,7 +3,7 @@ from ptcgo.game.attributes import DeckBoxShape
 
 product = DeckBoxDef(
     guid="33acd85b-291a-5ace-9f97-e202b832d355",
-    key="NoSet",
+    key="core",
     name="Twentiethcharizard Deck Box",
     image_url="twentiethcharizarddeckbox",
     shape=DeckBoxShape.KEEPER,
