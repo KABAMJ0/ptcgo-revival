@@ -5,8 +5,9 @@ from ptcgo.game.card_effects.passives_common import on_ko_from_attack
 
 
 async def _innards_out(ctx):
-    if ctx.attacker is not None:
-        await ctx.deal_damage(60, target=ctx.attacker, apply_modifiers=False,
+    attacker = getattr(ctx, "ko_attacker", None) or ctx.attacker
+    if attacker is not None:
+        await ctx.deal_damage(60, target=attacker, apply_modifiers=False,
                               as_counters=True)
 
 card = PokemonCardDef(
