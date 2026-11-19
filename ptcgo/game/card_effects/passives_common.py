@@ -1443,6 +1443,38 @@ def bench_damage_shield(effects_too: bool = False) -> Passive:
     return BenchDamageShieldPassive(effects_too)
 
 
+class AttackCostModifierPassive(Passive):
+    """Attacks of one group of Pokemon cost [C] more or less, on either side
+    (Nighttime Mine: each Tera Pokemon's attacks; Wondrous Labyrinth: non-Fairy;
+    Dimension Valley: each Psychic Pokemon's attacks cost [C] less)."""
+
+    def __init__(self, delta, pred=None, side="both"):
+        self.delta = delta
+        self.pred = pred
+        self.side = side
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if self.side == "team" and pokemon.owning_player_id != carrier.owning_player_id:
+            return cost
+        if self.side == "opposing" and pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        if self.pred is not None and not self.pred(pokemon, board):
+            return cost
+        colored = cost.get("Colorless", 0) + self.delta
+        if colored > 0:
+            cost["Colorless"] = colored
+        elif colored <= 0:
+            cost.pop("Colorless", None)
+        return cost
+
+
+def attack_cost_modifier(delta: int, pred=None, side: str = "both") -> Passive:
+    """`delta` +1 charges a Colorless more, -1 one less (dropping the entry at
+    zero); `pred(pokemon, board)` narrows who it applies to, and `side` is
+    "both", "team" or "opposing"."""
+    return AttackCostModifierPassive(delta, pred, side)
+
+
 class RetreatCostModifierPassive(Passive):
     """Retreat cost +/- N, optionally for one group of Pokemon ("each Pokemon
     without Team Aqua in its name pays [C] more", "Basic Pokemon pay [C]
