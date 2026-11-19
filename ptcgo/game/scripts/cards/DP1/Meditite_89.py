@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Detect",
             game_text="Flip a coin. If heads, prevent all effects of an attack, including damage, done to Meditite during your opponent's next turn.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=flip_protection(effects_too=True),
         ),
         Attack(
             title="Meditate",
