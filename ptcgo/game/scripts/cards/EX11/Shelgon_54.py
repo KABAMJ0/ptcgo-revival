@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
 
 card = PokemonCardDef(
     guid="03560889-adad-5025-a646-69a831a5bb74",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="Any damage done to Shelgon by attacks is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10),
         ),
         Attack(
             title="Heat Blast",

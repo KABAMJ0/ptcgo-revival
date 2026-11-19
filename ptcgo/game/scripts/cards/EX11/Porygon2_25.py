@@ -1,5 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, \
+    SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_if
+from ptcgo.game.data_utils import subtypes_for
+
+
+def _has_technical_machine(pokemon) -> bool:
+    """Technical Machines are printed as Pokemon Tools carrying the
+    "Technical Machine" subtype (the corpus has no TECHNICAL_MACHINE trainer
+    type), so the subtype is what identifies one."""
+    return pokemon is not None and any(
+        "technical machine" in [s.lower() for s in subtypes_for(child.archetype_id)]
+        for child in pokemon.children)
+
+
+def _machine_burst_gate(ctx) -> bool:
+    return _has_technical_machine(ctx.attacker)
 
 
 async def _backup(ctx):
@@ -7,6 +23,7 @@ async def _backup(ctx):
     shortfall = 6 - len(ctx.hand(ctx.player_id))
     if shortfall > 0:
         await ctx.draw_cards(shortfall, ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="3e7e0e66-6784-587c-a322-e5fd88a6fdbc",
@@ -36,7 +53,8 @@ card = PokemonCardDef(
             game_text="If Porygon2 has a Technical Machine card attached to it, the Defending Pok\u00e9mon is now Asleep and Burned.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=condition_if(_machine_burst_gate, SpecialConditions.ASLEEP,
+                                SpecialConditions.BURNED),
         ),
     ],
 )

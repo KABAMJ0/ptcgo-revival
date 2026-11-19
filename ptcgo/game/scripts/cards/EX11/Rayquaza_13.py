@@ -1,5 +1,25 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
+
+def _missing_holon_guard(ctx) -> bool:
+    """Delta Guard: with a Holon Energy card attached, Lightning Storm's effect
+    (the 7 damage counters on Rayquaza) is ignored."""
+    for energy in ctx.attached_energies(ctx.attacker):
+        definition = def_for(getattr(energy, "archetype_id", "") or "")
+        if (getattr(definition, "display_name", "") or "").startswith("Holon Energy"):
+            return False
+    return True
+
+
+async def _lightning_storm(ctx):
+    """Printed damage, then 7 damage counters on Rayquaza -- unless Delta Guard
+    ignores that effect."""
+    await ctx.deal_damage()
+    if _missing_holon_guard(ctx):
+        await ctx.deal_damage(70, target=ctx.attacker, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="6b3e443d-fc6a-57b0-8b8f-2eaa44240e96",
@@ -30,14 +50,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self"), 10, base=0),
         ),
         Attack(
             title="Lightning Storm",
             game_text="Put 7 damage counters on Rayquaza.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=_lightning_storm,
         ),
     ],
 )
