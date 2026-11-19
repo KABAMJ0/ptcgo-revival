@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="e0de1565-2a82-55ef-8e58-e1bcd0419945",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Metal Sound",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Swift",

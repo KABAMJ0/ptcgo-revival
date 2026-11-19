@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="2b3dd5b9-e7e6-505e-a022-eb7b6e1b1f2b",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Supersonic",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Flail",
