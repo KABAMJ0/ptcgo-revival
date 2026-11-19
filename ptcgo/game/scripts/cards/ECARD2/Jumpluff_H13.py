@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Fluff",
             game_text="During your opponent's turn, if Jumpluff would be damaged or affected by an opponent's attack and it already has at least 1 damage counter on it, flip a coin. If heads, prevent all effects of that attack (including damage).",
-            effect=flip_damage(per_heads=30),
+            effect=unimplemented,
         ),
         Attack(
             title="Cotton Punch",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="x",
-            effect=flip_damage(per_heads=30),
+            effect=unimplemented,
         ),
     ],
 )
