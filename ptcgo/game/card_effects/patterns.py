@@ -14794,6 +14794,27 @@ def _bonus_from_phrase(m, ability):
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
 
+def _extra_energy_prize_instead(m, ability):
+    """"If your opponent's Pokemon is Knocked Out by damage from this attack, take
+    N more Prize card(s). If this Pokemon has at least M extra Energy attached ...,
+    take K more Prize cards instead." The watcher is registered with the number the
+    gate selects at attack time; the KO itself raises the take later."""
+    base_prizes = int(m.group(1))
+    cond = _extra_energy_attached(int(m.group(2)), m.group("type"))
+    gated_prizes = int(m.group(4))
+
+    async def effect(ctx):
+        await ctx.deal_damage()
+        source = ctx.attacker
+        if source is None:
+            return
+        prizes = gated_prizes if cond(ctx) else base_prizes
+        ctx.add_extra_prize_watcher(
+            attacker_predicate=lambda pokemon: pokemon.entity_id == source.entity_id,
+            prizes=prizes)
+    return effect
+
+
 def _extra_energy_tail(m, ability):
     """The gate, then a payload that is not a flat damage bonus: "if this Pokemon
     has at least N extra <type> Energy attached (in addition to this attack's
@@ -15585,6 +15606,14 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"remaining than your opponent, this attack does (\d+) more "
                 r"damage\."), _bonus_prize_comparison),
     # -- batch 8: remaining generic riders ---------------------------------
+    ("bonus.extra-energy-prize-instead",
+     re.compile(r"if your opponent's pok[eé]mon is knocked out by damage from "
+                r"this attack, take (\d+) more prize cards?\. if this pok[eé]mon "
+                r"has at least (\d+) extra (?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy attached(?: to it)?(?: \(in addition to this "
+                r"attack's cost\))?, take (\d+) more prize cards? instead\.?",
+                re.IGNORECASE),
+     _extra_energy_prize_instead),
     ("bonus.extra-energy-tail",
      re.compile(r"if this pokemon has at least (\d+) extra (?:(?P<type>"
                 + _TYPE_WORDS + r") )?energy attached(?: to it)?"
