@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(2, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="d0bb35df-1317-51bb-b6eb-5442a5cd528e",
     key="XY8",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Haunt",
             game_text="Put 2 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )

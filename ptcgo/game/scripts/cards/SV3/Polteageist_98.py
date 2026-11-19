@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(5, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="0b392cdd-2d0b-5b08-ad78-75883aca77fa",
     key="SV3",
@@ -30,7 +35,7 @@ card = PokemonCardDef(
             title="Pour Tea",
             game_text="Put 5 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )

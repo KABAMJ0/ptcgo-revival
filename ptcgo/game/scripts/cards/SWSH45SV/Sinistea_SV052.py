@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(2, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="a2351ba7-9b81-5df8-b914-1cf13ca894a2",
     key="SWSH45SV",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Furtive Drop",
             game_text="Put 2 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )
