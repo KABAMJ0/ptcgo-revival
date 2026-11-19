@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("both", PokemonTypes.GRASS), 10, base=20),
         ),
         Attack(
             title="Horn Leech",
