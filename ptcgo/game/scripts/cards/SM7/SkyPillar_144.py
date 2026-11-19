@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=144,
     set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=bench_damage_shield(effects_too=True)
 )

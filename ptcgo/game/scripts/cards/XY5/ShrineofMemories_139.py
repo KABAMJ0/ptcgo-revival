@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import previous_evolution_grant_passive
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=139,
     set_code="XY5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=previous_evolution_grant_passive()
 )

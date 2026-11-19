@@ -225,7 +225,8 @@ def pokemon_of_types(*types) -> Callable[[Any], bool]:
     """Predicate: a Pokemon (or card) has at least one of `types`."""
     wanted = set(types)
 
-    def pred(any_card) -> bool:
+    def pred(any_card, *_rest) -> bool:
+        # Tolerant of the (pokemon, board) call shape some hooks use.
         current = set(any_card.get_attribute(AttrID.POKEMON_TYPES) or [])
         return bool(current & wanted)
 
@@ -1566,6 +1567,38 @@ def bench_capacity_passive(limit: int = 4, protects="each",
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
     return BenchCapacityPassive(limit, protects, trim_to, mode)
+
+
+class SuppressAllToolsPassive(Passive):
+    """Jamming Tower: every attached Pokemon Tool has no effect."""
+
+    def suppresses_tool(self, tool, carrier):
+        return True
+
+
+def suppress_all_tools() -> Passive:
+    return SuppressAllToolsPassive()
+
+
+def holder_has_energy_of(*types, holder_pred=None) -> Callable[[Any, Any], bool]:
+    """(pokemon, carrier) pred: the Pokemon has an attached Energy of one of
+    `types` (Shadow Circle, Plasma Frigate: "has any Darkness Energy attached
+    to it"). Accepts basic and special Energy alike."""
+    wanted = set(types)
+
+    def pred(pokemon, carrier) -> bool:
+        if holder_pred is not None and not holder_pred(pokemon):
+            return False
+        for child in getattr(pokemon, "children", []) or []:
+            options = child.get_attribute(AttrID.ENERGY_INFO) or {}
+            provided = set()
+            for option in (options.get("options") or []):
+                provided.update(option if isinstance(option, (list, tuple)) else [option])
+            if provided & wanted:
+                return True
+        return False
+
+    return pred
 
 
 class NamedAttackerFlipRiderPassive(Passive):

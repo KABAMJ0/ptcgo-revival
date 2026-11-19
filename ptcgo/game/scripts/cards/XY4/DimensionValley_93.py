@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import attack_cost_modifier, pokemon_of_types
+from ptcgo.game.attributes import Rarities, PokemonTypes
 
 card = StadiumCardDef(
     guid="915776f2-92b4-53ab-97ad-bcf2d4ce25a9",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=93,
     set_code="XY4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=attack_cost_modifier(-1, pred=pokemon_of_types(PokemonTypes.PSYCHIC.value))
 )
