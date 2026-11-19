@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Electromagnetic Induction",
             game_text="Search your deck for up to 2 Lightning Energy cards and attach them to 1 of your Pok\u00e9mon. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("lightning"), count=2, distribute=False),
         ),
         Attack(
             title="Explosive Thunder",
