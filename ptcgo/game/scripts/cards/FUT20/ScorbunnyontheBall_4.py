@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="f166b66e-5304-5058-9a07-0638ac7dd19b",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=20, until_tails=True),
         ),
         Attack(
             title="Reckless Charge",
