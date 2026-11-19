@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Corrosive Winds",
             game_text="Put 2 damage counters on each of your opponent's Pok\u00e9mon that has any damage counters on it.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=unimplemented,
         ),
         Attack(
             title="Destructive Beam",

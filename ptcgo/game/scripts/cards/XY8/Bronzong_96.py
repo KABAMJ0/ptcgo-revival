@@ -27,7 +27,7 @@ card = PokemonCardDef(
             title="Pain Amplifier",
             game_text="Put 3 damage counters on each of your opponent's Pok\u00e9mon that has any damage counters on it.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=unimplemented,
         ),
         Attack(
             title="Knock Away",

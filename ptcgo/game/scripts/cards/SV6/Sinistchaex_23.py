@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Re-Brew",
             game_text="Put 2 damage counters on 1 of your opponent's Pok\u00e9mon for each Basic Grass Energy card in your discard pile. Then, shuffle those Energy cards into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=heal_targets(30, scope="each_own"),
+            effect=unimplemented,
         ),
         Attack(
             title="Matcha Splash",

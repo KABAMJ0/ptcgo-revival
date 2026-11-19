@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Staggering Steps",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Confused. If tails, this Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Uproar",
