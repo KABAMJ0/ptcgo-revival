@@ -963,12 +963,14 @@ def _energy_pool(ctx, name, predicate=None):
 
 def move_energy_between(predicate=None, count=1, from_pool="any", to_pool="any",
                         source_pred=None, then=None,
-                        prompt="Choose an Energy to move"):
+                        prompt="Choose an Energy to move", to_pred=None):
     """"Move [up to N] Energy card(s) attached to <one of your Pokemon> to
     another of your Pokemon" (Sceptile, Simisear, Team Rocket's Energy).
 
     Pools are "any" (every Pokemon in play), "bench" or "active"; the holder is
-    never offered as its own destination. `count=None` allows any number."""
+    never offered as its own destination. `count=None` allows any number, and
+    `to_pred(pokemon, ctx)` narrows which Pokemon may receive it (Misty's Water
+    Command: "to your Active Pokemon")."""
     predicate = predicate or is_energy_card
 
     async def effect(ctx):
@@ -978,7 +980,8 @@ def move_energy_between(predicate=None, count=1, from_pool="any", to_pool="any",
                     if predicate(energy)]
         if not energies:
             return
-        destinations = _energy_pool(ctx, to_pool)
+        destinations = [p for p in _energy_pool(ctx, to_pool)
+                        if to_pred is None or to_pred(p, ctx)]
         if not destinations or (len(destinations) == 1 and destinations[0] is sources[0]
                                 and len(sources) == 1):
             return

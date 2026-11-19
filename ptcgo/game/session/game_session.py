@@ -4388,6 +4388,7 @@ class GameSession:
         if not self.board_state.attach_card(card.entity_id, target_id):
             return
         self.turn_state.energy_attached = True
+        self.turn_state.energy_attaches_used += 1
         self.stat_add(player_id, "energyplayed")
         logging.info(
             f"[Session {self.game_id}] {self.players[player_id].screen_name} "
@@ -5246,6 +5247,7 @@ class GameSession:
         card.owning_player_id = player_id  # global area move clears the owner
         if card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value:
             self.turn_state.supporter_played = True
+            self.turn_state.supporters_played += 1
         self._record_trainer_played(card)
         self.stat_add(player_id, "trainersplayed")
 

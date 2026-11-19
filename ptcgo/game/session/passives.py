@@ -78,6 +78,10 @@ class TargetDamageModifier:
     target_entity_id: Optional[str] = None
     owner_player_id: Optional[str] = None
     attacks_only: bool = True
+    # Narrows a player-wide modifier to some of that player's Pokemon
+    # ("your Metal Pokemon take 30 less this turn", Iron Defender): takes the
+    # candidate Pokemon and returns whether the modifier applies to it.
+    target_predicate: Optional[Callable[[Any], bool]] = None
     opposing_only: bool = True
     # The effect that created it, for clear_pokemon_effects bookkeeping.
     source_entity_id: Optional[str] = None
@@ -97,6 +101,9 @@ class TargetDamageModifier:
             if calc.target.entity_id != self.target_entity_id:
                 return False
         elif calc.target.owning_player_id != self.owner_player_id:
+            return False
+        if self.target_predicate is not None \
+                and not self.target_predicate(calc.target):
             return False
         turn_state = getattr(calc.board, "turn_state", None)
         turn = getattr(turn_state, "turn_number", self.from_turn)

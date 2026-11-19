@@ -134,8 +134,16 @@ class TurnState:
     turn_number: int = 0
     active_player_id: Optional[str] = None
     supporter_played: bool = False
+    # "You may play 2 Supporter cards this turn" (Lt. Surge's Strategy): the
+    # per-turn limit an effect raises; supporters_played counts what was used.
+    supporter_slots: int = 1
+    supporters_played: int = 0
     stadium_played: bool = False
     energy_attached: bool = False
+    # "You may attach N Energy this turn" / "instead of your free Energy
+    # attachment": the manual attach budget an effect may spend or widen.
+    energy_attach_slots: int = 1
+    energy_attaches_used: int = 0
     retreated: bool = False
     # entity_id -> turn number it entered play (or last evolved). Entities
     # placed during setup are absent and default to turn 0.
@@ -264,8 +272,12 @@ class TurnState:
         self.turn_number += 1
         self.active_player_id = player_id
         self.supporter_played = False
+        self.supporters_played = 0
+        self.supporter_slots = 1
         self.stadium_played = False
         self.energy_attached = False
+        self.energy_attach_slots = 1
+        self.energy_attaches_used = 0
         self.retreated = False
         self.used_abilities = set()
         self.used_named_abilities = set()
@@ -738,7 +750,8 @@ def compute_legal_actions(
                 ))
 
         elif isinstance(card, EnergyEntity):
-            if state.energy_attached or not in_play_ids:
+            if state.energy_attaches_used >= state.energy_attach_slots \
+                    or not in_play_ids:
                 continue
             if state.play_locked(player_id, card) \
                     or plays_blocked(board, player_id, card):
@@ -792,7 +805,8 @@ def compute_legal_actions(
                     target_infos,
                 ))
             elif trainer_type == TrainerType.SUPPORTER.value:
-                if not state.supporter_played and state.turn_number > 1:
+                if state.supporters_played < state.supporter_slots \
+                        and state.turn_number > 1:
                     entries.append(_target_map_entry(
                         game_id, card.entity_id,
                         action_id_for(card.entity_id, "supporter"), ACTION_USE_TRAINER,

@@ -5244,15 +5244,59 @@ def shuffle_random_from_opponent_hand(count: int):
     return effect
 
 
-def each_player_shuffle_discard_into_deck(exclude_source: bool = True):
+def each_player_discards(count: int = 1, prompt: str = "",
+                         from_hand: bool = True):
+    """"Each player discards N cards from their hand" (Jessie & James): the
+    OPPONENT chooses first, then the effect's player -- the order the printed
+    wording implies and the only one that is not self-serving."""
+    async def effect(ctx):
+        for player_id in (ctx.opponent_id, ctx.player_id):
+            hand = ctx.hand(player_id)
+            if not hand:
+                continue
+            picks = await ctx.choose_cards(
+                hand, min(count, len(hand)), minimum=min(count, len(hand)),
+                prompt=prompt or f"Choose {count} card(s) to discard",
+                player_id=player_id)
+            if picks:
+                await ctx.discard_cards(picks)
+    return effect
+
+
+def pay_hand_cost(count: int, predicate=None, then=None,
+                  prompt: str = "Choose cards to discard"):
+    """"Discard N other cards from your hand. If you do, ..." as an optional
+    cost: returns False (and runs nothing) when the player cannot or will not
+    pay, and True with `then(ctx)` run when they do."""
+    async def effect(ctx):
+        hand = [c for c in ctx.hand()
+                if c is not getattr(ctx, "source", None)
+                and (predicate is None or predicate(c))]
+        if len(hand) < count:
+            return False
+        picks = await ctx.choose_cards(
+            hand, count, minimum=0, prompt=prompt)
+        if len(picks) < count:
+            return False
+        await ctx.discard_cards(picks)
+        if then is not None:
+            await then(ctx)
+        return True
+    return effect
+
+
+def each_player_shuffle_discard_into_deck(exclude_source: bool = True,
+                                          predicate=None):
     """Each player shuffles their discard pile into their deck (Lysandre's
-    Trump Card); `exclude_source` keeps the card being played out of it."""
+    Trump Card); `exclude_source` keeps the card being played out of it and
+    `predicate(card, player_id)` chooses WHICH discard cards go back (Karen)."""
     async def effect(ctx):
         source = getattr(ctx, "source", None) if exclude_source else None
         for player_id in ctx.board.player_ids:
             area = ctx.board.find_player_area(player_id, "discardPile")
             cards = [c for c in (area.children if area is not None else [])
-                     if source is None or c.entity_id != source.entity_id]
+                     if source is None or c.entity_id != source.entity_id
+                     if predicate is None or predicate(c, player_id)]
             if cards:
                 await ctx.shuffle_into_deck(list(cards), player_id)
     return effect
