@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +33,10 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="-",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.defender is not None
+                     and ctx.defender.get_attribute(AttrID.HP, 0)
+                     >= ctx.max_hp(ctx.defender),
+                     30, base=10),
         ),
     ],
 )

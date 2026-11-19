@@ -1,4 +1,16 @@
+from ptcgo.game.data_utils import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+
+
+async def _flash_bite(ctx):
+    candidates = ctx.opponent_pokemon_in_play()
+    if not candidates:
+        return
+    target = candidates[0] if len(candidates) == 1 else await ctx.choose_pokemon(
+        candidates, "Choose a Pokémon to put 1 damage counter on")
+    if target is not None:
+        await ctx.place_damage_counters(1, [target])
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
@@ -23,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Flash Bite",
             game_text="Once during your turn, when you put Crobat G from your hand onto your Bench, you may put 1 damage counter on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_POKEMON_BENCHED,
+            effect=_flash_bite,
         ),
         Attack(
             title="Toxic Fang",
