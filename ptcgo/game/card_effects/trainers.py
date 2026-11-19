@@ -5240,7 +5240,8 @@ def flip_top_or_bottom_draw(heads: int, tails: int):
     async def effect(ctx):
         if (await ctx.flip_coins(1, title="Draw from the bottom"))[0]:
             deck = ctx.deck()
-            for card in deck[-heads:]:
+            # the bottom is the head of the list (the top is children[-1])
+            for card in deck[:heads]:
                 await ctx.put_in_hand([card], reveal=False)
         else:
             await ctx.draw_cards(tails)
