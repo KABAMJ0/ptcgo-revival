@@ -176,14 +176,20 @@ def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
 # ======================================================================
 
 class TakesLessPassive(Passive):
-    """Protected Pokemon take N less damage from opposing attacks (after W/R)."""
+    """Protected Pokemon take N less damage from opposing attacks (after W/R).
+
+    `attacker_side="team"` additionally requires the attacker to belong to the
+    passive's own side, which is the Stadium wording "attacks from this
+    down-arrow player's Grass, Fire or Water Pokemon do 20 less"
+    (Parallel City); the plain form is every opposing attacker."""
 
     def __init__(self, amount, protects="carrier", attacker_pred=None,
-                 stack_key=None):
+                 stack_key=None, attacker_side=None):
         self.amount = amount
         self.protects = _protects_pred(protects)
         self.attacker_pred = attacker_pred
         self.stack_key = stack_key
+        self.attacker_side = attacker_side
 
     def modify_damage_taken(self, calc, carrier):
         if not (calc.is_attack and calc.is_opposing):
@@ -193,6 +199,10 @@ class TakesLessPassive(Passive):
         if self.attacker_pred is not None and (
                 calc.attacker is None or not self.attacker_pred(calc.attacker)):
             return
+        if self.attacker_side == "team" and (
+                calc.attacker is None
+                or calc.attacker.owning_player_id != carrier.owning_player_id):
+            return
         if self.stack_key:
             if self.stack_key in calc.applied_once:
                 return
@@ -201,10 +211,36 @@ class TakesLessPassive(Passive):
 
 
 def takes_less_passive(amount, protects="carrier", attacker_pred=None,
-                       stack_key=None) -> Passive:
+                       stack_key=None, attacker_side=None) -> Passive:
     """"Takes N less damage from attacks" (Lesson in Zeal shape); a stack_key
-    dedups multiple copies within one damage calc."""
-    return TakesLessPassive(amount, protects, attacker_pred, stack_key)
+    dedups multiple copies within one damage calc. `attacker_side="team"` is
+    the Stadium shape, where the cut applies only to the passive's own side's
+    attackers (Parallel City), and `protects="each"` covers both boards."""
+    return TakesLessPassive(amount, protects, attacker_pred, stack_key,
+                            attacker_side)
+
+
+def pokemon_of_types(*types) -> Callable[[Any], bool]:
+    """Predicate: a Pokemon (or card) has at least one of `types`."""
+    wanted = set(types)
+
+    def pred(any_card) -> bool:
+        current = set(any_card.get_attribute(AttrID.POKEMON_TYPES) or [])
+        return bool(current & wanted)
+
+    return pred
+
+
+def team_of_types(*types, protects="team") -> Callable[[Any, Any], bool]:
+    """(target, carrier) pred for `protects`: the target is on the passive's own
+    side AND is one of `types` ("this down-arrow player's Metal Pokemon")."""
+    typed = pokemon_of_types(*types)
+    side = _protects_pred(protects)
+
+    def pred(target, carrier) -> bool:
+        return side(target, carrier) and typed(target)
+
+    return pred
 
 
 class TeamDamageBoostPassive(Passive):
