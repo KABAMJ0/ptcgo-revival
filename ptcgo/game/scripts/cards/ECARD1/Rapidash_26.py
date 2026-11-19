@@ -1,11 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_gate, snipe_attack
-from ptcgo.game.card_effects.passives_common import composed
-
-overrun = composed(lambda ctx: ctx.deal_damage(),
-                   flip_gate(then=snipe_attack(10, pool="bench", count=1,
-                                               apply_modifiers=False)))
 
 card = PokemonCardDef(
     guid="ac32c59a-8a32-54fe-8d84-72988de8a83b",
@@ -30,7 +27,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, flip a coin. If heads, choose 1 of them and this attack does 10 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=overrun,
+            effect=composed(lambda ctx: ctx.deal_damage(20), flip_gate(snipe_attack(10, pool="bench", count=1, apply_modifiers=False))),
         ),
         Attack(
             title="Flame Tail",
