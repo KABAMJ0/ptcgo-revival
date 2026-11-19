@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import conditions_survive_evolution_passive
 
 card = StadiumCardDef(
     guid="04a257d7-809b-512d-abb0-4e7d40f3d244",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=99,
     set_code="SM4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=conditions_survive_evolution_passive()
 )
