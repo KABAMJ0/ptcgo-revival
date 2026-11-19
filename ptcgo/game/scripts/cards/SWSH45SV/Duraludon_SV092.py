@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="73f54bf3-087e-5a64-94cd-906434e29bd9",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Attach a Metal Energy card from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("metal"), count=1, target="choice"),
         ),
         Attack(
             title="Power Beam",
