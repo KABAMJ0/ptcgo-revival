@@ -207,17 +207,25 @@ class ScriptLoader:
         return definition
 
     def _count_coverage(self, reference, card_def):
-        """Tallies one published card's attack/ability entries by how they run."""
+        """Tallies one published card's attack/ability entries by how they run.
+
+        A continuous ability binds as `ability.passive` and keeps
+        `effect = unimplemented`, so testing the effect alone counted every
+        pattern-bound passive as a stub -- 169 blocks tree-wide, and the whole
+        difference between the panel's figure and the real queue."""
         from ptcgo.game.data_utils import unimplemented
         row = self.coverage.setdefault(reference.split("/", 1)[0], {
             "cards": 0, "entries": 0, "stubbed": 0,
-            "wording": 0, "scripted": 0, "plain": 0,
+            "wording": 0, "scripted": 0, "plain": 0, "passive": 0,
         })
         row["cards"] += 1
         for ability in getattr(card_def, "abilities", None) or []:
             row["entries"] += 1
             effect = getattr(ability, "effect", None)
-            if effect is unimplemented:
+            passive = getattr(ability, "passive", None)
+            if effect is unimplemented and passive is not None:
+                row["passive"] += 1
+            elif effect is unimplemented:
                 row["stubbed"] += 1
             elif str(getattr(ability, "effect_source", "") or "").startswith("pattern:"):
                 row["wording"] += 1
