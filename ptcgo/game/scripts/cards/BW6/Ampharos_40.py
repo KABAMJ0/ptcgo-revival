@@ -1,6 +1,19 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
+async def _electromagnetic_wall(ctx):
+    """While this Pokemon is your Active, an Energy the opponent attaches from
+    hand charges 3 damage counters onto the receiving Pokemon."""
+    receiver = ctx.energy_receiver
+    if receiver is None or ctx.attaching_player_id == ctx.player_id:
+        return
+    if ctx.source is not ctx.my_active():
+        return
+    await ctx.deal_damage(30, target=receiver, apply_modifiers=False,
+                          as_counters=True)
+
 
 card = PokemonCardDef(
     guid="1f7087d1-64cc-55fc-93d9-6f523d6f215c",
@@ -23,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Electromagnetic Wall",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever your opponent attaches an Energy from his or her hand to 1 of his or her Pok\u00e9mon, put 3 damage counters on that Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=_electromagnetic_wall,
         ),
         Attack(
             title="Electrobullet",

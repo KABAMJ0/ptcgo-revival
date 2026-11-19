@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+def _at_ten_hp(ctx) -> bool:
+    attacker = ctx.attacker
+    return attacker is not None and attacker.get_attribute(AttrID.HP, 0) == 10
+
 
 card = PokemonCardDef(
     guid="ac711040-4d92-56bf-9131-4c9f24684e65",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_at_ten_hp, 70),
         ),
         Attack(
             title="Seismic Toss",

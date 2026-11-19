@@ -1,6 +1,32 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import Passive
+from ptcgo.game.models.board import PlayArea
+from ptcgo.game.session.passives import carrier_pokemon
+
+
+def _prizes_left(pokemon):
+    node = pokemon
+    while node is not None and type(node).__name__ != "PlayerEntity":
+        node = getattr(node, "parent", None)
+    if node is None:
+        return None
+    for child in node.children:
+        if isinstance(child, PlayArea) and child.get_attribute(AttrID.NAME) == "prizePile":
+            return len(child.children)
+    return None
+
+
+class _AirheadPassive(Passive):
+    """At 2, 4 or 6 Prize cards left this Pokemon can't attack. The engine's
+    blocks_attack hook carries no board, so the prize count is read from the
+    carrier's own player entity."""
+
+    def blocks_attack(self, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return False
+        return _prizes_left(pokemon) in (2, 4, 6)
 
 card = PokemonCardDef(
     guid="de031d20-043f-572a-8c72-4a6f8ae0ffde",
@@ -23,7 +49,7 @@ card = PokemonCardDef(
         Ability(
             title="Airhead",
             game_text="If you have 2, 4, or 6 Prize Cards left, this Pok\u00e9mon can't attack.",
-            effect=unimplemented,
+            passive=_AirheadPassive(),
         ),
         Attack(
             title="Lazy Headbutt",

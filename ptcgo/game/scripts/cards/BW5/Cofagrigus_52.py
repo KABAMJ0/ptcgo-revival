@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, no_retreat_attack
+
+_TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
+
+
+def _is_tool(card):
+    return card.get_attribute(AttrID.TRAINER_TYPE) in _TOOL_TYPES
 
 card = PokemonCardDef(
     guid="1523d809-b163-5192-b7c3-e3a707ba9c1f",
@@ -26,7 +33,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="hand", predicate=_is_tool, max_count=10,
+                                     per=40, base=0),
         ),
         Attack(
             title="Lock Up",

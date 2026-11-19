@@ -1,5 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, \
+    Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import self_knockout
+
+
+async def slap_of_misfortune(ctx):
+    """70 damage; every coin the opponent flips next turn lands tails."""
+    await ctx.deal_damage()
+    ctx.lock_coin_flips()
+
+
+async def six_feet_under(ctx):
+    """Knock this Pokemon Out, then spread 3 damage counters over the
+    opponent's Pokemon however the player likes."""
+    if not await ctx.ask_yes_no("Knock Out this Pok\u00e9mon?"):
+        return
+    if not await self_knockout(ctx):
+        return
+    await ctx.place_damage_counters(3)
 
 card = PokemonCardDef(
     guid="c1fc68e0-bf75-58f5-b996-62812748985a",
@@ -22,14 +40,15 @@ card = PokemonCardDef(
         Ability(
             title="Six Feet Under",
             game_text="Once during your turn (before your attack) you may Knock Out this Pok\u00e9mon. If you do, put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=six_feet_under,
         ),
         Attack(
             title="Slap of Misfortune",
             game_text="Whenever your opponent flips a coin during his or her next turn, treat it as tails.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=slap_of_misfortune,
         ),
     ],
 )

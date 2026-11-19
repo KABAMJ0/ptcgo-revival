@@ -1,4 +1,5 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of the Defending Pok\u00e9mon's attack. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=lock_chosen_defender_attack(),
         ),
         Attack(
             title="Malevolent Fire",

@@ -1,7 +1,20 @@
 from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
+from ptcgo.game.card_effects.pokemon import devolve_depth
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
+
+
+async def _devolution_punch(ctx):
+    """Printed damage, then the Defending Pokemon loses its highest Stage and
+    that evolution card goes to its owner's hand."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    if devolve_depth(defender) <= 0:
+        return
+    await ctx.devolve_pokemon(defender, steps=1, destination="hand")
+
 
 card = PokemonCardDef(
     guid="90c13e88-66b8-5bfb-9404-b6e569e92854",
@@ -26,7 +39,7 @@ card = PokemonCardDef(
             game_text="Devolve the Defending Pok\u00e9mon and put the highest Stage evolution card on it into your opponent's hand.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=_devolution_punch,
         ),
         Attack(
             title="Ghost Hammer",

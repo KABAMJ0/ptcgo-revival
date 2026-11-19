@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_prizes_remaining
+
+
+async def payback(ctx):
+    """30 damage, plus 60 and an Energy discard off the Defending Pokemon
+    while the opponent is down to their last Prize card."""
+    last_prize = count_prizes_remaining("opponent")(ctx) == 1
+    await ctx.deal_damage(30 + (60 if last_prize else 0))
+    defender = ctx.defender
+    if last_prize and defender is not None and not ctx.effects_blocked(defender):
+        await ctx.discard_energy_from(
+            defender, 1,
+            prompt="Choose an Energy to discard from the Defending Pok\u00e9mon")
 
 card = PokemonCardDef(
     guid="1e6d5bb9-e58f-5105-ae7b-f52057158424",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=payback,
         ),
     ],
 )

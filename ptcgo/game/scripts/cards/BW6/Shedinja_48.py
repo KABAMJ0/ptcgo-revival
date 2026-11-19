@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class EmptyShellPassive(Passive):
+    """Knocked Out, this Pokemon yields no Prize cards."""
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        return 0 if pokemon is carrier else count
+
 
 async def _spread(ctx):
     """Printed damage, then N damage counters placed across the opponent's side."""
@@ -27,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Empty Shell",
             game_text="If this Pok\u00e9mon is Knocked Out, your opponent can't take any Prize cards for it.",
-            effect=unimplemented,
+            passive=EmptyShellPassive(),
         ),
         Attack(
             title="Cursed Drop",

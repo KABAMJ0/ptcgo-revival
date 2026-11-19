@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import has_team_plasma
+
+
+async def iron_fist_of_justice(ctx) -> None:
+    """No damage while this player has a Team Plasma Pokemon in play."""
+    if any(has_team_plasma(ctx.board, pokemon)
+           for pokemon in ctx.my_pokemon_in_play()):
+        return
+    await ctx.deal_damage()
+
 
 card = PokemonCardDef(
     guid="e1b5144a-0fb9-5718-9820-897b8d01ef75",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             game_text="If you have any Team Plasma Pok\u00e9mon in play, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=iron_fist_of_justice,
         ),
         Attack(
             title="Shadow Punch",

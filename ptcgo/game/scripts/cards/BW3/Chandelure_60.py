@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +25,9 @@ card = PokemonCardDef(
         Ability(
             title="Cursed Shadow",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is your Active Pok\u00e9mon, you may put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: is_in_active_spot(pokemon),
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
         Attack(
             title="Eerie Glow",

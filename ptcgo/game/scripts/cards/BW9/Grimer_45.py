@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, \
+    SpecialConditions
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import gust_then
+
+
+async def _poison_new_active(ctx, new_active):
+    await ctx.apply_special_condition(new_active, SpecialConditions.POISONED)
 
 card = PokemonCardDef(
     guid="ea1fba2a-caf9-5e64-8916-57880f3414c6",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
             title="Lure Poison",
             game_text="Flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with the Defending Pok\u00e9mon. The new Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=flip_gate(gust_then(_poison_new_active)),
         ),
         Attack(
             title="Sludge Toss",

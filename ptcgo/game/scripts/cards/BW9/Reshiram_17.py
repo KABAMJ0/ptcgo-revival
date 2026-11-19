@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, named_in_play
 
 card = PokemonCardDef(
     guid="4c650db8-5a77-5431-8c39-a94d5dbddf06",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(named_in_play("Zekrom"), 40, base=80),
         ),
     ],
 )

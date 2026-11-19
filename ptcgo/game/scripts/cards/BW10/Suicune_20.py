@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.passives_common import (
+    attacker_is_gx_or_ex, damage_shield_from,
+)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="79229abf-9daa-5727-b829-f45bbce4b935",
@@ -21,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Safeguard",
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon by Pok\u00e9mon-EX.",
-            effect=unimplemented,
+            passive=damage_shield_from(attacker_is_gx_or_ex()),
         ),
         Attack(
             title="Aurora Beam",

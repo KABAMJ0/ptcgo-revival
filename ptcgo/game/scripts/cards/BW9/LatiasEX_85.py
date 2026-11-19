@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import damage_shield_from
+from ptcgo.game.card_effects.trainers import attacker_has_ability
 
 card = PokemonCardDef(
     guid="77e8c458-a2ad-59c0-92d6-78f59415ed08",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Bright Down",
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon by your opponent's Pok\u00e9mon with Abilities.",
-            effect=unimplemented,
+            passive=damage_shield_from(attacker_has_ability()),
         ),
         Attack(
             title="Barrier Break",

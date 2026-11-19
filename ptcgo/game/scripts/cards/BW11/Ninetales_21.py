@@ -1,5 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+def _basic_energy_matches_defender(ctx):
+    """Basic Energy on this Pokemon of the same type as the Defending Pokemon."""
+    defender = ctx.defender
+    attacker = ctx.attacker
+    if defender is None or attacker is None:
+        return False
+    defender_types = defender.get_attribute(AttrID.POKEMON_TYPES) or []
+    return any(
+        is_basic_energy_card(energy)
+        and any(energy_provides_type(energy, int(value)) for value in defender_types)
+        for energy in ctx.attached_energies(attacker)
+    )
+
 
 card = PokemonCardDef(
     guid="7a9d9259-6970-54b8-ad5e-8103d9c19421",
@@ -25,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_basic_energy_matches_defender, 40, base=50),
         ),
     ],
 )

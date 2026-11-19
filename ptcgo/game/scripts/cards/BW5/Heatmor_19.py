@@ -1,4 +1,9 @@
-from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.attacks_common import bonus_if, flip_bonus
+from ptcgo.game.card_effects.support_common import entity_name
+
+
+def _defender_is_durant(ctx):
+    return ctx.defender is not None and entity_name(ctx.defender) == "Durant"
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_bonus
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon is Durant, this attack does 50 more damage.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=bonus_if(_defender_is_durant, 50),
         ),
         Attack(
             title="Firebreathing",

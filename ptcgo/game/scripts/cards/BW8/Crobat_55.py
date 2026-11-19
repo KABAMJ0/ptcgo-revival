@@ -1,4 +1,8 @@
 from ptcgo.game.card_effects.trainers import draw_n
+from ptcgo.game.card_effects.passives_common import extra_poison_counters
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -28,10 +32,10 @@ card = PokemonCardDef(
         ),
         Attack(
             title="Ultra-Toxic Fang",
-            game_text="The Defending Pok\u00e9mon is now Poisoned. Put 4 damage counters instead of 1 on this Pok\u00e9mon between turns.",
+            game_text="The Defending Pok\u00e9mon is now Poisoned. Put 4 damage counters instead of 1 on that Pok\u00e9mon between turns.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
     ],
 )

@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _final_gambit(ctx):
+    """80 to the Defending Pokemon; the 80 self-hit only on two tails."""
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(2, "Final Gambit")
+    if results and not any(results):
+        await ctx.deal_damage(80, target=ctx.attacker, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="bb4cc7d9-4581-5a55-a4bf-82906056acda",
     key="BW2",
@@ -31,7 +40,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If both of them are tails, this Pok\u00e9mon does 80 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=_final_gambit,
         ),
     ],
 )

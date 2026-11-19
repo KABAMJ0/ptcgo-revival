@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Free Flight",
             game_text="If this Pok\u00e9mon has no Energy attached to it, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(),
         ),
         Attack(
             title="Wing Attack",

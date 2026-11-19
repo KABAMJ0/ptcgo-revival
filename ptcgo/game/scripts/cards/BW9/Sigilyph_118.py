@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.passives_common import damage_shield_from
+from ptcgo.game.card_effects.pokemon import is_pokemon_EX
 
 card = PokemonCardDef(
     guid="19df6ea2-ed77-556a-a5b7-bed9cd0a0e59",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Safeguard",
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon by Pok\u00e9mon-EX.",
-            effect=unimplemented,
+            passive=damage_shield_from(is_pokemon_EX),
         ),
         Attack(
             title="Psychic",

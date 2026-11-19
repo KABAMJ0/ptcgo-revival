@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import count_retreat_cost, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_retreat_cost("defender"), 20, base=10),
         ),
         Attack(
             title="Petal Dance",

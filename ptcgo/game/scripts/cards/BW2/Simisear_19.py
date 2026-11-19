@@ -1,6 +1,8 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import (conditions_if,
+                                                    self_energy_discard_attack,
+                                                    self_has_energy_of_type)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="a43a4430-61a8-5729-8ce5-176ffcff086e",
@@ -25,7 +27,8 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has any Water Energy attached to it, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=conditions_if(self_has_energy_of_type(PokemonTypes.WATER),
+                                 SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Flamethrower",

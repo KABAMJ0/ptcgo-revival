@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+
+def _prizes_taken_by_both(ctx):
+    """Prize cards both players have taken, which is the printed multiplier."""
+    return ctx.prizes_taken(ctx.player_id) + ctx.prizes_taken(ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="3649d456-fa0b-520e-a415-424c9cdb3aef",
@@ -24,8 +31,8 @@ card = PokemonCardDef(
             game_text="Does 20 damage times the number of Prize cards both players have taken.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            damage_operator="+",
-            effect=unimplemented,
+            damage_operator="x",
+            effect=damage_per(_prizes_taken_by_both, 20),
         ),
         Attack(
             title="Hydro Splash",

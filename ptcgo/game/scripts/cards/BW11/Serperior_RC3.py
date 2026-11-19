@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import typed_energy_free_retreat_passive
 
 card = PokemonCardDef(
     guid="8a2c8cea-36c4-5b14-b7f3-9470a41f2c77",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Royal Garden",
             game_text="If this Pok\u00e9mon has any Grass Energy attached to it, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=typed_energy_free_retreat_passive(PokemonTypes.GRASS.value),
         ),
         Attack(
             title="Solar Beam",

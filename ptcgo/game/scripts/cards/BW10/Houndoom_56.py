@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, \
+    SpecialConditions
+from ptcgo.game.card_effects.attacks_common import bonus_if, no_retreat_attack
+from ptcgo.game.card_effects.passives_common import has_team_plasma
+
+
+def _defender_is_team_plasma(ctx) -> bool:
+    defender = ctx.defender
+    return defender is not None and has_team_plasma(ctx.board, defender)
+
+
+async def _burn_team_plasma_defender(ctx) -> None:
+    if _defender_is_team_plasma(ctx):
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
+
 
 card = PokemonCardDef(
     guid="1769730c-9294-5d22-9066-6be18244f1f5",
@@ -34,7 +47,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_is_team_plasma, 60,
+                            also=_burn_team_plasma_defender),
         ),
     ],
 )

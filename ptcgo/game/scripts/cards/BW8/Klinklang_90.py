@@ -1,5 +1,21 @@
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.passives_common import damage_shield_from
+from ptcgo.game.card_effects.pokemon import has_rule_box
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_metal_ally(target, carrier):
+    """One of my Metal Pokemon."""
+    return (target is not None
+            and target.owning_player_id == carrier.owning_player_id
+            and PokemonTypes.METAL.value in (target.get_attribute(AttrID.POKEMON_TYPES) or []))
+
+
+def _is_pokemon_ex(attacker):
+    name = getattr(def_for(attacker.archetype_id), "display_name", "") or ""
+    return "EX" in name
+
 
 card = PokemonCardDef(
     guid="9339bc7d-5a33-5b24-8b21-e4556decd011",
@@ -23,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Plasma Steel",
             game_text="Prevent all damage done to your Metal Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon-EX.",
-            effect=unimplemented,
+            passive=damage_shield_from(_is_pokemon_ex, protects=_is_metal_ally),
         ),
         Attack(
             title="Heavy Bullet",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_then_damage
 
 card = PokemonCardDef(
     guid="984e76c7-7d6b-5220-82d4-97925004b7c2",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Tractorbeam",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with the Defending Pok\u00e9mon. This attack does 40 damage to the new Defending Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=gust_then_damage(40),
         ),
         Attack(
             title="Obsidian Fang",

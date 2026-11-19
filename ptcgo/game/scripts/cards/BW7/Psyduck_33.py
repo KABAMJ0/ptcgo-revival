@@ -1,5 +1,17 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _firefighting(ctx):
+    """Discard a Fire Energy attached to the Defending Pokemon."""
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    await ctx.discard_energy_from(
+        defender, 1,
+        predicate=lambda e: energy_provides_type(e, PokemonTypes.FIRE.value),
+        prompt="Choose a Fire Energy to discard")
+
 
 card = PokemonCardDef(
     guid="b6e34221-da09-5b1d-87ef-6891ab236b10",
@@ -22,7 +34,7 @@ card = PokemonCardDef(
             title="Firefighting",
             game_text="Discard a Fire Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=_firefighting,
         ),
     ],
 )

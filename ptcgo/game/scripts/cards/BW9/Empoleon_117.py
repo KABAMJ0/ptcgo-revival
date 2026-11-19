@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, \
+    Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="8e513499-b55b-5d80-974f-444b042f9793",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Diving Draw",
             game_text="Once during your turn (before your attack), you may discard 1 card from your hand. Then, draw 2 cards.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=discard_then_draw(1, 2, optional=True),
         ),
         Attack(
             title="Attack Command",

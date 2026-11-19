@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.pokemon import is_psychic_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy
 
 card = PokemonCardDef(
     guid="6889a587-ae58-5528-a6a3-2cf50ece087c",
@@ -24,7 +27,8 @@ card = PokemonCardDef(
             title="Energy Gift",
             game_text="Flip a coin. If heads, search your deck for 2 Psychic Energy cards and attach them to your Pok\u00e9mon in any way you like. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=search_attach_energy(
+                is_psychic_energy, count=2, distribute=True)),
         ),
         Attack(
             title="Heart Stamp",
