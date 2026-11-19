@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage, no_retreat_attack
 
+async def big_throw(ctx):
+    """Discard the opponent's Active Pokemon and all cards attached to it."""
+    active = ctx.opponent_active()
+    if active is None or ctx.effects_blocked(active):
+        return
+    await ctx.discard_cards([active] + list(getattr(active, "children", None) or []))
+
+
 card = PokemonCardDef(
     guid="cdcefae1-d890-537e-93d1-aa877b231586",
     key="Promo_SM",
@@ -39,7 +47,7 @@ card = PokemonCardDef(
             title="Big Throw-GX",
             game_text="Discard your opponent's Active Pok\u00e9mon and all cards attached to it. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 4},
-            effect=unimplemented,
+            effect=big_throw,
         ),
     ],
 )

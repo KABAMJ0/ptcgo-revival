@@ -8,6 +8,7 @@ from ptcgo.game.attributes import (
     SpecialConditions,
 )
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.data_utils import Triggers
 
 
 def _is_asleep(ctx) -> bool:
@@ -15,6 +16,14 @@ def _is_asleep(ctx) -> bool:
     return (attacker is not None
             and CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP]
             in (attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or []))
+
+async def comatose(ctx):
+    """While Active: attaching an Energy from hand puts this Pokemon Asleep."""
+    from ptcgo.game.attributes import SpecialConditions
+    if ctx.energy_receiver is not ctx.source:
+        return
+    await ctx.apply_special_condition(ctx.source, SpecialConditions.ASLEEP)
+
 
 card = PokemonCardDef(
     guid="50ea346f-fd23-5e30-ae8c-297ca0b75c17",
@@ -36,7 +45,8 @@ card = PokemonCardDef(
         Ability(
             title="Comatose",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever you attach an Energy from your hand to it, it is now Asleep.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=comatose,
         ),
         Attack(
             title="Hypno Roll",

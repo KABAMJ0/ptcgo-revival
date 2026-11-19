@@ -2,6 +2,15 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
+async def critical_error(ctx):
+    """Search the deck for up to 10 cards, discard them, then shuffle."""
+    picks = await ctx.search_deck(None, count=10, minimum=0,
+                                  prompt="Choose up to 10 cards to discard")
+    if picks:
+        await ctx.discard_cards(picks)
+    await ctx.shuffle_deck()
+
+
 card = PokemonCardDef(
     guid="5cc94745-1e52-5413-a42b-0fcb2d451bdf",
     key="Promo_SM",
@@ -36,7 +45,7 @@ card = PokemonCardDef(
             title="Critical Error-GX",
             game_text="Search your deck for up to 10 cards and discard them. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=critical_error,
         ),
     ],
 )
