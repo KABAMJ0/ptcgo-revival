@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Odor Sleuth",
             game_text="Flip 3 coins. For each heads, put a card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Giga Impact",

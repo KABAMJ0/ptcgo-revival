@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Strange Hacking",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused. You may move any number of damage counters from your opponent's Pok\u00e9mon to their other Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 50),
         ),
         Attack(
             title="Psychic",

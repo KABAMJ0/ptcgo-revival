@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Bubble Gathering",
             game_text="As often as you like during your turn, you may use this Ability. Move an Energy from 1 of your other Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "psychic"), 40),
         ),
         Attack(
             title="Energized Balloon",

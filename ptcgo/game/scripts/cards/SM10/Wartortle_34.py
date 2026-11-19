@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Solid Shell",
             game_text="This Pok\u00e9mon takes 20 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Aqua Slash",

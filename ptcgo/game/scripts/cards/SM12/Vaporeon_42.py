@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Vitality Cheer",
             game_text="Your Pok\u00e9mon-GX in play that evolve from Eevee get +60 HP. You can't apply more than 1 Vitality Cheer Ability at a time.",
-            effect=unimplemented,
+            effect=heal_targets(30, scope="each_own"),
         ),
         Attack(
             title="Refreshing Rain",

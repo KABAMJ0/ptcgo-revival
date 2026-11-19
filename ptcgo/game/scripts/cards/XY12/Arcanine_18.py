@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Burning Road",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon was on the Bench and became your Active Pok\u00e9mon this turn, you may move any number of Fire Energy attached to your Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Scorching Breath",

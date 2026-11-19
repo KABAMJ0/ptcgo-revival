@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Radiant Star",
             game_text="For each of your opponent's Pok\u00e9mon in play, attach a Metal Energy card from your discard pile to your Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Corona Impact",

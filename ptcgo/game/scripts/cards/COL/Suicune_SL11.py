@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Extreme Speed",
             game_text="Suicune's Retreat Cost is Colorless less for each Water Energy attached to Suicune.",
-            effect=unimplemented,
+            effect=spread_damage(20, side="opponent"),
         ),
         Attack(
             title="Tsunami",

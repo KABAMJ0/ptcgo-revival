@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Emperor Aura",
             game_text="Once during your turn (before your attack), when you play Empoleon from your hand to evolve 1 of your Active Pok\u00e9mon, you may use this power. Your opponent can't attach any Energy cards from his or her hand to his or her Pok\u00e9mon during your opponent's next turn.",
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Steel Wing",
