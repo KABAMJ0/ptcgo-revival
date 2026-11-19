@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
 
 
 card = PokemonCardDef(
@@ -26,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Miracle Guard",
             game_text="Each of your Pok\u00e9mon has no Weakness.",
-            effect=unimplemented,
+            passive=no_weakness_passive(protects='team'),
         ),
         Attack(
             title="Protect Charge",

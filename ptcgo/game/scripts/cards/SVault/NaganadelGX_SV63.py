@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
+from ptcgo.game.card_effects.attacks_common import count_in_play, damage_per
+
 
 card = PokemonCardDef(
     guid="aabbe893-debb-54cd-a1de-3a7f80f42869",
@@ -26,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play('mine', pokemon_of_subtype('Ultra Beast')), 20),
         ),
         Attack(
             title="Jet Needle",
