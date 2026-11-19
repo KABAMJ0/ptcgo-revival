@@ -1,5 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                    SpecialConditions)
+from ptcgo.game.card_effects.attacks_common import energy_provides_type
+
+
+async def _burning_fang(ctx):
+    """Printed damage, then on heads discard one attached Fire Energy and Burn
+    the Defending Pokemon."""
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(1, "Burning Fang")
+    if not (results and results[0]):
+        return
+    await ctx.discard_energy_from(
+        ctx.attacker, 1,
+        predicate=lambda e: energy_provides_type(e, PokemonTypes.FIRE.value),
+        prompt="Choose a Fire Energy to discard from Entei")
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
+
 
 card = PokemonCardDef(
     guid="2068263f-51c9-5835-aedd-4cd4e74dbd99",
@@ -28,7 +46,7 @@ card = PokemonCardDef(
             game_text="You may flip a coin. If heads, discard a Fire Energy card attached to Entei and the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_burning_fang,
         ),
     ],
 )
