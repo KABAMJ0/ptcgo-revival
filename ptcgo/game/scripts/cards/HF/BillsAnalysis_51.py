@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.card_effects.trainers import is_trainer_card
 
 card = SupporterCardDef(
     guid="77d98f91-a8a6-5b96-99ca-7162fa1d19d3",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=51,
     set_code="HF",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=look_at_top(7, take=2, predicate=is_trainer_card, minimum=0)
 )

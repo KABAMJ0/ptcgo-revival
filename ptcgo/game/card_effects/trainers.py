@@ -9670,3 +9670,75 @@ def heal_each_with_pokemon_in_play(amount: int, minimum: int = 6):
     return effect
 
 
+
+
+class FewerPrizeForKnockedOutPassive(Passive):
+    """Black Market Prism Star: a Darkness Pokemon with any Darkness Energy
+    attached that is Knocked Out by an opponent's attack gives that player 1
+    fewer Prize card. Evaluated before the stack moves, so the attached Energy
+    is still readable."""
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        if count <= 0:
+            return count
+        types = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+        if PokemonTypes.DARKNESS.value not in types:
+            return count
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+            return count
+        attached = ctx.board.attached_energies(pokemon)
+        has_darkness_energy = any(
+            PokemonTypes.DARKNESS.value in (energy.get_attribute(AttrID.POKEMON_TYPES) or [])
+            for energy in attached)
+        if not has_darkness_energy:
+            return count
+        return count - 1
+
+
+def fewer_prize_for_darkness_knockout() -> Passive:
+    return FewerPrizeForKnockedOutPassive()
+
+
+def switch_then_heal(amount: int, active_pred=None):
+    """Switch your Active with 1 of your Benched Pokemon; if you do, heal
+    `amount` from the Pokemon that went to the Bench. `active_pred` narrows the
+    Active the card names ("your Active Water Pokemon" -- Switch Raft)."""
+    async def effect(ctx):
+        old_active = ctx.my_active()
+        bench = ctx.my_bench()
+        if old_active is None or not bench:
+            return
+        if active_pred is not None and not active_pred(old_active):
+            return
+        target = await ctx.choose_play_target(bench, "Choose your new Active Pokemon")
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        await ctx.heal(amount, old_active)
+    return effect
+
+
+def confuse_own_active():
+    """Your Active Pokemon is now Confused (Imakuni?)."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        if active is not None:
+            await ctx.apply_special_condition(active, SpecialConditions.CONFUSED)
+    return effect
+
+
+def discard_opponent_special_energy_to_lost_zone(count: int = 1):
+    """Put `count` Special Energy cards attached to your opponent's Pokemon in
+    the Lost Zone (Lost Remover)."""
+    async def effect(ctx):
+        attached = [energy for pokemon in ctx.opponent_pokemon_in_play()
+                    for energy in ctx.attached_energies(pokemon)
+                    if is_energy_card(energy) and not is_basic_energy_card(energy)]
+        if not attached:
+            return
+        picks = await ctx.choose_cards(
+            attached, count, minimum=0,
+            prompt="Choose a Special Energy card to put in the Lost Zone")
+        if picks:
+            await ctx.move_to_lost_zone(picks)
+    return effect

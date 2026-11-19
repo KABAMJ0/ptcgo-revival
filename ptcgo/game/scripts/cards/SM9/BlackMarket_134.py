@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import fewer_prize_for_darkness_knockout
 
 card = StadiumCardDef(
     guid="8713634e-a490-56c7-b72f-a119019d7101",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=134,
     set_code="SM9",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=fewer_prize_for_darkness_knockout()
 )

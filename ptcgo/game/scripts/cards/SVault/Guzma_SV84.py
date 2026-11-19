@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import opponent_switch_then_self_switch
 
 card = SupporterCardDef(
     guid="a285a3ee-6fc7-530e-a604-4615e2129712",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=84,
     set_code="SVault",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=opponent_switch_then_self_switch()
 )
