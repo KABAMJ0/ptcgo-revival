@@ -19,7 +19,10 @@ from ptcgo.game.attributes import (
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
-from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.passives_common import (
+    condition_immunity_passive,
+    no_weakness_passive,
+)
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
@@ -934,6 +937,35 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def discard_defender_tools_then_damage(damage: Optional[int] = None):
+    """"Before doing damage, discard all Pokemon Tools from your opponent's
+    Active Pokemon": the order matters, so the tools leave first and the
+    printed damage lands on a defender that no longer holds them."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is not None:
+            tools = [child for child in defender.children
+                     if child.get_attribute(AttrID.TRAINER_TYPE) is not None]
+            if tools:
+                await ctx.discard_cards(tools)
+        await ctx.deal_damage(damage)
+    return effect
+
+
+def no_weakness_next_turn(damage: Optional[int] = None):
+    """Printed (or `damage`) damage, then the attacker has no Weakness during
+    the opponent's next turn ("During your opponent's next turn, this Pokemon
+    has no Weakness"). The shield is a temporary passive, so it ends with the
+    turn window the same way a protection rider does."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if ctx.attacker is None:
+            return
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, no_weakness_passive())
     return effect
 
 
