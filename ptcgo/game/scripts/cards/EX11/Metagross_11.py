@@ -1,6 +1,20 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.card_effects.support_common import look_at_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+
+async def _crush_and_burn(ctx):
+    """Discard any number of Energy from your Pokemon in play; 30 damage plus
+    20 for each Energy card discarded."""
+    energies = [energy for pokemon in ctx.my_pokemon_in_play()
+                for energy in ctx.attached_energies(pokemon)]
+    picked = await ctx.choose_cards(
+        energies, len(energies), minimum=0,
+        prompt="Choose Energy cards to discard") if energies else []
+    if picked:
+        await ctx.discard_cards(picked)
+    await ctx.deal_damage(30 + 20 * len(picked))
+
 
 card = PokemonCardDef(
     guid="a9fd8783-6217-5a00-a61a-43e9891eb560",
@@ -35,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.METAL: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_crush_and_burn,
         ),
     ],
 )

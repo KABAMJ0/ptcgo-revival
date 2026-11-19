@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.session.passives import Passive
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+class MistPassive(Passive):
+    """Attacks from any Stage 2 Evolution (either side) do 30 less to the carrier."""
+
+    def modify_damage_taken(self, calc, carrier):
+        from ptcgo.game.session.passives import carrier_pokemon
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if carrier_pokemon(carrier) is not calc.target:
+            return
+        attacker = calc.attacker
+        if attacker is not None and attacker.get_attribute(AttrID.STAGE) == PokemonStage.STAGE2.value:
+            calc.amount = max(0, calc.amount - 30)
 
 card = PokemonCardDef(
     guid="2cec06e8-f5c6-58e6-846c-fd551c107445",
@@ -22,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Mist",
             game_text="Any damage done to Altaria ex by attacks from Stage 2 Evolved Pok\u00e9mon (both yours and your opponent's) is reduced by 30 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=None,
+            passive=MistPassive(),
         ),
         Attack(
             title="Dive",

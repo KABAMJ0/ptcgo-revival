@@ -1,6 +1,19 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class ElectroGuardPassive(Passive):
+    """No Weakness while a Lightning Energy is attached to the carrier."""
+
+    def modify_weakness(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.target is not holder:
+            return
+        if any(energy_provides_type(child, PokemonTypes.LIGHTNING.value)
+               for child in holder.children):
+            calc.weakness_applies = False
 
 card = PokemonCardDef(
     guid="351dfdf8-7cf9-5bc0-8b1c-29759aeea7fd",
@@ -23,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Electro-guard",
             game_text="As long Minun has any Lightning Energy attached to it, Minun has no Weakness.",
-            effect=unimplemented,
+            effect=None,
+            passive=ElectroGuardPassive(),
         ),
         Attack(
             title="Quick Attack",

@@ -1,6 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class LevitatePassive(Passive):
+    """As long as Claydol has any Energy attached to it, the Retreat Cost for
+    Claydol is 0."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        return 0 if any(is_energy_card(child) for child in pokemon.children) else cost
+
 
 card = PokemonCardDef(
     guid="89e119e2-68f1-5033-b68c-1af2b597a48a",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Levitate",
             game_text="As long as Claydol has any Energy attached to it, the Retreat Cost for Claydol is 0.",
-            effect=unimplemented,
+            passive=LevitatePassive(),
         ),
         Attack(
             title="Rock Smash",

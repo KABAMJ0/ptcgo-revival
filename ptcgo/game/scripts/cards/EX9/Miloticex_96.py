@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.support_common import move_energy_between
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+
+async def _printed_damage(ctx):
+    await ctx.deal_damage()
+
+
+reflect_energy = composed(
+    _printed_damage,
+    move_energy_between(is_basic_energy_card, count=1, from_pool="active",
+                        to_pool="bench"),
+)
+
 
 card = PokemonCardDef(
     guid="2ac32853-57c3-5cca-9639-dad2fd18a733",
@@ -37,7 +51,7 @@ card = PokemonCardDef(
             game_text="Move 1 basic Energy card attached to Milotic ex to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=reflect_energy,
         ),
     ],
 )

@@ -1,5 +1,31 @@
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def plunge_condition(board, player_id, pokemon):
+    if pokemon is None or is_in_active_spot(pokemon):
+        return False
+    active = board.active_pokemon(player_id)
+    return active is not None and bool(board.attached_energies(active))
+
+
+async def plunge(ctx):
+    me = ctx.source
+    active = ctx.my_active()
+    if me is None or active is None or me is active:
+        return False
+    energies = list(ctx.attached_energies(active))
+    if not energies:
+        return False
+    moved = await ctx.move_energy_freely(
+        [active], [me], max_count=len(energies),
+        prompt="Move all Energy to this Pokémon",
+    )
+    if not moved:
+        return False
+    return await ctx.switch_active(ctx.player_id, me)
 
 card = PokemonCardDef(
     guid="e2394dde-b4e7-5a80-9554-43e1aed781ae",
@@ -22,7 +48,9 @@ card = PokemonCardDef(
         Ability(
             title="Plunge",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is on your Bench, you may move all Energy from your Active Pok\u00e9mon to this Pok\u00e9mon. If you do, switch it with your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=plunge_condition,
+            effect=plunge,
         ),
         Attack(
             title="Bite",

@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.session.passives import carrier_pokemon
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+def _green_essence_target(target, carrier):
+    holder = carrier_pokemon(carrier)
+    if holder is None or target.owning_player_id != holder.owning_player_id:
+        return False
+    from ptcgo.game.card_effects.passives_common import is_in_active_spot
+    if not is_in_active_spot(target):
+        return False
+    return any(energy_provides_type(child, PokemonTypes.GRASS.value)
+               for child in target.children)
 
 card = PokemonCardDef(
     guid="53891197-337b-545a-8e84-b6b8c1ece227",
@@ -24,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Green Essence",
             game_text="As long as Sceptile is in play, each of your Active Pok\u00e9mon that has Grass Energy attached to it can't be affected by any Special Conditions.",
-            effect=unimplemented,
+            effect=None,
+            passive=condition_immunity_passive(None, protects=_green_essence_target),
         ),
         Attack(
             title="Razor Leaf",

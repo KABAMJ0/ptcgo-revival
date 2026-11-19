@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def gentle_song(ctx):
+    for target in (ctx.attacker, ctx.defender):
+        if target is None:
+            continue
+        if target.get_attribute(AttrID.HP, 0) < ctx.max_hp(target):
+            await ctx.heal(20, target)
+    await ctx.apply_special_condition(ctx.defender, SpecialConditions.ASLEEP)
 
 card = PokemonCardDef(
     guid="e4cf8192-a562-546b-971f-79dfff355ee0",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="Gentle Song",
             game_text="If Lapras has any damage counters on it, remove 2 of them from it (1 if it only has 1). If the Defending Pok\u00e9mon has any damage counters on it, remove 2 of them from it (1 if it only has 1). The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gentle_song,
         ),
         Attack(
             title="Ice Beam",

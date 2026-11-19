@@ -1,11 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_pokemon_ex
+from ptcgo.game.card_effects.passives_common import ability_lock_passive, is_in_active_spot
+from ptcgo.game.session.passives import carrier_pokemon
 
 async def _spread(ctx):
     """Printed damage, then N damage counters placed across the opponent's side."""
     await ctx.deal_damage()
     await ctx.place_damage_counters(3)
 
+
+def _wise_aura_lock(pokemon, carrier):
+    holder = carrier_pokemon(carrier)
+    if holder is None or not is_in_active_spot(holder):
+        return False
+    return not is_pokemon_ex(pokemon)
 
 card = PokemonCardDef(
     guid="df7a3004-13c0-50c9-8d56-329081ae5b8b",
@@ -28,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Wise Aura",
             game_text="As long as Medicham ex is your Active Pok\u00e9mon, each Pok\u00e9mon (excluding Pok\u00e9mon-ex) (both yours and your opponent's) can't use any Pok\u00e9-Powers.",
-            effect=unimplemented,
+            effect=None,
+            passive=ability_lock_passive(_wise_aura_lock),
         ),
         Attack(
             title="Pure Power",

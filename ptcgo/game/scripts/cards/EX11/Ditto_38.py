@@ -1,6 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.support_common import swap_with_named
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.legal_actions import attack_cost_satisfied, effective_attack_cost
+
+
+async def _copy_defender_attack(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    candidates = [(defender, attack) for attack in ctx.attacks_of(defender)]
+    if not candidates:
+        return
+    picked = await ctx.choose_attack_to_copy(candidates, "Choose an attack to copy")
+    if picked is None:
+        return
+    _, chosen = picked
+    cost = effective_attack_cost(ctx.board, ctx.attacker, chosen.cost)
+    if not attack_cost_satisfied(cost, ctx.attached_energies(ctx.attacker), ctx.board):
+        return
+    await ctx.use_attack(chosen)
+
 
 card = PokemonCardDef(
     guid="0b99274c-7fa9-5b02-988b-24fb421506b5",
@@ -30,7 +49,7 @@ card = PokemonCardDef(
             title="Copy",
             game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. Copy copies that attack. This attack does nothing if Ditto doesn't have the Energy necessary to use that attack. (You must still do anything else required for that attack.) Ditto performs that attack.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_copy_defender_attack,
         ),
     ],
 )
