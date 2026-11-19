@@ -110,6 +110,13 @@ def search_to_bench(predicate=is_basic, count=1, then=None, prompt=""):
 
 # --- Energy search & attachment ----------------------------------------------
 
+def on_bench(pokemon) -> bool:
+    """Target predicate: `pokemon` sits on its owner's Bench ("attach them to
+    your Benched Pokémon", "1 of your opponent's Benched Pokémon")."""
+    parent = getattr(pokemon, "parent", None)
+    return parent is not None and parent.get_attribute(AttrID.NAME) == "bench"
+
+
 async def distribute_energy(ctx, cards, candidates):
     """Attach each card to a chosen Pokémon ("in any way you like"); each card
     may pick a different target. Returns the (card, target) pairs."""
@@ -272,11 +279,14 @@ def look_top_attach_energy(n, predicate=is_energy, rest="shuffle",
 # --- Discard-pile recursion ----------------------------------------------------
 
 def attach_from_discard(predicate=is_energy, count=1, target="self",
-                        minimum=1, then=None, prompt=""):
+                        minimum=1, then=None, prompt="", distribute=False):
     """Attach up to `count` matching discard-pile cards to one Pokémon:
     'self' = the acting Pokémon (abilities only), 'choice' = pick any of
     yours, or a predicate narrowing the pickable targets. minimum=1 keeps the
-    activated public-zone pick mandatory; gate activation with a condition=."""
+    activated public-zone pick mandatory; gate activation with a condition=.
+
+    distribute=True is the "attach them ... in any way you like" wording: each
+    card picks its own holder, so two Energy can land on two different Pokémon."""
     async def effect(ctx):
         await _deal_printed(ctx)
         cards = [c for c in ctx.discard_pile() if predicate(c)]
@@ -296,6 +306,11 @@ def attach_from_discard(predicate=is_energy, count=1, target="self",
                           if pred is None or pred(p)]
             if not candidates:
                 return []
+            if distribute:
+                await distribute_energy(ctx, picks, candidates)
+                if then is not None:
+                    await then(ctx, picks)
+                return picks
             holder = await ctx.choose_pokemon(
                 candidates, "Choose a Pokémon to attach the Energy to"
             ) or candidates[0]
@@ -592,6 +607,16 @@ def switch_self_attack(damage=None, optional=False, bench_predicate=None,
             return target
         return None
     return effect
+
+
+def switch_then_opponent_switches(damage=None, optional=False):
+    """Damage, then "switch this Pokemon with 1 of your Benched Pokemon. If you
+    do, your opponent switches [the Defending Pokemon] with 1 of their Benched
+    Pokemon" (Sonic Blade, Gyro Ball). The opponent picks their new Active, so
+    the rider is `opponent_switches`; it runs only when our switch happened."""
+    async def then(ctx, new_active):
+        await opponent_switches(ctx)
+    return switch_self_attack(damage, optional=optional, then=then)
 
 
 async def _gust(ctx, opponent_chooses=False):
