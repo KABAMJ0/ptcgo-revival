@@ -1,6 +1,31 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.support_common import recover_from_discard
+
+def _evolves_from_eevee(card):
+    from ptcgo.game.content.definitions import evolves_from_chain
+    try:
+        chain = evolves_from_chain(card.archetype_id)
+    except Exception:
+        return False
+    return any("Eevee" in str(name) for name in (chain or []))
+
+
+async def _ascension_dna(ctx):
+    me = ctx.source or ctx.attacker
+    if me is None:
+        return
+    options = [c for c in ctx.hand() if _evolves_from_eevee(c)]
+    if not options:
+        return
+    pick = options[0] if len(options) == 1 else await ctx.choose_cards(
+        options, 1, prompt="Put a card from your hand onto Eevee-GX to evolve it?")
+    if not pick:
+        return
+    chosen = pick[0] if isinstance(pick, list) else pick
+    await ctx.heal(ctx.max_hp(me) - (me.get_attribute(AttrID.HP) or 0), me)
+    await ctx.evolve_pokemon(me, chosen)
+
 
 card = PokemonCardDef(
     guid="3b505fce-184b-5118-83ea-e6be69caccb2",
@@ -22,7 +47,7 @@ card = PokemonCardDef(
         Ability(
             title="Ascension DNA",
             game_text="Once during your turn (before your attack), if you have a Pok\u00e9mon in your hand that evolves from Eevee, you may put that card onto this Pok\u00e9mon to evolve it. Before evolving, heal all damage from this Pok\u00e9mon. You can't use this Ability during your first turn or on the turn this Pok\u00e9mon was put into play.",
-            effect=unimplemented,
+            effect=_ascension_dna,
         ),
         Attack(
             title="Boost Dash",
