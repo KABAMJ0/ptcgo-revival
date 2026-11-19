@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import damage_shield_from
+from ptcgo.game.card_effects.trainers import attacker_of_types
+
+
+
 
 card = PokemonCardDef(
     guid="12199818-bb00-51c0-8685-4b63ad3ffa50",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Insulator",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Lightning Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=damage_shield_from(attacker_of_types("lightning")),
         ),
         Attack(
             title="Thunderous Edge",

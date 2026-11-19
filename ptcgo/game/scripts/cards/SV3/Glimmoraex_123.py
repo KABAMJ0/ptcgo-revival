@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import BenchCapacityPassive, is_in_active_spot
+
+
+class DustFieldPassive(BenchCapacityPassive):
+    """While this Pokemon is Active, the opponent may keep only 3 on their Bench."""
+
+    def bench_capacity(self, player_id, carrier):
+        if player_id == carrier.owning_player_id or not is_in_active_spot(carrier):
+            return None
+        return self.limit
+
 
 card = PokemonCardDef(
     guid="cff19746-31c7-5c21-a57b-686c613cef19",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Dust Field",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't have more than 3 Benched Pok\u00e9mon. If they have 4 or more Benched Pok\u00e9mon, they discard Benched Pok\u00e9mon until they have 3 Pok\u00e9mon on the Bench. If more than one effect changes the number of Benched Pok\u00e9mon allowed, use the smaller number.",
-            effect=unimplemented,
+            passive=DustFieldPassive(3, protects="each"),
         ),
         Attack(
             title="Poisonous Gem",
