@@ -1393,6 +1393,18 @@ def bench_capacity_passive(limit: int = 4, protects="each",
     return BenchCapacityPassive(limit, protects, trim_to)
 
 
+class VoidsStadiumPlayPassive(Passive):
+    """Chaotic Swell: a Stadium played from hand is discarded on arrival, and
+    this one goes with it, so the new Stadium never takes effect."""
+
+    def voids_stadium_play(self, carrier):
+        return True
+
+
+def voids_stadium_play() -> Passive:
+    return VoidsStadiumPlayPassive()
+
+
 class SleepRecoveryCoinsPassive(Passive):
     """Slumbering Forest: an Asleep Pokemon flips `coins` coins at Checkup and
     only wakes when every one is heads."""

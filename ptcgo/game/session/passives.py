@@ -506,6 +506,11 @@ class Passive:
         its owner's hand (Pokemon Tower)."""
         return False
 
+    def voids_stadium_play(self, carrier: BoardEntity) -> bool:
+        """True to discard any Stadium played while this one is in play, and
+        this one with it ("the new Stadium card has no effect", Chaotic Swell)."""
+        return False
+
     def trainer_play_flips(self, card: BoardEntity, player_id: str,
                            carrier: BoardEntity) -> bool:
         """True to coin-flip a Trainer play before it resolves; tails makes the
@@ -1393,6 +1398,13 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     for rewrite in (getattr(board, "energy_type_overrides", None) or []):
         options = rewrite.apply(options, energy, holder, board)
     return options
+
+
+def stadium_play_voided(board: BoardState) -> bool:
+    """True when a Stadium played from hand is discarded on arrival instead of
+    replacing the one in play (Chaotic Swell)."""
+    return any(passive.voids_stadium_play(carrier)
+               for passive, carrier in active_passives(board))
 
 
 def bench_trim_area(board: BoardState, player_id: str) -> str:

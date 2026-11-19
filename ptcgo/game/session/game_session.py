@@ -129,7 +129,7 @@ from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
     carrier_pokemon,
-    stadium_face,
+    stadium_face, stadium_play_voided,
     bench_trim_area, sleep_recovery_coins,
     effective_bench_capacity, effective_max_hp,
     conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
@@ -5308,6 +5308,9 @@ class GameSession:
         if not stadium_area:
             return
         existing = stadium_area.children[0] if stadium_area.children else None
+        if existing is not None and stadium_play_voided(self.board_state):
+            await self._void_stadium_play(player_id, card, existing)
+            return
         position = len(stadium_area.children)
         if not self.board_state.move_card(card.entity_id, stadium_area.entity_id):
             return
@@ -5462,6 +5465,27 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _void_stadium_play(self, player_id, card, existing):
+        """Chaotic Swell: the Stadium being played and the one in play are both
+        discarded, so the new Stadium has no effect at all."""
+        moves = []
+        for entity in (existing, card):
+            owner_id = entity.owning_player_id or player_id
+            discard = self.board_state.find_player_area(owner_id, "discard")
+            if discard is None:
+                continue
+            position = len(discard.children)
+            if self.board_state.move_card(entity.entity_id, discard.entity_id):
+                moves.append(self._entity_moved_msg(
+                    entity.entity_id, discard.entity_id, position))
+        logging.info(
+            f"[Session {self.game_id}] {card.entity_id} discarded on arrival: "
+            f"the Stadium in play voids Stadium plays."
+        )
+        if moves:
+            await self._send_play_sequence(
+                player_id, GameSequence.GROUPED_MOVE, moves, [card])
 
     async def _choose_stadium_facing(self, player_id, card, definition):
         """"Choose which way this card faces before you play it": stores the
