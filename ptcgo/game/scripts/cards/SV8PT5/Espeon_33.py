@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="bc5f6e09-d9c5-5d11-9101-8a6e0b13cd4d",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("defender"), per=10, base=30),
         ),
         Attack(
             title="Psy Bolt",

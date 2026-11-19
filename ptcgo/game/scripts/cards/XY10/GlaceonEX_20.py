@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="d1de258b-0622-53e4-9137-d5cda537ba31",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("defender"), per=10, base=20),
         ),
         Attack(
             title="Crystal Ray",

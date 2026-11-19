@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="1cc8ec87-f134-5634-b934-cc9211dad663",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("defender"), per=30, base=30),
         ),
     ],
 )
