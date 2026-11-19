@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.support_common import draw_attack, search_attach_energy
+
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="d194dc83-9df0-526f-9dbd-1034ab8c2eb4",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Metal Navigation",
             game_text="Once during your turn (before your attack), you may search your deck for a Metal Energy card and attach it to Starmie. Shuffle your deck afterward. This power can't be used if Starmie is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("metal"), count=1, to_self=True),
         ),
         Attack(
             title="Collect",

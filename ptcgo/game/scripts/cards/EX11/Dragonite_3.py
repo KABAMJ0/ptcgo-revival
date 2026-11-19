@@ -2,6 +2,10 @@ from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+from ptcgo.game.card_effects.trainers import basic_energy_of
+
 card = PokemonCardDef(
     guid="84e43e6c-beaf-5e93-b0b9-dc311137e2d2",
     key="EX11",
@@ -24,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Delta Charge",
             game_text="Once during your turn (before your attack), you may attach a Lightning Energy card from your discard pile to 1 of your Benched Pok\u00e9mon. This power can't be used if Dragonite is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("lightning"), count=1, target="choice"),
         ),
         Attack(
             title="Agility",
