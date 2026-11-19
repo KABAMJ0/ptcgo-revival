@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
 
 card = PokemonCardDef(
     guid="91735d3c-c6ea-5183-9e1f-dc7229cc45d8",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_energy("self", PokemonTypes.GRASS), bonus_per_heads=30, base=60),
         ),
     ],
 )
