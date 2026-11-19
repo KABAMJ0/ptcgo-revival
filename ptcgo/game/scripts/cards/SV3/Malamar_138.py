@@ -5,12 +5,12 @@ from ptcgo.game.content.definitions import Activations
 
 
 async def _psychic_insight(ctx):
-    theirs = ctx.deck_top(1, ctx.opponent_id)
-    if their_top := theirs:
-        await ctx.reveal_cards(their_top, to_player=ctx.player_id)
-    mine = ctx.deck_top(1)
-    if mine:
-        await ctx.reveal_cards(mine, to_player=ctx.player_id)
+    their_top_card = ctx.deck_top(1, ctx.opponent_id)
+    if their_top_card:
+        await ctx.reveal_cards(their_top_card, to_player=ctx.player_id)
+    my_top_card = ctx.deck_top(1)
+    if my_top_card:
+        await ctx.reveal_cards(my_top_card, to_player=ctx.player_id)
 
 
 card = PokemonCardDef(
