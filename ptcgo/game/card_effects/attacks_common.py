@@ -202,12 +202,16 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
                 bonus: int = 0, bonus_per_heads: int = 0,
                 until_tails: bool = False, coins_from=None,
                 require_all: bool = False, tails_self_damage: int = 0,
-                self_damage: int = 0, also=None):
+                self_damage: int = 0, also=None, tails_base: Optional[int] = None):
     """Coin-flip damage: heads*per_heads (base defaults 0), or printed base +
     heads*bonus_per_heads, or base+bonus gated on ALL heads (require_all;
     without a bonus the whole base needs all heads). coins_from=count_fn
     flips one coin per counted thing; until_tails uses one coin screen.
-    tails_self_damage hits the attacker once when any coin lands tails."""
+    tails_self_damage hits the attacker once when any coin lands tails.
+
+    `tails_base` pays a DIFFERENT amount on tails ("if heads this attack does 60
+    damage; if tails it does 20"), which no combination of `base`/`bonus` reaches
+    because those all describe the heads branch."""
     async def effect(ctx):
         if until_tails:
             heads = await ctx.flip_until_tails(_title(ctx))
@@ -226,6 +230,10 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             # the heads before this).
             amount = base_val + heads * per_heads + bonus if success \
                 else (base_val if bonus else 0)
+        elif tails_base is not None:
+            # Two printed branches: heads pays `base`, tails pays `tails_base`.
+            amount = (base if base is not None else _printed(ctx)) \
+                if heads > tails else tails_base
         else:
             amount = base_val + heads * (per_heads + bonus_per_heads) \
                 + (bonus if heads else 0)
@@ -365,21 +373,27 @@ def snipe_attack(amount, pool="bench", count: int = 1,
 
 def spread_damage(amount: int, side: str = "opponent",
                   include_active: bool = False, own_bench: bool = False,
-                  also_base: bool = False, also=None):
+                  also_base: bool = False, also=None, pred=None):
     """Deal `amount` to every Benched Pokemon on `side` ('opponent'|'mine'|
     'both'); include_active adds that side's Active(s), own_bench adds your
-    bench to an opponent-side spread. Bench damage takes no W/R (engine auto)."""
+    bench to an opponent-side spread. Bench damage takes no W/R (engine auto).
+
+    `pred(pokemon)` narrows the spread, for the gated printings ("that has any
+    damage counters on it", "the same type as the Defending Pokemon")."""
     async def effect(ctx):
-        targets = {p.entity_id: p for p in _bench_of(ctx, side)}
+        targets = {p.entity_id: p for p in _bench_of(ctx, side)
+                   if pred is None or pred(p)}
         if own_bench and side != "mine":
-            targets.update((p.entity_id, p) for p in ctx.my_bench())
+            targets.update((p.entity_id, p) for p in ctx.my_bench()
+                           if pred is None or pred(p))
         if include_active:
             actives = []
             if side in ("opponent", "theirs", "both"):
                 actives.append(ctx.opponent_active())
             if side in ("mine", "both"):
                 actives.append(ctx.my_active())
-            targets.update((p.entity_id, p) for p in actives if p is not None)
+            targets.update((p.entity_id, p) for p in actives
+                           if p is not None and (pred is None or pred(p)))
         queue_shield = len(targets) + int(also_base) == 1
         if also_base:
             await ctx.deal_damage(queue_shield=queue_shield)
