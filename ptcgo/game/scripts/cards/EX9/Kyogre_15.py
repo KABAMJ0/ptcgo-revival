@@ -1,10 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import unimplemented, unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+
+
 card = PokemonCardDef(
     guid="c1b9b4d7-69c2-55f6-831e-27d3af543765",
     key="EX9",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             title="Scary Face",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack or retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=unimplemented,
         ),
         Attack(
             title="Hydro Pump",

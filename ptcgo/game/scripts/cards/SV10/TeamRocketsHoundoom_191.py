@@ -3,7 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
-
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, condition_attack
 
 card = PokemonCardDef(
     guid="b2172e1b-ea7a-5714-b3b0-b57a80c3e00a",

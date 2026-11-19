@@ -1234,13 +1234,33 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+def shield_from_defender_next_turn(reduce=None, prevent=False,
+                                   effects_too=False, target="self"):
+    """"During your opponent's next turn, any damage done by attacks from the
+    Defending Pokemon is reduced by N" (Minun's Negative Ion): binds the shield
+    to the Pokemon that WAS Defending when the ability was used, so it does not
+    over-reach to the opponent's whole side the way a plain side shield does."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        await shield_source_next_turn(
+            reduce=reduce, prevent=prevent, effects_too=effects_too,
+            target=target, attacker_pred=lambda attacker: attacker is defender,
+        )(ctx)
+    return effect
+
+
 def shield_source_next_turn(reduce=None, prevent=False, effects_too=False,
-                            target="self", then=None):
+                            target="self", then=None, attacker_pred=None):
     """"During your opponent's next turn, prevent all damage done to this
     Pokemon by attacks" from an ABILITY or a Trainer rather than an attack:
     `protect_next_turn` is the attack twin and deals the printed damage first,
     which an ability must not. target: "self" (the source Pokemon) or a
-    PokemonEntity/callable the caller already chose. `then(ctx, shielded)`."""
+    PokemonEntity/callable the caller already chose. `attacker_pred(attacker)`
+    narrows the shield to some attackers ("damage done by attacks from THE
+    DEFENDING Pokemon"), which a whole-side shield would over-reach on.
+    `then(ctx, shielded)`."""
     async def effect(ctx):
         source = ctx.source
         if callable(target):
@@ -1251,7 +1271,7 @@ def shield_source_next_turn(reduce=None, prevent=False, effects_too=False,
             picked = target
         shielded = await apply_protection(
             ctx, target=picked, reduce=reduce, prevent=prevent,
-            effects_too=effects_too)
+            effects_too=effects_too, attacker_pred=attacker_pred)
         if then is not None:
             await then(ctx, shielded)
     return effect

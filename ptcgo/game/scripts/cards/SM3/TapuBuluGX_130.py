@@ -1,7 +1,16 @@
-from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+
+async def g_max_volt_tackle(ctx):
+    energies = ctx.attached_energies(ctx.attacker)
+    if energies and await ctx.ask_yes_no(
+        "Discard all Energy from this Pokémon? If you do, this attack does 150 more damage."
+    ):
+        await ctx.discard_energy_from(ctx.attacker, 99)
+        await ctx.deal_damage(270)
+    else:
+        await ctx.deal_damage(120)
 
 card = PokemonCardDef(
     guid="3a9c99e6-dafe-514b-8fad-0c30e6231432",
@@ -30,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=g_max_volt_tackle,
         ),
         Attack(
             title="Tapu Wilderness-GX",

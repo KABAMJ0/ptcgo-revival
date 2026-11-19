@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 3},
             damage=30,
             damage_operator="+",
-            effect=damage_per(lambda c: count_energy("self")(c) + count_energy("defender")(c), 30),
+            effect=damage_per(lambda c: count_energy("self")(c) + count_energy("defender")(c), 30, base=30),
         ),
     ],
 )
