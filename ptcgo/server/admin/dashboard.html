@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PTCGO Revival · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* ==========================================================================
    PTCGO admin — design system
@@ -11,94 +14,107 @@
    semantic colour per state, hairlines instead of borders, tabular numbers.
    ========================================================================== */
 :root {
-  --bg: #f3f3f4;
+  /* Card-table palette: cool card-stock neutrals, energy types as the semantic colours.
+     Lightning is the action colour, Fire is destructive, Grass is healthy, Psychic is
+     admin-only state, Water is focus and links. */
+  --bg: #e9edf3;
   --surface: #ffffff;
-  --surface-2: #fafafa;
-  --surface-3: #f0f0f2;
-  --line: #e5e5e8;
-  --line-strong: #d4d4d9;
-  --text: #15161a;
-  --text-2: #3f4149;
-  --muted: #6e7079;
-  --faint: #9a9ca4;
-  --accent: #8a6413;
-  --accent-fg: #ffffff;
-  --accent-soft: #f6eed9;
-  --accent-line: #e2cf9f;
-  --ok: #157f3d;
-  --ok-soft: #e7f5ec;
-  --warn: #a35b06;
-  --warn-soft: #fbf0dd;
-  --err: #b3261e;
-  --err-soft: #fdecea;
-  --info: #1f5fa8;
-  --info-soft: #e9f1fa;
-  --shadow-1: 0 1px 2px rgba(16, 18, 24, .05);
-  --shadow-2: 0 12px 34px rgba(16, 18, 24, .14), 0 2px 8px rgba(16, 18, 24, .06);
-  --radius: 10px;
-  --radius-sm: 7px;
-  --t-xs: 11px;
-  --t-sm: 12.5px;
-  --t-md: 13.5px;
-  --t-lg: 16px;
-  --t-xl: 20px;
-  --t-2xl: 27px;
-  --rail: 216px;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --surface-2: #f5f7fa;
+  --surface-3: #e8ecf2;
+  --line: #dbe1ea;
+  --line-strong: #c3ccd9;
+  --text: #182033;
+  --text-2: #364057;
+  --muted: #5f6b82;
+  --faint: #929cb0;
+  --accent: #f3c22c;
+  --accent-fg: #1b1606;
+  --accent-ink: #8a6700;
+  --accent-soft: #fdf3cf;
+  --accent-line: #f0d77c;
+  --focus: #2f6fd6;
+  --ok: #2e8a4a;
+  --ok-soft: #e3f3e8;
+  --warn: #b26a12;
+  --warn-soft: #fbefdc;
+  --err: #cf4528;
+  --err-soft: #fce9e4;
+  --info: #7347c2;
+  --info-soft: #efe8fb;
+  --holo: linear-gradient(180deg, #f3c22c 0%, #ea6a3e 26%, #3f9b5a 52%, #2f7fd6 76%, #8a55d4 100%);
+  --shadow-1: 0 1px 0 rgba(24, 32, 51, .04), 0 1px 3px rgba(24, 32, 51, .06);
+  --shadow-2: 0 24px 60px -12px rgba(24, 32, 51, .28), 0 4px 14px rgba(24, 32, 51, .08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --t-xs: 12px;
+  --t-sm: 13.5px;
+  --t-md: 14.5px;
+  --t-lg: 17px;
+  --t-xl: 22px;
+  --t-2xl: 30px;
+  --rail: 228px;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-spring: cubic-bezier(.34, 1.36, .64, 1);
+  --sans: "Barlow", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --display: "Barlow Semi Condensed", "Barlow", "Arial Narrow", system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 html[data-theme="dark"] {
-  --bg: #0c0e11;
-  --surface: #14171c;
-  --surface-2: #191d23;
-  --surface-3: #1f242b;
-  --line: #262b33;
-  --line-strong: #343b45;
-  --text: #e8eaef;
-  --text-2: #c3c7d0;
-  --muted: #8b919c;
-  --faint: #6b7280;
-  --accent: #e0b355;
-  --accent-fg: #201803;
-  --accent-soft: #2a2413;
-  --accent-line: #4c3f1c;
-  --ok: #5fce8b;
-  --ok-soft: #142a1d;
-  --warn: #e2a33f;
-  --warn-soft: #2b2213;
-  --err: #f08379;
-  --err-soft: #2d1917;
-  --info: #7ab3f0;
-  --info-soft: #14212f;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
-  --shadow-2: 0 18px 48px rgba(0, 0, 0, .55), 0 2px 10px rgba(0, 0, 0, .4);
+  --bg: #0e1320;
+  --surface: #151c2b;
+  --surface-2: #1a2233;
+  --surface-3: #212a3e;
+  --line: #273148;
+  --line-strong: #364260;
+  --text: #e7ebf3;
+  --text-2: #c3cad8;
+  --muted: #8d97ab;
+  --faint: #66718a;
+  --accent: #f5c842;
+  --accent-fg: #1b1606;
+  --accent-ink: #f5c842;
+  --accent-soft: #2c2714;
+  --accent-line: #5a4a17;
+  --focus: #77a4ff;
+  --ok: #5cc27d;
+  --ok-soft: #13291c;
+  --warn: #e6a64b;
+  --warn-soft: #2d2313;
+  --err: #f4805f;
+  --err-soft: #2f1a16;
+  --info: #b18cf2;
+  --info-soft: #241b38;
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, .25), 0 1px 3px rgba(0, 0, 0, .3);
+  --shadow-2: 0 28px 70px -12px rgba(0, 0, 0, .7), 0 4px 14px rgba(0, 0, 0, .4);
 }
 @media (prefers-color-scheme: dark) {
   html[data-theme="auto"] {
-    --bg: #0c0e11;
-    --surface: #14171c;
-    --surface-2: #191d23;
-    --surface-3: #1f242b;
-    --line: #262b33;
-    --line-strong: #343b45;
-    --text: #e8eaef;
-    --text-2: #c3c7d0;
-    --muted: #8b919c;
-    --faint: #6b7280;
-    --accent: #e0b355;
-    --accent-fg: #201803;
-    --accent-soft: #2a2413;
-    --accent-line: #4c3f1c;
-    --ok: #5fce8b;
-    --ok-soft: #142a1d;
-    --warn: #e2a33f;
-    --warn-soft: #2b2213;
-    --err: #f08379;
-    --err-soft: #2d1917;
-    --info: #7ab3f0;
-    --info-soft: #14212f;
-    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
-    --shadow-2: 0 18px 48px rgba(0, 0, 0, .55), 0 2px 10px rgba(0, 0, 0, .4);
+    --bg: #0e1320;
+    --surface: #151c2b;
+    --surface-2: #1a2233;
+    --surface-3: #212a3e;
+    --line: #273148;
+    --line-strong: #364260;
+    --text: #e7ebf3;
+    --text-2: #c3cad8;
+    --muted: #8d97ab;
+    --faint: #66718a;
+    --accent: #f5c842;
+    --accent-fg: #1b1606;
+    --accent-ink: #f5c842;
+    --accent-soft: #2c2714;
+    --accent-line: #5a4a17;
+    --focus: #77a4ff;
+    --ok: #5cc27d;
+    --ok-soft: #13291c;
+    --warn: #e6a64b;
+    --warn-soft: #2d2313;
+    --err: #f4805f;
+    --err-soft: #2f1a16;
+    --info: #b18cf2;
+    --info-soft: #241b38;
+    --shadow-1: 0 1px 0 rgba(0, 0, 0, .25), 0 1px 3px rgba(0, 0, 0, .3);
+    --shadow-2: 0 28px 70px -12px rgba(0, 0, 0, .7), 0 4px 14px rgba(0, 0, 0, .4);
   }
 }
 
@@ -838,6 +854,135 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
   #railScrim.open { display: block; }
 }
 #railScrim { display: none; position: fixed; inset: 0; z-index: 44; background: rgba(10, 12, 16, .4); }
+
+/* ============================================= card-table theme and motion --- */
+body { font-family: var(--sans); font-size: var(--t-md); }
+h1, h2, h3, .brand-name, .drawer-title, .stat-value, .kpi-v, .p-head h3 { font-family: var(--display); letter-spacing: 0; }
+.topbar-title h1 { font-size: 24px; font-weight: 700; line-height: 1.1; }
+.topbar-title p { font-size: var(--t-sm); }
+.panel-head h2 { font-size: 17px; font-weight: 650; }
+.drawer-title { font-size: 24px; font-weight: 700; }
+.stat-value { font-weight: 700; }
+:focus-visible { outline-color: var(--focus); }
+input:focus, select:focus, textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent); }
+a { color: var(--focus); }
+
+/* sentence-case labels instead of tracked capitals */
+.brand-sub, .nav-label, .kpi-l, .stat-label, table.grid thead th, .feed-kind, .page-kicker,
+.page-section-title, #tStandings th { text-transform: none; letter-spacing: 0; }
+.nav-label { font-size: 12.5px; color: var(--muted); font-weight: 600; padding-left: 10px; }
+table.grid thead th { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.stat-label, .kpi-l { font-size: 12.5px; font-weight: 550; }
+.feed-kind { font-size: 12px; }
+.brand-sub { font-size: 12px; }
+
+/* accent is a fill (Lightning yellow); text in that hue uses the ink variant */
+.nav-item.active svg.ico, table.grid thead th .caret, .pill.accent, .feed-kind.admin_ban, .feed-kind.admin_unban,
+.feed-kind.admin_delete_account, .feed-kind.admin_wipe_collection, .feed-kind.admin_grant, .feed-paused,
+.add-chip:hover, .feed-kind[class*="admin_"] { color: var(--accent-ink); }
+
+/* brand: a holo card back, the one decorative surface in the panel */
+.brand-mark {
+  position: relative; overflow: hidden; width: 30px; height: 40px; border-radius: 6px;
+  background: #1c2540; color: transparent; font-size: 0;
+  box-shadow: inset 0 0 0 2px #f3c22c, 0 2px 6px rgba(24, 32, 51, .25);
+}
+.brand-mark::before {
+  content: ""; position: absolute; inset: 11px 6px; border-radius: 50%;
+  background: conic-gradient(from 200deg, #f3c22c, #ea6a3e, #3f9b5a, #2f7fd6, #8a55d4, #f3c22c);
+  opacity: .9;
+}
+.brand-mark::after {
+  content: ""; position: absolute; inset: -40% -60%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .55) 50%, transparent 60%);
+  transform: translateX(-60%); transition: transform .9s var(--ease-out);
+}
+.brand:hover .brand-mark::after, .rail.dealing .brand-mark::after { transform: translateX(60%); }
+.brand { height: 68px; }
+.brand-name { font-size: 17px; font-weight: 700; }
+
+/* nav: the active item carries a foil energy stripe */
+.nav-item { padding: 8px 10px; transition: background .18s ease, color .18s ease; }
+.nav-item.active { background: var(--accent-soft); }
+.nav-item.active::before {
+  left: -10px; top: 5px; bottom: 5px; width: 4px; border-radius: 0 3px 3px 0; background: var(--holo);
+  transform-origin: center; animation: stripe-in .42s var(--ease-spring) both;
+}
+@keyframes stripe-in { from { transform: scaleY(0); opacity: 0; } }
+.nav-item.active .nav-badge { background: var(--text); color: var(--surface); }
+.rail.dealing .nav-label, .rail.dealing .nav-item { animation: deal .52s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 26ms + 60ms); }
+@keyframes deal { from { opacity: 0; transform: translateX(-16px) rotate(-1.5deg); } }
+
+td.row-actions { display: table-cell; text-align: right; white-space: nowrap; }
+td.row-actions > * + * { margin-left: 6px; }
+.nav { min-height: 0; }
+.rail { height: 100%; min-height: 0; }
+
+/* buttons answer the press */
+.btn, .mini { transition: filter .12s ease, background .15s ease, border-color .15s ease, transform .12s var(--ease-out), box-shadow .15s ease; }
+.btn:active:not(:disabled), .mini:active:not(:disabled) { transform: scale(.96); }
+.btn { font-weight: 650; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .12); }
+.btn.danger { background: var(--err); color: #fff; }
+.btn.ghost { box-shadow: none; }
+
+/* views and panels */
+.view.active { animation: view-in .34s var(--ease-out) both; }
+@keyframes view-in { from { opacity: 0; transform: translateY(10px); } }
+.panel { border-radius: var(--radius); }
+table.grid tbody tr { transition: background .15s ease; }
+tr.flash > td { animation: row-flash 1.3s ease-out; }
+@keyframes row-flash { 0%, 25% { background: var(--accent-soft); } 100% { background: transparent; } }
+tr.leaving > td { animation: row-leave .28s ease-in forwards; }
+@keyframes row-leave { to { opacity: 0; transform: translateX(24px); } }
+.stepper span.tick { animation: tick .32s var(--ease-out); }
+@keyframes tick { from { transform: translateY(-8px); opacity: 0; } }
+.pill.pop { animation: pop .34s var(--ease-spring); }
+@keyframes pop { from { transform: scale(.7); opacity: .4; } }
+
+/* segmented controls slide a thumb between options */
+.seg { position: relative; isolation: isolate; }
+.seg .seg-thumb {
+  position: absolute; z-index: -1; top: 2px; bottom: 2px; left: 0; border-radius: 6px;
+  background: var(--surface); box-shadow: var(--shadow-1);
+  transition: transform .32s var(--ease-out), width .32s var(--ease-out);
+}
+.seg.has-thumb button.active { background: transparent; box-shadow: none; }
+.seg button { transition: color .2s ease; }
+
+/* tabs: an ink bar travels to the chosen tab */
+.tabs { position: relative; }
+.tabs .tab-ink {
+  position: absolute; bottom: -1px; left: 0; height: 3px; border-radius: 3px 3px 0 0;
+  background: var(--accent); transition: transform .34s var(--ease-out), width .34s var(--ease-out);
+}
+.tabs button.active { border-bottom-color: transparent; }
+#playerTabBody > * { animation: view-in .3s var(--ease-out) both; }
+
+/* drawer, dialogs, toasts */
+.drawer { transition: transform .42s var(--ease-out); }
+.drawer.open .drawer-head, .drawer.open .drawer-body { animation: drawer-content .4s var(--ease-out) both; animation-delay: .08s; }
+@keyframes drawer-content { from { opacity: 0; transform: translateX(18px); } }
+.drawer-backdrop { transition: opacity .3s ease; }
+.modal-backdrop.open { animation: fade-in .2s ease both; }
+.modal-backdrop.open .modal { animation: card-in .34s var(--ease-spring) both; }
+.modal-backdrop.closing { animation: fade-out .18s ease both; }
+.modal-backdrop.closing .modal { animation: card-out .18s ease-in both; }
+#loginOverlay.open .picker { animation: card-in .45s var(--ease-spring) both; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(.96) rotateX(8deg); } }
+@keyframes card-out { to { opacity: 0; transform: translateY(8px) scale(.97); } }
+.modal, .picker { transform-origin: 50% 80%; }
+#toast { transition: opacity .2s ease, transform .36s var(--ease-spring); }
+#undoBar { overflow: hidden; padding-bottom: 10px; transition: opacity .2s ease, transform .38s var(--ease-spring); }
+#undoBar .undo-timer { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent); transform-origin: left; }
+#undoBar.show .undo-timer { animation: drain 8s linear both; }
+@keyframes drain { to { transform: scaleX(0); } }
+.result-row { transition: background .15s ease, border-color .15s ease, transform .15s var(--ease-out); }
+.result-row:active { transform: scale(.985); }
+.result-list > * { animation: view-in .26s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 22ms); }
+.rail { transition: transform .38s var(--ease-out); }
+#railScrim { animation: fade-in .25s ease both; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
@@ -1776,7 +1921,7 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
     <div class="p-foot"><div class="spacer" style="flex:1"></div><button class="btn ghost" onclick="closeConfirm(false)">Cancel</button><button class="btn" id="confirmGo">Confirm</button></div>
   </div>
 </div>
-<div id="undoBar" role="status"><span id="undoText"></span><button id="undoBtn">Undo</button></div>
+<div id="undoBar" role="status"><span id="undoText"></span><button id="undoBtn">Undo</button><i class="undo-timer"></i></div>
 <div id="railScrim" onclick="toggleRail(false)"></div>
 
 <div id="toast"></div>
@@ -1866,6 +2011,7 @@ function applyTheme(choice) {
   document.documentElement.dataset.theme = choice;
   try { localStorage.setItem('spirit-theme', choice); } catch(e) {}
   $$('#themeSwitch button').forEach(b => b.classList.toggle('active', b.dataset.themeChoice === choice));
+  requestAnimationFrame(() => typeof segThumb === 'function' && segThumb($('#themeSwitch')));
 }
 $$('#themeSwitch button').forEach(b => b.onclick = () => applyTheme(b.dataset.themeChoice));
 applyTheme((() => { try { return localStorage.getItem('spirit-theme') || 'auto'; } catch(e) { return 'auto'; } })());
@@ -4098,7 +4244,14 @@ function dispatchRewards(rewards) {
 function dispatchReward(reward) { dispatchRewards([reward]); }
 
 /* -------------------------------------------------------------------- boot */
+function dealRail() {
+  const rail = $('.rail');
+  rail.querySelectorAll('.nav-label, .nav-item').forEach((el, i) => el.style.setProperty('--i', i));
+  rail.classList.add('dealing');
+  setTimeout(() => rail.classList.remove('dealing'), 1600);
+}
 async function boot() {
+  dealRail();
   await loadProducts();
   updateRewardItems();
   const initial = (location.hash || '').replace('#', '');
@@ -4109,6 +4262,36 @@ async function boot() {
 }
 
 /* ================================================================ CONSOLE v2 */
+function segThumb(seg) {
+  if (!seg) return;
+  let thumb = seg.querySelector(':scope > .seg-thumb');
+  if (!thumb) { thumb = document.createElement('i'); thumb.className = 'seg-thumb'; seg.prepend(thumb); seg.classList.add('has-thumb'); }
+  const active = seg.querySelector('button.active');
+  if (!active || !active.offsetWidth) return;
+  thumb.style.width = active.offsetWidth + 'px';
+  thumb.style.transform = 'translateX(' + active.offsetLeft + 'px)';
+}
+function moveInk(tabs) {
+  if (!tabs) return;
+  let ink = tabs.querySelector(':scope > .tab-ink');
+  if (!ink) { ink = document.createElement('i'); ink.className = 'tab-ink'; tabs.appendChild(ink); }
+  const active = tabs.querySelector('button.active');
+  if (!active) return;
+  ink.style.width = active.offsetWidth + 'px';
+  ink.style.transform = 'translateX(' + active.offsetLeft + 'px)';
+}
+function stagger(host) { Array.from(host?.children || []).forEach((el, i) => el.style.setProperty('--i', Math.min(i, 12))); }
+function flashRow(row) {
+  if (!row) return;
+  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+}
+function leaveRow(row) {
+  return new Promise(resolve => {
+    if (!row || matchMedia('(prefers-reduced-motion: reduce)').matches) return resolve();
+    row.classList.add('leaving'); setTimeout(resolve, 260);
+  });
+}
+window.addEventListener('resize', () => { segThumb($('#tradeStatusSeg')); segThumb($('#themeSwitch')); moveInk($('#playerTabs')); });
 const _debouncers = {};
 function debounce(key, fn, ms=250) { clearTimeout(_debouncers[key]); _debouncers[key] = setTimeout(fn, ms); }
 
@@ -4136,7 +4319,9 @@ function confirmDialog({title, body='', confirmLabel='Confirm', danger=false, in
   });
 }
 function closeConfirm(value) {
-  $('#confirmModal').classList.remove('open');
+  const modal = $('#confirmModal');
+  modal.classList.add('closing');
+  setTimeout(() => modal.classList.remove('open', 'closing'), 170);
   const r = _confirmResolve; _confirmResolve = null;
   if (r) r(value);
 }
@@ -4151,6 +4336,7 @@ function undoBar(text, undo) {
   $('#undoText').textContent = text;
   $('#undoBtn').style.display = undo ? '' : 'none';
   $('#undoBtn').onclick = async () => { bar.classList.remove('show'); try { await undo(); toast('Undone'); } catch(e) { toast(e.message, true); } };
+  bar.classList.remove('show'); void bar.offsetWidth;
   bar.classList.add('show');
   clearTimeout(_undoTimer); _undoTimer = setTimeout(() => bar.classList.remove('show'), 8000);
 }
@@ -4192,9 +4378,10 @@ let TRADES = [], TRADE_STATUS = 'open';
 $$('#tradeStatusSeg button').forEach(b => b.onclick = () => {
   TRADE_STATUS = b.dataset.status;
   $$('#tradeStatusSeg button').forEach(x => x.classList.toggle('active', x === b));
+  segThumb($('#tradeStatusSeg'));
   loadTrades();
 });
-async function enterTrades() { await loadTrades(); }
+async function enterTrades() { requestAnimationFrame(() => segThumb($('#tradeStatusSeg'))); await loadTrades(); }
 async function loadTrades() {
   try {
     const d = await api('trades/list', TRADE_STATUS ? {status: TRADE_STATUS, limit: 500} : {limit: 500});
@@ -4212,7 +4399,7 @@ function tradeActions(t, context='') {
   return '';
 }
 function tradeRow(t, context='') {
-  return '<tr><td><span class="cell-main">' + esc(t.sender) + '</span><div class="cell-sub mono">' + esc(t.offer_id.slice(0, 8)) + '</div><div class="show-narrow" style="margin-top:4px">' + tradeActions(t, context) + '</div></td>' +
+  return '<tr data-offer="' + esc(t.offer_id) + '"><td><span class="cell-main">' + esc(t.sender) + '</span><div class="cell-sub mono">' + esc(t.offer_id.slice(0, 8)) + '</div><div class="show-narrow" style="margin-top:4px">' + tradeActions(t, context) + '</div></td>' +
     '<td class="hide-narrow">' + (t.recipient ? esc(t.recipient) : '<span class="pill tag">public</span>') + '</td>' +
     '<td><div class="chips">' + itemChips(t.offering) + '</div></td><td><div class="chips">' + itemChips(t.requesting) + '</div></td>' +
     '<td><span class="pill ' + (t.status === 'open' ? 'on' : t.status === 'accepted' ? 'info' : 'off') + '">' + esc(t.status) + '</span>' +
@@ -4238,6 +4425,7 @@ async function takeDownTrade(offer_id, context) {
   if (reason === false) return;
   try {
     await api('trades/cancel', {offer_id, reason});
+    await leaveRow(document.querySelector('tr[data-offer="' + CSS.escape(offer_id) + '"]'));
     undoBar('Trade ' + offer_id.slice(0, 8) + ' taken down', async () => { await api('trades/reopen', {offer_id}); refreshTradeContext(context); });
     refreshTradeContext(context);
   } catch(e) { toast(e.message, true); }
@@ -4277,6 +4465,7 @@ async function openPlayer(account_id, tab='summary') {
 function playerTab(tab) {
   PLAYER_TAB = tab;
   $$('#playerTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  requestAnimationFrame(() => moveInk($('#playerTabs')));
   const host = $('#playerTabBody');
   if (!host) return;
   host.innerHTML = '<div class="skel row"></div><div class="skel row"></div>';
@@ -4316,6 +4505,7 @@ async function adjustWallet() {
 }
 let INVENTORY = [];
 async function renderPlayerInventory(host) {
+  if (!host) return;
   const d = await api('players/inventory', {account_id: CURRENT_PLAYER.account.account_id});
   INVENTORY = d.items || [];
   host.innerHTML =
@@ -4338,7 +4528,7 @@ function renderInventoryTable() {
   const rows = INVENTORY.filter(i => (f === 'all' || i.kind === f) && (!q || (i.name + ' ' + i.set + ' ' + i.guid).toLowerCase().includes(q)));
   const step = (i, field, delta, disabled) => '<button ' + (disabled ? 'disabled' : '') + ' onclick="changeInventory(\'' + esc(i.row_guid) + '\', \'' + field + '\', ' + delta + ')">' + (delta > 0 ? '+' : '−') + '</button>';
   $('#invTable tbody').innerHTML = rows.map(i =>
-    '<tr><td>' + itemLabel(i) + '</td>' +
+    '<tr data-guid="' + esc(i.row_guid) + '"><td>' + itemLabel(i) + '</td>' +
     '<td><span class="stepper">' + step(i, 'tradable', -1, !i.tradable) + '<span>' + i.tradable + '</span>' + step(i, 'tradable', 1) + '</span></td>' +
     '<td><span class="stepper">' + step(i, 'nontradable', -1, !i.nontradable) + '<span>' + i.nontradable + '</span>' + step(i, 'nontradable', 1) + '</span></td>' +
     '<td class="row-actions"><button class="mini danger" onclick="removeInventoryRow(\'' + esc(i.row_guid) + '\')">Remove</button></td></tr>').join('') ||
@@ -4351,6 +4541,7 @@ async function runInventorySearch() {
     const items = await searchItems(q, true);
     host.innerHTML = items.map((i, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.kind === 'card' ? i.set + ' ' + (i.number ?? '') : 'product · ' + i.set) + '</div></div></button>').join('') ||
       (q.trim().length >= 2 ? '<p class="muted" style="font-size:var(--t-sm)">No match.</p>' : '');
+    stagger(host);
     $$('#invResults .result-row').forEach(b => b.onclick = () => {
       INV_SELECTED = items[+b.dataset.n];
       $$('#invResults .result-row').forEach(x => x.classList.toggle('sel', x === b));
@@ -4372,8 +4563,10 @@ async function addInventory() {
   if (!(qty >= 1 && qty <= 999)) return toast('Copies must be 1 to 999', true);
   const kind = $('#invKind').value;
   try {
+    const added = INV_SELECTED.guid.toLowerCase();
     await inventoryChange(INV_SELECTED.guid, kind === 'tradable' ? qty : 0, kind === 'nontradable' ? qty : 0, 'Granted ' + qty);
-    playerTab('inventory');
+    await renderPlayerInventory($('#playerTabBody'));
+    flashRow(Array.from($$('#invTable tr[data-guid]')).find(r => r.dataset.guid.toLowerCase() === added));
   } catch(e) { toast(e.message, true); }
 }
 async function changeInventory(guid, field, delta) {
@@ -4383,6 +4576,9 @@ async function changeInventory(guid, field, delta) {
     if (i) i[field] += delta;
     INVENTORY = INVENTORY.filter(x => x.tradable || x.nontradable);
     renderInventoryTable();
+    const row = document.querySelector('#invTable tr[data-guid="' + CSS.escape(guid) + '"]');
+    flashRow(row);
+    row?.querySelectorAll('.stepper')[field === 'tradable' ? 0 : 1]?.querySelector('span')?.classList.add('tick');
   } catch(e) { toast(e.message, true); }
 }
 async function removeInventoryRow(guid) {
@@ -4459,6 +4655,7 @@ async function runBanSearch() {
     const banned = new Set(BANS.map(b => b.guid.toLowerCase()));
     host.innerHTML = items.map((i, n) => '<div class="result-row">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.set + ' ' + (i.number ?? '')) + '</div></div>' +
       (banned.has(i.guid.toLowerCase()) ? '<span class="pill err">banned</span>' : '<button class="mini danger" data-n="' + n + '">Ban</button>') + '</div>').join('');
+    stagger(host);
     $$('#banResults button[data-n]').forEach(b => b.onclick = () => banCard(items[+b.dataset.n]));
   } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
 }
@@ -4522,6 +4719,7 @@ async function runOverrideSearch() {
   try {
     const items = await searchItems($('#ovSearch').value);
     host.innerHTML = items.map((i, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.set + ' ' + (i.number ?? '')) + '</div></div></button>').join('');
+    stagger(host);
     $$('#ovResults .result-row').forEach(b => b.onclick = () => openOverrideCard(items[+b.dataset.n].guid));
   } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
 }
