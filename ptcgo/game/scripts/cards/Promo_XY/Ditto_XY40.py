@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="ad9d7205-fd76-5fda-80c2-6f9cddae0abe",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             game_text="Attach a basic Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="self"),
         ),
     ],
 )

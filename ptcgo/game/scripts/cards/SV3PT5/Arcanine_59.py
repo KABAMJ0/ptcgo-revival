@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="07ef02d0-b382-55e6-9405-8f6888fbe500",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Attach up to 2 Basic Fire Energy cards from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("fire"), count=2, minimum=0, target="self"),
         ),
         Attack(
             title="Dynamite Fang",

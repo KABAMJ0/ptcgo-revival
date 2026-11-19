@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="b7d149e4-8444-588c-b9f5-ee82a38fd280",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Attach 2 Water Energy cards from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=40,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("water"), count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Spinning Attack",
