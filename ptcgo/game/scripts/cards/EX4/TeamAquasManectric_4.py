@@ -4,6 +4,13 @@ from ptcgo.game.card_effects.support_common import move_energy_between
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def thunderspark(ctx):
+    """10 to every Benched Pokemon on either side that has Energy attached."""
+    for side in (ctx.my_bench(), ctx.opponent_bench()):
+        for target in side:
+            if ctx.attached_energies(target):
+                await ctx.deal_damage(10, target=target, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="52c00b0e-7c65-533e-b315-aeb74d673c53",
     key="EX4",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each Benched Pok\u00e9mon (both yours and your opponent's) that has Energy cards attached to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=thunderspark,
         ),
     ],
 )

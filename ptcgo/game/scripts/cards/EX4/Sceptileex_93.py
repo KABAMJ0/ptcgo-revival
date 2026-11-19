@@ -1,5 +1,14 @@
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def poison_ring(ctx):
+    """The Defending Pokemon is Poisoned and cannot retreat through your
+    opponent's next turn."""
+    await ctx.deal_damage()
+    await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+    if ctx.defender is not None and not ctx.effects_blocked(ctx.defender):
+        ctx.lock_retreat(ctx.defender, ctx.session.turn_state.turn_number + 1)
 
 card = PokemonCardDef(
     guid="526c02fb-ae40-5e91-90d6-a111f93c9819",
@@ -31,7 +40,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Poisoned. The Defending Pok\u00e9mon can't retreat until the end of your opponent's next turn.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=poison_ring,
         ),
         Attack(
             title="Slashing Strike",

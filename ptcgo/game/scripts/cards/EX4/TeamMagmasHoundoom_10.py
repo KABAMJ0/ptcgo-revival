@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.attacks_common import conditions_if
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.trainers import card_named_contains
@@ -7,6 +9,20 @@ def defender_has(word):
     return lambda ctx: card_named_contains(word)(ctx.defender)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def magma_spurt(ctx):
+    """Mill 5 from my deck, then 30 for each Fire or Fighting basic Energy among them."""
+    milled = ctx.deck_top(5, player_id=ctx.player_id)
+    if not milled:
+        return
+    await ctx.discard_cards(milled)
+    counted = sum(
+        1 for card in milled
+        if is_basic_energy_card(card)
+        and (energy_provides_type(card, PokemonTypes.FIRE.value)
+             or energy_provides_type(card, PokemonTypes.FIGHTING.value)))
+    if counted:
+        await ctx.deal_damage(30 * counted)
 
 card = PokemonCardDef(
     guid="34e6f5e2-679b-5143-9d81-3bcf8aec7f07",
@@ -40,7 +56,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=magma_spurt,
         ),
     ],
 )
