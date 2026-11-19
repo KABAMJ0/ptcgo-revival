@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Move an Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
     ],
 )
