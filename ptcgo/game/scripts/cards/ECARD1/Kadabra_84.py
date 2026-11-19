@@ -3,6 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="3d9e30f1-37e0-5c8f-9940-d44b4ee34b10",
@@ -26,7 +28,8 @@ card = PokemonCardDef(
             title="Energy Recall",
             game_text="Attach 2 basic Energy cards from your discard pile to Kadabra (1 if you have only 1).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=2, target="self",
+                                       prompt="Choose basic Energy to attach to Kadabra"),
         ),
         Attack(
             title="Confuse Ray",

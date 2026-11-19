@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches the Defending Pok\u00e9mon with it. (Do the damage before switching the Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=gust_attack(damage_before=20, opponent_chooses=True),
         ),
     ],
 )

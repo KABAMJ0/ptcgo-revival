@@ -1,6 +1,23 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, unafflicted
+from ptcgo.game.session.effects import full_stack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _beating_wings_ready(board, player_id, pokemon) -> bool:
+    return is_in_active_spot(pokemon) and unafflicted(board, player_id, pokemon)
+
+
+async def _beating_wings(ctx):
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    pick = await ctx.choose_pokemon(
+        bench, "Choose 1 of your Benched Pok\u00e9mon to shuffle into your deck")
+    if pick is None:
+        return
+    await ctx.shuffle_into_deck(full_stack(pick), ctx.player_id)
 
 card = PokemonCardDef(
     guid="b7e2f858-d4d5-53b8-8e7e-b1d2ff149d9a",
@@ -24,7 +41,9 @@ card = PokemonCardDef(
         Ability(
             title="Beating Wings",
             game_text="Once during your turn (before your attack), if Pidgeot is your Active Pok\u00e9mon, you may shuffle 1 of your Benched Pok\u00e9mon and all cards attached to it into your deck. This power can't be used if Pidgeot is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_beating_wings_ready,
+            effect=_beating_wings,
         ),
         Attack(
             title="Sharp Beak",
