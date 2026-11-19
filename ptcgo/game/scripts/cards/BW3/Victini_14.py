@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class _VictoryStarPassive(Passive):
+    """After this player flips coins for an attack they may ignore the whole
+    run and flip again. The once-per-turn limit is the turn state's
+    attack_coin_reroll_used flag, shared with Glimwood Tangle."""
+
+    def offers_attack_coin_reroll(self, player_id, carrier):
+        pokemon = carrier_pokemon(carrier)
+        return pokemon is not None and pokemon.owning_player_id == player_id
+
 
 card = PokemonCardDef(
     guid="9128ec3b-5f75-54f9-9ccf-fb7e78fe7a7e",
@@ -21,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Victory Star",
             game_text="Once during your turn, after you flip any coins for an attack, you may ignore all effects of those coin flips and being flipping those coins again. You can't use more than 1 Victory Star Ability each turn.",
-            effect=unimplemented,
+            passive=_VictoryStarPassive(),
         ),
         Attack(
             title="Stored Power",

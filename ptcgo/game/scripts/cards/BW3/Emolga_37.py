@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+def _lightning_on_bench(ctx):
+    return any(PokemonTypes.LIGHTNING.value in (p.get_attribute(AttrID.POKEMON_TYPES) or [])
+               for p in ctx.my_bench())
+
 
 card = PokemonCardDef(
     guid="9efc152e-f8a6-5014-a5f9-5b05c4d680b1",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_lightning_on_bench, 20),
         ),
     ],
 )
