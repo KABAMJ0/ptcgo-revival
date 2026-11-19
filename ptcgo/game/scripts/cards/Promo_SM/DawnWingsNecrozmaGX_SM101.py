@@ -1,6 +1,14 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+def _behind_on_prizes(board, player_id, pokemon=None):
+    mine = board.find_player_area(player_id, "prizePile")
+    other = next((p for p in board.player_ids if p != player_id), None)
+    theirs = board.find_player_area(other, "prizePile")
+    return bool(mine and theirs and len(mine.children) > len(theirs.children))
+
 
 card = PokemonCardDef(
     guid="639c044e-5b35-5a3a-9091-9c24562ead30",
@@ -37,7 +45,8 @@ card = PokemonCardDef(
             game_text="You can use this attack only if you have more Prize cards remaining than your opponent. Prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=180,
-            effect=unimplemented,
+            condition=_behind_on_prizes,
+            effect=protect_next_turn(prevent=True, effects_too=True),
         ),
     ],
 )
