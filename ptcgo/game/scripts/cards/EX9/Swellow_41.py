@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="90f3e729-6509-53e7-8e9a-8ad71dc2a947",
     key="EX9",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             title="Skill Dive",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 40 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any"),
         ),
     ],
 )

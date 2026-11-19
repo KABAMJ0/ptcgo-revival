@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="af55acd7-f2a1-5c3a-971b-8e7470cd63c9",
     key="EX11",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Snap Tail",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any"),
         ),
     ],
 )

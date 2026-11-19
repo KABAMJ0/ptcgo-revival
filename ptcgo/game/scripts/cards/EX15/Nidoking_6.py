@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="89dcdbd4-1bc9-5f72-abcd-ece58ee77d56",
     key="EX15",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any"),
         ),
         Attack(
             title="Dark Horn",

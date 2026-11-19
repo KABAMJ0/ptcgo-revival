@@ -17,6 +17,7 @@ def _hand_sizes_equal(board, pokemon, carrier) -> bool:
 def _hand_is_four(board, pokemon, carrier) -> bool:
     return _hand_count(board, carrier.owning_player_id) == 4
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="5f353973-462f-5be2-8f68-b906dd41051b",
     key="HGSS4",
@@ -45,7 +46,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 40 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any"),
         ),
         Attack(
             title="Sonicboom",

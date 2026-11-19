@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import flip_self_lock
 card = PokemonCardDef(
     guid="1aaa2035-b72b-50cb-8acb-b1cb4cb18dce",
     key="ME6",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, during your next turn, this Pok\u00e9mon can't use attacks.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=flip_self_lock(),
         ),
     ],
 )

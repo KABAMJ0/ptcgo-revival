@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="0dec3902-1c35-50a0-ad8a-2d534f08dccb",
     key="HGSS2",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sharpshooting",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="any"),
         ),
     ],
 )
