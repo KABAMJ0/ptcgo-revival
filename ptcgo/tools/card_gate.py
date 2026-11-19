@@ -18,8 +18,11 @@ detail) is absent from the base revision of that file. A gate that fails on exis
 defects gets switched off within a day.
 
 Usage:
-  python -m ptcgo.tools.card_gate --since <rev>            # HEAD against <rev>
-  python -m ptcgo.tools.card_gate --since <rev> --quiet    # only failures
+  python -m ptcgo.tools.card_gate --since <rev>            # one verdict line per file
+  python -m ptcgo.tools.card_gate --since <rev> --quiet    # summary plus failing files only
+
+Needs ptcgo/tools/kind_audit.py beside it (both files ship together in a tree that has
+this one); on a branch that lacks it the gate says so and prints the command to fetch it.
   python -m ptcgo.tools.card_gate --since <rev> --sample 20
 
 Exit status is 1 when the range adds a violation, 0 otherwise.
@@ -32,7 +35,15 @@ import subprocess
 import sys
 from typing import Dict, List, Optional, Set, Tuple
 
-from ptcgo.tools.kind_audit import INTENTS, PURE_DAMAGE, SIGNALS, block_conflict
+try:
+    from ptcgo.tools.kind_audit import INTENTS, PURE_DAMAGE, SIGNALS, block_conflict
+except ImportError:  # a lane whose branch predates the companion module
+    sys.exit(
+        "card_gate needs ptcgo/tools/kind_audit.py from the same tree, and this branch "
+        "does not have it.\nEither rebase onto a branch that does, or take both files "
+        "from origin/main and keep them:\n"
+        "  git show origin/main:ptcgo/tools/kind_audit.py > ptcgo/tools/kind_audit.py\n"
+        "  git show origin/main:ptcgo/tools/card_gate.py   > ptcgo/tools/card_gate.py")
 
 CARDS_ROOT = os.path.join("ptcgo", "game", "scripts", "cards")
 BASE_FNS = {"damage_per", "flip_damage", "bonus_if"}
@@ -178,7 +189,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m ptcgo.tools.card_gate",
                                      description="Report card-body violations newly introduced in a range.")
     parser.add_argument("--since", required=True, help="Base revision to compare HEAD against.")
-    parser.add_argument("--quiet", action="store_true", help="Print only files with new violations.")
+    parser.add_argument("--quiet", action="store_true",
+                        help="Print the summary and files with new violations only, not a "
+                             "verdict line per clean file.")
     parser.add_argument("--sample", type=int, default=0,
                         help="Print N randomly sampled new violations for a false-positive check.")
     parser.add_argument("--seed", type=int, default=0, help="Sampling seed.")

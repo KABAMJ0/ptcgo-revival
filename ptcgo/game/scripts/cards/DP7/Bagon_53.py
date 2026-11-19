@@ -5,6 +5,7 @@ from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attac
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_attack_and_retreat_lock
 
 
 card = PokemonCardDef(
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             title="Scary Face",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack or retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_attack_and_retreat_lock(),
         ),
         Attack(
             title="Headbutt",

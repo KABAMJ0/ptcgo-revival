@@ -33,6 +33,7 @@ import sys
 import types
 from typing import Dict, List, Optional, Tuple
 
+from ptcgo.tools.card_gate import analyze as gate_analyze
 from ptcgo.tools.kind_audit import block_conflict
 from ptcgo.tools.reuse_effects import (CARDS_ROOT, Script, Transplant, _ability_calls,
                                       _int_literals, _is_unimpl, _lit, _rank, all_scripts,
@@ -134,6 +135,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         pairs.append(f"CARD     {stub.set_code}/{stub.stem} <- {ref.set_code}/{ref.stem}")
         if args.apply:
             new_src = copy_whole_card(stub, ref)
+            violations = gate_analyze(new_src, stub.path)
+            if violations:
+                refused.append(f"REFUSED  {stub.set_code}/{stub.stem} <- {ref.set_code}/{ref.stem}: "
+                               + "; ".join(f"[{d}] {b}: {x}" for d, b, x in violations))
+                continue
             bad = undefined_names(new_src, stub.path) or use_before_bind(new_src, stub.path)
             if bad:
                 refused.append(f"REFUSED  {stub.set_code}/{stub.stem} <- {ref.set_code}/{ref.stem}: "
