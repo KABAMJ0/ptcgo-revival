@@ -1,6 +1,31 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.attributes import AttrID
+
+
+def _is_lightning_energy(card):
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
+
+
+def _super_dynamo_available(board, player_id, pokemon):
+    if not is_in_active_spot(pokemon) or pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS):
+        return False
+    discard = board.find_player_area(player_id, "discard")
+    return any(_is_lightning_energy(card) for card in (discard.children if discard else []))
+
+
+async def _super_dynamo(ctx):
+    results = await ctx.flip_coins(1, "Super Dynamo")
+    if not (results and results[0]):
+        return
+    await attach_from_discard(_is_lightning_energy, count=1, target="choice",
+                              prompt="Choose a Lightning Energy card from your discard pile")(ctx)
+
 
 card = PokemonCardDef(
     guid="b838f6c1-b1d3-531d-98cb-61afa4723a85",
@@ -23,6 +48,8 @@ card = PokemonCardDef(
         Ability(
             title="Super Dynamo",
             game_text="Once during your turn (before your attack), if Electrode is your Active Pok\u00e9mon, you may flip a coin. If heads, choose a Lightning Energy card from your discard pile and attach it to 1 of your Pok\u00e9mon. This power can't be used if Electrode is affected by a Special Condition.",
+            activation=Activations.ONCE_PER_TURN,
+            condition=_super_dynamo_available,
             effect=unimplemented,
         ),
         Attack(

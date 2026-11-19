@@ -4,6 +4,11 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_energy_card
+
+
 card = PokemonCardDef(
     guid="167e4a3d-8cc5-5696-866d-2403ae1250ba",
     key="ECARD2",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             title="Charge Up",
             game_text="Flip a coin. If heads, search your deck for an Energy card and attach it to Eevee. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(search_attach_energy(is_energy_card, count=1, to_self=True)),
         ),
         Attack(
             title="Lunge",

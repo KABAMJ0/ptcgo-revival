@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate, spread_damage
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -39,7 +41,9 @@ card = PokemonCardDef(
             game_text="Flip a coin, If heads, this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. If tails, this attack does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness or Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.FIGHTING: 2},
             damage=50,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(50),
+                            flip_gate(then=spread_damage(10, side="opponent"),
+                                      tails=spread_damage(10, side="mine"))),
         ),
     ],
 )

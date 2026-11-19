@@ -9,6 +9,23 @@ async def _called_shot(ctx):
     amount = 10 * count_energy("self", PokemonTypes.GRASS)(ctx)
     await snipe_attack(amount, pool="bench", count=1, apply_modifiers=False)(ctx)
 
+async def _super_eggsplosion(ctx):
+    energies = [energy for pokemon in ctx.my_pokemon_in_play()
+                for energy in ctx.attached_energies(pokemon)]
+    picks = []
+    if energies:
+        picks = await ctx.choose_cards(
+            energies, len(energies), minimum=0,
+            prompt="Discard any number of Energy cards attached to your Pokémon")
+        if picks:
+            await ctx.discard_cards(picks)
+    heads = 0
+    if picks:
+        results = await ctx.flip_coins(len(picks), "Super Eggsplosion")
+        heads = sum(1 for result in results if result)
+    if heads:
+        await ctx.deal_damage(40 * heads)
+
 
 card = PokemonCardDef(
     guid="49ad209c-3d8a-5c04-9e07-27c18b0c05c8",

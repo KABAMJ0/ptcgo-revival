@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate, self_energy_discard_attack
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -32,7 +34,9 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(30), flip_gate(
+                then=self_energy_discard_attack(
+                    1, energy_type=PokemonTypes.FIRE, before_damage=True, then_damage=20))),
         ),
     ],
 )

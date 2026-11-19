@@ -2,6 +2,9 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import gust_attack
+
+
 card = PokemonCardDef(
     guid="9025802a-9d62-539e-934f-c6b8a7f0617e",
     key="ECARD2",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Roar",
             game_text="If your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches the Defending Pok\u00e9mon with it.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_before=0, opponent_chooses=True),
         ),
         Attack(
             title="Firebreathing",

@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Kingdra does 10 damage to itself. (Don't apply Weakness or Resistance when Kingdra damages itself with this attack.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.LIGHTNING: 1},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
         Attack(
             title="Dual Burn",

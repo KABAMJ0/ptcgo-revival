@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_lightning_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
+
+
+async def _conduction(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 99, predicate=_is_lightning_energy,
+        prompt="Choose Lightning Energy to discard from Lanturn")
+    heads = await ctx.flip_coins(len(discarded), "Conduction") if discarded else []
+    await ctx.deal_damage(30 + 40 * sum(1 for h in heads if h))
 
 card = PokemonCardDef(
     guid="9d7d19f0-1fa7-5f18-874e-4d503846a10f",
@@ -30,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_conduction,
         ),
     ],
 )

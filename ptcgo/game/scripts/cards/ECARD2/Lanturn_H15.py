@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.passives_common import unafflicted
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _electric_tackle(ctx):
+    lightning = count_energy("self", PokemonTypes.LIGHTNING)(ctx)
+    await ctx.deal_damage(20 + 10 * lightning)
+    heads = await ctx.flip_coins(1, "Electric Tackle")
+    if lightning and not (heads and heads[0]):
+        await ctx.deal_damage(10 * lightning, target=ctx.attacker,
+                              apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="6d19165d-2cf8-5870-b8e8-42b1c2bc3f12",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_electric_tackle,
         ),
     ],
 )

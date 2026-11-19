@@ -1,6 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _triple_bone(ctx):
+    heads = await ctx.flip_coins(3, "Triple Bone")
+    damage = 10 * sum(1 for h in heads if h)
+    if damage:
+        await snipe_attack(damage, pool="bench", count=1, apply_modifiers=False)(ctx)
 
 card = PokemonCardDef(
     guid="42f0aad6-eb05-5635-8d5e-1d0602c70fa3",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             title="Triple Bone",
             game_text="Choose 1 of your opponent's Benched Pok\u00e9mon. Flip 3 coins. This attack does 10 damage times the number of heads to that Pok\u00e9mon. Don't apply Weakness and Resistance.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_triple_bone,
         ),
         Attack(
             title="Bone Rush",
