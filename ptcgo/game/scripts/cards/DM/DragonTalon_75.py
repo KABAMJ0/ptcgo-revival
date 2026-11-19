@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tool_counters_on_attacker
 
 card = PokemonToolCardDef(
     guid="a8a52a29-b8f9-5f45-966c-ff7ede3b68d7",
@@ -11,5 +12,12 @@ card = PokemonToolCardDef(
     collector_number=75,
     set_code="DM",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    granted_abilities=[
+        Ability(
+            title="Dragon Talon",
+            game_text="If the Dragon Pok\u00e9mon this card is attached to is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if that Pok\u00e9mon is Knocked Out), put 3 damage counters on the Attacking Pok\u00e9mon.",
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=tool_counters_on_attacker(3, 0, False, "DRAGON"),
+        ),
+    ],
 )

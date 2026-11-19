@@ -1,0 +1,226 @@
+[
+ {
+  "id": "sm115-51",
+  "name": "Bill's Analysis",
+  "number": "51",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Look at the top 7 cards of your deck. You may reveal up to 2 Trainer cards you find there and put them into your hand. Shuffle the other cards back into your deck.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-52",
+  "name": "Blaine's Last Stand",
+  "number": "52",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only when it is the last card in your hand.",
+   "Draw 2 cards for each Fire Pokémon you have in play.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-53",
+  "name": "Brock's Grit",
+  "number": "53",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Shuffle 6 in any combination of Pokémon and basic Energy cards from your discard pile into your deck.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-54",
+  "name": "Brock's Pewter City Gym",
+  "number": "54",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Stadium"
+  ],
+  "rules": [
+   "Onix-GX (both yours and your opponent's) take 40 less damage from the opponent's attacks (after applying Weakness and Resistance).",
+   "This card stays in play when you play it. Discard this card if another Stadium card comes into play. If another card with the same name is in play, you can't play this card."
+  ]
+ },
+ {
+  "id": "sm115-55",
+  "name": "Brock's Training",
+  "number": "55",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Attach an Energy card from your hand to 1 of your Geodude, Graveler, Golem, Onix-GX, Cubone, Rhyhorn, Rhydon, or Sudowoodo.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-56",
+  "name": "Erika's Hospitality",
+  "number": "56",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only if you have 4 or fewer other cards in your hand.",
+   "Draw a card for each of your opponent's Pokémon in play.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-57",
+  "name": "Giovanni's Exile",
+  "number": "57",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Discard up to 2 of your Benched Pokémon that have no damage counters on them and all cards attached to them.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-67",
+  "name": "Giovanni's Exile",
+  "number": "67",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Discard up to 2 of your Benched Pokémon that have no damage counters on them and all cards attached to them.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-58",
+  "name": "Jessie & James",
+  "number": "58",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Each player discards 2 cards from their hand. Your opponent discards first.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-68",
+  "name": "Jessie & James",
+  "number": "68",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Each player discards 2 cards from their hand. Your opponent discards first.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-59",
+  "name": "Koga's Trap",
+  "number": "59",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Your opponent's Active Pokémon is now Confused and Poisoned.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-60",
+  "name": "Lt. Surge's Strategy",
+  "number": "60",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only if you have more Prize cards remaining than your opponent.",
+   "During this turn, you can play 3 Supporter cards (including this card).",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-61",
+  "name": "Misty's Cerulean City Gym",
+  "number": "61",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Stadium"
+  ],
+  "rules": [
+   "The attacks of Starmie-GX (both yours and your opponent's) do 40 more damage to the opponent's Active Pokémon (before applying Weakness and Resistance).",
+   "This card stays in play when you play it. Discard this card if another Stadium card comes into play. If another card with the same name is in play, you can't play this card."
+  ]
+ },
+ {
+  "id": "sm115-62",
+  "name": "Misty's Determination",
+  "number": "62",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Discard a card from your hand. If you do, look at the top 8 cards of your deck and put 1 of them into your hand. Shuffle the other cards back into your deck.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-63",
+  "name": "Misty's Water Command",
+  "number": "63",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Move any number of Water Energy from your Pokémon to your Psyduck, Horsea, Staryu, Starmie-GX, Magikarp, Gyarados, or Lapras in any way you like.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-64",
+  "name": "Pokémon Center Lady",
+  "number": "64",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Heal 60 damage and remove all Special Conditions from 1 of your Pokémon.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm115-65",
+  "name": "Sabrina's Suggestion",
+  "number": "65",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "Your opponent reveals their hand. You may choose a Supporter card you find there and use the effect of that card as the effect of this card.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ }
+]

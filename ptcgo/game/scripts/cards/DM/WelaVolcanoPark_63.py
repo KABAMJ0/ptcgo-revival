@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class _WelaBurnPark(Passive):
+    """Burned is not removed when the between-turns recovery flip is heads."""
+
+    def blocks_burn_recovery(self, pokemon, carrier):
+        return True
+
 
 card = StadiumCardDef(
     guid="dd8595de-b606-5d37-94d8-ce36fbed6758",
@@ -11,5 +20,5 @@ card = StadiumCardDef(
     collector_number=63,
     set_code="DM",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=_WelaBurnPark(),
 )

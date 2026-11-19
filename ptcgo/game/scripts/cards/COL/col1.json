@@ -1,0 +1,129 @@
+[
+ {
+  "id": "col1-76",
+  "name": "Cheerleader's Cheer",
+  "number": "76",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Draw 3 cards. Your opponent may draw a card."
+  ]
+ },
+ {
+  "id": "col1-77",
+  "name": "Copycat",
+  "number": "77",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Shuffle your hand into your deck. Then, draw a number of cards equal to the number of cards in your opponent's hand."
+  ]
+ },
+ {
+  "id": "col1-78",
+  "name": "Dual Ball",
+  "number": "78",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "Flip 2 coins. For each heads, search your deck for a Basic Pokémon, show it to your opponent, and put it into your hand. If you do, shuffle your deck afterward."
+  ]
+ },
+ {
+  "id": "col1-79",
+  "name": "Interviewer's Questions",
+  "number": "79",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Look at the top 8 cards of your deck. Choose as many Energy cards as you like, show them to your opponent, and put them into your hand. Shuffle the other cards back into your deck."
+  ]
+ },
+ {
+  "id": "col1-80",
+  "name": "Lost Remover",
+  "number": "80",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "Put 1 Special Energy card attached to 1 of your opponent's Pokémon in the Lost Zone."
+  ]
+ },
+ {
+  "id": "col1-81",
+  "name": "Lost World",
+  "number": "81",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Stadium"
+  ],
+  "rules": [
+   "This card stays in play when you play it. Discard this card if another Stadium card comes into play. If another card with the same name is in play, you can't play this card.",
+   "Once during each player's turn, if that player's opponent has 6 or more Pokémon in the Lost Zone, the player may choose to win the game."
+  ]
+ },
+ {
+  "id": "col1-82",
+  "name": "Professor Elm's Training Method",
+  "number": "82",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Search your deck for an Evolution card, show it to your opponent, and put it into your hand. Shuffle your deck afterward."
+  ]
+ },
+ {
+  "id": "col1-83",
+  "name": "Professor Oak's New Theory",
+  "number": "83",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Shuffle your hand into your deck. Then, draw 6 cards."
+  ]
+ },
+ {
+  "id": "col1-84",
+  "name": "Research Record",
+  "number": "84",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "Look at the top 4 cards of your deck and put as many of them as you like back on top of your deck in any order. Then, put the remaining cards on the bottom of your deck in any order."
+  ]
+ },
+ {
+  "id": "col1-85",
+  "name": "Sage's Training",
+  "number": "85",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play only one Supporter card each turn. When you play this card, put it next to your Active Pokémon. When your turn ends, discard this card.",
+   "Look at the top 5 cards of your deck. Choose any 2 cards you find there and put them into your hand. Discard the other cards."
+  ]
+ }
+]
