@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+async def _half_remaining_hp(ctx):
+    """Damage equal to half the Defending Pokemon's remaining HP, rounded up to 10."""
+    defender = ctx.defender
+    if defender is None:
+        return
+    remaining = defender.get_attribute(AttrID.HP, 0) or 0
+    await ctx.deal_damage(((remaining // 2) + 9) // 10 * 10)
 
 card = PokemonCardDef(
     guid="44288de7-ca59-5461-8f49-7dfcc9e69cbe",
@@ -29,7 +37,7 @@ card = PokemonCardDef(
             title="Super Fang",
             game_text="Does damage to the Defending Pok\u00e9mon equal to half the Defending Pok\u00e9mon's remaining HP (rounded up to the nearest 10).",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=_half_remaining_hp,
         ),
     ],
 )
