@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Sticky",
             game_text="The Retreat Cost for each player's Pok\u00e9mon (excluding Ariados) is Colorless more.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True, tails_conditions=(SpecialConditions.PARALYZED,)),
         ),
         Attack(
             title="Offensive Needle",

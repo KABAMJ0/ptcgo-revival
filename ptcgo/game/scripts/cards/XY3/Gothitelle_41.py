@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Teleport Room",
             game_text="Once during your turn (before your attack), you may discard any Stadium card in play. If you do, put a Stadium card with a different name from your discard pile into play.",
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Psy Report",
