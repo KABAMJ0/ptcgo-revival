@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import sleep_recovery_coins
+
 
 card = StadiumCardDef(
     guid="6bcf5df3-745f-5e2a-be09-5c2424b23593",
@@ -11,5 +13,5 @@ card = StadiumCardDef(
     collector_number=207,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=sleep_recovery_coins(2),
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import voids_stadium_play
+
 
 card = StadiumCardDef(
     guid="53ff5d70-7635-5aad-b190-be61c579151d",
@@ -11,5 +13,5 @@ card = StadiumCardDef(
     collector_number=187,
     set_code="SM12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=voids_stadium_play(),
 )
