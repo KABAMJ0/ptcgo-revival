@@ -1,9 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
-
-
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 card = PokemonCardDef(
     guid="a806f89f-99d8-533c-99be-77fde0084391",
     key="SV8",

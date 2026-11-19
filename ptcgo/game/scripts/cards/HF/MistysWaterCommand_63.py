@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import move_water_energy_to_named
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=63,
     set_code="HF",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=move_water_energy_to_named("Psyduck", "Horsea", "Staryu", "Starmie-GX")
 )

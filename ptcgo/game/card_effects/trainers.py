@@ -5384,7 +5384,7 @@ def each_player_shuffle_discard_into_deck(exclude_source: bool = True,
     async def effect(ctx):
         source = getattr(ctx, "source", None) if exclude_source else None
         for player_id in ctx.board.player_ids:
-            area = ctx.board.find_player_area(player_id, "discardPile")
+            area = ctx.board.find_player_area(player_id, "discard")
             cards = [c for c in (area.children if area is not None else [])
                      if source is None or c.entity_id != source.entity_id
                      if predicate is None or predicate(c, player_id)]
@@ -5643,7 +5643,7 @@ def opponent_discard_to_hand(count: int = 1):
     """Put `count` cards from the opponent's discard pile into their hand
     (Surprise Box)."""
     async def effect(ctx):
-        area = ctx.board.find_player_area(ctx.opponent_id, "discardPile")
+        area = ctx.board.find_player_area(ctx.opponent_id, "discard")
         cards = list(area.children) if area is not None else []
         if not cards:
             return
@@ -5800,7 +5800,7 @@ def shuffle_discard_then_mill():
     """Shuffle your discard pile into your deck, then discard that many cards
     from the top of your deck (Trash Exchange)."""
     async def effect(ctx):
-        area = ctx.board.find_player_area(ctx.player_id, "discardPile")
+        area = ctx.board.find_player_area(ctx.player_id, "discard")
         cards = list(area.children) if area is not None else []
         if not cards:
             return
@@ -5906,7 +5906,7 @@ def opponent_bench_from_discard():
     """Put a Basic Pokemon from the opponent's discard pile onto their Bench
     (Pokemon Flute)."""
     async def effect(ctx):
-        area = ctx.board.find_player_area(ctx.opponent_id, "discardPile")
+        area = ctx.board.find_player_area(ctx.opponent_id, "discard")
         cards = [c for c in (area.children if area is not None else [])
                  if is_basic_pokemon(c)]
         if not cards or len(ctx.opponent_bench()) >= BENCH_CAPACITY:
@@ -6142,7 +6142,7 @@ def buddy_buddy_rescue(count: int = 1):
     the opponent chooses first (Buddy-Buddy Rescue)."""
     async def effect(ctx):
         for player_id in (ctx.opponent_id, ctx.player_id):
-            area = ctx.board.find_player_area(player_id, "discardPile")
+            area = ctx.board.find_player_area(player_id, "discard")
             cards = [c for c in (area.children if area is not None else [])
                      if is_pokemon_card(c)]
             if not cards:
@@ -9846,4 +9846,123 @@ def rotom_identity_swap():
         if swapped:
             ctx.session.clear_pokemon_effects(found[0])
         await ctx.shuffle_deck()
+    return effect
+
+
+def extra_supporters(count: int = 1):
+    """You can play `count` more Supporter cards this turn (Lt. Surge's
+    Strategy)."""
+    async def effect(ctx):
+        ctx.allow_extra_supporter(count)
+    return effect
+
+
+def more_prizes_than_opponent(board=None, player_id=None):
+    """Condition: you have more Prize cards remaining than your opponent."""
+    def check(board, player_id):
+        mine = board.find_player_area(player_id, "prizePile")
+        theirs = board.find_player_area(_opponent_of(board, player_id), "prizePile")
+        return bool(mine and theirs and len(mine.children) > len(theirs.children))
+    if board is None:
+        return check
+    return check(board, player_id)
+
+
+def team_types_take_less_next_turn(amount: int, *type_names):
+    """During your opponent's next turn each of YOUR Pokemon of those types
+    takes `amount` less damage from attacks (Iron Defender)."""
+    def target_predicate(pokemon):
+        types = set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+        return bool(types & {POKEMON_TYPE_NAMES[name.lower()] for name in type_names})
+
+    async def effect(ctx):
+        ctx.add_damage_taken_modifier(
+            -amount, for_player=ctx.player_id,
+            target_predicate=target_predicate,
+            through="opponent_next_turn")
+    return effect
+
+
+def attach_energy_spending_free_attachment(count: int, predicate, target_pred=None):
+    """Attach `count` Energy from hand, spending this turn's free Energy
+    attachment instead of adding one (Blaine)."""
+    from ptcgo.game.card_effects.support_common import attach_from_hand
+    inner = attach_from_hand(predicate, count=count, target="choice",
+                             target_pred=target_pred)
+
+    async def effect(ctx):
+        ctx.spend_free_attachment()
+        await inner(ctx)
+    return effect
+
+
+def water_energy_cards(card) -> bool:
+    """Predicate: an Energy card that provides Water Energy."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    return energy_provides_type(card, PokemonTypes.WATER.value)
+
+
+def move_water_energy_to_named(*names, count: int = 99):
+    """Move any number of Water Energy from your Pokemon to the named ones
+    (Misty's Water Command)."""
+    from ptcgo.game.card_effects.support_common import move_energy_between
+    target = named_one_of(*names)
+
+    def to_pred(pokemon, ctx):
+        return target(pokemon)
+
+    return move_energy_between(water_energy_cards, count=count, to_pred=to_pred)
+
+
+def sabrina_brycen():
+    """Search your deck for up to 2 basic Energy, then you may discard 5 other
+    cards to also search for up to 3 Pokemon of different types."""
+    from ptcgo.game.card_effects.support_common import search_to_hand
+    search_energy = search_to_hand(is_basic_energy_card, count=2)
+    extra_search = search_distinct_types(is_pokemon_card, 3)
+
+    async def effect(ctx):
+        await search_energy(ctx)
+        await pay_hand_cost(5, then=extra_search)(ctx)
+    return effect
+
+
+def legend_box():
+    """Reveal the top 10; if both halves of a LEGEND are among them, put that
+    LEGEND onto your Bench and attach every revealed Energy to it, then shuffle
+    the rest back."""
+    from ptcgo.game.content.legends import matching_legend_halves
+    from ptcgo.game.session.passives import effective_bench_capacity
+
+    async def effect(ctx):
+        revealed = await ctx.reveal_top(10)
+        if not revealed:
+            return
+        pair = None
+        for index, first in enumerate(revealed):
+            for second in revealed[index + 1:]:
+                if matching_legend_halves(first, second):
+                    pair = (first, second)
+                    break
+            if pair:
+                break
+        bench = ctx.board.find_player_area(ctx.player_id, "bench")
+        room = bench is not None and \
+            len(bench.children) < effective_bench_capacity(ctx.board, ctx.player_id)
+        if pair is None or not room:
+            await ctx.shuffle_deck()
+            return
+        energies = [card for card in revealed
+                    if card not in pair and is_energy_card(card)]
+        others = [card for card in revealed
+                  if card not in pair and card not in energies]
+        await ctx.put_in_hand(list(pair), reveal=False)
+        legend = await ctx.assemble_legend(pair[0], pair[1])
+        if legend is None:
+            await ctx.shuffle_into_deck(revealed)
+            return
+        for energy in energies:
+            await ctx.attach_energy(energy, legend)
+        if others:
+            await ctx.shuffle_into_deck(others)
     return effect

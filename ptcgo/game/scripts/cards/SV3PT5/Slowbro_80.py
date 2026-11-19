@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -10,6 +13,12 @@ async def overspin(ctx):
         return
     await ctx.deal_damage()
 
+
+async def overspin(ctx):
+    state = ctx.session.turn_state
+    if state.entered_play_turn.get(ctx.attacker.entity_id) == state.turn_number:
+        return
+    await ctx.deal_damage()
 
 card = PokemonCardDef(
     guid="1542957c-1394-5f02-9c94-1bb677278aff",

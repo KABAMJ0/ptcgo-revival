@@ -1,8 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
+from ptcgo.game.card_effects.support_common import requires_in_play, search_to_hand
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.support_common import requires_in_play, search_to_hand
 
+
+def _is_garchomp(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Garchomp"
 
 def _is_garchomp(pokemon) -> bool:
     definition = def_for(getattr(pokemon, "archetype_id", None) or "")

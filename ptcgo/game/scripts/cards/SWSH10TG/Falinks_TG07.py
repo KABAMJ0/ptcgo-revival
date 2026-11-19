@@ -1,7 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
 card = PokemonCardDef(
     guid="d8865575-3328-549b-8052-89939c4223e6",
     key="SWSH10TG",

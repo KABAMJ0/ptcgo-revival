@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.session.effects import full_stack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities

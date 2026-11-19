@@ -1,8 +1,7 @@
+from ptcgo.game.card_effects.pokemon import read_the_wind
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import read_the_wind
-
-
 card = PokemonCardDef(
     guid="37f552d6-3792-53ab-870a-c9b4dc928fc3",
     key="SV9",

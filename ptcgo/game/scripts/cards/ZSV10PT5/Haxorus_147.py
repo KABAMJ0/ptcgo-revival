@@ -4,6 +4,7 @@ from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.session.effects import is_basic_pokemon
 
+from ptcgo.game.session.effects import is_basic_pokemon
 
 async def oppressing_sandstorm(ctx):
     """If your opponent's Active Pokemon is a Basic Pokemon, it is Knocked Out."""

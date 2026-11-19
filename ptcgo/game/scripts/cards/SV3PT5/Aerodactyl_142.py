@@ -2,7 +2,6 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import rewind_beam
 
-
 card = PokemonCardDef(
     guid="f2ba4288-bb53-5cb1-9875-b6a064dd6a64",
     key="SV3PT5",

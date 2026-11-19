@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import each_player_shuffle_discard_into_deck, is_pokemon_card
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=177,
     set_code="Promo_XY",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=each_player_shuffle_discard_into_deck(predicate=lambda card, player_id: is_pokemon_card(card))
 )

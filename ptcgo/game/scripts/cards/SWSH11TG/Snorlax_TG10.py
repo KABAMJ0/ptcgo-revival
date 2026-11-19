@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.pokemon import UnfazedFatPassive, thumping_snore
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.pokemon import UnfazedFatPassive, thumping_snore
 card = PokemonCardDef(
     guid="62e43f8e-4d98-5c88-8c32-48cb1f925086",
     key="SWSH11TG",

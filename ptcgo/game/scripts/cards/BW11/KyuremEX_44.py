@@ -1,8 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
-
-
 card = PokemonCardDef(
     guid="f86a9c59-9c3b-502f-9e2a-063c38ce51f7",
     key="BW11",

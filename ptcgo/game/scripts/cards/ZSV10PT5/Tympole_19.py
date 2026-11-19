@@ -1,7 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import count_in_play, damage_per, has_attack_titled
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_with_attack, damage_per
-
 card = PokemonCardDef(
     guid="cc146293-8068-5281-a0c3-a69a165898fc",
     key="ZSV10PT5",

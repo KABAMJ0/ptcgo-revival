@@ -10,6 +10,13 @@ async def risk_taker(ctx):
     pid = ctx.opponent_id if heads[0] else ctx.player_id
     await ctx.discard_cards(ctx.deck_top(5, player_id=pid))
 
+async def risk_taker(ctx):
+    """Flip a coin. If heads, discard the top 5 cards of your opponent's
+    deck. If tails, discard the top 5 cards of your deck."""
+    heads = await ctx.flip_coins(1, "Risk Taker")
+    pid = ctx.opponent_id if heads[0] else ctx.player_id
+    await ctx.discard_cards(ctx.deck_top(5, player_id=pid))
+
 card = PokemonCardDef(
     guid="47230708-24f0-5f58-be64-73d562eebbf9",
     key="SWSH45SV",

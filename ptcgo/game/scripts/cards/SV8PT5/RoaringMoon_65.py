@@ -1,8 +1,9 @@
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
 from ptcgo.game.card_effects.trainers import pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="2a9460ac-8f57-5f5a-9915-cefd5f61f9c1",
     key="SV8PT5",

@@ -21,6 +21,12 @@ async def lightning_storm_star(ctx):
         await ctx.deal_damage(60, target=target, apply_modifiers=False)
 
 
+async def crushing_beat(ctx):
+    """190. You may discard a Stadium in play."""
+    await ctx.deal_damage()
+    if ctx.stadium_in_play() and await ctx.ask_yes_no("Discard the Stadium in play?"):
+        await ctx.discard_stadium()
+
 card = PokemonCardDef(
     guid="f1973b68-9d1f-5022-a827-605f24cbc06e",
     key="SWSH12PT5GG",

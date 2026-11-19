@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
@@ -6,6 +7,9 @@ from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 def _ten_or_more_counters(ctx):
     return damage_counters_on("self")(ctx) >= 10
 
+
+def _ten_or_more_counters(ctx):
+    return damage_counters_on("self")(ctx) >= 10
 
 card = PokemonCardDef(
     guid="599fa033-3f59-5707-b8db-7d46160a6ea9",

@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+async def electro_wheel(ctx):
+    await ctx.deal_damage()
+    picks = await ctx.discard_energy_from(ctx.attacker, 1, prompt="Discard an Energy from this Pokémon.")
+    if not picks:
+        return
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
+    if target is not None:
+        await ctx.switch_active(ctx.player_id, target)
 
 
 async def electro_wheel(ctx):

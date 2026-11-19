@@ -9,6 +9,12 @@ async def _timber_cleave(ctx):
     if all(coins):
         await ctx.knock_out(ctx.defender)
 
+async def _timber_cleave(ctx):
+    """Flip 2 coins. If both are heads, the opponent's Active is Knocked Out."""
+    coins = await ctx.flip_coins(2, "Timber Cleave")
+    if all(coins):
+        await ctx.knock_out(ctx.defender)
+
 card = PokemonCardDef(
     guid="b1febf35-587d-5802-b0cf-ac11ef87a791",
     key="SWSH10TG",

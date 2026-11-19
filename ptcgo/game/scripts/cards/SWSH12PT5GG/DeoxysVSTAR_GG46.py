@@ -1,7 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import is_pokemon_v
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
+from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+from ptcgo.game.session.effects import is_pokemon_card
 
 async def axe_break(ctx):
     """120 damage; also 60 to 1 opposing Benched Pokemon V (no W/R)."""

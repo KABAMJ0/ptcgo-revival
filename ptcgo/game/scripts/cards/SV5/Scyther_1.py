@@ -28,7 +28,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't use Slashing Strike.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

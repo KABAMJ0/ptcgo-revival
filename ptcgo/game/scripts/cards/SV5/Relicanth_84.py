@@ -1,8 +1,7 @@
+from ptcgo.game.card_effects.passives_common import previous_evolution_grant_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import previous_evolution_grant_passive
-
-
 card = PokemonCardDef(
     guid="79c98781-0d51-5f68-a3d9-e7e89fca14b5",
     key="SV5",

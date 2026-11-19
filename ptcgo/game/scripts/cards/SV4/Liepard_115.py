@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import AttrID
-
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 async def magical_echo(ctx):
     """Move all damage counters from 1 of your Benched Pokemon to the opponent's Active."""

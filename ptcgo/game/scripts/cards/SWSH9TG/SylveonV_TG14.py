@@ -2,7 +2,6 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_item_card
-
 card = PokemonCardDef(
     guid="5b5a955d-6272-50df-b08c-e514246c0378",
     key="SWSH9TG",

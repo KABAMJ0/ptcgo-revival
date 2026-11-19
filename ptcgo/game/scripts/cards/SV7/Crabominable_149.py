@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't use Haymaker.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 4},
             damage=250,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

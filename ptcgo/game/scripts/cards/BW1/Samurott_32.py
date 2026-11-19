@@ -1,8 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import TakesLessPassive
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
-
 card = PokemonCardDef(
     guid="23649c14-4181-5a55-b0dc-e2d477cd01e5",
     key="BW1",

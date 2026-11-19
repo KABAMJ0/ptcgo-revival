@@ -1,8 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_all_attacks
-
-
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 async def power_rush(ctx):
     """120 damage. Flip a coin. If tails, this Pokémon can't attack during your next turn."""
     await ctx.deal_damage()

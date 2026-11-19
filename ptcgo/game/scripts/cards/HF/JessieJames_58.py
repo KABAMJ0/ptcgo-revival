@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import each_player_discards
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=58,
     set_code="HF",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    effect=each_player_discards(2)
 )

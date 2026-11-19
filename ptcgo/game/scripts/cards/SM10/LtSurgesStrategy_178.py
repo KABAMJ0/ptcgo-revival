@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import extra_supporters, more_prizes_than_opponent
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,6 @@ card = SupporterCardDef(
     collector_number=178,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=extra_supporters(2),
+    condition=more_prizes_than_opponent
 )

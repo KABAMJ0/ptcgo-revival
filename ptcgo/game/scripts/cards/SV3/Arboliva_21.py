@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import AttrID
-
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 async def enriching_egg(ctx):
     """Heal all damage from 1 of your Benched Pokemon."""

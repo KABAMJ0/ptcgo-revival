@@ -1,7 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
-
 card = PokemonCardDef(
     guid="16dcf8ec-f180-5240-af91-f20914d5e64e",
     key="SV3",
