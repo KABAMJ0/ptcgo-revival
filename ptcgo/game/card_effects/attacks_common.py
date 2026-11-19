@@ -1270,6 +1270,19 @@ def ignore_modifier_attack(ignore_weakness: bool = False,
     return effect
 
 
+def flip_self_lock(damage: Optional[int] = None, coins: int = 1):
+    """"Flip a coin. If tails, during your next turn, this Pokemon can't
+    attack": printed (or `damage`) damage, then any tails locks every printed
+    attack on the user. The mirror of lock_self_attack, which locks on the hit
+    itself rather than on a flip."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        results = await ctx.flip_coins(coins, _title(ctx))
+        if ctx.attacker is not None and not (results and all(results)):
+            lock_all_attacks(ctx, ctx.attacker)
+    return effect
+
+
 def lock_self_attack(damage: Optional[int] = None):
     """"During your next turn, this Pokemon can't attack" (also "can't use
     attacks"): printed damage, then every printed attack on the user locks."""
@@ -1422,11 +1435,14 @@ def discard_random_hand_attack(count: int = 1, opponent: bool = True,
 # Flip gates (riders with no damage of their own)
 # ----------------------------------------------------------------------
 
-def flip_gate(then, coins: int = 1):
-    """Flip `coins`; on all heads run `then(ctx)` (a following rider)."""
+def flip_gate(then, coins: int = 1, tails: bool = False):
+    """Flip `coins`; on all heads run `then(ctx)` (a following rider).
+    `tails=True` inverts the gate to "if ANY of them is tails": the corpus has
+    both directions, and "Flip a coin. If tails, ..." is the other one."""
     async def effect(ctx):
         results = await ctx.flip_coins(coins, _title(ctx))
-        if results and all(results):
+        success = bool(results) and all(results)
+        if success != bool(tails):
             await then(ctx)
     return effect
 

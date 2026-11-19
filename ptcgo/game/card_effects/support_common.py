@@ -188,6 +188,35 @@ def swap_with_named(name: Optional[str] = None, predicate=None,
     return effect
 
 
+def trigger_counters(counters: int = 1, pred=None):
+    """"Whenever any player puts a Basic Pokemon onto their Bench / plays a
+    Pokemon to evolve / attaches an Energy, put N damage counters on that
+    Pokemon" -- a Stadium trigger body. Reads whichever entity the trigger is
+    about (benched_pokemon, evolved_pokemon or energy_receiver) and takes
+    `pred(pokemon, ctx)` for the type/stage gates."""
+    async def effect(ctx):
+        pokemon = (getattr(ctx, "benched_pokemon", None)
+                   or getattr(ctx, "evolved_pokemon", None)
+                   or getattr(ctx, "energy_receiver", None))
+        if pokemon is None or pred is not None and not pred(pokemon, ctx):
+            return
+        await ctx.deal_damage(counters * 10, target=pokemon, as_counters=True)
+    return effect
+
+
+def counters_each_in_play(counters: int = 1, pred=None):
+    """"Between turns, put N damage counters on each <matching> Pokemon in
+    play (both sides)" -- Shrine of Punishment, Faded Town."""
+    async def effect(ctx):
+        targets = [p for pid in (ctx.player_id, ctx.opponent_id)
+                   for p in ctx.session.board_state.pokemon_in_play(pid)]
+        for pokemon in targets:
+            if pred is not None and not pred(pokemon):
+                continue
+            await ctx.deal_damage(counters * 10, target=pokemon, as_counters=True)
+    return effect
+
+
 def bare_mill(count: int = 3, opponent: bool = True, then=None, predicate=None):
     """"Discard the top N cards of your opponent's deck" with no damage step,
     for the ability and Trainer printings of the same wording (mill_attack is

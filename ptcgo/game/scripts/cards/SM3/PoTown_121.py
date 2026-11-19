@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, Ability, Triggers
+from ptcgo.game.card_effects.support_common import trigger_counters
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,9 @@ card = StadiumCardDef(
     collector_number=121,
     set_code="SM3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=Ability(
+        title="PoTown_121",
+        trigger=Triggers.ON_EVOLVE,
+        effect=trigger_counters(3),
+    )
 )
