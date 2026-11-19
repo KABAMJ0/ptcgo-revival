@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="48cbca45-cd87-5e74-8549-8c2eaceca6cc",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Poison Breath",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Swift",

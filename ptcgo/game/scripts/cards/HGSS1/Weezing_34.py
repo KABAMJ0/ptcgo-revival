@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="ee1c0d1e-47a2-5cd7-acce-f47b583551c0",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Super Poison Breath",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Super Explosion",
