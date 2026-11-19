@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
         Attack(
             title="Aqua Blast",
