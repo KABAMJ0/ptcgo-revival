@@ -1,15 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import requires_hand
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
-
-async def make_do(ctx):
-    """Discard a card from your hand. Then, you may draw 2 cards."""
-    if not await ctx.discard_from_hand(1, prompt="Discard a card for Make Do"):
-        return
-    if await ctx.ask_yes_no("Draw 2 cards?"):
-        await ctx.draw_cards(2)
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="00186787-1b98-5c17-8692-3a41744d2d0c",
@@ -32,8 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Refinement",
             game_text="You must discard a card from your hand in order to use this Ability. Once during your turn, you may draw 2 cards.",
-            effect=make_do,
-            condition=requires_hand(n=1),
+            activation=Activations.ONCE_PER_TURN,
+            effect=discard_then_draw(1, 2),
         ),
         Attack(
             title="Magical Shot",

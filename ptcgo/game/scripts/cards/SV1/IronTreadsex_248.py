@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 3, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
     ],
 )

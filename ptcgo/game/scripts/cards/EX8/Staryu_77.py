@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack, switch_self_attack
+
+async def rapid_spin(ctx):
+    await gust_attack(opponent_chooses=True)(ctx)
+    await switch_self_attack(damage=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="0a7740c8-d79d-599f-bff3-7432c24abf6e",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon, if any. You switch Staryu with 1 of your Benched Pok\u00e9mon, if any.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=rapid_spin,
         ),
     ],
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.trainers import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="3d72d316-fab5-5167-80cd-f620c480448b",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Neon Sign",
             game_text="Search your deck for up to 2 Pok\u00e9mon, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, count=2, minimum=0, reveal=True),
         ),
         Attack(
             title="Water Pulse",

@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _extra_prize(ctx):
+    """The opponent takes 1 more Prize card(s) if this attack Knocks Out their Active."""
+    ctx.add_extra_prize_watcher(prizes=1)
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="971a7254-fbb8-5317-a3c7-0ba24364fe45",
     key="BW11",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Overflow",
             game_text="If your opponent's Pok\u00e9mon is Knocked Out by damage from an attack of this Pok\u00e9mon, take 1 more Prize card.",
-            effect=unimplemented,
+            effect=_extra_prize,
         ),
         Attack(
             title="Plasma Gale",

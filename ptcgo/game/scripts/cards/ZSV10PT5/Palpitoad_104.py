@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_with_attack, damage_per
 
 card = PokemonCardDef(
     guid="03938303-5193-5e78-940a-4ec5b8ec63f3",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_with_attack("Round"), 40),
         ),
         Attack(
             title="Wave Splash",

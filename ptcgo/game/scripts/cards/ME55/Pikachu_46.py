@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
 
 card = PokemonCardDef(
     guid="e17ff6d2-236e-54c1-8259-d225e9d86795",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Get Some Air",
             game_text="This Pok\u00e9mon recovers from all Special Conditions.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=cure_conditions_effect(scope="active"),
         ),
         Attack(
             title="Smash Kick",

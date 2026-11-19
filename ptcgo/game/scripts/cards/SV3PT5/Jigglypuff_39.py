@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.trainers import is_supporter_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="0f3a44a5-4b4b-5843-92f8-5d50b61a895f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Lead",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_supporter_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Stompy Stomp",

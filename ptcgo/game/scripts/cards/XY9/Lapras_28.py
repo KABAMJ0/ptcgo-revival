@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_trainer_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="8970c1d7-d2f5-5cc7-8f56-511c1cd2d5e3",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Errand-Running",
             game_text="Search your deck for a Trainer card, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_trainer_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Water Splash",

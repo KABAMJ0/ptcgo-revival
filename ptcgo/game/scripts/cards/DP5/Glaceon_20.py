@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack, snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import snipe_attack, condition_attack
 
 card = PokemonCardDef(
     guid="98f5eea0-9fc6-5049-b6d9-10ab99b419f0",

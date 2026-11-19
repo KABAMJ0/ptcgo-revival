@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="8c1eddcf-1111-5efa-9dc5-8e6d07b72fdc",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Tail Lure",
             game_text="Search your deck for a Pok\u00e9mon, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, count=1, minimum=1, reveal=True),
         ),
     ],
 )

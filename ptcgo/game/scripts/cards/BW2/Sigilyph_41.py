@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Reflect",
             game_text="During your opponent's next turn, any damage done to this Pok\u00e9mon by attacks is reduced by 40 (after applying Weakness and Resistance).",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=40),
         ),
         Attack(
             title="Telekinesis",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="9d27f87a-27b8-5d56-8062-869900245e0f",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(defender_retreat_cost, 30),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="e7873c60-5a14-59d1-8115-1a54b1a4dd38",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may have your opponent switch their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=0, opponent_chooses=True),
         ),
         Attack(
             title="Shadow Impact",

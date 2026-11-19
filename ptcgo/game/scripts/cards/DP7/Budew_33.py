@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card
 
 _baby_effect, _baby_in_hand = baby_evolution("Roselia")
 
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             title="Buddy-buddy",
             game_text="Search your deck for a Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, count=1, minimum=1, reveal=True),
         ),
     ],
 )

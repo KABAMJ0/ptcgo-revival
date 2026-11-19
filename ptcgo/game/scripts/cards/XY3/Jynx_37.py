@@ -1,7 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.passives_common import heal_activation
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 _heal, _heal_condition = heal_activation(10, requires_benched=True)
 

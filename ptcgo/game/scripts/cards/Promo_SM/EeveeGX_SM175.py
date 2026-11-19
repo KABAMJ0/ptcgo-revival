@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
 
 card = PokemonCardDef(
     guid="35c1a6e0-9eaa-5d92-a3ae-a7279aaae65e",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Joy Maker-GX",
             game_text="Put 3 cards from your discard pile into your hand. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=3),
         ),
     ],
 )

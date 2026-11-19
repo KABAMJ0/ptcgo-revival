@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="1ec9322c-ec68-5209-a3ae-ce0a1c2cda83",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Togepi does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=recoil_attack(10, damage=0),
         ),
     ],
 )

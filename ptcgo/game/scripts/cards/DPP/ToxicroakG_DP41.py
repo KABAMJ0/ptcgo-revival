@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+def kos_last_turn(ctx):
+    return ctx.kos_suffered_last_turn(ctx.player_id) > 0
+
+
+async def poison_revenge(ctx):
+    await bonus_if(kos_last_turn, 40)(ctx)
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+
 
 card = PokemonCardDef(
     guid="22c6a323-a47e-5a42-a99b-cd4c68b8b5d9",
@@ -29,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=poison_revenge,
         ),
     ],
 )

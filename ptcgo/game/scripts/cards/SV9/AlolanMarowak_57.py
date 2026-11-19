@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
 card = PokemonCardDef(
     guid="91806871-4d24-5746-9ad8-86317da32444",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0, 90),
         ),
         Attack(
             title="Will-O-Wisp",

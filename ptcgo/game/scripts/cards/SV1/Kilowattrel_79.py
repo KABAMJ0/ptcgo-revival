@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="68edbde5-8fd4-5645-a170-3689993aff8c",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Discard a Lightning Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=140,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1, energy_type=PokemonTypes.LIGHTNING),
         ),
     ],
 )

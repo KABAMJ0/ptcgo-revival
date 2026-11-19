@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.trainers import is_pokemon_EX
 from ptcgo.game.card_effects.attacks_common import bonus_if
 
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of your opponent's Benched Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=10,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Bite Off",

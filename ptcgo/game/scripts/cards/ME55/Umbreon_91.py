@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
 card = PokemonCardDef(
     guid="c5eedd83-78ff-508b-bc0d-154304fe79cb",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0, 100),
         ),
         Attack(
             title="Darkness Fang",

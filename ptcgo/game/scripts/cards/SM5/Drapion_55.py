@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Paralyzed and Poisoned.",
             cost={PokemonTypes.PSYCHIC: 4},
             damage=100,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, SpecialConditions.POISONED),
         ),
     ],
 )

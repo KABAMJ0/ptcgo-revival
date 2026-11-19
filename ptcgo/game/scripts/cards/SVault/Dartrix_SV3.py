@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Sharp Blade Quill",
             game_text="This attack does 20 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=snipe_attack(20, pool="any", count=1, apply_modifiers=False),
+            effect=snipe_attack(20, pool="any"),
         ),
         Attack(
             title="Leaf Blade",

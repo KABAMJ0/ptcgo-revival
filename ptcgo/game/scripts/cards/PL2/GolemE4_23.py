@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="e5b9cfd6-cf53-5de2-9425-14e6381c11ab",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Golem E4 does 60 damage to itself.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=recoil_attack(60, damage=0),
         ),
     ],
 )

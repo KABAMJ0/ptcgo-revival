@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.trainers import named_exactly
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="bd4f7dd0-0771-5a60-86c3-50d87dcf964a",
@@ -23,7 +25,12 @@ card = PokemonCardDef(
             title="Mega Ascension",
             game_text="Search your deck for M Charizard-EX, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                named_exactly("M Charizard-EX"),
+                count=1,
+                minimum=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Brave Fire",

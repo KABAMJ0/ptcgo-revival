@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="94c3ef74-249a-57f0-87a5-b582c5704054",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Beak Catch",
             game_text="Search your deck for up to 3 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_hand(None, count=3, reveal=False),
+            effect=search_to_hand(None, count=3, minimum=0, reveal=False),
         ),
         Attack(
             title="Speed Dive",

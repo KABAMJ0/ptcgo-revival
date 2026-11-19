@@ -1,5 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.support_common import switch_self_attack
+from ptcgo.game.card_effects.support_common import switch_self_attack, search_to_hand
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Dire Nails",

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import bare_mill
 
 card = PokemonCardDef(
     guid="297ebda3-063e-536a-97a0-0f684b01e3c7",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your deck.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=bare_mill(1, opponent=False),
         ),
     ],
 )

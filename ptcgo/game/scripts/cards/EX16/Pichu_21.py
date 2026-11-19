@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import all_of, excluding, is_pokemon_EX, pokemon_of
 
 _baby_effect, _baby_in_hand = baby_evolution("Pikachu")
 
@@ -32,7 +33,12 @@ card = PokemonCardDef(
             title="Cry for Help",
             game_text="Search your deck for a Lightning Pok\u00e9mon (excluding Pok\u00e9mon-ex), show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                all_of(pokemon_of("lightning"), excluding(is_pokemon_EX)),
+                count=1,
+                minimum=1,
+                reveal=True,
+            ),
         ),
     ],
 )

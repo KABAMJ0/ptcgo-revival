@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="960b41be-2647-589c-b836-ed20468ac38c",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Drifblim does 20 damage to itself.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=recoil_attack(20, damage=0),
         ),
         Attack(
             title="Take Away",

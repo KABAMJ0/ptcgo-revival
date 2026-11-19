@@ -16,6 +16,17 @@ ALL_TYPES_ONE_AT_A_TIME = [
     )
 ]
 
+# Same as ALL_TYPES_ONE_AT_A_TIME but each option provides two of that type
+# (Rainbow Energy's "provides 2 Energy of any 1 type" era).
+ALL_TYPES_TWO_AT_A_TIME = [
+    [t, t] for t in (
+        PokemonTypes.GRASS, PokemonTypes.FIRE, PokemonTypes.WATER,
+        PokemonTypes.LIGHTNING, PokemonTypes.PSYCHIC, PokemonTypes.FIGHTING,
+        PokemonTypes.DARKNESS, PokemonTypes.METAL, PokemonTypes.FAIRY,
+        PokemonTypes.DRAGON, PokemonTypes.COLORLESS,
+    )
+]
+
 
 def _pokemon_has_type(pokemon, pokemon_type: PokemonTypes) -> bool:
     return pokemon_type.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
@@ -576,3 +587,171 @@ class HolonEnergyPassive(Passive):
         if holder is pokemon and self._active("free_retreat", board, holder):
             return 0
         return cost
+
+
+# --- EX-era Darkness / Metal / Holon / δ Energies ---------------------------
+# Transplanted verbatim from the upstream card library so its EX-era card
+# scripts (which name these classes at construction time) load against this
+# engine. Only the import paths changed to `ptcgo.`
+
+def discard_energy_end_of_turn(energy_guid: str):
+    """END_OF_TURN granted ability: discard this Energy from the holder."""
+    async def effect(ctx):
+        pokemon = ctx.source
+        if pokemon is None:
+            return
+        energy = next(
+            (c for c in pokemon.children
+             if (c.archetype_id or "").lower() == energy_guid.lower()),
+            None)
+        if energy is not None:
+            await ctx.discard_cards([energy])
+    return effect
+
+
+def discard_energy_if_not_evolved(energy_guid: str):
+    """BETWEEN_TURNS: if holder is no longer Evolved, discard this Energy."""
+    from ptcgo.game.session.effects import is_evolution_pokemon
+
+    async def effect(ctx):
+        pokemon = ctx.source
+        if pokemon is None:
+            return
+        if is_evolution_pokemon(pokemon):
+            return
+        energy = next(
+            (c for c in pokemon.children
+             if (c.archetype_id or "").lower() == energy_guid.lower()),
+            None)
+        if energy is not None:
+            await ctx.discard_cards([energy])
+    return effect
+
+
+class DarknessEnergyPassive(Passive):
+    """+10 damage to Active if holder is Darkness or has Dark in its name."""
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.to_active):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.attacker:
+            return
+        if _pokemon_has_type(pokemon, PokemonTypes.DARKNESS):
+            calc.amount += 10
+            return
+        d = def_for(pokemon.archetype_id)
+        dn = (getattr(d, "display_name", None) or "").lower()
+        if "dark" in dn:
+            calc.amount += 10
+
+
+class MetalEnergyPassive(Passive):
+    """Holder takes 10 less if it is Metal."""
+
+    def modify_damage_taken(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.target:
+            return
+        if _pokemon_has_type(pokemon, PokemonTypes.METAL):
+            calc.amount = max(0, calc.amount - 10)
+
+
+def _holder_is_ex(pokemon) -> bool:
+    return "ex" in subtypes_for(getattr(pokemon, "archetype_id", None) or "")
+
+
+def _has_basic_energy_of_type(pokemon, ptype: PokemonTypes) -> bool:
+    from ptcgo.game.card_effects.trainers import is_basic_energy_card
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    for c in pokemon.children:
+        if is_basic_energy_card(c) and energy_provides_type(c, ptype.value):
+            return True
+    return False
+
+
+class HolonEnergyFFPassive(Passive):
+    """With basic Fire: no Weakness. With basic Fighting: ignore Resistance.
+    Ignored on Pokémon-ex."""
+
+    def modify_weakness(self, calc, carrier):
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is None or pokemon is not calc.target:
+            return
+        if _holder_is_ex(pokemon):
+            return
+        if _has_basic_energy_of_type(pokemon, PokemonTypes.FIRE):
+            calc.weakness_applies = False
+
+    def modify_resistance(self, calc, carrier):
+        # "damage done by that Pokémon's attack isn't affected by Resistance"
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is None or pokemon is not calc.attacker:
+            return
+        if _holder_is_ex(pokemon):
+            return
+        if _has_basic_energy_of_type(pokemon, PokemonTypes.FIGHTING):
+            calc.resistance_applies = False
+
+
+class HolonEnergyGLPassive(Passive):
+    """With basic Grass: immune to Special Conditions.
+    With basic Lightning: -10 from opposing Pokémon-ex.
+    Ignored on Pokémon-ex."""
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is not target or _holder_is_ex(target):
+            return False
+        return _has_basic_energy_of_type(target, PokemonTypes.GRASS)
+
+    def modify_damage_taken(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        pokemon = carrier_pokemon(carrier)
+        if pokemon is not calc.target or _holder_is_ex(pokemon):
+            return
+        if not _has_basic_energy_of_type(pokemon, PokemonTypes.LIGHTNING):
+            return
+        if calc.attacker is not None and "ex" in subtypes_for(
+                calc.attacker.archetype_id or ""):
+            calc.amount = max(0, calc.amount - 10)
+
+
+class HolonEnergyWPPassive(Passive):
+    """With basic Water: prevent attack effects (not damage).
+    With basic Psychic: retreat cost 0. Ignored on Pokémon-ex."""
+
+    def blocks_attack_effects(self, target, carrier) -> bool:
+        holder = carrier_pokemon(carrier)
+        if holder is not target or _holder_is_ex(target):
+            return False
+        return _has_basic_energy_of_type(target, PokemonTypes.WATER)
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is not pokemon or _holder_is_ex(pokemon):
+            return cost
+        if _has_basic_energy_of_type(pokemon, PokemonTypes.PSYCHIC):
+            return 0
+        return cost
+
+
+class DeltaRainbowEnergyPassive(Passive):
+    """δ Rainbow Energy: Colorless normally; every type one-at-a-time while
+    attached to a Pokémon that has δ on its card."""
+
+    def modify_energy_provided(self, options, energy, holder, board):
+        d = def_for(energy.archetype_id)
+        if not isinstance(getattr(d, "passive", None), DeltaRainbowEnergyPassive):
+            return options
+        if holder is None:
+            return [[PokemonTypes.COLORLESS.value]]
+        hd = def_for(holder.archetype_id)
+        dn = (getattr(hd, "display_name", None) or "")
+        sb = " ".join(getattr(hd, "searchable_by", None) or [])
+        if "δ" in dn or "δ" in sb or "delta" in dn.lower() or "delta" in sb.lower():
+            return options  # keep provides=ALL_TYPES_ONE_AT_A_TIME from card def
+        return [[PokemonTypes.COLORLESS.value]]

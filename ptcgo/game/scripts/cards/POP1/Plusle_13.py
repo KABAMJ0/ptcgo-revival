@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, prevent all effects of an attack, including damage, done to Plusle during your opponent's next turn.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_protection(effects_too=True),
         ),
     ],
 )

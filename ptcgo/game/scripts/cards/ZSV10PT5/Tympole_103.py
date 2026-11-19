@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import count_in_play, damage_per, has_attack_titled
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_with_attack, damage_per
 card = PokemonCardDef(
     guid="1b78e977-22d7-59bb-b5a7-e6baecd94380",
     key="ZSV10PT5",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=damage_per(count_in_play("mine", has_attack_titled("Round")), 20),
+            effect=damage_per(count_with_attack("Round"), 20),
         ),
     ],
 )

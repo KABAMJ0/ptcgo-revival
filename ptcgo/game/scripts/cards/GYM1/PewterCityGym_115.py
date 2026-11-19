@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, def_for
+from ptcgo.game.card_effects.passives_common import no_resistance_passive
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import stadium_no_resistance_named
 
 card = StadiumCardDef(
     guid="deb0626a-251f-5250-8e39-76750dd7d088",
@@ -12,5 +12,5 @@ card = StadiumCardDef(
     collector_number=115,
     set_code="GYM1",
     rarity=Rarities.Uncommon,
-    passive=stadium_no_resistance_named('brock')
+    passive=no_resistance_passive(when=lambda calc, c: calc.attacker is not None and "brock" in (getattr(def_for(calc.attacker.archetype_id), "display_name", "") or "").lower())
 )

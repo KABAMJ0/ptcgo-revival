@@ -3,6 +3,7 @@ from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attac
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import TakesLessPassive
 card = PokemonCardDef(
     guid="6c70ddc1-425d-5d2c-addb-4d7b2f5e847c",
     key="BW9",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Laid-Back",
             game_text="Any damage done to this Pok\u00e9mon by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            passive=TakesLessPassive(20),
         ),
         Attack(
             title="Mud Gun",

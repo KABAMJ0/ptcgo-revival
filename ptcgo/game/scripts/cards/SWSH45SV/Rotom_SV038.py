@@ -1,10 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import named
 from ptcgo.game.session.effects import is_item_card
 from ptcgo.game.card_effects.trainers import all_of
-from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="3f8a3f86-2149-5244-831d-3c29b91366b5",

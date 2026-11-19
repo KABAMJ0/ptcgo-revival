@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="ca17e4bb-5cf1-534a-8b5a-6000ab7d163c",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Phanpy does 10 damage to itself.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=recoil_attack(10, damage=0),
         ),
     ],
 )

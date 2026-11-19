@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="e6999596-3cef-53f0-bb83-5ae1a1f085b9",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Porygon2 does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=unimplemented,
+            effect=recoil_attack(10, damage=0),
         ),
     ],
 )

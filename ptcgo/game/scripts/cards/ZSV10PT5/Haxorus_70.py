@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_evolution_pokemon
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.session.effects import is_basic_pokemon
+
 from ptcgo.game.session.effects import is_basic_pokemon
 
 async def oppressing_sandstorm(ctx):
@@ -31,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_evolution_pokemon(ctx.defender), 80),
         ),
         Attack(
             title="Axe Blast",

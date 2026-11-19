@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 import random
 
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -46,7 +47,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Splash Dance attack does 60 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60, attack_title="Splash Dance"),
         ),
     ],
 )

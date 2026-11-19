@@ -4,10 +4,11 @@ from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-async def sugary_sprinkles(ctx):
-    """Heal 30 damage from each of your Benched Pokemon."""
+async def _heal_own_bench(ctx):
+    await ctx.deal_damage()
     for pokemon in ctx.my_bench():
         await ctx.heal(30, pokemon)
+
 
 card = PokemonCardDef(
     guid="af8d4c0e-3c41-5d66-9e1d-865d441b0793",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Cleanse Away",
             game_text="Heal 30 damage from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
-            effect=sugary_sprinkles,
+            effect=_heal_own_bench,
         ),
         Attack(
             title="Surf",

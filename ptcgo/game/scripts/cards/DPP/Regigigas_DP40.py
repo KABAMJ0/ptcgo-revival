@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def drag_off(ctx):
+    target = None
+    bench = ctx.opponent_bench()
+    if bench and await ctx.ask_yes_no(
+            "Switch 1 of your opponent's Benched Pokémon with the Defending Pokémon?"):
+        target = await ctx.choose_pokemon(bench, "Choose the new Defending Pokémon") or bench[0]
+        await ctx.switch_active(ctx.opponent_id, target)
+    await ctx.deal_damage(target=target)
+
+
 card = PokemonCardDef(
     guid="f1009d9d-610b-50df-a011-73457eba2eaa",
     key="DPP",
@@ -23,7 +33,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, you may choose 1 of your opponent's Benched Pok\u00e9mon and switch it with the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
-            effect=unimplemented,
+            effect=drag_off,
         ),
         Attack(
             title="Giga Hammer",

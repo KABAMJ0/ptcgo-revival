@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.trainers import is_supporter_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="03897c5e-0f21-534c-b8c8-5d1c55a4a88a",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Ferry Across",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_supporter_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Ice Beam",

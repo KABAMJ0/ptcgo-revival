@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="056e4eff-e4fa-51ab-a3d4-46e4fee2553d",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             title="Random Spark",
             game_text="This attack does 40 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any"),
         ),
     ],
 )
