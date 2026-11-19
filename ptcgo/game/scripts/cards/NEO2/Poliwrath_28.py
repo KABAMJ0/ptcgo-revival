@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="73f591e4-76e4-5a44-af36-ac941696c155",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Poliwrath does 20 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=recoil_attack(20),
         ),
     ],
 )

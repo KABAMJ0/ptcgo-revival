@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
 
 card = PokemonCardDef(
     guid="a71ecd78-b049-55d1-aa87-c15218c9705a",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
             title="Blazing Destruction",
             game_text="Discard a Stadium in play.",
             cost={},
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Take Down",
             game_text="This Pok\u00e9mon also does 10 damage to itself.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )

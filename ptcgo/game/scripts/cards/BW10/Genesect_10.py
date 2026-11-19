@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.trainers import all_of
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+
 
 card = PokemonCardDef(
     guid="38dd311e-e2f4-576b-928d-6486052540ba",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for 2 Grass Basic Pok\u00e9mon and put them onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(all_of(is_basic_pokemon, lambda card: is_pokemon_of_type(card, "grass")), count=2),
         ),
         Attack(
             title="Jet Impact",
@@ -30,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_bonus(20),
         ),
     ],
 )

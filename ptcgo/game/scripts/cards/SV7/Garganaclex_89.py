@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+
 
 card = PokemonCardDef(
     guid="f234127c-6733-5e6c-9cac-241f42226e1b",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Salty Body",
             game_text="This Pok\u00e9mon can't be affected by any Special Conditions.",
-            effect=unimplemented,
+            passive=condition_immunity_passive(),
         ),
         Attack(
             title="Block Hammer",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 60 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=170,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=60),
         ),
     ],
 )

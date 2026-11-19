@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import all_of, basic_energy_of, is_energy_card, named
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="cf720f0d-bc80-575d-8760-96d0cad33f51",
@@ -25,14 +28,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=100,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mill_scaled_damage(6, 100, pred=basic_energy_of("water")),
         ),
         Attack(
             title="Frost Barrier",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.WATER: 3},
             damage=200,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
     ],
 )

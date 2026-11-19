@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.trainers import search_to_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="bb2a8636-dec1-5754-89da-baa24c43b17e",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Diving Search",
             game_text="Once during your turn (before your attack), you may search your deck for a card. Shuffle your deck, then put that card on top of it.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_top(1),
         ),
         Attack(
             title="Hydro Pump",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.WATER), per=30, base=40),
         ),
     ],
 )

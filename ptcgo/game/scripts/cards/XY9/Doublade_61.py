@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="aa419251-5ff6-5257-ade2-6d4d2060c143",
     key="XY9",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             title="Stab Deeply",
             game_text="Put 3 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )

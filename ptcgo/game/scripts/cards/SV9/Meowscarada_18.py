@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations
+
+
+async def rush_in(ctx):
+    """Once during your turn, if this Pokémon is on your Bench, you may
+    switch it with your Active Pokémon."""
+    await ctx.switch_active(ctx.player_id, ctx.source)
+
+
+def rush_in_condition(board, player_id, pokemon):
+    return pokemon is not board.active_pokemon(player_id)
+
 
 card = PokemonCardDef(
     guid="61b9d063-e7a9-5354-8913-322b7c57891a",
@@ -22,7 +36,9 @@ card = PokemonCardDef(
         Ability(
             title="Showtime",
             game_text="Once during your turn, if this Pok\u00e9mon is on your Bench, you may switch it with your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=rush_in_condition,
+            effect=rush_in,
         ),
         Attack(
             title="Rising Bloom",
@@ -30,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_pokemon_ex(ctx.defender), 90),
         ),
     ],
 )

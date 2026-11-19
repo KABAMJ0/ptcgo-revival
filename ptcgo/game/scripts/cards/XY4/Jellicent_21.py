@@ -1,4 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Meddling",
             game_text="Attach 3 Energy cards from your opponent's discard pile to his or her Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 10),
         ),
         Attack(
             title="Ensnaring Spray",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 10, base=50),
         ),
     ],
 )

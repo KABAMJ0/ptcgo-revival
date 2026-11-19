@@ -1,7 +1,10 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.trainers import is_energy_card, pokemon_of
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+
 
 card = PokemonCardDef(
     guid="92f3fcf4-c07d-500a-ad7a-75cf755cf78f",
@@ -36,7 +39,7 @@ card = PokemonCardDef(
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=100,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, effects_too=True),
         ),
     ],
 )

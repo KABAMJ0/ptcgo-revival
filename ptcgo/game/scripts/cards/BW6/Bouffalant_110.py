@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.passives_common import TakesLessPassive
 card = PokemonCardDef(
     guid="5b93cdfa-e7a7-51ba-95f9-78eaba1ad62d",
     key="BW6",
@@ -21,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Bouffer",
             game_text="Any damage done to this Pok\u00e9mon by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=TakesLessPassive(20),
         ),
         Attack(
             title="Gold Breaker",

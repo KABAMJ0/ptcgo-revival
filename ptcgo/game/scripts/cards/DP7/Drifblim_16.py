@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="c6739061-7c51-55b1-b200-c0dbf52def27",
@@ -24,13 +27,13 @@ card = PokemonCardDef(
             title="Delivery",
             game_text="Put any 1 card from your discard pile into your hand.",
             cost={},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1),
         ),
         Attack(
             title="Lifting",
             game_text="Search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. For each Basic Pok\u00e9mon you put onto your Bench, you may search your deck for a basic Energy card and attach it to that Pok\u00e9mon. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_bench(count=2),
         ),
         Attack(
             title="Ominous Wind",

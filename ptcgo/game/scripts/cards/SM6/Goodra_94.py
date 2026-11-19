@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _healed_this_turn(ctx):
+    return ctx.attacker.entity_id in ctx.session.turn_state.healed_entities
+
 
 card = PokemonCardDef(
     guid="c07a378f-e7bb-5dde-90e3-de9e09e1ebc1",
@@ -30,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_healed_this_turn, 80),
         ),
     ],
 )

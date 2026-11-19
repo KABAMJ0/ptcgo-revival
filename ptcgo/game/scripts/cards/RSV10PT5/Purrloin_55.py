@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="ccb22093-773a-51a1-b55d-6d90c0ede700",
@@ -22,7 +24,11 @@ card = PokemonCardDef(
             title="Invite Evil",
             game_text="Search your deck for up to 3 Darkness Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "darkness"),
+                count=3,
+                reveal=True,
+            ),
         ),
     ],
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
+
 
 card = PokemonCardDef(
     guid="68ff8c9d-660d-5b3c-b2da-dbb579f07a30",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Happy Switch",
             game_text="Once during your turn, you may move a Basic Energy from 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Return",
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=draw_until_effect(6, optional=True),
         ),
     ],
 )

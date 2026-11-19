@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
 
 card = PokemonCardDef(
     guid="a02f868c-af86-5b44-9221-12a8368171e4",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Magnetic Switch",
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
         Attack(
             title="Electro Ball",

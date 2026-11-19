@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="df0eccc8-b3b6-5c4b-b304-0b83d7380a5c",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=named("exeggcute"), max_count=99, per=60, base=0),
         ),
     ],
 )

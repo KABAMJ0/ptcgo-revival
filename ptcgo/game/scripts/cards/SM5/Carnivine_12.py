@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="Heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=heal_attack(20),
         ),
         Attack(
             title="Loom Over",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2},
             damage=90,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
         ),
     ],
 )

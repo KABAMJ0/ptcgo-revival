@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def dig_it_up(ctx):
+    """Look at the top card of your deck. You may discard that card."""
+    top = ctx.deck_top(1)
+    if not top:
+        return
+    card = top[0]
+    idx = await ctx.present_card_choice(
+        card, "Discard this card?", ["Discard", "Keep on top"])
+    if idx == 0:
+        await ctx.discard_cards([card])
+
+
 card = PokemonCardDef(
     guid="32e6a85b-a705-557e-996e-b471976c3143",
     key="RSV10PT5",
@@ -22,7 +35,7 @@ card = PokemonCardDef(
             title="Brighten and Burn",
             game_text="Look at the top card of your deck. You may discard that card.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=dig_it_up,
         ),
     ],
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_endure_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+
 
 card = PokemonCardDef(
     guid="a2ed8c1e-ec28-539e-ad00-4bd1d8e22422",
@@ -24,14 +27,14 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If either of them is tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=2),
         ),
         Attack(
             title="Endure",
             game_text="Flip a coin. If heads, during your opponent's next turn, if Seaking would be Knocked Out by damage from an attack, Seaking is not Knocked Out and its remaining HP becomes 10 instead.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_endure_attack(),
         ),
     ],
 )

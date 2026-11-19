@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="040839d2-9f11-5557-b160-34828ca5d2eb",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Entertain",
             game_text="Heal 40 damage from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(40, scope="bench_choice"),
         ),
         Attack(
             title="Prismatic Wave",

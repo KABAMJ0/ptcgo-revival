@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import TakesLessPassive
 
 card = PokemonCardDef(
     guid="0e63f78d-37c7-5f65-9671-aba85c7bcf13",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="Any damage done to this Pok\u00e9mon by attacks is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=TakesLessPassive(10),
         ),
         Attack(
             title="Rolling Tackle",

@@ -1,5 +1,16 @@
+from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import apply_defender_attack_cost_raise, apply_defender_retreat_cost_raise
+
+
+async def chomp_chomp_hold(ctx):
+    """During your opponent's next turn, the Defending Pokemon's attacks
+    cost [C] more, and its Retreat Cost is [C] more."""
+    await ctx.deal_damage()
+    await apply_defender_attack_cost_raise(ctx, 1)
+    await apply_defender_retreat_cost_raise(ctx, 1)
+
 
 card = PokemonCardDef(
     guid="e04a6d25-0e82-578a-a14a-fcf644993d6a",
@@ -23,14 +34,14 @@ card = PokemonCardDef(
             title="Tangle Drag",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Sticky Web",
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon's attacks cost Colorless more, and its Retreat Cost is Colorless more.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=chomp_chomp_hold,
         ),
     ],
 )

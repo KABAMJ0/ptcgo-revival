@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="5d8a4d79-2dea-59e4-a6c2-a27d7cb9dacd",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_attack(3, opponent=False),
         ),
         Attack(
             title="Dragon Pulse",
             game_text="Discard the top 3 cards of your deck.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=mill_attack(count=3, opponent=False),
         ),
     ],
 )

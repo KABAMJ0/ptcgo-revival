@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="cc239c74-6bfa-5ffc-a487-e4c93bbd4381",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.METAL: 2},
             damage=90,
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Maximum Drilling",

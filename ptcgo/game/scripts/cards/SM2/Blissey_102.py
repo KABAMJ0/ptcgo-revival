@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="6f97857b-63e5-5c68-b272-8b84b9539a6d",
@@ -22,14 +24,15 @@ card = PokemonCardDef(
         Ability(
             title="Fresh Egg",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may heal 80 damage from your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=heal_targets(80, scope="active"),
         ),
         Attack(
             title="Double-Edge",
             game_text="This Pok\u00e9mon does 80 damage to itself.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=160,
-            effect=unimplemented,
+            effect=recoil_attack(80),
         ),
     ],
 )

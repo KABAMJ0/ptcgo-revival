@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.session.passives import Passive
+
+
+class BossPocketsPassive(Passive):
+    def tool_capacity(self, pokemon, carrier):
+        return 4 if pokemon is carrier else 1
+
 
 card = PokemonCardDef(
     guid="48b80dab-e832-5c08-b22a-d0f1920622f4",
@@ -23,14 +31,14 @@ card = PokemonCardDef(
         Ability(
             title="Tune-Up",
             game_text="This Pok\u00e9mon may have up to 4 Pok\u00e9mon Tools attached to it. If it loses this Ability, discard Pok\u00e9mon Tools from it until only 1 remains.",
-            effect=unimplemented,
+            passive=BossPocketsPassive(),
         ),
         Attack(
             title="Wild Drift",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=170,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
     ],
 )

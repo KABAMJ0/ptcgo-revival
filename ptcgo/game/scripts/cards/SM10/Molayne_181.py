@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import hand_has, is_metal_energy_card, molayne
 
 card = SupporterCardDef(
     guid="dfe1a87f-2507-5d8a-a85b-5e03f17d3f63",
@@ -11,5 +12,6 @@ card = SupporterCardDef(
     collector_number=181,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=molayne(),
+    condition=hand_has(is_metal_energy_card, 2)
 )

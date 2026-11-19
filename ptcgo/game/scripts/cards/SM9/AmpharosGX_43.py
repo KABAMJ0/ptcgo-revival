@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="0a10b79b-a809-506d-b91d-f740693ec621",
@@ -32,13 +35,13 @@ card = PokemonCardDef(
             game_text="Discard all Lightning Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=150,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, energy_type=PokemonTypes.LIGHTNING),
         ),
         Attack(
             title="Electrical-GX",
             game_text="Search your deck for up to 7 Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, count=7, minimum=0, reveal=True),
         ),
     ],
 )

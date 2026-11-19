@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import confuse_own_active
 
 card = SupporterCardDef(
     guid="341cc365-8750-5f9e-b179-09265beb7dac",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=63,
     set_code="TwentiethAnn",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=confuse_own_active()
 )

@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_item
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Obliging Heal",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may heal 30 damage from your Active Pok\u00e9mon and have it recover from a Special Condition.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=heal_item(30, scope="active", condition_cure=True),
         ),
         Attack(
             title="Super Psy Bolt",

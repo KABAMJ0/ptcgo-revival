@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 3 Lightning Energy cards and attach them to 1 of your Pokemon. Then, shuffle your deck.",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=150,
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("lightning"), count=3, distribute=False),
         ),
         Attack(
             title="Tag Bolt-GX",

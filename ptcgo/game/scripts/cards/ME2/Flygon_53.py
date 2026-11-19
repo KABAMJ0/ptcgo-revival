@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import bare_mill
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+async def sandy_flapping(ctx):
+    if ctx.damaged_by is not None:
+        if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+            return
+        if ctx.damage_amount < ctx.pre_hit_hp:
+            return
+    await bare_mill(2)(ctx)
+
 
 card = PokemonCardDef(
     guid="722d6a90-3867-57a4-8554-544ed57e9b27",
@@ -22,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Sandy Flapping",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. You may also use this Ability if this Pok\u00e9mon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon. Discard the top 2 cards of your opponent's deck.",
-            effect=unimplemented,
+            trigger=(Triggers.ON_EVOLVE, Triggers.ON_DAMAGED_BY_ATTACK),
+            effect=sandy_flapping,
         ),
         Attack(
             title="Cutting Wind",

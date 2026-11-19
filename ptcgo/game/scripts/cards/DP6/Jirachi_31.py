@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import search_to_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="One Desire",
             game_text="Search your deck for any 1 card. Shuffle your deck, then put that card on top of your deck.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_top(1),
         ),
         Attack(
             title="Doom Desire",

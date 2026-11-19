@@ -1,5 +1,26 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def live_painting(ctx):
+    energies = [c for c in ctx.hand() if is_basic_energy_card(c)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(
+        energies, len(energies), minimum=0,
+        prompt="Reveal any number of basic Energy cards from your hand",
+    )
+    if not picks:
+        return
+    await ctx.reveal_cards(picks)
+    types = set()
+    for card in picks:
+        types.update(card.get_attribute(AttrID.POKEMON_TYPES) or [])
+    amount = 30 * len(types)
+    if amount > 0:
+        await ctx.deal_damage(amount)
+
 
 card = PokemonCardDef(
     guid="7c012f79-338f-5166-9359-5e178ff9172b",
@@ -24,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=live_painting,
         ),
     ],
 )

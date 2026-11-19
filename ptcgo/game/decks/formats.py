@@ -9,6 +9,7 @@ from ptcgo.game.models.formats import GameFormat, FORMAT_WIRE_NAMES
 from ptcgo.game.content.sets import card_script_counts
 from ptcgo.game.scripts.cards import loader as card_loader
 from ptcgo.game.decks.theme_decks import theme_decks
+from ptcgo.game.decks import card_bans
 
 FORMATS_PATH = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', '..', 'database', 'json_data', 'formats.json'
@@ -36,6 +37,8 @@ def _default_formats() -> List[GameFormat]:
         GameFormat("Legacy", DeckFormat.LEGACY.value, "Legacy", sets=legacy),
         GameFormat("Unlimited", DeckFormat.UNLIMITED.value, "Unlimited", all_sets=True),
         GameFormat("Theme", DeckFormat.THEME.value, "ThemeDeck", all_sets=True),
+        GameFormat("TrainerChallenge", DeckFormat.TRAINER_CHALLENGE.value,
+                   "TrainerChallenge", all_sets=True),
     ]
 
 
@@ -106,6 +109,13 @@ class FormatManager:
                 logging.error(f"[Formats] Could not write default formats.json: {e}")
         if not any(fmt.guid == DeckFormat.THEME.value for fmt in self.formats):
             self.formats.append(GameFormat("Theme", DeckFormat.THEME.value, "ThemeDeck", all_sets=True))
+        # Trainer Challenge decks are what the client's Trainer Challenge deck list
+        # offers and what enables its Play button (`SetColliderStatusFromSelectedTCDeck`
+        # enables the collider only while a deck is selected). The format is plain
+        # deck-building legality, so any complete deck can be played in the mode.
+        if not any(fmt.guid == DeckFormat.TRAINER_CHALLENGE.value for fmt in self.formats):
+            self.formats.append(GameFormat("TrainerChallenge", DeckFormat.TRAINER_CHALLENGE.value,
+                                           "TrainerChallenge", all_sets=True))
         self._by_guid = {fmt.guid: fmt for fmt in self.formats}
 
     def by_guid(self, format_guid: str) -> Optional[GameFormat]:
@@ -125,10 +135,17 @@ class FormatManager:
         return None
 
     def format_name(self, format_guid: str) -> str:
-        fmt = self.by_guid(format_guid)
+        # The name we send back is not a label: DeckValidationManager.updateValidations
+        # compares it against its own literals to pick which `isValid…Deck` flag a row
+        # sets, so a renamed format in formats.json would silently clear every flag the
+        # deck list filters on. The client's own name always wins for a known id.
+        guid = (format_guid or "").lower()
+        if guid in FORMAT_WIRE_NAMES:
+            return FORMAT_WIRE_NAMES[guid]
+        fmt = self.by_guid(guid)
         if fmt:
             return fmt.format_name
-        return FORMAT_WIRE_NAMES.get((format_guid or "").lower(), "Modified")
+        return "Modified"
 
     def play_format_guids(self) -> List[str]:
         return [fmt.guid for fmt in self.formats]
@@ -164,6 +181,8 @@ class FormatManager:
         """Legality ignoring any legalFrom time gate (the formatLegality bool slot)."""
         fmt = self.by_guid(format_guid)
         if fmt is None:
+            return False
+        if card_bans.is_banned(card.guid):
             return False
         if fmt.guid == DeckFormat.THEME.value:
             return card.guid.lower() in theme_decks.registry.legal_cards

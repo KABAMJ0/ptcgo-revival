@@ -1,4 +1,6 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Healing Melody",
             game_text="Heal 10 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=heal_targets(10, scope="each_own"),
         ),
     ],
 )

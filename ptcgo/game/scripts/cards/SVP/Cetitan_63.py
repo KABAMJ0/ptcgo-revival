@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage, spread_damage
 
 card = PokemonCardDef(
     guid="ec5c87a8-3a58-53eb-8a0d-cbabb8dc0b24",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", also_base=True),
         ),
         Attack(
             title="Rolling Slider",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3},
             damage=100,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=100),
         ),
     ],
 )

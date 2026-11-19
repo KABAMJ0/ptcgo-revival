@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+async def drag_off(ctx):
+    target = None
+    if ctx.opponent_bench() and await ctx.ask_yes_no(
+            "Switch 1 of your opponent's Benched Pokémon with the Defending Pokémon?"):
+        target = await opponent_switches(ctx)
+    await ctx.deal_damage(target=target)
+
 
 card = PokemonCardDef(
     guid="684e3479-13ad-516b-8000-d33c341955fa",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, you may choose 1 of your opponent's Benched Pok\u00e9mon and switch it with 1 of the Defending Pok\u00e9mon. Your opponent chooses the Defending Pok\u00e9mon to switch.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=drag_off,
         ),
         Attack(
             title="Burn Away",

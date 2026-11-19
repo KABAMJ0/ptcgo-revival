@@ -3,6 +3,7 @@ from ptcgo.server import activity
 from ptcgo.network.message_names import InboundMsg
 from ptcgo.game.session.manager import GameSessionManager
 from .base import BaseHandler, handle
+from .league import ChallengePlayHandler
 
 class MatchmakingHandler(BaseHandler):
     def _resolve_full_deck(self, client_deck: dict) -> dict:
@@ -27,6 +28,17 @@ class MatchmakingHandler(BaseHandler):
         deck = self._resolve_full_deck(message.get("deck", {}))
         queue_name = message.get("queueName", "Standard")
         client_options = message.get("clientOptions", {})
+
+        # The Trainer Challenge's Play button is a queue request: the client names
+        # the chosen Trainer in clientOptions and never sends a league play
+        # message. Field that opponent instead of matchmaking it.
+        if ChallengePlayHandler.is_challenge_request(queue_name, client_options):
+            logging.info(f"[TCP] [{self.client.addr}] Trainer Challenge play on queue "
+                         f"'{queue_name}' (options {client_options})")
+            await self.client.send_packet({}, request_id)
+            await ChallengePlayHandler(self.client).start_from_queue(
+                queue_name, client_options, deck)
+            return
 
         logging.info(f"[TCP] [{self.client.addr}] Player {self.client.player.username} requesting queue entry for '{queue_name}'")
         activity.record("queue", account=self.client.player.username, detail=queue_name)

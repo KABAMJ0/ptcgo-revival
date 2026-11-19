@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="3d412a02-a6f7-53d5-acd4-970e747fdb4e",
@@ -21,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Spiteful Swirl",
             game_text="If your Active Darkness Pok\u00e9mon is damaged by an attack from your opponent's Pok\u00e9mon (even if your Active Darkness Pok\u00e9mon is Knocked Out), place 1 damage counter on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Mountain Breaker",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
     ],
 )

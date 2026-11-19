@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="1358d217-273a-581a-884d-85524a0ba942",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Magical Ribbon",
             game_text="Search your deck for up to 3 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=3, minimum=0, reveal=False),
         ),
         Attack(
             title="Fairy Wind",

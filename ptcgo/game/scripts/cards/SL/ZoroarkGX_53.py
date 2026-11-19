@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
+
 
 card = PokemonCardDef(
     guid="4fd9300e-2597-5cea-8938-459910907059",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Trade",
             game_text="Once during your turn (before your attack), you may discard a card from your hand. If you do, draw 2 cards.",
-            effect=unimplemented,
+            effect=discard_then_draw(1, 2, optional=False),
         ),
         Attack(
             title="Riotous Beating",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(lambda ctx: len(ctx.my_pokemon_in_play()), 20),
         ),
         Attack(
             title="Trickster-GX",

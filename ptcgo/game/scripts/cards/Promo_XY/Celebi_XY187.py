@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.card_effects.attacks_common import evolve_from_deck, flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
+
 
 card = PokemonCardDef(
     guid="87256f8c-37ce-5538-af4d-41886c46ede8",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             game_text="Heal 10 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=heal_attack(10),
         ),
     ],
 )

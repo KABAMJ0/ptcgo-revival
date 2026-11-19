@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="c5b34141-9bf1-509b-98e5-a045dc0b3031",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Dusk Shot",
             game_text="This attack does 60 damage to 1 of your opponent's Pok\u00e9mon-GX or Pok\u00e9mon-EX. This damage isn't affected by Weakness or Resistance.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=snipe_attack(60, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Rusty Claws",

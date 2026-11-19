@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import in_active_spot
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
+
+
+async def _fleet_footed(ctx):
+    if await ctx.ask_yes_no("Draw a card?"):
+        await ctx.draw_cards(1)
+
 
 card = PokemonCardDef(
     guid="cb177572-6fc7-52ea-9434-0a6ffbd58e85",
@@ -21,7 +29,9 @@ card = PokemonCardDef(
         Ability(
             title="Fleet-Footed",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may draw a card.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=in_active_spot,
+            effect=_fleet_footed,
         ),
         Attack(
             title="Blizzard Rondo",
@@ -29,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("both"), 20, base=20),
         ),
     ],
 )

@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _reorder_top(ctx):
+    await ctx.deal_damage()
+    await ctx.reorder_deck_top(5)
+
+
 card = PokemonCardDef(
     guid="b6f70c8d-3520-56b7-8e8b-377e1e80c99a",
     key="BW3",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Future Sight",
             game_text="Look at the top 5 cards of your deck and put them back on top of your deck in any order.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_reorder_top,
         ),
         Attack(
             title="Net Force",

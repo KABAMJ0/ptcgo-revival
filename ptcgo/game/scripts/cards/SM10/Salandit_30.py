@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def grass_munch(ctx):
+    """10 damage, then discard a Grass Energy from the opponent's Active."""
+    await ctx.deal_damage()
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    await ctx.discard_energy_from(
+        target, 1, predicate=lambda c: energy_provides_type(c, PokemonTypes.GRASS.value),
+        prompt="Choose a Grass Energy to discard from the Defending Pokémon")
+
 
 card = PokemonCardDef(
     guid="0cd6a391-3dec-5fa7-b860-db146ab05157",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
             game_text="Discard a Grass Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=10,
-            effect=unimplemented,
+            effect=grass_munch,
         ),
     ],
 )

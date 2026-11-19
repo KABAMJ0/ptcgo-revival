@@ -1,6 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import aqua_return, luminous_sign
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.card_effects.pokemon import luminous_sign, aqua_return
 card = PokemonCardDef(
     guid="4a32bc00-42cc-5159-8660-de94adb445f0",
     key="SWSH12PT5GG",
@@ -20,15 +22,16 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Luminous Sign",
-            game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            game_text="When you play this Pokémon from your hand onto your Bench during your turn, you may search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
+            trigger=Triggers.ON_PLAY,
+            effect=luminous_sign,
         ),
         Attack(
             title="Aqua Return",
-            game_text="Shuffle this Pok\u00e9mon and all attached cards into your deck.",
+            game_text="Shuffle this Pokémon and all attached cards into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=aqua_return,
         ),
     ],
 )

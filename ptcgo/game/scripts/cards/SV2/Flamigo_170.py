@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.support_common import entity_name
+
+_named_exact = lambda *names: (
+    lambda card: entity_name(card).lower() in {name.lower() for name in names}
+)
+
 
 card = PokemonCardDef(
     guid="697cd5b9-69da-544a-bf79-704bacd7425c",
@@ -22,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Insta-Flock",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may search your deck for up to 3 Flamigo, reveal them, and put them into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=search_to_hand(_named_exact("flamigo"), count=3, reveal=True),
         ),
         Attack(
             title="United Wings",

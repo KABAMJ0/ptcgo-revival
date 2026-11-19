@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 
 card = PokemonCardDef(
     guid="a54a50c7-3aa0-57d8-a71c-6122f515adf5",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Aqua Liner",
             game_text="Choose 1 of your opponent's Benched Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool='bench', count=1, apply_modifiers=False),
         ),
         Attack(
             title="Mouth Pump",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
         ),
     ],
 )

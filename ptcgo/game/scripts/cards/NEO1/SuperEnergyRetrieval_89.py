@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, trade_n_to_hand
 
 card = ItemCardDef(
     guid="0d7c1281-b3da-5ce6-b7eb-1100930f7ad2",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=89,
     set_code="NEO1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=trade_n_to_hand(2, is_basic_energy_card, 4)
 )

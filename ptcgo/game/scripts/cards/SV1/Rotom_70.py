@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.trainers import is_item_card
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="791cf1db-ca5d-5679-a246-22ae875cf8fc",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
             title="Junk Hunt",
             game_text="Put an Item card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(is_item_card, count=1),
         ),
         Attack(
             title="Thunder Shock",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
     ],
 )

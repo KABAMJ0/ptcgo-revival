@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 
 card = PokemonCardDef(
     guid="b6757a74-b697-5942-97b3-2a8332d6e9b8",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon has no weakness.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=no_weakness_next_turn(),
         ),
         Attack(
             title="Light of Life",

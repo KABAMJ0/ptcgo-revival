@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="cc0d4a4a-088a-5349-a094-9cd0a6363362",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Tree Climb",
             game_text="Search your deck for a Grass Energy card, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("grass"), count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Seed Bomb",

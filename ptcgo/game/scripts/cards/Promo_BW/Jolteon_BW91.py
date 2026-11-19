@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_provides = lambda type_value: (
+    lambda card: energy_provides_type(card, type_value.value)
+)
+
 
 card = PokemonCardDef(
     guid="0bf1307d-569a-5444-8a3e-e9840d64b096",
@@ -25,7 +32,12 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(
+                source="self-energy",
+                predicate=_provides(PokemonTypes.LIGHTNING),
+                max_count=1,
+                flat=40,
+            ),
         ),
         Attack(
             title="Pin Missile",
@@ -33,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=40),
         ),
     ],
 )

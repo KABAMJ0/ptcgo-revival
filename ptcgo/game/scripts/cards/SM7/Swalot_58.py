@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
 
 card = PokemonCardDef(
     guid="ff542ab8-f53c-5143-a4b7-03dd1101c173",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Swallow Up",

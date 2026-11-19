@@ -1,10 +1,11 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.data_utils import Ability, Activations
+from ptcgo.game.card_effects.trainers import stadium_ability
 
-async def lavender_town(ctx):
-    """Each player may have their opponent reveal their hand."""
-    await ctx.reveal_hand(of_player=ctx.opponent_id)
+
+async def reveal_opponent_hand(ctx):
+    """That player may have their opponent reveal their hand."""
+    await ctx.reveal_hand(ctx.opponent_id)
 
 
 card = StadiumCardDef(
@@ -17,9 +18,5 @@ card = StadiumCardDef(
     collector_number=147,
     set_code="SM9",
     rarity=Rarities.Uncommon,
-    ability=Ability(
-        title="Lavender Town",
-        activation=Activations.ONCE_PER_TURN,
-        effect=lavender_town,
-    )
+    ability=stadium_ability("Lavender Town", reveal_opponent_hand)
 )

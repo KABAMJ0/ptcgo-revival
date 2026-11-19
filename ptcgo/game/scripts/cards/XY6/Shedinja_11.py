@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 
 card = PokemonCardDef(
     guid="cb07bfc0-1f94-59b3-a3ad-b31140e263b1",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Cursed Rain",
             game_text="Put 1 damage counter on each of your opponent's Pok\u00e9mon. Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 50),
         ),
         Attack(
             title="Hopeless Scream",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 50),
         ),
     ],
 )

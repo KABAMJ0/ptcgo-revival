@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="bd6178a8-4f4b-5605-b0f1-038235ff4c90",
@@ -22,7 +24,11 @@ card = PokemonCardDef(
             title="Summon Lightning",
             game_text="Search your deck for up to 2 Lightning Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "lightning"),
+                count=2,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Prize Count",

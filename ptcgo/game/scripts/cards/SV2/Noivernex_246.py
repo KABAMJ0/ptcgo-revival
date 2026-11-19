@@ -1,5 +1,24 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic, attacker_is_evolution
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
+from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.session.effects import is_special_energy
+
+
+async def shadow_mist(ctx):
+    """10 damage; during your opponent's next turn, they can't play any
+    Special Energy or Stadium cards from their hand."""
+    await ctx.deal_damage()
+    ctx.lock_plays(
+        ctx.opponent_id,
+        lambda card: is_special_energy(card) or _is_stadium_card(card),
+    )
+
+
+def _is_stadium_card(card):
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value
+
 
 card = PokemonCardDef(
     guid="0a1fd30f-9bf5-5210-bfb4-dbe16c25677e",
@@ -23,14 +42,14 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Basic Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_basic()),
         ),
         Attack(
             title="Dominating Echo",
             game_text="During your opponent's next turn, they can't play any Special Energy or Stadium cards from their hand.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.DARKNESS: 1},
             damage=140,
-            effect=unimplemented,
+            effect=shadow_mist,
         ),
     ],
 )

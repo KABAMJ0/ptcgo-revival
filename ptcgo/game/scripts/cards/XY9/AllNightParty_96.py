@@ -1,22 +1,18 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
-from ptcgo.game.data_utils import Ability, Activations
-from ptcgo.game.attributes import AttrID, CLIENT_SPECIAL_CONDITION_NAMES, SpecialConditions
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.attributes import Rarities, AttrID, SpecialConditions, CLIENT_SPECIAL_CONDITION_NAMES
+from ptcgo.game.card_effects.trainers import stadium_ability
 
 
-def active_is_asleep(board, player_id, stadium) -> bool:
-    active = board.active_pokemon(player_id)
-    if active is None:
-        return False
-    asleep = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP]
-    return asleep in (active.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
-
-async def all_night_party(ctx):
-    """If your Active Pokemon is Asleep, remove that condition and heal 30."""
+async def _all_night_party(ctx):
+    """Once each turn: if the acting player's Active is Asleep, they may wake
+    it and heal 30 from it."""
     active = ctx.my_active()
     if active is None:
         return
-    await ctx.cure_all_conditions(active)
+    asleep = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP]
+    if asleep not in (active.get_attribute(AttrID.SPECIAL_CONDITIONS) or []):
+        return
+    await ctx.cure_condition(active, SpecialConditions.ASLEEP)
     await ctx.heal(30, active)
 
 
@@ -30,10 +26,5 @@ card = StadiumCardDef(
     collector_number=96,
     set_code="XY9",
     rarity=Rarities.Uncommon,
-    ability=Ability(
-        title="All-Night Party",
-        activation=Activations.ONCE_PER_TURN,
-            condition=active_is_asleep,
-        effect=all_night_party,
-    )
+    ability=stadium_ability("All-Night Party", _all_night_party),
 )

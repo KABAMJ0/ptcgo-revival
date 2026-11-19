@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack, damage_per, damage_counters_on
 
 card = PokemonCardDef(
     guid="c2fb3c28-0e01-51e3-b915-adff902ff91e",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="This attack does 30 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="bench", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Polar Spear-GX",
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("defender"), 50),
         ),
     ],
 )

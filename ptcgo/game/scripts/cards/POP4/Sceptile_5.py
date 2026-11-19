@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -18,12 +22,14 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.FIRE,
     resistance_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Grovyle.Name",
-    family_id=253,
+    family_id=252,
     abilities=[
         Ability(
             title="Energy Trans",
             game_text="As often as you like during your turn (before your attack), move a Grass Energy card attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon. This power can't be used if Sceptile is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(basic_energy_of("grass")),
+            effect=move_energy_between(basic_energy_of("grass"), count=1),
         ),
         Attack(
             title="Tail Rap",
@@ -31,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=50),
         ),
     ],
 )

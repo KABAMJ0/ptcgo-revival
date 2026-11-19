@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Minor Errand-Running",
             game_text="Search your deck for a basic Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(predicate=is_basic_energy_card, count=1, minimum=1),
         ),
         Attack(
             title="Thunder Jolt",
             game_text="Flip a coin. If tails, Pachirisu does 10 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(tails_self_damage=10),
         ),
     ],
 )

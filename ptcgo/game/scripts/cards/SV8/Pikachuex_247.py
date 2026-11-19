@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.passives_common import guts_survive_passive
+
 
 card = PokemonCardDef(
     guid="92d1b202-98b5-56f1-bc1f-58d61e1eed04",
@@ -21,14 +24,14 @@ card = PokemonCardDef(
         Ability(
             title="Resolute Heart",
             game_text="If this Pok\u00e9mon has full HP and would be Knocked Out by damage from an attack, it is not Knocked Out, and its remaining HP becomes 10.",
-            effect=unimplemented,
+            passive=guts_survive_passive(hp_floor=10, flip=False, require_full_hp=True),
         ),
         Attack(
             title="Topaz Bolt",
             game_text="Discard 3 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.METAL: 1},
             damage=300,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=3),
         ),
     ],
 )

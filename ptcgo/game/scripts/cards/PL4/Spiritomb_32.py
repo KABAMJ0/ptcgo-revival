@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Keystone Seal",
             game_text="As long as Spiritomb is your Active Pok\u00e9mon, each player can't play any Trainer cards from his or her hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("trainer", opponents_only=False),
         ),
         Attack(
             title="Darkness Grace",

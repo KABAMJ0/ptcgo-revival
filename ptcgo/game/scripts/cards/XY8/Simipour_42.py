@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import count_hand
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_hand, damage_per
 
 card = PokemonCardDef(
     guid="e8129fb9-a4ef-59ba-a799-312b2f2c6432",
@@ -23,13 +26,13 @@ card = PokemonCardDef(
             title="Green Fling",
             game_text="Put 3 Grass Energy from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
         Attack(
             title="Hand Fling",
             game_text="This attack does 10 damage times the number of cards in your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
     ],
 )

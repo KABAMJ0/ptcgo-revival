@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import search_to_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,7 @@ card = PokemonCardDef(
             title="Time Manipulation",
             game_text="Search your deck for 2 cards, shuffle your deck, then put those cards on top of it in any order.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_top(2),
         ),
         Attack(
             title="Buster Tail",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_hand
+
 
 card = PokemonCardDef(
     guid="eac191ee-b87b-502e-8e12-db6fde5ad10e",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_hand('opponent'), 20),
         ),
         Attack(
             title="Waterfall",

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="2c01705c-81c8-50d1-bcd9-54f52fdda6b1",
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             game_text="If there are 3 or fewer cards in your deck, this attack also does 120 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=mill_attack(3, opponent=False),
         ),
         Attack(
             title="Entangling Whip",
             game_text="Discard the top 3 cards of your deck.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=mill_attack(count=3, opponent=False),
         ),
     ],
 )

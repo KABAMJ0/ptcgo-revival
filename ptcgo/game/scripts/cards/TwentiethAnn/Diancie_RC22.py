@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 card = PokemonCardDef(
     guid="0d32a5a3-f50d-5f48-8770-76f426544ba3",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sparkle",
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Diamond Storm",

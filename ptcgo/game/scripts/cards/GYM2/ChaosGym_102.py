@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.card_effects.passives_common import trainer_play_flip_passive
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=102,
     set_code="GYM2",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=trainer_play_flip_passive()
 )

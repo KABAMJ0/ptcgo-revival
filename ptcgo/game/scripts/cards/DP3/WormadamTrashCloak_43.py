@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="111bfa50-34d2-507f-ad29-d38dc10a6af0",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Wormadam Trash Cloak does 20 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=recoil_attack(20),
         ),
     ],
 )

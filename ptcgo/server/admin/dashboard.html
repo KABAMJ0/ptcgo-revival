@@ -754,6 +754,90 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
   .page-studio { grid-template-columns: minmax(0, 1fr); }
   .feed-event { grid-template-columns: 46px 80px minmax(0, 1fr); }
 }
+
+/* ------------------------------------------------ operator console (v2) --- */
+.menu-btn { display: none; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: -4px -18px 14px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
+.tabs button { flex: none; background: none; border: 0; border-bottom: 2px solid transparent; padding: 9px 11px; color: var(--muted); font: 600 var(--t-sm) var(--sans); cursor: pointer; }
+.tabs button:hover { color: var(--text); }
+.tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+.tabs .tab-count { margin-left: 5px; color: var(--faint); font-weight: 500; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); overflow: hidden; }
+.stepper button { width: 26px; height: 26px; border: 0; background: var(--surface-2); color: var(--text-2); cursor: pointer; font: 600 14px var(--sans); }
+.stepper button:hover { background: var(--surface-3); }
+.stepper button:disabled { opacity: .35; cursor: default; }
+.stepper span { min-width: 34px; text-align: center; font: 600 var(--t-sm) var(--mono); }
+.item-cell { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.item-thumb { width: 30px; height: 42px; border-radius: 3px; object-fit: cover; background: var(--surface-3); flex: none; }
+.item-thumb.blank { display: grid; place-items: center; color: var(--faint); font-size: 10px; }
+.result-list { display: grid; gap: 4px; max-height: 300px; overflow-y: auto; margin-top: 8px; }
+.result-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.result-row:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.result-row.sel { border-color: var(--accent); background: var(--accent-soft); }
+.result-row .grow { flex: 1; min-width: 0; }
+.diff { font: 11.5px/1.5 var(--mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto; margin-top: 6px; }
+.diff .minus { color: var(--err); }
+.diff .plus { color: var(--ok); }
+.attack-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: var(--surface); }
+.attack-card + .attack-card { margin-top: 12px; }
+.attack-card.refused { background: var(--surface-2); color: var(--muted); }
+.attack-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.attack-head h3 { font-size: var(--t-md); }
+.attack-text { font-size: var(--t-sm); color: var(--text-2); margin-bottom: 10px; }
+.cost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.cost-grid label { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: var(--t-xs); }
+.cost-grid input { width: 46px; padding: 3px 5px; }
+.effect-choice { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.effect-choice label { display: flex; align-items: center; gap: 6px; margin: 0; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: var(--t-sm); cursor: pointer; }
+.effect-choice input, .cost-grid input[type="checkbox"], summary input[type="checkbox"], label > input[type="checkbox"], label > input[type="radio"] { width: auto; margin-top: 0; }
+.effect-choice label { white-space: nowrap; color: var(--text-2); font-weight: 550; }
+.effect-choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 8px; }
+.factory-doc { font-size: var(--t-xs); color: var(--muted); margin-top: 6px; }
+.callout { border-radius: var(--radius-sm); padding: 10px 12px; font-size: var(--t-sm); background: var(--info-soft); color: var(--text-2); border: 1px solid var(--line); }
+.callout.warn { background: var(--warn-soft); }
+.callout b { color: var(--text); }
+#confirmModal .picker-body p { font-size: var(--t-sm); color: var(--text-2); }
+#confirmModal .picker-body p + p { margin-top: 8px; }
+#confirmModal .field { margin-top: 12px; }
+#undoBar { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none; z-index: 61;
+  display: flex; align-items: center; gap: 12px; background: var(--text); color: var(--surface); padding: 8px 8px 8px 15px; border-radius: 8px;
+  font: 550 var(--t-sm) var(--sans); box-shadow: var(--shadow-2); transition: opacity .16s ease, transform .16s ease; max-width: min(620px, 94vw); }
+#undoBar.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+#undoBar button { background: transparent; color: var(--accent-line); border: 1px solid currentColor; border-radius: 6px; padding: 4px 10px; font: 650 var(--t-sm) var(--sans); cursor: pointer; }
+.seg.status-seg button .n { margin-left: 4px; opacity: .65; font-weight: 500; }
+.feed-kind[class*="admin_"] { background: var(--accent-soft); color: var(--accent); }
+.show-narrow { display: none; }
+@media (max-width: 720px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  :root { --rail: 260px; }
+  .rail { position: fixed; z-index: 45; top: 0; bottom: 0; left: 0; width: var(--rail); transform: translateX(-104%);
+    transition: transform .22s cubic-bezier(.32, .72, 0, 1); box-shadow: var(--shadow-2); }
+  .rail.open { transform: translateX(0); }
+  .rail .brand { justify-content: flex-start; padding: 0 16px; }
+  .rail .brand-text, .rail .nav-label, .rail .nav-item span.label, .rail .who-name, .rail .nav-badge { display: revert; }
+  .rail .nav { padding: 10px; }
+  .rail .nav-item { justify-content: flex-start; padding: 8px 10px; }
+  .rail .who { justify-content: flex-start; padding: 6px 4px; }
+  .menu-btn { display: inline-flex; }
+  .topbar { height: 56px; gap: 8px; }
+  .topbar-title p { display: none; }
+  .topbar-title h1 { font-size: var(--t-lg); }
+  .view { padding: 12px 10px 40px; }
+  .panel-head { padding: 11px 12px; }
+  .panel-head .search { flex: 1 1 100%; }
+  .panel-body { padding: 12px; }
+  .drawer { width: 100vw; }
+  .tabs { margin: -4px -14px 12px; }
+  .drawer-body { padding: 14px; }
+  .drawer-foot { flex-wrap: wrap; }
+  table.grid { font-size: var(--t-xs); }
+  .hide-narrow { display: none !important; }
+  .show-narrow { display: block !important; }
+  td.row-actions.trade-actions { display: none; }
+  #railScrim.open { display: block; }
+}
+#railScrim { display: none; position: fixed; inset: 0; z-index: 44; background: rgba(10, 12, 16, .4); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
@@ -784,6 +868,11 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></symbol>
 <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20 15 9"/><path d="M14 4v3M19 9h-3M17.5 5.5l-2 2M18 3l.6 1.4L20 5l-1.4.6L18 7l-.6-1.4L16 5l1.4-.6z"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></symbol>
+<symbol id="i-audit" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
 </defs></svg>
 
 <div class="app">
@@ -806,7 +895,13 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
         <div class="nav-label">People</div>
         <button class="nav-item" data-view="players"><svg class="ico"><use href="#i-players"/></svg><span class="label">Players</span></button>
         <button class="nav-item" data-view="accounts"><svg class="ico"><use href="#i-accounts"/></svg><span class="label">Accounts</span></button>
-        <button class="nav-item" data-view="trades"><svg class="ico"><use href="#i-trades"/></svg><span class="label">Trades</span></button>
+        <button class="nav-item" data-view="trades"><svg class="ico"><use href="#i-trades"/></svg><span class="label">Trades</span><span class="nav-badge" id="badgeTrades">–</span></button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">Game rules</div>
+        <button class="nav-item" data-view="bans"><svg class="ico"><use href="#i-ban"/></svg><span class="label">Card bans</span><span class="nav-badge" id="badgeBans">–</span></button>
+        <button class="nav-item" data-view="behaviour"><svg class="ico"><use href="#i-wand"/></svg><span class="label">Card behaviour</span></button>
+        <button class="nav-item" data-view="formats"><svg class="ico"><use href="#i-formats"/></svg><span class="label">Formats</span></button>
       </div>
       <div class="nav-group">
         <div class="nav-label">Economy</div>
@@ -818,7 +913,11 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
         <div class="nav-label">Competition</div>
         <button class="nav-item" data-view="versus"><svg class="ico"><use href="#i-versus"/></svg><span class="label">Versus Seasons</span></button>
         <button class="nav-item" data-view="tournaments"><svg class="ico"><use href="#i-tournaments"/></svg><span class="label">Tournaments</span></button>
-        <button class="nav-item" data-view="formats"><svg class="ico"><use href="#i-formats"/></svg><span class="label">Formats</span></button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">Server</div>
+        <button class="nav-item" data-view="server"><svg class="ico"><use href="#i-server"/></svg><span class="label">Broadcast &amp; security</span></button>
+        <button class="nav-item" data-view="audit"><svg class="ico"><use href="#i-audit"/></svg><span class="label">Audit log</span></button>
       </div>
     </nav>
     <div class="rail-foot">
@@ -834,6 +933,7 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
 
   <div class="main">
     <header class="topbar">
+      <button class="btn quiet menu-btn" title="Menu" aria-label="Open navigation" onclick="toggleRail()"><svg class="ico"><use href="#i-menu"/></svg></button>
       <div class="topbar-title">
         <h1 id="viewTitle">Overview</h1>
         <p id="viewSub">Server state at a glance</p>
@@ -1191,20 +1291,128 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
         <div class="panel">
           <div class="panel-head">
             <h2>Trade offers</h2>
-            <div class="panel-sub">newest 100</div>
+            <div class="seg status-seg" id="tradeStatusSeg">
+              <button data-status="open" class="active">Open<span class="n" id="tcOpen"></span></button>
+              <button data-status="accepted">Accepted<span class="n" id="tcAccepted"></span></button>
+              <button data-status="cancelled">Cancelled<span class="n" id="tcCancelled"></span></button>
+              <button data-status="">All</button>
+            </div>
             <div class="spacer"></div>
-            <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="tradeSearch" type="search" placeholder="Filter sender, recipient, status" oninput="renderTrades()"></div>
-            <select id="tradeFilter" onchange="renderTrades()">
-              <option value="all">All</option><option value="open">Open</option><option value="accepted">Accepted</option><option value="cancelled">Cancelled</option>
-            </select>
+            <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="tradeSearch" type="search" placeholder="Player, card or offer id" oninput="renderTrades()"></div>
           </div>
+          <div class="panel-note">Taking an offer down sets it to <b>cancelled</b>; no cards move, because offers do not hold cards in escrow. An offer an admin took down can be reopened while it stays cancelled.</div>
           <div class="table-scroll" style="--table-max: 66vh">
             <table class="grid" id="tradesTable">
-              <thead><tr><th>Offer</th><th>Sender</th><th>Recipient</th><th>Offering</th><th>Requesting</th><th>Status</th><th>Created</th></tr></thead>
+              <thead><tr><th>Sender</th><th class="hide-narrow">To</th><th>Offering</th><th>Requesting</th><th>Status</th><th class="hide-narrow">Created</th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
           <div class="panel-foot"><span class="count" id="tradesCount"></span></div>
+        </div>
+      </section>
+
+      <section class="view" id="tab-bans" data-view="bans">
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h2>Banned cards</h2><div class="panel-sub">refused in every format and at matchmaking</div><div class="spacer"></div><span class="pill tag" id="bansCount">0</span></div>
+            <div class="table-scroll" style="--table-max: 64vh">
+              <table class="grid" id="bansTable">
+                <thead><tr><th>Card</th><th class="hide-narrow">Reason</th><th class="num">Decks</th><th class="hide-narrow">By</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Ban a card</h2></div>
+            <div class="panel-body">
+              <div class="callout">A banned card fails deck validation in every format (the client shows it as illegal in the deck builder) and a deck holding one is refused at queue, challenge, practice and match start. Saved decks are not edited. Unbanning restores everything.</div>
+              <div class="search" style="margin-top:12px"><svg class="ico"><use href="#i-search"/></svg><input id="banSearch" type="search" placeholder="Card name, set code or GUID" oninput="debounce('ban', runBanSearch)"></div>
+              <div class="result-list" id="banResults"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="tab-behaviour" data-view="behaviour">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Attack overrides</h2><div class="panel-sub" id="ovApplied">—</div><div class="spacer"></div>
+            <button class="btn" onclick="applyOverrides()"><svg class="ico"><use href="#i-bolt"/></svg>Apply now</button>
+          </div>
+          <div class="panel-note">Overrides are stored in the database and applied by the card loader at every start. Saving one does not change the running server: press <b>Apply now</b> to re-apply the whole table live, or restart. Only an attack's damage, damage suffix, Energy cost and effect body can be overridden; anything else is refused.</div>
+          <div class="table-scroll" style="--table-max: 40vh">
+            <table class="grid" id="ovTable">
+              <thead><tr><th>Card</th><th>Attack</th><th class="hide-narrow">Change</th><th>Status</th><th class="hide-narrow">By</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h2>Find a card</h2></div>
+            <div class="panel-body">
+              <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="ovSearch" type="search" placeholder="Card name, set code or GUID" oninput="debounce('ov', runOverrideSearch)"></div>
+              <div class="result-list" id="ovResults"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2 id="ovCardTitle">Attacks</h2><div class="spacer"></div><span class="mono muted" id="ovCardGuid" style="font-size:10.5px"></span></div>
+            <div class="panel-body" id="ovEditor">${'emptyState'}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="tab-server" data-view="server">
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h2>Broadcast a notice</h2><div class="panel-sub">to every player in a chat room</div></div>
+            <div class="panel-body">
+              <div class="field"><label>Message <span class="muted" id="bcCount">0/300</span></label><textarea id="bcMessage" rows="3" maxlength="300" oninput="$('#bcCount').textContent = this.value.length + '/300'" placeholder="Server restart at 22:00 CET"></textarea></div>
+              <div class="row" style="margin-top:10px">
+                <div class="field" style="width:160px"><label>Shown as</label><input id="bcSender" value="Server" maxlength="24"></div>
+                <div class="spacer"></div>
+                <button class="btn" onclick="sendBroadcast()">Send notice</button>
+              </div>
+              <p class="factory-doc">Delivered as a room chat line to players who have joined a chat room (the lobby room joins at login). Players in a match only see it if their client shows lobby chat there.</p>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Admin password</h2><div class="panel-sub">for the account you are signed in with</div></div>
+            <div class="panel-body">
+              <div class="field"><label>Current password</label><input id="pwCurrent" type="password" autocomplete="current-password"></div>
+              <div class="field" style="margin-top:8px"><label>New password (12+ characters)</label><input id="pwNew" type="password" autocomplete="new-password"></div>
+              <div class="field" style="margin-top:8px"><label>Repeat new password</label><input id="pwRepeat" type="password" autocomplete="new-password"></div>
+              <div class="row" style="margin-top:12px"><div class="spacer"></div><button class="btn" onclick="rotatePassword()">Change password</button></div>
+              <p class="factory-doc">This is also the account's game login. Your other admin sessions are signed out.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>What needs a restart</h2></div>
+          <div class="panel-body">
+            <div class="kv">
+              <div class="kv-row"><span class="k">Inventory, wallet, trades, account bans, kicks</span><span class="v">live</span></div>
+              <div class="kv-row"><span class="k">Card bans</span><span class="v">live (players' deck builders refresh on their next legality fetch)</span></div>
+              <div class="kv-row"><span class="k">Attack overrides</span><span class="v">Apply now, or the next restart</span></div>
+              <div class="kv-row"><span class="k">Card script edits</span><span class="v">restart only — use an override instead</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="tab-audit" data-view="audit">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Admin audit log</h2><div class="panel-sub">every admin mutation with a before / after diff</div><div class="spacer"></div>
+            <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="auditSearch" type="search" placeholder="Admin, action or target" oninput="renderAudit()"></div>
+          </div>
+          <div class="table-scroll" style="--table-max: 70vh">
+            <table class="grid" id="auditTable">
+              <thead><tr><th>When</th><th>Admin</th><th>Action</th><th>Change</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel-foot"><span class="count" id="auditCount"></span></div>
         </div>
       </section>
 
@@ -1543,7 +1751,6 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
   </div>
 </div>
 
-<div id="toast"></div>
     </div><!-- /view-wrap -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1561,6 +1768,16 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-foot" id="drawerFoot"></div>
 </aside>
+
+<div class="modal-backdrop" id="confirmModal" onclick="if (event.target === this) closeConfirm(false)">
+  <div class="modal narrow" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="p-head"><h3 id="confirmTitle"></h3><button class="btn quiet" onclick="closeConfirm(false)"><svg class="ico"><use href="#i-close"/></svg></button></div>
+    <div class="picker-body" id="confirmBody"></div>
+    <div class="p-foot"><div class="spacer" style="flex:1"></div><button class="btn ghost" onclick="closeConfirm(false)">Cancel</button><button class="btn" id="confirmGo">Confirm</button></div>
+  </div>
+</div>
+<div id="undoBar" role="status"><span id="undoText"></span><button id="undoBtn">Undo</button></div>
+<div id="railScrim" onclick="toggleRail(false)"></div>
 
 <div id="toast"></div>
 
@@ -1660,7 +1877,11 @@ const VIEWS = {
   coverage:    {title:'Coverage',       sub:'Implemented versus stubbed card effects, counted per set', enter: enterCoverage},
   players:     {title:'Players',        sub:'Every account, what it owns, and the tools to change it', enter: enterPlayers},
   accounts:    {title:'Accounts',       sub:'Admin rights and bulk grants for testing', enter: enterAccounts},
-  trades:      {title:'Trades',         sub:'The newest trade offers on the server', enter: enterTrades},
+  trades:      {title:'Trades',         sub:'Inspect trade offers and take bad ones down', enter: enterTrades},
+  bans:        {title:'Card bans',      sub:'Cards refused by deck validation and matchmaking in every format', enter: enterBans},
+  behaviour:   {title:'Card behaviour', sub:'Persisted attack overrides, applied at load time', enter: enterBehaviour},
+  server:      {title:'Broadcast & security', sub:'Server notices and the admin password', enter: enterServer},
+  audit:       {title:'Audit log',      sub:'Who changed what, with the before and after', enter: enterAudit},
   shop:        {title:'Shop',           sub:'Products offered in the in-game shop', enter: enterShop},
   codes:       {title:'Redemption codes', sub:'Batches, rewards and redemption state', enter: enterCodes},
   pages:       {title:'Dynamic pages',  sub:'Landing pages and maintenance notices built from real client templates', enter: enterPages},
@@ -1680,7 +1901,7 @@ function showView(name) {
   try { history.replaceState(null, '', '#' + name); } catch(e) {}
   view.enter();
 }
-$$('.nav-item').forEach(b => b.onclick = () => showView(b.dataset.view));
+$$('.nav-item').forEach(b => b.onclick = () => { showView(b.dataset.view); toggleRail(false); });
 function refreshActive() { VIEWS[ACTIVE_VIEW].enter(); }
 
 /* ---------------------------------------------------------------- auth + boot */
@@ -2246,68 +2467,6 @@ function renderPlayers() {
   $('#playersCount').textContent = `${rows.length} of ${PLAYERS.length} accounts`;
 }
 
-async function openPlayer(account_id) {
-  openDrawer({title: 'Player', sub: 'loading…', body: '<div class="skel row"></div><div class="skel row"></div><div class="skel row"></div>'});
-  try {
-    const d = await api('players/detail', {account_id});
-    CURRENT_PLAYER = d;
-    const a = d.account;
-    const online = LIVE_ACCOUNTS.has(a.account_id);
-    const collection = d.sets.map(bucket => `
-      <details class="set-bucket">
-        <summary><b>${esc(bucket.set)}</b> <span class="muted">· ${fmtNum(bucket.cards)} cards, ${fmtNum(bucket.distinct)} distinct</span></summary>
-        <div class="collection-grid" style="margin-top:8px">
-          ${bucket.cards_list.map(c => `
-            <figure class="card-chip">
-              ${c.image ? `<img src="${esc(c.image)}" loading="lazy" alt="" onerror="this.style.display='none'">` : ''}
-              <figcaption>${esc(c.name || '')} <span class="mono">×${c.total}</span></figcaption>
-            </figure>`).join('')}
-        </div>
-      </details>`).join('') || '<p class="muted" style="font-size:var(--t-sm)">This player owns no cards.</p>';
-
-    openDrawer({
-      title: a.username,
-      sub: `${a.screen_name || 'no screen name'} · joined ${fmtDate(Date.parse(a.created_at))}${online ? ' · online now' : ''}`,
-      body: `
-        <div class="panel" style="box-shadow:none">
-          <div class="panel-head"><h2>Currency</h2><div class="spacer"></div><span class="mono muted" style="font-size:10.5px">${esc(a.account_id)}</span></div>
-          <div class="panel-body">
-            <div class="row">
-              <div class="field" style="width:110px"><label>Coins</label><input id="walletCoins" type="number" value="${d.wallet.coins}"></div>
-              <div class="field" style="width:110px"><label>Gems</label><input id="walletGems" type="number" value="${d.wallet.gems}"></div>
-              <div class="field" style="width:110px"><label>Tickets</label><input id="walletTickets" type="number" value="${d.wallet.tickets}"></div>
-              <button class="mini" onclick="saveWallet()">Save wallet</button>
-            </div>
-            <div class="kv" style="margin-top:14px">
-              <div class="kv-row"><span class="k">Cards owned</span><span class="v">${fmtNum(d.totals.cards_owned)}</span></div>
-              <div class="kv-row"><span class="k">Distinct cards</span><span class="v">${fmtNum(d.totals.distinct_cards)}</span></div>
-              <div class="kv-row"><span class="k">Sets represented</span><span class="v">${fmtNum(d.totals.sets)}</span></div>
-              <div class="kv-row"><span class="k">Decks</span><span class="v">${fmtNum(d.decks.length)}</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="panel" style="box-shadow:none;margin-top:14px">
-          <div class="panel-head"><h2>Decks</h2><div class="spacer"></div><span class="pill tag">${d.decks.length}</span></div>
-          <div class="panel-body tight">
-            ${d.decks.length ? `<table class="grid"><thead><tr><th>Name</th><th class="num">Cards</th><th></th></tr></thead><tbody>
-              ${d.decks.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${x.cards}/60</td><td>${x.is_avatar ? '<span class="pill tag">avatar</span>' : ''}</td></tr>`).join('')}
-            </tbody></table>` : '<div class="empty" style="padding:22px"><p>No decks saved.</p></div>'}
-          </div>
-        </div>
-        <div class="panel" style="box-shadow:none;margin-top:14px">
-          <div class="panel-head"><h2>Collection</h2><div class="panel-sub">by set, click to expand</div><div class="spacer"></div><span class="pill tag">${d.totals.distinct_cards} distinct</span></div>
-          <div class="panel-body">${collection}</div>
-        </div>`,
-      foot: `<button class="mini" onclick="banPlayer()">${a.is_banned ? 'Unban' : 'Ban'} account</button>
-             <button class="mini" onclick="wipeCollection()">Wipe collection</button>
-             <div class="spacer"></div>
-             <button class="mini danger" onclick="deletePlayer()">Delete account</button>`,
-    });
-  } catch(e) {
-    closeDrawer();
-    toast('Player: ' + e.message, true);
-  }
-}
 async function saveWallet() {
   if (!CURRENT_PLAYER) return;
   try {
@@ -2644,44 +2803,6 @@ async function deleteShopItem(id) {
 }
 
 /* ==================================================================== TRADES */
-let TRADES = [];
-async function enterTrades() { await loadTrades(); }
-async function loadTrades() {
-  try {
-    const d = await api('trades');
-    TRADES = d.trades || [];
-    const guids = TRADES.flatMap(t => [...Object.keys(t.offering || {}), ...Object.keys(t.requesting || {})]);
-    if (await resolveCardMeta(guids)) { /* cached */ }
-    renderTrades();
-  } catch(e) { banner($('#tab-trades'), 'Trades: ' + e.message, 'err', 'Retry', loadTrades); }
-}
-function tradeSummary(map) {
-  const entries = Object.entries(map || {});
-  if (!entries.length) return '<span class="faint">—</span>';
-  return entries.slice(0, 3).map(([g, c]) => rewardChip(g, c)).join(' ') +
-    (entries.length > 3 ? ` <span class="pill tag">+${entries.length - 3}</span>` : '');
-}
-function renderTrades() {
-  const q = ($('#tradeSearch')?.value || '').trim().toLowerCase();
-  const filter = $('#tradeFilter')?.value || 'all';
-  const rows = TRADES.filter(t => {
-    if (filter !== 'all' && t.status !== filter) return false;
-    if (!q) return true;
-    return `${t.offer_id} ${t.sender_id} ${t.recipient_id || ''} ${t.status}`.toLowerCase().includes(q);
-  });
-  $('#tradesTable tbody').innerHTML = rows.map(t => `
-    <tr>
-      <td class="mono muted">${esc(String(t.offer_id).slice(0, 8))}…</td>
-      <td class="mono">${esc(String(t.sender_id).slice(0, 8))}…</td>
-      <td>${t.recipient_id ? `<span class="mono">${esc(String(t.recipient_id).slice(0, 8))}…</span>` : '<span class="pill tag">public</span>'}</td>
-      <td><div class="chips">${tradeSummary(t.offering)}</div></td>
-      <td><div class="chips">${tradeSummary(t.requesting)}</div></td>
-      <td><span class="pill ${t.status === 'open' ? 'on' : t.status === 'accepted' ? 'info' : 'off'}">${esc(t.status)}</span></td>
-      <td class="muted nowrap">${esc(String(t.created_at || '').slice(0, 16))}</td>
-    </tr>`).join('') || `<tr><td colspan="7">${emptyState('No trade offer matches that filter.', 'i-trades')}</td></tr>`;
-  $('#tradesCount').textContent = `${rows.length} of ${TRADES.length} offers`;
-}
-
 /* ------------------------------------------------------- partner view entries */
 async function enterPages() { loadPageAssets(); loadPages(); }
 async function enterVersus() { loadVersus(); }
@@ -3423,20 +3544,6 @@ async function deletePage(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-/* ---------------- Trades ---------------- */
-async function loadTrades() {
-  try {
-    const d = await api('trades');
-    const fmt = o => Object.entries(o || {}).map(([g,c]) => `${c}× ${g.slice(0,8)}…`).join(', ') || '—';
-    $('#tradesTable tbody').innerHTML = d.trades.map(t => `
-      <tr><td class="muted">${esc(t.offer_id.slice(0,8))}…</td><td>${esc(t.sender_id.slice(0,8))}…</td>
-      <td>${t.recipient_id ? esc(t.recipient_id.slice(0,8)) + '…' : '<span class="pill tag">public</span>'}</td>
-      <td>${esc(fmt(t.offering))}</td><td>${esc(fmt(t.requesting))}</td>
-      <td><span class="pill ${t.status === 'open' ? 'on' : 'tag'}">${esc(t.status)}</span></td></tr>`).join('')
-      || '<tr><td colspan="6" class="muted">No trade offers.</td></tr>';
-  } catch(e) { toast('Trades: ' + e.message, true); }
-}
-
 /* ---------------- Versus Seasons ---------------- */
 let SEASONS = [], VS_SEL = 0;
 
@@ -3997,7 +4104,590 @@ async function boot() {
   const initial = (location.hash || '').replace('#', '');
   showView(VIEWS[initial] ? initial : 'overview');
   startMonitorPolling();
+  api('cards/bans').then(d => { $('#badgeBans').textContent = (d.bans || []).length; }).catch(() => {});
+  api('trades/list', {status: 'open', limit: 1}).then(d => { $('#badgeTrades').textContent = d.counts?.open || 0; }).catch(() => {});
 }
+
+/* ================================================================ CONSOLE v2 */
+const _debouncers = {};
+function debounce(key, fn, ms=250) { clearTimeout(_debouncers[key]); _debouncers[key] = setTimeout(fn, ms); }
+
+let _confirmResolve = null;
+function confirmDialog({title, body='', confirmLabel='Confirm', danger=false, input=null, requireText=null}) {
+  $('#confirmTitle').textContent = title;
+  let html = (Array.isArray(body) ? body : [body]).filter(Boolean).map(p => '<p>' + p + '</p>').join('');
+  if (input) html += '<div class="field"><label>' + esc(input.label) + '</label><input id="confirmInput" placeholder="' + esc(input.placeholder || '') + '" value="' + esc(input.value || '') + '"></div>';
+  if (requireText) html += '<div class="field"><label>Type <b>' + esc(requireText) + '</b> to confirm</label><input id="confirmTyped" autocomplete="off"></div>';
+  $('#confirmBody').innerHTML = html;
+  const go = $('#confirmGo');
+  go.textContent = confirmLabel;
+  go.className = danger ? 'btn danger' : 'btn';
+  const check = () => { go.disabled = !!requireText && ($('#confirmTyped')?.value.trim().toUpperCase() !== requireText); };
+  check();
+  $('#confirmTyped')?.addEventListener('input', check);
+  $('#confirmModal').classList.add('open');
+  setTimeout(() => ($('#confirmInput') || $('#confirmTyped') || go).focus(), 40);
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    go.onclick = () => {
+      if (input?.required && !$('#confirmInput').value.trim()) { $('#confirmInput').focus(); return; }
+      closeConfirm(input ? $('#confirmInput').value.trim() : true);
+    };
+  });
+}
+function closeConfirm(value) {
+  $('#confirmModal').classList.remove('open');
+  const r = _confirmResolve; _confirmResolve = null;
+  if (r) r(value);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('#confirmModal').classList.contains('open')) closeConfirm(false);
+  if (e.key === 'Enter' && $('#confirmModal').classList.contains('open') && e.target.tagName === 'INPUT') $('#confirmGo').click();
+});
+
+let _undoTimer;
+function undoBar(text, undo) {
+  const bar = $('#undoBar');
+  $('#undoText').textContent = text;
+  $('#undoBtn').style.display = undo ? '' : 'none';
+  $('#undoBtn').onclick = async () => { bar.classList.remove('show'); try { await undo(); toast('Undone'); } catch(e) { toast(e.message, true); } };
+  bar.classList.add('show');
+  clearTimeout(_undoTimer); _undoTimer = setTimeout(() => bar.classList.remove('show'), 8000);
+}
+
+function toggleRail(open) {
+  const want = open ?? !$('.rail').classList.contains('open');
+  $('.rail').classList.toggle('open', want);
+  $('#railScrim').classList.toggle('open', want);
+}
+
+function itemThumb(item) {
+  return item.image ? '<img class="item-thumb" src="' + esc(item.image) + '" loading="lazy" alt="" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'item-thumb blank\',textContent:\'?\'}))">'
+                    : '<span class="item-thumb blank">' + (item.kind === 'product' ? 'P' : '?') + '</span>';
+}
+function itemLabel(item) {
+  const where = item.kind === 'card' ? (item.set + (item.number != null ? ' ' + item.number : '')) : (item.kind === 'product' ? 'product' : 'unknown GUID');
+  return '<div class="item-cell">' + itemThumb(item) + '<div style="min-width:0"><div class="cell-main truncate">' + esc(item.name) +
+    (item.banned ? ' <span class="pill err">banned</span>' : '') + '</div><div class="cell-sub">' + esc(where) + '</div></div></div>';
+}
+function itemChips(list) {
+  if (!list?.length) return '<span class="faint">—</span>';
+  return list.slice(0, 3).map(i => '<span class="pill tag" title="' + esc(i.guid) + '">' + i.count + '× ' + esc(i.name) + '</span>').join(' ') +
+    (list.length > 3 ? ' <span class="pill tag">+' + (list.length - 3) + '</span>' : '');
+}
+async function searchItems(query, includeProducts=false) {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const d = await api('cards/search', {query: q});
+  const cards = (d.cards || []).map(c => ({guid: c.guid, kind: 'card', name: c.name, set: c.set, number: c.number, image: c.image}));
+  if (!includeProducts) return cards;
+  const ql = q.toLowerCase();
+  const products = PRODUCTS.filter(p => (p.name + ' ' + p.key + ' ' + p.guid).toLowerCase().includes(ql)).slice(0, 30)
+    .map(p => ({guid: p.guid, kind: 'product', name: p.name || p.key, set: p.key, image: p.image ? '/products/' + p.image + '.png' : null}));
+  return [...products, ...cards];
+}
+
+/* ------------------------------------------------------------------ trades */
+let TRADES = [], TRADE_STATUS = 'open';
+$$('#tradeStatusSeg button').forEach(b => b.onclick = () => {
+  TRADE_STATUS = b.dataset.status;
+  $$('#tradeStatusSeg button').forEach(x => x.classList.toggle('active', x === b));
+  loadTrades();
+});
+async function enterTrades() { await loadTrades(); }
+async function loadTrades() {
+  try {
+    const d = await api('trades/list', TRADE_STATUS ? {status: TRADE_STATUS, limit: 500} : {limit: 500});
+    TRADES = d.trades || [];
+    const c = d.counts || {};
+    $('#tcOpen').textContent = c.open || 0; $('#tcAccepted').textContent = c.accepted || 0; $('#tcCancelled').textContent = (c.cancelled || 0) + (c.declined || 0);
+    $('#badgeTrades').textContent = c.open || 0;
+    clearBanner($('#tab-trades'));
+    renderTrades();
+  } catch(e) { banner($('#tab-trades'), 'Trades: ' + e.message, 'err', 'Retry', loadTrades); }
+}
+function tradeActions(t, context='') {
+  if (t.status === 'open') return '<button class="mini danger" onclick="event.stopPropagation();takeDownTrade(\'' + esc(t.offer_id) + '\', \'' + context + '\')">Take down</button>';
+  if (t.admin_cancelled) return '<button class="mini" onclick="event.stopPropagation();reopenTrade(\'' + esc(t.offer_id) + '\', \'' + context + '\')">Reopen</button>';
+  return '';
+}
+function tradeRow(t, context='') {
+  return '<tr><td><span class="cell-main">' + esc(t.sender) + '</span><div class="cell-sub mono">' + esc(t.offer_id.slice(0, 8)) + '</div><div class="show-narrow" style="margin-top:4px">' + tradeActions(t, context) + '</div></td>' +
+    '<td class="hide-narrow">' + (t.recipient ? esc(t.recipient) : '<span class="pill tag">public</span>') + '</td>' +
+    '<td><div class="chips">' + itemChips(t.offering) + '</div></td><td><div class="chips">' + itemChips(t.requesting) + '</div></td>' +
+    '<td><span class="pill ' + (t.status === 'open' ? 'on' : t.status === 'accepted' ? 'info' : 'off') + '">' + esc(t.status) + '</span>' +
+    (t.admin_cancelled ? ' <span class="pill warn">admin</span>' : '') + (t.accepted_by_name ? '<div class="cell-sub">by ' + esc(t.accepted_by_name) + '</div>' : '') + '</td>' +
+    '<td class="muted nowrap hide-narrow">' + esc(String(t.created_at || '').slice(0, 16)) + '</td>' +
+    '<td class="row-actions trade-actions">' + tradeActions(t, context) + '</td></tr>';
+}
+function renderTrades() {
+  const q = ($('#tradeSearch')?.value || '').trim().toLowerCase();
+  const rows = TRADES.filter(t => !q || [t.offer_id, t.sender, t.sender_id, t.recipient || '', ...t.offering.map(i => i.name), ...t.requesting.map(i => i.name)]
+    .join(' ').toLowerCase().includes(q));
+  $('#tradesTable tbody').innerHTML = rows.map(t => tradeRow(t)).join('') ||
+    '<tr><td colspan="7">' + emptyState('No trade offer matches that filter.', 'i-trades') + '</td></tr>';
+  $('#tradesCount').textContent = rows.length + ' of ' + TRADES.length + ' shown';
+}
+async function takeDownTrade(offer_id, context) {
+  const t = TRADES.find(x => x.offer_id === offer_id) || (CURRENT_PLAYER_TRADES || []).find(x => x.offer_id === offer_id);
+  const reason = await confirmDialog({
+    title: 'Take this trade offer down?',
+    body: [t ? '<b>' + esc(t.sender) + '</b> offers ' + t.offering.map(i => i.count + '× ' + esc(i.name)).join(', ') + ' for ' + t.requesting.map(i => i.count + '× ' + esc(i.name)).join(', ') + '.' : '',
+           'The offer is set to cancelled. You can reopen it afterwards.'],
+    confirmLabel: 'Take down', danger: true, input: {label: 'Reason (kept in the audit log)', placeholder: 'e.g. scam offer'}});
+  if (reason === false) return;
+  try {
+    await api('trades/cancel', {offer_id, reason});
+    undoBar('Trade ' + offer_id.slice(0, 8) + ' taken down', async () => { await api('trades/reopen', {offer_id}); refreshTradeContext(context); });
+    refreshTradeContext(context);
+  } catch(e) { toast(e.message, true); }
+}
+async function reopenTrade(offer_id, context) {
+  try { await api('trades/reopen', {offer_id}); toast('Offer reopened'); refreshTradeContext(context); }
+  catch(e) { toast(e.message, true); }
+}
+function refreshTradeContext(context) {
+  if (context === 'player' && CURRENT_PLAYER) playerTab('trades'); else loadTrades();
+}
+
+/* ----------------------------------------------------------------- players */
+let CURRENT_PLAYER_TRADES = null, PLAYER_TAB = 'summary', INV_SELECTED = null;
+async function openPlayer(account_id, tab='summary') {
+  openDrawer({title: 'Player', sub: 'loading…', body: '<div class="skel row"></div><div class="skel row"></div><div class="skel row"></div>'});
+  try {
+    const d = await api('players/detail', {account_id});
+    CURRENT_PLAYER = d;
+    const a = d.account;
+    const online = LIVE_ACCOUNTS.has(a.account_id);
+    openDrawer({
+      title: a.username,
+      sub: (a.screen_name || 'no screen name') + ' · joined ' + fmtDate(Date.parse(a.created_at)) + (online ? ' · online now' : '') + (a.is_banned ? ' · banned' : ''),
+      body: '<div class="tabs" id="playerTabs">' +
+        [['summary', 'Summary'], ['inventory', 'Inventory', d.totals.distinct_cards], ['decks', 'Decks', d.decks.length], ['matches', 'Matches'], ['trades', 'Trades']]
+          .map(([k, l, n]) => '<button data-tab="' + k + '" onclick="playerTab(\'' + k + '\')">' + l + (n != null ? '<span class="tab-count">' + n + '</span>' : '') + '</button>').join('') +
+        '</div><div id="playerTabBody"></div>',
+      foot: (online ? '<button class="mini" onclick="kickPlayer()">Kick</button>' : '') +
+            '<button class="mini" onclick="banPlayer()">' + (a.is_banned ? 'Unban' : 'Ban') + ' account</button>' +
+            '<button class="mini" onclick="wipeCollection()">Wipe collection</button><div class="spacer"></div>' +
+            '<button class="mini danger" onclick="deletePlayer()">Delete account</button>',
+    });
+    playerTab(tab);
+  } catch(e) { closeDrawer(); toast('Player: ' + e.message, true); }
+}
+function playerTab(tab) {
+  PLAYER_TAB = tab;
+  $$('#playerTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  const host = $('#playerTabBody');
+  if (!host) return;
+  host.innerHTML = '<div class="skel row"></div><div class="skel row"></div>';
+  ({summary: renderPlayerSummary, inventory: renderPlayerInventory, decks: renderPlayerDecks,
+    matches: renderPlayerMatches, trades: renderPlayerTrades})[tab](host).catch(e => { host.innerHTML = emptyState(e.message, 'i-alert'); });
+}
+async function renderPlayerSummary(host) {
+  const d = CURRENT_PLAYER, a = d.account;
+  host.innerHTML =
+    '<div class="panel" style="box-shadow:none"><div class="panel-head"><h2>Wallet</h2><div class="spacer"></div><span class="mono muted" style="font-size:10.5px">' + esc(a.account_id) + '</span></div>' +
+    '<div class="panel-body"><div class="row">' +
+      ['coins', 'gems', 'tickets'].map(k => '<div class="field" style="width:110px"><label>' + k[0].toUpperCase() + k.slice(1) + ' <span class="muted">' + fmtNum(d.wallet[k]) + '</span></label><input id="wd_' + k + '" type="number" placeholder="+/- amount"></div>').join('') +
+      '<button class="mini" onclick="adjustWallet()">Apply change</button></div>' +
+    '<p class="factory-doc">Enter a positive amount to grant or a negative one to take away. Balances never go below zero.</p>' +
+    '<details style="margin-top:10px"><summary class="muted" style="font-size:var(--t-sm);cursor:pointer">Set exact balances</summary><div class="row" style="margin-top:8px">' +
+      '<div class="field" style="width:110px"><label>Coins</label><input id="walletCoins" type="number" value="' + d.wallet.coins + '"></div>' +
+      '<div class="field" style="width:110px"><label>Gems</label><input id="walletGems" type="number" value="' + d.wallet.gems + '"></div>' +
+      '<div class="field" style="width:110px"><label>Tickets</label><input id="walletTickets" type="number" value="' + d.wallet.tickets + '"></div>' +
+      '<button class="mini" onclick="saveWallet()">Save wallet</button></div></details>' +
+    '</div></div>' +
+    '<div class="kv" style="margin-top:14px">' +
+      '<div class="kv-row"><span class="k">Cards owned</span><span class="v">' + fmtNum(d.totals.cards_owned) + '</span></div>' +
+      '<div class="kv-row"><span class="k">Distinct items</span><span class="v">' + fmtNum(d.totals.distinct_cards) + '</span></div>' +
+      '<div class="kv-row"><span class="k">Decks</span><span class="v">' + fmtNum(d.decks.length) + '</span></div>' +
+      '<div class="kv-row"><span class="k">Admin</span><span class="v">' + (a.is_admin ? 'yes' : 'no') + '</span></div>' +
+    '</div>';
+}
+async function adjustWallet() {
+  const body = {account_id: CURRENT_PLAYER.account.account_id};
+  for (const k of ['coins', 'gems', 'tickets']) body[k] = parseInt($('#wd_' + k).value || '0', 10) || 0;
+  try {
+    const r = await api('players/wallet/adjust', body);
+    undoBar('Wallet: coins ' + fmtNum(r.before.coins) + ' → ' + fmtNum(r.after.coins) + ', gems ' + r.before.gems + ' → ' + r.after.gems + ', tickets ' + r.before.tickets + ' → ' + r.after.tickets,
+      async () => { await api('players/wallet/adjust', r.undo); openPlayer(body.account_id); });
+    await openPlayer(body.account_id); loadPlayers();
+  } catch(e) { toast(e.message, true); }
+}
+let INVENTORY = [];
+async function renderPlayerInventory(host) {
+  const d = await api('players/inventory', {account_id: CURRENT_PLAYER.account.account_id});
+  INVENTORY = d.items || [];
+  host.innerHTML =
+    '<div class="panel" style="box-shadow:none"><div class="panel-head"><h2>Add cards or products</h2></div><div class="panel-body">' +
+      '<div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="invSearch" type="search" placeholder="Card or product name, set code, GUID" oninput="debounce(\'inv\', runInventorySearch)"></div>' +
+      '<div class="result-list" id="invResults" style="max-height:200px"></div>' +
+      '<div class="row" style="margin-top:10px"><div class="field" style="width:90px"><label>Copies</label><input id="invQty" type="number" value="1" min="1" max="999"></div>' +
+      '<div class="field" style="width:150px"><label>Kind</label><select id="invKind"><option value="tradable">Tradable</option><option value="nontradable">Non-tradable</option></select></div>' +
+      '<div class="spacer"></div><button class="btn" id="invAddBtn" onclick="addInventory()" disabled>Add</button></div>' +
+    '</div></div>' +
+    '<div class="panel" style="box-shadow:none;margin-top:14px"><div class="panel-head"><h2>Owned</h2><div class="spacer"></div>' +
+      '<select id="invFilter" onchange="renderInventoryTable()"><option value="all">Everything</option><option value="card">Cards</option><option value="product">Products</option><option value="unknown">Unknown GUIDs</option></select>' +
+      '<div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="invFilterText" type="search" placeholder="Filter" oninput="renderInventoryTable()"></div></div>' +
+      '<div class="table-scroll" style="--table-max: 46vh"><table class="grid" id="invTable"><thead><tr><th>Item</th><th>Tradable</th><th>Non-tradable</th><th></th></tr></thead><tbody></tbody></table></div></div>';
+  INV_SELECTED = null;
+  renderInventoryTable();
+}
+function renderInventoryTable() {
+  const f = $('#invFilter')?.value || 'all', q = ($('#invFilterText')?.value || '').toLowerCase();
+  const rows = INVENTORY.filter(i => (f === 'all' || i.kind === f) && (!q || (i.name + ' ' + i.set + ' ' + i.guid).toLowerCase().includes(q)));
+  const step = (i, field, delta, disabled) => '<button ' + (disabled ? 'disabled' : '') + ' onclick="changeInventory(\'' + esc(i.row_guid) + '\', \'' + field + '\', ' + delta + ')">' + (delta > 0 ? '+' : '−') + '</button>';
+  $('#invTable tbody').innerHTML = rows.map(i =>
+    '<tr><td>' + itemLabel(i) + '</td>' +
+    '<td><span class="stepper">' + step(i, 'tradable', -1, !i.tradable) + '<span>' + i.tradable + '</span>' + step(i, 'tradable', 1) + '</span></td>' +
+    '<td><span class="stepper">' + step(i, 'nontradable', -1, !i.nontradable) + '<span>' + i.nontradable + '</span>' + step(i, 'nontradable', 1) + '</span></td>' +
+    '<td class="row-actions"><button class="mini danger" onclick="removeInventoryRow(\'' + esc(i.row_guid) + '\')">Remove</button></td></tr>').join('') ||
+    '<tr><td colspan="4">' + emptyState('Nothing owned matches.', 'i-search') + '</td></tr>';
+}
+async function runInventorySearch() {
+  const q = $('#invSearch').value;
+  const host = $('#invResults');
+  try {
+    const items = await searchItems(q, true);
+    host.innerHTML = items.map((i, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.kind === 'card' ? i.set + ' ' + (i.number ?? '') : 'product · ' + i.set) + '</div></div></button>').join('') ||
+      (q.trim().length >= 2 ? '<p class="muted" style="font-size:var(--t-sm)">No match.</p>' : '');
+    $$('#invResults .result-row').forEach(b => b.onclick = () => {
+      INV_SELECTED = items[+b.dataset.n];
+      $$('#invResults .result-row').forEach(x => x.classList.toggle('sel', x === b));
+      $('#invAddBtn').disabled = false;
+      $('#invAddBtn').textContent = 'Add ' + INV_SELECTED.name;
+    });
+  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
+}
+async function inventoryChange(guid, tradable, nontradable, label) {
+  const account_id = CURRENT_PLAYER.account.account_id;
+  const r = await api('players/inventory/adjust', {account_id, guid, tradable, nontradable});
+  undoBar(label + ' · ' + r.item.name + ': ' + r.before.tradable + '+' + r.before.nontradable + ' → ' + r.after.tradable + '+' + r.after.nontradable + (r.pushed_to_client ? ' · client refreshed' : ''),
+    async () => { await api('players/inventory/adjust', r.undo); if (PLAYER_TAB === 'inventory') playerTab('inventory'); });
+  return r;
+}
+async function addInventory() {
+  if (!INV_SELECTED) return;
+  const qty = parseInt($('#invQty').value, 10);
+  if (!(qty >= 1 && qty <= 999)) return toast('Copies must be 1 to 999', true);
+  const kind = $('#invKind').value;
+  try {
+    await inventoryChange(INV_SELECTED.guid, kind === 'tradable' ? qty : 0, kind === 'nontradable' ? qty : 0, 'Granted ' + qty);
+    playerTab('inventory');
+  } catch(e) { toast(e.message, true); }
+}
+async function changeInventory(guid, field, delta) {
+  try {
+    await inventoryChange(guid, field === 'tradable' ? delta : 0, field === 'nontradable' ? delta : 0, delta > 0 ? 'Added 1' : 'Removed 1');
+    const i = INVENTORY.find(x => x.row_guid === guid);
+    if (i) i[field] += delta;
+    INVENTORY = INVENTORY.filter(x => x.tradable || x.nontradable);
+    renderInventoryTable();
+  } catch(e) { toast(e.message, true); }
+}
+async function removeInventoryRow(guid) {
+  const i = INVENTORY.find(x => x.row_guid === guid);
+  if (!i) return;
+  const ok = await confirmDialog({title: 'Remove ' + i.name + '?', body: ['Takes away all ' + i.tradable + ' tradable and ' + i.nontradable + ' non-tradable copies from ' + esc(CURRENT_PLAYER.account.username) + '.', 'You can undo this straight after.'], confirmLabel: 'Remove', danger: true});
+  if (!ok) return;
+  try { await inventoryChange(guid, -i.tradable, -i.nontradable, 'Removed all'); playerTab('inventory'); }
+  catch(e) { toast(e.message, true); }
+}
+async function renderPlayerDecks(host) {
+  const d = await api('players/decks', {account_id: CURRENT_PLAYER.account.account_id});
+  host.innerHTML = (d.decks || []).map(deck =>
+    '<details class="set-bucket" style="margin-bottom:8px"><summary><b>' + esc(deck.name) + '</b> <span class="muted">· ' + deck.size + ' cards · ' + deck.wins + '/' + deck.played + ' won</span> ' +
+      (deck.is_avatar ? '<span class="pill tag">avatar</span> ' : '') + (deck.banned.length ? '<span class="pill err">' + deck.banned.length + ' banned</span> ' : '') +
+      deck.formats.map(f => '<span class="pill ' + (f.valid ? 'on' : 'off') + '" title="' + esc(f.problems.join(', ')) + '">' + esc(f.format) + '</span>').join(' ') + '</summary>' +
+      '<table class="grid" style="margin-top:8px"><tbody>' + deck.cards.map(c => '<tr><td class="num" style="width:40px">' + c.count + '×</td><td>' + itemLabel(c) + '</td></tr>').join('') + '</tbody></table></details>').join('') ||
+    emptyState('No decks saved.', 'i-search');
+}
+async function renderPlayerMatches(host) {
+  const d = await api('players/matches', {account_id: CURRENT_PLAYER.account.account_id});
+  host.innerHTML = '<div class="callout">' + esc(d.note) + '</div>' +
+    '<div class="panel" style="box-shadow:none;margin-top:12px"><div class="panel-head"><h2>Deck records</h2></div><div class="panel-body tight"><table class="grid"><tbody>' +
+      (d.decks.map(x => '<tr><td>' + esc(x.name) + '</td><td class="num">' + x.wins + ' / ' + x.played + ' won</td></tr>').join('') || '<tr><td class="muted">No recorded games.</td></tr>') + '</tbody></table></div></div>' +
+    (d.tournaments.length ? '<div class="panel" style="box-shadow:none;margin-top:12px"><div class="panel-head"><h2>Tournament runs</h2></div><div class="panel-body tight"><table class="grid"><tbody>' +
+      d.tournaments.map(t => '<tr><td class="mono">' + esc(t.tournament_id.slice(0, 12)) + '</td><td>' + t.wins + '–' + t.losses + '</td><td>' + esc(t.status) + '</td><td class="muted">' + t.history.map(h => esc(h.opponentName || '?') + ' ' + esc(h.gameResult || '')).join(', ') + '</td></tr>').join('') + '</tbody></table></div></div>' : '') +
+    '<div class="panel" style="box-shadow:none;margin-top:12px"><div class="panel-head"><h2>Recent match events</h2><div class="spacer"></div><span class="pill tag">' + d.events.length + '</span></div><div class="feed">' +
+      (d.events.map(e => '<div class="feed-event"><span class="feed-time">' + fmtClock(e.at) + '<br><span class="faint">' + esc(String(e.at || '').slice(5, 10)) + '</span></span><span class="feed-kind ' + esc(e.kind) + '">' + esc(e.kind.replace('_', ' ')) + '</span><span class="feed-body"><span class="feed-account">' + esc(e.account || '') + '</span> <span class="feed-detail">' + esc(e.detail || '') + '</span></span></div>').join('') || emptyState('No match events in the last 14 days of the activity archive.', 'i-monitor')) +
+    '</div></div>';
+}
+async function renderPlayerTrades(host) {
+  const d = await api('players/trades', {account_id: CURRENT_PLAYER.account.account_id});
+  CURRENT_PLAYER_TRADES = d.trades || [];
+  const open = CURRENT_PLAYER_TRADES.filter(t => t.status === 'open' && t.sender_id === CURRENT_PLAYER.account.account_id).length;
+  host.innerHTML = '<div class="row" style="margin-bottom:10px"><span class="muted" style="font-size:var(--t-sm)">' + open + ' open offers by this player</span><div class="spacer"></div>' +
+    (open ? '<button class="mini danger" onclick="takeDownAllTrades()">Take down all ' + open + '</button>' : '') + '</div>' +
+    '<div class="table-scroll" style="--table-max: 60vh"><table class="grid"><thead><tr><th>Sender</th><th class="hide-narrow">To</th><th>Offering</th><th>Requesting</th><th>Status</th><th class="hide-narrow">Created</th><th></th></tr></thead><tbody>' +
+    (CURRENT_PLAYER_TRADES.map(t => tradeRow(t, 'player')).join('') || '<tr><td colspan="7">' + emptyState('No trades.', 'i-trades') + '</td></tr>') + '</tbody></table></div>';
+}
+async function takeDownAllTrades() {
+  const a = CURRENT_PLAYER.account;
+  const reason = await confirmDialog({title: 'Take down every open offer by ' + a.username + '?', body: 'Each offer is set to cancelled and can be reopened one by one from this tab.', confirmLabel: 'Take all down', danger: true, input: {label: 'Reason', placeholder: 'e.g. account under review'}});
+  if (reason === false) return;
+  try { const r = await api('trades/cancel-account', {account_id: a.account_id, reason}); toast('Took down ' + r.cancelled.length + ' offers'); playerTab('trades'); }
+  catch(e) { toast(e.message, true); }
+}
+async function kickPlayer() {
+  const a = CURRENT_PLAYER.account;
+  const reason = await confirmDialog({title: 'Kick ' + a.username + '?', body: ['Closes their connection now. A match in progress keeps its reconnect window; they can log back in unless you also ban them.'], confirmLabel: 'Kick', danger: true, input: {label: 'Reason (audit log only)'}});
+  if (reason === false) return;
+  try { await api('players/kick', {account_id: a.account_id, reason}); toast('Kicked ' + a.username); loadLiveState(true); }
+  catch(e) { toast(e.message, true); }
+}
+
+/* -------------------------------------------------------------------- bans */
+let BANS = [];
+async function enterBans() { await loadBans(); }
+async function loadBans() {
+  try {
+    const d = await api('cards/bans');
+    BANS = d.bans || [];
+    $('#badgeBans').textContent = BANS.length; $('#bansCount').textContent = BANS.length;
+    $('#bansTable tbody').innerHTML = BANS.map(b => '<tr><td>' + itemLabel(b) + '</td><td class="hide-narrow">' + esc(b.reason || '—') + '</td>' +
+      '<td class="num" title="' + b.players_holding + ' players">' + b.decks_holding + '</td><td class="hide-narrow muted">' + esc(b.banned_by || '') + '<div class="cell-sub">' + esc(String(b.created_at).slice(0, 16)) + '</div></td>' +
+      '<td class="row-actions"><button class="mini" onclick="unbanCard(\'' + esc(b.guid) + '\')">Unban</button></td></tr>').join('') ||
+      '<tr><td colspan="5">' + emptyState('No card is banned.', 'i-ban') + '</td></tr>';
+    clearBanner($('#tab-bans'));
+  } catch(e) { banner($('#tab-bans'), 'Bans: ' + e.message, 'err', 'Retry', loadBans); }
+}
+async function runBanSearch() {
+  const host = $('#banResults');
+  try {
+    const items = await searchItems($('#banSearch').value);
+    const banned = new Set(BANS.map(b => b.guid.toLowerCase()));
+    host.innerHTML = items.map((i, n) => '<div class="result-row">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.set + ' ' + (i.number ?? '')) + '</div></div>' +
+      (banned.has(i.guid.toLowerCase()) ? '<span class="pill err">banned</span>' : '<button class="mini danger" data-n="' + n + '">Ban</button>') + '</div>').join('');
+    $$('#banResults button[data-n]').forEach(b => b.onclick = () => banCard(items[+b.dataset.n]));
+  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
+}
+async function banCard(item) {
+  const reason = await confirmDialog({title: 'Ban ' + item.name + ' (' + item.set + ' ' + (item.number ?? '') + ')?',
+    body: ['Decks holding this printing fail validation in every format and are refused before a match. Other printings of the same card stay legal; ban them too if you mean the card by name.'],
+    confirmLabel: 'Ban card', danger: true, input: {label: 'Reason', placeholder: 'e.g. effect broken pending fix', required: true}});
+  if (reason === false) return;
+  try {
+    const r = await api('cards/bans/add', {guid: item.guid, reason});
+    undoBar('Banned ' + item.name + (r.queued_with_card.length ? ' · ' + r.queued_with_card.length + ' queued players hold it and will be refused at match start' : ''),
+      async () => { await api('cards/bans/remove', {guid: item.guid}); loadBans(); });
+    await loadBans(); runBanSearch();
+  } catch(e) { toast(e.message, true); }
+}
+async function unbanCard(guid) {
+  const b = BANS.find(x => x.guid === guid);
+  const ok = await confirmDialog({title: 'Unban ' + (b?.name || guid) + '?', body: 'Decks holding it become legal again immediately.', confirmLabel: 'Unban'});
+  if (!ok) return;
+  try {
+    const r = await api('cards/bans/remove', {guid});
+    undoBar('Unbanned ' + (b?.name || guid), async () => { await api('cards/bans/add', r.undo); loadBans(); });
+    loadBans();
+  } catch(e) { toast(e.message, true); }
+}
+
+/* --------------------------------------------------------------- behaviour */
+let OVERRIDES = [], FACTORIES = null, META = null, OV_CARD = null;
+async function enterBehaviour() {
+  if (!FACTORIES) {
+    try { [FACTORIES, META] = await Promise.all([api('cards/overrides/factories').then(d => d.factories), api('console/meta')]); }
+    catch(e) { return banner($('#tab-behaviour'), 'Factories: ' + e.message, 'err', 'Retry', enterBehaviour); }
+  }
+  await loadOverrides();
+}
+function specSummary(spec) {
+  const parts = [];
+  if ('damage' in spec) parts.push('damage ' + spec.damage + (spec.damage_operator || ''));
+  else if ('damage_operator' in spec) parts.push('suffix "' + spec.damage_operator + '"');
+  if ('cost' in spec) parts.push('cost ' + (Object.entries(spec.cost).map(([t, n]) => n + ' ' + t).join(' + ') || 'free'));
+  if ('effect' in spec) parts.push(spec.effect ? spec.effect.factory + '(' + Object.entries(spec.effect.kwargs || {}).map(([k, v]) => k + '=' + JSON.stringify(v)).join(', ') + ')' : 'printed damage only');
+  return parts.join(' · ');
+}
+async function loadOverrides() {
+  try {
+    const d = await api('cards/overrides');
+    OVERRIDES = d.overrides || [];
+    $('#ovApplied').textContent = d.last_applied_at ? 'last applied ' + (d.last_mode === 'live' ? 'live' : 'at start') + ' ' + fmtDate(d.last_applied_at * 1000) : 'never applied';
+    const pillFor = s => ({applied: 'on', pending: 'warn', refused: 'err', failed: 'err', disabled: 'off'})[s] || 'tag';
+    $('#ovTable tbody').innerHTML = OVERRIDES.map(o => '<tr><td>' + itemLabel(o.card) + '</td><td>' + esc(o.title) + '</td>' +
+      '<td class="hide-narrow mono" style="font-size:11px">' + esc(specSummary(o.spec)) + (o.note ? '<div class="cell-sub">' + esc(o.note) + '</div>' : '') + '</td>' +
+      '<td><span class="pill ' + pillFor(o.status) + '" title="' + esc(o.error || '') + '">' + esc(o.status) + '</span>' + (o.error ? '<div class="cell-sub" style="color:var(--err)">' + esc(o.error) + '</div>' : '') + '</td>' +
+      '<td class="hide-narrow muted">' + esc(o.updated_by) + '<div class="cell-sub">' + esc(o.updated_at.slice(0, 16)) + '</div></td>' +
+      '<td class="row-actions"><button class="mini" onclick="openOverrideCard(\'' + esc(o.guid) + '\')">Edit</button> <button class="mini danger" onclick="deleteOverride(\'' + esc(o.guid) + '\', ' + esc(JSON.stringify(o.title)) + ')">Remove</button></td></tr>').join('') ||
+      '<tr><td colspan="6">' + emptyState('No attack is overridden. Find a card below to start.', 'i-wand') + '</td></tr>';
+    clearBanner($('#tab-behaviour'));
+  } catch(e) { banner($('#tab-behaviour'), 'Overrides: ' + e.message, 'err', 'Retry', loadOverrides); }
+}
+async function runOverrideSearch() {
+  const host = $('#ovResults');
+  try {
+    const items = await searchItems($('#ovSearch').value);
+    host.innerHTML = items.map((i, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.set + ' ' + (i.number ?? '')) + '</div></div></button>').join('');
+    $$('#ovResults .result-row').forEach(b => b.onclick = () => openOverrideCard(items[+b.dataset.n].guid));
+  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
+}
+async function openOverrideCard(guid) {
+  try {
+    OV_CARD = await api('cards/detail', {guid});
+    renderOverrideEditor();
+    if (window.innerWidth < 1240) $('#ovEditor').scrollIntoView({behavior: 'smooth', block: 'start'});
+  } catch(e) { toast(e.message, true); }
+}
+function costGrid(n, cost) {
+  return '<div class="cost-grid">' + META.energy_types.map(t => '<label>' + esc(t) + '<input type="number" min="0" max="10" data-cost="' + esc(t) + '" id="ovc_' + n + '_' + esc(t) + '" value="' + (cost[t] || 0) + '"></label>').join('') + '</div>';
+}
+function factoryParams(n, factory, kwargs) {
+  const f = FACTORIES.find(x => x.factory === factory);
+  if (!f) return '';
+  return '<div class="factory-doc">' + esc(f.doc || '') + '</div>' +
+    (f.not_settable.length ? '<div class="factory-doc">Not settable here (takes a function or a structure): ' + f.not_settable.map(esc).join(', ') + '</div>' : '') +
+    '<div class="param-grid">' + f.params.map(p => {
+      const v = kwargs && p.name in kwargs ? kwargs[p.name] : '';
+      const id = 'ovp_' + n + '_' + p.name;
+      let input;
+      if (p.type === 'bool') input = '<select id="' + id + '" data-param="' + p.name + '" data-type="bool"><option value="">default (' + esc(String(p.default)) + ')</option><option value="true"' + (v === true ? ' selected' : '') + '>true</option><option value="false"' + (v === false ? ' selected' : '') + '>false</option></select>';
+      else if (p.type.startsWith('enum:')) input = '<select id="' + id + '" data-param="' + p.name + '" data-type="enum"><option value="">' + (p.required ? 'choose' : 'default (' + esc(String(p.default)) + ')') + '</option>' + p.choices.map(c => '<option' + (v === c ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select>';
+      else input = '<input id="' + id + '" data-param="' + p.name + '" data-type="' + p.type + '" type="' + (p.type === 'str' ? 'text' : 'number') + '" value="' + esc(v ?? '') + '" placeholder="' + (p.required ? 'required' : 'default ' + esc(String(p.default))) + '">';
+      return '<div class="field"><label>' + esc(p.name) + (p.required ? ' *' : '') + '</label>' + input + '</div>';
+    }).join('') + '</div>';
+}
+function renderOverrideEditor() {
+  const d = OV_CARD;
+  $('#ovCardTitle').textContent = d.card.name + ' · ' + d.card.set + ' ' + (d.card.number ?? '');
+  $('#ovCardGuid').textContent = d.card.guid;
+  if (d.refusal) { $('#ovEditor').innerHTML = '<div class="callout warn">' + esc(d.refusal) + '</div>'; return; }
+  $('#ovEditor').innerHTML = d.abilities.map((a, n) => {
+    if (!a.overridable) return '<div class="attack-card refused"><div class="attack-head"><h3>' + esc(a.title) + '</h3><span class="pill tag">ability</span></div><div class="attack-text">' + esc(a.text) + '</div><div class="factory-doc">Refused: ' + esc(a.refusal) + '</div></div>';
+    const stored = a.stored_override?.spec || {};
+    const printed = a.original || a;
+    const eff = !('effect' in stored) ? 'keep' : stored.effect ? 'factory' : 'vanilla';
+    return '<div class="attack-card" data-n="' + n + '">' +
+      '<div class="attack-head"><h3>' + esc(a.title) + '</h3><span class="pill tag">' + esc(a.effect) + '</span>' + (a.overridden ? '<span class="pill warn">overridden live</span>' : '') +
+        (a.stored_override ? '<span class="pill ' + (a.stored_override.enabled ? 'accent' : 'off') + '">stored</span>' : '') + '</div>' +
+      '<div class="attack-text">' + esc(a.text || '(no effect text)') + '</div>' +
+      '<div class="factory-doc">Printed: ' + printed.damage + esc(printed.damage_operator || '') + ' damage, cost ' + (Object.entries(printed.cost).map(([t, c]) => c + ' ' + t).join(' + ') || 'free') + '</div>' +
+      '<div class="row" style="margin-top:10px"><div class="field" style="width:120px"><label>Damage</label><input id="ovd_' + n + '" type="number" min="0" max="9990" step="10" placeholder="' + printed.damage + '" value="' + (stored.damage ?? '') + '"></div>' +
+        '<div class="field" style="width:120px"><label>Suffix</label><select id="ovo_' + n + '"><option value="__keep">unchanged</option>' + META.damage_operators.map(o => '<option value="' + esc(o) + '"' + (stored.damage_operator === o ? ' selected' : '') + '>' + (o ? esc(o) : 'none') + '</option>').join('') + '</select></div></div>' +
+      '<details style="margin-top:10px"' + ('cost' in stored ? ' open' : '') + '><summary class="muted" style="font-size:var(--t-sm);cursor:pointer"><input type="checkbox" id="ovcost_' + n + '"' + ('cost' in stored ? ' checked' : '') + ' onclick="event.stopPropagation()"> Override the Energy cost</summary><div style="margin-top:8px">' + costGrid(n, stored.cost || printed.cost) + '</div></details>' +
+      '<div class="effect-choice">' + [['keep', 'Keep current effect'], ['vanilla', 'Printed damage only'], ['factory', 'Use a factory']].map(([v, l]) =>
+        '<label><input type="radio" name="ove_' + n + '" value="' + v + '"' + (eff === v ? ' checked' : '') + ' onchange="ovEffectChanged(' + n + ')"> ' + l + '</label>').join('') + '</div>' +
+      '<div id="ovf_' + n + '" style="' + (eff === 'factory' ? '' : 'display:none') + '"><div class="field"><label>Factory</label><select id="ovfs_' + n + '" onchange="ovFactoryChanged(' + n + ')"><option value="">choose…</option>' +
+        FACTORIES.map(f => '<option value="' + esc(f.factory) + '" data-module="' + esc(f.module) + '"' + (stored.effect?.factory === f.factory ? ' selected' : '') + '>' + esc(f.factory) + (f.module !== 'attacks_common' ? ' (' + esc(f.module) + ')' : '') + '</option>').join('') + '</select></div>' +
+        '<div id="ovfp_' + n + '">' + (stored.effect ? factoryParams(n, stored.effect.factory, stored.effect.kwargs) : '') + '</div></div>' +
+      '<div class="row" style="margin-top:10px"><div class="field" style="flex:1;min-width:160px"><label>Note</label><input id="ovn_' + n + '" value="' + esc(a.stored_override?.note || '') + '" placeholder="why (shown in the list)"></div>' +
+        '<label style="display:flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="ovon_' + n + '"' + (a.stored_override && !a.stored_override.enabled ? '' : ' checked') + '> enabled</label>' +
+        '<button class="btn" onclick="saveOverride(' + n + ')">Save override</button></div>' +
+    '</div>';
+  }).join('');
+}
+function ovEffectChanged(n) { $('#ovf_' + n).style.display = document.querySelector('input[name="ove_' + n + '"]:checked').value === 'factory' ? '' : 'none'; }
+function ovFactoryChanged(n) { $('#ovfp_' + n).innerHTML = factoryParams(n, $('#ovfs_' + n).value, {}); }
+function buildSpec(n) {
+  const spec = {};
+  const dmg = $('#ovd_' + n).value.trim();
+  if (dmg !== '') spec.damage = Number(dmg);
+  const op = $('#ovo_' + n).value;
+  if (op !== '__keep') spec.damage_operator = op;
+  if ($('#ovcost_' + n).checked) {
+    spec.cost = {};
+    $$('#ovEditor [data-n="' + n + '"] [data-cost]').forEach(i => { const c = Number(i.value || 0); if (c) spec.cost[i.dataset.cost] = c; });
+  }
+  const eff = document.querySelector('input[name="ove_' + n + '"]:checked').value;
+  if (eff === 'vanilla') spec.effect = null;
+  if (eff === 'factory') {
+    const sel = $('#ovfs_' + n);
+    if (!sel.value) throw new Error('choose a factory');
+    const kwargs = {};
+    $$('#ovfp_' + n + ' [data-param]').forEach(i => {
+      if (i.value === '') return;
+      const t = i.dataset.type;
+      kwargs[i.dataset.param] = t === 'bool' ? i.value === 'true' : (t === 'str' || t === 'enum') ? i.value : Number(i.value);
+    });
+    spec.effect = {module: sel.selectedOptions[0].dataset.module, factory: sel.value, kwargs};
+  }
+  return spec;
+}
+async function saveOverride(n) {
+  const a = OV_CARD.abilities[n];
+  let spec;
+  try { spec = buildSpec(n); } catch(e) { return toast(e.message, true); }
+  if (!Object.keys(spec).length) return toast('Nothing to override: change damage, suffix, cost or effect', true);
+  try {
+    await api('cards/overrides/save', {guid: OV_CARD.card.guid, title: a.title, spec, note: $('#ovn_' + n).value, enabled: $('#ovon_' + n).checked});
+    toast('Saved. Press Apply now or restart for it to take effect.');
+    await Promise.all([loadOverrides(), openOverrideCard(OV_CARD.card.guid)]);
+  } catch(e) { toast(e.message, true); }
+}
+async function deleteOverride(guid, title) {
+  const ok = await confirmDialog({title: 'Remove the override on ' + title + '?', body: 'The stored row is deleted. The running server keeps the override until you press Apply now or restart.', confirmLabel: 'Remove', danger: true});
+  if (!ok) return;
+  try {
+    const r = await api('cards/overrides/delete', {guid, title});
+    undoBar('Override removed (not yet applied)', async () => { await api('cards/overrides/save', {guid, title, spec: r.undo.spec, enabled: r.undo.enabled, note: r.undo.note}); loadOverrides(); });
+    loadOverrides();
+    if (OV_CARD?.card.guid.toLowerCase() === guid.toLowerCase()) openOverrideCard(guid);
+  } catch(e) { toast(e.message, true); }
+}
+async function applyOverrides() {
+  const pending = OVERRIDES.filter(o => o.status !== 'applied').length;
+  const ok = await confirmDialog({title: 'Apply the override table to the running server?',
+    body: ['Every stored, enabled override is re-applied and removed ones are reverted, without a restart.',
+           '<b>Damage and effect changes reach matches already in progress</b> on the next use of that attack. Cost changes reach matches that start afterwards. Clients refresh card text within the hour or on their next login.',
+           pending ? pending + ' rows are not in the applied state.' : ''],
+    confirmLabel: 'Apply now', requireText: 'APPLY'});
+  if (!ok) return;
+  try {
+    const r = await api('cards/overrides/apply', {confirm: 'APPLY'});
+    const bad = r.report.filter(x => x.status !== 'applied');
+    toast(bad.length ? (r.report.length - bad.length) + ' applied, ' + bad.length + ' refused' : r.report.length + ' overrides applied', !!bad.length);
+    loadOverrides();
+    if (OV_CARD) openOverrideCard(OV_CARD.card.guid);
+  } catch(e) { toast(e.message, true); }
+}
+
+/* ------------------------------------------------------------------ server */
+async function enterServer() {}
+async function sendBroadcast() {
+  const message = $('#bcMessage').value.trim();
+  if (!message) return toast('Write a message first', true);
+  const ok = await confirmDialog({title: 'Send this notice to everyone online?', body: '<span class="mono">' + esc(message) + '</span>', confirmLabel: 'Send'});
+  if (!ok) return;
+  try { const r = await api('server/broadcast', {message, sender: $('#bcSender').value}); toast('Delivered to ' + r.reached + ' players'); $('#bcMessage').value = ''; }
+  catch(e) { toast(e.message, true); }
+}
+async function rotatePassword() {
+  const current = $('#pwCurrent').value, next = $('#pwNew').value;
+  if (next !== $('#pwRepeat').value) return toast('The new passwords do not match', true);
+  try {
+    const r = await api('admin/password', {current, new: next});
+    ['#pwCurrent', '#pwNew', '#pwRepeat'].forEach(s => $(s).value = '');
+    toast('Password changed' + (r.other_sessions_ended ? '; ' + r.other_sessions_ended + ' other sessions signed out' : ''));
+  } catch(e) { toast(e.message, true); }
+}
+
+/* ------------------------------------------------------------------- audit */
+let AUDIT = [];
+async function enterAudit() {
+  try { AUDIT = (await api('audit?limit=500')).entries || []; renderAudit(); clearBanner($('#tab-audit')); }
+  catch(e) { banner($('#tab-audit'), 'Audit: ' + e.message, 'err', 'Retry', enterAudit); }
+}
+function diffText(diff) {
+  if (!diff) return '';
+  if (diff.before !== undefined && diff.after !== undefined) {
+    const rest = Object.fromEntries(Object.entries(diff).filter(([k]) => k !== 'before' && k !== 'after'));
+    return (Object.keys(rest).length ? esc(JSON.stringify(rest)) + '\n' : '') +
+      '<span class="minus">- ' + esc(JSON.stringify(diff.before)) + '</span>\n<span class="plus">+ ' + esc(JSON.stringify(diff.after)) + '</span>';
+  }
+  return esc(JSON.stringify(diff));
+}
+function renderAudit() {
+  const q = ($('#auditSearch')?.value || '').toLowerCase();
+  const rows = AUDIT.filter(e => !q || (e.admin + ' ' + e.action + ' ' + e.target + ' ' + JSON.stringify(e.diff)).toLowerCase().includes(q));
+  $('#auditTable tbody').innerHTML = rows.map(e => '<tr><td class="nowrap muted">' + esc(e.at.slice(0, 16)) + '</td><td>' + esc(e.admin || '—') + '</td>' +
+    '<td><span class="feed-kind ' + esc(e.action) + '">' + esc(e.action.replace(/^admin_/, '').replace(/_/g, ' ')) + '</span><div class="cell-sub mono truncate" style="max-width:220px">' + esc(e.target) + '</div></td>' +
+    '<td><div class="diff">' + diffText(e.diff) + '</div></td></tr>').join('') || '<tr><td colspan="4">' + emptyState('No admin action recorded yet.', 'i-audit') + '</td></tr>';
+  $('#auditCount').textContent = rows.length + ' of ' + AUDIT.length + ' entries';
+}
+
 (async function init() {
   const themeParam = new URLSearchParams(location.search).get('theme');
   if (THEMES.includes(themeParam)) applyTheme(themeParam);

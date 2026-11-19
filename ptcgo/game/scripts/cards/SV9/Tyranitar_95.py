@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,14 +24,14 @@ card = PokemonCardDef(
         Ability(
             title="Daunting Gaze",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't play any Item cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("item"),
         ),
         Attack(
             title="Cracking Stomp",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=150,
-            effect=unimplemented,
+            effect=mill_attack(2),
         ),
     ],
 )

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="332f8da0-f547-57c3-94d9-4379bf0d0e6e",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Rogue Ring",
             game_text="Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Dark Strike",
@@ -36,7 +38,7 @@ card = PokemonCardDef(
             title="Devilish Hands-GX",
             game_text="Choose 1 of your opponent's Pok\u00e9mon-GX or Pok\u00e9mon-EX 6 times. (You can choose the same Pok\u00e9mon more than once.) For each time you chose a Pok\u00e9mon, do 30 damage to it. This damage isn't affected by Weakness or Resistance. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.DARKNESS: 3},
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )

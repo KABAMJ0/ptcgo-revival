@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="bfeda9fd-99ed-5438-90c4-51d12833b848",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             title="Shooting Fire",
             game_text="Discard 2 Fire Energy attached to Rapidash and choose 1 of your opponent's Pok\u00e9mon. This attack does 60 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 2},
-            effect=unimplemented,
+            effect=snipe_attack(60, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

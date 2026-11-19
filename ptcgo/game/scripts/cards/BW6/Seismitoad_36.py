@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,14 +26,14 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Echoed Voice attack does 50 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=unimplemented,
+            effect=boost_own_next_turn(50, attack_title="Echoed Voice"),
         ),
         Attack(
             title="Drain Punch",
             game_text="Heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=unimplemented,
+            effect=heal_attack(20),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="f710adc4-6d1c-5ba5-bec6-896fdf53489e",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Drag Off",
             game_text="Switch in 1 of your opponent's Benched Pok\u00e9mon to the Active Spot. This attack does 40 damage to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=40),
         ),
         Attack(
             title="Blasting Wind",

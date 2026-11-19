@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.data_utils import Activations
+
+
+_baby_effect, _baby_in_hand = baby_evolution("Pikachu")
+
+
+_baby_effect, _baby_in_hand = baby_evolution("Pikachu")
+
 
 card = PokemonCardDef(
     guid="39ef82b8-2a87-5f91-a47a-39315b06c493",
@@ -22,13 +34,17 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Pikachu from your hand onto Pichu (this counts as evolving Pichu) and remove all damage counters from Pichu.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Find a Friend",
             game_text="Flip a coin. If heads, search your deck for a Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=flip_gate(then=search_to_hand(
+                is_pokemon_card, count=1, reveal=True
+            )),
         ),
     ],
 )

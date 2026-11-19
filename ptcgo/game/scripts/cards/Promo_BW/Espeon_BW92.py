@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="26a381e3-9445-5ae4-96da-9e93456ff86f",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
         Ability(
             title="Solar Revelation",
             game_text="Prevent all effects of your opponent's attacks, except damage, done to each of your Pok\u00e9mon that has any Energy attached to it.",
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Psy Report",
             game_text="Your opponent reveals his or her hand.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
     ],
 )

@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack,
+    count_bench,
+    damage_per,
+    flip_damage,
+)
+
+
+def _is_fire(pokemon) -> bool:
+    return PokemonTypes.FIRE.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="4e07a9ef-f65b-5df6-85f3-27adc80f79eb",
@@ -17,7 +27,7 @@ card = PokemonCardDef(
     retreat_cost=3,
     weakness_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Torracat.Name",
-    family_id=725,
+    family_id=727,
     abilities=[
         Attack(
             title="Hustling Strike",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", _is_fire), 20, base=10),
         ),
         Attack(
             title="Tiger Swing",
@@ -33,14 +43,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, bonus_per_heads=50),
         ),
         Attack(
             title="Burning Slam-GX",
             game_text="Your opponent's Active Pok\u00e9mon is now Burned. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
     ],
 )

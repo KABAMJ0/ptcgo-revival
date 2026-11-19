@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="381d20db-7fdb-5a63-ac5f-86c2b0d9ae38",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Time Shift",
             game_text="Draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Diamond Blast",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(80)),
         ),
     ],
 )

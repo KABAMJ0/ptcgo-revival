@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import random_card_to_deck
 
 card = PokemonCardDef(
     guid="0d55cadc-c847-5090-be50-7e578251b133",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Wicked Tail",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may flip 2 coins. For each heads, choose a random card from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.",
-            effect=unimplemented,
+            effect=random_card_to_deck(),
         ),
         Attack(
             title="Gentle Slap",

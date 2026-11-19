@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import search_to_bench, switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
 
 card = PokemonCardDef(
     guid="1fe249de-54d0-5ff3-ba67-759d81e2d65d",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(count=1),
         ),
         Attack(
             title="Aqua Ring",
             game_text="Switch Manaphy with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2},
             damage=30,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
     ],
 )

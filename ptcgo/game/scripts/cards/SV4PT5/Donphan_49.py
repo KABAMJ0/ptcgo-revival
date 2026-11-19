@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, mill_attack
 
 card = PokemonCardDef(
     guid="7afeb447-e23a-5605-98b5-554cd0fe36d2",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Powerful Spin",
             game_text="During your next turn, this Pok\u00e9mon can't attack.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

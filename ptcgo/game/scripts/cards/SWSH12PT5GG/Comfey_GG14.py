@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import flower_selecting, in_active_spot
 
 card = PokemonCardDef(
     guid="5446d60d-7c36-5b9b-8ee8-412b7a97315a",
@@ -21,7 +22,9 @@ card = PokemonCardDef(
         Ability(
             title="Flower Selecting",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may look at the top 2 cards of your deck and put 1 of them into your hand. Put the other card in the Lost Zone.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=in_active_spot,
+            effect=flower_selecting,
         ),
         Attack(
             title="Spinning Attack",

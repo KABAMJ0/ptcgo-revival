@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import if_heads, shuffle_random_from_opponent_hand
 
 card = SupporterCardDef(
     guid="95b4b0c5-f29c-58a8-947b-27f88890b72a",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=95,
     set_code="BW5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=if_heads(shuffle_random_from_opponent_hand(3))
 )

@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 card = PokemonCardDef(
     guid="f01c0ddb-f4df-5ac1-b0cf-a3db95f1c820",
     key="SWSH45SV",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's attacks do 120 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=boost_own_next_turn(120),
         ),
         Attack(
             title="Skull Bash",

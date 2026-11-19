@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, damage_reduction_on_self, damage_counters_on, count_retreat_cost
 
 card = PokemonCardDef(
     guid="5baa0a77-707b-5cd2-a34b-b4083084936f",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=False),
         ),
         Attack(
             title="Heavy Slam",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=180,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=20, count_fn=count_retreat_cost("defender")),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="bd0d102e-6575-5202-a4b4-366d0b1b8b61",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Garnet Volley",
             game_text="This attack does 180 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(180, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

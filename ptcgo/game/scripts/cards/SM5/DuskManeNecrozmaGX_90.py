@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="2d392e0c-7bef-5ca0-bd2c-a86aae4127a1",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Discard 3 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 3, PokemonTypes.COLORLESS: 1},
             damage=220,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=3),
         ),
         Attack(
             title="Sun's Eclipse-GX",

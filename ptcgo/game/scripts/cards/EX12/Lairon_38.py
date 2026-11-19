@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _rest(ctx, counters):
+    await ctx.deal_damage()
+    target = ctx.attacker
+    await ctx.cure_all_conditions(target)
+    await ctx.heal(counters * 10, target)
+    await ctx.apply_special_condition(target, SpecialConditions.ASLEEP)
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="9a469c54-cb4b-588f-ba01-3933d0af8432",
@@ -24,14 +33,14 @@ card = PokemonCardDef(
             title="Rest",
             game_text="Remove all Special Conditions and 5 damage counters (all if there are less than 5) from Lairon. Lairon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=lambda ctx: _rest(ctx, 5),
         ),
         Attack(
             title="Body Slam",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
     ],
 )

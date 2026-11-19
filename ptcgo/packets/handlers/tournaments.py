@@ -180,7 +180,8 @@ class TournamentHandler(BaseHandler):
         account_id = self._account_id()
 
         if tournament is None or not tournament.enabled or tournament.state() != STATE_OPEN:
-            return await self._join_failed("tournament.error.not_available", request_id)
+            return await self._join_failed(
+                "That tournament is not open for registration.", request_id)
         queued_tid, _ = live.find_queued(account_id)
         if queued_tid is not None or live.find_active_for(account_id) is not None:
             return await self._join_failed("You are already in a tournament.", request_id)

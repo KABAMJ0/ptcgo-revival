@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import recover_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
 
 card = PokemonCardDef(
     guid="0c6824de-89f4-560f-92da-9ac0bcd898b8",
@@ -37,7 +39,7 @@ card = PokemonCardDef(
             title="Tomb Hunt-GX",
             game_text="Put 3 cards from your discard pile into your hand. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=3),
         ),
     ],
 )

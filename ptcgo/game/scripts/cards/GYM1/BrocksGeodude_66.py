@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.trainers import all_of, named
 
 card = PokemonCardDef(
     guid="8c07025c-62e8-53da-a68f-51f1411a6907",
@@ -22,7 +26,7 @@ card = PokemonCardDef(
             title="Call for Friend",
             game_text="Flip a coin. If heads, you may search your deck for a Basic Pok\u00e9mon card with Brock in its name and put it onto your Bench. Shuffle your deck afterward. (You can't use this attack if your Bench is full.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=flip_or_nothing(then=search_to_bench(all_of(is_basic_pokemon, named("brock")), count=1)),
         ),
         Attack(
             title="Hook Shot",

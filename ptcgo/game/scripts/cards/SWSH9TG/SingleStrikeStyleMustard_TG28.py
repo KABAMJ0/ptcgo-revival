@@ -1,5 +1,21 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef, subtypes_for
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_bench
+
+
+def _last_card_in_hand(board, player_id):
+    hand = board.find_player_area(player_id, "hand")
+    return hand is not None and len(hand.children) == 1
+
+
+def _is_single_strike_pokemon(card):
+    return is_pokemon_card(card) and "Single Strike" in subtypes_for(card.archetype_id)
+
+
+async def _draw_five(ctx, benched):
+    await ctx.draw_cards(5)
+
 
 card = SupporterCardDef(
     guid="abacbd25-f0a4-51ac-ba0c-40fbd97e52cc",
@@ -11,5 +27,9 @@ card = SupporterCardDef(
     collector_number=28,
     set_code="SWSH9TG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=search_to_bench(
+        _is_single_strike_pokemon, count=1, then=_draw_five,
+        prompt="Choose a Single Strike Pokémon to put onto your Bench.",
+    ),
+    condition=_last_card_in_hand,
 )

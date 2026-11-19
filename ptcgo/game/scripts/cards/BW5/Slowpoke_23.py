@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import SpecialConditions
+
 
 card = PokemonCardDef(
     guid="751f28df-bfdf-50e8-b190-53b2f3b7bcb0",
@@ -22,14 +26,14 @@ card = PokemonCardDef(
             title="Big Yawn",
             game_text="Both this Pok\u00e9mon and the Defending Pok\u00e9mon are now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, both_actives=True),
         ),
         Attack(
             title="Shot in the Dark",
             game_text="Flip 2 coins. If either of them is tails, this attack does nothing.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=2),
         ),
     ],
 )

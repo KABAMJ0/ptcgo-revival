@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="9499c4ad-11fa-531e-99f8-6cfcef5899aa",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=basic_energy_of("water"), max_count=2, per=10, base=30),
         ),
         Attack(
             title="Waterfall",

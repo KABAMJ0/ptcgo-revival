@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, snipe_attack
+from ptcgo.game.card_effects.trainers import any_of, named
 
 card = PokemonCardDef(
     guid="3d15fa26-fe1b-5c29-811c-6384b9402eb3",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=any_of(named("helix fossil"), named("dome fossil"), named("old amber")), max_count=1, flat=50),
         ),
         Attack(
             title="Rock Slide",
             game_text="Does 10 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench", count=2, apply_modifiers=False),
         ),
     ],
 )

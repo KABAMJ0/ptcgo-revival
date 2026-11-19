@@ -1,5 +1,19 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import AttrID, PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, SpecialConditions
+from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+def _has_named_in_play(board, owner_id, name) -> bool:
+    return any(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == name
+               for p in board.pokemon_in_play(owner_id))
+
+
+def _has_nidoqueen(board, pokemon, carrier) -> bool:
+    return _has_named_in_play(board, carrier.owning_player_id, "Nidoqueen")
 
 card = PokemonCardDef(
     guid="2ce556fb-0340-5012-83f1-5f99e4608125",
@@ -22,14 +36,14 @@ card = PokemonCardDef(
         Ability(
             title="Enthusiastic King",
             game_text="If you have Nidoqueen in play, ignore all Energy in the costs of attacks used by this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=free_attack_cost_passive(condition=_has_nidoqueen),
         ),
         Attack(
             title="Venomous Impact",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 2},
             damage=190,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
     ],
 )

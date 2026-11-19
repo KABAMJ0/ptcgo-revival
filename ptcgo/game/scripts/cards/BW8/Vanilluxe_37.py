@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,14 +27,14 @@ card = PokemonCardDef(
             game_text="Attach 2 basic Energy cards from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Blizzard",
             game_text="Does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", also_base=True),
         ),
     ],
 )

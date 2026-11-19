@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, prevent_damage_when
+
+
+def _protects_benched_self(calc, carrier) -> bool:
+    return calc.target is carrier and not is_in_active_spot(carrier)
+
 
 card = PokemonCardDef(
     guid="9f0d3144-cfb5-5310-b361-868f6c211953",
@@ -21,14 +28,14 @@ card = PokemonCardDef(
         Ability(
             title="Ozone Wall",
             game_text="As long as this Pok\u00e9mon is on your Bench, prevent all damage done to this Pok\u00e9mon by attacks (both yours and your opponent's.)",
-            effect=unimplemented,
+            passive=prevent_damage_when(_protects_benched_self),
         ),
         Attack(
             title="Dragon Pulse",
             game_text="Discard the top 3 cards of your deck.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=mill_attack(count=3, opponent=False),
         ),
     ],
 )

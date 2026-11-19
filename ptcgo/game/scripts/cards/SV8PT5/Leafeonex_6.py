@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _heal_own_bench(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench():
+        await ctx.heal(100, pokemon)
+
 
 card = PokemonCardDef(
     guid="e85ec9b5-2407-575d-8e02-a451816df6b1",
@@ -25,14 +32,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 60),
         ),
         Attack(
             title="Moss Agate",
             game_text="Heal 100 damage from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1},
             damage=230,
-            effect=unimplemented,
+            effect=_heal_own_bench,
         ),
     ],
 )

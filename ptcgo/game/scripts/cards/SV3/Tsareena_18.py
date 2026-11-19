@@ -1,5 +1,21 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+async def bone_block(ctx):
+    defender = ctx.defender
+    await ctx.deal_damage()
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    ctx.add_passive_through_opponents_turn(defender, NoEvolveDefenderPassive())
+
+
+class NoEvolveDefenderPassive(Passive):
+    def blocks_evolution(self, player_id, target, carrier):
+        return target is carrier and player_id == carrier.owning_player_id
+
 
 card = PokemonCardDef(
     guid="1a9a9545-6b40-50d2-b4a2-2e57e8bbd90c",
@@ -24,14 +40,14 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, Pok\u00e9mon can't be played from your opponent's hand to evolve the Defending Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=bone_block,
         ),
         Attack(
             title="Spinning Kick",
             game_text="This Pok\u00e9mon also does 20 damage to itself.",
             cost={PokemonTypes.GRASS: 2},
             damage=160,
-            effect=unimplemented,
+            effect=recoil_attack(20),
         ),
     ],
 )

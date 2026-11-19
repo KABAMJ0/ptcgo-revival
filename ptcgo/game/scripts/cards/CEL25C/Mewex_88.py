@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import search_attach_energy, is_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Power Move",
             game_text="Search your deck for an Energy card and attach it to Mew ex. Shuffle your deck afterward. Then, you may switch Mew ex with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_energy, count=1, to_self=True),
         ),
     ],
 )

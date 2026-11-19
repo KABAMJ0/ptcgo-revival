@@ -1,5 +1,13 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.support_common import entity_name
+
+_named_exact = lambda *names: (
+    lambda card: entity_name(card).lower() in {name.lower() for name in names}
+)
+
 
 card = PokemonCardDef(
     guid="6fddd794-102c-5d59-8508-ae1ead79833b",
@@ -22,13 +30,17 @@ card = PokemonCardDef(
             title="Mysterious Light",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True),
         ),
         Attack(
             title="Jellyfish Pod",
             game_text="Search your deck for any number of Pok\u00e9mon named Tentacool, Tentacruel, Misty's Tentacool, and/or Misty's Tentacruel. Show those cards to your opponent, then put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                _named_exact("tentacool", "tentacruel", "misty's tentacool", "misty's tentacruel"),
+                count=99,
+                reveal=True,
+            ),
         ),
     ],
 )

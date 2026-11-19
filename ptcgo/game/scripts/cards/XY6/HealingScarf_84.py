@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import healing_scarf_energy_attach
 
 card = PokemonToolCardDef(
     guid="3afe7f14-cec5-5487-b190-e53ffd5fbfa2",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=84,
     set_code="XY6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=healing_scarf_energy_attach('Healing Scarf', 20),
 )

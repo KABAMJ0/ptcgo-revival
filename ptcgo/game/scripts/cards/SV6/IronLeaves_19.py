@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
+
 
 card = PokemonCardDef(
     guid="46049834-662b-56d5-bc1f-fed3023c9c69",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Recovery Net",
             game_text="Put up to 2 Pok\u00e9mon from your discard pile into your hand.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Avenging Edge",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0, 60),
         ),
     ],
 )

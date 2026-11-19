@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="42bd74cd-f442-50b9-82d8-cfb2d7aaaf0a",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Destructive Headbutting",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may use this Ability. Flip a coin. If heads, discard an Energy from your opponent's Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(),
         ),
         Attack(
             title="Rowdy Hammer",

@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _timber_cleave(ctx):
+    """Flip 2 coins. If both are heads, the opponent's Active is Knocked Out."""
+    coins = await ctx.flip_coins(2, "Timber Cleave")
+    if all(coins):
+        await ctx.knock_out(ctx.defender)
+
+
 card = PokemonCardDef(
     guid="5f4757da-5434-5647-bed8-8b489219074f",
     key="SV1",
@@ -28,7 +36,7 @@ card = PokemonCardDef(
             title="Doom Decree",
             game_text="Flip 2 coins. If both of them are heads, your opponent's Active Pok\u00e9mon is Knocked Out.",
             cost={PokemonTypes.DARKNESS: 2},
-            effect=unimplemented,
+            effect=_timber_cleave,
         ),
     ],
 )

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
+
 
 card = PokemonCardDef(
     guid="cf4fe2e9-e1bf-5880-bcfb-bb2336527157",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
     ],
 )

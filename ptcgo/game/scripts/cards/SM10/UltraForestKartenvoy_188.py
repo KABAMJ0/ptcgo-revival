@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
+
+
+async def ultra_forest_kartenvoy(ctx):
+    """During this turn, your Ultra Beasts' attacks aren't affected by effects
+    on your opponent's Active Pokemon."""
+    for pokemon in ctx.my_pokemon_in_play():
+        if pokemon_of_subtype("Ultra Beast")(pokemon):
+            ctx.ignore_own_target_effects(pokemon)
+
 
 card = SupporterCardDef(
     guid="fe8c8dc0-70d8-5b82-a12b-981517ad54e0",
@@ -11,5 +21,5 @@ card = SupporterCardDef(
     collector_number=188,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=ultra_forest_kartenvoy
 )

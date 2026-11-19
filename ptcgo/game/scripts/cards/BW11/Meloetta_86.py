@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
+
+
+async def _heal_own_bench(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench():
+        await ctx.heal(30, pokemon)
+
 
 card = PokemonCardDef(
     guid="42096116-befe-5eb2-a417-66966a00368f",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
             title="Magical Dance",
             game_text="Heal 30 damage from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_heal_own_bench,
         ),
         Attack(
             title="Shooting Star Pirouette",
@@ -30,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
     ],
 )

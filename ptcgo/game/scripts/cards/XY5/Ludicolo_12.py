@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="73dbf764-cff7-56d8-8907-f5a6d3098b27",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Captivating Rhythm",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_targets(20, scope="each_own"),
         ),
         Attack(
             title="Solar Ray",
             game_text="Heal 20 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=heal_targets(20, scope="each_own"),
         ),
     ],
 )

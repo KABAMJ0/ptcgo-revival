@@ -1,5 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
+
+_shuffle_self_into_deck = remove_self_from_play(destination="deck",
+                                               with_attachments="same")
+
+
+async def run_away_draw(ctx):
+    if not ctx.deck_top(3):
+        return
+    await ctx.draw_cards(3)
+    await _shuffle_self_into_deck(ctx)
+
 
 card = PokemonCardDef(
     guid="3c4265af-35ff-5da8-850c-0824e98ae182",
@@ -22,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Run Away Draw",
             game_text="Once during your turn, you may draw 3 cards. If you drew any cards in this way, shuffle this Pok\u00e9mon and all attached cards into your deck.",
-            effect=unimplemented,
+            effect=run_away_draw,
         ),
         Attack(
             title="Land Crush",

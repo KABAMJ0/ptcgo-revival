@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="e96a8426-90fc-52d5-b51c-b5316834af13",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Prowl",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may search your deck for a card and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_hand(None, count=1, reveal=False),
         ),
         Attack(
             title="Gust",

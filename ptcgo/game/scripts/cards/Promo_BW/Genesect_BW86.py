@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="afff7b10-759d-5290-ae1f-fb44ad5040da",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Overdrive Smash",
             game_text="During your next turn, this Pok\u00e9mon's Overdrive Smash attack does 60 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60, attack_title="Overdrive Smash"),
         ),
     ],
 )

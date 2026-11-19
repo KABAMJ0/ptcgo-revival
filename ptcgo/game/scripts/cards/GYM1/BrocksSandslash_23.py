@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 card = PokemonCardDef(
     guid="56391853-75f0-5bf3-b0e0-4455b5a17017",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed and Poisoned.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=10,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Sandstorm",
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=20,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
     ],
 )

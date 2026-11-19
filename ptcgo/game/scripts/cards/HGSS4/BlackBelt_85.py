@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import turn_damage_boost
 
 card = SupporterCardDef(
     guid="5e66da37-23c4-5893-b7ea-eaef470a75b3",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=85,
     set_code="HGSS4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=turn_damage_boost(40)
 )

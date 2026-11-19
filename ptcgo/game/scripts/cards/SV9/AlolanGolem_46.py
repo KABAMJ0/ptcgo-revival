@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="655ee589-9cdf-5a42-bdc3-441b825eb76d",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=70, until_tails=True),
         ),
         Attack(
             title="Megaton Fall",
             game_text="This Pok\u00e9mon also does 40 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=recoil_attack(40),
         ),
     ],
 )

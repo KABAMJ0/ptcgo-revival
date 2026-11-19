@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, prevent_damage_when
+
+
+def _protects_own_bench(calc, carrier) -> bool:
+    return (calc.target.owning_player_id == carrier.owning_player_id
+            and not is_in_active_spot(calc.target))
+
 
 card = PokemonCardDef(
     guid="97355b86-2b6b-53ab-b2f1-46626e02761c",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Protective Wall",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_protects_own_bench),
         ),
         Attack(
             title="Anger Revenge",

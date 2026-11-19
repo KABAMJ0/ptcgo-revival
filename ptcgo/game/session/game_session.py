@@ -75,6 +75,7 @@ from .constants import (
     TEXT_ATTACH_TAX_CHECK,
     TEXT_ATTACH_TAX_OK,
     TEXT_ATTACH_TAX_DISCARD,
+    ENDGAME_REWARD_TEXT,
 )
 from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.session.sequence_packets import NestedSequence
@@ -96,7 +97,10 @@ from ptcgo.game.data_utils import (
     ABILITIES_BY_ID, Ability, Activations, Triggers, def_for, prize_value,
     subtypes_for, unimplemented,
 )
-from ptcgo.database.player_data import COINS_PER_WIN, COINS_PER_LOSS, grant_coins
+from ptcgo.database.player_data import (
+    COINS_PER_WIN, COINS_PER_LOSS, get_merged_collection_payload, grant_coins,
+)
+from ptcgo.database import trainer_challenge_data, tutorial_data
 from ptcgo.database.versus_data import award_match_points, get_progress
 from ptcgo.database.async_utils import run_db
 from ptcgo.server import activity
@@ -147,6 +151,7 @@ from .legal_actions import (
     ACTION_PLAY_LEGEND,
     ACTION_PLAY_VUNION,
     ACTION_PLAY_STADIUM,
+    ACTION_PLAY_ENERGY,
     ACTION_RETREAT,
     ACTION_USE_ABILITY,
     ACTION_USE_ATTACK,
@@ -3163,8 +3168,9 @@ class GameSession:
                     "rewardProductID": EMPTY_SEQUENCE_ID,
                     "rewardCurrency": "Tokens",
                     # rewardDescription must be non-null: the client's
-                    # RewardsList getter dereferences its ID unguarded.
-                    "rewardDescription": {"id": "playmat.endgame.gamereward"},
+                    # RewardsList getter dereferences its ID unguarded. Plain
+                    # text, because the client ships no such key.
+                    "rewardDescription": {"id": ENDGAME_REWARD_TEXT},
                     "rewardReason": "GameCompleted",
                     "selectedFrom": [],
                     "selectedIndex": 0,
@@ -3172,6 +3178,10 @@ class GameSession:
                     "index": 0,
                     "openedReward": None,
                 })
+            reward_list.extend(await self._record_tutorial_result(
+                pid, player, pid == winner_id))
+            reward_list.extend(await self._record_trainer_challenge_result(
+                pid, player, pid == winner_id))
             reward_list.extend(await self._progress_daily_challenges(pid, player, winner_id, reason))
             envelope = self._sequence_envelope(
                 EMPTY_SEQUENCE_ID,
@@ -3916,8 +3926,7 @@ class GameSession:
         """Offers recomputed legal actions until the player ends their turn."""
         player = self.players[active_id]
         if isinstance(player, AIPlayer):
-            # The AI takes no main-phase actions yet; it simply passes.
-            logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) ends turn.")
+            await self._run_ai_turn(active_id)
             return
 
         for _ in range(MAX_ACTIONS_PER_TURN):
@@ -3965,6 +3974,117 @@ class GameSession:
             f"[Session {self.game_id}] {player.screen_name} hit the per-turn "
             f"action cap ({MAX_ACTIONS_PER_TURN}); forcing end of turn."
         )
+
+    async def _run_ai_turn(self, active_id: str):
+        """The AI's whole turn policy: one Energy, then an affordable attack.
+
+        Deliberately narrow -- it plays no trainers, evolves nothing and never
+        retreats, so an AI opponent is a real opponent without pretending to be
+        a competent one.
+        """
+        player = self.players[active_id]
+        await self._run_state_unit(self._refresh_dynamic_attacks(active_id))
+
+        def first(description):
+            return next(
+                (candidate for candidate in compute_legal_actions(
+                    self.board_state, self.turn_state, active_id, self.game_id)
+                 if candidate["selectableAction"]["description"] == description),
+                None,
+            )
+
+        # Attaching one Energy is what makes an attack affordable at all; without
+        # it the AI passes every turn of every game.
+        energy = first(ACTION_PLAY_ENERGY)
+        if energy is not None:
+            infos = energy.get("targetInfoLst") or []
+            targets = infos[0].get("validTargets") if infos else []
+            if targets:
+                logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) "
+                             f"attaches an Energy to {targets[0]}.")
+                await self._run_state_unit(
+                    self._apply_player_action(active_id, energy, [targets[0]]))
+
+        attack = first(ACTION_USE_ATTACK)
+        if attack is None:
+            logging.info(f"[Session {self.game_id}] {player.screen_name} (AI) ends turn.")
+            return
+        logging.info(
+            f"[Session {self.game_id}] {player.screen_name} (AI) attacks with "
+            f"{attack['selectableAction']['actionID']}."
+        )
+        await self._run_state_unit(self._apply_player_action(active_id, attack, []))
+
+    async def _record_tutorial_result(self, pid: str, player, is_winner: bool):
+        """Scores a finished tutorial match.
+
+        The funnel's own payout is not an end-of-game item: the scene reports it
+        as pending on its next status load and collects it with
+        `TutorialClaimRewards`, which is also where the client is told no further
+        match follows. This only records the result.
+        """
+        context = self.pairing.get("solo_context") or {}
+        match_key = context.get("tutorial")
+        if not match_key or pid != context.get("account_id"):
+            return []
+        try:
+            result = await run_db(tutorial_data.record_result,
+                                  player.account_id, match_key, is_winner)
+        except Exception:
+            logging.exception("[Session %s] Tutorial result recording failed for %s",
+                              self.game_id, player.account_id)
+            return []
+        if not result or not result.get("ok"):
+            return []
+        logging.info(f"[Session {self.game_id}] Tutorial {match_key}: "
+                     f"{'win' if is_winner else 'loss'}, funnel complete {result['completed']}")
+        return []
+
+    async def _record_trainer_challenge_result(self, pid: str, player, is_winner: bool):
+        """Scores a finished league match and returns the reward items to show."""
+        context = self.pairing.get("solo_context") or {}
+        if not context or pid != context.get("account_id"):
+            return []
+        opponent_key = context.get("opponent") or ""
+        try:
+            result = await run_db(trainer_challenge_data.record_result,
+                                  player.account_id, opponent_key, is_winner)
+        except Exception:
+            logging.exception("[Session %s] Trainer Challenge result recording failed for %s",
+                              self.game_id, player.account_id)
+            return []
+        if not result or not result.get("ok"):
+            return []
+        granted = result["granted"]
+        logging.info(
+            f"[Session {self.game_id}] Trainer Challenge {opponent_key}: "
+            f"{'win' if is_winner else 'loss'}, granted {granted}, "
+            f"unlocked {result['unlocked']}"
+        )
+        items = []
+        if granted.get("coins"):
+            items.append({
+                "name": "GameReward",
+                "rewardType": "Tokens",
+                "rewardAmount": granted["coins"],
+                "rewardProductID": EMPTY_SEQUENCE_ID,
+                "rewardCurrency": "Tokens",
+                "rewardDescription": {"id": ENDGAME_REWARD_TEXT},
+                "rewardReason": "GameCompleted",
+                "selectedFrom": [],
+                "selectedIndex": 0,
+                "rewardSource": "",
+                "index": 0,
+                "openedReward": None,
+            })
+        if granted.get("products"):
+            payload = await run_db(get_merged_collection_payload, player.account_id)
+            await player.send_packet(
+                OutboundMsg.COLLECTION_COUNT_FOUND.value,
+                {"messageName": OutboundMsg.COLLECTION_COUNT_FOUND.value,
+                 "collectionCountList": payload},
+            )
+        return items
 
     def _main_offer_value(
         self, player_id: str, target_map: List[Dict[str, Any]]

@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def flying_fury(ctx):
+    """Before damage, discard any number of your Pokémon Tools; +40 damage each."""
+    my_tools = [tool for tool, pokemon in ctx.tools_in_play()
+                if pokemon.owning_player_id == ctx.player_id]
+    picks = []
+    if my_tools:
+        picks = await ctx.choose_cards(
+            my_tools, len(my_tools), minimum=0,
+            prompt="Discard any number of Pokémon Tools from your Pokémon.",
+        )
+    if picks:
+        await ctx.discard_cards(picks)
+    await ctx.deal_damage(10 + 40 * len(picks))
+
 card = PokemonCardDef(
     guid="2a6ef445-f960-5291-85e6-410fa9772731",
     key="SV4PT5",
@@ -25,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flying_fury,
         ),
         Attack(
             title="Electro Ball",

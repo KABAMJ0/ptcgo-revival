@@ -1,5 +1,17 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import SupporterCardDef
+from ptcgo.game.attributes import PokemonTypes, Rarities, AttrID
+from ptcgo.game.card_effects.support_common import recover_from_discard, requires_discard, is_energy
+from ptcgo.game.session.effects import is_water_pokemon
+
+
+def is_water_energy_card(card) -> bool:
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy(card) and PokemonTypes.WATER.value in types
+
+
+def _nessa_predicate(card) -> bool:
+    return is_water_pokemon(card) or is_water_energy_card(card)
+
 
 card = SupporterCardDef(
     guid="79d7ccc0-c7b4-5658-b126-4d3ede23524a",
@@ -11,5 +23,9 @@ card = SupporterCardDef(
     collector_number=27,
     set_code="SWSH11TG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=recover_from_discard(
+        _nessa_predicate, count=4, minimum=1, reveal=False, to="hand",
+        prompt="Choose up to 4 Water Pokémon and Water Energy cards",
+    ),
+    condition=requires_discard(_nessa_predicate),
 )

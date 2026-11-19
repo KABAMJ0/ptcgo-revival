@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 card = PokemonCardDef(
     guid="f90004a7-336d-5ae7-bcee-3aa36a12ead2",
@@ -27,7 +30,7 @@ card = PokemonCardDef(
             title="Find a Friend",
             game_text="Flip a coin. If heads, search your deck for a Grass Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=flip_or_nothing(then=search_to_hand(lambda card: is_pokemon_of_type(card, "grass"), count=1, reveal=True)),
         ),
     ],
 )

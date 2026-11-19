@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tool_discard_random_on_ko
 
 card = PokemonToolCardDef(
     guid="84ae80d7-8887-52ac-8a99-671671cfc0fd",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=161,
     set_code="SV4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    on_carrier_knocked_out=tool_discard_random_on_ko(),
 )

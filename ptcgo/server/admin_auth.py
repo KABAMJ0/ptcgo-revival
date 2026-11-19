@@ -38,6 +38,15 @@ def destroy_session(token: str):
         _sessions.pop(token, None)
 
 
+def destroy_sessions_for(account_id: str, keep: str = "") -> int:
+    """Ends every admin session of an account except `keep` (after a password change)."""
+    with _lock:
+        doomed = [t for t, s in _sessions.items() if s["account_id"] == account_id and t != keep]
+        for t in doomed:
+            del _sessions[t]
+    return len(doomed)
+
+
 def token_from_headers(headers) -> str:
     cookie_header = ""
     if headers is not None:

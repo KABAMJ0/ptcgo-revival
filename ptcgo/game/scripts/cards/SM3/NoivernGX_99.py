@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents, lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,20 +25,20 @@ card = PokemonCardDef(
             game_text="Your opponent can't play any Item cards from their hand during their next turn.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=lock_opponent_plays("item"),
         ),
         Attack(
             title="Sonic Volume",
             game_text="Your opponent can't play any Special Energy cards from their hand during their next turn.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=lock_opponent_plays("special_energy"),
         ),
         Attack(
             title="Boomburst-GX",
             game_text="This attack does 50 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_all_opponents(50),
         ),
     ],
 )

@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+
+async def scorching_feathers(ctx):
+    """If this Pokémon (in the Active Spot) is damaged by an attack, burn the attacker."""
+    if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+        return
+    await ctx.apply_special_condition(ctx.damaged_by, SpecialConditions.BURNED)
+
 
 card = PokemonCardDef(
     guid="fdf19ba1-ee46-57ef-bbe2-650d504b2755",
@@ -21,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Incandescent Body",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), the Attacking Pok\u00e9mon is now Burned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=scorching_feathers,
         ),
         Attack(
             title="Combustion",

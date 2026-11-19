@@ -1,4 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Rocket Brain",
             game_text="As often as you like during your turn, you may move 1 damage counter from 1 of your Team Rocket's Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 40),
         ),
         Attack(
             title="Psychic",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 40, base=40),
         ),
     ],
 )

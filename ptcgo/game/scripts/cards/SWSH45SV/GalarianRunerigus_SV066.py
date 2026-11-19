@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    place_counters, damage_counters_on, recoil_attack,
+)
 
 card = PokemonCardDef(
     guid="c5da2874-307b-5db5-8a7b-26a532df2f21",
@@ -23,14 +26,16 @@ card = PokemonCardDef(
             title="Spreading Spite",
             game_text="For each damage counter on this Galarian Runerigus, put 2 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=place_counters(
+                lambda ctx: 2 * damage_counters_on("self")(ctx), "choose_any_opponent"
+            ),
         ),
         Attack(
             title="Mad Hammer",
             game_text="This Pok\u00e9mon also does 30 damage to itself.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
     ],
 )

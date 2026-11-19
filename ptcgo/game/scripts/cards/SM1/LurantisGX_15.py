@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="9805df94-93c3-5845-8346-01b708257d0d",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             game_text="Heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=heal_attack(30),
         ),
         Attack(
             title="Chloroscythe-GX",
@@ -39,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.GRASS), 50),
         ),
     ],
 )

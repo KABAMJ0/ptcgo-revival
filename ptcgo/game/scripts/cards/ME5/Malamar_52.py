@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition
+
 
 card = PokemonCardDef(
     guid="d876c471-256d-523e-a9a3-9b20ba7778a5",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Perplex",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Brain Crush",
             game_text="If your opponent's Active Pok\u00e9mon isn't Confused, this attack does nothing.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=bonus_if(defender_has_condition(SpecialConditions.CONFUSED), 0, else_nothing=True),
         ),
     ],
 )

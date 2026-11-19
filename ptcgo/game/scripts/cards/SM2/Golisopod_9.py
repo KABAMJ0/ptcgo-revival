@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    bonus_if,
+    defender_is_ex,
+    defender_is_gx,
+)
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+
+def _defender_is_gx_or_ex(ctx) -> bool:
+    return defender_is_gx(ctx) or defender_is_ex(ctx)
 
 card = PokemonCardDef(
     guid="d255a8d7-52d7-5c93-b36e-918cf47db138",
@@ -17,12 +27,12 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.FIRE,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Wimpod.Name",
-    family_id=767,
+    family_id=768,
     abilities=[
         Ability(
             title="Armor",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Resolute Claws",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_is_gx_or_ex, 70),
         ),
     ],
 )

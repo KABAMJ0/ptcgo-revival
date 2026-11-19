@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="de279517-388f-5fb8-8b4a-3d8caaceb696",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Keen Eye",
             game_text="Search your deck for up to 2 cards and put them into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Baton Pass",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="cd1ff823-3850-5f79-82fe-0c55fcfc31d0",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Call for the Boss",
             game_text="Search your deck for Alolan Raticate or Alolan Raticate-GX, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(named("alolan raticate"), count=1, reveal=True),
         ),
         Attack(
             title="Gnaw",

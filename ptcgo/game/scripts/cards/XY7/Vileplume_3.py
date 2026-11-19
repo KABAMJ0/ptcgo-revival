@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Irritating Pollen",
             game_text="Each player can't play any Item cards from his or her hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("item", while_active=False, opponents_only=False),
         ),
         Attack(
             title="Solar Beam",

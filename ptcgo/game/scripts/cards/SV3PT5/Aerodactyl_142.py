@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import rewind_beam
 
 card = PokemonCardDef(
     guid="f2ba4288-bb53-5cb1-9875-b6a064dd6a64",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon is an evolved Pok\u00e9mon, devolve it by putting the highest Stage Evolution card on it into your opponent's hand.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=rewind_beam,
         ),
     ],
 )

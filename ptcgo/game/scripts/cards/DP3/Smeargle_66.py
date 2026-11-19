@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="c11ba8f4-1291-5e79-ab25-8660c16f9f95",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Color Pick",
             game_text="Search your deck for up to 3 basic Energy cards, show them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_energy_card, count=3, reveal=True),
         ),
         Attack(
             title="Trace",

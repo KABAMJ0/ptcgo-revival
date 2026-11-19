@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import bench_counter_picks
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Flying Entry",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may choose 2 of your opponent's Benched Pok\u00e9mon and put 1 damage counter on each of them.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=bench_counter_picks(picks=2, each=1),
         ),
         Attack(
             title="Wing Attack",

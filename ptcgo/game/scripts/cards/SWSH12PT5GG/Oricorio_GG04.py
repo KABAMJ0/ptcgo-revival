@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import LessonInZealPassive, glistening_droplets
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,13 +22,13 @@ card = PokemonCardDef(
         Ability(
             title="Lesson in Zeal",
             game_text="All of your Fusion Strike Pok\u00e9mon take 20 less damage from attacks from your opponent's Pok\u00e9mon (after applying Weakness and Resistance). You can't apply more than 1 Lesson in Zeal Ability at a time.",
-            effect=unimplemented,
+            passive=LessonInZealPassive(),
         ),
         Attack(
             title="Glistening Droplets",
             game_text="Put 5 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=glistening_droplets,
         ),
     ],
 )

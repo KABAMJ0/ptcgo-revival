@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
+
 
 card = PokemonCardDef(
     guid="0a70b62e-2d2e-5903-8e07-025ef1f46eb8",
@@ -25,14 +28,14 @@ card = PokemonCardDef(
             game_text="Before doing damage, discard a Pok\u00e9mon Tool card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1},
             damage=30,
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Cavalry Lance",
             game_text="During your opponent's next turn, this Pok\u00e9mon has no Weakness.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=no_weakness_next_turn(),
         ),
     ],
 )

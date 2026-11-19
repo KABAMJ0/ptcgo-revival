@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             game_text="You may attach a basic Energy card from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(), attach_from_hand(is_basic_energy_card, count=1, target="choice", minimum=0)),
         ),
         Attack(
             title="Dual Cut",
@@ -33,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=70),
         ),
     ],
 )

@@ -1,5 +1,13 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
+
+
+async def freezing_chill(ctx):
+    await ctx.deal_damage()
+    lock_defender_attacks(ctx)
+
 
 card = PokemonCardDef(
     guid="ea3725e7-9c42-540b-a4dc-e23fb99c8d81",
@@ -23,14 +31,14 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't attack.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=freezing_chill,
         ),
         Attack(
             title="Wild Tackle",
             game_text="This Pok\u00e9mon also does 20 damage to itself.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1},
             damage=130,
-            effect=unimplemented,
+            effect=recoil_attack(20),
         ),
     ],
 )

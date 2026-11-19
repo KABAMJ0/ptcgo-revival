@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="24a775fe-587f-5a20-95ec-7ad017928829",
@@ -24,7 +25,11 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness, Resistance, or any other effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(
+                ignore_weakness=True,
+                ignore_resistance=True,
+                ignore_target_effects=True,
+            ),
         ),
         Attack(
             title="Comet Punch",
@@ -32,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=40),
         ),
     ],
 )

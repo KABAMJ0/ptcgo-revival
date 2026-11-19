@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import return_attached_energy_any
 
 card = ItemCardDef(
     guid="9f399bfb-7cd0-5012-9ab0-577c3ad61020",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=122,
     set_code="GYM1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=return_attached_energy_any()
 )

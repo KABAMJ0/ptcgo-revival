@@ -1,5 +1,18 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _hurricane(ctx):
+    await ctx.deal_damage()
+    bench = ctx.my_bench()
+    if bench:
+        await ctx.move_energy_freely(
+            [ctx.attacker], bench, predicate=is_basic_energy_card, max_count=1,
+            prompt="Choose a basic Energy to move to a Benched Pokémon",
+        )
+
 
 card = PokemonCardDef(
     guid="1d607eba-0baf-55b9-b89f-435f93c29aa3",
@@ -23,14 +36,14 @@ card = PokemonCardDef(
             title="Wrapped in Wind",
             game_text="Attach a Basic Energy card from your hand to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, count=1, target="self"),
         ),
         Attack(
             title="Hurricane",
             game_text="Move a Basic Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=_hurricane,
         ),
     ],
 )

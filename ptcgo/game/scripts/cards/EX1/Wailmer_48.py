@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _rest(ctx, counters):
+    await ctx.deal_damage()
+    target = ctx.attacker
+    await ctx.cure_all_conditions(target)
+    await ctx.heal(counters * 10, target)
+    await ctx.apply_special_condition(target, SpecialConditions.ASLEEP)
 
 card = PokemonCardDef(
     guid="c76c129c-3f5f-5ec2-8457-8ec3a171809f",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
             title="Rest",
             game_text="Remove all Special Conditions and 4 damage counters from Wailmer (all if there are less than 4). Wailmer is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=lambda ctx: _rest(ctx, 4),
         ),
         Attack(
             title="Water Gun",

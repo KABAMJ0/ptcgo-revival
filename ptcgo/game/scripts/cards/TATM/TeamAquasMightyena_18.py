@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_in_play, flip_damage
+from ptcgo.game.card_effects.energies import pokemon_named_like
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+
 
 card = PokemonCardDef(
     guid="770ac1cf-fe03-5ce3-a92c-fe727fc8a6fa",
@@ -26,14 +30,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_in_play("mine", pokemon_named_like("Team Aqua's")), per_heads=30),
         ),
         Attack(
             title="Crunch",
             game_text="Flip a coin. If heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(),
         ),
     ],
 )

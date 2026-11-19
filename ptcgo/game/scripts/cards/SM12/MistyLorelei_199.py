@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import SupporterCardDef, Ability, Triggers
+from ptcgo.game.card_effects.trainers import misty_and_lorelei
 
 card = SupporterCardDef(
     guid="b1b4db87-cec7-5c55-84e9-dc8425cca5ee",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=199,
     set_code="SM12",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=misty_and_lorelei,
 )

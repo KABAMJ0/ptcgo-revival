@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Chilling Breath",
             game_text="Once during your turn, when you play Walrein ex from your hand to evolve 1 of your Pok\u00e9mon, you may use this power. Your opponent can't play any Trainer cards from his or her hand during your opponent's next turn.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=lock_opponent_plays("trainer", damage=0),
         ),
         Attack(
             title="Wreck",

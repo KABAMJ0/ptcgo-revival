@@ -1,4 +1,6 @@
+from ptcgo.game.card_effects.passives_common import raise_defender_retreat_cost_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon's Retreat Cost is ColorlessColorless more.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=raise_defender_retreat_cost_next_turn(2),
         ),
         Attack(
             title="Aqua Wave",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=10, base=40),
         ),
     ],
 )

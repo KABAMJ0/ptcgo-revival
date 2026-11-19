@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack, damage_per, count_energy
 
 card = PokemonCardDef(
     guid="e7201a21-9f39-59a8-bd5a-c56c59326cd3",
@@ -26,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("mine", PokemonTypes.LIGHTNING), 20, base=20),
         ),
         Attack(
             title="Thunder",
             game_text="This Pok\u00e9mon does 30 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
         Attack(
             title="Voltail-GX",

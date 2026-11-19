@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="6b4a1275-bc5b-5b76-9929-ebdac0110cd1",
@@ -22,7 +24,11 @@ card = PokemonCardDef(
             title="Bug Hunch",
             game_text="Search your deck for up to 3 Grass Pok\u00e9mon, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "grass"),
+                count=3,
+                reveal=True,
+            ),
         ),
     ],
 )

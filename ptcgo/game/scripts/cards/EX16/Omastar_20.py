@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import tm_devolve_all
+
 
 card = PokemonCardDef(
     guid="e4a4c875-7638-5497-bb86-6a0396c6a00a",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Pull Down",
             game_text="If your opponent has any Evolved Pok\u00e9mon in play, remove the highest Stage Evolution card from each of them and put those cards back into his or her hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=tm_devolve_all(),
         ),
         Attack(
             title="Hydrocannon",

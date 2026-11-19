@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+
 
 card = PokemonCardDef(
     guid="4534801f-0b6a-5ac0-bd18-06d80d259b7b",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
         Ability(
             title="Toppling Wind",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may discard the top 3 cards of your opponent's deck.",
-            effect=unimplemented,
+            effect=mill_attack(3, opponent=True),
         ),
         Attack(
             title="Giga Horn",
             game_text="Flip 2 coins. If both of them are tails, this attack does nothing.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=2),
         ),
     ],
 )

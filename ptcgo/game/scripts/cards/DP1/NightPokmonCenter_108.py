@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_two_heal_or_discard_energy
 
 card = ItemCardDef(
     guid="5b868f01-dfbf-55da-91d7-65bbc3face46",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=108,
     set_code="DP1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_two_heal_or_discard_energy()
 )

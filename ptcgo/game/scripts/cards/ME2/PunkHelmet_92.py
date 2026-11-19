@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tool_counters_on_attacker
 
 card = PokemonToolCardDef(
     guid="0c8c26f4-0c27-53a2-bc2a-e73d58b205f3",
@@ -11,5 +12,12 @@ card = PokemonToolCardDef(
     collector_number=92,
     set_code="ME2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=[
+        Ability(
+            title="Punk Helmet",
+            game_text="If the Darkness Pokémon this card is attached to is in the Active Spot and is damaged by an attack from your opponent's Pokémon (even if this Pokémon is Knocked Out), place 4 damage counters on the Attacking Pokémon. You may attach any number of Pokémon Tools to your Pokémon during your turn. You may attach only 1 Pokémon Tool to each Pokémon, and it stays attached.",
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=tool_counters_on_attacker(4, 0, False, "DARKNESS"),
+        ),
+    ],
 )

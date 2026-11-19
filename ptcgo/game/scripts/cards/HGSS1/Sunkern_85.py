@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
+
 
 card = PokemonCardDef(
     guid="384ba8b5-6fae-5c29-8b20-46a5f93c7e4d",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Cure Kernels",
             game_text="Remove 2 damage counters from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(20, scope='choice'),
         ),
         Attack(
             title="Seed Bomb",

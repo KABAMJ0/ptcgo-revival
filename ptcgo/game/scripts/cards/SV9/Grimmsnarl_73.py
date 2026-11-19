@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 card = PokemonCardDef(
     guid="eebaad6d-8207-5294-b932-49b43aa632ac",
     key="SV9",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(defender_retreat_cost, 50),
         ),
         Attack(
             title="Mega Punch",

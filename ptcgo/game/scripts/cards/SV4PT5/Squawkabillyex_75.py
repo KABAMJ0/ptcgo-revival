@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
+
+def first_turn(board, player_id, pokemon):
+    turn_state = getattr(board, "turn_state", None)
+    return turn_state is not None and turn_state.turn_number <= 2
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 card = PokemonCardDef(
     guid="e97fe7dc-76dc-59f4-beff-511ff628002e",
@@ -22,14 +31,17 @@ card = PokemonCardDef(
         Ability(
             title="Squawk and Seize",
             game_text="Once during your first turn, you may discard your hand and draw 6 cards. You can't use more than 1 Squawk and Seize Ability during your turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=first_turn,
+            shared_once_per_turn="Squawk and Seize",
+            effect=discard_then_draw(0, 6, whole_hand=True),
         ),
         Attack(
             title="Motivate",
             game_text="Attach up to 2 Basic Energy cards from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=attach_from_discard(predicate=is_basic_energy_card, count=2, minimum=0, target=lambda p: not is_in_active_spot(p), prompt='Choose up to 2 basic Energy cards to attach'),
         ),
     ],
 )

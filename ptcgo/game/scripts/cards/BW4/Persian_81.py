@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_random_from_hand
+from ptcgo.game.card_effects.support_common import search_to_hand
+
+async def _flip_discard(ctx):
+    await ctx.deal_damage()
+    if any(await ctx.flip_coins(1, "Flip a coin")):
+        await discard_random_from_hand(ctx, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="f2d45847-0fe2-58e5-a333-b75e584084e3",
@@ -23,14 +31,14 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for a card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=1, minimum=1, reveal=False),
         ),
         Attack(
             title="Shadow Claw",
             game_text="Flip a coin. If heads, discard a random card from your opponent's hand.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=_flip_discard,
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="64a3dd04-8f8e-55a6-a1b5-568975ab5956",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Split Bomb",
             game_text="Choose 2 of your opponent's Pok\u00e9mon. This attack does 20 damage to each of them. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="any", count=2, apply_modifiers=False),
         ),
         Attack(
             title="High Jump Kick",

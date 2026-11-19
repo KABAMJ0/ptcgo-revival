@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="36a18b62-338a-5b75-9b8b-d75c6db60f44",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Call Sign",
             game_text="Search your deck for a Water Pok\u00e9mon, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(pokemon_of("water"), count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Cryofreeze",

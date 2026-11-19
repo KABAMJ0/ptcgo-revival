@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
 
 card = PokemonCardDef(
     guid="16988d9d-4ad0-5693-b0f5-47114142e16f",
@@ -24,7 +28,7 @@ card = PokemonCardDef(
             title="Energy Plant",
             game_text="Search your deck for a basic Energy card and attach it to 1 of your Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=1, distribute=False),
         ),
         Attack(
             title="Trip Over",
@@ -32,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(60)),
         ),
     ],
 )

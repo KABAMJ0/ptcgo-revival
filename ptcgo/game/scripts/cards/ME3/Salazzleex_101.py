@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack, search_to_hand
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="f105e3b6-ead9-5470-91a7-ce573690c2f8",
@@ -23,14 +25,17 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Dire Nails",
             game_text="Your opponent's Active Pok\u00e9mon is now Burned and Poisoned. Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2},
             damage=100,
-            effect=unimplemented,
+            effect=condition_attack(
+                SpecialConditions.BURNED, SpecialConditions.POISONED,
+                also=switch_self_attack(damage=0),
+            ),
         ),
     ],
 )

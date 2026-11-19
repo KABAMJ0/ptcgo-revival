@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.passives_common import apply_protection
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _dive_success(ctx):
+    await ctx.deal_damage()
+    await apply_protection(ctx, prevent=True, through_own_next_turn=True)
 
 card = PokemonCardDef(
     guid="80d7c6ea-d810-549a-98cc-ec6d7a5e5672",
@@ -25,7 +31,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this attack does nothing. If heads, prevent all damage done to Staraptor by attacks (both yours and your opponent's) until the end of your next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_or_nothing(then=_dive_success),
         ),
         Attack(
             title="Brave Heart",

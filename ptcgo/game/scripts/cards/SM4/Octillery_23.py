@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import is_special_energy
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, smokescreen_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
+
 
 card = PokemonCardDef(
     guid="dcf08b92-6ed3-561a-8a4b-c861d210bc11",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
             title="Ink Spit",
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Special Artillery",
@@ -31,7 +35,12 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(
+                source="self-energy",
+                predicate=is_special_energy,
+                max_count=1,
+                flat=80,
+            ),
         ),
     ],
 )

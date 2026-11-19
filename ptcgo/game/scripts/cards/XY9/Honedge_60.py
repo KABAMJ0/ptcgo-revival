@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
+
 
 card = PokemonCardDef(
     guid="75e56d49-5867-5c47-8a87-e3acf2203a7d",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Stab",
             game_text="Put 1 damage counter on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=place_counters(1, 'opponent_active'),
         ),
     ],
 )

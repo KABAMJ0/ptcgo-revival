@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage, snipe_attack
 
 card = PokemonCardDef(
     guid="931181fd-264e-5a97-a1cf-c446be34f87f",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench", count=2, apply_modifiers=False),
         ),
         Attack(
             title="Triple Nose",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, base=50, bonus_per_heads=20),
         ),
     ],
 )

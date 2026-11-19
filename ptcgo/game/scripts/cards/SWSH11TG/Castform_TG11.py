@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="79359854-86c3-58a6-b5f5-cf61a0df1db1",
@@ -21,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Weather Reading",
             game_text="If you have 8 or more Stadium cards in your discard pile, ignore all Energy in this Pok\u00e9mon's attack costs.",
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Weather Force",
             game_text="Draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
     ],
 )

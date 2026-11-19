@@ -1,4 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Zooming Draw",
             game_text="Once during your turn, you may put 1 damage counter on this Pok\u00e9mon. If you do, draw a card.",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 30),
         ),
         Attack(
             title="Ballistic Beak",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 30, base=10),
         ),
     ],
 )

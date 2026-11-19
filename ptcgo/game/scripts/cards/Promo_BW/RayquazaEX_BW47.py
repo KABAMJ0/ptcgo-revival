@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_then_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_then_attach_energy
 
 card = PokemonCardDef(
     guid="378c0062-a37f-5c08-a612-1b76191ed012",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Celestial Roar",
             game_text="Discard the top 3 cards of your deck. If any of those cards are Energy cards, attach them to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=mill_then_attach_energy(count=3),
         ),
         Attack(
             title="Dragon Burst",

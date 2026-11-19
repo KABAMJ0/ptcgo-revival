@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import energy_link_ability
 
 card = PokemonToolCardDef(
     guid="8c4b8026-7084-5f99-b6b7-6a54c876e7f5",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=83,
     set_code="DP7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=energy_link_ability('Energy Link', "8c4b8026-7084-5f99-b6b7-6a54c876e7f5"),
 )

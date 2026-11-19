@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread_bench(ctx):
+    """Printed damage, then 6 damage counters across the opponent's Bench, any way they like."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(6, candidates=ctx.opponent_bench())
+
+
 card = PokemonCardDef(
     guid="ca29012c-8627-5001-a411-ee2675a4388b",
     key="SV8PT5",
@@ -28,7 +34,7 @@ card = PokemonCardDef(
             game_text="Put 6 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.PSYCHIC: 1},
             damage=200,
-            effect=unimplemented,
+            effect=_spread_bench,
         ),
     ],
 )

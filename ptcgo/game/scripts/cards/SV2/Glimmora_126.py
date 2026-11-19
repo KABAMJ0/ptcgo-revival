@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="b1f97b64-5ddc-5481-aa39-26520dabd2d5",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Poison Petals",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. During Pok\u00e9mon Checkup, put 6 damage counters on that Pok\u00e9mon instead of 1.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=6),
         ),
     ],
 )

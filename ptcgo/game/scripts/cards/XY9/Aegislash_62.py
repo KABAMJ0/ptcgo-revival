@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import spread_damage
+
 
 card = PokemonCardDef(
     guid="40b36eb4-1085-56b7-8142-cb32d5c10d14",
@@ -24,14 +27,14 @@ card = PokemonCardDef(
             title="Painful Sword",
             game_text="Double the number of damage counters on each of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=spread_damage(10, side='opponent', include_active=False),
         ),
         Attack(
             title="Megaton Slash",
             game_text="This attack does 10 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench", count=2, apply_modifiers=False),
         ),
     ],
 )

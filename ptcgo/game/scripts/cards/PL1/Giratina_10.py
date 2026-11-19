@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents
+
 
 card = PokemonCardDef(
     guid="ca81ed35-044c-5d30-a72d-193432e32496",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Over Slash",
             game_text="This attack does 10 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon).",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=damage_all_opponents(10),
         ),
         Attack(
             title="Dark Wing Flaps",

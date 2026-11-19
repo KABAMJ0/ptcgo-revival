@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_holder_between_turns
 
 card = PokemonToolCardDef(
     guid="2dd3e3fd-7057-5a31-9a5b-db28082522d8",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=139,
     set_code="ECARD3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=evolve_holder_between_turns('Star Piece', 'bench', 2),
 )

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="a58f79c2-8821-5282-aba7-9ccbec570120",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="This attack does 30 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="bench", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Head Bolt",
@@ -37,7 +39,7 @@ card = PokemonCardDef(
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=110,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True),
         ),
     ],
 )

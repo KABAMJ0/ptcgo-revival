@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="330f9202-4cdc-566a-ac60-faf255fa6328",
@@ -28,7 +31,7 @@ card = PokemonCardDef(
             title="Healing Sound",
             game_text="Remove 3 damage counters from each of your Active Pok\u00e9mon. Each Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=composed(heal_targets(30, "each_own"), condition_attack(SpecialConditions.ASLEEP, both_actives=True)),
         ),
     ],
 )

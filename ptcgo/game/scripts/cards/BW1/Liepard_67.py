@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, self_has_energy_of_type
+
 
 card = PokemonCardDef(
     guid="a86f8f44-daa3-5ca2-8552-aa226398f478",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Taunt",
             game_text="Switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=0),
         ),
         Attack(
             title="Sucker Punch",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(self_has_energy_of_type(PokemonTypes.DARKNESS), 30),
         ),
     ],
 )

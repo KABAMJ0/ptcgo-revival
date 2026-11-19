@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
+from ptcgo.game.card_effects.trainers import level_max
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=107,
     set_code="PL1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=level_max
 )

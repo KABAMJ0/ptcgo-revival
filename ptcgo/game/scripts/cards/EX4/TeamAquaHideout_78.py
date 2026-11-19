@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import team_aqua_target, stadium_retreat_shift
+
+def _not_team_aqua(pokemon):
+    return not team_aqua_target(pokemon)
+
 
 card = StadiumCardDef(
     guid="0a0b1ff6-c5b0-5cee-b5a1-f2a785a8a4da",
@@ -11,5 +16,5 @@ card = StadiumCardDef(
     collector_number=78,
     set_code="EX4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_retreat_shift(1, _not_team_aqua)
 )

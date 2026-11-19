@@ -1,5 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class SwellingTunePassive(Passive):
+    stacking_key = "SwellingTune"
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if pokemon.owning_player_id != carrier.owning_player_id:
+            return 0
+        if pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Kricketune":
+            return 0
+        types = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+        if PokemonTypes.GRASS.value not in types:
+            return 0
+        return 40
+
 
 card = PokemonCardDef(
     guid="a61b5848-8463-5098-9e9c-0e1fc9052aab",
@@ -17,12 +33,12 @@ card = PokemonCardDef(
     retreat_cost=1,
     weakness_type=PokemonTypes.FIRE,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Kricketot.Name",
-    family_id=402,
+    family_id=401,
     abilities=[
         Ability(
             title="Swelling Tune",
-            game_text="Your Grass Pok\u00e9mon in play, except any Kricketune, get +40 HP. You can't apply more than 1 Swelling Tune Ability at a time.",
-            effect=unimplemented,
+            game_text="Your Grass Pokémon in play, except any Kricketune, get +40 HP. You can't apply more than 1 Swelling Tune Ability at a time.",
+            passive=SwellingTunePassive(),
         ),
         Attack(
             title="Slash",

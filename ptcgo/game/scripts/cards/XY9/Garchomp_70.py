@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
+
 
 card = PokemonCardDef(
     guid="40e40b77-e00b-521a-ad31-9875c2ea2b7b",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             game_text="Attach an Energy card from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="choice"),
         ),
         Attack(
             title="Bite Off",
@@ -32,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_pokemon_ex(ctx.defender), 80),
         ),
     ],
 )

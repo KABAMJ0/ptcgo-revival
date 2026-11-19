@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="3f810453-c4a2-51f4-bfad-6f867c029f24",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Fearsome Shadow",
             game_text="Your opponent reveals his or her hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
     ],
 )

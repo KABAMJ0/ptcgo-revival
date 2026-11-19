@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
 
 card = PokemonCardDef(
     guid="5e44bd59-1d1e-5c3c-80a5-9008419c1f71",
@@ -22,14 +28,14 @@ card = PokemonCardDef(
             title="Minor Errand-Running",
             game_text="Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_energy_card, count=2, reveal=True),
         ),
         Attack(
             title="Sky Return",
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=remove_self_from_play(destination='hand', with_attachments='same'),
         ),
     ],
 )

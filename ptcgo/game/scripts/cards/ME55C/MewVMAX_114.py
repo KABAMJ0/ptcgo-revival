@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import cross_fusion_strike, max_miracle
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             title="Cross Fusion Strike",
             game_text="Choose 1 of your Benched Fusion Strike Pok\u00e9mon's attacks and use it as this attack.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=cross_fusion_strike,
         ),
         Attack(
             title="Max Miracle",
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=130,
-            effect=unimplemented,
+            effect=max_miracle,
         ),
     ],
 )

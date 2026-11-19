@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="1868fd1b-cda7-561c-a986-e93701a853d5",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=130,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1, special_only=True),
         ),
         Attack(
             title="Darkest Tornado-GX",
@@ -38,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 50, base=10),
         ),
     ],
 )

@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import draw_until_effect
+
 
 card = PokemonCardDef(
     guid="feb55d40-93f0-5e2c-89d4-9b39f88c0d90",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=False),
         ),
         Attack(
             title="Corkscrew Smash",
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=60,
-            effect=unimplemented,
+            effect=draw_until_effect(6, optional=True),
         ),
         Attack(
             title="Somersault Kick",

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Humming Heal",
             game_text="Once during your turn, you may heal 20 damage from each of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_targets(20, scope="each_own"),
         ),
         Attack(
             title="Light Pulse",

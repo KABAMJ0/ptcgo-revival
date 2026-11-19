@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 card = PokemonCardDef(
     guid="5d53564d-4288-5b3a-b351-ffec793e9c5c",
     key="SVP",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Splattering Poison",
             game_text="Both Active Pok\u00e9mon are now Poisoned.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, both_actives=True),
         ),
         Attack(
             title="Tail Whap",

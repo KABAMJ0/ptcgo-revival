@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, Rarities
+from ptcgo.game.card_effects.trainers import discard_tool_at_end_of_turn
+
+
+def _opponent_one_prize_left(board, player_id, pokemon) -> bool:
+    opponent = next((pid for pid in board.player_ids if pid != player_id), None)
+    if opponent is None:
+        return False
+    pile = board.find_player_area(opponent, "prizePile")
+    return pile is not None and len(pile.children) == 1
 
 card = PokemonToolCardDef(
     guid="625128f2-da71-59b3-90bd-39d1a71dd6e0",
@@ -11,5 +20,19 @@ card = PokemonToolCardDef(
     collector_number=90,
     set_code="SV4PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    granted_abilities=[
+        Attack(
+            title="Crisis Punch",
+            game_text="You can use this attack only when your opponent has exactly 1 Prize card remaining.",
+            cost={PokemonTypes.COLORLESS: 3},
+            damage=280,
+            condition=_opponent_one_prize_left,
+        ),
+        Ability(
+            title="Technical Machine: Crisis Punch",
+            game_text="Discard this card at the end of your turn.",
+            trigger=Triggers.END_OF_TURN,
+            effect=discard_tool_at_end_of_turn(),
+        ),
+    ],
 )

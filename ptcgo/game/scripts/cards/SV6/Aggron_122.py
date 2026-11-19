@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+
+def _damaged_own_pokemon(ctx):
+    return sum(
+        1 for p in ctx.my_pokemon_in_play()
+        if p.get_attribute(AttrID.HP, ctx.max_hp(p)) < ctx.max_hp(p)
+    )
+
 
 card = PokemonCardDef(
     guid="9995c8ed-5e9a-5e44-9c02-d74d95184084",
@@ -26,14 +37,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_damaged_own_pokemon, 50),
         ),
         Attack(
             title="Guard Claw",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 50 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=50),
         ),
     ],
 )

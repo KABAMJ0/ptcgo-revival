@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="f3aa4727-3a39-5e65-ae26-e3d7b64fb232",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Bibarel does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )

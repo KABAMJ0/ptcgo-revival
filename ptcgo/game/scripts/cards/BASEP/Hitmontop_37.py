@@ -1,5 +1,14 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_then, switch_self_attack
+
+
+async def rapid_spin(ctx, _new_active):
+    """The opponent switches first (their choice), then you switch one of
+    yours in."""
+    await switch_self_attack(damage=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="3e06cc97-2370-5da6-9d27-9069fd1cce86",
@@ -24,14 +33,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=20, until_tails=True),
         ),
         Attack(
             title="Rapid Spin",
             game_text="If your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches it with his or her Active Pok\u00e9mon, then, if you have any Benched Pok\u00e9mon, you switch 1 of them with your Active Pok\u00e9mon. (Do the damage before switching the Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=gust_then(rapid_spin, opponent_chooses=True),
         ),
     ],
 )

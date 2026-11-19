@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="395d6a4f-f418-5736-8e30-7e76d431d16e",
@@ -23,7 +25,11 @@ card = PokemonCardDef(
             title="Group Swim",
             game_text="Search your deck for a Water Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "water"),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Aqua Slash",

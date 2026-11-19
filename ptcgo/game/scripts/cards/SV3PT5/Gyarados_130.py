@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, mill_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,14 +23,15 @@ card = PokemonCardDef(
         Ability(
             title="Untamed One",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you must discard the top 5 cards of your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=mill_attack(5, opponent=False),
         ),
         Attack(
             title="Hyper Beam",
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 3},
             damage=200,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(count=1),
         ),
     ],
 )

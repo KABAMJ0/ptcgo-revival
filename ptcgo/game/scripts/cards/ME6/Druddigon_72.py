@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="2d8ae66d-3560-5946-889d-68c2f1ec0d64",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
             title="Drag Off",
             game_text="Switch in 1 of your opponent's Benched Pok\u00e9mon to the Active Spot. This attack does 40 damage to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=40),
         ),
         Attack(
             title="Claw Slash",

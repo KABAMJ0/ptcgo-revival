@@ -1,4 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard, discard_then_draw
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Stormy Winds",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard the top 3 cards of your deck. If you do, attach a basic Energy card from your discard pile to this Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=composed(mill_attack(3, opponent=False), on_success=attach_from_discard(is_basic_energy_card, count=1, target="self")),
         ),
         Attack(
             title="Dragon Break",
@@ -35,7 +40,7 @@ card = PokemonCardDef(
             title="Tempest-GX",
             game_text="Discard your hand and draw 10 cards. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=discard_then_draw(0, 10, whole_hand=True),
         ),
     ],
 )

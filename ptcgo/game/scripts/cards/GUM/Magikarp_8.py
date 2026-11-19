@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="4af3d74b-fa5b-56b7-89e0-cad270e0848f",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Hold Still",
             game_text="Heal 10 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=heal_attack(10),
         ),
     ],
 )

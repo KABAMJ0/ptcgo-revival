@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="8926bf44-ee31-5d6e-90db-05e4907c63dd",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Blaine's Arcanine does 10 damage to itself.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
         Attack(
             title="Firestorm",

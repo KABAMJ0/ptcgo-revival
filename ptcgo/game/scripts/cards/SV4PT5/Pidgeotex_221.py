@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+
+async def blustery_wind(ctx):
+    """120 damage; you may discard the Stadium in play."""
+    await ctx.deal_damage()
+    if ctx.stadium_in_play() and await ctx.ask_yes_no("Discard the Stadium in play?"):
+        await ctx.discard_stadium()
+
 
 card = PokemonCardDef(
     guid="16a4c6b0-2658-519e-b3d5-e18c26c6451b",
@@ -23,14 +31,15 @@ card = PokemonCardDef(
         Ability(
             title="Quick Search",
             game_text="Once during your turn, you may search your deck for a card and put it into your hand. Then, shuffle your deck. You can't use more than 1 Quick Search Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(count=1, minimum=0),
         ),
         Attack(
             title="Blustery Wind",
             game_text="You may discard a Stadium in play.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=blustery_wind,
         ),
     ],
 )

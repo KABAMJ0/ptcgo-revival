@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Bulletproof",
             game_text="This Pok\u00e9mon takes 10 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10),
         ),
         Attack(
             title="Dragon Claw",

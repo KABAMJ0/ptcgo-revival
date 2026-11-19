@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="07355528-e9e4-5515-b7b9-c760e07d9a92",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Swim Together",
             game_text="Search your deck for up to 3 Misty's Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_hand(named("misty's"), count=3, reveal=True),
         ),
         Attack(
             title="Surf",

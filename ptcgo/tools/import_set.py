@@ -62,6 +62,65 @@ STAGE_MAP = {
 def clean_name(name: str) -> str:
     return re.sub(r'[^a-zA-Z0-9]', '', name)
 
+# Printed collector numbers are not always plain integers ("RC3", "28a", promo
+# "BW04"). set_numbering() maps a set's printed numbers to unique ints; the
+# script field is an int, so importers and checkers must agree on the mapping.
+#   digits      -> themselves
+#   "RC3"       -> highest plain number + 3   (prefix subsets: Radiant Collection,
+#                  promo "BW04"; a second prefix group continues after the first)
+#   "28a"       -> after everything above, in data order (alternate prints)
+NUMBER_MAP: Dict[str, int] = {}
+SUBSET_RE = re.compile(r"^([A-Za-z]+)0*(\d+)$")
+
+
+def assign_collector_numbers(cards: List[Dict[str, Any]]) -> Dict[str, int]:
+    raws = [str(c.get("number", "0")).strip() for c in cards]
+    out: Dict[str, int] = {}
+    taken = set()
+    for raw in raws:
+        if raw.isdigit() and int(raw) not in taken:
+            out[raw] = int(raw)
+            taken.add(int(raw))
+    offset = max(taken, default=0)
+    groups: Dict[str, List[str]] = {}
+    for raw in raws:
+        match = SUBSET_RE.match(raw)
+        if match and raw not in out:
+            groups.setdefault(match[1].upper(), []).append(raw)
+    for prefix, members in groups.items():
+        top = offset
+        for raw in members:
+            value = offset + int(SUBSET_RE.match(raw)[2])
+            if value in taken:
+                continue
+            out[raw] = value
+            taken.add(value)
+            top = max(top, value)
+        offset = top
+    top = max(taken, default=0)
+    for raw in raws:
+        if raw not in out:
+            top += 1
+            out[raw] = top
+            taken.add(top)
+    return out
+
+
+def set_numbering(cards: List[Dict[str, Any]]) -> Dict[str, int]:
+    global NUMBER_MAP
+    NUMBER_MAP = assign_collector_numbers(cards)
+    return NUMBER_MAP
+
+
+def collector_number_int(number: Any) -> int:
+    """Unique int collector number for a printed number (see NUMBER_MAP)."""
+    raw = str(number or "0").strip()
+    if raw in NUMBER_MAP:
+        return NUMBER_MAP[raw]
+    digits = re.sub(r"\D", "", raw)
+    return int(digits) if digits else 0
+
+
 def get_guid(card_id: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, f"spirit.ptcgo.{card_id}"))
 

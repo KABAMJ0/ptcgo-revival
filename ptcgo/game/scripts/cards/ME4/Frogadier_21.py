@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="a9781c1d-0f2e-5d64-b6e2-36699aeccdc8",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Summoning Jutsu",
             game_text="Search your deck for up to 3 Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, count=3, minimum=0, reveal=True),
         ),
         Attack(
             title="Aqua Edge",

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import no_resistance_for_turn
 
 card = ItemCardDef(
     guid="8e7c9327-face-5c1f-9331-1083aa0b9a10",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=101,
     set_code="NEO4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=no_resistance_for_turn()
 )

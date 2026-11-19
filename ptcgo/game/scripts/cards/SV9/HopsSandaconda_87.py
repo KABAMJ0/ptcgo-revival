@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, spread_damage
 
 card = PokemonCardDef(
     guid="2eeb284e-6b27-533d-8ea1-b55e6ceeaef8",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Break Ground",
             game_text="This attack also does 20 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=140,
-            effect=unimplemented,
+            effect=spread_damage(20, side="mine", also_base=True),
         ),
     ],
 )

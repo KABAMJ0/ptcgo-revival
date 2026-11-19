@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.support_common import gust_then
+
+
+async def _alluring_dance_confuse(ctx, new_active):
+    await ctx.apply_special_condition(new_active, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="f2c11361-ca14-5028-b624-4d9259aa460a",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
             title="Side Eye",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. The new Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=gust_then(_alluring_dance_confuse),
         ),
         Attack(
             title="Jumping Side Kick",

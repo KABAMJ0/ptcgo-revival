@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_early_passive
 
 card = StadiumCardDef(
     guid="11557729-facd-5035-bef8-66fb9012df31",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=104,
     set_code="PL1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=evolve_early_passive()
 )

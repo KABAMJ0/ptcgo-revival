@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_ex_or_v(pokemon) -> bool:
+    if pokemon is None:
+        return False
+    subtypes = [name.lower() for name in subtypes_for(pokemon.archetype_id)]
+    return "ex" in subtypes or "v" in subtypes
+
 
 card = PokemonCardDef(
     guid="1cafa27a-fa9b-58fa-ae08-fefcfc22d07c",
@@ -18,19 +27,21 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.FIRE,
     resistance_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Doublade.Name",
-    family_id=681,
+    family_id=679,
     abilities=[
         Ability(
             title="Mysterious Shield",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon ex and Pok\u00e9mon V.",
-            effect=unimplemented,
+            passive=prevent_damage_when(
+                lambda calc, carrier: calc.target is carrier
+                and _is_ex_or_v(calc.attacker)),
         ),
         Attack(
             title="Hard Bashing",
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
     ],
 )

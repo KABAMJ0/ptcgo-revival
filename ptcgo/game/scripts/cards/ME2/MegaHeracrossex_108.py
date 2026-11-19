@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="397cf8c1-78f3-5d53-98a0-8ce471278c65",
@@ -24,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=True),
         ),
         Attack(
             title="Mountain Ramming",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.GRASS: 3},
             damage=170,
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
     ],
 )

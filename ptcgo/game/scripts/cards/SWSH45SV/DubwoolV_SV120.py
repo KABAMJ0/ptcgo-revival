@@ -1,6 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import damage_per, count_prizes_taken
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.attacks_common import damage_per, count_prizes_taken
 card = PokemonCardDef(
     guid="dd7b6ef0-badc-5056-a187-19fea3d47c52",
     key="SWSH45SV",
@@ -21,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Soft Wool",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Revenge Blast",
@@ -29,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken("opponent"), 30, base=120),
         ),
     ],
 )

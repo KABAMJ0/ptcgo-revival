@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="68ef513d-1221-5ced-919a-d44850e23ada",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Return Charge",
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon. If you do, attach up to 2 Basic Lightning Energy cards from your hand to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "lightning"), 40),
         ),
         Attack(
             title="Thunder Lance",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.LIGHTNING), per=40, base=40),
         ),
     ],
 )

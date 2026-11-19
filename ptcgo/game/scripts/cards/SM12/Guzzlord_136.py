@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
+
+
+async def _extra_prize(ctx):
+    """The opponent takes 1 more Prize card(s) if this attack Knocks Out their Active."""
+    ctx.add_extra_prize_watcher(prizes=1)
+    await ctx.deal_damage()
+
 
 card = PokemonCardDef(
     guid="41b09ef6-6017-5bc3-a904-82be31337a0d",
@@ -23,14 +31,14 @@ card = PokemonCardDef(
             title="Mountain Munch",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Red Banquet",
             game_text="If your opponent's Pok\u00e9mon is Knocked Out by damage from this attack, take 1 more Prize card.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=_extra_prize,
         ),
     ],
 )

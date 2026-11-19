@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_each_from_deck
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="7dcb0f53-ac35-5ade-8acd-2ac3a5277296",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Exeggutor's Paradise",
             game_text="For each of your Benched Exeggcute, search your deck for an Alolan Exeggutor or Alolan Exeggutor-GX and put it onto that Exeggcute to evolve it. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=evolve_each_from_deck(target_pred=named("exeggcute"), predicate=named("alolan exeggutor")),
         ),
         Attack(
             title="Draco Meteor Barrage",

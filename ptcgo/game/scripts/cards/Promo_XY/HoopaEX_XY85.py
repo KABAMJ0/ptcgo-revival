@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.trainers import is_item_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="6576c9f8-d833-54b4-8089-47b7d06a74f9",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
             title="Hyperspace Ring",
             game_text="Search your deck for up to 2 Item cards, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_to_hand(predicate=is_item_card, count=2, minimum=0),
         ),
         Attack(
             title="Wonder Trick",
             game_text="Your opponent switches his or her Active Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=100,
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
     ],
 )

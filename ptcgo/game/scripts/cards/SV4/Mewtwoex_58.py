@@ -21,6 +21,8 @@ async def _transfer_charge(ctx):
     )
     if picks:
         await distribute_energy(ctx, picks, ctx.my_pokemon_in_play())
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
 
 card = PokemonCardDef(
     guid="18482cb5-3963-55a2-bc80-308a537de733",
@@ -51,7 +53,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy('mine', energy_type=PokemonTypes.PSYCHIC), 30, base=10),
         ),
     ],
 )

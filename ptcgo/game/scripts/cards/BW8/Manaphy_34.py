@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.passives_common import on_ko_from_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _final_wish(ctx):
+    await search_to_hand(None, count=1, reveal=False)(ctx)
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
 
 card = PokemonCardDef(
     guid="7d90b453-bc4c-53a4-8d97-d84ddccc3a46",
@@ -21,13 +28,14 @@ card = PokemonCardDef(
         Ability(
             title="Final Wish",
             game_text="When this Pok\u00e9mon is Knocked Out by damage from an opponent's attack, search your deck for a card and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=on_ko_from_attack(_final_wish),
         ),
         Attack(
             title="Seafaring",
             game_text="Flip 3 coins. For each heads, attach a Water Energy card from your discard pile to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy('self', 'water'), 20),
         ),
     ],
 )

@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_choice
+
 
 card = PokemonCardDef(
     guid="efa066c2-52c0-5460-83c5-a4ccd257f956",
@@ -24,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_choice(heads=20, tails=10),
         ),
         Attack(
             title="Lava Burst",
@@ -32,7 +36,12 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 3},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mill_scaled_damage(
+                5, 20,
+                pred=lambda card: energy_provides_type(
+                    card, PokemonTypes.FIRE.value
+                ),
+            ),
         ),
     ],
 )

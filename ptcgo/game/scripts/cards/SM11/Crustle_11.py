@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_table
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
 
 card = PokemonCardDef(
     guid="47c291a1-ec38-56d4-9140-a83bfa52c0c3",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Shell Armor",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Fury Cutter",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage_table({1: 40, 2: 80, 3: 150}),
         ),
     ],
 )

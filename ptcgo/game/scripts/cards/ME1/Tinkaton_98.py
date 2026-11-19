@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=240,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=60),
         ),
     ],
 )

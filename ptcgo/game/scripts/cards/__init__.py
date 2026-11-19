@@ -109,6 +109,11 @@ class ScriptLoader:
                 logging.error("[Scripts] Failed to resolve card %s", error)
 
         invalid = self._resolve_legends(resolved) | self._resolve_vunions(resolved)
+        # Admin overrides (card_overrides table) land on resolved definitions before
+        # wording patterns bind, so an overridden effect is never re-bound.
+        from ptcgo.game.content import card_overrides
+        card_overrides.apply_at_load(
+            {ref: d for ref, d in resolved.items() if ref not in invalid})
         # Wording-driven effects bind here, once, after every definition is
         # resolved: card_effects imports this module indirectly, so the
         # resolver cannot be imported at module scope.
@@ -230,6 +235,17 @@ class ScriptLoader:
         model = PokemonCard if c_type == CardType.POKEMON else Card
         card = model(guid, key, attrs, archetype.get("display_name"),
                      archetype.get("searchable_by", []), getattr(card_def, "subtypes", []))
+        # A GUID is a card's identity, and the client crashes at login when it meets
+        # two archetypes with one identity ("An item with the same key has already
+        # been added"). This dict used to overwrite the first card silently, so a
+        # copy-pasted script shipped and hung the client at 63%. Refuse instead.
+        existing = self.cards_by_guid.get(guid)
+        if existing is not None:
+            clash = (f"{reference}: archetype GUID {guid} is already used by "
+                     f"{getattr(existing, 'display_name', '?')} ({existing.key})")
+            self.last_errors.append(clash)
+            logging.error("[Scripts] Duplicate archetype GUID %s", clash)
+            return
         self.cards.append(card)
         self.cards_by_guid[guid] = card
         self.cards_by_key[key] = card

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 
 card = PokemonCardDef(
     guid="8de205ce-7f69-5193-abb9-4747b4aed584",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
         Ability(
             title="Burning Road",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon was on the Bench and became your Active Pok\u00e9mon this turn, you may move any number of Fire Energy attached to your Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Scorching Breath",
             game_text="This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.FIRE: 3, PokemonTypes.COLORLESS: 1},
             damage=150,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

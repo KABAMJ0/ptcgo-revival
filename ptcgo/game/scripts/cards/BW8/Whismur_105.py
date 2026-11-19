@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_random_from_hand
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _flip_discard(ctx):
+    await ctx.deal_damage()
+    if any(await ctx.flip_coins(1, "Flip a coin")):
+        await discard_random_from_hand(ctx, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="e8a37dca-93f4-552d-875b-34f85303ee9a",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
             title="Shout",
             game_text="Flip a coin. If heads, discard a random card from your opponent's hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_flip_discard,
         ),
         Attack(
             title="Hyper Voice",

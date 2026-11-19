@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import heal_item
 
 card = SupporterCardDef(
     guid="6e0a8958-8017-596d-81de-c7752cf814c8",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=68,
     set_code="TwentiethAnn",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_item(amount=60, scope="choice", condition_cure=True)
 )

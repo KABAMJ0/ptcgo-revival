@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Feather Arrow",
             game_text="Once during your turn (before your attack), you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(
             title="Razor Leaf",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             title="Hollow Hunt-GX",
             game_text="Put 3 cards from your discard pile into your hand. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=3),
         ),
     ],
 )

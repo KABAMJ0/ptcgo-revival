@@ -88,7 +88,11 @@ class Player:
         if is_avatar:
             names = ["Modified", "Expanded", "Unlimited", "Legacy"]
         else:
-            names = valid_format_names(deck_copy)
+            # The client groups decks into its format tabs from this attribute and
+            # knows exactly five names. TrainerChallenge is ours, invented for the
+            # trainer challenge picker, which reads it through its own path — sending
+            # it here puts the deck in no category at all, and every tab reads 0.
+            names = [n for n in valid_format_names(deck_copy) if n != "TrainerChallenge"]
 
         # Recompute every time — formats.json may have changed since the deck was saved
         attributes[:] = [a for a in attributes if a.get("name") != AttrID.VALID_FORMATS.value]

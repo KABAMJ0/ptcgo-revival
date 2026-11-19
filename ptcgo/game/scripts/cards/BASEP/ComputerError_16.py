@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import ends_turn_after, each_may_draw_up_to
 
 card = ItemCardDef(
     guid="ced2852a-9882-5a57-bf3b-105836f051ee",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=16,
     set_code="BASEP",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=ends_turn_after(each_may_draw_up_to(5))
 )

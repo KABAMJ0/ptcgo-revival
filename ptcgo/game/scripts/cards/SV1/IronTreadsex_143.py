@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="7895636d-e8e6-51be-8a14-68b629c64969",
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             title="Triple Laser",
             game_text="This attack does 30 damage to 3 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any", count=3, apply_modifiers=False),
         ),
         Attack(
             title="Cybernetic Wheels",
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 3, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
     ],
 )

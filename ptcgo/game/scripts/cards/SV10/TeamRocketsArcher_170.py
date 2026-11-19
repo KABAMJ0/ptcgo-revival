@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import shuffle_both_then_draw, team_rocket_ko_last_turn
 
 card = SupporterCardDef(
     guid="0063e060-895d-5494-8243-1756cccc6df5",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=170,
     set_code="SV10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=shuffle_both_then_draw(5, 3), condition=team_rocket_ko_last_turn()
 )

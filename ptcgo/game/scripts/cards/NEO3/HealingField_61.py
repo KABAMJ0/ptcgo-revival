@@ -1,25 +1,20 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
-from ptcgo.game.data_utils import Ability, Activations
-from ptcgo.game.attributes import Rarities
-from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.attributes import Rarities, AttrID
+from ptcgo.game.card_effects.trainers import stadium_ability
 
 
-def active_is_damaged(board, player_id, stadium) -> bool:
-    active = board.active_pokemon(player_id)
-    if active is None:
-        return False
-    return (active.get_attribute(AttrID.HP, 0)
-            < getattr(active, "attribute_originals", {}).get(AttrID.HP.value, 999))
-
-async def healing_field(ctx):
-    """Flip a coin. If heads, remove 2 damage counters from your Active
-    Pokemon (1 if it only has 1)."""
-    results = await ctx.flip_coins(1, "Healing Field")
-    if not (results and all(results)):
-        return
+async def _healing_field(ctx):
+    """Once each turn: flip a coin; heads removes 2 damage counters from the
+    acting player's Active (1 if it only has 1)."""
     active = ctx.my_active()
-    if active is not None:
-        await ctx.heal(20, active)
+    if active is None:
+        return
+    damage = ctx.max_hp(active) - active.get_attribute(AttrID.HP, 0)
+    if damage <= 0:
+        return
+    if not (await ctx.flip_coins(1, title="Healing Field"))[0]:
+        return
+    await ctx.heal(min(2, damage // 10) * 10, active)
 
 
 card = StadiumCardDef(
@@ -32,10 +27,5 @@ card = StadiumCardDef(
     collector_number=61,
     set_code="NEO3",
     rarity=Rarities.Uncommon,
-    ability=Ability(
-        title="Healing Field",
-        activation=Activations.ONCE_PER_TURN,
-            condition=active_is_damaged,
-        effect=healing_field,
-    )
+    ability=stadium_ability("Healing Field", _healing_field),
 )

@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.attributes import AttrID
+
+
+async def magical_echo(ctx):
+    """Move all damage counters from 1 of your Benched Pokemon to the opponent's Active."""
+    damaged = [p for p in ctx.my_bench()
+               if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+    if not damaged or ctx.defender is None:
+        return
+    source = await ctx.choose_pokemon(
+        damaged, "Choose a Benched Pokémon to move all damage counters from")
+    if source is None:
+        return
+    await ctx.move_damage_counters(source, ctx.defender)
+
 
 card = PokemonCardDef(
     guid="e9f4efd7-ae96-5796-b74e-7d02767e9296",
@@ -22,14 +38,14 @@ card = PokemonCardDef(
             title="Tail Swap",
             game_text="Move all damage counters from 1 of your Benched Pok\u00e9mon to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2},
-            effect=unimplemented,
+            effect=magical_echo,
         ),
         Attack(
             title="Wondrous Shot",
             game_text="Discard an Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=170,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1),
         ),
     ],
 )

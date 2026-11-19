@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="d648bd00-b9bb-5228-9fda-15ccec5c289d",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon also does 30 damage to itself.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=300,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
     ],
 )

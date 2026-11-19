@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,14 +26,14 @@ card = PokemonCardDef(
         Ability(
             title="Gyro Unit",
             game_text="Your Basic Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="choice"),
         ),
         Attack(
             title="Turbo Drive",
             game_text="Attach a basic Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target=lambda p: not is_in_active_spot(p)),
         ),
         Attack(
             title="Rebel-GX",
@@ -37,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 50),
         ),
     ],
 )

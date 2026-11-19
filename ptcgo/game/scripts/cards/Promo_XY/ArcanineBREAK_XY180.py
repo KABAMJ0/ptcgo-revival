@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+
+def _is_basic_energy(card) -> bool:
+    return (is_energy_card(card)
+            and not card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
+
+def _is_benched(pokemon) -> bool:
+    return not is_in_active_spot(pokemon)
+
 
 card = PokemonCardDef(
     guid="75a5d6de-2178-5225-b76a-3ec79a0b0272",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             game_text="Attach 2 basic Energy cards from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=attach_from_discard(_is_basic_energy, count=2, target=_is_benched),
         ),
     ],
 )

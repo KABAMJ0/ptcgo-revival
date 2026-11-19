@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Instruct",
             game_text="Once during your turn (before your attack), you may draw cards until you have 3 cards in your hand.",
-            effect=unimplemented,
+            effect=draw_until_effect(3),
         ),
         Attack(
             title="Psychic",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 20, base=60),
         ),
     ],
 )

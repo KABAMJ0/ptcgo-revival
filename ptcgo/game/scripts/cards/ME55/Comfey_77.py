@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="e3c04c05-175a-5f00-a656-f3c371febeba",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Comforting Aroma",
             game_text="Heal 80 damage from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(80, scope="bench_choice"),
         ),
         Attack(
             title="Magical Shot",

@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _v_attack_on_carrier(calc, carrier) -> bool:
+    return (
+        calc.target is carrier
+        and calc.attacker is not None
+        and is_pokemon_v(calc.attacker.archetype_id)
+    )
+
 
 card = PokemonCardDef(
     guid="05db79be-6ef2-5777-bae2-12f896760dca",
@@ -21,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Miracle Body",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon V.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_v_attack_on_carrier),
         ),
         Attack(
             title="Rout",
@@ -29,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 20, base=10),
         ),
     ],
 )

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, bonus_if, has_damage
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2},
             damage=40,
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Raging Floe",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("self"), 80),
         ),
     ],
 )

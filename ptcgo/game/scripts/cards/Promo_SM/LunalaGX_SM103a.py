@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -30,14 +31,14 @@ card = PokemonCardDef(
             game_text="Discard 2 Psychic Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 2},
             damage=200,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2, energy_type=PokemonTypes.PSYCHIC),
         ),
         Attack(
             title="Requiem-GX",
             game_text="(You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3, PokemonTypes.COLORLESS: 1},
             damage=250,
-            effect=unimplemented,
+            effect=None,
         ),
     ],
 )

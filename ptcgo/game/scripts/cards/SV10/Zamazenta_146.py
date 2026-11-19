@@ -1,5 +1,31 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import RetaliateCountersPassive, carrier_pokemon
+
+
+class DamageTakenCounters(RetaliateCountersPassive):
+    """Counters equal to the damage taken, not a fixed count."""
+
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.amount >= 10):
+            return None
+        if target is not carrier_pokemon(carrier):
+            return None
+        attacker = calc.attacker
+        if attacker is not None:
+            await ctx.deal_damage(calc.amount, target=attacker,
+                                  apply_modifiers=False, as_counters=True)
+        return None
+
+
+async def strong_bash(ctx):
+    """70 damage; during the opponent's next turn, whoever damages this
+    Pokemon takes counters equal to the damage it dealt."""
+    await ctx.deal_damage()
+    if ctx.attacker is not None:
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, DamageTakenCounters())
+
 
 card = PokemonCardDef(
     guid="4ed46829-bd6e-5748-bc43-9ab50b687be9",
@@ -24,7 +50,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, if this Pok\u00e9mon is damaged by an attack (even if this Pok\u00e9mon is Knocked Out), put damage counters on the Attacking Pok\u00e9mon equal to the damage done to this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=strong_bash,
         ),
     ],
 )

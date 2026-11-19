@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import evolution_lock_passive
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 
 card = PokemonCardDef(
     guid="c46546cf-1e8c-52e8-a10d-53b49941a0ec",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Ancient Power",
             game_text="Each play can't play any Pok\u00e9mon from his or her hand to evolve his or her Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=evolution_lock_passive(),
         ),
         Attack(
             title="Rock Slide",
             game_text="Does 10 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool='bench', count=2, apply_modifiers=False),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage, bonus_if, self_has_energy_of_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Petal Blizzard",
             game_text="This attack does 10 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent"),
         ),
         Attack(
             title="Sol Slice",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(self_has_energy_of_type(PokemonTypes.FIRE), 50),
         ),
     ],
 )

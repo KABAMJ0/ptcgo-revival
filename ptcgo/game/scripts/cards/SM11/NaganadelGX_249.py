@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="1b010bea-0da1-59e0-b2d1-34afdbe8a255",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Venom Shot",
             game_text="Discard 2 Energy from this Pok\u00e9mon. This attack does 170 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=snipe_attack(170, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Injection-GX",

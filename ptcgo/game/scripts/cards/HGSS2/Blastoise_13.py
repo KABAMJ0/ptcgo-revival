@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="df2c2524-c7c8-5335-a9fa-a922c596f5f0",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Hydro Launcher",
             game_text="Return 2 Water Energy attached to Blastoise to your hand. Choose 1 of your opponent's Pok\u00e9mon. This attack does 100 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(100, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def follow_the_scent(ctx):
+    heads = await ctx.flip_coins(3, "Follow the Scent")
+    count = sum(1 for h in heads if h)
+    discard = ctx.discard_pile()
+    if count <= 0 or not discard:
+        return
+    picks = await ctx.choose_cards(
+        discard, count, minimum=1,
+        prompt=f"Choose up to {count} cards from your discard pile to put into your hand.",
+    )
+    if picks:
+        await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="3c743c0f-90d9-5087-adee-2a13a99b04ca",
@@ -23,14 +39,14 @@ card = PokemonCardDef(
             title="Finest Selection",
             game_text="Flip 3 coins. Put a number of cards up to the number of heads from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=follow_the_scent,
         ),
         Attack(
             title="Perfume Press",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
     ],
 )

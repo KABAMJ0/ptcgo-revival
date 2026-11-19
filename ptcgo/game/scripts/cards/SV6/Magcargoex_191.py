@@ -1,5 +1,21 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+async def ground_burn(ctx):
+    """Discard the top card of each player's deck; 140 more for each Energy
+    discarded this way."""
+    discarded = []
+    for pid in (ctx.player_id, ctx.opponent_id):
+        top = ctx.deck_top(1, pid)
+        if top:
+            discarded.extend(top)
+    if discarded:
+        await ctx.discard_cards(discarded)
+    energies = sum(1 for c in discarded if is_energy_card(c))
+    await ctx.deal_damage(140 + 140 * energies)
+
 
 card = PokemonCardDef(
     guid="267212fc-4912-5c58-8808-7a23d877e421",
@@ -24,7 +40,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Ground Burn",
@@ -32,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=140,
             damage_operator="+",
-            effect=unimplemented,
+            effect=ground_burn,
         ),
     ],
 )

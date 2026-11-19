@@ -1,5 +1,8 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="8325a48b-1861-5453-99f8-3325922e0454",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Bind Eye",
             game_text="As long as Gliscor is your Active Pok\u00e9mon, your opponent can't remove any Special Conditions by evolving or devolving his or her Pok\u00e9mon. (This also includes putting a Pok\u00e9mon Level-Up card onto that Pok\u00e9mon.)",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Cutting Turn",
@@ -36,7 +39,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
     ],
 )

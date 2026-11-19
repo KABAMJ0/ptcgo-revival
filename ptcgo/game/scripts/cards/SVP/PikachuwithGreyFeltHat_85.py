@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="7cb7de4f-a29b-50b2-ab8f-fb82fe540351",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Pika-Portrait",
             game_text="Search your deck for a Pikachu and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("pikachu"), count=1),
         ),
     ],
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+
 
 card = PokemonCardDef(
     guid="9582869f-7c4b-5c94-9a06-aba5afdd7cdb",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Call for Goons",
             game_text="Search your deck for up to 3 Basic Pok\u00e9mon and put them onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(count=3),
         ),
         Attack(
             title="Dragon Pulse",
             game_text="Discard the top card of your deck.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=bare_mill(1, opponent=False),
         ),
     ],
 )

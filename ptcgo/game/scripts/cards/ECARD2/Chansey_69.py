@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="47ed61ec-c3a3-51fa-9ae8-b8e678693827",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Chansey does 40 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(40),
         ),
     ],
 )

@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -31,7 +33,12 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mill_scaled_damage(
+                5, 20,
+                pred=lambda card: energy_provides_type(
+                    card, PokemonTypes.FIRE.value
+                ),
+            ),
         ),
     ],
 )

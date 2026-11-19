@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
             title="Limitation",
             game_text="Your opponent can't play any Supporter cards from their hand during their next turn.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=lock_opponent_plays("supporter"),
         ),
         Attack(
             title="Scratch",

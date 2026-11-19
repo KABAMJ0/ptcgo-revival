@@ -9,6 +9,9 @@ from ptcgo.database.models.economy import (
 from ptcgo.database.models.tournaments import (
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim
 )
+from ptcgo.database.models.trainer_challenge import TrainerChallengeProgress, LEAGUE_ROW
+from ptcgo.database.models.tutorial import TutorialProgress
+from ptcgo.database.models.admin import CardOverride, CardBan, AdminAudit
 
 for table in Base.metadata.tables.values():
     table.dialect_options["mysql"]["engine"] = "InnoDB"
@@ -20,5 +23,7 @@ __all__ = [
     "RedemptionCode", "CodeRedemptionEntry", "ShopItem", "TradeOffer", "DynamicPage",
     "VersusProgress", "DailyLoginProgress",
     "QuestAccount", "DailyQuest", "QuestMatchCredit",
-    "AsyncTournament", "TournamentEntry", "TournamentLeaderboardClaim"
+    "AsyncTournament", "TournamentEntry", "TournamentLeaderboardClaim",
+    "TrainerChallengeProgress", "LEAGUE_ROW", "TutorialProgress",
+    "CardOverride", "CardBan", "AdminAudit"
 ]

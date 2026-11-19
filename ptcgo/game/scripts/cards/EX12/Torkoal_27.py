@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="41668f34-930f-5d6d-8c71-f78eeec6a977",
@@ -22,7 +24,11 @@ card = PokemonCardDef(
             title="Cry for Help",
             game_text="Search your deck for a Fire Pok\u00e9mon (excluding Pok\u00e9mon-ex), show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "fire"),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Fireworks",

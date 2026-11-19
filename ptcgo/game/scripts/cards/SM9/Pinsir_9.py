@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+
+
+async def _timber_cleave(ctx):
+    """Flip 2 coins. If both are heads, the opponent's Active is Knocked Out."""
+    coins = await ctx.flip_coins(2, "Timber Cleave")
+    if all(coins):
+        await ctx.knock_out(ctx.defender)
+
 
 card = PokemonCardDef(
     guid="76e06626-2eb6-56dd-980d-2ad0ad400e26",
@@ -23,13 +32,13 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Guillotine Hug",
             game_text="Flip 2 coins. If both of them are heads, your opponent's Active Pok\u00e9mon is Knocked Out.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_timber_cleave,
         ),
     ],
 )

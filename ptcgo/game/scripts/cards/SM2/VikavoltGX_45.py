@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, spread_damage
 
 card = PokemonCardDef(
     guid="91af7bba-1441-5a27-a886-9f432890be7b",
@@ -25,20 +27,20 @@ card = PokemonCardDef(
             game_text="Attach an Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=50,
-            effect=unimplemented,
+            effect=attach_from_discard(count=1, target="self"),
         ),
         Attack(
             title="Super Zap Cannon",
             game_text="Discard 2 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2),
         ),
         Attack(
             title="Gigatron-GX",
             game_text="This attack does 60 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=spread_damage(60, side="opponent"),
         ),
     ],
 )

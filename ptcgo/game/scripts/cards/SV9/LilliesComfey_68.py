@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.trainers import all_of, named
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
 
 card = PokemonCardDef(
     guid="a11e3c4b-adc2-5ada-85bb-dfe8cd896eee",
@@ -22,14 +27,14 @@ card = PokemonCardDef(
             title="Inviting Flowers",
             game_text="You may search your deck for any number of Basic Lillie's Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(all_of(is_basic_pokemon, named("lillie's")), count=5),
         ),
         Attack(
             title="Fade Out",
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=remove_self_from_play('hand'),
         ),
     ],
 )

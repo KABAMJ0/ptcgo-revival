@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="2a9460ac-8f57-5f5a-9915-cefd5f61f9c1",
     key="SV8PT5",
@@ -16,6 +19,7 @@ card = PokemonCardDef(
     stage=PokemonStage.BASIC,
     retreat_cost=2,
     weakness_type=PokemonTypes.GRASS,
+    family_id=1005,
     abilities=[
         Attack(
             title="Vengeance Fletching",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", pokemon_of_subtype("Ancient")), 10, base=70),
         ),
         Attack(
             title="Speed Wing",
