@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="70089817-b734-56b9-a2fb-e08041e862e5",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard 2 Fire Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2, energy_type=PokemonTypes.FIRE),
         ),
         Attack(
             title="Nitro Tank-GX",

@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+def _both_active_energy(ctx):
+    return (count_energy("self")(ctx) + count_energy("defender")(ctx))
+
 
 card = PokemonCardDef(
     guid="50eba2f7-5da2-5216-96c1-f9374ceba02c",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_both_active_energy, 30, base=30),
         ),
     ],
 )
