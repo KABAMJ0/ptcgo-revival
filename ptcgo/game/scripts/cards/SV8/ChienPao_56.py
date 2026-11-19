@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Snow Sink",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard a Stadium in play.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Icicle Loop",
