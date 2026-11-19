@@ -1,7 +1,22 @@
 from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.card_effects.trainers import team_aqua_target
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _power_saver_allows(board, player_id, pokemon) -> bool:
+    """Power Saver: with 4 or fewer Team Aqua Pokemon in play this Pokemon
+    can't attack, so every attack is withheld from the offer list.
+
+    An ability cannot carry this guard: `Passive.blocks_attack(pokemon,
+    carrier)` is read without the board, so the count is only reachable from
+    an attack's offer-time `condition(board, player_id, pokemon)`."""
+    in_play = sum(1 for pid in board.player_ids
+                  for active in board.pokemon_in_play(pid)
+                  if team_aqua_target(active))
+    return in_play > 4
+
 
 card = PokemonCardDef(
     guid="723cda7f-48c1-5abe-a843-987110011893",
@@ -31,6 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
+            condition=_power_saver_allows,
             effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20, base=80),
         ),
     ],
