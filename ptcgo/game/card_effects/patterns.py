@@ -14794,7 +14794,29 @@ def _bonus_from_phrase(m, ability):
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
 
-def _extra_energy_tail(m, ability):
+def _extra_energy_prize_instead(m, ability, deal_damage: bool = True):
+    """"If your opponent's Pokemon is Knocked Out by damage from this attack, take
+    N more Prize card(s). If this Pokemon has at least M extra Energy attached ...,
+    take K more Prize cards instead." The watcher is registered with the number the
+    gate selects at attack time; the KO itself raises the take later."""
+    base_prizes = int(m.group(1))
+    cond = _extra_energy_attached(int(m.group(2)), m.group("type"))
+    gated_prizes = int(m.group(4))
+
+    async def effect(ctx):
+        if deal_damage:
+            await ctx.deal_damage()
+        source = ctx.attacker
+        if source is None:
+            return
+        prizes = gated_prizes if cond(ctx) else base_prizes
+        ctx.add_extra_prize_watcher(
+            attacker_predicate=lambda pokemon: pokemon.entity_id == source.entity_id,
+            prizes=prizes)
+    return effect
+
+
+def _extra_energy_tail(m, ability, deal_damage: bool = True):
     """The gate, then a payload that is not a flat damage bonus: "if this Pokemon
     has at least N extra <type> Energy attached (in addition to this attack's
     cost), <tail>". Declines an unknown tail so the card stays a stub rather than
@@ -14809,21 +14831,24 @@ def _extra_energy_tail(m, ability):
         count = int(mo.group(1))
 
         async def take_prizes(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx):
                 await ctx.take_prizes(count)
         return take_prizes
 
     if re.fullmatch(r"discard all energy from your opponent's active pokemon", tail):
         async def discard_all_energy(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx) and ctx.defender is not None:
                 await ctx.discard_energy_from(ctx.defender, 99)
         return discard_all_energy
 
     if re.fullmatch(r"heal all damage from all of your pokemon", tail):
         async def heal_everything(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             for pokemon in ctx.my_pokemon_in_play():
@@ -14837,7 +14862,8 @@ def _extra_energy_tail(m, ability):
         target = int(mo.group(1))
 
         async def draw_until_then(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx):
                 await ctx.draw_until(target)
         return draw_until_then
@@ -14847,7 +14873,8 @@ def _extra_energy_tail(m, ability):
         count = int(mo.group(1))
 
         async def mill_top(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx):
                 milled = ctx.deck_top(count, player_id=ctx.opponent_id)
                 if milled:
@@ -14856,7 +14883,8 @@ def _extra_energy_tail(m, ability):
 
     if re.fullmatch(r"shuffle all cards from your discard pile into your deck", tail):
         async def refill_deck(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx):
                 pile = list(ctx.discard_pile())
                 if pile:
@@ -14866,7 +14894,8 @@ def _extra_energy_tail(m, ability):
     if re.fullmatch(r"your opponent shuffles all energy from all of their pokemon "
                     r"into their deck", tail):
         async def opponent_shuffles_energies(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             pool = [energy for pokemon in ctx.opponent_pokemon_in_play()
@@ -14878,7 +14907,8 @@ def _extra_energy_tail(m, ability):
     if re.fullmatch(r"your opponent shuffles all of their benched pokemon and all "
                     r"cards attached to them into their deck", tail):
         async def opponent_shuffles_bench(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             bench = list(ctx.opponent_bench())
@@ -14896,7 +14926,8 @@ def _extra_energy_tail(m, ability):
         target = int(mo.group(1))
 
         async def both_draw_until(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if cond(ctx):
                 await ctx.draw_until(target)
                 await ctx.draw_until(target, ctx.opponent_id)
@@ -14908,7 +14939,8 @@ def _extra_energy_tail(m, ability):
         amount = int(mo.group(1))
 
         async def spread_bench(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             for pokemon in ctx.opponent_bench():
@@ -14921,7 +14953,8 @@ def _extra_energy_tail(m, ability):
         amount = int(mo.group(1))
 
         async def snipe_bench(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             bench = list(ctx.opponent_bench())
@@ -14935,7 +14968,8 @@ def _extra_energy_tail(m, ability):
 
     if re.fullmatch(r"your opponent shuffles their hand into their deck", tail):
         async def opponent_shuffles_hand(ctx):
-            await ctx.deal_damage()
+            if deal_damage:
+                await ctx.deal_damage()
             if not cond(ctx):
                 return
             hand = list(ctx.hand(ctx.opponent_id))
@@ -15585,6 +15619,14 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"remaining than your opponent, this attack does (\d+) more "
                 r"damage\."), _bonus_prize_comparison),
     # -- batch 8: remaining generic riders ---------------------------------
+    ("bonus.extra-energy-prize-instead",
+     re.compile(r"if your opponent's pok[eé]mon is knocked out by damage from "
+                r"this attack, take (\d+) more prize cards?\. if this pok[eé]mon "
+                r"has at least (\d+) extra (?:(?P<type>" + _TYPE_WORDS +
+                r") )?energy attached(?: to it)?(?: \(in addition to this "
+                r"attack's cost\))?, take (\d+) more prize cards? instead\.?",
+                re.IGNORECASE),
+     _extra_energy_prize_instead),
     ("bonus.extra-energy-tail",
      re.compile(r"if this pokemon has at least (\d+) extra (?:(?P<type>"
                 + _TYPE_WORDS + r") )?energy attached(?: to it)?"
