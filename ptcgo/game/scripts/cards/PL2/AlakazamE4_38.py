@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.card_effects.passives_common import composed
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate, self_energy_discard_attack, flip_discard_opponent_energy
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -26,14 +27,14 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard a Psychic Energy attached to Alakazam E4 and remove 4 damage counters from Alakazam E4.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=composed(self_energy_discard_attack(count=1, energy_type=PokemonTypes.PSYCHIC, then_damage=0), heal_targets(40, "active")),
         ),
         Attack(
             title="Mysterious Beam",
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(then=discard_opponent_energy_attack(1, damage=0))),
+            effect=flip_discard_opponent_energy(damage=30),
         ),
     ],
 )
