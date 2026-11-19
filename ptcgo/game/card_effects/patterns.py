@@ -14821,6 +14821,31 @@ def _ee_compound_prefix(text: str):
     (the composition deals the printed damage once, so this must not)."""
     low = text.strip().rstrip(".").lower()
 
+    if re.fullmatch(r"heal all damage from this pok[eé]mon", low):
+        async def heal_self(ctx):
+            target = ctx.attacker
+            if target is None:
+                return
+            missing = ctx.max_hp(target) - target.get_attribute(AttrID.HP, 0)
+            if missing > 0:
+                await ctx.heal(missing, target)
+        return heal_self
+
+    if re.fullmatch(r"your opponent's active pok[eé]mon is now paralyzed", low):
+        async def paralyze(ctx):
+            if ctx.defender is not None:
+                await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
+        return paralyze
+
+    if re.fullmatch(r"your opponent's active pok[eé]mon is now paralyzed and poisoned",
+                    low):
+        async def paralyze_poison(ctx):
+            if ctx.defender is None:
+                return
+            await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
+            await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+        return paralyze_poison
+
     if re.fullmatch(r"attach 5 basic energy cards from your discard pile to your "
                     r"pok[eé]mon in any way you like", low):
         async def attach_five(ctx):
@@ -14848,6 +14873,34 @@ def _ee_compound_tail(text: str, cond):
             await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
             await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
         return burn_and_confuse
+
+    mo = re.fullmatch(r"this attack does (\d+) damage to each of your opponent's "
+                      r"benched pok[eé]mon", low)
+    if mo:
+        amount = int(mo.group(1))
+
+        async def spread_bench(ctx):
+            if not cond(ctx):
+                return
+            for pokemon in ctx.opponent_bench():
+                await ctx.deal_damage(amount, target=pokemon, apply_modifiers=False)
+        return spread_bench
+
+    if re.fullmatch(r"shuffle all cards from your discard pile into your deck", low):
+        async def refill_deck(ctx):
+            if not cond(ctx):
+                return
+            pile = list(ctx.discard_pile())
+            if pile:
+                await ctx.shuffle_into_deck(pile, ctx.player_id)
+        return refill_deck
+
+    if re.fullmatch(r"discard all energy from your opponent's active pok[eé]mon", low):
+        async def discard_their_energy(ctx):
+            if not cond(ctx) or ctx.defender is None:
+                return
+            await ctx.discard_energy_from(ctx.defender, 99)
+        return discard_their_energy
 
     if re.fullmatch(r"prevent all effects of attacks, including damage, done to it "
                     r"during your opponent's next turn", low):
