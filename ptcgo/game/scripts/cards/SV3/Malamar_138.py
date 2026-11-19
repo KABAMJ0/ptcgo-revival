@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.content.definitions import Activations
+
+
+async def _psychic_insight(ctx):
+    theirs = ctx.deck_top(1, ctx.opponent_id)
+    if their_top := theirs:
+        await ctx.reveal_cards(their_top, to_player=ctx.player_id)
+    mine = ctx.deck_top(1)
+    if mine:
+        await ctx.reveal_cards(mine, to_player=ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="4ab4ae2d-2051-5e38-8c38-1b866667b27a",
@@ -23,7 +34,8 @@ card = PokemonCardDef(
         Ability(
             title="Psychic Insight",
             game_text="Once during your turn, you may look at the top card of your opponent's deck. If you do, look at the top card of your deck.",
-            effect=unimplemented,
+            effect=_psychic_insight,
+            activation=Activations.ONCE_PER_TURN,
         ),
         Attack(
             title="Hypnotic Ray",

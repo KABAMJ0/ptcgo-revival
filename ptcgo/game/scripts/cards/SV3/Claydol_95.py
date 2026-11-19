@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import AttrID
+
+
+async def _kaboom_doll(ctx):
+    target = ctx.opponent_active()
+    if target is None:
+        return
+    counters = max(0, (target.get_attribute(AttrID.HP, 0) - 10) // 10)
+    if counters <= 0:
+        return
+    await ctx.place_damage_counters(counters, [target])
+    await ctx.deal_damage(120, target=ctx.source, apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="80e1630f-2a99-529b-b71d-59d2f8ac71de",
@@ -25,7 +38,7 @@ card = PokemonCardDef(
             title="Kaboom Doll",
             game_text="Put damage counters on your opponent's Active Pok\u00e9mon until its remaining HP is 10. If you placed any damage counters in this way, this attack also does 120 damage to this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_kaboom_doll,
         ),
         Attack(
             title="Mind Bend",
