@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic, attacker_is_evolution
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
 
 card = PokemonCardDef(
     guid="4bbb755c-271a-59fa-92df-89a32b86a845",
@@ -22,14 +25,15 @@ card = PokemonCardDef(
         Ability(
             title="Untamed Shout",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may put 3 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
         Attack(
             title="Obstruct",
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Basic Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_basic()),
         ),
     ],
 )

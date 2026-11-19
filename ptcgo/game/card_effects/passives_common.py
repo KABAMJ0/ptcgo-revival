@@ -36,9 +36,12 @@ from ptcgo.game.session.passives import (
 # ----------------------------------------------------------------------
 
 def _protects_pred(protects) -> Callable[[Any, Any], bool]:
-    """Resolves the 'carrier' | 'team' | callable(target, carrier) tri-form."""
+    """Resolves the 'carrier' | 'team' | 'each' | callable(target, carrier)
+    tri-form; 'each' covers every Pokemon on both sides (Legendary Trench)."""
     if callable(protects):
         return protects
+    if protects == "each":
+        return lambda target, carrier: True
     if protects == "team":
         return lambda target, carrier: (
             target.owning_player_id == carrier.owning_player_id
@@ -68,6 +71,13 @@ def unafflicted(board, player_id, pokemon) -> bool:
     """Board-level Ability.condition: the Pokemon carries no Special Condition
     ("This power can't be used if <name> is affected by a Special Condition")."""
     return not (pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
+
+def empty_hand(board, player_id, pokemon) -> bool:
+    """Board-level Ability.condition: the player has no cards in hand ("you
+    can't use this power if you have any cards in your hand")."""
+    hand = board.find_player_area(player_id, "hand")
+    return hand is not None and not hand.children
 
 
 _PLAY_KIND_TESTS = {
@@ -109,11 +119,31 @@ class PlayLockPassive(Passive):
             return False
         return True
 
-    def blocks_trainer_play(self, card, player_id, carrier) -> bool:
-        return self._locks(player_id, card, carrier, None)
+    def blocks_trainer_play(self, card, player_id, carrier, board=None) -> bool:
+        return self._locks(player_id, card, carrier, board)
 
     def blocks_play(self, player_id, card, carrier, board=None) -> bool:
         return self._locks(player_id, card, carrier, board)
+
+
+def fewer_pokemon_in_play(board, player_id, carrier) -> bool:
+    """Condition for `play_lock_passive`: the carrier's owner has fewer Pokemon
+    in play than the opponent (Omastar's Fossil Bind).
+
+    `player_id` is the player the lock would stop, so when the carrier carries
+    no owner id the locked player is the one who is not the owner."""
+    if board is None:
+        return False
+    owner = carrier.owning_player_id
+    ids = list(getattr(board, "player_ids", None) or [])
+    if owner is not None:
+        opponent = next((pid for pid in ids if pid != owner), None)
+        mine = owner
+    else:
+        opponent, mine = player_id, next((pid for pid in ids if pid != player_id), None)
+    if mine is None or opponent is None:
+        return False
+    return len(board.pokemon_in_play(mine)) < len(board.pokemon_in_play(opponent))
 
 
 def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
@@ -205,6 +235,25 @@ class TeamDamageBoostPassive(Passive):
                 return
             calc.applied_once.add(self.once_key)
         calc.amount += self.amount
+
+
+class ReducesOwnAttacksPassive(Passive):
+    """The carrier's own attacks do N less ("during your opponent's next turn,
+    any damage done by attacks from the Defending Pokemon is reduced by N")."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if calc.attacker is not carrier_pokemon(carrier):
+            return
+        calc.amount = max(0, calc.amount - self.amount)
+
+
+def weakens_own_attacks_passive(amount: int) -> Passive:
+    return ReducesOwnAttacksPassive(amount)
 
 
 def team_damage_boost_passive(amount, attacker_pred=None, target_pred=None,
@@ -1120,30 +1169,184 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+def shield_source_next_turn(reduce=None, prevent=False, effects_too=False,
+                            target="self", then=None):
+    """"During your opponent's next turn, prevent all damage done to this
+    Pokemon by attacks" from an ABILITY or a Trainer rather than an attack:
+    `protect_next_turn` is the attack twin and deals the printed damage first,
+    which an ability must not. target: "self" (the source Pokemon) or a
+    PokemonEntity/callable the caller already chose. `then(ctx, shielded)`."""
+    async def effect(ctx):
+        source = ctx.source
+        if callable(target):
+            picked = target(ctx)
+        elif target == "self":
+            picked = source
+        else:
+            picked = target
+        shielded = await apply_protection(
+            ctx, target=picked, reduce=reduce, prevent=prevent,
+            effects_too=effects_too)
+        if then is not None:
+            await then(ctx, shielded)
+    return effect
+
+
 class HealAmountPassive(Passive):
     """Rewrites heals done to the carrier (or its side): "whenever you heal a
-    Pokemon, heal 20 more" / a flat "heals 30 damage instead of 20"."""
+    Pokemon, heal 20 more" / a flat "heals 30 damage instead of 20" / a
+    doubling ("double the amount of damage healed")."""
 
-    def __init__(self, bonus=0, amount=None, protects="carrier", minimum=0):
+    def __init__(self, bonus=0, amount=None, protects="carrier", minimum=0,
+                 multiply=1):
         self.bonus = bonus
         self.amount = amount
         self.protects = _protects_pred(protects)
         self.minimum = minimum
+        self.multiply = multiply
 
     def modify_heal_amount(self, pokemon, carrier, amount):
         if not self.protects(pokemon, carrier):
             return amount
         if self.minimum and amount < self.minimum:
             return amount
-        return self.amount if self.amount is not None else amount + self.bonus
+        if self.amount is not None:
+            return self.amount
+        return amount * self.multiply + self.bonus
 
 
 def heal_multiplier(bonus: int = 0, amount: Optional[int] = None,
-                    protects="team", minimum: int = 0) -> Passive:
+                    protects="team", minimum: int = 0,
+                    multiply: int = 1) -> Passive:
     """`bonus` adds to every heal ("heal 20 more"); `amount` replaces the heal
-    outright ("heals 30 damage instead"), gated by `minimum` when given."""
+    outright ("heals 30 damage instead"), gated by `minimum` when given;
+    `multiply=2` doubles it (Legendary Trench)."""
     return HealAmountPassive(bonus=bonus, amount=amount, protects=protects,
-                             minimum=minimum)
+                             minimum=minimum, multiply=multiply)
+
+
+class EnergyReturnPassive(Passive):
+    """Ecogym: Energy discarded from a Pokemon goes to its owner's hand instead
+    of the discard pile ("another player's non-Colorless Energy")."""
+
+    def __init__(self, other_player_only=True, non_colorless=True):
+        self.other_player_only = other_player_only
+        self.non_colorless = non_colorless
+
+    def energy_discard_destination(self, energy, pokemon, discarder_id, carrier):
+        if pokemon is not None and self.other_player_only \
+                and pokemon.owning_player_id == discarder_id:
+            return None
+        if self.non_colorless and energy_provides_type(
+                energy, PokemonTypes.COLORLESS.value):
+            return None
+        return "hand"
+
+
+def energy_return_on_discard_passive(other_player_only: bool = True,
+                                    non_colorless: bool = True) -> Passive:
+    return EnergyReturnPassive(other_player_only, non_colorless)
+
+
+class NoDiscardReturnPassive(Passive):
+    """Pokemon Tower: cards in a discard pile never return to a hand."""
+
+    def discard_to_hand_blocked(self, card, carrier):
+        return True
+
+
+def no_discard_return_passive() -> Passive:
+    return NoDiscardReturnPassive()
+
+
+class TrainerPlayFlipPassive(Passive):
+    """Chaos Gym: every non-Stadium Trainer play is coin-flipped; tails makes
+    the card do nothing."""
+
+    def trainer_play_flips(self, card, player_id, carrier):
+        return card.get_attribute(AttrID.TRAINER_TYPE) != TrainerType.STADIUM.value
+
+
+def trainer_play_flip_passive() -> Passive:
+    return TrainerPlayFlipPassive()
+
+
+class RetreatFlipPassive(Passive):
+    """Mirage Stadium: each retreat attempt is coin-flipped; tails refuses it."""
+
+    def retreat_flips(self, pokemon, carrier):
+        return True
+
+
+def retreat_flip_passive() -> Passive:
+    return RetreatFlipPassive()
+
+
+class WROnBenchPassive(Passive):
+    """Wide Lens: the holder's attacks are affected by Weakness and Resistance
+    on the opponent's Benched Pokemon too."""
+
+    def wr_applies_to_bench(self, calc, carrier):
+        return (calc.is_attack and calc.is_opposing
+                and carrier_pokemon(carrier) is calc.attacker)
+
+
+def wr_on_bench_passive() -> Passive:
+    return WROnBenchPassive()
+
+
+class ResistanceReducedPassive(Passive):
+    """Resistance Gym: every Pokemon's Resistance is `amount` smaller."""
+
+    def __init__(self, amount=20):
+        self.amount = amount
+
+    def modify_resistance_amount(self, amount, calc, carrier):
+        return max(0, amount - self.amount)
+
+
+def resistance_reduced_passive(amount: int = 20) -> Passive:
+    return ResistanceReducedPassive(amount)
+
+
+class NoAttackAtHPPassive(Passive):
+    """Blizzard Town: a Pokemon with `max_remaining` HP or less remaining
+    can't attack -- both sides."""
+
+    def __init__(self, max_remaining=40, opponents_only=False):
+        self.max_remaining = max_remaining
+        self.opponents_only = opponents_only
+
+    def blocks_attack(self, pokemon, carrier):
+        if self.opponents_only and pokemon.owning_player_id == carrier.owning_player_id:
+            return False
+        return pokemon.get_attribute(AttrID.HP, 0) <= self.max_remaining
+
+
+def no_attack_at_hp(max_remaining: int = 40, opponents_only: bool = False) -> Passive:
+    return NoAttackAtHPPassive(max_remaining, opponents_only)
+
+
+class ConditionsSurviveEvolutionPassive(Passive):
+    """Sea of Nothingness ("Special Conditions are not removed when Pokemon
+    evolve or devolve") and Dizzying Valley (Confused only)."""
+
+    def __init__(self, conditions=None):
+        # None = every condition.
+        self.conditions = None if conditions is None else tuple(conditions)
+
+    def keeps_condition_on_evolve(self, condition, pokemon, carrier):
+        if self.conditions is None:
+            return True
+        return condition in self.conditions
+
+
+def conditions_survive_evolution_passive(*conditions) -> Passive:
+    """No `conditions` means all of them; pass client condition names or
+    SpecialConditions members for the narrower wordings."""
+    names = tuple(CLIENT_SPECIAL_CONDITION_NAMES[c] if c in CLIENT_SPECIAL_CONDITION_NAMES
+                  else c for c in conditions) or None
+    return ConditionsSurviveEvolutionPassive(names)
 
 
 class ExtraPoisonCountersPassive(Passive):
@@ -1151,19 +1354,93 @@ class ExtraPoisonCountersPassive(Passive):
     (Virbank City Gym: "each Pokemon affected by Poison now takes 2 damage
     from poison between turns")."""
 
-    def __init__(self, amount=2, opponents_only=False):
+    def __init__(self, amount=2, opponents_only=False, pred=None):
         self.amount = amount
         self.opponents_only = opponents_only
+        self.pred = pred
 
     def poison_checkup_counters(self, pokemon, carrier, counters):
         if self.opponents_only and pokemon.owning_player_id == carrier.owning_player_id:
             return counters
+        if self.pred is not None and not self.pred(pokemon, carrier):
+            return counters
         return counters + self.amount
 
 
-def extra_poison_counters(amount: int = 2, opponents_only: bool = False) -> Passive:
-    """Stadium/passive factory for the Virbank wording."""
-    return ExtraPoisonCountersPassive(amount, opponents_only)
+def extra_poison_counters(amount: int = 2, opponents_only: bool = False,
+                          pred=None) -> Passive:
+    """Stadium/passive factory for the Virbank wording; `pred(pokemon, carrier)`
+    narrows it (Perilous Jungle: non-Darkness only)."""
+    return ExtraPoisonCountersPassive(amount, opponents_only, pred)
+
+
+def poison_not_of_type(*types) -> Callable[[Any, Any], bool]:
+    """(pokemon, carrier) pred: the Poisoned Pokemon is not of these types."""
+    wanted = set(types)
+
+    def pred(pokemon, carrier):
+        current = set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+        return not (current & wanted)
+
+    return pred
+
+
+class BenchCapacityPassive(Passive):
+    """Bench cap for both players (Collapsed Stadium 4, Narrow Gym 4) or for
+    the carrier's own side alone (Parallel City's down-arrow face: 3)."""
+
+    def __init__(self, limit=4, protects="each", trim_to="discard"):
+        self.limit = limit
+        self.side_only = protects == "team"
+        if protects not in ("each", "team"):
+            raise ValueError(
+                f"bench capacity protects must be 'each' or 'team': {protects!r}")
+        self.trim_to = trim_to
+
+    def _covers(self, player_id, carrier):
+        return not self.side_only or player_id == carrier.owning_player_id
+
+    def bench_capacity(self, player_id, carrier):
+        return self.limit if self._covers(player_id, carrier) else None
+
+    def bench_trim_area(self, player_id, carrier):
+        return "hand" if self.trim_to == "hand" and self._covers(player_id, carrier) else None
+
+
+def bench_capacity_passive(limit: int = 4, protects="each",
+                           trim_to: str = "discard") -> Passive:
+    """`protects='each'` caps both players (Narrow Gym, Collapsed Stadium);
+    `'team'` caps only the Stadium holder's side (Parallel City's face).
+    `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
+    discarding them."""
+    return BenchCapacityPassive(limit, protects, trim_to)
+
+
+class VoidsStadiumPlayPassive(Passive):
+    """Chaotic Swell: a Stadium played from hand is discarded on arrival, and
+    this one goes with it, so the new Stadium never takes effect."""
+
+    def voids_stadium_play(self, carrier):
+        return True
+
+
+def voids_stadium_play() -> Passive:
+    return VoidsStadiumPlayPassive()
+
+
+class SleepRecoveryCoinsPassive(Passive):
+    """Slumbering Forest: an Asleep Pokemon flips `coins` coins at Checkup and
+    only wakes when every one is heads."""
+
+    def __init__(self, coins=2):
+        self.coins = coins
+
+    def sleep_recovery_coins(self, pokemon, carrier):
+        return self.coins
+
+
+def sleep_recovery_coins(coins: int = 2) -> Passive:
+    return SleepRecoveryCoinsPassive(coins)
 
 
 class DiscardSelfOnRetreatPassive(Passive):

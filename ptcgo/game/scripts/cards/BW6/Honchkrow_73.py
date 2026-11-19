@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 
 card = PokemonCardDef(
     guid="fe40f556-61fb-52fe-98f9-c1105898b0ac",
@@ -26,14 +26,14 @@ card = PokemonCardDef(
             game_text="You may have your opponent switch the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Diving Swipe",
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=discard_random_hand_attack(count=1),
+            effect=discard_random_hand_attack(1),
         ),
     ],
 )

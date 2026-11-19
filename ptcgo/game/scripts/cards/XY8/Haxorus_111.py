@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Dragon Dance",
             game_text="As long as this Haxorus is your Active Pok\u00e9mon, each of its attacks does 100 more damage (before applying Weakness and Resistance). You can't add more than 100 damage in this way.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(3, opponent=False),
         ),
         Attack(
             title="Sharp Fang",

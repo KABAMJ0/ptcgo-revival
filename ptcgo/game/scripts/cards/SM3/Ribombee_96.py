@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Honey Gather",
             game_text="Once during your turn (before your attack), you may search your deck for up to 2 basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_energy_card, count=2, reveal=True),
         ),
         Attack(
             title="Pollen Shot",

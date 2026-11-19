@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
 
 card = PokemonCardDef(
     guid="41d95f3a-d491-5287-b9f7-e2464dcbc0eb",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 40 (before applying Weakness and Resistance).",
             cost={PokemonTypes.FIGHTING: 3},
             damage=80,
-            effect=unimplemented,
+            effect=debuff_defender_attacks(40),
         ),
     ],
 )

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="ccb29cdd-175f-54b6-ac6c-d46c13abf0ca",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, attacks used by the Defending Pok\u00e9mon do 100 less damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=reduce_defender_attacks(100),
         ),
     ],
 )

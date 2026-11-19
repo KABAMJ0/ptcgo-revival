@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="2abdef81-7d8e-56dd-aa08-b6d025292ce5",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Swagger",
             game_text="Flip a coin. If heads, discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=flip_discard_opponent_energy(),
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Fire Claws",

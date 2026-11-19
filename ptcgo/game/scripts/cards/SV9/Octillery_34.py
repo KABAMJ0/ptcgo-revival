@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="16faa73e-f1b0-5663-aa07-16b8959026bf",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may put an Energy attached to your opponent's Active Pok\u00e9mon into their hand.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(per_heads=90, until_tails=True),
         ),
         Attack(
             title="Octo Beatdown",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="x",
-            effect=flip_damage(until_tails=True, per_heads=90),
+            effect=flip_damage(per_heads=90, until_tails=True),
         ),
     ],
 )

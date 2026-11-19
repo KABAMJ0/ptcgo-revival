@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import no_discard_return_passive
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=42,
     set_code="BASEP",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    passive=no_discard_return_passive()
 )

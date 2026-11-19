@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import opponent_switches
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="b87a8875-5699-557f-8560-bc05034790a9",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=gust_attack(opponent_chooses=True),
+            effect=opponent_switches,
         ),
         Attack(
             title="Sharp Fang",

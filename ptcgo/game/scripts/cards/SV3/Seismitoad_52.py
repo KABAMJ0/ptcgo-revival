@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Echoed Voice attack does 100 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.WATER: 2},
             damage=120,
-            effect=unimplemented,
+            effect=boost_own_next_turn(100, attack_title="Echoed Voice"),
         ),
     ],
 )

@@ -1501,6 +1501,18 @@ def basic_energy_of(type_name: str):
     return predicate
 
 
+def basic_energy_of_any(*type_names: str):
+    """Predicate: a Basic Energy card of ANY of the named types ("a Psychic or
+    Metal Energy card")."""
+    values = {POKEMON_TYPE_NAMES[name.lower()] for name in type_names}
+
+    def predicate(card):
+        return is_basic_energy_card(card) \
+            and any(value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
+                    for value in values)
+    return predicate
+
+
 def is_rule_box_free_pokemon(card) -> bool:
     return (is_pokemon_card(card) and not has_rule_box(card.archetype_id)
             and "ex" not in subtypes_for(card.archetype_id))
@@ -2770,6 +2782,81 @@ def opponent_switch_then_self_switch():
                 mine, "Choose your new Active Pokémon")
             if target is not None:
                 await ctx.switch_active(ctx.player_id, target)
+    return effect
+
+
+def clear_attack_effects():
+    """Remove all effects of attacks on you and each of your Pokemon
+    (Channeler)."""
+    async def effect(ctx):
+        return await ctx.clear_attack_effects()
+    return effect
+
+
+def stop_poke_powers():
+    """Every Poke-Power stops working until the end of the opponent's next
+    turn (Goop Gas Attack)."""
+    async def effect(ctx):
+        ctx.lock_poke_powers()
+    return effect
+
+
+def blaines_quiz(kind: str, draw: int = 2):
+    """Put a card from your hand face down, let the opponent guess, and the
+    winner draws `draw` cards (Blaine's Quiz #1 and #2).
+
+    kind="length" asks how many letters the Pokemon's name has, kind="category"
+    asks whether the card is Energy, Trainer or Pokemon. The client has no
+    text-entry screen, so the length question is a button list around the true
+    answer rather than the free-form question the printed card implies."""
+    async def effect(ctx):
+        hand = ctx.hand()
+        pool = [c for c in hand if is_pokemon_card(c)] if kind == "length" else hand
+        picked = await ctx.choose_cards(
+            pool or hand, 1, prompt="Choose a card to put face down")
+        if not picked:
+            return
+        card = picked[0]
+        name = getattr(def_for(card.archetype_id or ""), "display_name", "") or ""
+        await ctx.reveal_cards([card])
+        if kind == "category":
+            card_type = card.get_attribute(AttrID.CARD_TYPE)
+            if card_type == CardType.ENERGY.value:
+                truth = "Energy"
+            elif card_type == CardType.TRAINER.value:
+                truth = "Trainer"
+            else:
+                truth = "Pokémon"
+            options = ["Energy", "Trainer", "Pokémon"]
+            prompt = ("Your opponent put a card face down. Is it an Energy "
+                      "card, a Trainer card, or a Pokémon?")
+        else:
+            length = max(1, len(name))
+            truth = str(length)
+            options = [str(n) for n in sorted(
+                {max(1, length - 1), length, length + 1, length + 2})]
+            prompt = (f"Your opponent's card is called {name}. How many "
+                      f"letters are in its name?")
+        guessed = options[await ctx.ask_opponent(prompt, options)]
+        if guessed == truth:
+            await ctx.draw_cards(draw, player_id=ctx.opponent_id)
+        else:
+            await ctx.draw_cards(draw)
+    return effect
+
+
+def take_prize_of(predicate=None):
+    """Look at your face-down Prizes; you may reveal one matching `predicate`
+    into your hand and put this card in its place as a face-down Prize, then
+    re-hide and shuffle the Prizes (Beast Ball).
+
+    `predicate` takes one card entity, like `pokemon_of_subtype`; the ctx verb
+    wants (card, board) and the adapter is here so a card script never has to
+    know that."""
+    matcher = None if predicate is None else (lambda card, board: predicate(card))
+
+    async def effect(ctx):
+        await ctx.look_at_prizes_take(matcher)
     return effect
 
 
@@ -4184,7 +4271,7 @@ class TrainerPlayLockPassive(Passive):
     def __init__(self, player_id):
         self.player_id = player_id
 
-    def blocks_trainer_play(self, card, player_id, carrier):
+    def blocks_trainer_play(self, card, player_id, carrier, board=None):
         return player_id == self.player_id
 
 
@@ -9477,6 +9564,13 @@ async def personality_test(ctx):
     else:
         await ctx.draw_cards(3)
 
+
+
+# The attacks queue's proposals import this name; it shipped longer.
+evolve_from_deck = evolve_from_deck_matching
+
+
+# --- guess-the-card family (HOME-4) ---
 
 def _guess_label(pokemon, attribute: str) -> str:
     definition = def_for(pokemon.archetype_id)

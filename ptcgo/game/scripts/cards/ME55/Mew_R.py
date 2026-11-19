@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -9,7 +10,7 @@ card = PokemonCardDef(
     display_name="Mew",
     searchable_by=["Mew", "Basic", "Mew"],
     subtypes=["Basic"],
-    collector_number=203,
+    collector_number=0,
     set_code="ME55",
     rarity=Rarities.Common,
     hp=60,
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_energy("defender"), 40, base=10),
+            effect=damage_per(count_energy("defender"), 40),
         ),
     ],
 )

@@ -1,7 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
 from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
-from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
 card = PokemonCardDef(
     guid="0f280013-bd05-549c-b845-877b55dcd80a",

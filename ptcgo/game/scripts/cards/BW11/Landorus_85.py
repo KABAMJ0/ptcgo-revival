@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="1459a43f-6a80-5644-bc1e-545330ea097c",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
             title="Abundant Harvest",
             game_text="Attach a basic Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="self"),
         ),
         Attack(
             title="Gaia Hammer",

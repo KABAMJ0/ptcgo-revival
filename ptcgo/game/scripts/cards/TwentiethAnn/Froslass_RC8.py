@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import place_counters
+
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(4)
+
 
 card = PokemonCardDef(
     guid="fbf9fe63-7f35-5ec5-851d-9df4a02f6707",
@@ -29,7 +34,7 @@ card = PokemonCardDef(
             title="Snowy Drop",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=place_counters(4, target="choose_any_opponent"),
+            effect=_spread,
         ),
     ],
 )

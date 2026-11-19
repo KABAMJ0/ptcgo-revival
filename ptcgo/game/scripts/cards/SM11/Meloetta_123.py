@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=30),
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
     ],
 )

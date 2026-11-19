@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="df1bea7a-46c3-5bd6-95b3-cad6af80d5bf",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.WATER: 3},
             damage=90,
-            effect=mill_attack(1),
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Guillotine",

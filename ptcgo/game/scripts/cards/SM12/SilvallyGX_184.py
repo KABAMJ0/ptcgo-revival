@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="d54cefe1-f675-5d79-99b8-a6865eb8834d",
@@ -23,7 +23,6 @@ card = PokemonCardDef(
         Ability(
             title="Disk Reload",
             game_text="Once during your turn (before your attack), you may draw cards until you have 5 cards in your hand.",
-            activation=Activations.ONCE_PER_TURN,
             effect=draw_until_effect(5),
         ),
         Attack(

@@ -1,6 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import place_counters
+
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3)
+
 
 card = PokemonCardDef(
     guid="2cec6bb3-513e-5a78-850b-b36d048e234c",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Psypower",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=place_counters(3, target="choose_any_opponent"),
+            effect=_spread,
         ),
     ],
 )

@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="67cde530-2f3c-5c18-8e9f-8600dee504ca",
@@ -23,7 +23,6 @@ card = PokemonCardDef(
         Ability(
             title="Bright Look",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may switch 1 of your opponent's Benched Pok\u00e9mon with his or her Active Pok\u00e9mon.",
-            trigger=Triggers.ON_EVOLVE,
             effect=gust_attack(opponent_chooses=True),
         ),
         Attack(

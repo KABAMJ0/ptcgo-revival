@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.card_effects.passives_common import protect_next_turn
-from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="ab05d9ac-5dc9-51a9-8109-ff1c18d835df",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 60),
+            effect=bonus_if(has_damage(), 60),
         ),
         Attack(
             title="Adamantine Press",

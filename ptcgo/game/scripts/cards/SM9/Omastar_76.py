@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import play_lock_passive, fewer_pokemon_in_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Fossil Bind",
             game_text="As long as you have fewer Pok\u00e9mon in play than your opponent, they can't play any Item cards from their hand.",
-            effect=unimplemented,
+            passive=play_lock_passive("item", while_active=False, condition=fewer_pokemon_in_play),
         ),
         Attack(
             title="Bite",

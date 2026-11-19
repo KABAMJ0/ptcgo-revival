@@ -1,4 +1,6 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_targets
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Re-Brew",
             game_text="Put 2 damage counters on 1 of your opponent's Pok\u00e9mon for each Basic Grass Energy card in your discard pile. Then, shuffle those Energy cards into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(30, scope="each_own"),
         ),
         Attack(
             title="Matcha Splash",

@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Power Saver",
             game_text="As long as the number of Pok\u00e9mon in play (both yours and your opponent's) that has Team Aqua in its name is 3 or less, Team Aqua's Kyogre can't attack.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True, tails_conditions=(SpecialConditions.ASLEEP,)),
         ),
         Attack(
             title="Aqua Trip",

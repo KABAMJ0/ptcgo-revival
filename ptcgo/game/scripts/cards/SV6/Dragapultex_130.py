@@ -1,6 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.pokemon import phantom_dive
+
+async def _place_bench_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(6, ctx.opponent_bench())
+
 
 card = PokemonCardDef(
     guid="5868e86b-57f2-5a18-a1d2-dfd4ee9dec15",
@@ -29,7 +33,7 @@ card = PokemonCardDef(
             game_text="Put 6 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.PSYCHIC: 1},
             damage=200,
-            effect=phantom_dive,
+            effect=_place_bench_counters,
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Discard the top card of your deck. If that card is a basic Energy card, attach it to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
         Attack(
             title="Break Ground",
             game_text="Does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
     ],
 )

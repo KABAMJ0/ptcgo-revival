@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import energy_move_attack
 
 card = PokemonCardDef(
     guid="528a92b1-2b7b-57a3-a781-27d599f68042",
@@ -23,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Shadowy Concealment",
             game_text="If 1 of your Darkness Pok\u00e9mon is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon ex, that player takes 1 fewer Prize card. The effect of Shadowy Concealment doesn't stack.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Void Gale",
             game_text="Move an Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 2},
             damage=230,
-            effect=energy_move_attack(count=1),
+            effect=energy_move_attack(1),
         ),
     ],
 )

@@ -1,7 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="cfe08784-d6e3-522f-86aa-ba4d2a6ec6e4",
@@ -34,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("defender"), per=40, base=10),
+            effect=damage_per(damage_counters_on("defender"), 40, base=10),
         ),
     ],
 )

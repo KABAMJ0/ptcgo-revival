@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="7eda475d-78f4-5b16-9695-cf0b0db2bf67",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=100, until_tails=True),
         ),
         Attack(
             title="Iron Tail",
@@ -35,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 3},
             damage=100,
             damage_operator="x",
-            effect=flip_damage(until_tails=True, per_heads=100),
+            effect=flip_damage(per_heads=100, until_tails=True),
         ),
     ],
 )

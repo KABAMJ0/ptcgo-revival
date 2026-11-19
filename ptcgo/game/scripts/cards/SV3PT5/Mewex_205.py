@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="dc09d3d6-0289-586c-9baf-d7aa8fb454ac",
@@ -23,7 +23,6 @@ card = PokemonCardDef(
         Ability(
             title="Restart",
             game_text="Once during your turn, you may draw cards until you have 3 cards in your hand.",
-            activation=Activations.ONCE_PER_TURN,
             effect=draw_until_effect(3),
         ),
         Attack(

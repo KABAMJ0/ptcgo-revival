@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
 
 card = PokemonCardDef(
     guid="33741cd9-9af0-5560-a7be-5e97696ba08b",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(stadium_in_play_cond, 30),
         ),
         Attack(
             title="Power Blast",

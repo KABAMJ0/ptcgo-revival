@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Direflame Wings",
             game_text="Once during your turn, you may attach a Darkness Energy card from your discard pile to this Pok\u00e9mon. You can't use more than 1 Direflame Wings Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=attach_from_discard(basic_energy_of("Darkness"), count=1, target="self"),
         ),
         Attack(
             title="Aura Burn",

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
 
 card = PokemonCardDef(
     guid="7abd6bbe-e8ac-5d16-8798-57b51c329c03",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Charm",
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 20 (before applying Weakness and Resistance).",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=debuff_defender_attacks(20),
         ),
     ],
 )

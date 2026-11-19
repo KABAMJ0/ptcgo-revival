@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="26ddc490-1482-5f65-b43a-c81f495671d8",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Burrow",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=mill_attack(1),
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Mud-Slap",

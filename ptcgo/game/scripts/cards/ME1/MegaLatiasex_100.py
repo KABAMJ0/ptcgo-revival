@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.support_common import switch_self_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="78c2d964-4213-5da3-ba22-d53df9946242",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="You may switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Illusory Impulse",

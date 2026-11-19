@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_hand
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Fire Fling",
             game_text="Put 3 Fire Energy cards from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
         Attack(
             title="Hand Fling",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
     ],
 )

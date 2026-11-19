@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import opponent_switches
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="14537857-0472-5dfc-ab89-efcf9346743d",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Roar",
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=gust_attack(opponent_chooses=True),
+            effect=opponent_switches,
         ),
         Attack(
             title="Rear Kick",

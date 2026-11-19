@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Emergency Rotation",
             game_text="Once during your turn, if this Pok\u00e9mon is in your hand and your opponent has any Stage 2 Pok\u00e9mon in play, you may put this Pok\u00e9mon onto your Bench.",
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Hyper Ray",

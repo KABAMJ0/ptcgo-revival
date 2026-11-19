@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="ad9f9f1a-619b-588f-917b-1db8d75fb21b",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Severe Poison",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 8 damage counters instead of 1 on that Pok\u00e9mon between turns.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=8),
         ),
         Attack(
             title="Poison Absorption",

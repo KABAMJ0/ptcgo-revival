@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=100),
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
         Attack(
             title="Lovely Star-GX",

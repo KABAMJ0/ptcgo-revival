@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Cargo Jet",
             game_text="Discard a Team Plasma card from your hand. if you do, draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Steel Wing",

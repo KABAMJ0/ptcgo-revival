@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,14 +24,14 @@ card = PokemonCardDef(
             title="Sand Veil",
             game_text="Flip a coin. If heads, prevent all effects of attacks, including damage, done to Diglett during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
         Attack(
             title="Mini Earthquake",
             game_text="Does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
     ],
 )

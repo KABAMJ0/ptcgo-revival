@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
 
 card = PokemonCardDef(
     guid="2329dbd6-6586-5f72-9895-d514589acf4e",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Tail Whip",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_defender_lock_attack(),
         ),
         Attack(
             title="Electro Ball",

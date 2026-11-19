@@ -93,8 +93,15 @@ def main():
         return
 
     # 2. Run the auto bundle generation
-    check_and_generate_bundles()
-    strip_stale_bundles(BUNDLE_CACHE_DIR)
+    # The scan opens every bundle to see whether any card art is newer than the
+    # built bundle: two to four minutes on a 2,000-bundle cache. A deploy that
+    # only changed code sets PTCGO_SKIP_BUNDLE_SCAN=1 and skips it; a deploy that
+    # ships art leaves it unset and pays for the rebuild.
+    if os.environ.get("PTCGO_SKIP_BUNDLE_SCAN") == "1":
+        logging.info("[AutoBundle] Skipping the bundle scan (PTCGO_SKIP_BUNDLE_SCAN=1)")
+    else:
+        check_and_generate_bundles()
+        strip_stale_bundles(BUNDLE_CACHE_DIR)
     
     logging.info("[Main] Refreshing manifest manager...")
     # Reload asset map and refresh manifest to capture all compiled cards and cosmetics

@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import energy_move_attack
 
 card = PokemonCardDef(
     guid="4f079d63-ca53-5bf9-b004-492802ea5a07",
@@ -22,14 +22,14 @@ card = PokemonCardDef(
         Ability(
             title="Initialization",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, Pok\u00e9mon with a Rule Box in play (both yours and your opponent's) have no Abilities, except for Future Pok\u00e9mon. (Pok\u00e9mon ex, Pok\u00e9mon V, etc. have Rule Boxes.)",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Volt Cyclone",
             game_text="Move an Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=140,
-            effect=energy_move_attack(count=1),
+            effect=energy_move_attack(1),
         ),
     ],
 )

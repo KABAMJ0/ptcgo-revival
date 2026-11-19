@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
@@ -22,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Ultra Burst",
             game_text="This Pok\u00e9mon can't attack unless your opponent has 2 or fewer Prize cards remaining.",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Luster of Downfall",
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.METAL: 1},
             damage=170,
-            effect=discard_opponent_energy_attack(count=1),
+            effect=discard_opponent_energy_attack(1),
         ),
     ],
 )

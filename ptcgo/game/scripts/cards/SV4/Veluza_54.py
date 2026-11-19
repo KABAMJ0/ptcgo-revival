@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Fillet Memento",
             game_text="If this Pok\u00e9mon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon, move up to 2 Water Energy cards from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "water"), 20),
         ),
         Attack(
             title="Hydro Pump",

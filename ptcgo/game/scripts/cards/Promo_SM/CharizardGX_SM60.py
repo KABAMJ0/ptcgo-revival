@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="3c72fc37-6481-5f47-a3e5-97fa88c7d328",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard 3 Fire Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 3, PokemonTypes.COLORLESS: 2},
             damage=300,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=3, energy_type=PokemonTypes.FIRE),
         ),
         Attack(
             title="Raging Out-GX",

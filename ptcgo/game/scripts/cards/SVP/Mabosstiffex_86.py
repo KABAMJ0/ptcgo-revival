@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import bench_has_damage_counters, bonus_if
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="a288d9bf-f57f-5ca0-9d24-43cb1fd74c33",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, attacks used by the Defending Pok\u00e9mon do 50 less damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=reduce_defender_attacks(50),
         ),
         Attack(
             title="Proud Fangs",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(bench_has_damage_counters, 120),
         ),
     ],
 )

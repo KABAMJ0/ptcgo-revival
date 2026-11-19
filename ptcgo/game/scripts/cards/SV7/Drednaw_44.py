@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Impervious Shell",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon if that damage is 200 or more.",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 80),
         ),
         Attack(
             title="Hard Crunch",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage(), 80),
         ),
     ],
 )

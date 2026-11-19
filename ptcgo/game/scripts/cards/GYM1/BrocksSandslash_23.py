@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import smokescreen_attack
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed and Poisoned.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=10,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Sandstorm",

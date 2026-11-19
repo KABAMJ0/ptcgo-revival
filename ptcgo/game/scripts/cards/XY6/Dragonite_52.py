@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Wrapped in Wind",
             game_text="Attach up to 2 basic Energy cards from your hand to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, count=2, minimum=0, target="self"),
         ),
         Attack(
             title="Heavy Impact",

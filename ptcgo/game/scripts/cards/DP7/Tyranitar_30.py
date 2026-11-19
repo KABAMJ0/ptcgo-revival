@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Darkness Drive",
             game_text="After your opponent's Pok\u00e9mon uses a Pok\u00e9-Power, you may search your discard pile for a basic Darkness Energy card and attach it to Tyranitar.",
-            effect=unimplemented,
+            effect=spread_damage(30, side="opponent"),
         ),
         Attack(
             title="Grind",

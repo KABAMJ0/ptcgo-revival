@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 
 card = PokemonCardDef(
     guid="36355701-69d0-515b-90cc-2125f06b3242",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Limbo Limbo",
             game_text="Search your deck for up to 2 basic Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=search_attach_energy(is_basic_energy_card, count=2),
         ),
         Attack(
             title="Alolan Club",

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="3489ea66-224b-51af-9ed3-1628b04cc089",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Sneaky Placement",
             game_text="Put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(
             title="Sleep Poison",

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_supporter_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Lead",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=search_to_hand(predicate=is_supporter_card, count=1, minimum=1),
         ),
         Attack(
             title="Bright Garden",

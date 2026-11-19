@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 
 card = PokemonCardDef(
     guid="31eca897-3558-5602-bc5a-04b3276dd8d0",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 30),
+            effect=bonus_if(has_damage("defender"), 30),
         ),
         Attack(
             title="Headbang",

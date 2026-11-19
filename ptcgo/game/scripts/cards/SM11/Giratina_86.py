@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="3a1ffcb1-952c-52a0-b8b1-0765f578e07c",
@@ -23,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Dimension Breach",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard a Special Energy from your opponent's Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=discard_opponent_energy_attack(1, special_only=True),
         ),
         Attack(
             title="Fade to Black",

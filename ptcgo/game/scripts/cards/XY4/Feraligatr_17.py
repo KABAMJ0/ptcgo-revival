@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="0f677241-a15c-5aca-96aa-6e29db97f604",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Flip a coin until you get tails. For each heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=flip_discard_opponent_energy(),
+            effect=bonus_if(has_damage("defender"), 80),
         ),
         Attack(
             title="Second Strike",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage(), 80),
         ),
     ],
 )

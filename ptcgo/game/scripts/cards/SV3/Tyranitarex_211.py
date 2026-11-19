@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="9bbf92d7-c1b8-5e64-b7c2-78918a2fd26e",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard the top 2 cards of your deck.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=120,
-            effect=mill_attack(count=2, opponent=False),
+            effect=mill_attack(2, opponent=False),
         ),
         Attack(
             title="Lightning Rampage",

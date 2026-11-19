@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=120),
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
         Attack(
             title="Supreme Puff-GX",

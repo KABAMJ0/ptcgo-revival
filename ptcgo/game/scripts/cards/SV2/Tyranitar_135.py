@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_bench, damage_per, mill_attack
+from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="da42c29b-5da5-511a-b715-8f954e5d7a12",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
             damage_operator="+",
-            effect=damage_per(count_bench("opponent"), per=30, base=30),
+            effect=mill_attack(4, opponent=False),
         ),
         Attack(
             title="Dread Mountain",

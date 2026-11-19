@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=90),
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
         Attack(
             title="Destructive Cyclone-GX",

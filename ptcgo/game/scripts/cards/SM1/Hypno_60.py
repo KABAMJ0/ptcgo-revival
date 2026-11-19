@@ -1,7 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack, damage_counters_on, damage_per
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="2d3680a3-230f-57ff-b7b5-90821c00546a",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("defender"), per=10, base=20),
+            effect=damage_per(damage_counters_on("defender"), 10, base=20),
         ),
         Attack(
             title="Hypnoblast",

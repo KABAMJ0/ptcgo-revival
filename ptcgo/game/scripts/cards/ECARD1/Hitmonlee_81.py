@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="7a1f4378-eb90-5b3f-977f-80eecb335c6c",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Stretch Kick",
             game_text="If your opponent has any Benched Pok\u00e9mon, choose 1 of them and this attack does 30 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="bench"),
         ),
     ],
 )

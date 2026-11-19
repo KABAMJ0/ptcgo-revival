@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Tool Breaker",
             game_text="Discard a Pok\u00e9mon Tool card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Hammer In",

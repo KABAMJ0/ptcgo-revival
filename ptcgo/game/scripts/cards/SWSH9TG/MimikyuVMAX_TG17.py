@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 
 card = PokemonCardDef(
     guid="c589b235-5c47-55ce-940c-b4a8181eaa72",
@@ -25,14 +25,14 @@ card = PokemonCardDef(
             title="Ominous Numbers",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like. If you played Acerola's Premonition from your hand during this turn, place 13 damage counters instead.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Max Shadow",
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=120,
-            effect=discard_random_hand_attack(count=1),
+            effect=discard_random_hand_attack(1),
         ),
     ],
 )

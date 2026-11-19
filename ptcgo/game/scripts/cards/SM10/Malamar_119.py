@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             title="Hypnotic Reign",
             game_text="Your opponent reveals their hand. You may discard a Pok\u00e9mon you find there and use one of that Pok\u00e9mon's non-GX attacks as this attack.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Dark Pressure",

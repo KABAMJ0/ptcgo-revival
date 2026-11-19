@@ -6,7 +6,7 @@ from ptcgo.game.card_effects.passives_common import is_in_active_spot
 
 
 class CursedShimmerPassive(Passive):
-    def blocks_trainer_play(self, card, player_id, carrier):
+    def blocks_trainer_play(self, card, player_id, carrier, board=None):
         if player_id == carrier.owning_player_id:
             return False
         if not is_in_active_spot(carrier):

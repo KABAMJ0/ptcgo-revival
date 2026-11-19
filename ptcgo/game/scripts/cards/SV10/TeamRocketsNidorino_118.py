@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 
 card = PokemonCardDef(
     guid="1720363d-aaa8-5d98-b71d-cf6c3080763f",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 60),
+            effect=bonus_if(has_damage("defender"), 60),
         ),
     ],
 )

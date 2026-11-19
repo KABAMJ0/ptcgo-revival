@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_supporter_card
 
 card = PokemonCardDef(
     guid="a8578c3f-6d44-5d4a-9248-362d7202115e",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Deceit",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_supporter_card, reveal=True),
         ),
         Attack(
             title="Torment",
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks. During your opponent's next turn, that Pok\u00e9mon can't use that attack.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=choose_attack_lock(),
         ),
     ],
 )

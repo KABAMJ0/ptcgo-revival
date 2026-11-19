@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Confectionary Gift",
             game_text="Once during your turn, you may heal 30 damage from 1 of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_attack(30),
         ),
         Attack(
             title="Whipped Shot",

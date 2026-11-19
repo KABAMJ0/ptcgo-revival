@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="3f317507-b3e6-55c1-abb9-40d1f14214a5",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Thicket Body",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Loom Over",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=150,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
         ),
     ],
 )

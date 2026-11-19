@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_bonus_attack
+from ptcgo.game.attributes import SpecialConditions
 
 card = PokemonCardDef(
     guid="c11376a1-6ebe-598c-b093-818898404f3b",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=condition_bonus_attack(40, SpecialConditions.BURNED, base=10),
         ),
     ],
 )

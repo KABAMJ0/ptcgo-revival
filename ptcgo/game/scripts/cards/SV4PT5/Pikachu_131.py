@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="cbdafb9f-8718-547c-b433-97ec7200e2b4",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Growl",
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon's attacks do 20 less damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reduce_defender_attacks(20),
         ),
         Attack(
             title="Pika Bolt",
