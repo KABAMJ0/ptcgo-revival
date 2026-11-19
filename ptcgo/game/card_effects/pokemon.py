@@ -518,6 +518,14 @@ def is_energy_card(card) -> bool:
     return card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value
 
 
+def is_level_up_subtype(subtype) -> bool:
+    """Whether one printed subtype marks a Pokemon LV.X. The corpus stores it as
+    "Level-Up" (77 cards) and "LEVEL-UP" (one); NOTHING prints "LV.X", so a
+    case-sensitive LV.X test is false forever and the body it guards silently
+    does nothing."""
+    return str(subtype or "").strip().lower() in ("level-up", "lv.x")
+
+
 def energy_provides_type(card, type_value) -> bool:
     """Whether one attached energy can provide `type_value` (special energies
     declare provided types via ENERGY_INFO, not POKEMON_TYPES — Aurora)."""

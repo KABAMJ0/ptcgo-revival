@@ -4229,7 +4229,8 @@ class GameSession:
 
     async def _execute_play_basic(self, player_id: str, card):
         """Plays a Basic Pokemon from hand onto the bench."""
-        if "Level-Up" in [subtype for subtype in subtypes_for(card.archetype_id)]:
+        if any(str(subtype).strip().lower() in ("level-up", "lv.x")
+               for subtype in subtypes_for(card.archetype_id)):
             logging.warning(
                 f"[Session {self.game_id}] Refused a LV.X as a bench play "
                 f"({card.entity_id}); it levels up onto a Pokemon in play.")

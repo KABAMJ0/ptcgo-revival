@@ -4,6 +4,7 @@ from ptcgo.game.attributes import AttrID, PokemonStage, PokemonTypes
 from ptcgo.game.data_utils import def_for, is_pokemon_v, subtypes_for
 from ptcgo.game.session.constants import BENCH_CAPACITY
 from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.pokemon import is_level_up_subtype
 from ptcgo.game.session.passives import Passive, carrier_pokemon
 
 # Aurora Energy provides every type of Energy, one at a time.
@@ -466,7 +467,8 @@ class UpperEnergyPassive(Passive):
         if holder is None or board is None:
             return options
         archetype_id = getattr(holder, "archetype_id", None)
-        if archetype_id is not None and "LV.X" in subtypes_for(archetype_id):
+        if archetype_id is not None and any(
+                is_level_up_subtype(subtype) for subtype in subtypes_for(archetype_id)):
             return options
         owner = getattr(holder, "owning_player_id", None)
         opponent = _opponent_of(board, owner) if owner else None

@@ -4829,13 +4829,15 @@ def search_deck_or_discard_to_hand(predicate=None, count: int = 1):
 def pokemon_lv_x():
     """Predicate: a Pokemon LV.X.
 
-    The corpus stores the printed subtype as **"Level-Up"**, not "LV.X", so a
-    predicate looking for the literal "LV.X" matched nothing -- it silently
-    turned three Ball searches and every LV.X-targeting attack into no-ops.
-    Both spellings are accepted so a set list that writes either still matches."""
+    The corpus prints the subtype as **"Level-Up"** (77 cards) and once as
+    "LEVEL-UP"; no card prints "LV.X". A predicate looking for the literal
+    "LV.X" matched nothing and silently turned three Ball searches and every
+    LV.X-targeting attack into no-ops. All three spellings are accepted, so a
+    set list written either way still matches."""
     printed = pokemon_of_subtype("Level-Up")
+    upper = pokemon_of_subtype("LEVEL-UP")
     literal = pokemon_of_subtype("LV.X")
-    return lambda card: printed(card) or literal(card)
+    return lambda card: printed(card) or upper(card) or literal(card)
 
 
 def discard_hand_draw(draw: int = 7):
@@ -7977,12 +7979,18 @@ def team_rocket_ko_last_turn():
 
 
 def no_pokemon_with_abilities():
-    """Play condition: none of your Pokemon in play has an Ability."""
+    """Play condition: none of your Pokemon in play has an Ability.
+
+    PIE_ABILITIES carries the printed ATTACKS too -- a Pokemon with no Ability
+    still has one entry per attack -- so an "any entry" test was false on every
+    board with a Pokemon in play, and the card was never playable. Ask the
+    definition for a non-Attack entry, the same rule as `attacker_has_ability`."""
     def check(board, player_id):
         for pokemon in board.pokemon_in_play(player_id):
-            for entry in pokemon.get_attribute(AttrID.PIE_ABILITIES) or []:
-                if isinstance(entry, dict):
-                    return False
+            definition = def_for(pokemon.archetype_id)
+            if any(not isinstance(entry, Attack)
+                   for entry in getattr(definition, "abilities", None) or []):
+                return False
         return True
     return check
 
