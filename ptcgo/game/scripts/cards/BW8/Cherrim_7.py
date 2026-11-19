@@ -1,6 +1,21 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _fair_weather_heal(ctx):
+    """Heal 20 from 1 of my Pokemon that has any Grass Energy attached."""
+    pool = [p for p in ctx.my_pokemon_in_play()
+            if any(energy_provides_type(e, PokemonTypes.GRASS.value)
+                   for e in ctx.attached_energies(p))]
+    if not pool:
+        return
+    target = pool[0] if len(pool) == 1 else await ctx.choose_pokemon(
+        pool, "Choose a Pok\u00e9mon to heal")
+    if target is not None:
+        await ctx.heal(20, target)
+
 
 card = PokemonCardDef(
     guid="ab426822-f9a2-5c7f-8c22-1f5ce3bf65aa",
@@ -24,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Fair-Weather Heal",
             game_text="Once during your turn (before your attack), you may heal 20 damage from 1 of your Pok\u00e9mon that has any Grass Energy attached to it.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=_fair_weather_heal,
         ),
         Attack(
             title="Random Peck",

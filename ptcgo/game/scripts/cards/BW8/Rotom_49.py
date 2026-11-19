@@ -1,5 +1,13 @@
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.card_effects.trainers import is_trainer_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _trainers_in_their_hand(ctx):
+    hand = ctx.hand(ctx.opponent_id)
+    await_reveal = None
+    return sum(1 for c in (hand or []) if is_trainer_card(c))
+
 
 card = PokemonCardDef(
     guid="45de73f2-b223-5213-99b1-2ad16e4be12d",
@@ -30,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_trainers_in_their_hand, 20, base=0),
         ),
     ],
 )

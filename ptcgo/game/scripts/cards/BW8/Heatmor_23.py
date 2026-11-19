@@ -1,7 +1,13 @@
+from ptcgo.game.card_effects.support_common import gust_then
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _burn_new_defender(ctx, new_active):
+    await ctx.apply_special_condition(new_active, SpecialConditions.BURNED)
+
 
 card = PokemonCardDef(
     guid="140e4025-a3a1-5cf7-b0e2-441cccdd9cb0",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             title="Luring Flame",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with the Defending Pok\u00e9mon. The new Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=gust_then(_burn_new_defender),
         ),
         Attack(
             title="Fiery Licks",

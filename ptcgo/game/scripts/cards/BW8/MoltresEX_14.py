@@ -1,7 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _has_plasma_energy(ctx):
+    return any((getattr(def_for(e.archetype_id), "display_name", "") or "")
+               == "Plasma Energy" for e in ctx.attached_energies(ctx.attacker))
+
 
 card = PokemonCardDef(
     guid="bcb8fcca-4e78-5119-8418-1276a2d53500",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_has_plasma_energy, 40),
         ),
     ],
 )
