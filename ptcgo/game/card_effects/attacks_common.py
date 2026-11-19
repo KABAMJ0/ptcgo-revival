@@ -19,9 +19,14 @@ from ptcgo.game.attributes import (
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
-from ptcgo.game.card_effects.passives_common import condition_immunity_passive
-from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.passives_common import (
+    condition_immunity_passive,
+    no_weakness_passive,
+    weakens_own_attacks_passive,
+)
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.session.effects import is_special_energy
+from ptcgo.game.session.passives import is_basic_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
 
 _TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
@@ -198,12 +203,16 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
                 bonus: int = 0, bonus_per_heads: int = 0,
                 until_tails: bool = False, coins_from=None,
                 require_all: bool = False, tails_self_damage: int = 0,
-                self_damage: int = 0, also=None):
+                self_damage: int = 0, also=None, tails_base: Optional[int] = None):
     """Coin-flip damage: heads*per_heads (base defaults 0), or printed base +
     heads*bonus_per_heads, or base+bonus gated on ALL heads (require_all;
     without a bonus the whole base needs all heads). coins_from=count_fn
     flips one coin per counted thing; until_tails uses one coin screen.
-    tails_self_damage hits the attacker once when any coin lands tails."""
+    tails_self_damage hits the attacker once when any coin lands tails.
+
+    `tails_base` pays a DIFFERENT amount on tails ("if heads this attack does 60
+    damage; if tails it does 20"), which no combination of `base`/`bonus` reaches
+    because those all describe the heads branch."""
     async def effect(ctx):
         if until_tails:
             heads = await ctx.flip_until_tails(_title(ctx))
@@ -222,6 +231,10 @@ def flip_damage(coins: int = 1, per_heads: int = 0, base: Optional[int] = None,
             # the heads before this).
             amount = base_val + heads * per_heads + bonus if success \
                 else (base_val if bonus else 0)
+        elif tails_base is not None:
+            # Two printed branches: heads pays `base`, tails pays `tails_base`.
+            amount = (base if base is not None else _printed(ctx)) \
+                if heads > tails else tails_base
         else:
             amount = base_val + heads * (per_heads + bonus_per_heads) \
                 + (bonus if heads else 0)
@@ -315,13 +328,21 @@ def damage_per(count_fn, per: int, base: int = 0, cap: Optional[int] = None,
 # Snipe / spread
 # ----------------------------------------------------------------------
 
-def snipe_attack(amount: int, pool="bench", count: int = 1,
+def snipe_attack(amount, pool="bench", count: int = 1,
                  side: str = "opponent", also_base: bool = False,
                  apply_modifiers: Optional[bool] = None, optional: bool = False,
                  self_damage: int = 0, also=None, prompt: Optional[str] = None):
     """Deal `amount` to `count` chosen Pokemon (pool 'bench'|'any'|predicate).
     apply_modifiers None = engine auto (W/R only when the target is the
-    opponent's Active); also_base deals printed damage to the Active first."""
+    opponent's Active); also_base deals printed damage to the Active first.
+
+    `amount` may be a callable taking the ctx, for the printings whose snipe
+    scales with a count ("this attack does 30 damage for each Energy attached to
+    that Pokemon"): it is evaluated once per resolution, like `damage_per`."""
+
+    def _amount(ctx):
+        return amount(ctx) if callable(amount) else amount
+
     async def effect(ctx):
         if pool == "any":
             candidates = _in_play(ctx, side)
@@ -331,19 +352,20 @@ def snipe_attack(amount: int, pool="bench", count: int = 1,
             candidates = [p for p in _in_play(ctx, side) if pool(p)]
         picks = []
         if candidates:
+            value = _amount(ctx)
             if len(candidates) <= count and not optional:
                 picks = candidates
             else:
-                text = prompt or (f"Choose a Pokémon to take {amount} damage"
+                text = prompt or (f"Choose a Pokémon to take {value} damage"
                                   if count == 1 else
-                                  f"Choose {count} Pokémon to take {amount} damage")
+                                  f"Choose {count} Pokémon to take {value} damage")
                 picks = await ctx.choose_cards(
                     candidates, count, minimum=0 if optional else None, prompt=text)
         queue_shield = len(picks) + int(also_base) == 1
         if also_base:
             await ctx.deal_damage(queue_shield=queue_shield)
         for target in picks:
-            await ctx.deal_damage(amount, target=target,
+            await ctx.deal_damage(_amount(ctx), target=target,
                                     apply_modifiers=apply_modifiers,
                                     queue_shield=queue_shield)
         await _finish(ctx, self_damage, also)
@@ -352,21 +374,27 @@ def snipe_attack(amount: int, pool="bench", count: int = 1,
 
 def spread_damage(amount: int, side: str = "opponent",
                   include_active: bool = False, own_bench: bool = False,
-                  also_base: bool = False, also=None):
+                  also_base: bool = False, also=None, pred=None):
     """Deal `amount` to every Benched Pokemon on `side` ('opponent'|'mine'|
     'both'); include_active adds that side's Active(s), own_bench adds your
-    bench to an opponent-side spread. Bench damage takes no W/R (engine auto)."""
+    bench to an opponent-side spread. Bench damage takes no W/R (engine auto).
+
+    `pred(pokemon)` narrows the spread, for the gated printings ("that has any
+    damage counters on it", "the same type as the Defending Pokemon")."""
     async def effect(ctx):
-        targets = {p.entity_id: p for p in _bench_of(ctx, side)}
+        targets = {p.entity_id: p for p in _bench_of(ctx, side)
+                   if pred is None or pred(p)}
         if own_bench and side != "mine":
-            targets.update((p.entity_id, p) for p in ctx.my_bench())
+            targets.update((p.entity_id, p) for p in ctx.my_bench()
+                           if pred is None or pred(p))
         if include_active:
             actives = []
             if side in ("opponent", "theirs", "both"):
                 actives.append(ctx.opponent_active())
             if side in ("mine", "both"):
                 actives.append(ctx.my_active())
-            targets.update((p.entity_id, p) for p in actives if p is not None)
+            targets.update((p.entity_id, p) for p in actives
+                           if p is not None and (pred is None or pred(p)))
         queue_shield = len(targets) + int(also_base) == 1
         if also_base:
             await ctx.deal_damage(queue_shield=queue_shield)
@@ -537,14 +565,17 @@ def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
 
 def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                      min_heads: int = 1, tails_conditions=(),
-                     always_conditions=(), heads_bonus_damage: int = 0,
-                     self_conditions=(), both_actives: bool = False,
-                     no_retreat: bool = False, counters: int = 1,
-                     checkup_coins: int = 1, damage: Optional[int] = None,
-                     also=None):
+                     tails_self_conditions=(), always_conditions=(),
+                     heads_bonus_damage: int = 0, self_conditions=(),
+                     both_actives: bool = False, no_retreat: bool = False,
+                     counters: int = 1, checkup_coins: int = 1,
+                     damage: Optional[int] = None, also=None):
     """Printed damage + Special Conditions on the Defending Pokemon; flip=True
     gates `conditions`/self_conditions/no_retreat/heads_bonus_damage on
-    min_heads heads (tails_conditions on failure, always_conditions always)."""
+    min_heads heads (tails_conditions on failure, always_conditions always).
+
+    `tails_self_conditions` is the mirror wording "if tails, YOUR Active
+    Pokemon is now X": those land on the attacker, not the defender."""
     async def effect(ctx):
         success = True
         if flip:
@@ -561,6 +592,11 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                 ctx.defender, condition,
                 checkup_coins=checkup_coins, poison_counters=counters)
             if both_actives:
+                await ctx.apply_special_condition(
+                    ctx.attacker, condition,
+                    checkup_coins=checkup_coins, poison_counters=counters)
+        if not success:
+            for condition in tails_self_conditions:
                 await ctx.apply_special_condition(
                     ctx.attacker, condition,
                     checkup_coins=checkup_coins, poison_counters=counters)
@@ -770,6 +806,51 @@ def mill_attack(count: int, opponent: bool = True,
     return effect
 
 
+def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
+                            damage: Optional[int] = None):
+    """"This attack does N less damage for each Energy attached to your
+    opponent's Active Pokemon": the printed (or damage) amount minus
+    per * count, never below floor.
+
+    predicate narrows which attached cards count (an Energy type, "Basic
+    Energy"); counting is per CARD, which is what "for each Energy attached"
+    means. This is the self-side twin of reduce_defender_attacks, which cuts
+    what the defender throws instead."""
+    async def effect(ctx):
+        base = damage if damage is not None else _printed(ctx)
+        defender = ctx.defender
+        count = 0
+        if defender is not None:
+            count = sum(1 for card in ctx.attached_energies(defender)
+                        if predicate is None or predicate(card))
+        await ctx.deal_damage(max(floor, base - per * count))
+    return effect
+
+
+def mill_then_attach_energy(count: int = 3, damage: Optional[int] = None,
+                            basic_only: bool = False):
+    """"Discard the top 3 cards of your deck. If any of those cards are Energy
+    cards, attach them to this Pokemon" (Rayquaza-EX's Dragon Burst): the whole
+    top goes to the discard and the Energy among it comes straight back onto
+    the attacker."""
+    test = is_basic_energy if basic_only else is_energy_card
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        milled = ctx.deck_top(count)
+        if not milled:
+            return []
+        energies = [card for card in milled if test(card)]
+        await ctx.discard_cards(milled)
+        attached = []
+        if ctx.attacker is not None:
+            for energy in energies:
+                if await ctx.attach_energy(energy, ctx.attacker):
+                    attached.append(energy)
+        return attached
+    return effect
+
+
 def mill_scaled_damage(mill_count: int, per: int, pred=None, base: int = 0,
                        also=None):
     """Discard the top `mill_count` of YOUR deck; damage = base + per for each
@@ -795,6 +876,35 @@ def lock_all_attacks(ctx, pokemon):
     turn (Cross Fusion Strike's blanket self-lock)."""
     for entry in _attack_ability_entries(pokemon):
         ctx.session.turn_state.lock_attack(pokemon.entity_id, entry["abilityID"])
+
+
+def choose_attack_lock(damage: Optional[int] = None, through: str = "opponent"):
+    """Printed (or `damage`) damage, then the opponent picks one of their
+    Active's attacks and that attack is locked for their next turn ("Choose 1
+    of your opponent's Active Pokemon's attacks. That Pokemon can't use that
+    attack during your opponent's next turn.")."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        from ptcgo.game.session.passives import attacks_of
+
+        candidates = [(defender, attack) for attack in attacks_of(defender)
+                      if getattr(attack, "ability_id", None)]
+        if not candidates:
+            return
+        chosen = await ctx.choose_attack_to_copy(
+            candidates,
+            "Choose 1 of your opponent's Active Pokémon's attacks")
+        if chosen is None:
+            return
+        attack = chosen[1]
+        state = ctx.session.turn_state
+        window = 1 if through == "opponent" else 0
+        state.attack_locks[(defender.entity_id, attack.ability_id)] = \
+            state.turn_number + window
+    return effect
 
 
 def lock_defender_attacks(ctx, defender=None) -> bool:
@@ -897,6 +1007,123 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
+    """Printed (or `damage`) damage, then the Defending Pokemon's own attacks do
+    `amount` less during the opponent's next turn ("any damage done by attacks
+    from the Defending Pokemon is reduced by N").
+
+    `protect_next_turn` is the opposite direction: it shields the target from
+    incoming hits, while this one weakens the hits the target throws."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None:
+            return
+        ctx.add_passive_through_opponents_turn(
+            defender, weakens_own_attacks_passive(amount))
+    return effect
+
+
+def discard_defender_tools_then_damage(damage: Optional[int] = None):
+    """"Before doing damage, discard all Pokemon Tools from your opponent's
+    Active Pokemon": the order matters, so the tools leave first and the
+    printed damage lands on a defender that no longer holds them."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is not None:
+            tools = [child for child in defender.children
+                     if child.get_attribute(AttrID.TRAINER_TYPE) is not None]
+            if tools:
+                await ctx.discard_cards(tools)
+        await ctx.deal_damage(damage)
+    return effect
+
+
+def no_weakness_next_turn(damage: Optional[int] = None):
+    """Printed (or `damage`) damage, then the attacker has no Weakness during
+    the opponent's next turn ("During your opponent's next turn, this Pokemon
+    has no Weakness"). The shield is a temporary passive, so it ends with the
+    turn window the same way a protection rider does."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if ctx.attacker is None:
+            return
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, no_weakness_passive())
+    return effect
+
+
+def identity_swap_from_deck(named: str, prompt: str = ""):
+    """Search your deck for another `<named>` and switch it with this Pokemon,
+    keeping everything on it ("Any cards attached to Ditto, damage counters,
+    Special Conditions, and effects on it are now on the new Pokemon").
+
+    The swap itself is `ctx.identity_swap`, the same one Nanu and Ogre's Mask
+    use, so attachments, damage, conditions and turn stamps all transfer."""
+    want = named.strip().lower()
+
+    def matches(card) -> bool:
+        definition = def_for(getattr(card, "archetype_id", "") or "")
+        return (getattr(definition, "display_name", "") or "").strip().lower() == want
+
+    async def effect(ctx):
+        pool = [card for card in ctx.deck() if matches(card)]
+        if not pool:
+            return
+        picked = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt=prompt or f"Choose another {named} from your deck")
+        if not picked or ctx.source is None:
+            return
+        await ctx.identity_swap(ctx.source, picked[0])
+        await ctx.shuffle_deck()
+
+    return effect
+
+
+def heal_self_damage_dealt(damage: Optional[int] = None,
+                           cap: Optional[int] = None):
+    """Printed (or `damage`) damage, then heal the attacker for the damage it
+    actually dealt ("Heal from this Pokemon the same amount of damage you did
+    to your opponent's Active Pokemon"). Deal_damage returns the final amount
+    after Weakness/Resistance and interception, which is exactly that."""
+    async def effect(ctx):
+        dealt = await ctx.deal_damage(damage)
+        if ctx.attacker is None or dealt <= 0:
+            return
+        await ctx.heal(min(dealt, cap) if cap is not None else dealt,
+                       target=ctx.attacker)
+    return effect
+
+
+def random_card_to_deck(damage: Optional[int] = None, destination: str = "deck",
+                        reveal: bool = True, count: int = 1):
+    """Printed (or `damage`) damage, then `count` random cards leave the
+    opponent's hand for their deck, revealed ("Choose a random card from your
+    opponent's hand. Your opponent reveals that card and shuffles it into his
+    or her deck"). `count` is for the "for each heads" printings; the pick is
+    always random, never chosen.
+
+    `destination` is part of the signature the queue asked for and every
+    printing in the corpus says "deck", so any other value is refused rather
+    than guessed at."""
+    if destination != "deck":
+        raise ValueError(
+            f"random_card_to_deck: only destination='deck' exists in the corpus, "
+            f"got {destination!r}")
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand or count <= 0:
+            return
+        cards = random.sample(hand, min(count, len(hand)))
+        if reveal:
+            await ctx.reveal_cards(cards)
+        await ctx.shuffle_into_deck(cards, ctx.opponent_id)
     return effect
 
 

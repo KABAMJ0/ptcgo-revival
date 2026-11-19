@@ -298,11 +298,19 @@ def discard_then_draw(discard_count, draw_count, whole_hand=False,
     return effect
 
 
-def draw_until_effect(n):
-    """Draw until the hand holds `n` cards (Dragon's Hoard shape)."""
+def draw_until_effect(n, optional=False):
+    """Draw until the hand holds `n` cards (Dragon's Hoard shape).
+
+    `optional=True` is the "you may draw until you have N cards in your hand"
+    wording: the ability is announced and the player may stop where they are."""
     async def effect(ctx):
         await _deal_printed(ctx)
-        await ctx.draw_until(n)
+        if optional:
+            asked = await ctx.ask_yes_no(
+                f"Draw until you have {n} cards in your hand?", player_id=ctx.player_id)
+            if not asked:
+                return 0
+        return await ctx.draw_until(n)
     return effect
 
 
@@ -398,13 +406,18 @@ def heal_attack(amount=None, all_damage=False, discard_energy=0, target="self"):
     return effect
 
 
-def heal_targets(amount, scope="each_own"):
+def heal_targets(amount, scope="each_own", pred=None):
     """Heal `amount` from the scope: 'each_own'/'all_own' (every one of
-    yours), 'active', 'bench_choice', or 'choice' (pick one damaged)."""
+    yours), 'active', 'bench_choice', or 'choice' (pick one damaged).
+
+    `pred(pokemon)` narrows the scope, for "heal 30 from each of your Pokemon
+    that has any damage counters on it"."""
     async def effect(ctx):
         await _deal_printed(ctx)
         healed = 0
         for pokemon in await _heal_scope_targets(ctx, scope):
+            if pred is not None and not pred(pokemon):
+                continue
             healed += await ctx.heal(amount, pokemon)
         return healed
     return effect
@@ -819,7 +832,11 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
                 await _attach_all(ctx, picks, pokemon)
                 attached = [(card, pokemon) for card in picks]
         if then is not None and attached:
-            await then(ctx, attached)
+            # Sync or async: a rider that only reads the pairs is written
+            # plainly, and one that moves cards awaits.
+            outcome = then(ctx, attached)
+            if outcome is not None and hasattr(outcome, "__await__"):
+                await outcome
         # The (card, target) pairs are the "did an Energy actually land" signal
         # for composed()/do_a_then_b riders.
         return attached
