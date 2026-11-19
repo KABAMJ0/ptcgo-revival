@@ -80,6 +80,8 @@ class ShopManager:
                     continue
                 if product.key.upper() not in eligible:
                     continue
+                if getattr(product, "is_bundle", False):
+                    continue  # a bundle sells only through its shop row, never at pack price
                 if product.guid.lower() in items_by_guid:
                     continue  # admin row takes precedence
                 product.prices = [{"name": AttrID.TRAINER_TOKENS.value, "value": DEFAULT_BOOSTER_PRICE}]

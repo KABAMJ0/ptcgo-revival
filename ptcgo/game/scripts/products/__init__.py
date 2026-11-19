@@ -6,7 +6,8 @@ import logging
 import threading
 from types import SimpleNamespace
 from typing import Dict, List
-from ptcgo.game.models.product import Product, BoosterPack, Deck, DeckBox
+from ptcgo.game.models.product import Product, BoosterPack, Bundle, Deck, DeckBox
+from ptcgo.game.content.bundles import BundleDef
 from ptcgo.game.attributes import ProductType, AttrID, CardType, Rarities
 from ptcgo.game.content.sets import eligible_booster_sets
 from ptcgo.game.scripts.cards import loader as card_loader
@@ -184,7 +185,9 @@ class ProductLoader:
                 
                 ptype = attrs.get(str(AttrID.PRODUCT_TYPE.value), {}).get("value", ProductType.UNSET.value)
                 
-                if ptype == ProductType.PACKS:
+                if isinstance(prod_def, BundleDef):
+                    prod_obj = Bundle(guid, key, attrs, grants=prod_def.contents, tokens=prod_def.tokens)
+                elif ptype == ProductType.PACKS:
                     prod_obj = BoosterPack(guid, key, attrs)
                 elif ptype == ProductType.DECKS:
                     if not isinstance(prod_def, DeckDef):

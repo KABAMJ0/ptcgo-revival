@@ -762,7 +762,7 @@ class DataSyncHandler(BaseHandler):
     async def handle_get_deck_list(self, message, request_id, flags):
         res = {"messageName": OutboundMsg.DECK_LIST.value, "decks": []}
         if self.client.player:
-            res = self.client.player.get_decks_data()
+            res = await run_db(self.client.player.get_decks_data)
             res["messageName"] = OutboundMsg.DECK_LIST.value
         logging.info(f"[TCP] [{self.client.addr}] Sending {len(res.get('decks') or [])} decks.")
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
@@ -872,6 +872,13 @@ class DataSyncHandler(BaseHandler):
                 "name": AttrID.SELECTED_DECK_BOX.value,
                 "value": DefaultCosmetic.DECK_BOX.value
             }
+
+        # A coin, sleeve or deck box the account does not own would leave the client unable
+        # to resolve the deck; save the default for that slot instead.
+        if self.client.player and not _is_avatar_deck(deck_dict):
+            from ptcgo.game.decks.cosmetics import allowed_cosmetics, fix_deck_cosmetics
+            allowed = await run_db(allowed_cosmetics, self.client.player.account_id)
+            fix_deck_cosmetics({"deckID": deck_dict.get("deckID"), "attributes": attrs_dict}, allowed)
 
         # Validate the deck; an illegal deck still SAVES (PTCGO keeps WIP decks),
         # legality only gates the client's format badges and play flows.

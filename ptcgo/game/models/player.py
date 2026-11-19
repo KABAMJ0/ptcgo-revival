@@ -106,8 +106,17 @@ class Player:
         return deck_copy
 
     def get_decks_data(self):
-        # We assume deck_data in the DB contains the fully serialized SerializableDeck
-        serialized_decks = [self._inject_validation_attributes(deck["deck_data"]) for deck in self.decks]
+        """The saved decks as the client receives them. A deck naming a coin, sleeve or
+        deck box the account does not own is sent with the default instead, because the
+        client cannot resolve the reference and the whole deck stops working. Reads the
+        collection, so call it off the event loop."""
+        from ptcgo.game.decks.cosmetics import allowed_cosmetics, fix_deck_cosmetics
+        allowed = allowed_cosmetics(self.account_id)
+        serialized_decks = []
+        for deck in self.decks:
+            deck_copy = self._inject_validation_attributes(deck["deck_data"])
+            fix_deck_cosmetics(deck_copy, allowed)
+            serialized_decks.append(deck_copy)
         return {"decks": serialized_decks}
 
     def get_avatar_decks_data(self):

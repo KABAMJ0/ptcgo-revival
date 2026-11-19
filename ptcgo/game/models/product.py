@@ -365,6 +365,36 @@ class BoosterPack(Product):
         pack_guids = assemble_pack_contents(set_key)
         return pack_guids
 
+class Bundle(Product):
+    """Several grants sold as one product (BundleDef): archetypes plus Trainer Tokens."""
+    is_bundle = True
+
+    def __init__(self, guid: str, key: str, attributes: Optional[Dict[str, Any]] = None,
+                 prices: Optional[List[Dict[str, Any]]] = None, *, grants=(), tokens=0):
+        super().__init__(guid, key, attributes, prices)
+        # Not "contents": anything with contents is read as a deck by the theme deck registry.
+        self.grants = list(grants)
+        self.tokens = int(tokens)
+
+    def open(self, account_id: str) -> list[str]:
+        return list(self.grants)
+
+
+def expand_bundles(product_guids):
+    """(granted GUIDs, Trainer Tokens to credit) for a purchase: each bundle is replaced by
+    its contents, everything else is granted as itself."""
+    from ptcgo.game.scripts.products import loader as product_loader
+    granted, tokens = [], 0
+    for guid in product_guids:
+        product = product_loader.products_by_guid.get(guid) or product_loader.products_by_guid.get(str(guid).lower())
+        if isinstance(product, Bundle):
+            granted.extend(product.grants)
+            tokens += product.tokens
+        else:
+            granted.append(guid)
+    return granted, tokens
+
+
 class DeckBox(Product):
     def __init__(self, guid: str, key: str, attributes: Optional[Dict[str, Any]] = None,
                  prices: Optional[List[Dict[str, Any]]] = None, *, shape=DeckBoxShape.TWO_TONE):
