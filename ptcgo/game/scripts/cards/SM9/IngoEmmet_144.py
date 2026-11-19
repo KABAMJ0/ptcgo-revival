@@ -8,7 +8,8 @@ async def _discard_hand_draw_bottom(ctx, draw=5):
     if hand:
         await ctx.discard_cards(list(hand))
     deck = ctx.deck()
-    for card in deck[-draw:]:
+    # the bottom is the head of the list (the top is children[-1])
+    for card in deck[:draw]:
         await ctx.put_in_hand([card], reveal=False)
 
 
