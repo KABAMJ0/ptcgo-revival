@@ -967,6 +967,26 @@ def lock_defender_attacks(ctx, defender=None) -> bool:
 # Damage-counter placement
 # ----------------------------------------------------------------------
 
+def bench_counter_picks(picks: int = 2, each: int = 1, then=None):
+    """"Choose N of your opponent's Benched Pokemon and put M damage counter(s)
+    on each": distinct bench picks, each taking its own counters. The
+    active-allocation chooser (place_counters' choose_any_opponent) spends one
+    pool across the whole board, which is a different ruling."""
+    async def effect(ctx):
+        bench = ctx.opponent_bench()
+        if not bench:
+            return []
+        chosen = await ctx.choose_cards(
+            bench, min(picks, len(bench)), minimum=0,
+            prompt="Choose Benched Pokémon to put damage counters on")
+        for pokemon in chosen:
+            await ctx.deal_damage(each * 10, target=pokemon, as_counters=True)
+        if then is not None:
+            await then(ctx, chosen)
+        return chosen
+    return effect
+
+
 def place_counters(count_or_fn, target: str = "opponent_active", also=None):
     """Put damage counters (raw, no W/R; effect-shield gated by the engine):
     target 'opponent_active'|'choose_any_opponent'|'each_opponent'|'self'|
