@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_any_condition
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
+
+async def _burning_poison(ctx):
+    choice = await ctx.choose("Choose Burned or Poisoned", ["Burned", "Poisoned"])
+    condition = SpecialConditions.BURNED if choice == "Burned" else SpecialConditions.POISONED
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, condition)
+    if await ctx.ask_yes_no("Return Gliscor and all cards attached to it to your hand?"):
+        await remove_self_from_play(destination="hand", optional=False)(ctx)
+
 
 card = PokemonCardDef(
     guid="2054cd68-1089-59f9-9d99-8915ff1983ce",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             title="Burning Poison",
             game_text="Choose either Burned or Poisoned. The Defending Pok\u00e9mon is now affected by that Special Condition. You may return Gliscor and all cards attached to it to your hand.",
             cost={},
-            effect=unimplemented,
+            effect=_burning_poison,
         ),
         Attack(
             title="Pester",
@@ -32,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_has_any_condition, 40),
         ),
     ],
 )

@@ -3,6 +3,21 @@ from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _draco_meteor(ctx):
+    for pokemon in list(ctx.opponent_pokemon_in_play()):
+        results = await ctx.flip_coins(1, "Draco Meteor")
+        if results and results[0]:
+            await ctx.deal_damage(50, target=pokemon)
+
+
+async def _draco_meteor(ctx):
+    for pokemon in list(ctx.opponent_pokemon_in_play()):
+        results = await ctx.flip_coins(1, "Draco Meteor")
+        if results and results[0]:
+            await ctx.deal_damage(50, target=pokemon)
+
+
 card = PokemonCardDef(
     guid="3ee89cc3-3935-5393-a219-099cb7e98b67",
     key="DP6",
@@ -33,7 +48,7 @@ card = PokemonCardDef(
             title="Draco Meteor",
             game_text="Flip a coin for each of your opponent's Pok\u00e9mon. If that coin flip is heads, this attack does 50 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 4},
-            effect=unimplemented,
+            effect=_draco_meteor,
         ),
     ],
 )

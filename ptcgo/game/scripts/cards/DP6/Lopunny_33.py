@@ -1,16 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
-from ptcgo.game.card_effects.passives_common import Passive, is_in_active_spot
 from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_evolved
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
 
 
 async def _healing_tail(ctx):
-    """Healing Tail: 1 counter off each Benched Pokemon while Lopunny is Active."""
     if not is_in_active_spot(ctx.source):
         return
     for pokemon in ctx.my_bench():
-        await ctx.heal(10, target=pokemon)
+        await ctx.heal(10, pokemon)
+
 
 card = PokemonCardDef(
     guid="b8d78a4f-ffd7-5c96-b28a-d78546a83d2c",
@@ -32,8 +33,8 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Healing Tail",
+            trigger=Triggers.BETWEEN_TURNS,
             game_text="As long as Lopunny is your Active Pok\u00e9mon, remove 1 damage counter from each of your Benched Pok\u00e9mon between turns.",
-                        trigger=Triggers.BETWEEN_TURNS,
             effect=_healing_tail,
         ),
         Attack(
@@ -48,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_evolved, 30),
         ),
     ],
 )

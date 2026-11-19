@@ -4,14 +4,24 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 
 async def _heavy_bone(ctx):
-    """Heavy Bone: printed damage; tails locks this attack for the next turn."""
     await ctx.deal_damage()
-    heads = await ctx.flip_coins(1, "Heavy Bone")
-    if heads and all(heads):
+    results = await ctx.flip_coins(1, "Heavy Bone")
+    if results and results[0]:
         return
-    if ctx.attacker is not None:
-        ctx.session.turn_state.lock_attack(
-            ctx.attacker.entity_id, ctx.ability.ability_id)
+    ability_id = getattr(ctx.ability, "ability_id", None)
+    if ability_id and ctx.attacker is not None:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id, ability_id)
+
+
+async def _heavy_bone(ctx):
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(1, "Heavy Bone")
+    if results and results[0]:
+        return
+    ability_id = getattr(ctx.ability, "ability_id", None)
+    if ability_id and ctx.attacker is not None:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id, ability_id)
+
 
 card = PokemonCardDef(
     guid="45eb3332-deda-54f2-a10f-6970b07493a2",

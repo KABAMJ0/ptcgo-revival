@@ -1,6 +1,28 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+
+async def _eruption(ctx):
+    milled = []
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        milled.extend(ctx.deck_top(1, player_id=player_id))
+    if milled:
+        await ctx.discard_cards(milled)
+    energies = sum(1 for card in milled if is_energy_card(card))
+    await ctx.deal_damage(30 + 30 * energies)
+
+
+async def _eruption(ctx):
+    milled = []
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        milled.extend(ctx.deck_top(1, player_id=player_id))
+    if milled:
+        await ctx.discard_cards(milled)
+    energies = sum(1 for card in milled if is_energy_card(card))
+    await ctx.deal_damage(30 + 30 * energies)
+
 
 card = PokemonCardDef(
     guid="baea33c3-9e5b-51ee-a40c-876b341e340e",
@@ -26,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_eruption,
         ),
         Attack(
             title="Take Down",

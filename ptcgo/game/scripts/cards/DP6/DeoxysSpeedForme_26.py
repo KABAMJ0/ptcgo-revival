@@ -1,6 +1,17 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations, def_for
+from ptcgo.game.card_effects.support_common import swap_with_named
+
+
+def _is_deoxys(card):
+    return (getattr(def_for(card.archetype_id), "display_name", "") or "").startswith("Deoxys")
+
+
+def _is_deoxys(card):
+    return (getattr(def_for(card.archetype_id), "display_name", "") or "").startswith("Deoxys")
+
 
 card = PokemonCardDef(
     guid="66ac98cc-a267-5ace-8f0e-a4f8c9e3860e",
@@ -21,8 +32,10 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Form Change",
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Form Change",
             game_text="Once during your turn (before your attack), you may search your deck for any Deoxys and switch it with Deoxys Speed Forme. (Any cards attached to Deoxys Speed Forme, damage counters, Special Conditions, and effects on it are now on the new Pok\u00e9mon.) If you do, put Deoxys Speed Forme on top of your deck. Shuffle your deck afterward. You can't use more than 1 Form Change Pok\u00e9-Power each turn.",
-            effect=unimplemented,
+            effect=swap_with_named(predicate=_is_deoxys, destination="deck"),
         ),
         Attack(
             title="Speed Shot",
