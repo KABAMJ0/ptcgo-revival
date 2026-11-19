@@ -27,9 +27,9 @@ card = SupporterCardDef(
     collector_number=28,
     set_code="SWSH9TG",
     rarity=Rarities.RareUltra,
-    condition=_last_card_in_hand,
     effect=search_to_bench(
         _is_single_strike_pokemon, count=1, then=_draw_five,
         prompt="Choose a Single Strike Pokémon to put onto your Bench.",
     ),
+    condition=_last_card_in_hand,
 )

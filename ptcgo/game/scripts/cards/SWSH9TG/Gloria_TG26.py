@@ -21,5 +21,5 @@ card = SupporterCardDef(
     effect=search_to_bench(
         _no_rule_box_basic, count=3,
         prompt="Choose up to 3 Basic Pokémon without a Rule Box to put onto your Bench.",
-    ),
+    )
 )

@@ -32,6 +32,6 @@ card = SupporterCardDef(
     collector_number=28,
     set_code="SWSH12TG",
     rarity=Rarities.RareUltra,
-    condition=requires_discard(is_trainer_card),
     effect=_sordward_shielbert,
+    condition=requires_discard(is_trainer_card),
 )

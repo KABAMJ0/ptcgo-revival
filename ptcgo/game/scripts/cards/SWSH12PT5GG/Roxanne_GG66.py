@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import opponent_prizes_low, roxanne
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,6 @@ card = SupporterCardDef(
     collector_number=66,
     set_code="SWSH12PT5GG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=roxanne,
+    condition=opponent_prizes_low,
 )

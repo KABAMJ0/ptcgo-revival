@@ -1844,6 +1844,44 @@ def discard_stadium_card():
     return effect
 
 
+def return_stadium_to_hand():
+    """Return the Stadium in play to its owner's hand (Alph Lithograph THREE)."""
+    async def effect(ctx):
+        stadium = ctx.stadium_in_play()
+        if stadium is None:
+            return
+        owner_id = stadium.owning_player_id or ctx.player_id
+        hand = ctx.board.find_player_area(owner_id, "hand")
+        if hand is not None:
+            ctx.board.move_card(stadium.entity_id, hand.entity_id)
+    return effect
+
+
+def look_at_opponent_hand():
+    """View the opponent's hand, changing nothing (Alph Lithograph ONE)."""
+    async def effect(ctx):
+        await ctx.reveal_hand(ctx.opponent_id)
+    return effect
+
+
+def shuffle_own_deck():
+    """Shuffle your own deck (Alph Lithograph TWO)."""
+    async def effect(ctx):
+        await ctx.shuffle_deck()
+    return effect
+
+
+def look_at_own_prizes():
+    """Show your own face-down Prize cards, taking nothing (Alph Lithograph FOUR)."""
+    async def effect(ctx):
+        prizes = list(ctx.board.find_player_area(ctx.player_id, "prizePile").children)
+        if prizes:
+            await ctx.session.prompt_view_cards(
+                ctx.player_id, ctx.source.entity_id, prizes,
+                prompt="Your face-down Prize cards")
+    return effect
+
+
 # --- Effect combinators ----------------------------------------------------
 # A printing may put a requirement or a coin flip in front of an effect that
 # is otherwise a shape the library already knows; these wrap the inner one.

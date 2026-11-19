@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import colresss_experiment, deck_nonempty
 
 card = SupporterCardDef(
     guid="a6895b89-8339-556b-928e-3fa74f80407d",
@@ -11,5 +12,6 @@ card = SupporterCardDef(
     collector_number=59,
     set_code="SWSH12PT5GG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=colresss_experiment,
+    condition=deck_nonempty,
 )
