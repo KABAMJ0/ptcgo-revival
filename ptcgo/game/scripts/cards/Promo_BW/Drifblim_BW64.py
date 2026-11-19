@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="85000b67-5c40-5c30-9ac7-46eb725be203",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             title="Plentiful Placement",
             game_text="Put 4 damage counters on 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
     ],
 )
