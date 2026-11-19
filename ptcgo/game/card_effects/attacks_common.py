@@ -19,7 +19,10 @@ from ptcgo.game.attributes import (
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
-from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.passives_common import (
+    condition_immunity_passive,
+    no_weakness_passive,
+)
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
@@ -537,14 +540,17 @@ def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
 
 def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                      min_heads: int = 1, tails_conditions=(),
-                     always_conditions=(), heads_bonus_damage: int = 0,
-                     self_conditions=(), both_actives: bool = False,
-                     no_retreat: bool = False, counters: int = 1,
-                     checkup_coins: int = 1, damage: Optional[int] = None,
-                     also=None):
+                     tails_self_conditions=(), always_conditions=(),
+                     heads_bonus_damage: int = 0, self_conditions=(),
+                     both_actives: bool = False, no_retreat: bool = False,
+                     counters: int = 1, checkup_coins: int = 1,
+                     damage: Optional[int] = None, also=None):
     """Printed damage + Special Conditions on the Defending Pokemon; flip=True
     gates `conditions`/self_conditions/no_retreat/heads_bonus_damage on
-    min_heads heads (tails_conditions on failure, always_conditions always)."""
+    min_heads heads (tails_conditions on failure, always_conditions always).
+
+    `tails_self_conditions` is the mirror wording "if tails, YOUR Active
+    Pokemon is now X": those land on the attacker, not the defender."""
     async def effect(ctx):
         success = True
         if flip:
@@ -561,6 +567,11 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                 ctx.defender, condition,
                 checkup_coins=checkup_coins, poison_counters=counters)
             if both_actives:
+                await ctx.apply_special_condition(
+                    ctx.attacker, condition,
+                    checkup_coins=checkup_coins, poison_counters=counters)
+        if not success:
+            for condition in tails_self_conditions:
                 await ctx.apply_special_condition(
                     ctx.attacker, condition,
                     checkup_coins=checkup_coins, poison_counters=counters)
@@ -926,6 +937,63 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def discard_defender_tools_then_damage(damage: Optional[int] = None):
+    """"Before doing damage, discard all Pokemon Tools from your opponent's
+    Active Pokemon": the order matters, so the tools leave first and the
+    printed damage lands on a defender that no longer holds them."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is not None:
+            tools = [child for child in defender.children
+                     if child.get_attribute(AttrID.TRAINER_TYPE) is not None]
+            if tools:
+                await ctx.discard_cards(tools)
+        await ctx.deal_damage(damage)
+    return effect
+
+
+def no_weakness_next_turn(damage: Optional[int] = None):
+    """Printed (or `damage`) damage, then the attacker has no Weakness during
+    the opponent's next turn ("During your opponent's next turn, this Pokemon
+    has no Weakness"). The shield is a temporary passive, so it ends with the
+    turn window the same way a protection rider does."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if ctx.attacker is None:
+            return
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, no_weakness_passive())
+    return effect
+
+
+def identity_swap_from_deck(named: str, prompt: str = ""):
+    """Search your deck for another `<named>` and switch it with this Pokemon,
+    keeping everything on it ("Any cards attached to Ditto, damage counters,
+    Special Conditions, and effects on it are now on the new Pokemon").
+
+    The swap itself is `ctx.identity_swap`, the same one Nanu and Ogre's Mask
+    use, so attachments, damage, conditions and turn stamps all transfer."""
+    want = named.strip().lower()
+
+    def matches(card) -> bool:
+        definition = def_for(getattr(card, "archetype_id", "") or "")
+        return (getattr(definition, "display_name", "") or "").strip().lower() == want
+
+    async def effect(ctx):
+        pool = [card for card in ctx.deck() if matches(card)]
+        if not pool:
+            return
+        picked = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt=prompt or f"Choose another {named} from your deck")
+        if not picked or ctx.source is None:
+            return
+        await ctx.identity_swap(ctx.source, picked[0])
+        await ctx.shuffle_deck()
+
     return effect
 
 
