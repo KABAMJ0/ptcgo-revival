@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import (condition_attack, count_energy,
+                                                    snipe_attack)
 
 card = PokemonCardDef(
     guid="437c3481-74ed-59bb-a876-3fb37a0ca9ce",
@@ -24,7 +25,8 @@ card = PokemonCardDef(
             title="Tropical Head",
             game_text="This attack does 20 damage times the amount of Energy attached to this Pok\u00e9mon to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(lambda ctx: count_energy('self')(ctx) * 20, pool='any',
+                                count=1, apply_modifiers=False),
         ),
         Attack(
             title="Dragon Hammer",
