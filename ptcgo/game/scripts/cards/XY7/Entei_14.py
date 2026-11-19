@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 20, base=20),
         ),
     ],
 )
