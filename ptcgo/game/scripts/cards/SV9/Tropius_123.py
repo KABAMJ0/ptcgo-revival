@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.pokemon import read_the_wind
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
 card = PokemonCardDef(
     guid="37f552d6-3792-53ab-870a-c9b4dc928fc3",
     key="SV9",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Fruit Bearing",
             game_text="Discard a card from your hand. If you do, draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=read_the_wind,
+            effect=discard_then_draw(1, 3),
         ),
         Attack(
             title="Gust",
