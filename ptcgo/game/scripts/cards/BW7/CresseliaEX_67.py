@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 
 card = PokemonCardDef(
     guid="7a8f0d65-24aa-5f15-96a2-fe117315e466",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon has no Weakness.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=unimplemented,
+            effect=no_weakness_next_turn(),
         ),
     ],
 )
