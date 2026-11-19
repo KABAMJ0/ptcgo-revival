@@ -1169,6 +1169,29 @@ def protect_next_turn(reduce=None, prevent=False, effects_too=False,
     return effect
 
 
+def shield_source_next_turn(reduce=None, prevent=False, effects_too=False,
+                            target="self", then=None):
+    """"During your opponent's next turn, prevent all damage done to this
+    Pokemon by attacks" from an ABILITY or a Trainer rather than an attack:
+    `protect_next_turn` is the attack twin and deals the printed damage first,
+    which an ability must not. target: "self" (the source Pokemon) or a
+    PokemonEntity/callable the caller already chose. `then(ctx, shielded)`."""
+    async def effect(ctx):
+        source = ctx.source
+        if callable(target):
+            picked = target(ctx)
+        elif target == "self":
+            picked = source
+        else:
+            picked = target
+        shielded = await apply_protection(
+            ctx, target=picked, reduce=reduce, prevent=prevent,
+            effects_too=effects_too)
+        if then is not None:
+            await then(ctx, shielded)
+    return effect
+
+
 class HealAmountPassive(Passive):
     """Rewrites heals done to the carrier (or its side): "whenever you heal a
     Pokemon, heal 20 more" / a flat "heals 30 damage instead of 20" / a
