@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Poliwrath does 20 damage to itself.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

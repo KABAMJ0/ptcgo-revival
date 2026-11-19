@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="Erika's Bellsprout does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

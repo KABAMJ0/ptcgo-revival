@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Gyarados does 20 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

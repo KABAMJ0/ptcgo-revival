@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _reorder_top(ctx):
+    await ctx.deal_damage()
+    await ctx.reorder_deck_top(3)
+
+
 card = PokemonCardDef(
     guid="16dcfab9-1878-5985-bcaf-856ed93eb9a3",
     key="DP4",
@@ -22,7 +27,7 @@ card = PokemonCardDef(
             title="Calculate",
             game_text="Look at the top 3 cards of your deck and put them back on top of your deck in any order.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_reorder_top,
         ),
         Attack(
             title="Sharpen",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="bb1de76e-c82a-5232-8e35-a3c6a8b2d19c",
@@ -28,7 +30,8 @@ card = PokemonCardDef(
             title="Rest",
             game_text="This Pok\u00e9mon is now Asleep. Heal 90 damage from it.",
             cost={PokemonTypes.COLORLESS: 4},
-            effect=unimplemented,
+            effect=condition_attack(self_conditions=(SpecialConditions.ASLEEP,),
+                            also=heal_attack(90, target="self")),
         ),
     ],
 )

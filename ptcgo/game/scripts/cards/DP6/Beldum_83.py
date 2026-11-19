@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Beldum does 10 damage to itself.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

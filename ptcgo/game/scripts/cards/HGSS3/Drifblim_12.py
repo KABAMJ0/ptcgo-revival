@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Drifblim does 20 damage to itself.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
         Attack(
             title="Take Away",

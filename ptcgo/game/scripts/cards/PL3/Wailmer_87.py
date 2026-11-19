@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Wailmer does 20 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

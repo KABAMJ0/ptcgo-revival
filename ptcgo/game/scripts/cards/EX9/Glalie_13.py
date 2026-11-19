@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_evolution_pokemon
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
 card = PokemonCardDef(
     guid="ae1634d9-6607-5758-822b-e2155becffaf",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_evolution_pokemon(ctx.defender), 20),
         ),
     ],
 )

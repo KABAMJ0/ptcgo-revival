@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Porygon2 does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )
