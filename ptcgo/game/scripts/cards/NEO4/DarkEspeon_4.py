@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_choice
 
+
+async def _psysplash(ctx):
+    """Psysplash: 10 per Energy card on each opposing Pokemon, no W/R."""
+    for target in ctx.opponent_pokemon_in_play():
+        count = len(ctx.attached_energies(target))
+        if count:
+            await ctx.deal_damage(10 * count, target=target,
+                                  apply_modifiers=False, queue_shield=False)
+
 card = PokemonCardDef(
     guid="5d5cce3a-1554-5b87-a493-7fb2b226bea6",
     key="NEO4",
@@ -32,7 +41,7 @@ card = PokemonCardDef(
             title="Psysplash",
             game_text="Does 10 damage to each of your opponent's Pok\u00e9mon for each Energy card attached to that Pok\u00e9mon. Don't apply Weakness and Resistance.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_psysplash,
         ),
     ],
 )

@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import extra_energy_beyond_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _ink_blast(ctx):
+    """Ink Blast: 20 plus 10 per spare Energy, capped at 20 more."""
+    extra = min(20, 10 * max(0, extra_energy_beyond_cost(ctx)))
+    await ctx.deal_damage(20 + extra)
 
 card = PokemonCardDef(
     guid="e071eae8-6bb6-5409-b301-91312631ad71",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_ink_blast,
         ),
         Attack(
             title="Tentacle Wrap",
