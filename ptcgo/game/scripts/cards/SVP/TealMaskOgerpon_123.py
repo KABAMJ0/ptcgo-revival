@@ -1,8 +1,7 @@
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
-from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="7842534f-7b06-5464-b1ad-bd39e94171ec",
@@ -25,7 +24,7 @@ card = PokemonCardDef(
             title="Mountain Stroll",
             game_text="Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_hand(predicate=is_basic_energy_card, count=2, minimum=0),
+            effect=search_to_hand(is_basic_energy_card, count=2, reveal=True),
         ),
         Attack(
             title="Ogre Comeback",
@@ -33,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=damage_per(count_bench("opponent"), per=20, base=20),
+            effect=unimplemented,
         ),
     ],
 )

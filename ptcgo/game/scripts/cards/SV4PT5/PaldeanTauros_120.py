@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, snipe_attack
 
 card = PokemonCardDef(
     guid="4d979a22-b8ff-5637-a24d-e1e707bfba5b",
@@ -25,13 +25,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), per=10, base=20),
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Aqua Dive",
             game_text="This attack does 60 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
-            effect=snipe_attack(60, pool="any", count=1, apply_modifiers=False),
+            effect=unimplemented,
         ),
     ],
 )

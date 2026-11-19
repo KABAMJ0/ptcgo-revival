@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="15b7791a-478b-51fc-adce-012f1d029b6a",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), per=70, base=10),
+            effect=damage_per(damage_counters_on("self"), 70, base=10),
         ),
     ],
 )

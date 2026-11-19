@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
-from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="91c1f244-7ebe-547e-9628-6809213c8590",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Twinkling Hope",
             game_text="Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={},
-            effect=search_to_hand(predicate=is_basic_energy_card, count=2, minimum=0),
+            effect=search_to_hand(is_basic_energy_card, count=2, reveal=True),
         ),
     ],
 )

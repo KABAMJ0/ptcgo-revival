@@ -1,7 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="45d5f3ea-4855-5ddc-af0b-3e06b35f83ca",
@@ -24,7 +23,7 @@ card = PokemonCardDef(
             title="Poison Spray",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=condition_attack(SpecialConditions.POISONED),
+            effect=unimplemented,
         ),
         Attack(
             title="Relentless Punches",
@@ -32,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 3},
             damage=50,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("defender"), per=50, base=50),
+            effect=damage_per(damage_counters_on("defender"), 50, base=50),
         ),
     ],
 )

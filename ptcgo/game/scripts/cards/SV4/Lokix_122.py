@@ -1,7 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import switch_self_attack
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="cfe08784-d6e3-522f-86aa-ba4d2a6ec6e4",
@@ -26,7 +25,7 @@ card = PokemonCardDef(
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
-            effect=switch_self_attack(),
+            effect=unimplemented,
         ),
         Attack(
             title="Punishing Kick",
@@ -34,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("defender"), per=40, base=10),
+            effect=damage_per(damage_counters_on("defender"), 40, base=10),
         ),
     ],
 )

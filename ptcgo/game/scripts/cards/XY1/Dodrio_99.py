@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), per=10, base=20),
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Endeavor",
@@ -35,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=flip_damage(coins=2, bonus_per_heads=20),
+            effect=unimplemented,
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="8e2c8739-adc5-5cc4-a269-40288507eba8",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Blown Kiss",
             game_text="Put 1 damage counter on 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=place_counters(1, target="choose_any_opponent"),
         ),
     ],
 )

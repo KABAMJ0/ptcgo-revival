@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, snipe_attack
 
 card = PokemonCardDef(
     guid="9ca7210f-3e74-5a66-99b9-867b36a9f058",
@@ -25,14 +25,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), per=10, base=20),
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Frost Spear",
             game_text="This attack does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
-            effect=snipe_attack(20, pool="bench", count=1, apply_modifiers=False),
+            effect=unimplemented,
         ),
     ],
 )

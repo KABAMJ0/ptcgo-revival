@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="ffb6dc4c-f316-5325-bf32-3045ed09cbd6",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), per=10, base=20),
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
     ],
 )

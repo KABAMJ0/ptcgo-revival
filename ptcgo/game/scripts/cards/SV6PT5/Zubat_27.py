@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.trainers import is_supporter_card
-from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_supporter_card
 
 card = PokemonCardDef(
     guid="70c48412-aaf4-5eef-881e-ae3c72749198",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Lead",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=search_to_hand(predicate=is_supporter_card, count=1, minimum=1),
+            effect=search_to_hand(is_supporter_card, reveal=True),
         ),
         Attack(
             title="Darkness Fang",

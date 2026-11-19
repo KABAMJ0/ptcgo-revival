@@ -1,6 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
@@ -32,7 +31,7 @@ card = PokemonCardDef(
             title="Shadow Ball",
             game_text="This attack does 40 damage to 1 of your opponent's Pok\u00e9mon. Also apply Weakness and Resistance for Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=snipe_attack(40, pool="any", count=1, apply_modifiers=True),
+            effect=unimplemented,
         ),
     ],
 )

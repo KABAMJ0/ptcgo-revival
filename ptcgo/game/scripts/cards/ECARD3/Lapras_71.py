@@ -1,8 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.card_effects.trainers import is_supporter_card
-from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="d7e7c245-caa5-55de-8152-67d2e1e8d8f1",
@@ -25,7 +23,7 @@ card = PokemonCardDef(
             title="Assist",
             game_text="Search your deck for a Supporter card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=search_to_hand(predicate=is_supporter_card, count=1, minimum=1),
+            effect=unimplemented,
         ),
         Attack(
             title="Hypnoblast",

@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack, condition_attack
 
 card = PokemonCardDef(
     guid="b6a35759-74d2-507e-b8b0-bc8b6d72dc0c",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.FIRE: 1},
             damage=10,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Super Singe",
