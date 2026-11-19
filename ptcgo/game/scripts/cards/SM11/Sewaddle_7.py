@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self
+
 
 card = PokemonCardDef(
     guid="a4fc0ecf-5ec4-58d9-92ea-6a726cb2d01a",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Swaddling Leaves",
             game_text="This Pok\u00e9mon takes 10 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10),
         ),
         Attack(
             title="Surprise Attack",

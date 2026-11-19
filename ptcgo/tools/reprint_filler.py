@@ -237,12 +237,43 @@ def undefined_names(src: str, path: str) -> List[str]:
     return sorted(missing)
 
 
+def _immediate_loads(node) -> set:
+    """Names an expression loads right away: function and lambda bodies are skipped."""
+    loads = set()
+
+    class Visitor(ast.NodeVisitor):
+        def visit_Name(self, child):
+            if isinstance(child.ctx, ast.Load):
+                loads.add(child.id)
+
+        def _enter(self, child):
+            for default in child.args.defaults:
+                self.visit(default)
+            for default in child.args.kw_defaults:
+                if default is not None:
+                    self.visit(default)
+            for dec in getattr(child, "decorator_list", []):
+                self.visit(dec)
+
+        def visit_Lambda(self, child):
+            self._enter(child)
+
+        def visit_FunctionDef(self, child):
+            self._enter(child)
+
+        def visit_AsyncFunctionDef(self, child):
+            self._enter(child)
+
+    Visitor().visit(node)
+    return loads
+
+
 def use_before_bind(src: str, path: str) -> List[str]:
     """Module-level names an expression loads before anything binds them.
 
     A copied helper that is only bound further down the file still imports
-    cleanly and then raises NameError at load (found on SM11/Sableye's
-    granted ability), so ordering is checked, not just presence.
+    cleanly and then raises NameError at load (found on SM11/Sableye's granted
+    ability), so ordering is checked, not just presence.
     """
     tree = ast.parse(src, path)
     bound, problems = set(), []
@@ -251,7 +282,11 @@ def use_before_bind(src: str, path: str) -> List[str]:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             binds = {node.name}
             for sub in list(node.decorator_list) + list(getattr(node, "bases", [])):
-                loads |= {n.id for n in ast.walk(sub) if isinstance(n, ast.Name)}
+                loads |= _immediate_loads(sub)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for default in list(node.args.defaults) + list(node.args.kw_defaults):
+                    if default is not None:
+                        loads |= _immediate_loads(default)
         elif isinstance(node, (ast.Import, ast.ImportFrom)):
             binds = {a.asname or a.name.split(".")[0] for a in node.names}
         elif isinstance(node, ast.Assign):
@@ -260,9 +295,9 @@ def use_before_bind(src: str, path: str) -> List[str]:
                     binds.add(target.id)
                 elif isinstance(target, ast.Tuple):
                     binds |= {e.id for e in target.elts if isinstance(e, ast.Name)}
-            loads = {n.id for n in ast.walk(node.value) if isinstance(n, ast.Name)}
+            loads = _immediate_loads(node.value)
         else:
-            loads = {n.id for n in ast.walk(node) if isinstance(n, ast.Name)}
+            loads = _immediate_loads(node)
         early = sorted(n for n in loads if n not in bound and not hasattr(builtins, n))
         if early:
             problems.append(f"line {node.lineno}: {', '.join(early)}")

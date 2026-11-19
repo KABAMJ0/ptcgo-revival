@@ -1,6 +1,15 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack,
+    count_bench,
+    damage_per,
+    flip_damage,
+)
+
+
+def _is_fire(pokemon) -> bool:
+    return PokemonTypes.FIRE.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="93ca9daf-f934-590d-9102-9d0f59958036",
@@ -26,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", _is_fire), 20, base=10),
         ),
         Attack(
             title="Tiger Swing",

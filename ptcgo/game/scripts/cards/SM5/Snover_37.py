@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import pokemon_of_types
+from ptcgo.game.card_effects.attacks_common import bonus_if, active_is
+
 
 card = PokemonCardDef(
     guid="7d6a12dd-53ae-58b1-9bce-cd4df15b94ae",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(pokemon_of_types(PokemonTypes.FIGHTING)), 40),
         ),
     ],
 )

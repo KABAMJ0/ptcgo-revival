@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, hand_sizes_equal
+
 
 card = PokemonCardDef(
     guid="af3a7665-6475-5e0b-b0cc-669486a52281",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(hand_sizes_equal, 90),
         ),
     ],
 )

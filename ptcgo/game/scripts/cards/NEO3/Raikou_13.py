@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
+
 
 card = PokemonCardDef(
     guid="33d61250-af65-594c-8255-c0f4b1247bce",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, Raikou does 20 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=50,
-            effect=unimplemented,
+            effect=flip_damage(tails_self_damage=20),
         ),
     ],
 )

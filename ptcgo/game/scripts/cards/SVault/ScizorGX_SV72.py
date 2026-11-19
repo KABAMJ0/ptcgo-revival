@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_evolved
+
 
 card = PokemonCardDef(
     guid="26f1c7b3-6bbd-5cef-a394-1e76396bfc2d",
@@ -39,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_evolved, 100),
         ),
     ],
 )

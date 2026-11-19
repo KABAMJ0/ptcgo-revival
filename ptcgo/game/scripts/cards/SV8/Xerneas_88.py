@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
+
 
 card = PokemonCardDef(
     guid="0208d478-ec0c-5141-9c52-c0b4a34253c9",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't attack.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

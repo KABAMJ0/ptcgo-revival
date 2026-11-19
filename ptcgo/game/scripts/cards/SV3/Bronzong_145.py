@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import bonus_if, hand_sizes_equal
 
 
 card = PokemonCardDef(
@@ -35,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(hand_sizes_equal, 90),
         ),
     ],
 )
