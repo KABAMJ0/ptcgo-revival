@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="2cd6da0a-ce72-58d9-a297-37b894cb717a",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
     ],
 )
