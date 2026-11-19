@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_gx_or_ex
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Pok\u00e9mon-EX.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_gx_or_ex()),
         ),
         Attack(
             title="Slashing Strike",
