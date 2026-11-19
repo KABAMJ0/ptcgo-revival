@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="b8b07fed-732a-519b-9cfd-828d86b4a50d",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Tail Code",
             game_text="Move an Energy card attached to the Defending Pok\u00e9mon to another of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Snap Attack",

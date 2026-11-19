@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.session.effects import is_item_card
+
 
 card = PokemonCardDef(
     guid="08da1251-3bc6-5e43-988b-ed8df27f71d2",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Junk Magnet",
             game_text="Put up to 2 Item cards from your discard pile into your hand.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(is_item_card, count=2, to='hand'),
         ),
         Attack(
             title="Head Bolt",

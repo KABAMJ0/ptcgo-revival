@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
+
 
 card = PokemonCardDef(
     guid="9361b5f7-9e9e-5175-afbd-49d70cd95f24",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken('mine'), 50),
         ),
         Attack(
             title="Heat Blast",

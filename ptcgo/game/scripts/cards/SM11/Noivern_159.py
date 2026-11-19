@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import bare_mill
+
 
 card = PokemonCardDef(
     guid="ec79ad8b-0063-5715-b7f0-3294e3ac77f8",

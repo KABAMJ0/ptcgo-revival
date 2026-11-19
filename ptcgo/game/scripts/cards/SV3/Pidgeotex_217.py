@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.pokemon import aero_dive
+
 
 card = PokemonCardDef(
     guid="6de85b72-30e1-5130-8c1c-22a667bac5d2",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="You may discard a Stadium in play.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=aero_dive,
         ),
     ],
 )

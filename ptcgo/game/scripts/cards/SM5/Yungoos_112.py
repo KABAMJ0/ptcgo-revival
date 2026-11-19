@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
+
 
 card = PokemonCardDef(
     guid="997e7741-ae6e-57ac-a1cc-bd0902057f6d",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Scout",
             game_text="Your opponent reveals their hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Take Down",

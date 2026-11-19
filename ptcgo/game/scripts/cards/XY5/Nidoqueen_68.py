@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="547ddb53-24e3-586d-bcf4-50e9adc511e8",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 2 damage counters instead of 1 on that Pok\u00e9mon between turns.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=2),
         ),
     ],
 )

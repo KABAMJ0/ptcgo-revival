@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import WaveVeilPassive
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -20,8 +21,8 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Wave Veil",
-            game_text="Prevent all damage done to your Benched Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            game_text="Prevent all damage done to your Benched Pokémon by attacks from your opponent's Pokémon.",
+            passive=WaveVeilPassive(),
         ),
         Attack(
             title="Rain Splash",

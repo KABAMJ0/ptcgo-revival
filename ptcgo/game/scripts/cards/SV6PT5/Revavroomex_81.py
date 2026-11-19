@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
 
 card = PokemonCardDef(
     guid="2069fdaa-5f01-5b82-bd8b-f7de4a90689f",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.entered_active_this_turn(ctx.attacker), 120),
         ),
         Attack(
             title="Shattering Speed",

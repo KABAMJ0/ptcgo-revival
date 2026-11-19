@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_all_from_one
+from ptcgo.game.card_effects.pokemon import aqua_return
+
 
 card = PokemonCardDef(
     guid="5330b0a7-73f4-52e0-9b22-9ce5c68e3156",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="Shuffle this Pok\u00e9mon and all attached cards into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=aqua_return,
         ),
     ],
 )

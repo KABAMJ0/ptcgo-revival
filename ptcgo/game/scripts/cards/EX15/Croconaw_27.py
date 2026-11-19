@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+
 
 card = PokemonCardDef(
     guid="52d03d8b-75ff-5cfc-b419-248108402972",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Scary Face",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack or retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Slash",

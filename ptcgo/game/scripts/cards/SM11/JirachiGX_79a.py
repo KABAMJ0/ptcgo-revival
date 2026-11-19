@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+
 
 card = PokemonCardDef(
     guid="85198694-4549-509e-9d0e-54587f28f4ae",

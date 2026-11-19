@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+
 
 card = PokemonCardDef(
     guid="b615aa7c-19a0-50ff-9dfa-4d44f553c9f3",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Berry Scent",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic_pokemon, count=1),
         ),
         Attack(
             title="Guard Press",

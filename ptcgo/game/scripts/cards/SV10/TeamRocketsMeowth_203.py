@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+import random
+
+
+async def _astonish(ctx):
+    """Printed damage, then a random card from the opponent's hand is
+    revealed and shuffled into their deck."""
+    await ctx.deal_damage()
+    hand = ctx.hand(ctx.opponent_id)
+    if not hand:
+        return
+    card = random.choice(hand)
+    await ctx.reveal_cards([card])
+    await ctx.shuffle_into_deck([card], ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="e06bcf10-3dc5-52cf-8377-9e9134d5b2bb",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             title="Paw-cket Pilfer",
             game_text="Choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into their deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_astonish,
         ),
         Attack(
             title="Fury Swipes",

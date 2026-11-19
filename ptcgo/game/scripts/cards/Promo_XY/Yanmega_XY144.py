@@ -16,6 +16,8 @@ def _hand_sizes_equal(board, pokemon, carrier) -> bool:
 
 def _hand_is_four(board, pokemon, carrier) -> bool:
     return _hand_count(board, carrier.owning_player_id) == 4
+from ptcgo.game.card_effects.attacks_common import bonus_if, active_is, has_tool
+
 
 card = PokemonCardDef(
     guid="79359273-8c2c-5dc6-8bae-d9be2e690d1f",
@@ -47,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(has_tool), 70),
         ),
     ],
 )

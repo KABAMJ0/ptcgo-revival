@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_hand, damage_per
+
 
 card = PokemonCardDef(
     guid="d9cd2eb4-ad7d-56fb-b3ac-6e047e8471cb",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_hand('opponent'), 30),
         ),
     ],
 )

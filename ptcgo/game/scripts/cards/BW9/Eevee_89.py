@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+
 
 card = PokemonCardDef(
     guid="c41cc6e9-7259-5b7b-aa50-43849ba1b2cb",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Growl",
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 20 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=debuff_defender_attacks(20),
         ),
         Attack(
             title="Quick Attack",

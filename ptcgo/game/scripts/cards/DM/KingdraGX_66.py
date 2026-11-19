@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import damage_all_opponents
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents, damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
@@ -19,7 +19,7 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Seadra.Name",
-    family_id=116,
+    family_id=230,
     abilities=[
         Attack(
             title="Hydro Pump",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.WATER), 50, base=10),
         ),
         Attack(
             title="Reverse Thrust",

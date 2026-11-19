@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _entered_active_this_turn(ctx):
+    return ctx.entered_active_this_turn(ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="35f851d0-b6b6-595b-93aa-bf127a3268ca",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_entered_active_this_turn, 90),
         ),
         Attack(
             title="Dragon Claw",

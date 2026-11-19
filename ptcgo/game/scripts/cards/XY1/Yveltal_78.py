@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_all_attacks
+
+
+async def power_rush(ctx):
+    """120 damage. Flip a coin. If tails, this Pokémon can't attack during your next turn."""
+    await ctx.deal_damage()
+    heads = (await ctx.flip_coins(1, "Power Rush"))[0]
+    if not heads:
+        lock_all_attacks(ctx, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="7bbeb23e-79cf-58dd-bbfd-37d9bdd4d87b",
@@ -31,7 +41,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
-            effect=unimplemented,
+            effect=power_rush,
         ),
     ],
 )

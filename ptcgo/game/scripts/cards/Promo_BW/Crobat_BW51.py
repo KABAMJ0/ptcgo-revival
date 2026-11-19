@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import draw_n
+
 
 card = PokemonCardDef(
     guid="66d0897d-d420-5f9c-9d00-727e7773bb68",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Night Sight",
             game_text="Once during your turn (before your attack), you may draw a card.",
-            effect=unimplemented,
+            effect=draw_n(1),
         ),
         Attack(
             title="Ultra-Toxic Fang",

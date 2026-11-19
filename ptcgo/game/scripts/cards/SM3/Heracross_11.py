@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.passives_common import guts_survive_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
+
 
 card = PokemonCardDef(
     guid="74a17627-7528-5313-b8ad-571720adfe0b",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
     ],
 )

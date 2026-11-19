@@ -9,6 +9,7 @@ def _attacker_has_subtype(*names):
             name in (subtypes_for(attacker.archetype_id) or [])
             for name in names)
     return pred
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
 
 
 card = PokemonCardDef(
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
         Attack(
             title="Anachronism Repulsor",

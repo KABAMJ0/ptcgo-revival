@@ -6,6 +6,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 _provides = lambda type_value: (
     lambda card: energy_provides_type(card, type_value.value)
 )
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 
 card = PokemonCardDef(

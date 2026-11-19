@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _supporter_played_this_turn(ctx):
+    return ctx.supporters_played_this_turn() > 0
+
 
 card = PokemonCardDef(
     guid="4f821d1a-0ced-5081-b387-6329644f5667",
@@ -32,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_supporter_played_this_turn, 70),
         ),
         Attack(
             title="Silver Knight-GX",

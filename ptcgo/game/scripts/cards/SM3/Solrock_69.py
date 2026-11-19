@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_con
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
+
 
 card = PokemonCardDef(
     guid="967a4a46-7c96-53be-bb75-11af5d3a1c02",

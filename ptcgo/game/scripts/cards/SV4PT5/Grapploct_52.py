@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import delayed_knockout
+
 
 card = PokemonCardDef(
     guid="6387e5a2-6488-5c44-996c-cf421dc06d31",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="At the end of your opponent's next turn, the Defending Pok\u00e9mon will be Knocked Out.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=delayed_knockout,
         ),
         Attack(
             title="Mach Cross",

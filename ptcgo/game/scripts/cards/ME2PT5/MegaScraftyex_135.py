@@ -9,6 +9,13 @@ async def counterattacking_crest(ctx):
     if attacker is None:
         return
     await ctx.deal_damage(50, target=attacker, apply_modifiers=False, as_counters=True)
+from ptcgo.game.card_effects.attacks_common import discard_random_from_hand
+
+
+async def two_headed_crushing(ctx):
+    await ctx.deal_damage()
+    await discard_random_from_hand(ctx, ctx.opponent_id, 1)
+    await ctx.discard_cards(ctx.deck_top(1, player_id=ctx.opponent_id))
 
 
 card = PokemonCardDef(
@@ -40,7 +47,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand. Discard the top card of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=two_headed_crushing,
         ),
     ],
 )

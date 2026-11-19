@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
 
 card = PokemonCardDef(
     guid="e7cf9a54-d2d3-51d2-80c1-1cb1574b2af1",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             game_text="Search your deck for a basic Energy card and attach it to 1 of your Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=1, distribute=False),
         ),
         Attack(
             title="Double Slap",

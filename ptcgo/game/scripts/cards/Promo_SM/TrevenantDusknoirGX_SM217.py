@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+import random
+
+
+async def _yank_away(ctx):
+    """2 random cards out of the opponent's hand, revealed and shuffled back."""
+    hand = ctx.hand(ctx.opponent_id)
+    if not hand:
+        return
+    picks = random.sample(hand, min(2, len(hand)))
+    await ctx.reveal_cards(picks)
+    await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="8aaf5b56-d8d6-535a-987f-29e9db869b6d",
@@ -24,7 +36,7 @@ card = PokemonCardDef(
             game_text="Choose 2 random cards from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=150,
-            effect=unimplemented,
+            effect=_yank_away,
         ),
         Attack(
             title="Pale Moon-GX",

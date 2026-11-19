@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def ripping_horn(ctx):
+    results = await ctx.flip_coins(3, "Ripping Horn")
+    heads = sum(1 for r in results if r)
+    if heads == 0:
+        return
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    await ctx.discard_energy_from(
+        target, heads,
+        prompt="Choose Energy to discard from the Defending Pokémon")
+
+
 card = PokemonCardDef(
     guid="507d6af5-a0a8-583f-81ee-d3c24b493b42",
     key="ME55",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             title="Three-Headed Bite",
             game_text="Flip 3 coins. For each heads, discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=ripping_horn,
         ),
         Attack(
             title="Pitch-Black Fangs",

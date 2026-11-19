@@ -5,6 +5,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 async def _final_wish(ctx):
     await search_to_hand(None, count=1, reveal=False)(ctx)
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 
 card = PokemonCardDef(
@@ -34,7 +35,7 @@ card = PokemonCardDef(
             title="Seafaring",
             game_text="Flip 3 coins. For each heads, attach a Water Energy card from your discard pile to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy('self', 'water'), 20),
         ),
     ],
 )

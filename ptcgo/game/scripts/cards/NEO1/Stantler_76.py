@@ -3,6 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import flip_choice
+
 
 card = PokemonCardDef(
     guid="7f745df1-ef57-55f6-ad8c-5d09643edd5e",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_choice(heads=30, tails=20),
         ),
         Attack(
             title="Mystifying Horns",

@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
 
 card = PokemonCardDef(
     guid="3a9bb0a7-9ec5-5cf0-b827-bc93f739e3f1",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Primal Winds",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Basic Pok\u00e9mon's attacks cost Colorless more.",
-            effect=unimplemented,
+            effect=damage_per(count_energy('defender'), 10),
         ),
         Attack(
             title="Boulder Crush",

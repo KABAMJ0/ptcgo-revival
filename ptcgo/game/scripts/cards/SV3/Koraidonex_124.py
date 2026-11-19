@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 
 card = PokemonCardDef(
     guid="78dd6eb0-d910-507d-9a53-1b33ed747a85",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="This attack also does 20 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool='bench', count=2, apply_modifiers=False, also_base=True),
         ),
         Attack(
             title="Gaia Press",

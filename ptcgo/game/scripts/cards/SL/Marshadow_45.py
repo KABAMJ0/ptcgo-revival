@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
 
 card = PokemonCardDef(
     guid="b287060d-ab17-57e8-bcdf-7358c21c3e2b",
@@ -23,14 +24,15 @@ card = PokemonCardDef(
         Ability(
             title="Let Loose",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may have each player shuffle their hand into their deck and draw 4 cards.",
-            effect=unimplemented,
+            effect=shuffle_hand_into_deck_draw(4, 4),
+            trigger=Triggers.ON_PLAY,
         ),
         Attack(
             title="Shadow Punch",
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=ignore_modifier_attack(ignore_weakness=False),
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

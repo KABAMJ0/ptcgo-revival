@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
 
 card = PokemonCardDef(
     guid="cf1a850b-76c7-5cf0-bfdf-011021e41734",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy('both'), 20),
         ),
         Attack(
             title="Psydrive",

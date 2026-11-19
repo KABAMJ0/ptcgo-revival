@@ -2,6 +2,9 @@ from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import SpecialConditions
+
 
 card = PokemonCardDef(
     guid="6b699858-0eee-5a75-a45d-b9319e5bc6c6",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             game_text="Both this Pok\u00e9mon and the Defending Pok\u00e9mon are now Asleep.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, both_actives=True),
         ),
     ],
 )

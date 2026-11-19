@@ -3,6 +3,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
+
 card = PokemonCardDef(
     guid="2c42b9d0-5709-5e8c-8693-f9f908e191d5",
     key="Promo_SM",
@@ -40,7 +41,7 @@ card = PokemonCardDef(
             game_text="(You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=240,
-            effect=unimplemented,
+            effect=None,
         ),
     ],
 )

@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import def_for
+
+
+async def _delta_call(ctx):
+    picks = await ctx.search_deck(
+        _is_delta, count=1, minimum=0,
+        prompt="Choose a Pok\u00e9mon that has \u03b4 on its card")
+    if picks:
+        await ctx.put_in_hand(picks, reveal=True)
+    await ctx.shuffle_deck()
+
+
+def _is_delta(card):
+    name = getattr(def_for(card.archetype_id), "display_name", "") or ""
+    return "\u03b4" in name
+
 
 card = PokemonCardDef(
     guid="8f037289-0e10-5ced-8b61-4cfc77e89658",
@@ -27,7 +43,7 @@ card = PokemonCardDef(
             title="Delta Call",
             game_text="Search your deck for a Pok\u00e9mon that has \u03b4 on its card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_delta_call,
         ),
         Attack(
             title="Guillotine",

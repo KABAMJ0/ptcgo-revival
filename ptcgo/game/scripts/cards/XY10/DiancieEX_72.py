@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
+from ptcgo.game.card_effects.passives_common import takes_less_passive, is_in_active_spot
+
+
+def _sparkle_veil_protects(target, carrier):
+    return target.owning_player_id == carrier.owning_player_id and is_in_active_spot(carrier)
+
 
 card = PokemonCardDef(
     guid="f5909e1a-2e35-59f0-b1d4-bdb4fcbcef7c",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Sparkle Veil",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, any damage done to your Pok\u00e9mon by an opponent's attack is reduced by 30 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, protects=_sparkle_veil_protects),
         ),
         Attack(
             title="Wonder Stage",

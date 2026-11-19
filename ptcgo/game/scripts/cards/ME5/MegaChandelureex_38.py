@@ -2,6 +2,8 @@ from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
+
 
 card = PokemonCardDef(
     guid="11637729-6873-5d82-b221-7441bbd6da92",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Binding Flame",
             game_text="Your opponent's Active Pok\u00e9mon's Retreat Cost is Colorless more.",
-            effect=unimplemented,
+            passive=opponent_retreat_tax_passive(1, active_only=True),
         ),
         Attack(
             title="Phantom Maze",

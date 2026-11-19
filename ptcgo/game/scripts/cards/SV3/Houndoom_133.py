@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, active_is
+from ptcgo.game.session.effects import is_evolution_pokemon
+
 
 card = PokemonCardDef(
     guid="648cd06f-78bb-5909-aa4a-5280e3224531",
@@ -26,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(is_evolution_pokemon), 70),
         ),
         Attack(
             title="Shadow Slash",

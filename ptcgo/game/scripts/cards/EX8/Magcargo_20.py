@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.trainers import search_to_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
 
 card = PokemonCardDef(
     guid="b9b6da80-826e-58d5-b8bb-080294359681",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             game_text="You may discard any Stadium card in play.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=discard_stadium_attack(optional=True),
         ),
         Attack(
             title="Combustion",

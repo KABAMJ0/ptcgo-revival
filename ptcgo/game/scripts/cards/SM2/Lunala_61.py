@@ -2,6 +2,12 @@ from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def earthen_boom(ctx):
+    await ctx.deal_damage()
+    await ctx.move_energy_freely([ctx.attacker], ctx.my_bench())
+
+
 card = PokemonCardDef(
     guid="e2aca28c-ff91-5ea3-a54d-0c56211f8421",
     key="SM2",
@@ -34,7 +40,7 @@ card = PokemonCardDef(
             game_text="Move all Energy from this Pok\u00e9mon to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=130,
-            effect=unimplemented,
+            effect=earthen_boom,
         ),
     ],
 )

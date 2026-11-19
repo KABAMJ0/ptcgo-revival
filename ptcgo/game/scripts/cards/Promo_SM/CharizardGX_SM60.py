@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -19,7 +20,7 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Charmeleon.Name",
-    family_id=6,
+    family_id=4,
     abilities=[
         Attack(
             title="Wing Attack",
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             title="Raging Out-GX",
             game_text="Discard the top 10 cards of your opponent's deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=bare_mill(10),
         ),
     ],
 )

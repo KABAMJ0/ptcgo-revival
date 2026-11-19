@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
@@ -18,7 +19,7 @@ card = PokemonCardDef(
     retreat_cost=1,
     weakness_type=PokemonTypes.DARKNESS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Drifloon.Name",
-    family_id=426,
+    family_id=425,
     abilities=[
         Attack(
             title="Shadow Steal",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
         Attack(
             title="Plentiful Placement",

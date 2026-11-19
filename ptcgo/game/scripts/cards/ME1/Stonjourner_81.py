@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
+
 
 card = PokemonCardDef(
     guid="5f6b0085-e0d8-5e2c-8d91-db7440bbc704",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't use attacks.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=140,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

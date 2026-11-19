@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+
 
 card = PokemonCardDef(
     guid="5d89bb73-8f02-5c66-9ff4-9bbc34d8f6e9",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Double Type",
             game_text="As long as this Pok\u00e9mon is in play, it is Grass and Fire type.",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on('self'), 70),
         ),
         Attack(
             title="Spicy Headbutt",

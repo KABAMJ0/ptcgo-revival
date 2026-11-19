@@ -2,6 +2,16 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
+
+async def max_wind_spirit(ctx):
+    """120, +120 more if a Stadium is in play; then discard that Stadium."""
+    stadium = ctx.stadium_in_play()
+    amount = 120 + (120 if stadium is not None else 0)
+    await ctx.deal_damage(amount)
+    if stadium is not None:
+        await ctx.discard_stadium()
+
+
 card = PokemonCardDef(
     guid="8415f47a-c6ec-5f3f-a4e8-d2338ad9fe51",
     key="ME2",
@@ -26,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=max_wind_spirit,
         ),
         Attack(
             title="Blizzard Edge",

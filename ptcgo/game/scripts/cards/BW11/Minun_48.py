@@ -1,5 +1,6 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage, damage_all_opponents
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(

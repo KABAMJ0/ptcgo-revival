@@ -1,6 +1,14 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+
+
+def _is_basic_grass_pokemon(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_basic_pokemon(card) and PokemonTypes.GRASS.value in types
+
 
 card = PokemonCardDef(
     guid="79fad5f4-8a5a-5cb1-b8c4-784612ef9e18",
@@ -23,7 +31,7 @@ card = PokemonCardDef(
             title="Forest Feast",
             game_text="Search your deck for up to 2 Basic Grass Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(predicate=_is_basic_grass_pokemon, count=2),
         ),
         Attack(
             title="Wood Hammer",

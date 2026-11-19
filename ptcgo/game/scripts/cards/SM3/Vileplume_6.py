@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="d653ecab-8125-525c-95b2-a407c015bc63",
@@ -29,7 +32,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Asleep. If tails, your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True, tails_conditions=(SpecialConditions.CONFUSED,)),
         ),
     ],
 )

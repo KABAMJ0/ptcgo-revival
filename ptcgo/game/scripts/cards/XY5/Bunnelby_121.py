@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="3c22761e-f127-577f-a8b1-553445779489",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             title="Rototiller",
             game_text="Shuffle a card from your discard pile into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1, to='deck_shuffle'),
         ),
     ],
 )

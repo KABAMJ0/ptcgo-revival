@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 card = PokemonCardDef(
     guid="032f3c98-7b58-5778-92de-c43547ce5be4",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Cottony Carrier",
             game_text="Your Basic Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target='choice'),
         ),
         Attack(
             title="Flap",

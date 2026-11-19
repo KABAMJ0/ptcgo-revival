@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+
+
+async def pressure_shot(ctx):
+    """180. This Pokemon also does 10 damage to itself for each damage
+    counter on it."""
+    await ctx.deal_damage()
+    counters = damage_counters_on("self")(ctx)
+    if counters:
+        await ctx.deal_damage(counters * 10, target=ctx.attacker, apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="bde4995f-40fb-549b-8ba5-867874badde8",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon also does 10 damage to itself for each damage counter on it.",
             cost={PokemonTypes.WATER: 1},
             damage=130,
-            effect=unimplemented,
+            effect=pressure_shot,
         ),
         Attack(
             title="Double Hit",

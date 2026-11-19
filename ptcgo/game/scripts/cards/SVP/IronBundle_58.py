@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
+from ptcgo.game.session.effects import is_evolution_pokemon
+
+
+async def _hammer_pressure(ctx):
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is not None and is_evolution_pokemon(defender):
+        lock_defender_attacks(ctx, defender)
+
 
 card = PokemonCardDef(
     guid="a633b1e5-850b-5a72-a5fe-b5ecb3e45156",
@@ -28,7 +38,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon is an Evolution Pok\u00e9mon, it can't attack during your opponent's next turn.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=_hammer_pressure,
         ),
     ],
 )

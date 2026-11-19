@@ -1,6 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.support_common import gust_then
+
+
+async def sleep_new_defender(ctx, pokemon):
+    await ctx.apply_special_condition(pokemon, SpecialConditions.ASLEEP)
+
 
 card = PokemonCardDef(
     guid="d5bbe815-1110-5409-9452-e39506e74d5f",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
             title="Sleep Inducer",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with 1 of the Defending Pok\u00e9mon. Your opponent chooses the Defending Pok\u00e9mon to switch. The new Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_then(sleep_new_defender, opponent_chooses=True),
         ),
         Attack(
             title="Quick Blow",

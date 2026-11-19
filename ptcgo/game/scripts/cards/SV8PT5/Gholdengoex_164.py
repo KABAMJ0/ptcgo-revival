@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.support_common import conditional_draw
+
+
+def _in_active_spot(ctx) -> bool:
+    return is_in_active_spot(ctx.source)
+
 
 card = PokemonCardDef(
     guid="cdb67b4c-30c3-5095-b637-698e063c5abd",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Coin Bonus",
             game_text="Once during your turn, you may draw a card. If this Pok\u00e9mon is in the Active Spot, draw 1 more card.",
-            effect=unimplemented,
+            effect=conditional_draw(1, 1, _in_active_spot),
         ),
         Attack(
             title="Make It Rain",

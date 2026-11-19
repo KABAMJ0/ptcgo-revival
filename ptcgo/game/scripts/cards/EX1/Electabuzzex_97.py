@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+
 
 card = PokemonCardDef(
     guid="b3155438-bd7b-577e-b219-b594826f1bc3",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(60)),
         ),
     ],
 )

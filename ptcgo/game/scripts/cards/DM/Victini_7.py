@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def upstream_spirits(ctx):
+    """This attack does 20 damage for each basic Energy card in your discard
+    pile. Then, shuffle those cards into your deck."""
+    basics = [c for c in ctx.discard_pile() if is_basic_energy_card(c)]
+    await ctx.deal_damage(20 * len(basics))
+    if basics:
+        await ctx.shuffle_into_deck(basics)
+
 
 card = PokemonCardDef(
     guid="e3ebda73-baf3-5983-b843-c53b5e5ca9dd",
@@ -24,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=upstream_spirits,
         ),
     ],
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
+
 
 card = PokemonCardDef(
     guid="ac7844c6-6e33-55ec-8ab6-fe4b86083d23",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Clairvoyance",
             game_text="Your opponent reveals his or her hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Psychic",

@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.card_effects.attacks_common import discard_for_bonus, smokescreen_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
+
 
 card = PokemonCardDef(
     guid="dcf08b92-6ed3-561a-8a4b-c861d210bc11",

@@ -2,6 +2,15 @@ from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_trainer_card
+
+
+async def poltergeist(ctx):
+    """Opponent reveals their hand; 50 damage for each Trainer card found there."""
+    cards = await ctx.reveal_hand(of_player=ctx.opponent_id)
+    count = sum(1 for c in cards if is_trainer_card(c))
+    await ctx.deal_damage(50 * count)
+
 
 card = PokemonCardDef(
     guid="a041cf5c-7404-53dc-bfd1-e638a8ae2b39",
@@ -33,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=poltergeist,
         ),
     ],
 )

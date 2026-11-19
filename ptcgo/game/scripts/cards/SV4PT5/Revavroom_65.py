@@ -1,6 +1,23 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import requires_hand
+from ptcgo.game.card_effects.trainers import is_energy_card
+
+
+_engine_gate = requires_hand(is_energy_card, n=1)
+
+
+async def _rumbling_engine(ctx):
+    """Discard an Energy card from hand, then draw up to 6 cards in hand."""
+    if not await ctx.ask_yes_no(
+            "Discard an Energy card from your hand to draw until you have 6?"):
+        return
+    if not await ctx.discard_from_hand(
+            1, predicate=is_energy_card,
+            prompt="Discard an Energy card from your hand"):
+        return
+    await ctx.draw_until(6)
 
 card = PokemonCardDef(
     guid="81790a43-d72f-5278-95b4-09f3bdfdc187",
@@ -24,7 +41,9 @@ card = PokemonCardDef(
         Ability(
             title="Rumbling Engine",
             game_text="You must discard an Energy card from your hand in order to use this Ability. Once during your turn, you may draw cards until you have 6 cards in your hand.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_engine_gate,
+            effect=_rumbling_engine,
         ),
         Attack(
             title="Knock Away",

@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_all_attacks
+
+
+async def white_blaze(ctx):
+    """Flip a coin. If tails, during your next turn, this Pokémon can't attack."""
+    await ctx.deal_damage()
+    heads = (await ctx.flip_coins(1, ctx.ability.title))[0]
+    if not heads:
+        lock_all_attacks(ctx, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="015d4f00-4dae-5e8b-8920-6d4eed44484a",
@@ -29,7 +39,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, during your next turn, this Pok\u00e9mon can't attack.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=130,
-            effect=unimplemented,
+            effect=white_blaze,
         ),
     ],
 )

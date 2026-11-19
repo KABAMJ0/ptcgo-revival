@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.support_common import look_at_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="51056405-816e-5a08-9f89-6d97b5311960",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=40,
-            effect=unimplemented,
+            effect=condition_attack(self_conditions=(SpecialConditions.ASLEEP,)),
         ),
     ],
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import search_to_hand
+
 
 card = PokemonCardDef(
     guid="9274c16d-3547-5557-a0d3-c3bae1562b50",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             game_text="You may search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=130,
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, reveal=False),
         ),
     ],
 )

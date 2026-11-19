@@ -4,6 +4,15 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 async def _place_active_counters(ctx):
     await ctx.deal_damage()
     await ctx.place_damage_counters(7, [ctx.opponent_active()])
+from ptcgo.game.data_utils import subtypes_for
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _is_ex_or_v(pokemon) -> bool:
+    if pokemon is None:
+        return False
+    subtypes = [name.lower() for name in subtypes_for(pokemon.archetype_id)]
+    return "ex" in subtypes or "v" in subtypes
 
 
 card = PokemonCardDef(
@@ -26,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Safeguard",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon ex and Pok\u00e9mon V.",
-            effect=unimplemented,
+            passive=prevent_damage_when(lambda calc, carrier: calc.target is carrier and _is_ex_or_v(calc.attacker)),
         ),
         Attack(
             title="Ghost Eye",

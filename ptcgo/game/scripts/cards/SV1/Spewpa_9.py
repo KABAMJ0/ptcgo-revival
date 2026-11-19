@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class AdaptiveEvolutionPassive(Passive):
+    def may_evolve_early(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
 
 card = PokemonCardDef(
     guid="2328ab69-4e02-57b9-a9df-e2bb5e9d96bb",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Adaptive Evolution",
             game_text="This Pok\u00e9mon can evolve during your first turn or the turn you play it.",
-            effect=unimplemented,
+            passive=AdaptiveEvolutionPassive(),
         ),
         Attack(
             title="Bug Bite",

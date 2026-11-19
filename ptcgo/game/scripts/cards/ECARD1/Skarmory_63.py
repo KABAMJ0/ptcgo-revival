@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+
 
 card = PokemonCardDef(
     guid="f75998e0-7ff0-575c-b9d2-e6d7a5ff773b",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_bonus(10),
         ),
         Attack(
             title="Air Cutter",

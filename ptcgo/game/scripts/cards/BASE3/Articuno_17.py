@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import spread_damage
+
+
+async def blizzard(ctx):
+    await ctx.deal_damage()
+    heads = await ctx.flip_coins(1, ctx.ability.title)
+    if heads and heads[0]:
+        await spread_damage(10)(ctx)
+    else:
+        await spread_damage(10, side="mine")(ctx)
+
 
 card = PokemonCardDef(
     guid="111fd21d-6949-5ec4-a5e0-eebdc29a771b",
@@ -32,7 +43,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. If tails, this attack does 10 damage to each of your own Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 4},
             damage=50,
-            effect=unimplemented,
+            effect=blizzard,
         ),
     ],
 )

@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, spread_damage
+
 
 card = PokemonCardDef(
     guid="af12b504-3efa-5f74-9427-58dc78712ee7",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Sinister Fog",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 1 damage counter on each of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, also=spread_damage(10, side='opponent')),
         ),
         Attack(
             title="Creep Show",

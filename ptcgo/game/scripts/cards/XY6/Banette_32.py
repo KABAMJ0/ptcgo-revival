@@ -2,6 +2,12 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
 
+
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(5, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="88dbf48a-508d-5ecf-ae9d-cf645b859f7f",
     key="XY6",
@@ -32,7 +38,7 @@ card = PokemonCardDef(
             title="Curse Deeply",
             game_text="Put 5 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )

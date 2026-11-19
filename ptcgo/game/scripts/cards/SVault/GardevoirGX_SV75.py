@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="1b1cfc48-9be9-56b4-8da5-3eda3878911c",
@@ -31,13 +34,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy('both'), 30),
         ),
         Attack(
             title="Twilight-GX",
             game_text="Shuffle 10 cards from your discard pile into your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=10, to='deck_shuffle'),
         ),
     ],
 )

@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, recoil_attack
 from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 from ptcgo.game.card_effects.trainers import all_of
@@ -35,7 +35,7 @@ card = PokemonCardDef(
             game_text="Put 1 damage counter on Beldum.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )

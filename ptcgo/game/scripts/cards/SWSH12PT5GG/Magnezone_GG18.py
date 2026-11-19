@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_metal_energy_card
+from ptcgo.game.card_effects.support_common import look_top_attach_energy
 
 card = PokemonCardDef(
     guid="2abf870a-e78c-5305-80b2-6ad5b5180c84",
@@ -18,12 +20,13 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.FIRE,
     resistance_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Magneton.Name",
-    family_id=462,
+    family_id=81,
     abilities=[
         Ability(
             title="Giga Magnet",
             game_text="Once during your turn, you may look at the top 6 cards of your deck and attach any number of Metal Energy cards you find there to your Pok\u00e9mon in any way you like. Shuffle the other cards back into your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=look_top_attach_energy(6, predicate=is_metal_energy_card),
         ),
         Attack(
             title="Power Beam",

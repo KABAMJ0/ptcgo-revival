@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def caturday(ctx):
+    """Draw 3 cards. If you do, this Pokemon is now Asleep."""
+    drawn = await ctx.draw_cards(3)
+    if drawn:
+        await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
+
 
 card = PokemonCardDef(
     guid="6e6806fa-14f9-5fdc-84fb-459099d0e9a1",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
             title="Caturday",
             game_text="Draw 3 cards. If you do, this Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=caturday,
         ),
         Attack(
             title="Perplexing Eyes",

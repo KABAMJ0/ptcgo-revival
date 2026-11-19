@@ -3,6 +3,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
+
 
 card = PokemonCardDef(
     guid="682049b0-9fba-5abb-ba0e-156421c63cc3",

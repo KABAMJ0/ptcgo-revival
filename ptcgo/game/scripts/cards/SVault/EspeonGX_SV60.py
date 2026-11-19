@@ -1,6 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack,
+    count_energy,
+    damage_per,
+    place_counters,
+)
 
 card = PokemonCardDef(
     guid="0adf5fc5-6789-55d6-b349-521505522dc1",
@@ -33,13 +38,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender", cards=True), 30, base=60),
         ),
         Attack(
             title="Divide-GX",
             game_text="Put 10 damage counters on your opponent's Pok\u00e9mon in any way you like. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=place_counters(10, "choose_any_opponent"),
         ),
     ],
 )

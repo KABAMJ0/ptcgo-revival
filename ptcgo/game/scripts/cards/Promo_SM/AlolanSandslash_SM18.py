@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
+from ptcgo.game.card_effects.trainers import draw_n
+
 
 card = PokemonCardDef(
     guid="add2c2e5-4cbf-5502-ae83-55bbc977e92f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Slush Rush",
             game_text="Once during your turn (before your attack), you may draw a card.",
-            effect=unimplemented,
+            effect=draw_n(1),
         ),
         Attack(
             title="Smash Turn",

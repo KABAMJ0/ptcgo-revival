@@ -1,7 +1,11 @@
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _carefree_pred(calc, carrier):
+    return calc.is_attack and calc.target is carrier and not calc.to_active
 
 card = PokemonCardDef(
     guid="b10fa22b-ad95-5d6a-8e42-2e1ab351b4b7",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Carefree Countenance",
             game_text="As long as this Pok\u00e9mon is on your Bench, prevent all damage done to this Pok\u00e9mon by attacks (both yours and your opponent's).",
-            effect=unimplemented,
+            passive=prevent_damage_when(_carefree_pred, attacks_only=False),
         ),
         Attack(
             title="Hyper Fang",

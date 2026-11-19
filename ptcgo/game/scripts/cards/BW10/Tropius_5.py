@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
 
 card = PokemonCardDef(
     guid="29ca70fd-d910-5ff5-989d-eed1ea5a72a2",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy('defender'), 20, base=20),
         ),
     ],
 )

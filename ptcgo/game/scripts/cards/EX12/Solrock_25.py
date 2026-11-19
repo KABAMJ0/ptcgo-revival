@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.card_effects.trainers import named_exactly
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+
 
 card = PokemonCardDef(
     guid="9cef0127-3a66-5c89-bb04-3bb73065658b",
@@ -35,7 +37,7 @@ card = PokemonCardDef(
             title="Hyper Beam",
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
     ],
 )

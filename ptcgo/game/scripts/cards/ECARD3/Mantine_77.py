@@ -3,6 +3,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
+
 card = PokemonCardDef(
     guid="6e1e0c3d-5745-5468-92ee-1f4d48616ba6",
     key="ECARD3",

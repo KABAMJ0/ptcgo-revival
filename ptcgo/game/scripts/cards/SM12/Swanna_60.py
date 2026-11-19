@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 card = PokemonCardDef(
     guid="017676c2-938c-5547-b84e-aa6a23c3c696",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             title="Tailwind",
             game_text="Attach an Energy card from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, count=1, target='choice'),
         ),
         Attack(
             title="Air Slash",

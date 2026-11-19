@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+
+async def counterattack(ctx):
+    """Active Spot only: if damaged by an opponent's attack (even if
+    Knocked Out), put 3 damage counters on the Attacking Pokemon."""
+    if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None:
+        return
+    await ctx.deal_damage(30, target=attacker, apply_modifiers=False, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="01277f37-52d1-5523-9613-6f9ddc9568a3",
@@ -22,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Counterattack",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), put 3 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=counterattack,
         ),
         Attack(
             title="Big Bite",

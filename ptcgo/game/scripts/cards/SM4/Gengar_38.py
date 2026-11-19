@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import Triggers
+
+
+async def biting_whirlpool(ctx):
+    """Whenever your opponent attaches an Energy card from their hand to 1 of
+    their Pokémon, put 2 damage counters on that Pokémon."""
+    if ctx.attaching_player_id == ctx.player_id:
+        return
+    receiver = ctx.energy_receiver
+    if receiver is None:
+        return
+    await ctx.deal_damage(20, target=receiver, apply_modifiers=False, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="59311da7-6924-52e8-a9ea-7a5eb66844c7",
@@ -24,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Gnawing Curse",
             game_text="Whenever your opponent attaches an Energy card from their hand to 1 of their Pok\u00e9mon, put 2 damage counters on that Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=biting_whirlpool,
         ),
         Attack(
             title="Fade to Black",

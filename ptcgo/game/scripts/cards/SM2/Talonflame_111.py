@@ -2,6 +2,9 @@ from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.support_common import return_attached_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
+
 
 card = PokemonCardDef(
     guid="6f6cb748-ecb2-59ba-8969-8e71c94df424",
@@ -27,7 +30,7 @@ card = PokemonCardDef(
             game_text="Search your deck for a Fire Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of('Fire'), count=1, to_self=True),
         ),
         Attack(
             title="Loop-the-Loop",

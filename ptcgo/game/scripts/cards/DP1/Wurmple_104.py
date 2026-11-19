@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+
 
 card = PokemonCardDef(
     guid="81e80d8c-3eaa-5a52-a773-67e422dac40b",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
         ),
         Attack(
             title="String Shot",
