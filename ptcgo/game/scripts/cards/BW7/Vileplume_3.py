@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import weakness_multiplier_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
@@ -26,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Allergy Panic",
             game_text="Apply Weakness for each Pok\u00e9mon (both yours and your opponent's) as \u00d74 instead.",
-            effect=unimplemented,
+            passive=weakness_multiplier_passive(4, when=lambda calc, carrier: True),
         ),
         Attack(
             title="Pollen Spray",

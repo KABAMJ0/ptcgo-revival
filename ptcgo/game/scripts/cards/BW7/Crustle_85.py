@@ -1,4 +1,5 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.passives_common import guts_survive_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_bonus
@@ -24,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Sturdy",
             game_text="If this Pok\u00e9mon has full HP and would be Knocked Out by damage from an attack, this Pok\u00e9mon is not Knocked Out and its remaining HP becomes 10 instead.",
-            effect=unimplemented,
+            passive=guts_survive_passive(hp_floor=10, title="Sturdy", flip=False,
+                                         require_full_hp=True),
         ),
         Attack(
             title="Stone Edge",

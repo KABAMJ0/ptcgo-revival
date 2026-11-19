@@ -1,6 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+def _is_asleep(ctx):
+    return "Asleep" in (ctx.attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
 
 card = PokemonCardDef(
     guid="22334d1c-3802-58c1-905e-9ac81dbb1183",
@@ -32,7 +38,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            usable_despite_conditions=True,
+            effect=bonus_if(_is_asleep, 30),
         ),
     ],
 )

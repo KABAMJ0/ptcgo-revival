@@ -1,4 +1,6 @@
 from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
+from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.content.definitions import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
@@ -23,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Sparkling Particles",
             game_text="At any time between turns, heal 10 damage from this Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=heal_targets(10, scope="active"),
         ),
         Attack(
             title="Psychic Protection",

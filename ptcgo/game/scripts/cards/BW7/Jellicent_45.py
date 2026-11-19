@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
@@ -25,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Stickiness",
             game_text="The Retreat Cost of each of your opponent's Pok\u00e9mon in play is Colorless more.",
-            effect=unimplemented,
+            passive=opponent_retreat_tax_passive(1),
         ),
         Attack(
             title="Eerie Light",
