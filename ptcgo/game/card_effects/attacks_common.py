@@ -167,6 +167,23 @@ def damage_counters_on(target_fn="self"):
     return count
 
 
+def count_retreat_cost(side: str = "defender"):
+    """The retreat cost of the Active Pokemon on `side`, as a count function.
+
+    Every printed retreat cost in the corpus is a plain integer of colourless
+    pips, so "for each Colorless in your opponent's Active Pokemon's retreat
+    cost" is that number and needs no per-type breakdown."""
+    from ptcgo.game.session.passives import effective_retreat_cost
+
+    def count(ctx) -> int:
+        pokemon = ctx.defender if side == "defender" else ctx.attacker
+        if pokemon is None:
+            return 0
+        return effective_retreat_cost(ctx.board, pokemon)
+
+    return count
+
+
 def count_hand(side: str = "mine"):
     def count(ctx) -> int:
         return ctx.hand_size(_side_pid(ctx, side))
@@ -827,6 +844,29 @@ def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
                 count = sum(1 for card in ctx.attached_energies(defender)
                             if predicate is None or predicate(card))
         await ctx.deal_damage(max(floor, base - per * count))
+    return effect
+
+
+def damage_half_remaining_hp(round_to: int = 10, ignore_modifiers: bool = True):
+    """"Does damage to the Defending Pokemon equal to half its remaining HP,
+    rounded up to the nearest 10" (Super Fang): one body for the four Raticate
+    printings rather than a local copy each.
+
+    `ignore_modifiers` keeps the number equal to the printed rule; pass False
+    for a printing that lets Weakness and Resistance apply."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        remaining = max(0, defender.get_attribute(AttrID.HP, 0))
+        half = (remaining + 1) // 2
+        if round_to:
+            half = ((half + round_to - 1) // round_to) * round_to
+        await ctx.deal_damage(
+            half,
+            ignore_weakness=ignore_modifiers,
+            ignore_resistance=ignore_modifiers,
+        )
     return effect
 
 
