@@ -350,6 +350,11 @@ class Passive:
         `board` lets stadium-gated hooks read global state (Thwackey)."""
         return cost
 
+    def blocks_bench_damage(self, calc: "DamageCalc", carrier: BoardEntity) -> bool:
+        """True to prevent attack damage to BENCHED Pokemon (Mountain Ring,
+        Sky Pillar); only consulted when the target sits on a Bench."""
+        return False
+
     def blocks_attack_effects(self, target: PokemonEntity, carrier: BoardEntity) -> bool:
         """True to shield `target` from opponents' attack EFFECTS (not damage)."""
         return False
@@ -558,6 +563,11 @@ class Passive:
     def bench_capacity(self, player_id: str, carrier: BoardEntity) -> Optional[int]:
         """Bench size override for `player_id` (Collapsed Stadium 4); None =
         no opinion, the smallest override wins."""
+        return None
+
+    def bench_capacity_raise(self, player_id: str, carrier: BoardEntity) -> Optional[int]:
+        """Bench size this passive RAISES `player_id` to (Sky Field: 8); None =
+        no opinion. Caps still win: the tighter of the two applies."""
         return None
 
     def bench_trim_area(self, player_id: str, carrier: BoardEntity) -> Optional[str]:
@@ -1003,6 +1013,10 @@ def compute_damage(
     for passive, carrier in passives:
         if calc.ignore_target_effects and carrier_pokemon(carrier) is calc.target:
             continue
+        if calc.to_bench and passive.blocks_bench_damage(calc, carrier):
+            calc.prevented = True
+            calc.amount = 0
+            break
         if passive.prevents_damage(calc, carrier):
             calc.prevented = True
             calc.amount = 0
@@ -1440,6 +1454,12 @@ def effective_bench_capacity(board: BoardState, player_id: str) -> int:
     that caps lower still caps, so the two compose as "the tighter wins"."""
     overrides = getattr(board, "bench_limit_overrides", None) or {}
     base = overrides.get(player_id, BENCH_SLOT_COUNT)
+    raises = [
+        v for passive, carrier in active_passives(board)
+        for v in [passive.bench_capacity_raise(player_id, carrier)] if v is not None
+    ]
+    if raises:
+        base = max(base, max(raises))
     values = [
         v for passive, carrier in active_passives(board)
         for v in [passive.bench_capacity(player_id, carrier)] if v is not None

@@ -134,6 +134,52 @@ def count_bench(side: str = "mine", pred=None):
     return count
 
 
+def _norm_title(title: str) -> str:
+    return "".join(ch for ch in (title or "").lower() if ch.isalnum())
+
+
+def printed_attack_titles(pokemon) -> set:
+    """Normalized titles of a Pokemon's printed attacks, read from its
+    definition (a CountableSize-style "for each of your Pokemon that has the
+    X attack" test needs the titles, not the board)."""
+    definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+    titles = set()
+    for ability in getattr(definition, "abilities", None) or []:
+        title = getattr(ability, "title", None)
+        if title:
+            titles.add(_norm_title(title))
+    return titles
+
+
+def count_with_attack(title: str, side: str = "mine"):
+    """Counts in-play Pokemon that print an attack called `title` (Night March
+    and Round style "for each Pokemon that has the X attack")."""
+    wanted = _norm_title(title)
+
+    def count(ctx) -> int:
+        pool = ctx.opponent_pokemon_in_play() if side in ("opponent", "theirs") \
+            else ctx.my_pokemon_in_play()
+        return sum(1 for p in pool if wanted in printed_attack_titles(p))
+
+    return count
+
+
+def mill_per_heads(count: int = 1, opponent: bool = True, then=None):
+    """"Flip a coin until you get tails. For each heads, discard the top card
+    of your opponent's deck": the mill amount is the heads count, which is why
+    bare_mill's fixed count cannot express it."""
+    async def effect(ctx):
+        heads = await ctx.flip_until_tails(_title(ctx))
+        pid = ctx.opponent_id if opponent else ctx.player_id
+        milled = ctx.deck_top(heads * count, player_id=pid) if heads > 0 else []
+        if milled:
+            await ctx.discard_cards(milled)
+        if then is not None:
+            await then(ctx, milled)
+        return milled
+    return effect
+
+
 def count_discard(side: str = "mine", pred=None):
     """Cards in a discard pile ('mine'|'opponent'|'both'), optionally filtered."""
     def count(ctx) -> int:
