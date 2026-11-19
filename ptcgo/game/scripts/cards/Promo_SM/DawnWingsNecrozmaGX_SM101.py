@@ -1,5 +1,6 @@
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_prizes_remaining
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
@@ -9,6 +10,13 @@ def _behind_on_prizes(board, player_id, pokemon=None):
     theirs = board.find_player_area(other, "prizePile")
     return bool(mine and theirs and len(mine.children) > len(theirs.children))
 
+
+async def _moon_eclipse_gx(ctx):
+    """Gate on the printed condition (more Prizes remaining than the opponent),
+    then shield this Pokemon through their next turn."""
+    if count_prizes_remaining("mine")(ctx) <= count_prizes_remaining("theirs")(ctx):
+        return
+    await protect_next_turn(prevent=True, effects_too=True)(ctx)
 
 card = PokemonCardDef(
     guid="639c044e-5b35-5a3a-9091-9c24562ead30",
@@ -46,7 +54,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 3},
             damage=180,
             condition=_behind_on_prizes,
-            effect=protect_next_turn(prevent=True, effects_too=True),
+            effect=_moon_eclipse_gx,
         ),
     ],
 )

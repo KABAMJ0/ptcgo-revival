@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import count_prizes_remaining
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                   SpecialConditions)
+from ptcgo.game.card_effects.attacks_common import (condition_attack,
+                                                    self_energy_discard_attack)
+
+async def _sun_eclipse_gx(ctx):
+    """Gate on the printed condition, then the Defending Pokemon is Paralyzed."""
+    if count_prizes_remaining("mine")(ctx) <= count_prizes_remaining("theirs")(ctx):
+        return
+    await condition_attack(SpecialConditions.PARALYZED, damage=0)(ctx)
 
 card = PokemonCardDef(
     guid="2d392e0c-7bef-5ca0-bd2c-a86aae4127a1",
@@ -37,7 +46,7 @@ card = PokemonCardDef(
             game_text="You can use this attack only if you have more Prize cards remaining than your opponent. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 3},
             damage=250,
-            effect=unimplemented,
+            effect=_sun_eclipse_gx,
         ),
     ],
 )

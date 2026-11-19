@@ -1,7 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                   SpecialConditions)
+from ptcgo.game.card_effects.support_common import gust_then
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+
+async def _tri_hazard(ctx, new_active):
+    for condition in (SpecialConditions.BURNED, SpecialConditions.PARALYZED,
+                      SpecialConditions.POISONED):
+        await ctx.apply_special_condition(new_active, condition)
 
 card = PokemonCardDef(
     guid="df860e71-0153-55c1-abf7-b8225be909be",
@@ -41,7 +48,7 @@ card = PokemonCardDef(
             title="Tri Hazard-GX",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. The new Active Pok\u00e9mon is now Burned, Paralyzed, and Poisoned. (You can't use more than 1 GX attack in a game.)",
             cost={},
-            effect=unimplemented,
+            effect=gust_then(_tri_hazard),
         ),
     ],
 )

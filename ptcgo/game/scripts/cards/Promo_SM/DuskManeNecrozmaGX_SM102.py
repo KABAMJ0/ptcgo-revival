@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_prizes_remaining
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                   SpecialConditions)
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, condition_attack
 
 def _behind_on_prizes(board, player_id, pokemon=None):
@@ -8,6 +10,12 @@ def _behind_on_prizes(board, player_id, pokemon=None):
     theirs = board.find_player_area(other, "prizePile")
     return bool(mine and theirs and len(mine.children) > len(theirs.children))
 
+
+async def _sun_eclipse_gx(ctx):
+    """Gate on the printed condition, then the Defending Pokemon is Paralyzed."""
+    if count_prizes_remaining("mine")(ctx) <= count_prizes_remaining("theirs")(ctx):
+        return
+    await condition_attack(SpecialConditions.PARALYZED, damage=0)(ctx)
 
 card = PokemonCardDef(
     guid="9075272f-6470-55b1-8bfe-a30cfb5fba84",
@@ -45,7 +53,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 3},
             damage=250,
             condition=_behind_on_prizes,
-            effect=condition_attack(),
+            effect=_sun_eclipse_gx,
         ),
     ],
 )
