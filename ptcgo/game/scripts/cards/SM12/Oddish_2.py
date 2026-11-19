@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="a160415c-fdad-5c51-b8c4-ac26db0fad49",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Sweet Scent",
             game_text="Heal 30 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_attack(30, target="choice"),
         ),
     ],
 )
