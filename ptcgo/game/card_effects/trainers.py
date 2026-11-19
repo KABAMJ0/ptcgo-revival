@@ -2698,6 +2698,21 @@ def opponent_switch_then_self_switch():
     return effect
 
 
+def take_prize_of(predicate=None):
+    """Look at your face-down Prizes; you may reveal one matching `predicate`
+    into your hand and put this card in its place as a face-down Prize, then
+    re-hide and shuffle the Prizes (Beast Ball).
+
+    `predicate` takes one card entity, like `pokemon_of_subtype`; the ctx verb
+    wants (card, board) and the adapter is here so a card script never has to
+    know that."""
+    matcher = None if predicate is None else (lambda card, board: predicate(card))
+
+    async def effect(ctx):
+        await ctx.look_at_prizes_take(matcher)
+    return effect
+
+
 def pokemon_of_subtype(subtype: str):
     """Predicate: a Pokemon with the named printed subtype ("Ancient",
     "Future", "MEGA")."""

@@ -2051,11 +2051,16 @@ class EffectContext:
                 self.deferred_actions.append(_fire_hand_discard)
 
     async def look_at_prizes_take_basic(self) -> bool:
-        """Hisuian Heavy Ball: look at your face-down Prizes; you may reveal a
-        Basic Pokemon to your hand and put the source card in its place as a
+        """Hisuian Heavy Ball: reveal a Basic Pokemon from your face-down
+        Prizes into your hand, the source card taking its place."""
+        return await self.look_at_prizes_take(is_basic_pokemon)
+
+    async def look_at_prizes_take(self, predicate=None) -> bool:
+        """Look at your face-down Prizes; you may reveal one matching
+        `predicate` to your hand and put the source card in its place as a
         face-down Prize. Always shuffles the Prizes (re-hiding them).
 
-        Returns True when a Basic was taken (the source now sits in the Prize
+        Returns True when a card was taken (the source now sits in the Prize
         pile, so the caller must NOT discard it); False when declined.
 
         Sends immediately (not via the deferred bracket runs) so the reveal,
@@ -2066,10 +2071,11 @@ class EffectContext:
         if not prize_area or not prize_area.children:
             return False
         prizes = list(prize_area.children)
-        basics = [c for c in prizes if is_basic_pokemon(c, self.board)]
+        eligible = [c for c in prizes
+                    if predicate is None or predicate(c, self.board)]
         picked_id = await session.prompt_prize_reveal_pick(
             self.player_id, self.source.entity_id,
-            [c.entity_id for c in prizes], [c.entity_id for c in basics],
+            [c.entity_id for c in prizes], [c.entity_id for c in eligible],
         )
         picked = self.board.get_entity(picked_id) if picked_id else None
         opponent = self.opponent_id
@@ -2080,7 +2086,7 @@ class EffectContext:
             if slot is None:
                 slot = prizes.index(picked)
             hand = self.board.find_player_area(self.player_id, "hand")
-            # Take the Basic to hand via WithOpenPrizeCards: once a Prize is
+            # Take the card to hand via WithOpenPrizeCards: once a Prize is
             # picked, r.B's own cleanup skips the fan teardown and defers to
             # this bracket, which cancels the explore command, flips+flies the
             # taken card to hand and CLOSES the present (blackout off,
