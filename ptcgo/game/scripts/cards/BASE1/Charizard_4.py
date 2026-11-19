@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _can_energy_burn(board, player_id, pokemon=None):
+    return pokemon is not None and bool(board.attached_energies(pokemon))
+
+
+async def energy_burn(ctx):
+    turn = getattr(getattr(ctx.board, "turn_state", None), "turn_number", None)
+    ctx.rewrite_energy_types([PokemonTypes.FIRE.value], pokemon=ctx.source,
+                             through_turn=turn)
 
 card = PokemonCardDef(
     guid="0d3120ac-e3bf-5ebe-9b99-7de004059f41",
@@ -23,7 +34,9 @@ card = PokemonCardDef(
         Ability(
             title="Energy Burn",
             game_text="As often as you like during your turn (before your attack), you may turn all Energy attached to Charizard into Fire Energy for the rest of the turn. This power can't be used if Charizard is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=_can_energy_burn,
+            effect=energy_burn,
         ),
         Attack(
             title="Fire Spin",

@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.card_effects.support_common import draw_attack
+
+
+def _tools_in_play(ctx) -> int:
+    """Pokemon Tools attached to every Pokemon in play, both sides."""
+    return len(ctx.tools_in_play())
+
 
 card = PokemonCardDef(
     guid="202b7cc6-4995-5c86-a547-5fb88e27e0db",
@@ -33,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_tools_in_play, 40),
         ),
     ],
 )

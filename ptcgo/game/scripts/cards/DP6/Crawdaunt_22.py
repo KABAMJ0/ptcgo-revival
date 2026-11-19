@@ -1,5 +1,29 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
+from ptcgo.game.session.effects import full_stack
+
+
+def _has_technical_machine(ctx):
+    return any(pokemon is ctx.attacker and has_pokemon_subtype(tool, "Technical Machine")
+               for tool, pokemon in ctx.tools_in_play())
+
+
+async def _gripthrow(ctx):
+    results = await ctx.flip_coins(1, "Gripthrow")
+    if not (results and results[0]):
+        return
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    await ctx.put_in_hand(full_stack(target), reveal=False)
+
+    async def _promote():
+        await ctx.session._promote_new_active(ctx.opponent_id)
+
+    ctx.deferred_actions.append(_promote)
+
 
 card = PokemonCardDef(
     guid="f4c301af-f23c-5185-bfa6-fecaf8c2fe19",
@@ -24,7 +48,7 @@ card = PokemonCardDef(
             title="Gripthrow",
             game_text="Flip a coin. If heads, your opponent returns the Defending Pok\u00e9mon and all cards attached to it to his or her hand.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_gripthrow,
         ),
         Attack(
             title="Prop-up Pinchers",
@@ -32,7 +56,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_has_technical_machine, 30),
         ),
     ],
 )

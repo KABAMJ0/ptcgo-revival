@@ -1,6 +1,18 @@
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+
+async def healing_egg(ctx):
+    """Remove 2 damage counters (1 if there is only 1) from each of your Pokemon;
+    Chansey ex itself is skipped."""
+    healed = 0
+    for pokemon in ctx.my_pokemon_in_play():
+        if pokemon is ctx.attacker:
+            continue
+        if pokemon.get_attribute(AttrID.HP, 0) < ctx.max_hp(pokemon):
+            healed += await ctx.heal(20, pokemon)
+    return healed
 
 card = PokemonCardDef(
     guid="2b304fea-68c3-5572-be63-9ae9068a5e22",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             title="Healing Egg",
             game_text="Remove 2 damage counters (1 if there is only 1) from each of your Pok\u00e9mon. Remove no damage counters from Chansey ex.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=healing_egg,
         ),
         Attack(
             title="Double-edge",

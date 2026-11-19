@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
+
 card = PokemonCardDef(
     guid="0af6e08a-e7d2-57d1-bbe0-42bd45f60529",
     key="SVault",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Floating Electrons",
             game_text="If this Pok\u00e9mon has any Energy attached to it, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(inverted=True),
         ),
         Attack(
             title="Thunder Shock",

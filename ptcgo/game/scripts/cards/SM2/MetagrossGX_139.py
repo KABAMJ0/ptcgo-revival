@@ -1,6 +1,31 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.content.definitions import Activations
+
+def _psychic_or_metal_energy(card):
+    return any(energy_provides_type(card, member.value)
+               for member in (PokemonTypes.PSYCHIC, PokemonTypes.METAL))
+
+
+def _active_only(pokemon):
+    return True
+
+
+geotech_system = attach_from_discard(
+    _psychic_or_metal_energy, count=1, target=_active_only, minimum=1,
+    prompt="Choose a Psychic or Metal Energy to attach to your Active Pok\u00e9mon")
+
+
+def _geotech_offered(board, player_id, pokemon):
+    area = board.find_player_area(player_id, "discard")
+    active = board.active_pokemon(player_id)
+    return active is not None and any(
+        _psychic_or_metal_energy(card)
+        for card in (area.children if area else []))
+
 
 card = PokemonCardDef(
     guid="7fd15780-e4f3-5966-b11e-3c6118a53140",
@@ -24,7 +49,9 @@ card = PokemonCardDef(
         Ability(
             title="Geotech System",
             game_text="Once during your turn (before your attack), you may attach a Psychic or Metal Energy card from your discard pile to your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=geotech_system,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_geotech_offered,
         ),
         Attack(
             title="Giga Hammer",

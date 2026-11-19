@@ -1,4 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import move_energy_between
+from ptcgo.game.attributes import PokemonTypes
+
+
+def _grass_energy(card):
+    return energy_provides_type(card, PokemonTypes.GRASS.value)
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Leaf Trans",
             game_text="As often as you like during your turn (before your attack), you may move a Grass Energy attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon. This power can't be used if Meganium is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=unafflicted,
+            effect=move_energy_between(_grass_energy, count=1),
         ),
         Attack(
             title="Solarbeam",

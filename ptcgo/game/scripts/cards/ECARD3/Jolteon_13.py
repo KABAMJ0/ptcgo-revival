@@ -4,6 +4,12 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialC
 from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def _thunderspark(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench() + ctx.opponent_bench():
+        if ctx.attached_energies(pokemon):
+            await ctx.deal_damage(10, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="c7962512-30d8-5977-bd57-39ee204acb82",
     key="ECARD3",
@@ -40,7 +46,7 @@ card = PokemonCardDef(
             game_text="This attack does 10 damage to each Benched Pok\u00e9mon with at least 1 Energy card attached to it (yours and your opponent's).",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_thunderspark,
         ),
     ],
 )

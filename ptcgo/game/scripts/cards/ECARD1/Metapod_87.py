@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="f24b88a9-f474-5384-b100-1ed5e979fbf8",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="All damage done by attacks to Metapod is reduced by 20 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(20),
         ),
         Attack(
             title="Rollout",

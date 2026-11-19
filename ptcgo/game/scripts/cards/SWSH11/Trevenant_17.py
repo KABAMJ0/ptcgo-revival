@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.passives import Passive
 
@@ -44,6 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=150,
             locks_next_turn=True,
+            effect=lock_self_attack(),
         ),
     ],
 )

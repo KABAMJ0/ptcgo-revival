@@ -1,6 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+async def strong_charge(ctx):
+    """Search the deck for a Grass Energy and a Lightning Energy and attach
+    both, in any way you like."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    for type_value in (PokemonTypes.GRASS.value, PokemonTypes.LIGHTNING.value):
+        await search_attach_energy(
+            lambda c, t=type_value: energy_provides_type(c, t), 1, to_self=False,
+            distribute=True, prompt="Choose an Energy to attach")(ctx)
+
 
 card = PokemonCardDef(
     guid="5a427e0f-e3b5-5b44-8e93-262725c24d27",
@@ -24,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Strong Charge",
             game_text="Once during your turn (before your attack), you may search your deck for a Grass Energy card and a Lightning Energy card and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=strong_charge,
         ),
         Attack(
             title="Electro Cannon",

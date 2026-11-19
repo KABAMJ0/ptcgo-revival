@@ -1,5 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.attributes import AttrID
+
+
+def _jet_stream_available(board, player_id, pokemon):
+    return is_in_active_spot(pokemon) and not pokemon.get_attribute(
+        AttrID.SPECIAL_CONDITIONS)
+
+
+async def _jet_stream(ctx):
+    results = await ctx.flip_coins(1, "Jet Stream")
+    if not (results and results[0]):
+        return
+    await ctx.discard_energy_from(
+        ctx.attacker, 1, prompt="Discard an Energy card attached to Blastoise")
+    defender = ctx.defender
+    if defender is not None:
+        await ctx.discard_energy_from(
+            defender, 1,
+            prompt="Discard an Energy card attached to the Defending Pokémon")
+
 
 card = PokemonCardDef(
     guid="fdc03efb-4962-5924-81db-c6d950cf2c8f",
@@ -22,7 +45,9 @@ card = PokemonCardDef(
         Ability(
             title="Jet Stream",
             game_text="Once during your turn (before your attack), if Blastoise is your Active Pok\u00e9mon, you may flip a coin. If heads, discard an Energy card attached to Blastoise, if any. Then, if there are any Energy cards attached to the Defending Pok\u00e9mon, choose 1 of them and discard it. This power can't be used if Blastoise is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_jet_stream_available,
+            effect=_jet_stream,
         ),
         Attack(
             title="Energy Cannon",
@@ -30,7 +55,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(10, cap=20, base=40),
         ),
     ],
 )

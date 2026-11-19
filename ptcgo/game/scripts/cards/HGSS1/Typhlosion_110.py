@@ -1,5 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
+from ptcgo.game.attributes import AttrID, PokemonTypes
+from ptcgo.game.attributes import PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+
+def _fire_energy(card) -> bool:
+    return is_energy_card(card) and PokemonTypes.FIRE.value in (
+        card.get_attribute(AttrID.POKEMON_TYPES) or [])
+
+
+def _afterburner():
+    """Discard pile -> 1 of your Pokemon, then 1 damage counter on that one.
+
+    The counter rides the holder `attach_from_discard` chose, which it hands back
+    as (card, holder) pairs -- the pairs only contain cards that really attached."""
+    async def effect(ctx):
+        pairs = await attach_from_discard(
+            predicate=_fire_energy, target="choice")(ctx)
+        for _card, holder in pairs or []:
+            await ctx.place_damage_counters(1, [holder])
+
+    return effect
+
 
 card = PokemonCardDef(
     guid="9af12260-4137-5883-b67d-8b4b34c41724",
@@ -22,7 +45,8 @@ card = PokemonCardDef(
         Ability(
             title="Afterburner",
             game_text="Once during your turn (before your attack), you may search your discard pile for a Fire Energy card and attach it to 1 of your Pok\u00e9mon. If you do, put 1 damage counter on that Pok\u00e9mon. This power can't be used if Typhlosion is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=_afterburner(),
         ),
         Attack(
             title="Flare Destroy",

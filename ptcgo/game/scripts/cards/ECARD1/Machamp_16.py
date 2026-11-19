@@ -1,8 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import damage_per, flip_gate
 
 async def effect(ctx):
     await ctx.reorder_deck_top(4)
+
+
+def _damaged_in_play(ctx):
+    return sum(1 for p in ctx.my_pokemon_in_play()
+               if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p))
 
 
 card = PokemonCardDef(
@@ -37,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=damage_per(_damaged_in_play, 10, base=50)),
         ),
     ],
 )

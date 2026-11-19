@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _water_cannon(ctx):
+    """Water Cannon: 10 per Water Energy on Dark Omanyte, capped at 30."""
+    aim = [e for e in ctx.attached_energies(ctx.attacker)
+           if energy_provides_type(e, PokemonTypes.WATER.value)]
+    amount = min(30, 10 * len(aim))
+    pool = ctx.opponent_pokemon_in_play()
+    if not pool or not amount:
+        return
+    target = await ctx.choose_pokemon(pool, "Choose a Pokemon")
+    if target is not None:
+        await ctx.deal_damage(amount, target=target, apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="15c37cb0-c937-5b5f-847e-1039f59af649",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             title="Water Cannon",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage for each Water Energy card attached to Dark Omanyte. Don't apply Weakness and Resistance. You can't do more than 30 damage in this way.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=_water_cannon,
         ),
     ],
 )

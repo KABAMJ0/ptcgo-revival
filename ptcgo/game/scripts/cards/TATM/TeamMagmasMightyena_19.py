@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, active_is
+from ptcgo.game.card_effects.trainers import team_aqua_target
 
 card = PokemonCardDef(
     guid="eef5f798-74c3-54bf-a655-55137ba8b5ad",
@@ -30,7 +32,8 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon is a Team Aqua Pok\u00e9mon, this attack does 40 more damage.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            damage_operator="+",
+            effect=bonus_if(active_is(team_aqua_target), 40),
         ),
     ],
 )

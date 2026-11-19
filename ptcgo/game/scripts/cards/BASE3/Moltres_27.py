@@ -2,6 +2,28 @@ from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _wildfire(ctx):
+    """Discard any number of Fire Energy cards attached to this Pokemon; if you
+    do, discard that many cards from the top of your opponent's deck."""
+    attacker = ctx.attacker
+    if attacker is None:
+        return
+    fire = [energy for energy in ctx.attached_energies(attacker)
+            if energy_provides_type(energy, PokemonTypes.FIRE.value)]
+    if not fire:
+        return
+    picked = await ctx.choose_cards(
+        fire, len(fire), minimum=0,
+        prompt="Choose any number of Fire Energy to discard")
+    if not picked:
+        return
+    await ctx.discard_cards(picked)
+    milled = ctx.deck_top(len(picked), player_id=ctx.opponent_id)
+    if milled:
+        await ctx.discard_cards(milled)
 
 card = PokemonCardDef(
     guid="8df03dc8-3369-56f0-8b11-1cca28250491",
@@ -24,7 +46,7 @@ card = PokemonCardDef(
             title="Wildfire",
             game_text="You may discard any number of Fire Energy cards attached to Moltres when you use this attack. If you do, discard that many cards from the top of your opponent's deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=_wildfire,
         ),
         Attack(
             title="Dive Bomb",

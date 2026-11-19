@@ -1,4 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import is_lightning_energy, is_energy_card
+
+async def cluster_bolt(ctx):
+    """70; discarding all Lightning Energy also puts 20 on every Benched
+    opponent Pokemon that has Energy attached."""
+    await ctx.deal_damage(70)
+    attached = [energy for energy in ctx.attached_energies(ctx.attacker)
+                if is_lightning_energy(energy)]
+    if not attached:
+        return
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, len(attached), predicate=is_lightning_energy)
+    if not discarded:
+        return
+    for pokemon in ctx.opponent_bench():
+        if any(is_energy_card(card) for card in ctx.attached_energies(pokemon)):
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -30,7 +49,7 @@ card = PokemonCardDef(
             game_text="You may discard all Lightning Energy attached to Ampharos. If you do, this attack does 20 damage to each of your opponent's Benched Pok\u00e9mon that has any Energy cards attached to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=cluster_bolt,
         ),
     ],
 )

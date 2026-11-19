@@ -1,6 +1,24 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+
+def _plunge_ready(board, player_id, pokemon) -> bool:
+    return not is_in_active_spot(pokemon)
+
+
+async def _plunge(ctx):
+    poliwrath = ctx.source
+    active = ctx.my_active()
+    if active is None or active is poliwrath:
+        return
+    results = await ctx.flip_coins(1, "Plunge")
+    if not (results and results[0]):
+        return
+    for energy in list(ctx.attached_energies(active)):
+        await ctx.move_energy(energy, poliwrath)
+    await ctx.switch_active(ctx.player_id, poliwrath)
 
 card = PokemonCardDef(
     guid="abf292fb-c50a-54eb-818c-f56e9113c60c",
@@ -23,7 +41,9 @@ card = PokemonCardDef(
         Ability(
             title="Plunge",
             game_text="Once during your turn (before your attack), if Poliwrath is on your Bench, you may flip a coin. If heads, take all Energy cards attached to your Active Pok\u00e9mon, if any, and attach them to Poliwrath. Then switch Poliwrath with your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_plunge_ready,
+            effect=_plunge,
         ),
         Attack(
             title="Water Punch",

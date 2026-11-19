@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def _scalding_steam(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1, prompt="Discard an Energy card attached to Ho-oh")
+    results = await ctx.flip_coins(1, "Scalding Steam")
+    if results and results[0] and ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="eba887a5-8e84-5a2d-90a3-3326c67595bf",
     key="ECARD3",
@@ -33,7 +45,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy card attached to Ho-oh and flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=_scalding_steam,
         ),
     ],
 )

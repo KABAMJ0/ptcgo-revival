@@ -2,6 +2,18 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def dragon_blast(ctx):
+    """Printed damage, then discard a Fire Energy and a Lightning Energy."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    await ctx.deal_damage()
+    await ctx.discard_energy_from(
+        ctx.attacker, 1, predicate=lambda c: energy_provides_type(c, PokemonTypes.FIRE.value),
+        prompt="Choose a Fire Energy to discard")
+    await ctx.discard_energy_from(
+        ctx.attacker, 1, predicate=lambda c: energy_provides_type(c, PokemonTypes.LIGHTNING.value),
+        prompt="Choose a Lightning Energy to discard")
+
+
 card = PokemonCardDef(
     guid="8e10320d-08f4-5ccd-a0cc-99ebffb7694c",
     key="Promo_XY",
@@ -32,7 +44,7 @@ card = PokemonCardDef(
             game_text="Discard 1 Fire Energy and 1 Lightning Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=dragon_blast,
         ),
     ],
 )

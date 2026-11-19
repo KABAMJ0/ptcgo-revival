@@ -1,4 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
+
+
+async def _good_neighbor_heal(ctx):
+    for target in (ctx.my_active(), ctx.opponent_active()):
+        if target is not None:
+            await ctx.heal(20, target)
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +31,10 @@ card = PokemonCardDef(
         Ability(
             title="Good Neighbor",
             game_text="Once during your turn (before your attack), if Wigglytuff is on your bench, you may flip a coin. If heads, each player removes up to 2 damage counters from his or her Active Pok\u00e9mon. This power can't be used if you have already used another Wigglytuff's Good Neighbor Pok\u00e9-Power this turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Good Neighbor",
+            condition=lambda board, player_id, pokemon: not is_in_active_spot(pokemon),
+            effect=flip_gate(then=_good_neighbor_heal),
         ),
         Attack(
             title="Do the Wave",

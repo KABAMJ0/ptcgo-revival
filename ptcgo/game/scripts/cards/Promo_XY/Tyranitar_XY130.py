@@ -1,5 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.attacks_common import on_evolve
+
+def _is_supporter(card):
+    from ptcgo.game.attributes import TrainerType
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value
+
+
+async def raging_roar(ctx):
+    """On evolve: attach a Darkness Energy from the discard pile for each Prize
+    card the opponent has already taken."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    taken = ctx.prizes_taken(ctx.opponent_id)
+    pool = [c for c in ctx.discard_pile(ctx.player_id)
+            if energy_provides_type(c, PokemonTypes.DARKNESS.value)]
+    for card in pool[:taken]:
+        await ctx.attach_energy(card, ctx.source)
+
 
 card = PokemonCardDef(
     guid="dc3b0497-ca9f-5024-bde8-22cb8261f109",
@@ -23,7 +43,8 @@ card = PokemonCardDef(
         Ability(
             title="Raging Roar",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may attach 1 Darkness Energy from your discard pile to this Pok\u00e9mon for each Prize card your opponent has taken.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(raging_roar),
         ),
         Attack(
             title="Dark Mountain",
@@ -31,7 +52,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 5},
             damage=150,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_scaled_damage(2, 50, pred=_is_supporter, base=150),
         ),
     ],
 )

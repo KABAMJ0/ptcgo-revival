@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition
+
+async def _deep_wind_heal(ctx):
+    await ctx.heal(30, target=ctx.attacker)
+
+
+# Printed 60, +60 and heal 30 from this Pokemon while the defender is Asleep.
+deep_wind = bonus_if(defender_has_condition(SpecialConditions.ASLEEP), 60,
+                     also=_deep_wind_heal)
+
 
 card = PokemonCardDef(
     guid="f4deaaec-ac97-5081-b232-7d9701b72616",
@@ -33,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=deep_wind,
         ),
     ],
 )

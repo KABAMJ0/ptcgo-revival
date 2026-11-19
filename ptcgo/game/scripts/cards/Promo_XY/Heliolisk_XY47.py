@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+def _is_water(pokemon):
+    return PokemonTypes.WATER.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
 
 card = PokemonCardDef(
     guid="5cc1a896-40a8-5072-a437-9454f9c4e2a5",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Dry Skin",
             game_text="Any damage done to this Pok\u00e9mon by an attack from 1 of your opponent's Water Pok\u00e9mon is reduced by 30 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, attacker_pred=_is_water),
         ),
         Attack(
             title="Hyper Beam",

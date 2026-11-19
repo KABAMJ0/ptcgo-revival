@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.session.constants import BENCH_CAPACITY
 
 
 def _at_full_hp(target, carrier) -> bool:

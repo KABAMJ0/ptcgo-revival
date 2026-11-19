@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.support_common import heal_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_pokemon_vstar
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
@@ -25,7 +26,10 @@ card = PokemonCardDef(
         Ability(
             title="Protective DNA",
             game_text="All of your Pok\u00e9mon take 30 less damage from attacks from your opponent's Pok\u00e9mon VSTAR (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(
+                30, protects="team",
+                attacker_pred=lambda p: is_pokemon_vstar(p.archetype_id),
+            ),
         ),
         Attack(
             title="Max Drain",

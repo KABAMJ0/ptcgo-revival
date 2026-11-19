@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.attributes import AttrID
+
 
 card = PokemonCardDef(
     guid="846d202f-8b55-5346-bc51-3f3c4eef5656",
@@ -22,7 +28,9 @@ card = PokemonCardDef(
         Ability(
             title="Energy Jump",
             game_text="Once during your turn (before your attack), you may move an Energy card from 1 of your Pok\u00e9mon to another of your Pok\u00e9mon. This power can't be used if Alakazam is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(from_pool="any", to_pool="any"),
+            effect=move_energy_between(predicate=is_energy_card, count=1),
         ),
         Attack(
             title="Psychic",

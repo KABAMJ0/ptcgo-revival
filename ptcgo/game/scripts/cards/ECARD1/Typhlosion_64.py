@@ -1,4 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate, spread_damage
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,14 +27,16 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=flip_gate(then=lambda ctx: ctx.deal_damage(30)),
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(30),
+                             tails=lambda ctx: ctx.deal_damage(10)),
         ),
         Attack(
             title="Thermal Blast",
             game_text="Flip a coin. If heads, this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon, if any. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(40),
+                            flip_gate(then=spread_damage(10, side="opponent"))),
         ),
     ],
 )

@@ -2,6 +2,14 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
+
+async def _flash_touch(ctx, new_active):
+    ctx.add_passive_through_opponents_turn(
+        new_active, condition_immunity_passive(conditions=None))
+
 
 card = PokemonCardDef(
     guid="7121754c-1af5-5311-abea-f9d67c0073c7",
@@ -26,7 +34,7 @@ card = PokemonCardDef(
             title="Flash Touch",
             game_text="If you have any Benched Pok\u00e9mon, switch 1 of them with Light Ledian. As long as that Pok\u00e9mon is your Active Pok\u00e9mon, it can't become Asleep, Confused, Paralyzed, or Poisoned. (All other effects of attacks, Pok\u00e9mon Powers, and Trainer cards still happen.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=switch_self_attack(then=_flash_touch),
         ),
         Attack(
             title="Comet Punch",

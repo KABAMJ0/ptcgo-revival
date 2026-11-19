@@ -3,6 +3,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
+
 card = PokemonCardDef(
     guid="76c7e448-74ec-5a9b-af71-f94148373cc8",
     key="BASE2",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="Remove a number of damage counters from Venonat equal to the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance).",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=heal_self_damage_dealt(),
         ),
     ],
 )

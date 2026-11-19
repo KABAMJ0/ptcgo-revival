@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import extra_energy_beyond_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _water_gun(ctx):
+    """Water Gun: 10 plus 10 per spare Water Energy, capped at 20 more."""
+    extra = min(20, 10 * max(0, extra_energy_beyond_cost(ctx, PokemonTypes.WATER)))
+    await ctx.deal_damage(10 + extra)
 
 card = PokemonCardDef(
     guid="7338511b-5a91-5b85-bd83-65ebf408883c",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_water_gun,
         ),
     ],
 )

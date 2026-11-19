@@ -3,6 +3,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.attributes import SpecialConditions
+_thick_skinned = condition_immunity_passive([
+    SpecialConditions.ASLEEP, SpecialConditions.CONFUSED,
+    SpecialConditions.PARALYZED, SpecialConditions.POISONED,
+])
+
+
 card = PokemonCardDef(
     guid="dd61622e-5925-5f63-a951-b1d9e0a5ede9",
     key="BASE4",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Thick Skinned",
             game_text="Snorlax can't become Asleep, Confused, Paralyzed, or Poisoned. This power can't be used if Snorlax is already Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_thick_skinned,
         ),
         Attack(
             title="Body Slam",

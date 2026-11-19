@@ -2,6 +2,10 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_energy_card
+
+
 card = PokemonCardDef(
     guid="64dbed37-79fe-57f4-98ed-0aa1e6840922",
     key="ECARD2",

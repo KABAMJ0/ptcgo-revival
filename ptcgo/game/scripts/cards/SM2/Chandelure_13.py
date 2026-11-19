@@ -1,6 +1,40 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.content.definitions import Activations
+
+def _all_pokemon_in_play(ctx):
+    return ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play()
+
+
+def _shady_move_offered(board, player_id, pokemon):
+    pool = board.pokemon_in_play(player_id) + [
+        p for other in board.player_ids if other != player_id
+        for p in board.pokemon_in_play(other)]
+    damaged = [p for p in pool if p.get_attribute(AttrID.HP, 0) <
+               __import__("ptcgo.game.session.passives", fromlist=["effective_max_hp"])
+               .effective_max_hp(board, p)]
+    return bool(damaged) and len(pool) >= 2
+
+
+async def _shady_move(ctx):
+    pool = _all_pokemon_in_play(ctx)
+    damaged = [p for p in pool
+               if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+    if not damaged:
+        return
+    source = damaged[0] if len(damaged) == 1 else await ctx.choose_pokemon(
+        damaged, "Choose a Pok\u00e9mon to move a damage counter from")
+    if source is None:
+        return
+    targets = [p for p in pool if p is not source]
+    dest = targets[0] if len(targets) == 1 else await ctx.choose_pokemon(
+        targets, "Choose a Pok\u00e9mon to move a damage counter to")
+    if dest is None:
+        return
+    await ctx.move_damage_counters(source, dest, max_count=1)
+
 
 card = PokemonCardDef(
     guid="5172b7b5-9594-54c8-82d6-630375f9fb44",
@@ -23,7 +57,9 @@ card = PokemonCardDef(
         Ability(
             title="Shady Move",
             game_text="Once during your turn (before your attack), you may move 1 damage counter from 1 Pok\u00e9mon to another Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=_shady_move,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_shady_move_offered,
         ),
         Attack(
             title="Super Singe",

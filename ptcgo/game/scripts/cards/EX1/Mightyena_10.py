@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Intimidating Fang",
             game_text="As long as Mightyena is your Active Pok\u00e9mon, any damage done to your Pok\u00e9mon by an opponent's attack is reduced by 10 (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10, protects="team"),
         ),
         Attack(
             title="Shakedown",

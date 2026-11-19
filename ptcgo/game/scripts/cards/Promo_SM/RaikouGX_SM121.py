@@ -2,6 +2,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+async def thunderous_rain(ctx):
+    """100 damage (no W/R) to each opposing Pokemon with any Energy attached."""
+    for pokemon in list(ctx.opponent_pokemon_in_play()):
+        if ctx.attached_energies(pokemon):
+            await ctx.deal_damage(100, target=pokemon, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="7232ee98-1a1f-51ba-bfc7-f25f1b6e404c",
     key="Promo_SM",
@@ -36,7 +43,7 @@ card = PokemonCardDef(
             title="Thunderous Rain-GX",
             game_text="This attack does 100 damage to each of your opponent's Pok\u00e9mon that has any Energy attached to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 4},
-            effect=unimplemented,
+            effect=thunderous_rain,
         ),
     ],
 )

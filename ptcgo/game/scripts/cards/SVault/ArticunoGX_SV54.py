@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def cold_crush_gx(ctx):
+    """Discard every Energy card from both Active Pokemon."""
+    for pokemon in (ctx.my_active(), ctx.opponent_active()):
+        if pokemon is None:
+            continue
+        energies = list(ctx.attached_energies(pokemon))
+        if energies:
+            await ctx.discard_cards(energies)
+
 card = PokemonCardDef(
     guid="d7fd1ce0-f9d1-5035-902c-3d323769443c",
     key="SVault",
@@ -32,7 +41,7 @@ card = PokemonCardDef(
             title="Cold Crush-GX",
             game_text="Discard all Energy from both Active Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=cold_crush_gx,
         ),
     ],
 )

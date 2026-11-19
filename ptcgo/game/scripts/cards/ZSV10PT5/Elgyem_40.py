@@ -1,6 +1,28 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _slight_shift(ctx):
+    theirs = ctx.opponent_pokemon_in_play()
+    if len(theirs) < 2:
+        return
+    energies = [energy for pokemon in theirs
+                for energy in ctx.attached_energies(pokemon)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(
+        energies, 1, minimum=1,
+        prompt="Choose an Energy to move between their Pok\u00e9mon")
+    if not picks:
+        return
+    await ctx.move_energy_freely(theirs, theirs, max_count=1,
+                                 prompt="Choose where to move it")
+
+
+async def _slight_shift_offered(ctx):
+    theirs = ctx.opponent_pokemon_in_play()
+    return len(theirs) >= 2 and any(ctx.attached_energies(p) for p in theirs)
+
+
 card = PokemonCardDef(
     guid="e4d0ced3-688f-5d0a-88d3-3e14cd150e1a",
     key="ZSV10PT5",
@@ -23,7 +45,7 @@ card = PokemonCardDef(
             title="Slight Shift",
             game_text="Move an Energy from 1 of your opponent's Pok\u00e9mon to another of their Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_slight_shift,
         ),
         Attack(
             title="Beam",

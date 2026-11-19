@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.attacks_common import on_evolve, place_counters
 
 card = PokemonCardDef(
     guid="406ae801-126e-55ba-bb77-9581d11b5e6a",
@@ -24,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Evolutionary Thunder",
             game_text="Once during your turn, when you play Jolteon ex from your hand to evolve 1 of your Pok\u00e9mon, you may put 1 damage counter on each of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(place_counters(1, target="each_opponent")),
         ),
         Attack(
             title="Second Bite",

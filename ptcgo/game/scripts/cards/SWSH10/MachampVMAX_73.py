@@ -6,6 +6,14 @@ from ptcgo.game.card_effects.attacks_common import bonus_if
 def _bench_has_damage(ctx):
     return any(p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p) for p in ctx.my_bench())
 
+async def gmax_chi_strike(ctx):
+    """Printed damage, then this attack is locked through the user's next turn."""
+    await ctx.deal_damage()
+    ability = ctx.ability
+    if ctx.attacker is not None and ability is not None and ability.ability_id:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ability.ability_id)
+
 card = PokemonCardDef(
     guid="dfb9d6ba-8009-5ad8-a787-557811761e37",
     key="SWSH10",
@@ -38,6 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=240,
             locks_next_turn=True,
+            effect=gmax_chi_strike,
         ),
     ],
 )

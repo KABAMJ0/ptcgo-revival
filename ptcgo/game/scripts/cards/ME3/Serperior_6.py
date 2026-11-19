@@ -1,6 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.card_effects.attacks_common import (
+    bonus_if, count_discard, damage_per,
+)
+from ptcgo.game.card_effects.trainers import named_exactly
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_ROSA = named_exactly("Rosa's Encouragement")
+
+
+def _rosa_in_discard(ctx) -> bool:
+    return count_discard(pred=_ROSA)(ctx) > 0
+
 
 card = PokemonCardDef(
     guid="54983713-938d-5539-a8cf-9a8fe9bf831c",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 3},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_rosa_in_discard, 150),
         ),
     ],
 )

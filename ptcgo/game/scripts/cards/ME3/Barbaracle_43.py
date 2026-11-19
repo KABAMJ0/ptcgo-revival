@@ -1,5 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import (
+    attach_from_hand, hand_attach_condition,
+)
+from ptcgo.game.card_effects.trainers import basic_energy_of, pokemon_of
+
+_STONE_ARMS_ENERGY = basic_energy_of("fighting")
+_FIGHTING_POKEMON = pokemon_of("fighting")
+
 
 card = PokemonCardDef(
     guid="39b00f40-f6d6-5fe1-a4db-bcf965a5bebb",
@@ -22,7 +30,11 @@ card = PokemonCardDef(
         Ability(
             title="Stone Arms",
             game_text="Once during your turn, you may use this Ability. Attach a Basic Fighting Energy card from your hand to 1 of your Fighting Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=attach_from_hand(_STONE_ARMS_ENERGY, count=1,
+                                    target="choice", target_pred=_FIGHTING_POKEMON),
+            condition=hand_attach_condition(_STONE_ARMS_ENERGY, target="choice",
+                                           target_pred=_FIGHTING_POKEMON),
         ),
         Attack(
             title="Hammer In",

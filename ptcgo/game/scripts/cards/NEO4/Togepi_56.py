@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+
 
 card = PokemonCardDef(
     guid="1ec9322c-ec68-5209-a3ae-ce0a1c2cda83",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Charm",
             game_text="If the Defending Pok\u00e9mon attacks during your opponent's next turn, any damage it does is reduced by 10 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=debuff_defender_attacks(10),
         ),
         Attack(
             title="Spike Ball Tackle",

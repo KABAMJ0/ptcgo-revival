@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.attributes import AttrID
+
+async def lunatic_sense(ctx):
+    """Printed 60; turn 1 face-down Prize card up and add 60 if it is a Pokemon."""
+    from ptcgo.game.attributes import CardType
+    cards = await ctx.turn_prize_cards_face_up(count=1)
+    is_pokemon = any(c.get_attribute(AttrID.CARD_TYPE) == CardType.POKEMON.value
+                     for c in cards)
+    await ctx.deal_damage(60 + (60 if is_pokemon else 0))
+
 
 card = PokemonCardDef(
     guid="85027375-1831-5026-bc93-71873e6f9832",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=lunatic_sense,
         ),
     ],
 )

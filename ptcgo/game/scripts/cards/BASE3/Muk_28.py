@@ -1,6 +1,31 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+def _has_toxic_gas(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+    return any(getattr(ability, "title", "") == "Toxic Gas"
+               for ability in (getattr(definition, "abilities", []) or []))
+
+
+class _ToxicGas(Passive):
+    """Every Pokemon Power other than a Toxic Gas is ignored, on both sides;
+    off while the holder is Asleep, Confused or Paralyzed. The exception is
+    read off each Pokemon's own printed abilities, so a second Muk copy does
+    not lock this one out."""
+
+    def blocks_abilities(self, pokemon, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            return False
+        return not _has_toxic_gas(pokemon)
+
+
+_toxic_gas = _ToxicGas()
 
 card = PokemonCardDef(
     guid="1f69176e-1f0e-5bbe-90ef-eac5a7976bce",
@@ -23,7 +48,7 @@ card = PokemonCardDef(
         Ability(
             title="Toxic Gas",
             game_text="Ignore all Pok\u00e9mon Powers other than Toxic Gases. This power stops working while Muk is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_toxic_gas,
         ),
         Attack(
             title="Sludge",

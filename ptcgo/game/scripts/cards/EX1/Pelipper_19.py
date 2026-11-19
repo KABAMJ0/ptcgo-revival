@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -36,7 +37,7 @@ card = PokemonCardDef(
             game_text="After your attack, remove from Pelipper the number of damage counters equal to the damage you did to the Defending Pok\u00e9mon. If Pelipper has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
     ],
 )

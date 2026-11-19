@@ -4,6 +4,15 @@ from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _healing_dust(ctx):
+    results = await ctx.flip_coins(2, "Healing Dust")
+    heads = sum(1 for result in results if result)
+    if not heads:
+        return
+    for pokemon in ctx.my_pokemon_in_play():
+        await ctx.heal(10 * heads, pokemon)
+
+
 card = PokemonCardDef(
     guid="bc4b25cd-3159-569f-83a2-7e53556dd550",
     key="ECARD3",
@@ -26,7 +35,7 @@ card = PokemonCardDef(
             title="Healing Dust",
             game_text="Flip 2 coins. For each heads, remove 1 damage counter from each of your Pok\u00e9mon. If a Pok\u00e9mon has fewer damage counters than the number of heads, remove all of them.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_healing_dust,
         ),
         Attack(
             title="Miracle Powder",

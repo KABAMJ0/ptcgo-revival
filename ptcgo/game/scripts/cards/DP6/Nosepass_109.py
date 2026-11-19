@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+def _probopass_benched(ctx) -> bool:
+    return any(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Probopass"
+               for p in ctx.my_bench())
 
 card = PokemonCardDef(
     guid="f4177c5d-b8f7-53f5-91bd-67084a2465fd",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_probopass_benched, 20, base=20),
         ),
     ],
 )

@@ -1,6 +1,32 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _total_freedom(ctx):
+    bench = ctx.my_bench()
+    if ctx.source is ctx.my_active():
+        if not bench:
+            return
+        target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+            bench, "Choose your new Active Pok\u00e9mon")
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+    elif ctx.my_active() is not None:
+        await ctx.switch_active(ctx.player_id, ctx.source)
+
+
+def _total_freedom_offered(board, player_id, pokemon):
+    active = board.active_pokemon(player_id)
+    bench = board.find_player_area(player_id, "bench")
+    on_bench = any(child is pokemon for child in (bench.children if bench else []))
+    if active is pokemon:
+        return bool(bench and bench.children)
+    if on_bench:
+        return active is not None
+    return False
+
 
 card = PokemonCardDef(
     guid="a52358c3-dbd3-51ef-b34c-f083f2a2e569",
@@ -23,7 +49,9 @@ card = PokemonCardDef(
         Ability(
             title="Total Freedom",
             game_text="Once during your turn, you may use this Ability. If this Pok\u00e9mon is on the Bench, switch it with your Active Pok\u00e9mon. Or, if this Pok\u00e9mon is in the Active Spot, switch it with 1 of your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=_total_freedom,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_total_freedom_offered,
         ),
         Attack(
             title="Hunting Arrow",

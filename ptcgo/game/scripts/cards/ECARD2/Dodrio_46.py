@@ -3,6 +3,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def _peck_attack(ctx):
+    results = await ctx.flip_coins(2, "Peck Attack")
+    heads = sum(1 for result in results if result)
+    if heads == 2:
+        await ctx.deal_damage(50)
+    elif heads == 1:
+        await ctx.deal_damage(20)
+    else:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+
+
 card = PokemonCardDef(
     guid="1d674cd1-a138-5ff7-9096-086e7277e4bf",
     key="ECARD2",
@@ -34,7 +48,7 @@ card = PokemonCardDef(
             title="Peck Attack",
             game_text="Flip 2 coins. If 1 of them is heads, this attack does 20 damage. If both are heads, this attack does 50 damage. If both are tails, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_peck_attack,
         ),
     ],
 )

@@ -1,8 +1,14 @@
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+def _damaged_mine(ctx) -> int:
+    return sum(1 for p in ctx.my_pokemon_in_play()
+               if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p))
 
 card = PokemonCardDef(
     guid="3bb72b62-9c4d-5e13-b977-45d50a1dff74",
@@ -33,7 +39,7 @@ card = PokemonCardDef(
             title="Gift of Spite",
             game_text="Count the number of your Pok\u00e9mon in play with damage counters on them. Put that many damage counters on the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(_damaged_mine, target="opponent_active"),
         ),
     ],
 )

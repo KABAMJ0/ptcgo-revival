@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import flip_protection
+
 
 card = PokemonCardDef(
     guid="c1453eb3-b792-57b1-ab02-c9e9afce6a87",
@@ -26,7 +28,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(
+                per_energy=10, energy_type=PokemonTypes.WATER, cap=20, base=20),
         ),
         Attack(
             title="Agility",

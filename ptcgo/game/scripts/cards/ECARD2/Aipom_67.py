@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import flip_gate, snipe_attack
+
+
 card = PokemonCardDef(
     guid="8533a5d7-415c-57fd-aaad-77bd5193eed0",
     key="ECARD2",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Stretch Tail",
             game_text="Flip a coin. If heads, choose 1 of your opponent's Benched Pok\u00e9mon and this attack does 10 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(snipe_attack(10, pool="bench", count=1)),
         ),
         Attack(
             title="Skedaddle",

@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_lightning_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 
 card = PokemonCardDef(
     guid="1df13bfb-b45f-59b5-a381-777658fa6bc2",
@@ -22,7 +27,8 @@ card = PokemonCardDef(
             title="Charge",
             game_text="Attach 1 Lightning Energy card from your discard pile to Mareep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(_is_lightning_energy, count=1, target="self",
+                                       prompt="Choose a Lightning Energy to attach to Mareep"),
         ),
         Attack(
             title="Tail Slap",

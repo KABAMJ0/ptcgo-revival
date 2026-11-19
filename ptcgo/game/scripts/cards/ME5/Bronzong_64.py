@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import (
+    attacker_is_evolution, protect_next_turn)
 
 card = PokemonCardDef(
     guid="7dd47ccc-2881-5d38-b6f8-cefb8e540a37",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 100 less damage from attacks from Evolution Pok\u00e9mon (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=100, attacker_pred=attacker_is_evolution()),
         ),
     ],
 )

@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def _flashing_eyes(ctx):
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(3, "Flashing Eyes")
+    heads = sum(1 for result in results if result)
+    condition = {1: SpecialConditions.ASLEEP,
+                 2: SpecialConditions.CONFUSED,
+                 3: SpecialConditions.PARALYZED}.get(heads)
+    if condition is not None and ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, condition)
+
 
 card = PokemonCardDef(
     guid="3b3c85b5-4735-54d0-b45b-c828b757251a",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip 3 coins. If exactly 1 is heads, the Defending Pok\u00e9mon is now Asleep. If exactly 2 are heads, the Defending Pok\u00e9mon is now Confused. If all 3 are heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=_flashing_eyes,
         ),
     ],
 )

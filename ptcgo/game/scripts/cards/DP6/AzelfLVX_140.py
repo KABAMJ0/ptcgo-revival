@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, place_counters
+from ptcgo.game.card_effects.passives_common import no_weakness_passive, team_of_types
+
 
 card = PokemonCardDef(
     guid="88a6d6d8-7d92-5426-90e5-7c254944257d",
@@ -22,13 +25,13 @@ card = PokemonCardDef(
         Ability(
             title="Psychic Aura",
             game_text="Each of your Psychic Pok\u00e9mon has no Weakness.",
-            effect=unimplemented,
+            passive=no_weakness_passive(protects=team_of_types(PokemonTypes.PSYCHIC)),
         ),
         Attack(
             title="Deep Balance",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. Put 1 damage counter on that Pok\u00e9mon for each Energy attached to all of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=place_counters(count_energy("opponent", cards=True), target="choose_any_opponent"),
         ),
     ],
 )

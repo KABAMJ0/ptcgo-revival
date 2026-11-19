@@ -1,5 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class _KabutoArmor(Passive):
+    """An attack that damages the holder (even its owner's own) does half that
+    damage, rounded down to the nearest 10; off while afflicted."""
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if not calc.is_attack or calc.target is not holder:
+            return
+        if holder.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            return
+        calc.amount = (calc.amount // 2 // 10) * 10
+
+
+_kabuto_armor = _KabutoArmor()
 
 card = PokemonCardDef(
     guid="3061cd69-77ed-5bf8-8af4-74fbac8ef597",
@@ -22,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Kabuto Armor",
             game_text="Whenever an attack (even your own) does damage to Kabuto (after applying Weakness and Resistance), that attack does half the damage to Kabuto (rounded down to the nearest 10). (Any other effects of attacks still happen.) This power stops working while Kabuto is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_kabuto_armor,
         ),
         Attack(
             title="Scratch",

@@ -2,6 +2,17 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 
+async def mud_flood(ctx):
+    """Reveal the top 4 cards; printed 40 plus 40 per Water Energy found there,
+    then shuffle them back into the deck."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    cards = await ctx.reveal_top(4)
+    waters = sum(1 for c in cards if energy_provides_type(c, PokemonTypes.WATER.value))
+    await ctx.deal_damage(40 + 40 * waters)
+    if cards:
+        await ctx.shuffle_into_deck(cards)
+
+
 card = PokemonCardDef(
     guid="3ce942e2-615f-5678-9b3a-4ff7234c50e8",
     key="Promo_XY",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mud_flood,
         ),
         Attack(
             title="Hydro Tackle",

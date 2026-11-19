@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 import random
+from ptcgo.game.card_effects.pokemon import delayed_knockout
 
 
 async def _yank_away(ctx):

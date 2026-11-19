@@ -9,6 +9,8 @@ the bottom accept both the trainer (board, player_id) and the ability
 
 from typing import Callable, List, Optional
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
 from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import def_for
 from ptcgo.game.models.board import CardEntity, PokemonEntity
@@ -61,11 +63,25 @@ def _opponent_of(board, player_id):
     return next((p for p in board.player_ids if p != player_id), None)
 
 
-async def _attach_all(ctx, cards, target: PokemonEntity):
+async def _attach_all(ctx, cards, target: PokemonEntity) -> list:
+    """Attach each card and RETURN the ones that actually attached.
+
+    `ctx.attach_energy` answers False when the target is not a card entity or the
+    card is not in the board's index, and the result used to be dropped -- so a
+    caller reported "attached" pairs for cards that never moved. A silent False
+    here is indistinguishable from a broken board read."""
+    import logging
     if target.entity_id not in ctx.visual_targets:
         ctx.visual_targets.append(target.entity_id)
+    attached = []
     for card in cards:
-        await ctx.attach_energy(card, target)
+        if await ctx.attach_energy(card, target):
+            attached.append(card)
+        else:
+            logging.warning(
+                f"[Effects] attach_energy refused {getattr(card, 'entity_id', card)}"
+                f" onto {getattr(target, 'entity_id', target)}")
+    return attached
 
 
 # --- Deck searches -----------------------------------------------------------
@@ -314,11 +330,12 @@ def attach_from_discard(predicate=is_energy, count=1, target="self",
             holder = await ctx.choose_pokemon(
                 candidates, "Choose a Pokémon to attach the Energy to"
             ) or candidates[0]
-        await _attach_all(ctx, picks, holder)
+        attached = await _attach_all(ctx, picks, holder)
         if then is not None:
             await then(ctx, picks)
-        # Same contract as attach_from_hand: the attached pairs are the signal.
-        return [(card, holder) for card in picks]
+        # Same contract as attach_from_hand: the attached pairs are the signal,
+        # and only the cards that really attached are in it.
+        return [(card, holder) for card in attached]
     return effect
 
 

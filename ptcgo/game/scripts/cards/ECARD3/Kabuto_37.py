@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import attacker_is_evolution, takes_less_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Thick Shell",
             game_text="All damage done by attacks to Kabuto from Evolved Pok\u00e9mon is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10, attacker_pred=attacker_is_evolution()),
         ),
         Attack(
             title="Scratch",

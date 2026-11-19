@@ -1,9 +1,20 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+def _latios_on_bench(ctx) -> bool:
+    return any(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Latios"
+               for p in ctx.my_bench())
+
+
+async def sky_heal(ctx):
+    await ctx.deal_damage()
+    if _latios_on_bench(ctx):
+        await ctx.heal(20, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="ce7ef366-c12c-5bc2-8196-d2e792004a98",
@@ -33,7 +44,7 @@ card = PokemonCardDef(
             game_text="If Latios is on your Bench, heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.PSYCHIC: 1},
             damage=40,
-            effect=unimplemented,
+            effect=sky_heal,
         ),
     ],
 )

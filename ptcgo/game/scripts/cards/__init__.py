@@ -117,11 +117,15 @@ class ScriptLoader:
         # Wording-driven effects bind here, once, after every definition is
         # resolved: card_effects imports this module indirectly, so the
         # resolver cannot be imported at module scope.
-        from ptcgo.game.card_effects import patterns
+        from ptcgo.game.card_effects import ability_kinds, patterns
         self.pattern_bound = 0
+        self.kinds_restored = 0
         for reference, card_def in resolved.items():
             if reference not in invalid and not getattr(card_def, "runtime_only", False):
                 try:
+                    # The printed kind first: a body bound below may ask what
+                    # kind of ability it is riding on.
+                    self.kinds_restored += ability_kinds.apply_printed_kinds(card_def)
                     self.pattern_bound += patterns.bind_definition(card_def)
                     self._add_card(reference, card_def)
                     self._count_coverage(reference, card_def)

@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+def _is_dragon_pokemon(pokemon):
+    return PokemonTypes.DRAGON.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
+
+async def dragon_wisdom(ctx):
+    """The printed 20 is dealt by attach_from_discard, which then attaches a
+    basic Energy from the discard pile to 1 of your Dragon Pokemon."""
+    await attach_from_discard(is_basic_energy_card, count=1, target=_is_dragon_pokemon,
+                              prompt="Choose a basic Energy from your discard pile")(ctx)
 
 card = PokemonCardDef(
     guid="bc682941-5896-5c07-a4ec-2f6e5772e2c4",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             game_text="Attach a basic Energy card from your discard pile to 1 of your Dragon Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=dragon_wisdom,
         ),
         Attack(
             title="Hyper Voice",

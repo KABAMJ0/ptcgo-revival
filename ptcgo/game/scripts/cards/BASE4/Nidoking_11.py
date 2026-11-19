@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+from ptcgo.game.attributes import SpecialConditions
+async def toxic(ctx):
+    await ctx.deal_damage()
+    await ctx.apply_special_condition(
+        ctx.defender, SpecialConditions.POISONED, poison_counters=2)
+
+
 card = PokemonCardDef(
     guid="c2b13595-105d-5fff-a2ce-53dec7986080",
     key="BASE4",
@@ -32,7 +40,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Poisoned. It now takes 20 Poison damage instead of 10 after each player's turn (even if it was already Poisoned).",
             cost={PokemonTypes.GRASS: 3},
             damage=20,
-            effect=unimplemented,
+            effect=toxic,
         ),
     ],
 )

@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import apply_protection
+
+
+async def _expand(ctx):
+    """Expand: printed damage, then -10 taken through their next turn."""
+    await ctx.deal_damage()
+    await apply_protection(ctx, reduce=10)
 
 card = PokemonCardDef(
     guid="8fd4c6db-d072-54ce-9912-3801ec1efb92",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             game_text="All damage done to Jigglypuff during your opponent's next turn is reduced by 10 (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=_expand,
         ),
     ],
 )

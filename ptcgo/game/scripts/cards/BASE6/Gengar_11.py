@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import move_counters_ability, unafflicted
+from ptcgo.game.data_utils import Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+_curse, _has_curse_target = move_counters_ability(1, "theirs")
+
+
+def _can_curse(board, player_id, pokemon):
+    return unafflicted(board, player_id, pokemon) \
+        and _has_curse_target(board, player_id, pokemon)
+
 
 card = PokemonCardDef(
     guid="649d88eb-f9ac-5f33-bc10-197ad5c875d5",
@@ -23,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Curse",
             game_text="Once during your turn (before your attack), you may move 1 damage counter from 1 of your opponent's Pok\u00e9mon to another (even if it would Knock Out the other Pok\u00e9mon). This power can't be used if Gengar is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_can_curse,
+            effect=_curse,
         ),
         Attack(
             title="Dark Mind",

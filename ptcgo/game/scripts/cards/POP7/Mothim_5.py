@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import spread_damage
+
+async def silver_wind(ctx):
+    """Next turn, attacks that damage the Defending Pokemon do 40 more."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is not None:
+        ctx.add_damage_taken_modifier(40, defender, through="your_next_turn")
+
 card = PokemonCardDef(
     guid="0ad6c0e5-cbac-5310-aec4-f5a21c78509b",
     key="POP7",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="Silver Wind",
             game_text="During your next turn, if an attack does damage to the Defending Pok\u00e9mon (after applying Weakness and Resistance), that attack does 40 more damage.",
             cost={},
-            effect=unimplemented,
+            effect=silver_wind,
         ),
         Attack(
             title="Raging Scales",

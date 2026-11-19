@@ -1,7 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.pokemon import in_active_spot
+from ptcgo.game.card_effects.support_common import draw_attack
+
 
 card = PokemonCardDef(
     guid="01922a8d-14b0-5ddb-a928-8b1e5800af68",
@@ -23,7 +25,10 @@ card = PokemonCardDef(
         Ability(
             title="Run Errand",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may use this Ability. Draw 2 cards. You can't use more than 1 Run Errand Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=draw_attack(2),
+            condition=in_active_spot,
+            shared_once_per_turn="Run Errand",
         ),
         Attack(
             title="Rapid-Fire Combo",

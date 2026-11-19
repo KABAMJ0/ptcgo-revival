@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import (
+    is_in_active_spot, pokemon_of_types, trainer_effect_shield_passive,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +25,12 @@ card = PokemonCardDef(
         Ability(
             title="Blizzard Veil",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever your opponent plays a Supporter card from their hand, prevent all effects of that card done to your Benched Water Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=trainer_effect_shield_passive(
+                while_active=True,
+                protects=lambda entity, carrier: entity is not None
+                and entity.owning_player_id == carrier.owning_player_id
+                and not is_in_active_spot(entity)
+                and pokemon_of_types("water")(entity)),
         ),
         Attack(
             title="Cold Cyclone",

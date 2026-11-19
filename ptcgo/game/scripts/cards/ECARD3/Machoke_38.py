@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import apply_own_next_turn_boost
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _focus_energy(ctx):
+    await ctx.deal_damage()
+    await apply_own_next_turn_boost(ctx, 40, "Mega Punch")
 
 card = PokemonCardDef(
     guid="745c4bec-a21f-555a-abe9-75ae0d94f93e",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Focus Energy",
             game_text="During your next turn, Machoke's Mega Punch attack's base damage is 80.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_focus_energy,
         ),
         Attack(
             title="Mega Punch",

@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _has_damage(pokemon) -> bool:
+    printed = pokemon.attribute_originals.get(AttrID.HP.value)
+    return printed is not None and pokemon.get_attribute(AttrID.HP, 0) < printed
 
 card = PokemonCardDef(
     guid="890c5365-cc5f-5bfb-a628-2846764dda62",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             title="Blindside",
             game_text="Choose 1 of your opponent's Pok\u00e9mon that has a damage counter on it. This attack does 20 damage to that Pok\u00e9mon. Don't apply Weakness and Resistance.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(20, pool=_has_damage, apply_modifiers=False),
         ),
     ],
 )

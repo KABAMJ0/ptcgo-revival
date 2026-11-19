@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    Activations, PokemonCardDef, Attack, Ability, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 
 card = PokemonCardDef(
@@ -24,7 +27,8 @@ card = PokemonCardDef(
         Ability(
             title="Aerial Draw",
             game_text="Once during your turn, you may use this Ability. Draw a card.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Feather Rondo",

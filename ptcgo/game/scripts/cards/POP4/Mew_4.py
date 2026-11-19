@@ -1,4 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+from ptcgo.game.card_effects.support_common import entity_name
+from ptcgo.game.session.passives import carrier_pokemon
+
+
+def _has_react_energy(target, carrier) -> bool:
+    """Only Mew itself, and only while a React Energy card rides it."""
+    holder = carrier_pokemon(carrier)
+    if target is None or holder is None or holder is not target:
+        return False
+    return any("react energy" in entity_name(energy).lower()
+               for energy in target.children)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -23,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Reactive Barrier",
             game_text="As long as Mew has any React Energy cards attached to it, prevent all effects, excluding damage, done to Mew by attacks from your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(protects=_has_react_energy),
         ),
         Attack(
             title="Psyshock",

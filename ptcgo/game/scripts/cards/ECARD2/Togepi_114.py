@@ -1,4 +1,16 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+
+
+async def _minor_errand_running(ctx):
+    results = await ctx.flip_coins(2, "Minor Errand-Running")
+    heads = sum(1 for result in results if result)
+    if not heads:
+        return
+    await search_to_hand(is_basic_energy_card, count=heads, reveal=True,
+                         prompt="Search your deck for a basic Energy card")(ctx)
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +34,7 @@ card = PokemonCardDef(
             title="Minor Errand-Running",
             game_text="Flip 2 coins. For each heads, search your deck for a basic Energy card. Show those cards to your opponent, and then put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_minor_errand_running,
         ),
         Attack(
             title="Pound",

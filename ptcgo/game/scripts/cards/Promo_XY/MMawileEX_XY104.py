@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def twin_grapple(ctx):
+    """130, then flip 2 coins: one Energy off the Defending Pokemon per heads."""
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(2, "Twin Grapple")
+    heads = sum(1 for r in results if r)
+    defender = ctx.defender
+    if heads and defender is not None and not ctx.effects_blocked(defender):
+        await ctx.discard_energy_from(defender, heads)
+
+
 card = PokemonCardDef(
     guid="82d84d24-e57d-5d14-a54e-613d3618cb79",
     key="Promo_XY",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. For each heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 3},
             damage=130,
-            effect=unimplemented,
+            effect=twin_grapple,
         ),
     ],
 )

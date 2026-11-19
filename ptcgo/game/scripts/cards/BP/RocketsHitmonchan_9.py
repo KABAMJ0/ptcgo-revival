@@ -1,5 +1,30 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class CrosscounterPassive(Passive):
+    """During the opponent's next turn, if an attack damages this Pokemon
+    (even if it is Knocked Out), flip a coin: heads hits the attacking
+    Pokemon for double the damage taken."""
+
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        if not (calc.is_attack and calc.is_opposing and calc.amount > 0):
+            return None
+        if target is not carrier_pokemon(carrier):
+            return None
+        heads = await ctx.flip_coins(1, "Crosscounter", source=target)
+        attacker = calc.attacker
+        if heads and heads[0] and attacker is not None:
+            await ctx.deal_damage(calc.amount * 2, target=attacker,
+                                  apply_modifiers=False)
+        return None
+
+
+async def crosscounter(ctx):
+    ctx.add_passive_through_opponents_turn(ctx.attacker, CrosscounterPassive())
+
+
 
 card = PokemonCardDef(
     guid="d72d5e88-c772-58e4-97dc-d0f6ad197d8a",
@@ -22,7 +47,7 @@ card = PokemonCardDef(
             title="Crosscounter",
             game_text="If an attack does damage to Rocket's Hitmonchan during your opponent's next turn (even if Rocket's Hitmonchan is Knocked Out), flip a coin. If heads, Rocket's Hitmonchan attacks your opponent's Active Pok\u00e9mon for double that amount of damage. (If Rocket's Hitmonchan takes 20 damage, it does 40 damage to that Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=crosscounter,
         ),
         Attack(
             title="Magnum Punch",

@@ -1,6 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class ConductiveBodyPassive(Passive):
+    """While Beldum is your Active Pokemon, its retreat cost is 1 less for each
+    Beldum on your Bench."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if holder is None or pokemon is not holder or not is_in_active_spot(holder):
+            return cost
+        bench = board.find_player_area(holder.owning_player_id, "bench")
+        others = sum(
+            1 for benched in (bench.children if bench else [])
+            if benched.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Beldum"
+        )
+        return max(0, cost - others)
+
 
 card = PokemonCardDef(
     guid="1d2b4707-3001-50ee-8e15-9f9cc459d7a8",
@@ -23,7 +42,7 @@ card = PokemonCardDef(
         Ability(
             title="Conductive Body",
             game_text="As long as Beldum is your Active Pok\u00e9mon, you pay Colorless less to retreat Beldum for each Beldum on your Bench.",
-            effect=unimplemented,
+            passive=ConductiveBodyPassive(),
         ),
         Attack(
             title="Take Down",

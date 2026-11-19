@@ -1,6 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.card_effects.passives_common import (
+    apply_own_next_turn_boost,
+    flip_protection,
+)
+
+
+async def focus(ctx):
+    await apply_own_next_turn_boost(ctx, 20, attack_title="Agility")
+
 
 card = PokemonCardDef(
     guid="f9c226a5-6403-538a-8247-11e28eae0ad5",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
             title="Focus",
             game_text="During your next turn, Rocket's Scizor's Agility attack's damage is doubled.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=focus,
         ),
         Attack(
             title="Agility",

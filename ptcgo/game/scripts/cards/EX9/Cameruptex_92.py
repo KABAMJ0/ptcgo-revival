@@ -1,8 +1,22 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_energy_card, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def eruption(ctx):
+    discarded = []
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        top = ctx.deck_top(1, player_id=player_id)
+        if top:
+            discarded.extend(top)
+    if not discarded:
+        return
+    await ctx.discard_cards(discarded)
+    energy = sum(1 for card in discarded if is_energy_card(card))
+    amount = 60 + 20 * energy
+    await ctx.deal_damage(amount)
 
 card = PokemonCardDef(
     guid="35ffbf69-e161-5d53-9a90-2d5f2ee8fe4a",
@@ -36,7 +50,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=eruption,
         ),
     ],
 )

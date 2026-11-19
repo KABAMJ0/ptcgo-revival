@@ -3,6 +3,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
 
+async def liberation_gx(ctx):
+    """Reveal the opponent's hand; 120 damage per Energy card in it."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+    cards = await ctx.reveal_hand(ctx.opponent_id)
+    energies = sum(1 for c in (cards or []) if is_energy_card(c))
+    await ctx.deal_damage(120 * energies)
+
+
 card = PokemonCardDef(
     guid="5a96fb64-d01d-5301-962a-7f4222ed7189",
     key="Promo_SM",
@@ -38,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
             damage_operator="x",
-            effect=unimplemented,
+            effect=liberation_gx,
         ),
     ],
 )

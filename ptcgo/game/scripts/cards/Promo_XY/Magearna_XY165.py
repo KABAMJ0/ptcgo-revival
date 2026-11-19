@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.attributes import AttrID
+
+async def prismatic_wave(ctx):
+    """20 damage for each distinct Pokemon type on the opponent's Bench."""
+    import json
+    types = set()
+    for pokemon in ctx.opponent_bench():
+        raw = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+        types.update(raw)
+    await ctx.deal_damage(20 * len(types))
+
 
 card = PokemonCardDef(
     guid="040839d2-9f11-5557-b160-34828ca5d2eb",
@@ -32,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=prismatic_wave,
         ),
     ],
 )

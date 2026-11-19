@@ -1,5 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import extra_energy_beyond_cost
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _lightning_cut(ctx):
+    results = await ctx.flip_coins(1, "Lightning Cut")
+    if results and results[0]:
+        await ctx.deal_damage(40)
+        for pokemon in ctx.opponent_bench():
+            await ctx.deal_damage(10, target=pokemon)
+        return
+    await ctx.deal_damage(30)
+    if ctx.attacker is not None:
+        await ctx.deal_damage(10, target=ctx.attacker, apply_modifiers=False)
+
+
+async def _water_slash(ctx):
+    extra = extra_energy_beyond_cost(ctx, PokemonTypes.WATER)
+    await ctx.deal_damage(50 + 10 * extra, ignore_resistance=True)
+
 
 card = PokemonCardDef(
     guid="5bb03942-cef5-5f7d-b9c2-6b131073414c",
@@ -24,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.LIGHTNING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_lightning_cut,
         ),
         Attack(
             title="Water Slash",
@@ -32,7 +52,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.WATER: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_water_slash,
         ),
     ],
 )

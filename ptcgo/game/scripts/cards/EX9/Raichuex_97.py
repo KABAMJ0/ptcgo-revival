@@ -1,6 +1,19 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_pokemon_ex
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.content.definitions import def_for
+
+def _rai_shield_target(target, carrier):
+    if target.owning_player_id != carrier.owning_player_id:
+        return False
+    definition = def_for(target.archetype_id)
+    return definition is not None and definition.display_name == "Raichu ex"
+
+
+def _opponent_ex(attacker):
+    return attacker is not None and is_pokemon_ex(attacker)
 
 card = PokemonCardDef(
     guid="6b7f75c1-fd15-5bb7-a6ca-66ac7f24a7d3",
@@ -23,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Rai-shield",
             game_text="Damage done to any of your Raichu ex in play by attacks from your opponent's Pok\u00e9mon-ex is reduced by 30 (after applying Weakness and Resistance). You can't use more than 1 Rai-shield Pok\u00e9-Body each turn.",
-            effect=unimplemented,
+            effect=None,
+            passive=takes_less_passive(30, protects=_rai_shield_target, attacker_pred=_opponent_ex, stack_key="Rai-shield"),
         ),
         Attack(
             title="Power Short",

@@ -19,6 +19,26 @@ async def radiating_heat(ctx):
         await ctx.discard_energy_from(defender, 1)
 
 
+from ptcgo.game.data_utils import Activations
+
+
+def _bench_above_three(board, player_id, pokemon=None):
+    area = board.find_player_area(player_id, "bench")
+    return bool(area) and len(area.children) > 3
+
+
+async def weed_out(ctx):
+    """Choose 3 of your Benched Pokemon; discard every other Benched Pokemon."""
+    bench = [p for p in ctx.my_bench()]
+    if len(bench) <= 3:
+        return
+    keep = await ctx.choose_cards(
+        bench, 3, minimum=3, prompt="Choose 3 Benched Pokemon to keep")
+    keep_ids = {card.entity_id for card in (keep or [])}
+    doomed = [p for p in bench if p.entity_id not in keep_ids]
+    if doomed:
+        await ctx.discard_cards(doomed)
+
 card = PokemonCardDef(
     guid="0ce390b2-5ae0-531d-9a13-d927e11a289c",
     key="DM",
@@ -41,7 +61,9 @@ card = PokemonCardDef(
         Ability(
             title="Weed Out",
             game_text="Once during your turn (before your attack), you may choose 3 of your Benched Pok\u00e9mon. Then, discard your other Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_bench_above_three,
+            effect=weed_out,
         ),
         Attack(
             title="Dark Destruction",

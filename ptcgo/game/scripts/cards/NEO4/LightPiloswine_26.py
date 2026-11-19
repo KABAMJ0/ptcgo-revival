@@ -1,5 +1,28 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, CLIENT_SPECIAL_CONDITION_NAMES, SpecialConditions
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
+
+def _fluffy_wool_blocked(pokemon):
+    blocked = {CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP],
+               CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.CONFUSED],
+               CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.PARALYZED]}
+    return bool(blocked & set(pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or []))
+
+
+async def _fluffy_wool(ctx):
+    pokemon = ctx.source
+    if pokemon is None or _fluffy_wool_blocked(pokemon):
+        return
+    attacker = getattr(ctx, "damaged_by", None)
+    if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+        return
+    results = await ctx.flip_coins(1, "Fluffy Wool")
+    if results and results[0]:
+        await ctx.apply_special_condition(attacker, SpecialConditions.ASLEEP)
+
 
 card = PokemonCardDef(
     guid="d78afa19-9dc3-57cc-b1ed-0cab2c9f4301",
@@ -22,15 +45,16 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Fluffy Wool",
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
             game_text="During your opponent's turn, if Light Piloswine is your Active Pok\u00e9mon and is damaged by your opponent's attack (even if it's Knocked Out), flip a coin. If heads, the attacking Pok\u00e9mon is now Asleep. This power stops working if Light Piloswine is already Asleep, Confused, or Paralyzed when your opponent attacks.",
-            effect=unimplemented,
+            effect=_fluffy_wool,
         ),
         Attack(
             title="Knock Over",
             game_text="If there is a Stadium card in play, you may discard it.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
-            effect=unimplemented,
+            effect=discard_stadium_attack(optional=True),
         ),
     ],
 )

@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _continuous_charge(ctx):
+    heads = await ctx.flip_coins(4, "Continuous Charge")
+    n = sum(1 for h in heads if h)
+    await ctx.deal_damage(30 + 20 * n)
+    for _ in range(n):
+        await ctx.deal_damage(10, target=ctx.attacker, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="e2907dbf-d1d8-5e6f-a2f0-5b804c3f0bb9",
     key="ECARD3",
@@ -31,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_continuous_charge,
         ),
     ],
 )

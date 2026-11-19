@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
+
+cowardice = remove_self_from_play(destination="hand", with_attachments="discard")
+
+
+def _cowardice_offered(board, player_id, pokemon):
+    state = board.turn_state
+    return state.entered_play_turn.get(pokemon.entity_id) != state.turn_number
+
 
 card = PokemonCardDef(
     guid="c92aeed8-b72c-5f7c-b8e4-e9b21492e29b",
@@ -21,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Cowardice",
             game_text="Once during your turn (before your attack), you may discard all cards attached to this Pok\u00e9mon and return it to your hand. You can't use this Ability during your first turn or on the turn this Pok\u00e9mon was put into play.",
-            effect=unimplemented,
+            effect=cowardice,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_cowardice_offered,
         ),
         Attack(
             title="Water Gun",

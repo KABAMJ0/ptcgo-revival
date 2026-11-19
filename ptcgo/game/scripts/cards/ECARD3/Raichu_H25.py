@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+def _has_power(pokemon) -> bool:
+    from ptcgo.game.data_utils import def_for
+    definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+    if definition is None:
+        return False
+    return bool(getattr(definition, "abilities", None))
+
+
+async def _zzzap(ctx):
+    for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
+        if _has_power(pokemon):
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="94c1ce9e-7553-50bd-aee4-f28dc10abfa1",
     key="ECARD3",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
             title="Zzzap",
             game_text="This attack does 20 damage to each Pok\u00e9mon with a Pok\u00e9-Body or Pok\u00e9-Power (yours and your opponent's). (Don't apply Weakness or Resistance.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_zzzap,
         ),
         Attack(
             title="Lightning Storm",

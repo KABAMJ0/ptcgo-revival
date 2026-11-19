@@ -1,6 +1,11 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+
+
+def _undamaged_last_turn(ctx) -> bool:
+    return ctx.damaged_by_attack_last_turn(ctx.attacker) == 0
 
 card = PokemonCardDef(
     guid="f484bd6b-96de-5b90-93b9-c3fd428327d2",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             game_text="If Poliwrath was damaged by an attack during your opponent's last turn, this attack does nothing.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=bonus_if(_undamaged_last_turn, 0, base=60, else_nothing=True),
         ),
         Attack(
             title="Submission",

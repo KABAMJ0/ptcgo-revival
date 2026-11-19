@@ -1,6 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import ability_lock_passive
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
+
+def _is_break(pokemon, carrier=None):
+    return has_pokemon_subtype(pokemon.archetype_id, "BREAK")
+
 
 card = PokemonCardDef(
     guid="34c29038-3972-54d1-99d0-c44a1c2258e2",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Devour Light",
             game_text="Each Pok\u00e9mon BREAK has no Abilities (this includes Abilities of its previous Evolution).",
-            effect=unimplemented,
+            passive=ability_lock_passive(_is_break),
         ),
         Attack(
             title="Shadow Claw",

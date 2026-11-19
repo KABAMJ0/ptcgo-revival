@@ -4,6 +4,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def _trample(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench() + ctx.opponent_bench():
+        heads = await ctx.flip_coins(1, "Trample")
+        if heads and heads[0]:
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="7d43c607-45af-549d-9a99-68651b315081",
     key="ECARD3",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             game_text="For each Benched Pok\u00e9mon (yours and your opponent's), flip a coin. If heads, this attack does 20 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=_trample,
         ),
     ],
 )

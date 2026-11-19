@@ -1,5 +1,30 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def _wash_away(ctx):
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    results = await ctx.flip_coins(1, "Wash Away")
+    if not (results and results[0]):
+        return
+    pick = await ctx.choose_pokemon(bench, "Choose a Benched Pok\u00e9mon to heal")
+    if pick is None:
+        return
+    await ctx.heal(ctx.max_hp(pick), pick)
+    energies = list(ctx.attached_energies(pick))
+    if energies:
+        await ctx.discard_cards(energies)
+
+
+async def _hypnoshower_bench(ctx):
+    for pokemon in ctx.my_bench() + ctx.opponent_bench():
+        if pokemon.get_attribute(AttrID.HP, 0) < ctx.max_hp(pokemon):
+            await ctx.heal(10, pokemon)
+
 
 card = PokemonCardDef(
     guid="7e9cb56d-0b16-5c23-95f6-97ff9398833f",
@@ -23,14 +48,14 @@ card = PokemonCardDef(
             title="Wash Away",
             game_text="If you have any Benched Pok\u00e9mon, flip a coin. If heads, remove all damage counters from 1 of your Benched Pok\u00e9mon and discard all Energy cards attached to it.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=_wash_away,
         ),
         Attack(
             title="Hypnoshower",
             game_text="The Defending Pok\u00e9mon is now Asleep. Remove 1 damage counter from each Benched Pok\u00e9mon (yours and your opponent's) with any damage counters on it.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, also=_hypnoshower_bench),
         ),
     ],
 )

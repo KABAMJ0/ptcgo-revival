@@ -1,7 +1,22 @@
-from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
+from ptcgo.game.card_effects.attacks_common import (
+    damage_per, discard_defender_tools_then_damage,
+)
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import named_one_of
+
+_RATTATA = named_one_of("Rattata")
+
+
+def _benched_rattata_counters(ctx) -> int:
+    """Damage counters on all of your Benched Rattata."""
+    total = 0
+    for pokemon in ctx.my_bench():
+        if _RATTATA(pokemon):
+            total += max(0, (ctx.max_hp(pokemon)
+                             - pokemon.get_attribute(AttrID.HP, 0)) // 10)
+    return total
+
 
 card = PokemonCardDef(
     guid="30e9c2e8-feb6-591b-a798-254a45e1e3dd",
@@ -34,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_benched_rattata_counters, 40),
         ),
     ],
 )

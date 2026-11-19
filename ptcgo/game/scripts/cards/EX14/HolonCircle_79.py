@@ -13,7 +13,7 @@ class HolonCirclePassive(Passive):
     def prevents_damage(self, calc, carrier) -> bool:
         return calc.is_attack
 
-    def blocks_attack_effects(self, target, carrier) -> bool:
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None) -> bool:
         return True
 
     async def _discard_self(self, ctx, carrier) -> None:

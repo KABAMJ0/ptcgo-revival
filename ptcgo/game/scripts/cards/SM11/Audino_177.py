@@ -2,6 +2,13 @@ from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+
+async def _hearing(ctx):
+    """Hearing: a card, while Audino is the Active Pokemon."""
+    if is_in_active_spot(ctx.source):
+        await ctx.draw_cards(1)
 
 card = PokemonCardDef(
     guid="3318452a-657a-5640-9837-3b8642f7539a",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Hearing",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is your Active Pok\u00e9mon, you may draw a card.",
-            effect=unimplemented,
+            effect=_hearing,
         ),
         Attack(
             title="Drain Slap",

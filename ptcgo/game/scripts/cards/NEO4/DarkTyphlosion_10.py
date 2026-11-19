@@ -1,5 +1,24 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _rushing_flames(ctx):
+    pool = [energy for pokemon in ctx.my_pokemon_in_play()
+            for energy in ctx.attached_energies(pokemon)
+            if energy_provides_type(energy, PokemonTypes.FIRE.value)]
+    if not pool:
+        return
+    picks = await ctx.choose_cards(
+        pool, len(pool), minimum=0,
+        prompt="Choose any number of Fire Energy cards to discard")
+    if not picks:
+        return
+    await ctx.discard_cards(list(picks))
+    results = await ctx.flip_coins(len(picks), "Rushing Flames")
+    heads = sum(1 for result in results if result)
+    if heads > 0:
+        await ctx.deal_damage(40 * heads)
 
 card = PokemonCardDef(
     guid="e46dbeea-cd74-5f71-8678-1c5c3670c677",
@@ -30,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_rushing_flames,
         ),
     ],
 )

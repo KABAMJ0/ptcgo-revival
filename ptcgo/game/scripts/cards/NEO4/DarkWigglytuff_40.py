@@ -3,6 +3,20 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import AttrID, SpecialConditions
+
+
+async def _slap_awake(ctx):
+    """Slap Awake: +20 and a cure when the Defending Pokemon is afflicted."""
+    defender = ctx.defender
+    afflicted = False
+    if defender is not None:
+        names = str(defender.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        afflicted = "Asleep" in names or "Confused" in names
+    await ctx.deal_damage(40 if afflicted else 20)
+    if afflicted:
+        await ctx.cure_condition(defender, SpecialConditions.ASLEEP)
+        await ctx.cure_condition(defender, SpecialConditions.CONFUSED)
 
 card = PokemonCardDef(
     guid="783100cc-3833-57c6-93db-da8945d45a0c",
@@ -35,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_slap_awake,
         ),
     ],
 )

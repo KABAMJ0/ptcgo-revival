@@ -2,6 +2,14 @@ from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _metal_tail(ctx):
+    if not await ctx.ask_yes_no("Flip a coin for Metal Tail?"):
+        await ctx.deal_damage(40)
+        return
+    results = await ctx.flip_coins(1, "Metal Tail")
+    await ctx.deal_damage(80 if (results and results[0]) else 0)
+
+
 card = PokemonCardDef(
     guid="5c53fb3e-a892-5acd-b349-6a92ebc52963",
     key="ECARD3",
@@ -39,7 +47,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, you may flip a coin. If heads, this attack does 80 damage. If tails, this attack does nothing.",
             cost={PokemonTypes.METAL: 3, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=_metal_tail,
         ),
     ],
 )

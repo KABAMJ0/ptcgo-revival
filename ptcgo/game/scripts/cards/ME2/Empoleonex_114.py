@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.passives_common import (
+    attack_effect_shield_passive, protect_next_turn)
 
 card = PokemonCardDef(
     guid="b7ae5001-92c6-5385-9ca9-81aca76a9bf7",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Emperor's Stance",
             game_text="Prevent all effects of attacks used by your opponent's Pok\u00e9mon done to this Pok\u00e9mon. (Damage is not an effect.)",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Iron Feathers",

@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack, damage_per, damage_counters_on
+from ptcgo.game.card_effects.passives_common import ability_lock_passive
+from ptcgo.game.session.passives import carrier_pokemon
+
+def _gx_or_ex_active(pokemon, carrier=None):
+    """The opposing GX/EX while this Pokemon is the Active one."""
+    from ptcgo.game.card_effects.pokemon import is_pokemon_gx, is_pokemon_EX
+    from ptcgo.game.card_effects.passives_common import is_in_active_spot
+    if carrier is None or not is_in_active_spot(carrier_pokemon(carrier)):
+        return False
+    return (is_pokemon_gx(pokemon.archetype_id) or is_pokemon_EX(pokemon.archetype_id))
+
 
 card = PokemonCardDef(
     guid="ab0d18a5-c3e8-5170-a2b9-a2f96f5bde4c",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Freezing Gaze",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Pok\u00e9mon-GX and Pok\u00e9mon-EX in play, in their hand, and in their discard pile have no Abilities, except for Freezing Gaze.",
-            effect=unimplemented,
+            passive=ability_lock_passive(_gx_or_ex_active),
         ),
         Attack(
             title="Frost Bullet",

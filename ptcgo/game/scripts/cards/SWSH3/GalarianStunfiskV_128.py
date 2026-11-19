@@ -11,7 +11,7 @@ _GUID = "51e663e4-700f-5619-a1b0-ffbe09ca6c2f"
 class MetalSkinPassive(Passive):
     """This Pokemon gets +20 max HP for each Metal Energy attached to it."""
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon is not carrier:
             return 0
         count = sum(1 for c in carrier.children

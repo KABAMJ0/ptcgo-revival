@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import count_retreat_cost, damage_per
+
+
+async def _freeze_lock(ctx):
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(1, "Freeze Lock")
+    if not (results and results[0]):
+        return
+    active = ctx.opponent_active()
+    if active is not None:
+        ctx.restrict_attachments(active, ctx.session.turn_state.turn_number + 2)
+
+
 card = PokemonCardDef(
     guid="7dbb0dea-f367-52a7-ae0a-301a59661e48",
     key="ECARD3",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent can't attach Energy cards from his or her hand to his or her Active Pok\u00e9mon during his or her next turn.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_freeze_lock,
         ),
         Attack(
             title="Crushing Ice",
@@ -32,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_retreat_cost(side="defender"), 10, base=40),
         ),
     ],
 )

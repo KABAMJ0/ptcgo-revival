@@ -1,6 +1,31 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.attributes import AttrID
+
+def _basic_fire(pokemon):
+    from ptcgo.game.attributes import PokemonStage
+    if pokemon.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+        return False
+    return PokemonTypes.FIRE.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
+
+async def steam_up(ctx):
+    """Discard a Fire Energy from hand; this turn your Basic Fire Pokemon's
+    attacks do 30 more to the opponent's Active."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    from ptcgo.game.session.passives import TurnDamageModifier
+    fires = [c for c in ctx.hand() if energy_provides_type(c, PokemonTypes.FIRE.value)]
+    if not fires:
+        return
+    picked = await ctx.choose_cards(fires, 1, prompt="Discard a Fire Energy")
+    if not picked:
+        return
+    await ctx.discard_cards(picked)
+    ctx.session.turn_state.damage_modifiers.append(
+        TurnDamageModifier(30, ctx.player_id, opposing_active_only=True,
+                           source_predicate=_basic_fire))
+
 
 card = PokemonCardDef(
     guid="b9c10544-822c-5e6d-bae5-46da37ed64fb",
@@ -22,7 +47,8 @@ card = PokemonCardDef(
         Ability(
             title="Steam Up",
             game_text="Once during your turn (before your attack), you may discard a Fire Energy card from your hand. If you do, during this turn, your Basic Fire Pok\u00e9mon's attacks do 30 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=steam_up,
         ),
         Attack(
             title="Volcanic Heat",

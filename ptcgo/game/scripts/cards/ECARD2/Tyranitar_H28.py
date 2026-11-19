@@ -1,5 +1,14 @@
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _gigacrush(ctx):
+    await ctx.deal_damage(60)
+    for pid in (ctx.opponent_id, ctx.player_id):
+        milled = ctx.deck_top(3, player_id=pid)
+        if milled:
+            await ctx.discard_cards(milled)
 
 card = PokemonCardDef(
     guid="9581f73c-5ec7-5e6a-a7fc-1c85d0a2fdc4",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="Destructive Roar",
             game_text="Flip a coin. If heads, discard 1 Energy card attached to 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(count=1, scope="any", damage=0),
         ),
         Attack(
             title="Tail Slap",
@@ -36,7 +45,7 @@ card = PokemonCardDef(
             game_text="Each player discards the top 3 cards from his or her deck.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=_gigacrush,
         ),
     ],
 )

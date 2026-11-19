@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import on_evolve
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.attributes import AttrID
+
+async def search_for_friends(ctx):
+    """On evolve: put up to 2 Supporter cards from the deck into the hand."""
+    from ptcgo.game.attributes import TrainerType
+    await search_to_hand(
+        lambda c: c.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value,
+        2, prompt="Choose up to 2 Supporter cards")(ctx)
+
 
 card = PokemonCardDef(
     guid="488ecf73-f09a-57d4-ae67-9ec066125778",
@@ -22,7 +34,8 @@ card = PokemonCardDef(
         Ability(
             title="Search for Friends",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may put 2 Supporter cards from your discard pile into your hand.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(search_for_friends),
         ),
         Attack(
             title="Cat Kick",

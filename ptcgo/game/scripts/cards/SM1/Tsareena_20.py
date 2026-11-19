@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack, cure_conditions_effect
+
+
+async def _queenly_majesty(ctx):
+    revealed = await ctx.reveal_hand(ctx.opponent_id)
+    if not revealed:
+        return
+    await ctx.discard_from_hand(
+        1, minimum=1, player_id=ctx.opponent_id,
+        prompt="Choose a card from their hand to discard")
+
 
 card = PokemonCardDef(
     guid="fb3dea45-2a49-5a9f-b3b2-94303853429d",
@@ -22,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Queenly Majesty",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may have your opponent reveal their hand. Then, discard a card from it.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=_queenly_majesty,
         ),
         Attack(
             title="Trop Kick",

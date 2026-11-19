@@ -1,8 +1,25 @@
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+class BlazePassive(Passive):
+    """At 40 HP or less the carrier's attacks do 40 more (before W/R)."""
+
+    def modify_damage_dealt(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.attacker is not holder:
+            return
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if not getattr(calc, "to_active", False):
+            return
+        if holder.get_attribute(AttrID.HP, 0) <= 40:
+            calc.amount += 40
 
 card = PokemonCardDef(
     guid="8e03cc65-b465-5733-b9cc-447c83db8b2e",
@@ -25,7 +42,8 @@ card = PokemonCardDef(
         Ability(
             title="Blaze",
             game_text="As long as Blaziken's remaining HP is 40 or less, Blaziken does 40 more damage to the Defending Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=condition_attack(SpecialConditions.BURNED),
+            effect=None,
+            passive=BlazePassive(),
         ),
         Attack(
             title="Searing Flame",

@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
 
+async def _lateral_eggsplosion(ctx):
+    attached = sum(len(ctx.attached_energies(pokemon)) for pokemon in ctx.my_bench())
+    heads = 0
+    if attached:
+        results = await ctx.flip_coins(attached, "Lateral Eggsplosion")
+        heads = sum(1 for result in results if result)
+    await ctx.deal_damage(30 + 10 * heads)
+
+
 card = PokemonCardDef(
     guid="d733dc1c-edce-5933-a2e9-50797edcec0f",
     key="ECARD2",
@@ -34,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_lateral_eggsplosion,
         ),
     ],
 )

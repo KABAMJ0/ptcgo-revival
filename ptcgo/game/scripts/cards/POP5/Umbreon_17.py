@@ -1,6 +1,12 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import (
+    discard_random_from_hand, snipe_attack,
+)
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def dark_ray(ctx):
+    await discard_random_from_hand(ctx, ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="f171ab04-7f1c-57c3-81bc-da3508d0e0fa",
@@ -23,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Dark Ray",
             game_text="Once during your turn, when you put Umbreon Star from your hand onto your Bench, you may choose 1 card from your opponent's hand without looking and discard it.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=dark_ray,
         ),
         Attack(
             title="Feint Attack",

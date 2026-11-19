@@ -3,6 +3,18 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
+
+async def _triple_spin(ctx):
+    results = await ctx.flip_coins(3, "Triple Spin")
+    heads = sum(1 for result in results if result)
+    if heads:
+        await ctx.deal_damage(20 * heads)
+    if heads >= 2:
+        await switch_self_attack(damage=0)(ctx)
+
+
 card = PokemonCardDef(
     guid="c98afd75-c758-598d-aea0-50634603a041",
     key="ECARD2",
@@ -34,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_triple_spin,
         ),
     ],
 )

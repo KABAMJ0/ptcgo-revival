@@ -1,6 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_fire_energy, is_fighting_energy
+from ptcgo.game.card_effects.support_common import (
+    attach_from_discard, requires_discard,
+)
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+def _is_fire_or_fighting_energy(card) -> bool:
+    return is_fire_energy(card) or is_fighting_energy(card)
 
 
 async def _hurricane(ctx):
@@ -34,7 +42,11 @@ card = PokemonCardDef(
         Ability(
             title="Burning Draft",
             game_text="Once during your turn (before your attack), you may attach a Fighting or Fire Energy card from your discard pile to this Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=requires_discard(_is_fire_or_fighting_energy, 1),
+            effect=attach_from_discard(
+                predicate=_is_fire_or_fighting_energy, count=1, target="self",
+                prompt="Choose a Fighting or Fire Energy card to attach"),
         ),
         Attack(
             title="Flame Ball",

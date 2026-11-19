@@ -5,7 +5,7 @@ from ptcgo.game.card_effects.pokemon import is_pokemon_vmax
 
 
 class HerosMedalPassive(Passive):
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is not pokemon:
             return 0
         return -100

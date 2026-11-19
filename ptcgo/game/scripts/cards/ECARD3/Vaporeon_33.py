@@ -5,6 +5,32 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialC
 from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def _aqua_trick(ctx):
+    await ctx.deal_damage()
+    defender = ctx.defender
+    bench = ctx.opponent_bench()
+    if defender is None or not bench:
+        return
+    energies = ctx.attached_energies(defender)
+    if not energies:
+        return
+    results = await ctx.flip_coins(1, "Aqua Trick")
+    if not (results and results[0]):
+        return
+    energy = energies[0]
+    if len(energies) > 1:
+        picked = await ctx.choose_cards(
+            energies, 1,
+            prompt="Choose an Energy card attached to the Defending Pokémon")
+        if not picked:
+            return
+        energy = picked[0]
+    target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+        bench, "Choose a Pokémon to move the Energy to")
+    if target is not None:
+        await ctx.move_energy(energy, target)
+
+
 card = PokemonCardDef(
     guid="a9e3c5e5-629b-5a9a-8602-44de04128f68",
     key="ECARD3",
@@ -41,7 +67,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon has any Energy cards attached to it, flip a coin. If heads, choose 1 of those Energy cards and move it to 1 of your opponent's Benched Pok\u00e9mon. If your opponent has no Benched Pok\u00e9mon, ignore this effect.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_aqua_trick,
         ),
     ],
 )

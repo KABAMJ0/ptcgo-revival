@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.trainers import bench_has_room, furisode_girl
+from ptcgo.game.card_effects.trainers import bench_has_room_condition, furisode_girl
 from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
@@ -13,5 +13,5 @@ card = SupporterCardDef(
     set_code="SWSH12",
     rarity=Rarities.RareRainbow,
     effect=furisode_girl,
-    condition=bench_has_room
+    condition=bench_has_room_condition()
 )

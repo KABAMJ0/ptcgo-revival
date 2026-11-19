@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
+
+
+async def _dodge(ctx):
+    """Dodge: a coin per hit through their next turn; heads prevent it."""
+    await flip_protection(prevent=True)(ctx)
 
 card = PokemonCardDef(
     guid="da0641c4-1b46-5fbd-a271-d348d2d21beb",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
             title="Dodge",
             game_text="If Hitmonchan would be damaged by an attack during your opponent's next turn, flip a coin. If heads, prevent that attack's damage done to Hitmonchan. (Any other effects of attacks still happen.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=_dodge,
         ),
         Attack(
             title="Supersonic Jab",

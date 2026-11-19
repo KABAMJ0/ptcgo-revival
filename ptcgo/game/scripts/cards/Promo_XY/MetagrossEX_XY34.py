@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import move_energy_between
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 
 card = PokemonCardDef(
     guid="0b36186e-dd0c-5fe5-839e-9dcc6f5ed0ba",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="You may move a Metal Energy from 1 of your Benched Pok\u00e9mon to this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=move_energy_between(predicate=lambda c: energy_provides_type(c, PokemonTypes.METAL.value), count=1, from_pool="bench", to_pool="active"),
         ),
         Attack(
             title="Squared Attack",

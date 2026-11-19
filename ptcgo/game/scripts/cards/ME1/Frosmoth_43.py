@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack, damage_all_opponents,
+)
+
 
 card = PokemonCardDef(
     guid="4c521baa-f0c1-5feb-9155-779075975292",
@@ -23,7 +27,8 @@ card = PokemonCardDef(
             title="Chilling Wings",
             game_text="This attack does 20 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Your opponent's Active Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_all_opponents(
+                20, also=condition_attack(SpecialConditions.ASLEEP, damage=0)),
         ),
     ],
 )

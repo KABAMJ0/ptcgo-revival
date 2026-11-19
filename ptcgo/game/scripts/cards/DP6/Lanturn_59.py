@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _energy_split(ctx):
+    """Energy Split: 30 to every opposing Pokemon holding Energy."""
+    for target in ctx.opponent_pokemon_in_play():
+        if ctx.attached_energies(target):
+            await ctx.deal_damage(30, target=target, apply_modifiers=None,
+                                  queue_shield=False)
+
 card = PokemonCardDef(
     guid="384d9599-e247-5117-a02e-377f11ad87d6",
     key="DP6",
@@ -23,7 +31,7 @@ card = PokemonCardDef(
             title="Energy Split",
             game_text="This attack does 30 damage to each of your opponent's Pok\u00e9mon that has any Energy cards attached to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=_energy_split,
         ),
         Attack(
             title="Aqua Bolt",

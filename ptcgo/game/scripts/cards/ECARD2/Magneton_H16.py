@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, unafflicted
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.session.passives import effective_pokemon_types
@@ -12,6 +13,36 @@ async def _steel_wave(ctx):
     await spread_damage(10, also_base=True,
                         pred=lambda p: bool(types_of(p) & foe_types))(ctx)
 
+
+def _magnetic_flow_ready(board, player_id, pokemon) -> bool:
+    return is_in_active_spot(pokemon) and unafflicted(board, player_id, pokemon)
+
+
+async def _magnetic_flow(ctx):
+    heads = await ctx.flip_coins(1, "Magnetic Flow")
+    if not (heads and heads[0]):
+        return
+    pool = [p for p in ctx.opponent_pokemon_in_play() if ctx.attached_energies(p)]
+    if len(pool) < 2:
+        return
+    first = await ctx.choose_pokemon(
+        pool, "Choose 2 of your opponent's Pok\u00e9mon that have Energy attached")
+    if first is None:
+        return
+    second = await ctx.choose_pokemon(
+        [p for p in pool if p.entity_id != first.entity_id],
+        "Choose the second Pok\u00e9mon")
+    if second is None:
+        return
+    from_first = await ctx.choose_cards(
+        ctx.attached_energies(first), 1,
+        prompt="Choose 1 Energy attached to the first Pok\u00e9mon")
+    from_second = await ctx.choose_cards(
+        ctx.attached_energies(second), 1,
+        prompt="Choose 1 Energy attached to the second Pok\u00e9mon")
+    if from_first and from_second:
+        await ctx.move_energy(from_first[0], second)
+        await ctx.move_energy(from_second[0], first)
 
 card = PokemonCardDef(
     guid="72eaf176-3aa7-5cdd-a284-a620a5462177",
@@ -35,7 +66,9 @@ card = PokemonCardDef(
         Ability(
             title="Magnetic Flow",
             game_text="Once during your turn (before your attack), if Magneton is your Active Pok\u00e9mon, you may flip a coin. If heads, choose 2 of your opponent's Pok\u00e9mon that have Energy cards attached to them. Choose 1 of the Energy cards attached to each of those Pok\u00e9mon and switch them between the Pok\u00e9mon. This power can't be used if Magneton is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_magnetic_flow_ready,
+            effect=_magnetic_flow,
         ),
         Attack(
             title="Steel Wave",

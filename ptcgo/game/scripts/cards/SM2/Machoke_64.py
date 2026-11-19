@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
+
+
 
 card = PokemonCardDef(
     guid="bccb0b1b-2f13-530b-b07b-3fbbf6d17fb5",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Daunting Pose",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks. Your opponent's attacks and Abilities can't put damage counters on your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=bench_damage_shield(effects_too=True),
         ),
         Attack(
             title="Cross Chop",

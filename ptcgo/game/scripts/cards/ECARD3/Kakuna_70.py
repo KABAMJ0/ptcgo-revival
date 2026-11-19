@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -25,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="All damage by attacks to Kakuna is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10),
         ),
         Attack(
             title="Poisonpowder",

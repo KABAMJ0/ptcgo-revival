@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import requires_bench_space, search_to_bench
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+def _basic_or_baby(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    if definition is None:
+        return False
+    subtypes = getattr(definition, "subtypes", None) or []
+    return "Basic" in subtypes or "Baby" in subtypes
 
 card = PokemonCardDef(
     guid="c2aca0bc-8edb-5462-9b71-43ab3585568d",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="Call for Friends",
             game_text="Search your deck for a Baby Pok\u00e9mon or Basic Pok\u00e9mon card and put it onto your Bench. Shuffle your deck afterward. (You can't use this attack if your Bench is full.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(_basic_or_baby, count=1),
         ),
         Attack(
             title="Body Slam",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, SpecialConditions, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_if, hand_sizes_equal
 
 card = PokemonCardDef(
     guid="6fce7a9d-eb00-54f5-a56f-d6bd85ce42cd",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="If you have the same number of cards in your hand as your opponent, your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=condition_if(hand_sizes_equal, SpecialConditions.CONFUSED),
         ),
     ],
 )

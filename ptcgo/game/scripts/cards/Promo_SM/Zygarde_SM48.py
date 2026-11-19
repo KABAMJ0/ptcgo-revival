@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def core_enforcer(ctx):
+    """Printed 150, then discard a Darkness Energy and a Fairy Energy."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    await ctx.deal_damage()
+    for type_value, label in ((PokemonTypes.DARKNESS.value, "Darkness"),
+                              (PokemonTypes.FAIRY.value, "Fairy")):
+        await ctx.discard_energy_from(
+            ctx.attacker, 1,
+            predicate=lambda c, t=type_value: energy_provides_type(c, t),
+            prompt=f"Choose a {label} Energy to discard")
+
+
 card = PokemonCardDef(
     guid="5bf1ecb8-e7ff-50e2-8660-a45c7860ec4d",
     key="Promo_SM",
@@ -28,7 +40,7 @@ card = PokemonCardDef(
             game_text="Discard a Darkness Energy and a Fairy Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=150,
-            effect=unimplemented,
+            effect=core_enforcer,
         ),
     ],
 )

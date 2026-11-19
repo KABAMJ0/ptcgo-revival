@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+async def sky_hurricane(ctx):
+    """Printed damage, then this attack is locked through the user's next turn."""
+    await ctx.deal_damage()
+    ability = ctx.ability
+    if ctx.attacker is not None and ability is not None and ability.ability_id:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ability.ability_id)
+
 card = PokemonCardDef(
     guid="8a9083b2-4dc6-5495-80f1-6fecde736c4f",
     key="SWSH12TG",
@@ -33,6 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=190,
             locks_next_turn=True,
+            effect=sky_hurricane,
         ),
     ],
 )

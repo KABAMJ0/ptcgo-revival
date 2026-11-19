@@ -1,8 +1,16 @@
 from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def poison_smog(ctx):
+    await ctx.deal_damage()
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+    await spread_damage(10, side="opponent")(ctx)
 
 card = PokemonCardDef(
     guid="7fbf2b93-959e-5a6f-8aa7-0de4371abd34",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             title="Poison Smog",
             game_text="Each Defending Pok\u00e9mon is now Poisoned. Does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=poison_smog,
         ),
     ],
 )

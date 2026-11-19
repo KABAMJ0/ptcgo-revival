@@ -9,7 +9,7 @@ from ptcgo.game.session.passives import Passive
 class GroupPowerPassive(Passive):
     """This Pokemon gets +150 HP if it has 3 or more Water Energy attached."""
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon is not carrier:
             return 0
         count = sum(1 for c in carrier.children

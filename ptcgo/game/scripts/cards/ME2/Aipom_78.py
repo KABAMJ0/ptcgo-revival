@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import random_card_to_deck
 
 card = PokemonCardDef(
     guid="ea68293c-d05e-5040-be2a-01bb3a7caf37",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Choose a random card from your opponent's hand, and your opponent reveals that card and shuffles it into their deck.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=random_card_to_deck(),
         ),
     ],
 )

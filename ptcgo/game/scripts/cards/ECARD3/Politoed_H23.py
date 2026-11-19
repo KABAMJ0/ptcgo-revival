@@ -1,5 +1,6 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             game_text="Move 2 Water Energy cards attached to Politoed to 1 or 2 of your Benched Pok\u00e9mon. (You may put both on the same Pok\u00e9mon or 1 each on 2 different Pok\u00e9mon.) If you have no Benched Pok\u00e9mon, ignore this effect.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 3},
             damage=70,
-            effect=unimplemented,
+            effect=energy_move_attack(count=2, energy_type=PokemonTypes.WATER),
         ),
     ],
 )

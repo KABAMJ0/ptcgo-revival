@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import bench_has_room, fossil_search, is_rare_fossil
+from ptcgo.game.card_effects.trainers import bench_has_room_condition, fossil_search, is_rare_fossil
 
 card = SupporterCardDef(
     guid="1713c760-1937-5afc-88bf-f07996103dd8",
@@ -13,5 +13,5 @@ card = SupporterCardDef(
     set_code="SWSH4",
     rarity=Rarities.Uncommon,
     effect=fossil_search(is_rare_fossil),
-    condition=bench_has_room,
+    condition=bench_has_room_condition(),
 )

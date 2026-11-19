@@ -1,6 +1,26 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _fire_blow(ctx):
+    fire = [energy for energy in ctx.attached_energies(ctx.attacker)
+            if energy_provides_type(energy, PokemonTypes.FIRE.value)]
+    picks = []
+    if fire:
+        picks = await ctx.choose_cards(
+            fire, len(fire), minimum=0,
+            prompt="Discard any number of Fire Energy cards attached to Arcanine")
+        if picks:
+            await ctx.discard_cards(picks)
+    heads = 0
+    if picks:
+        results = await ctx.flip_coins(len(picks), "Fire Blow")
+        heads = sum(1 for result in results if result)
+    await ctx.deal_damage(30 + 30 * heads)
+
+
 card = PokemonCardDef(
     guid="4d6e3711-4a8f-5eaf-b91b-34cf6ec45d07",
     key="ECARD2",

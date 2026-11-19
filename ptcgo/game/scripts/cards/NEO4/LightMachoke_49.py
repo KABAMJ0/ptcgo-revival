@@ -1,5 +1,26 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import full_stack
+from ptcgo.game.attributes import AttrID
+
+
+async def _return_home(ctx):
+    """Return Home: one Benched Pokemon and its attachments go into the deck."""
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon")
+    if target is None:
+        return
+    await ctx.shuffle_into_deck(full_stack(target), ctx.player_id)
+
+
+async def _gentle_kick(ctx):
+    """Gentle Kick: 40 against a clean defender, 20 against a marked one."""
+    defender = ctx.defender
+    clean = (defender is None
+             or defender.get_attribute(AttrID.HP, 0) >= ctx.max_hp(defender))
+    await ctx.deal_damage(40 if clean else 20)
 
 card = PokemonCardDef(
     guid="87c6a42b-928c-53d0-9c3f-64af003bf440",
@@ -23,14 +44,14 @@ card = PokemonCardDef(
             title="Return Home",
             game_text="If you have any Benched Pok\u00e9mon, shuffle 1 of them and all cards attached to it into your deck.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=_return_home,
         ),
         Attack(
             title="Gentle Kick",
             game_text="If the Defending Pok\u00e9mon has no damage counters on it, this attack does 40 damage. If it has any, this attack does 20 damage.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_gentle_kick,
         ),
     ],
 )

@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+
+
+async def _searchlight(ctx):
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        pile = list(ctx.discard_pile(player_id))
+        if not pile:
+            continue
+        picks = await ctx.choose_cards(
+            pile, 1, minimum=0, player_id=player_id,
+            prompt="Choose a card from your discard pile")
+        if picks:
+            await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="3de6417d-441b-5d61-b849-261608bbcf7e",
@@ -24,7 +38,7 @@ card = PokemonCardDef(
             title="Searchlight",
             game_text="Flip a coin. If heads, each player may choose a card from his or her discard pile and put it into his or her hand.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=_searchlight),
         ),
         Attack(
             title="Spark",

@@ -1,8 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_gate
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="46f3080e-71be-511d-a908-912a1bc40edb",
@@ -26,7 +28,9 @@ card = PokemonCardDef(
         Ability(
             title="Soothing Aroma",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, remove 1 damage counter from each of your Pok\u00e9mon that has any. This power can't be used if Meganium is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=flip_gate(then=heal_targets(10, scope="each_own")),
         ),
         Attack(
             title="Poisonpowder",

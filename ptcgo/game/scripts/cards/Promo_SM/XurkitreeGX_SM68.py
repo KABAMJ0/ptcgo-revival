@@ -11,6 +11,18 @@ def _attacker_has_special_energy(calc, carrier) -> bool:
     return any(energy.get_attribute(AttrID.IS_SPECIAL_ENERGY)
                for energy in BoardState.attached_energies(calc.attacker))
 
+async def lighting_gx(ctx):
+    """Reveal the opponent's hand and add one card from it to their Prizes, face
+    down."""
+    cards = await ctx.reveal_hand(ctx.opponent_id)
+    if not cards:
+        return
+    picks = await ctx.choose_cards(cards, 1, prompt="Choose a card to add to their Prizes")
+    if not picks:
+        return
+    await ctx.put_in_prizes(picks, player_id=ctx.opponent_id)
+
+
 card = PokemonCardDef(
     guid="8c3e6ca5-5c7c-5799-b090-759c8f562e0b",
     key="Promo_SM",
@@ -45,7 +57,7 @@ card = PokemonCardDef(
             title="Lighting-GX",
             game_text="Your opponent reveals their hand. Add a card you find there to their Prize cards face down. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=lighting_gx,
         ),
     ],
 )

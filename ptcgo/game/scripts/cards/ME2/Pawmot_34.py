@@ -1,5 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+
+
+async def voltaic_fist(ctx):
+    """Printed damage; you may take 60 to this Pokemon and Paralyze theirs."""
+    await ctx.deal_damage()
+    if not await ctx.ask_yes_no(
+            "Do 60 damage to this Pokémon and leave your opponent's Active "
+            "Pokémon Paralyzed?"):
+        return
+    await ctx.deal_damage(60, target=ctx.attacker, apply_modifiers=False)
+    await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
+
 
 card = PokemonCardDef(
     guid="6b09a16f-57fb-574a-9d82-63d4e4e750ed",
@@ -24,7 +38,7 @@ card = PokemonCardDef(
             game_text="You may have this Pok\u00e9mon also do 60 damage to itself and make your opponent's Active Pok\u00e9mon Paralyzed.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=130,
-            effect=unimplemented,
+            effect=voltaic_fist,
         ),
     ],
 )

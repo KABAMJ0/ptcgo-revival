@@ -3,6 +3,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def mud_splash(ctx):
+    await ctx.deal_damage()
+    bench = list(ctx.opponent_bench())
+    if not bench:
+        return
+    pick = await ctx.choose_pokemon(bench, "Choose a Benched Pok\u00e9mon")
+    if pick is None:
+        return
+    results = await ctx.flip_coins(1, "Mud Splash")
+    if results and results[0]:
+        await ctx.deal_damage(20, target=pick, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="0c73395b-a91f-5160-8109-caa98c51b39c",
     key="POP1",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, choose 1 of them and flip a coin. If heads, this attack does 20 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=mud_splash,
         ),
     ],
 )

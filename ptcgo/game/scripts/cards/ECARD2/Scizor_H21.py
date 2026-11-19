@@ -1,3 +1,13 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.session.passives import Passive
+from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
+
+class _PoisonResistance(Passive):
+    def blocks_special_conditions(self, target, condition, carrier):
+        return target is carrier and str(condition) in ("Poisoned", "2",
+                                                        str(SpecialConditions.POISONED))
+
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Poison Resistance",
             game_text="Scizor can't be Poisoned.",
-            effect=unimplemented,
+            passive=_PoisonResistance(),
         ),
         Attack(
             title="Snatch",
@@ -37,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_energy("self", PokemonTypes.METAL), base=30, per_heads=20),
         ),
     ],
 )

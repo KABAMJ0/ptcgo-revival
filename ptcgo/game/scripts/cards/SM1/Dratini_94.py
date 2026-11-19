@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import card_named_any
+
+
+signs_of_evolution = search_to_hand(
+    card_named_any(["Dratini", "Dragonair", "Dragonite"]),
+    count=3, minimum=0, reveal=True)
+
 
 card = PokemonCardDef(
     guid="6df72a09-57c2-5077-b985-be59bef7965a",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
             title="Signs of Evolution",
             game_text="Search your deck for a Dratini, a Dragonair, and a Dragonite, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=signs_of_evolution,
         ),
         Attack(
             title="Tail Smack",

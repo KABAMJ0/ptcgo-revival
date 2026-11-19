@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_table
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -47,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage_table({0: -50, 1: 0, 2: 20}, coins=2, base=50),
         ),
     ],
 )

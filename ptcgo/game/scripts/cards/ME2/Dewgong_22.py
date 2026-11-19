@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.passives_common import pokemon_of_types, takes_less_passive
 
 card = PokemonCardDef(
     guid="1610ff33-bfd8-5787-af95-5859ba71ef02",
@@ -23,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Thick Fat",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks from your opponent's Fire or Water Pok\u00e9mon (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(
+                30, attacker_pred=pokemon_of_types(
+                    PokemonTypes.FIRE.value, PokemonTypes.WATER.value)),
         ),
         Attack(
             title="Slam",

@@ -1,7 +1,11 @@
-from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage_table
 from ptcgo.game.card_effects.support_common import heal_attack
+
+
+fury_cutter = flip_damage_table({1: 20, 2: 60, 3: 110}, coins=3, base=10)
+
 
 card = PokemonCardDef(
     guid="aa3df515-fef9-5416-8b65-c86f52df1d7e",
@@ -27,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=fury_cutter,
         ),
         Attack(
             title="Mushroom Drain",

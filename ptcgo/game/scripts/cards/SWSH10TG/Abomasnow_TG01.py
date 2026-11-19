@@ -8,7 +8,7 @@ class ToughnessBoostPassive(Passive):
 
     stacking_key = "ToughnessBoost"
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon.owning_player_id != carrier.owning_player_id:
             return 0
         pdef = def_for(pokemon.archetype_id)

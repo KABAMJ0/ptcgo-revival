@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+
+async def identify(ctx):
+    """Reveal the opponent's hand; printed 20, +80 if a Pokemon is in it."""
+    from ptcgo.game.attributes import CardType
+    cards = await ctx.reveal_hand(ctx.opponent_id)
+    found = any(c.get_attribute(AttrID.CARD_TYPE) == CardType.POKEMON.value
+                for c in (cards or []))
+    await ctx.deal_damage(20 + (80 if found else 0))
+
 
 card = PokemonCardDef(
     guid="2bcff3a3-22fc-50b3-b1b9-1efac60e01a3",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=identify,
         ),
         Attack(
             title="Whap Down",

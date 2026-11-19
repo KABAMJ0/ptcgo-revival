@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import regi_gate
 
@@ -31,6 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=140,
             locks_next_turn=True,
+            effect=lock_self_attack(),
         ),
     ],
 )

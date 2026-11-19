@@ -1,7 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import active_vs_active_debuff_passive
+
 
 card = PokemonCardDef(
     guid="23fc3ebc-daa4-5b97-9ab6-32b65e92e7b6",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Intimidating Fang",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, attacks used by your opponent's Active Pok\u00e9mon do 30 less damage (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=active_vs_active_debuff_passive(30),
         ),
         Attack(
             title="Searing Flame",

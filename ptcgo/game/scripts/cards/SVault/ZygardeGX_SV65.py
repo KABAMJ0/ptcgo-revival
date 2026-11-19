@@ -3,6 +3,18 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.data_utils import has_rule_box
+
+
+async def verdict_gx(ctx):
+    """Printed 150, then no damage from Pokemon-GX/EX attacks next turn."""
+    await ctx.deal_damage()
+    from ptcgo.game.card_effects.passives_common import apply_protection
+    await apply_protection(
+        ctx, target=ctx.attacker, prevent=True,
+        attacker_pred=lambda attacker: has_rule_box(attacker.archetype_id))
+
 card = PokemonCardDef(
     guid="effdb2a2-399b-5c8c-8c3d-80f3e047514b",
     key="SVault",
@@ -37,7 +49,7 @@ card = PokemonCardDef(
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from Pok\u00e9mon-GX and Pok\u00e9mon-EX during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=150,
-            effect=unimplemented,
+            effect=verdict_gx,
         ),
     ],
 )
