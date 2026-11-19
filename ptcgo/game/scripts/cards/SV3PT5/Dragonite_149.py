@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+
 
 card = PokemonCardDef(
     guid="5e44d9a9-3a20-5e52-b302-1ac96d166e5a",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Jet Cruise",
             game_text="Your Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(lambda p, c: p.owning_player_id == c.owning_player_id),
         ),
         Attack(
             title="Dragon Pulse",

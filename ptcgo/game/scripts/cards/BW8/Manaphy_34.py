@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.data_utils import unimplemented, unimplemented, PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.passives_common import on_ko_from_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
