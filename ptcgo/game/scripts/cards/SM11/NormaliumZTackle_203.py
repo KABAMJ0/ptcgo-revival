@@ -1,16 +1,16 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.attributes import PokemonTypes
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.card_effects.trainers import gx_attack_when_holder_has
 
 _attack = Attack(
-    title="Breakneck Blitz-GX",
-    game_text="This attack does 50 damage times the number of Energy attached to this Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
-    cost={PokemonTypes.COLORLESS: 1},
-    damage=50,
-    damage_operator="x",
-    effect=damage_per(count_energy('self'), 50),
+    title="Barreling Blitz-GX",
+    game_text="Flip a coin until you get tails. This attack does 40 more damage for each heads. (You can't use more than 1 GX attack in a game.)",
+    cost={PokemonTypes.COLORLESS: 4},
+    damage=200,
+    damage_operator="+",
+    effect=flip_damage(per_heads=40, base=200, until_tails=True),
 )
 
 

@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, Rarities
-from ptcgo.game.card_effects.trainers import damage_porter
+from ptcgo.game.card_effects.trainers import damage_porter, pokemon_of_subtype
 
 card = PokemonToolCardDef(
     guid="6e0f0d95-3a33-5f2b-a6a7-950b41e7efa0",
@@ -12,6 +12,7 @@ card = PokemonToolCardDef(
     collector_number=95,
     set_code="PL2",
     rarity=Rarities.Uncommon,
+    attach_to=pokemon_of_subtype("SP"),
     granted_abilities=[
         Attack(
             title="Damage Porter",
