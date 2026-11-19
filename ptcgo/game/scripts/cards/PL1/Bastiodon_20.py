@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="7cf03712-4698-5067-910a-74af766c9c7e",
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             game_text="Bastiodon does 30 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=recoil_attack(30, damage=0),
         ),
     ],
 )

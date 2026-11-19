@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="125c21de-ad18-567c-b01c-16f859393ac2",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Tauros does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(10, damage=0),
         ),
     ],
 )

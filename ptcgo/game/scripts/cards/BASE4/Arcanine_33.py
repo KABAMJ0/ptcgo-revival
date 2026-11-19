@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="d18c2539-2dc5-5824-9a1b-0bcded6a70a0",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Arcanine does 30 damage to itself.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=recoil_attack(30, damage=0),
         ),
     ],
 )

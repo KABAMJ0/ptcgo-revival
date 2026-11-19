@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="462e5a99-1a96-5288-8691-7d6babcec073",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Lairon does 20 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=recoil_attack(20, damage=0),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="50b79a97-2949-5632-a867-3717d18c8d1c",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Misty's Dewgong does 20 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=recoil_attack(20, damage=0),
         ),
     ],
 )
