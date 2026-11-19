@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="791f98ee-8e78-5808-bd44-0266352433ba",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Offensive Gas",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused and Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, SpecialConditions.POISONED, flip=True),
         ),
         Attack(
             title="Gas Bomb",
