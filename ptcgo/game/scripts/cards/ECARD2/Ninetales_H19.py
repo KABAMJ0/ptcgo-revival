@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.trainers import choose_condition_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, choose a Special Condition (Asleep, Burned, Confused, Paralyzed, or Poisoned). The Defending Pok\u00e9mon is now affected by that Special Condition.",
             cost={PokemonTypes.FIRE: 1},
             damage=10,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(10), flip_gate(choose_condition_attack())),
         ),
         Attack(
             title="Roasting Heat",
