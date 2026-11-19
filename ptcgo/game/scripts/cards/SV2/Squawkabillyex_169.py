@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
+
+def first_turn(board, player_id, pokemon):
+    turn_state = getattr(board, "turn_state", None)
+    return turn_state is not None and turn_state.turn_number <= 2
+
 
 card = PokemonCardDef(
     guid="1b38908f-db0c-5719-b8f6-9d305fb45330",
@@ -22,7 +28,10 @@ card = PokemonCardDef(
         Ability(
             title="Squawk and Seize",
             game_text="Once during your first turn, you may discard your hand and draw 6 cards. You can't use more than 1 Squawk and Seize Ability during your turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=first_turn,
+            shared_once_per_turn="Squawk and Seize",
+            effect=discard_then_draw(0, 6, whole_hand=True),
         ),
         Attack(
             title="Motivate",

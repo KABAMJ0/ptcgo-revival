@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+def kos_last_turn(ctx):
+    return ctx.kos_suffered_last_turn(ctx.player_id) > 0
+
 
 card = PokemonCardDef(
     guid="f5b3a384-060e-5546-8fc4-92ccefa9c789",
@@ -25,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(kos_last_turn, 50),
         ),
         Attack(
             title="Dynamic Punch",

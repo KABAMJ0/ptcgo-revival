@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack, switch_self_attack
+
+async def rapid_spin(ctx):
+    await gust_attack(opponent_chooses=True)(ctx)
+    await switch_self_attack(damage=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="79139eda-c8c7-5606-b1d8-40e140d3699b",
@@ -25,7 +31,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon, if any. You switch Donphan with 1 of your Benched Pok\u00e9mon, if any.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=rapid_spin,
         ),
         Attack(
             title="Bash In",

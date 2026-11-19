@@ -1,5 +1,20 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def unruly_claw(ctx):
+    """On evolve: you may discard an Energy attached to the opponent's
+    Active Pokemon."""
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    if not await ctx.ask_yes_no(
+        "Discard an Energy attached to your opponent's Active Pok\u00e9mon?"
+    ):
+        return
+    await ctx.discard_energy_from(
+        target, 1, prompt="Choose Energy to discard from the Defending Pok\u00e9mon")
+
 
 card = PokemonCardDef(
     guid="ee940f97-1bfd-55f8-ac29-694e97b1bcef",
@@ -23,7 +38,8 @@ card = PokemonCardDef(
         Ability(
             title="Unruly Claw",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may discard an Energy attached to your opponent's Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=unruly_claw,
         ),
         Attack(
             title="Crabhammer",
