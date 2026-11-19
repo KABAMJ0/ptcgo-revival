@@ -1,7 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
-
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 card = PokemonCardDef(
     guid="2705daa9-3f3e-5049-a1f8-b32e43132516",
     key="SVP",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("self"), 100),
         ),
         Attack(
             title="Explosive Vortex",

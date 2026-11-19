@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_per
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+def _healed_this_turn(ctx):
+    return ctx.attacker.entity_id in ctx.session.turn_state.healed_entities
 
 card = PokemonCardDef(
     guid="deca934f-5728-5799-9221-e5065211c08d",
@@ -26,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_healed_this_turn, 80),
         ),
         Attack(
             title="Reckless Charge",

@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack, bonus_if, defender_is_ex_or_v
 card = PokemonCardDef(
     guid="0550c336-fc42-5a34-bafc-43335896a1bd",
     key="SVP",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_ex_or_v, 90),
         ),
     ],
 )

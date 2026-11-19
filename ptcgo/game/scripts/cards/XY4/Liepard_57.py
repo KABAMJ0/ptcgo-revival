@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
-
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
 card = PokemonCardDef(
     guid="8c70b4a6-de8e-500b-b4c7-6c123b985fd0",
     key="XY4",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 60 (before applying Weakness and Resistance).",
             cost={PokemonTypes.DARKNESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=debuff_defender_attacks(60),
         ),
         Attack(
             title="Mach Claw",

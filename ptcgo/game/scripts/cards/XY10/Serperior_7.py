@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 card = PokemonCardDef(
     guid="90bf96b4-79f2-5099-8a53-d8d4660bb411",
     key="XY10",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's attacks do 60 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60),
         ),
         Attack(
             title="Slashing Strike",

@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack, bonus_if, defender_is_ex_or_v
 card = PokemonCardDef(
     guid="a508fa44-1e2b-5b56-aa6a-70757ecf06ce",
     key="SV3PT5",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_ex_or_v, 90),
         ),
     ],
 )

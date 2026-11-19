@@ -1,7 +1,8 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 card = PokemonCardDef(
     guid="d7acfa2d-53f9-5b4d-a8e9-4811bb7d2efb",
     key="ZSV10PT5",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 30),
         ),
     ],
 )

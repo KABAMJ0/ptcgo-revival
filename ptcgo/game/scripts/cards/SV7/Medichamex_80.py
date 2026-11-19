@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+async def super_fang(ctx):
+    """Damage counters on the opponent's Active until its remaining HP is 10."""
+    target = ctx.defender
+    if target is None:
+        return
+    hp = target.get_attribute(AttrID.HP, 0)
+    if hp > 10:
+        await ctx.deal_damage(hp - 10, target=target, as_counters=True)
 
 card = PokemonCardDef(
     guid="945e48bf-d1e5-5817-86af-efdd34b080f1",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             title="Chi-Atsu",
             game_text="Put damage counters on your opponent's Active Pok\u00e9mon until its remaining HP is 50.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=super_fang,
         ),
         Attack(
             title="Yoga Kick",

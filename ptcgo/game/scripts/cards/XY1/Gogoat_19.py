@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_supporter_card
-
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 card = PokemonCardDef(
     guid="8be74cba-f91a-57b2-a5d9-be9d45b43660",
     key="XY1",

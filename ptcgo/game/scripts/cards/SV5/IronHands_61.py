@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack, bonus_if, defender_is_ex_or_v
 card = PokemonCardDef(
     guid="01634bf6-d718-53fd-bc2e-d34e50516937",
     key="SV5",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_ex_or_v, 80),
         ),
     ],
 )

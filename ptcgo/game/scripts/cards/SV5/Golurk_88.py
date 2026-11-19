@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import flip_protection
-
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack, bonus_if, defender_is_ex_or_v
 card = PokemonCardDef(
     guid="5ebcc823-d128-5d0a-99b7-58f043411970",
     key="SV5",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_ex_or_v, 120),
         ),
     ],
 )

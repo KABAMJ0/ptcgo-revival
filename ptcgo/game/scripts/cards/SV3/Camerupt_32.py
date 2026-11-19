@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+async def ground_burn(ctx):
+    """Discard the top card of each player's deck; 140 more for each Energy
+    discarded this way."""
+    discarded = []
+    for pid in (ctx.player_id, ctx.opponent_id):
+        top = ctx.deck_top(1, pid)
+        if top:
+            discarded.extend(top)
+    if discarded:
+        await ctx.discard_cards(discarded)
+    energies = sum(1 for c in discarded if is_energy_card(c))
+    await ctx.deal_damage(140 + 140 * energies)
 
 card = PokemonCardDef(
     guid="2b0dbfa2-7732-5568-b756-0313cb1b6428",
@@ -25,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=ground_burn,
         ),
         Attack(
             title="Steaming Stomp",

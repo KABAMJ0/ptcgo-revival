@@ -1,7 +1,9 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 card = PokemonCardDef(
     guid="407b225d-4a96-5f64-bb4b-a02336dc918c",
     key="XY10",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine"), 10, base=60),
         ),
     ],
 )

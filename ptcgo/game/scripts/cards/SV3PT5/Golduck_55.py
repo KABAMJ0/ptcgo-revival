@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 card = PokemonCardDef(
     guid="272cd6f6-7156-5a73-9529-172ea92b38c4",
     key="SV3PT5",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Aquatic Rescue",
             game_text="Put up to 4 Pok\u00e9mon from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Super Splash",

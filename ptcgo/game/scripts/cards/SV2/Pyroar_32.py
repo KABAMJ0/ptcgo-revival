@@ -1,7 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
 card = PokemonCardDef(
     guid="fe370f81-2cf0-5ef8-bcb6-11519cc8ef8c",
     key="SV2",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=1, apply_modifiers=False, also_base=True),
         ),
     ],
 )

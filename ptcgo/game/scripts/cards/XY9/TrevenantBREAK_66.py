@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import place_counters
 card = PokemonCardDef(
     guid="fd5a1224-8387-5d6e-b0c6-b761f54ba11b",
     key="XY9",
@@ -22,7 +22,7 @@ card = PokemonCardDef(
             title="Silent Fear",
             game_text="Put 3 damage counters on each of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(3, "each_opponent"),
         ),
     ],
 )

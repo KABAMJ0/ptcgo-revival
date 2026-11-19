@@ -4,7 +4,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
-
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.card_effects.attacks_common import spread_damage
 card = PokemonCardDef(
     guid="b5cce5cb-c926-5eb3-a9e9-354b4d2f5b67",
     key="ZSV10PT5",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=110,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
     ],
 )

@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-
+from ptcgo.game.card_effects.attacks_common import bench_has_damage_counters, bonus_if
 card = PokemonCardDef(
     guid="2bfd9a67-c56b-5aa0-a4ce-4a51f4dc84a0",
     key="SV6",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(bench_has_damage_counters, 90),
         ),
         Attack(
             title="Searing Flame",

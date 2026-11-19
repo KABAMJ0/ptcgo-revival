@@ -1,7 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
-
+from ptcgo.game.card_effects.attacks_common import count_hand, damage_per
+from ptcgo.game.card_effects.support_common import draw_attack
 card = PokemonCardDef(
     guid="86015a71-a6eb-5706-adc6-bc78bc4f67cb",
     key="SVP",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 30),
         ),
         Attack(
             title="Pulverizing Press",

@@ -4,6 +4,9 @@ from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.passives import carrier_pokemon
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 
 def _holder_with(type_value=None, basic_only=False):
@@ -19,7 +22,6 @@ def _holder_with(type_value=None, basic_only=False):
                 return True
         return False
     return protects
-
 card = PokemonCardDef(
     guid="a630362e-3388-54d6-8cb7-0b671f8ad161",
     key="XY8",
@@ -49,7 +51,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.LIGHTNING), per=20, base=50),
         ),
     ],
 )

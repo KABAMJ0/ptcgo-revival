@@ -1,7 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 card = PokemonCardDef(
     guid="20684e47-f0d0-543a-b4ce-83a8465ee351",
     key="XY8",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Pain Amplifier",
             game_text="Put 3 damage counters on each of your opponent's Pok\u00e9mon that has any damage counters on it.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Knock Away",
