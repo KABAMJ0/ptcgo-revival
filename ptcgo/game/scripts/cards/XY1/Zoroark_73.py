@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="288f0410-9b74-5d31-847f-72d1fcb3dd7c",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Night Claw",

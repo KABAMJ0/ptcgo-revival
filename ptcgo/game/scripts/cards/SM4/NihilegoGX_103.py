@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="35905f7c-52bb-511b-97a1-a3119c79f82d",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=120,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Symbiont-GX",

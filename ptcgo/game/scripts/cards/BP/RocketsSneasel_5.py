@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="521cd0bd-b745-566c-b616-fcbb2404301e",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Entrap",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Continuous Scratch",

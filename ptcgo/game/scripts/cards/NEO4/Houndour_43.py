@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, no_retreat_attack
 
 card = PokemonCardDef(
     guid="1529f0be-9a7a-5f19-805d-e7b1b8329f3e",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Corner",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Lunge",

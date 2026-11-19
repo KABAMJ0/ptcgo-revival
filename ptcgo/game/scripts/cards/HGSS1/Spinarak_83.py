@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="9badf67a-0551-54be-971d-faa62e67e2fe",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Spider Web",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
     ],
 )

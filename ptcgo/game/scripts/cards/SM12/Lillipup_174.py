@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="ce8e8515-2966-5788-8fee-960191def74d",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Baby-Doll Eyes",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Tackle",
