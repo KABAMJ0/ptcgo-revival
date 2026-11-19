@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
 
 card = PokemonCardDef(
     guid="1114fdbc-fc81-53f1-ae2e-1d0ab65d0c96",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 3},
             damage=110,
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", include_active=False),
         ),
     ],
 )
