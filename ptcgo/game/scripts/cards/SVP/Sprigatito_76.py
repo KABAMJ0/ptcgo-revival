@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="7284b74d-7b22-54e9-ba29-f1a877f344ae",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Gather Sunlight",
             game_text="Search your deck for up to 2 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_energy_card, count=2, reveal=True),
         ),
         Attack(
             title="Seed Bomb",
