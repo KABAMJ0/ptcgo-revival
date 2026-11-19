@@ -198,11 +198,18 @@ class Transplant:
         for node in ref.tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 top[node.name] = node
-            elif isinstance(node, ast.Assign) and all(isinstance(t, ast.Name) for t in node.targets) \
-                    and node.targets[0].id != "card":
-                top[node.targets[0].id] = node
+            elif isinstance(node, ast.Assign):
+                # `x = factory(...)` and `x, y = factory(...)` both bind helpers
+                # the copied keywords may use.
+                names = [t.id for t in node.targets if isinstance(t, ast.Name)]
+                for target in node.targets:
+                    if isinstance(target, ast.Tuple):
+                        names += [e.id for e in target.elts if isinstance(e, ast.Name)]
+                for name in names:
+                    if name != "card":
+                        top.setdefault(name, node)
         self.defs: Dict[str, str] = {}
-        stack = list(used)
+        stack = sorted(used)
         all_used = set(used)
         while stack:
             name = stack.pop()
@@ -240,6 +247,54 @@ class Transplant:
         return (",\n" + indent).join(f"{k.arg}={ast.unparse(k.value)}" for k in self.extra)
 
 
+def _dependency_order(defs: List[str], available: Optional[Set[str]] = None) -> List[str]:
+    """Order copied helper definitions so each comes after what it uses.
+
+    Transplant collects helpers in set order, so `X = Ability(effect=_y)` can be
+    emitted before `def _y`; that compiles and imports but raises NameError at
+    load. Blocks whose names are already available (imports, the target's own
+    helpers) go first, then a plain topological sort over blocks that bind them.
+    """
+    parsed = []
+    for code in defs:
+        tree = ast.parse(code)
+        bound = set()
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                bound.add(node.name)
+            elif isinstance(node, ast.Assign):
+                for t in node.targets:
+                    if isinstance(t, ast.Name):
+                        bound.add(t.id)
+                    elif isinstance(t, ast.Tuple):
+                        bound |= {e.id for e in t.elts if isinstance(e, ast.Name)}
+        used = set()
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                # a body runs later; only decorators, defaults and bases are
+                # evaluated where the definition is emitted
+                for sub in list(node.decorator_list) + list(getattr(node, "bases", [])):
+                    used |= {n.id for n in ast.walk(sub) if isinstance(n, ast.Name)}
+                args = getattr(node, "args", None)
+                if args is not None:
+                    for default in list(args.defaults) + [d for d in args.kw_defaults if d]:
+                        used |= {n.id for n in ast.walk(default) if isinstance(n, ast.Name)}
+            else:
+                used |= {n.id for n in ast.walk(node) if isinstance(n, ast.Name)}
+        used -= bound
+        parsed.append([code, bound, used])
+    placed = set(available or ())
+    ordered: List[str] = []
+    while parsed:
+        pick = next((p for p in parsed if p[2] <= placed), None)
+        if pick is None:
+            pick = parsed[0]
+        parsed.remove(pick)
+        placed |= pick[1]
+        ordered.append(pick[0])
+    return ordered
+
+
 def apply_transplants(stub: Script, plans: List[Tuple[ast.keyword, Transplant]]) -> str:
     src = stub.src
     lines = src.splitlines(keepends=True)
@@ -255,9 +310,10 @@ def apply_transplants(stub: Script, plans: List[Tuple[ast.keyword, Transplant]])
     defined |= {t.id for n in tree.body if isinstance(n, ast.Assign) for t in n.targets if isinstance(t, ast.Name)}
     imported = {(a.asname or a.name) for n in tree.body if isinstance(n, (ast.ImportFrom, ast.Import))
                 for a in n.names}
+    available_before = imported | defined
     imports: Dict[str, List[str]] = {}
     defs: List[str] = []
-    for _kw, plan in plans:
+    for _kw, plan in sorted(plans, key=lambda p: (p[0].value.lineno, p[0].value.col_offset)):
         for module, name, asname in plan.imports:
             local = asname or name
             if local in imported or local in defined:
@@ -268,6 +324,7 @@ def apply_transplants(stub: Script, plans: List[Tuple[ast.keyword, Transplant]])
             if name not in defined:
                 defined.add(name)
                 defs.append(code)
+    defs = _dependency_order(defs, available_before | imported)
     head, tail = src.split("\ncard = ", 1)
     import_lines = "".join(
         "".join(f"import {x}\n" for x in n) if not m else f"from {m} import {', '.join(n)}\n"
