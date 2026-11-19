@@ -37,6 +37,7 @@ from ptcgo.game.tournaments.manager import TournamentManager, validate_definitio
 from ptcgo.packets.handlers import data_sync
 
 DASHBOARD_PATH = os.path.join(os.path.dirname(__file__), 'admin', 'dashboard.html')
+FONTS_DIR = os.path.join(os.path.dirname(__file__), 'admin', 'fonts')
 CARDS_IMG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'cards')
 
 _CARD_IMAGE_INDEX = None
@@ -568,6 +569,16 @@ def route_admin(method, path, body, headers=None):
                 return 200, f.read(), 'text/html; charset=utf-8'
         except OSError:
             return _err(500, "dashboard.html missing")
+
+    if method == 'GET' and path.startswith('/admin/fonts/'):
+        name = path[len('/admin/fonts/'):]
+        if not re.fullmatch(r'[a-z0-9-]+\.woff2', name):
+            return _err(404, "unknown font")
+        try:
+            with open(os.path.join(FONTS_DIR, name), 'rb') as f:
+                return 200, f.read(), 'font/woff2', [('Cache-Control', 'public, max-age=31536000, immutable')]
+        except OSError:
+            return _err(404, "unknown font")
 
     if not path.startswith('/admin/api/'):
         return _err(404, "unknown admin route")

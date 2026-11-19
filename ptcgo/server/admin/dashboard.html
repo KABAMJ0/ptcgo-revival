@@ -4,9 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PTCGO Revival · Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-400.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 500; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-500.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 600; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-600.woff2) format("woff2"); }
+@font-face { font-family: "Barlow"; font-weight: 700; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-700.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 600; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-semi-condensed-600.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 700; font-style: normal; font-display: swap; src: url(/admin/fonts/barlow-semi-condensed-700.woff2) format("woff2"); }
+</style>
 <style>
 /* ==========================================================================
    PTCGO admin — design system
@@ -852,6 +857,23 @@ details.set-bucket summary { cursor: pointer; font-size: var(--t-sm); }
   .show-narrow { display: block !important; }
   td.row-actions.trade-actions { display: none; }
   #railScrim.open { display: block; }
+  .tabs button { padding: 9px 8px; }
+  #tab-formats .card { overflow-x: auto; }
+  .milestone { flex-wrap: wrap; }
+  .milestone .ms-body { min-width: 0; flex: 1 1 100%; }
+  table.stack-narrow thead { display: none; }
+  table.stack-narrow tbody tr { display: grid; gap: 6px 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  table.stack-narrow tbody td { display: block; padding: 0; border: 0; }
+  table.stack-narrow tbody td[data-label]::before { content: attr(data-label); display: block; font-size: 11.5px; color: var(--muted); font-weight: 550; margin-bottom: 2px; }
+  table.stack-narrow tbody td.num { text-align: left; }
+  table.deck-grid tbody tr { grid-template-columns: minmax(0, 1fr) auto auto; }
+  table.deck-grid tbody td.deck-problems { grid-column: 1 / -1; }
+  table.deck-grid tbody tr.deck-bad, table.deck-grid tbody tr.deck-banned { box-shadow: inset 3px 0 0 var(--warn); }
+  table.deck-grid tbody tr.deck-banned { box-shadow: inset 3px 0 0 var(--err); }
+  table.deck-grid tbody tr > td:first-child { box-shadow: none !important; }
+  table.inv-grid tbody tr { grid-template-columns: auto auto 1fr; align-items: end; }
+  table.inv-grid tbody td.inv-item { grid-column: 1 / -1; }
+  table.inv-grid tbody td.row-actions { display: block; text-align: right; }
 }
 #railScrim { display: none; position: fixed; inset: 0; z-index: 44; background: rgba(10, 12, 16, .4); }
 
@@ -983,6 +1005,23 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
 .result-list > * { animation: view-in .26s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 22ms); }
 .rail { transition: transform .38s var(--ease-out); }
 #railScrim { animation: fade-in .25s ease both; }
+
+/* deck inspector and body states */
+.drawer.wide { width: min(1100px, 96vw); }
+.drawer { transition: transform .42s var(--ease-out), width .38s var(--ease-out); }
+.deck-grid .fmt-col { text-align: center; width: 64px; font-size: 12px; }
+.deck-grid tr.deck-bad > td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+.deck-grid tr.deck-banned > td { background: color-mix(in srgb, var(--err-soft) 70%, transparent); }
+.deck-grid tr.deck-banned > td:first-child { box-shadow: inset 3px 0 0 var(--err); }
+.legal { font-weight: 700; }
+.legal.yes { color: var(--ok); }
+.legal.no { color: var(--err); }
+.err-text { color: var(--err); font-weight: 650; }
+.body-line { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 10px; font-size: var(--t-sm); color: var(--text-2); }
+.body-line .pill { flex: none; }
+.other-bodies { margin-top: 12px; display: grid; gap: 6px; }
+.other-bodies .ob { display: flex; gap: 8px; align-items: baseline; font-size: var(--t-sm); padding: 7px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); }
+.other-bodies .ob .grow { flex: 1; min-width: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
@@ -1494,9 +1533,11 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
         </div>
         <div class="grid-2">
           <div class="panel">
-            <div class="panel-head"><h2>Find a card</h2></div>
+            <div class="panel-head"><h2>Find a card</h2><div class="panel-sub">with what each body currently is</div></div>
             <div class="panel-body">
-              <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="ovSearch" type="search" placeholder="Card name, set code or GUID" oninput="debounce('ov', runOverrideSearch)"></div>
+              <div class="row" style="gap:8px;align-items:center"><div class="search" style="flex:1;min-width:180px"><svg class="ico"><use href="#i-search"/></svg><input id="ovSearch" type="search" placeholder="Card name, set code or GUID" oninput="debounce('ov', runOverrideSearch)"></div>
+              <select id="ovStatus" onchange="runOverrideSearch()" title="Body status" style="width:auto"><option value="all">Any body</option><option value="stub">Has a stub</option><option value="scripted">Scripted</option><option value="pattern">From wording</option><option value="admin">Overridden</option><option value="vanilla">Damage only</option></select></div>
+              <p class="factory-doc">Each result shows what its attacks and abilities currently run: a stub deals printed damage only, a scripted or wording-bound body is real behaviour an override would replace.</p>
               <div class="result-list" id="ovResults"></div>
             </div>
           </div>
@@ -2094,6 +2135,7 @@ function openDrawer({title, sub='', body='', foot='', onOpen=null}) {
   if (onOpen) onOpen();
 }
 function closeDrawer() {
+  $('#drawer').classList.remove('wide');
   $('#drawer').classList.remove('open');
   $('#drawer').setAttribute('aria-hidden', 'true');
   $('#drawerBackdrop').classList.remove('open');
@@ -4464,6 +4506,7 @@ async function openPlayer(account_id, tab='summary') {
 }
 function playerTab(tab) {
   PLAYER_TAB = tab;
+  $('#drawer').classList.remove('wide');
   $$('#playerTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   requestAnimationFrame(() => moveInk($('#playerTabs')));
   const host = $('#playerTabBody');
@@ -4519,7 +4562,7 @@ async function renderPlayerInventory(host) {
     '<div class="panel" style="box-shadow:none;margin-top:14px"><div class="panel-head"><h2>Owned</h2><div class="spacer"></div>' +
       '<select id="invFilter" onchange="renderInventoryTable()"><option value="all">Everything</option><option value="card">Cards</option><option value="product">Products</option><option value="unknown">Unknown GUIDs</option></select>' +
       '<div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="invFilterText" type="search" placeholder="Filter" oninput="renderInventoryTable()"></div></div>' +
-      '<div class="table-scroll" style="--table-max: 46vh"><table class="grid" id="invTable"><thead><tr><th>Item</th><th>Tradable</th><th>Non-tradable</th><th></th></tr></thead><tbody></tbody></table></div></div>';
+      '<div class="table-scroll" style="--table-max: 46vh"><table class="grid inv-grid stack-narrow" id="invTable"><thead><tr><th>Item</th><th>Tradable</th><th>Non-tradable</th><th></th></tr></thead><tbody></tbody></table></div></div>';
   INV_SELECTED = null;
   renderInventoryTable();
 }
@@ -4528,9 +4571,9 @@ function renderInventoryTable() {
   const rows = INVENTORY.filter(i => (f === 'all' || i.kind === f) && (!q || (i.name + ' ' + i.set + ' ' + i.guid).toLowerCase().includes(q)));
   const step = (i, field, delta, disabled) => '<button ' + (disabled ? 'disabled' : '') + ' onclick="changeInventory(\'' + esc(i.row_guid) + '\', \'' + field + '\', ' + delta + ')">' + (delta > 0 ? '+' : '−') + '</button>';
   $('#invTable tbody').innerHTML = rows.map(i =>
-    '<tr data-guid="' + esc(i.row_guid) + '"><td>' + itemLabel(i) + '</td>' +
-    '<td><span class="stepper">' + step(i, 'tradable', -1, !i.tradable) + '<span>' + i.tradable + '</span>' + step(i, 'tradable', 1) + '</span></td>' +
-    '<td><span class="stepper">' + step(i, 'nontradable', -1, !i.nontradable) + '<span>' + i.nontradable + '</span>' + step(i, 'nontradable', 1) + '</span></td>' +
+    '<tr data-guid="' + esc(i.row_guid) + '"><td class="inv-item">' + itemLabel(i) + '</td>' +
+    '<td data-label="Tradable"><span class="stepper">' + step(i, 'tradable', -1, !i.tradable) + '<span>' + i.tradable + '</span>' + step(i, 'tradable', 1) + '</span></td>' +
+    '<td data-label="Non-tradable"><span class="stepper">' + step(i, 'nontradable', -1, !i.nontradable) + '<span>' + i.nontradable + '</span>' + step(i, 'nontradable', 1) + '</span></td>' +
     '<td class="row-actions"><button class="mini danger" onclick="removeInventoryRow(\'' + esc(i.row_guid) + '\')">Remove</button></td></tr>').join('') ||
     '<tr><td colspan="4">' + emptyState('Nothing owned matches.', 'i-search') + '</td></tr>';
 }
@@ -4594,7 +4637,8 @@ async function renderPlayerDecks(host) {
   host.innerHTML = (d.decks || []).map(deck =>
     '<details class="set-bucket" style="margin-bottom:8px"><summary><b>' + esc(deck.name) + '</b> <span class="muted">· ' + deck.size + ' cards · ' + deck.wins + '/' + deck.played + ' won</span> ' +
       (deck.is_avatar ? '<span class="pill tag">avatar</span> ' : '') + (deck.banned.length ? '<span class="pill err">' + deck.banned.length + ' banned</span> ' : '') +
-      deck.formats.map(f => '<span class="pill ' + (f.valid ? 'on' : 'off') + '" title="' + esc(f.problems.join(', ')) + '">' + esc(f.format) + '</span>').join(' ') + '</summary>' +
+      deck.formats.map(f => '<span class="pill ' + (f.valid ? 'on' : 'off') + '" title="' + esc(f.problems.join(', ')) + '">' + esc(f.format) + '</span>').join(' ') +
+      ' <button class="mini" onclick="event.preventDefault();inspectDeck(\'' + esc(deck.id) + '\')">Inspect</button></summary>' +
       '<table class="grid" style="margin-top:8px"><tbody>' + deck.cards.map(c => '<tr><td class="num" style="width:40px">' + c.count + '×</td><td>' + itemLabel(c) + '</td></tr>').join('') + '</tbody></table></details>').join('') ||
     emptyState('No decks saved.', 'i-search');
 }
@@ -4714,15 +4758,6 @@ async function loadOverrides() {
     clearBanner($('#tab-behaviour'));
   } catch(e) { banner($('#tab-behaviour'), 'Overrides: ' + e.message, 'err', 'Retry', loadOverrides); }
 }
-async function runOverrideSearch() {
-  const host = $('#ovResults');
-  try {
-    const items = await searchItems($('#ovSearch').value);
-    host.innerHTML = items.map((i, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(i) + '<div class="grow"><div class="cell-main truncate">' + esc(i.name) + '</div><div class="cell-sub">' + esc(i.set + ' ' + (i.number ?? '')) + '</div></div></button>').join('');
-    stagger(host);
-    $$('#ovResults .result-row').forEach(b => b.onclick = () => openOverrideCard(items[+b.dataset.n].guid));
-  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
-}
 async function openOverrideCard(guid) {
   try {
     OV_CARD = await api('cards/detail', {guid});
@@ -4752,16 +4787,19 @@ function renderOverrideEditor() {
   const d = OV_CARD;
   $('#ovCardTitle').textContent = d.card.name + ' · ' + d.card.set + ' ' + (d.card.number ?? '');
   $('#ovCardGuid').textContent = d.card.guid;
-  if (d.refusal) { $('#ovEditor').innerHTML = '<div class="callout warn">' + esc(d.refusal) + '</div>'; return; }
+  const others = (d.bodies || []).filter(b => b.kind !== 'attack' && b.kind !== 'ability');
+  const otherHtml = others.length ? '<div class="other-bodies">' + others.map(b => '<div class="ob">' + bodyPill(b) + '<div class="grow"><b>' + esc(b.slot) + '</b> <span class="muted">' + esc(b.source) + '</span></div></div>').join('') + '</div>' : '';
+  if (d.refusal) { $('#ovEditor').innerHTML = '<div class="callout warn">' + esc(d.refusal) + '</div>' + otherHtml; return; }
   $('#ovEditor').innerHTML = d.abilities.map((a, n) => {
-    if (!a.overridable) return '<div class="attack-card refused"><div class="attack-head"><h3>' + esc(a.title) + '</h3><span class="pill tag">ability</span></div><div class="attack-text">' + esc(a.text) + '</div><div class="factory-doc">Refused: ' + esc(a.refusal) + '</div></div>';
+    if (!a.overridable) return '<div class="attack-card refused"><div class="attack-head"><h3>' + esc(a.title) + '</h3><span class="pill tag">ability</span>' + bodyPill(a.body) + '<span class="muted" style="font-size:var(--t-xs)">' + esc(a.body.source) + '</span></div><div class="attack-text">' + esc(a.text) + '</div><div class="factory-doc">Refused: ' + esc(a.refusal) + '</div></div>';
     const stored = a.stored_override?.spec || {};
     const printed = a.original || a;
     const eff = !('effect' in stored) ? 'keep' : stored.effect ? 'factory' : 'vanilla';
     return '<div class="attack-card" data-n="' + n + '">' +
-      '<div class="attack-head"><h3>' + esc(a.title) + '</h3><span class="pill tag">' + esc(a.effect) + '</span>' + (a.overridden ? '<span class="pill warn">overridden live</span>' : '') +
+      '<div class="attack-head"><h3>' + esc(a.title) + '</h3>' + (a.overridden ? '<span class="pill warn">overridden live</span>' : '') +
         (a.stored_override ? '<span class="pill ' + (a.stored_override.enabled ? 'accent' : 'off') + '">stored</span>' : '') + '</div>' +
       '<div class="attack-text">' + esc(a.text || '(no effect text)') + '</div>' +
+      '<div class="body-line">' + bodyPill(a.body) + '<span>' + esc(bodyExplain(a.body)) + '</span></div>' +
       '<div class="factory-doc">Printed: ' + printed.damage + esc(printed.damage_operator || '') + ' damage, cost ' + (Object.entries(printed.cost).map(([t, c]) => c + ' ' + t).join(' + ') || 'free') + '</div>' +
       '<div class="row" style="margin-top:10px"><div class="field" style="width:120px"><label>Damage</label><input id="ovd_' + n + '" type="number" min="0" max="9990" step="10" placeholder="' + printed.damage + '" value="' + (stored.damage ?? '') + '"></div>' +
         '<div class="field" style="width:120px"><label>Suffix</label><select id="ovo_' + n + '"><option value="__keep">unchanged</option>' + META.damage_operators.map(o => '<option value="' + esc(o) + '"' + (stored.damage_operator === o ? ' selected' : '') + '>' + (o ? esc(o) : 'none') + '</option>').join('') + '</select></div></div>' +
@@ -4884,6 +4922,69 @@ function renderAudit() {
     '<td><span class="feed-kind ' + esc(e.action) + '">' + esc(e.action.replace(/^admin_/, '').replace(/_/g, ' ')) + '</span><div class="cell-sub mono truncate" style="max-width:220px">' + esc(e.target) + '</div></td>' +
     '<td><div class="diff">' + diffText(e.diff) + '</div></td></tr>').join('') || '<tr><td colspan="4">' + emptyState('No admin action recorded yet.', 'i-audit') + '</td></tr>';
   $('#auditCount').textContent = rows.length + ' of ' + AUDIT.length + ' entries';
+}
+
+
+/* ------------------------------------------------------------ card bodies */
+const BODY_PILL = {stub: 'warn', scripted: 'on', pattern: 'info', admin: 'accent', vanilla: 'tag', passive: 'info', none: 'off'};
+const BODY_LABEL = {stub: 'stub', scripted: 'scripted', pattern: 'from wording', admin: 'override', vanilla: 'damage only', passive: 'passive', none: 'no body'};
+function bodyPill(b) { return '<span class="pill ' + (BODY_PILL[b.status] || 'tag') + '" title="' + esc(b.source) + '">' + esc(BODY_LABEL[b.status] || b.status) + '</span>'; }
+function bodyCounts(counts) {
+  return Object.entries(counts || {}).sort().map(([s, n]) => '<span class="pill ' + (BODY_PILL[s] || 'tag') + '">' + n + ' ' + esc(BODY_LABEL[s] || s) + '</span>').join(' ');
+}
+function bodyExplain(b) {
+  return ({
+    stub: 'Stub: this attack has no scripted effect yet and deals its printed damage only. An effect override fills the gap; nothing scripted is replaced.',
+    scripted: 'Scripted body ' + b.source + '. An effect override replaces it until the override is removed.',
+    pattern: 'Bound at load from the printed wording (' + b.source + '). An effect override replaces it.',
+    admin: 'Currently overridden by an admin (' + b.source + ').',
+    vanilla: 'No effect beyond printed damage. An effect override adds one.',
+  })[b.status] || b.source;
+}
+async function runOverrideSearch() {
+  const host = $('#ovResults');
+  const q = $('#ovSearch').value.trim();
+  const status = $('#ovStatus')?.value || 'all';
+  if (q.length < 2) { host.innerHTML = ''; return; }
+  try {
+    const d = await api('cards/bodies', {query: q, status, limit: 40});
+    host.innerHTML = d.cards.map((c, n) => '<button class="result-row" data-n="' + n + '">' + itemThumb(c) +
+      '<div class="grow"><div class="cell-main truncate">' + esc(c.name) + '</div><div class="cell-sub">' + esc(c.set + ' ' + (c.number ?? '')) + '</div>' +
+      '<div class="chips" style="margin-top:4px">' + bodyCounts(c.counts) + '</div></div></button>').join('') ||
+      '<p class="muted" style="font-size:var(--t-sm)">No card matches' + (status !== 'all' ? ' with that body status' : '') + '.</p>';
+    stagger(host);
+    $$('#ovResults .result-row').forEach(b => b.onclick = () => openOverrideCard(d.cards[+b.dataset.n].guid));
+  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
+}
+
+/* ---------------------------------------------------------- deck inspector */
+function deckProblem(p, c) {
+  return ({MaxDuplicates: 'more than 4 with this name', UnownedCards: 'player owns ' + (c.owned ?? 0) + ' of ' + c.count,
+           MustNotContain: 'unknown to the server', MustContain: 'deck needs a Basic'})[p] || p;
+}
+async function inspectDeck(deck_id) {
+  const host = $('#playerTabBody');
+  $('#drawer').classList.add('wide');
+  host.innerHTML = '<div class="skel row"></div><div class="skel row"></div>';
+  try {
+    const d = await api('players/deck', {account_id: CURRENT_PLAYER.account.account_id, deck_id});
+    const fmts = d.format_names;
+    const bad = d.cards.filter(c => c.problems.length).length;
+    host.innerHTML =
+      '<div class="row" style="margin-bottom:10px;align-items:center"><button class="mini" onclick="playerTab(\'decks\')">Back to decks</button>' +
+        '<h3 style="margin:0">' + esc(d.deck.name) + '</h3><span class="muted" style="font-size:var(--t-sm)">' + d.deck.size + ' cards</span></div>' +
+      '<div class="chips">' + d.formats.map(f => '<span class="pill ' + (f.valid ? 'on' : 'off') + '" title="' + esc(f.problems.join(', ')) + '">' + (f.valid ? '✓ ' : '✗ ') + esc(f.format) + '</span>').join(' ') + '</div>' +
+      (d.deck_problems.length ? '<div class="callout warn" style="margin-top:10px">' + d.deck_problems.map(p => esc(p.text)).join('<br>') + '</div>' : '') +
+      '<p class="factory-doc" style="margin:10px 0 6px">' + (bad ? bad + ' of ' + d.cards.length + ' distinct cards have a problem; they are listed first.' : 'Every card is known, owned and legal somewhere.') + '</p>' +
+      '<div class="table-scroll" style="--table-max: 62vh"><table class="grid deck-grid stack-narrow"><thead><tr><th>Card</th><th class="num">In deck</th><th class="num">Owned</th>' +
+        fmts.map(f => '<th class="fmt-col hide-narrow" title="' + esc(f) + '">' + esc(f.replace('TrainerChallenge', 'Trainer Ch.')) + '</th>').join('') + '<th>Problems</th></tr></thead><tbody>' +
+      d.cards.map(c => '<tr class="' + (c.banned ? 'deck-banned' : c.problems.length ? 'deck-bad' : '') + '"><td>' + itemLabel(c) + '</td>' +
+        '<td class="num" data-label="In deck">' + c.count + '</td><td class="num ' + (c.owned != null && c.owned < c.count ? 'err-text' : 'muted') + '" data-label="Owned">' + (c.owned ?? '—') + '</td>' +
+        fmts.map(f => '<td class="fmt-col hide-narrow">' + (c.known ? (c.legality[f] ? '<span class="legal yes">✓</span>' : '<span class="legal no">✗</span>') : '<span class="legal no">?</span>') + '</td>').join('') +
+        '<td class="deck-problems">' + (c.problems.map(p => '<span class="pill ' + (p.startsWith('banned') ? 'err' : 'warn') + '">' + esc(deckProblem(p, c)) + '</span>').join(' ') || '<span class="faint">no problems</span>') +
+        '<div class="show-narrow cell-sub">' + (c.known ? 'legal in ' + fmts.filter(f => c.legality[f]).length + ' of ' + fmts.length + ' formats' : 'unknown card') + '</div></td></tr>').join('') +
+      '</tbody></table></div>';
+  } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
 }
 
 (async function init() {
