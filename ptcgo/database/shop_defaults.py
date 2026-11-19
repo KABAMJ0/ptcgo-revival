@@ -15,13 +15,20 @@ import uuid
 from ptcgo.database.economy_data import upsert_shop_item
 from ptcgo.game.attributes import AttrID
 
-# Deck products that ship for sale. 200 Trainer Tokens, the same price as a pack.
-DEFAULT_DECK_OFFERS = (
+# Products that ship for sale.
+DEFAULT_OFFERS = (
     {
         "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:deck:dragapult-ex-shop")),
         "name": "Dragapult ex",
         "price": 200,
         "sort_order": 10,
+    },
+    {
+        # Coin Booster: ten different coins for 1 Trainer Token, in the Booster Packs tab.
+        "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER")),
+        "name": "Coin Booster",
+        "price": 1,
+        "sort_order": 20,
     },
 )
 
@@ -36,7 +43,7 @@ def ensure_default_shop_items():
         logging.warning(f"[Shop] Could not read shop items to seed defaults: {e}")
         return
 
-    for offer in DEFAULT_DECK_OFFERS:
+    for offer in DEFAULT_OFFERS:
         if offer["guid"].lower() in existing:
             continue
         try:
