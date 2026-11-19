@@ -1918,21 +1918,8 @@ class EffectContext:
                 energies, count, minimum=count if minimum is None else minimum,
                 prompt=prompt,
             )
-        await self._discard_energies(picked, pokemon)
+        await self.discard_cards(picked)
         return picked
-
-    async def _discard_energies(self, energies, pokemon=None):
-        """Discards Energy, honouring a passive that redirects it (Ecogym sends
-        another player's non-Colorless Energy to its owner's hand instead)."""
-        redirected, plain = [], []
-        for energy in energies:
-            destination = energy_discard_destination(
-                self.board, energy, pokemon, self.player_id)
-            (redirected if destination == "hand" else plain).append(energy)
-        if plain:
-            await self.discard_cards(plain)
-        if redirected:
-            await self.put_in_hand(list(redirected), reveal=True)
 
     async def discard_energy_units_from(
         self, pokemon: PokemonEntity, amount: int,
@@ -1978,7 +1965,7 @@ class EffectContext:
                 f"with only {paid}; no cards discarded."
             )
             return []
-        await self._discard_energies(picked, pokemon)
+        await self.discard_cards(picked)
         return picked
 
     async def move_to_lost_zone(self, cards: List[CardEntity]):
@@ -1986,11 +1973,22 @@ class EffectContext:
         await self._move_to_public_pile(cards, "lostZone")
 
     async def _move_to_public_pile(self, cards: List[CardEntity], area_name: str):
+        requested = area_name
         departed = set()
         for card in cards:
             if card.entity_id in departed:
                 continue
             owner = card.owning_player_id or self.player_id
+            area_name = requested
+            # Ecogym: an Energy discarded from a Pokemon returns to its owner's
+            # hand instead of the discard pile. This is the single choke point
+            # every discard path runs through, so a script that discards an
+            # attached Energy directly gets the same redirect as the verbs.
+            if requested == "discard" and isinstance(card, EnergyEntity) \
+                    and isinstance(getattr(card, "parent", None), PokemonEntity) \
+                    and energy_discard_destination(
+                        self.board, card, card.parent, self.player_id) == "hand":
+                area_name = "hand"
             pile = self.board.find_player_area(owner, area_name)
             if not pile:
                 continue
