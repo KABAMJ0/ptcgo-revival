@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="240c2a6d-f025-54ca-b3df-e441e667e7b0",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1, special_only=True),
         ),
         Attack(
             title="Blue Surge-GX",
