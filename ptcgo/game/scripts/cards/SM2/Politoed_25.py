@@ -1,16 +1,6 @@
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.session.effects import full_stack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
-async def _shuffle_self_in(ctx):
-    await ctx.deal_damage()
-    await ctx.shuffle_into_deck(full_stack(ctx.attacker), ctx.player_id)
-    if not await ctx.session._promote_new_active(ctx.player_id):
-        screen = ctx.session.players[ctx.player_id].screen_name
-        await ctx.session.end_game(
-            ctx.opponent_id, f"{screen} has no Pokémon left"
-        )
-
 
 card = PokemonCardDef(
     guid="8c2c52cb-51c3-5da5-a799-f226be89032f",
@@ -41,7 +31,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=_shuffle_self_in,
+            effect=remove_self_from_play("deck", optional=True),
         ),
     ],
 )
