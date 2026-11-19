@@ -1,7 +1,19 @@
 from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+class _DarkAmbition(Passive):
+    """\"If your opponent's Active Pokemon is a Basic Pokemon, its Retreat Cost
+    is [C] more.\" """
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        if pokemon.get_attribute(AttrID.STAGE) != PokemonStage.BASIC.value:
+            return cost
+        return cost + 1
 
 card = PokemonCardDef(
     guid="7611cbed-f87c-5eb4-aef0-387aca6979bb",
@@ -22,9 +34,9 @@ card = PokemonCardDef(
     family_id=359,
     abilities=[
         Ability(
-            title="Dark Ambition",
+title="Dark Ambition",
             game_text="If your opponent's Active Pok\u00e9mon is a Basic Pok\u00e9mon, its Retreat Cost is Colorless more.",
-            effect=unimplemented,
+            passive=_DarkAmbition(),
         ),
         Attack(
             title="Shadow Seeker",

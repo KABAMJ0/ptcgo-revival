@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+class _FloatingShell(Passive):
+    """\"If you have a Stadium card in play, this Pokemon has no Retreat Cost.\" """
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier:
+            return cost
+        stadium = board.find_global_area("activeStadium")
+        return 0 if stadium is not None and stadium.children else cost
 
 card = PokemonCardDef(
     guid="459e0540-fbe5-5e35-a287-95ceb797cca4",
@@ -19,9 +29,9 @@ card = PokemonCardDef(
     family_id=7,
     abilities=[
         Ability(
-            title="Floating Shell",
+title="Floating Shell",
             game_text="If you have a Stadium card in play, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=_FloatingShell(),
         ),
         Attack(
             title="Water Gun",
