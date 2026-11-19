@@ -1,6 +1,12 @@
 from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import card_named_any
+
+roll_call = search_to_bench(
+    card_named_any(["Poliwag", "Poliwhirl", "Poliwrath"]), count=3)
+
 
 card = PokemonCardDef(
     guid="8c2c52cb-51c3-5da5-a799-f226be89032f",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             title="Roll Call",
             game_text="Search your deck for a Poliwag, a Poliwhirl, and a Poliwrath, and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=roll_call,
         ),
         Attack(
             title="Hyper Jump",

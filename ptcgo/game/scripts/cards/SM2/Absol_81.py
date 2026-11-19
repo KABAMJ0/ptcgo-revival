@@ -24,6 +24,12 @@ async def future_sight(ctx):
             deck.children.remove(card)
     for card in reversed(order):
         deck.children.append(card)
+from ptcgo.game.card_effects.pokemon import delayed_knockout
+from ptcgo.game.card_effects.support_common import return_attached_energy
+
+async def _doom_news(ctx):
+    await return_attached_energy(all=True, target="self")(ctx)
+    await delayed_knockout(ctx)
 
 
 card = PokemonCardDef(
@@ -54,7 +60,7 @@ card = PokemonCardDef(
             title="Doom News",
             game_text="Put all Energy attached to this Pok\u00e9mon into your hand. At the end of your opponent's next turn, the Defending Pok\u00e9mon will be Knocked Out.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_doom_news,
         ),
     ],
 )
