@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def sugary_sprinkles(ctx):
+    """Heal 30 damage from each of your Benched Pokemon."""
+    for pokemon in ctx.my_bench():
+        await ctx.heal(30, pokemon)
 
 card = PokemonCardDef(
     guid="376194e2-8ffa-59aa-97c9-cf87d13861ce",
@@ -28,7 +36,7 @@ card = PokemonCardDef(
             game_text="Heal 30 damage from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2},
             damage=60,
-            effect=unimplemented,
+            effect=sugary_sprinkles,
         ),
     ],
 )

@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import (
+    is_in_active_spot,
+    no_weakness_passive,
+)
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+def _is_basic_energy(card) -> bool:
+    return (is_energy_card(card)
+            and not card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
+
+def _is_benched(pokemon) -> bool:
+    return not is_in_active_spot(pokemon)
 
 card = PokemonCardDef(
     guid="21a380f8-2e94-5d73-ba05-0437b7d1e237",
@@ -24,7 +39,7 @@ card = PokemonCardDef(
             game_text="Attach 2 basic Energy cards from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(_is_basic_energy, count=2, target=_is_benched),
         ),
         Attack(
             title="Dragon Claw",

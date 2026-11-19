@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="28b352c7-d613-594a-943a-eea0c50ed5c9",
     key="BW10",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=False),
         ),
     ],
 )

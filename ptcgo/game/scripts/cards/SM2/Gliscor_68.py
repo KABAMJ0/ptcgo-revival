@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="1eab73c3-6b4a-51c0-a720-c2673b9200b3",
     key="SM2",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon has no damage counters on it before this attack does damage, this attack does nothing.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=70,
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 0, else_nothing=True),
         ),
         Attack(
             title="Guillotine",

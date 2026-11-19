@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="1542957c-1394-5f02-9c94-1bb677278aff",
     key="SV3PT5",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Big Yawn",
             game_text="Both Active Pok\u00e9mon are now Asleep.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, both_actives=True),
         ),
         Attack(
             title="Laid-Back Tackle",
