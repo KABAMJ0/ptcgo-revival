@@ -3,7 +3,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.passives import Passive, carrier_pokemon
 
 
-class _RockPolishShield(Passive):
+class _NoRetreatCostShield(Passive):
     """During your next turn the shielded Pokemon has no Retreat Cost."""
 
     def modify_retreat_cost(self, cost, pokemon, carrier, board):
@@ -14,7 +14,7 @@ class _RockPolishShield(Passive):
 async def _rock_polish(ctx):
     target = ctx.attacker if ctx.attacker is not None else ctx.source
     if target is not None:
-        ctx.add_passive_through_own_next_turn(target, _RockPolishShield())
+        ctx.add_passive_through_own_next_turn(target, _NoRetreatCostShield())
 
 
 card = PokemonCardDef(
