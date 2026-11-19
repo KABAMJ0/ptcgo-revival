@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="40790c45-5b3c-58fa-a131-d470782ed923",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
         Attack(
             title="Megahorn",
