@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
+
 
 card = PokemonCardDef(
     guid="380a017e-d722-58a6-b55a-7ba2ff77e230",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon, if any. (Do the damage before switching the Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Mega Drain",

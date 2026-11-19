@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 
 
 card = PokemonCardDef(
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, discard all Pok\u00e9mon Tool cards attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
     ],
 )

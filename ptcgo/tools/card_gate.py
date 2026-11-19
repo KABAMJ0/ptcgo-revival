@@ -113,31 +113,60 @@ def is_local_name(tree, expression) -> bool:
     return True
 
 
+def module_alias(tree, name: str, src: str) -> str:
+    """Source of a module-level `name = factory(...)` / `name, _ = factory(...)` binding."""
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            targets = []
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    targets.append(target.id)
+                elif isinstance(target, ast.Tuple):
+                    targets += [e.id for e in target.elts if isinstance(e, ast.Name)]
+            if name in targets:
+                return ast.get_source_segment(src, node) or ""
+    return ""
+
+
 def body_source(tree, expression, src: str) -> str:
     text = ast.unparse(expression)
     if not isinstance(expression, ast.Call):
+        name = getattr(expression, "id", "")
         for node in tree.body:
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) \
-                    and node.name == getattr(expression, "id", ""):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
                 text += "\n" + (ast.get_source_segment(src, node) or "")
+        text += "\n" + module_alias(tree, name, src)
     else:
         names = {n.id for n in ast.walk(expression) if isinstance(n, ast.Name)}
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names:
                 text += "\n" + (ast.get_source_segment(src, node) or "")
+        for name in sorted(names):
+            alias = module_alias(tree, name, src)
+            if alias:
+                text += "\n" + alias
     return text
 
 
 def numbers_in_body(expression) -> Set[int]:
     found = set()
+    lambdas = set()
     for node in ast.walk(expression):
+        if isinstance(node, ast.Lambda):
+            for sub in ast.walk(node):
+                if isinstance(sub, ast.Constant) and type(sub.value) is int:
+                    lambdas.add(id(sub))
+    for node in ast.walk(expression):
+        if isinstance(node, ast.Lambda):
+            continue
         if isinstance(node, ast.Call):
             ignored = {k.arg for k in node.keywords if k.arg in IGNORE_KWARGS}
             for kw in node.keywords:
                 if kw.arg in IGNORE_KWARGS:
                     continue
                 for sub in ast.walk(kw.value):
-                    if isinstance(sub, ast.Constant) and type(sub.value) is int:
+                    if isinstance(sub, ast.Constant) and type(sub.value) is int \
+                            and id(sub) not in lambdas:
                         found.add(sub.value)
             # positional arguments of count_* helpers are structural too
             if getattr(node.func, "id", "").startswith("count_"):
@@ -179,19 +208,40 @@ def analyze(src: str, path: str) -> List[Tuple[str, str, str]]:
     return out
 
 
+WRAPPER_KWARGS = ("then", "also", "after", "on_success", "effect")
+
+
+def primary_of(expression) -> str:
+    """The factory that actually does the work, looking through a wrapper's rider."""
+    if not isinstance(expression, ast.Call):
+        return ""
+    for keyword in expression.keywords:
+        if keyword.arg in WRAPPER_KWARGS and isinstance(keyword.value, ast.Call):
+            inner = primary_of(keyword.value)
+            if inner:
+                return inner
+    return getattr(expression.func, "id", "")
+
+
 def _analyse_block(tree, kw, effect, src) -> List[Tuple[str, str, str]]:
     out: List[Tuple[str, str, str]] = []
     block = block_identity(kw)
     printed_text = literal(kw["game_text"].value) if "game_text" in kw else ""
     printed_text = printed_text or ""
     body = body_source(tree, effect.value, src)
-    primary = getattr(getattr(effect.value, "func", None), "id", "")
+    primary = primary_of(effect.value)
     missing = block_conflict(printed_text, body, primary) if is_local_name(tree, effect.value) else []
     if missing:
         out.append(("kind", block, f"text names {', '.join(missing)}; body is {primary or 'a helper'}"))
 
     printed_damage = damage_value(kw)
+    if not printed_text.strip():
+        return out          # nothing printed: nothing to read back
     known = {int(n) for n in __import__("re").findall(r"\d+", printed_text)}
+    colorless = printed_text.lower().count("colorless")
+    if colorless and not known:
+        known.add(colorless)   # 'ColorlessColorless less' is 2
+    known.add(99)              # sentinel: 99 means 'any number'
     if printed_damage is not None:
         known.add(int(printed_damage))
     allowed = set(known)
