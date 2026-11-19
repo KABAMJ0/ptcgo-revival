@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Brine",
             game_text="This attack does 90 damage to 1 of your opponent's Pok\u00e9mon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=snipe_attack(90, pool="any"),
         ),
         Attack(
             title="Tornado Shot",

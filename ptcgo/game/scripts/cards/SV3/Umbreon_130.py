@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="5fa663c8-41bf-54f0-b463-e38d2e0b4fe9",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Feint Attack",
             game_text="This attack does 50 damage to 1 of your opponent's Pok\u00e9mon. This attack's damage isn't affected by Weakness or Resistance, or by any effects on that Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any"),
         ),
         Attack(
             title="Pitch-Black Blade",

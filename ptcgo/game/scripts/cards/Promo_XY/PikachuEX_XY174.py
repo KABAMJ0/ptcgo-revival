@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import condition_attack, self_energy_discard_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 

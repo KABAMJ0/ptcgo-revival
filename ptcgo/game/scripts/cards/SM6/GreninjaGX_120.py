@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.attacks_common import place_counters, snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -37,7 +37,7 @@ card = PokemonCardDef(
             title="Shadowy Hunter-GX",
             game_text="This attack does 130 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(130, pool="bench", count=1),
         ),
     ],
 )

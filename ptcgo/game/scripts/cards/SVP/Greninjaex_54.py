@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, bonus_if, has_damage
 
 card = PokemonCardDef(
     guid="dac0776f-caec-5559-a3b1-71c380bc7146",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage(), 120),
         ),
     ],
 )
