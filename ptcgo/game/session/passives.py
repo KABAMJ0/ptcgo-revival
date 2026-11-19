@@ -567,6 +567,19 @@ class Passive:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
 
+    async def on_active_switched(self, ctx, player_id: str,
+                                 outgoing: PokemonEntity,
+                                 incoming: PokemonEntity,
+                                 outgoing_conditions: List[str],
+                                 via_trainer: bool,
+                                 carrier: BoardEntity) -> None:
+        """Runs after `outgoing` leaves the Active spot for `incoming`.
+
+        `outgoing_conditions` is the condition list captured before the swap
+        cleared them; `via_trainer` is whether a Trainer's effect caused it
+        (Dust Island)."""
+        return None
+
     async def on_retreat(self, ctx, pokemon: PokemonEntity,
                          carrier: BoardEntity) -> None:
         """Runs after `pokemon` finishes retreating, this passive's carrier
@@ -728,6 +741,18 @@ def poke_powers_locked(board: BoardState) -> bool:
 
     The flag is cleared by `TurnState.begin_turn` once its window passes."""
     return bool(getattr(board, "poke_power_lock_through", 0))
+
+
+async def fire_active_switched(board: BoardState, ctx, player_id: str,
+                                outgoing: PokemonEntity,
+                                incoming: PokemonEntity,
+                                outgoing_conditions: List[str],
+                                via_trainer: bool) -> None:
+    """Runs every passive's `on_active_switched` after an Active swap."""
+    for passive, carrier in active_passives(board):
+        await passive.on_active_switched(
+            ctx, player_id, outgoing, incoming, outgoing_conditions,
+            via_trainer, carrier)
 
 
 def ability_locked(board: BoardState, pokemon: PokemonEntity) -> bool:

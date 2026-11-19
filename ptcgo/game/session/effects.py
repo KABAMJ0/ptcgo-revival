@@ -69,6 +69,7 @@ from .passives import (
     discard_to_hand_blocked,
     energy_discard_destination,
     energy_removal_blocked,
+    fire_active_switched,
     healing_blocked,
     modified_heal_amount,
     supporter_effect_replacement,
@@ -2606,6 +2607,7 @@ class EffectContext:
         # All effects (Special Conditions, attack locks) end when a Pokemon
         # leaves the Active spot; the state-clearing lives in one shared helper.
         had_conditions = bool(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS))
+        had_conditions_list = list(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
         self.session.clear_pokemon_effects(old_active)
         if had_conditions:
             self._queue(
@@ -2644,6 +2646,12 @@ class EffectContext:
             self.session._entity_moved_msg(old_active.entity_id, bench_area.entity_id, slot),
             bracket=bracket,
         )
+        # Dust Island: a Stadium watches the swap itself ("whenever either
+        # player switches their Poisoned Active Pokemon ... with the effect of
+        # a Trainer card"), so the cause travels with the swap.
+        await fire_active_switched(board, self, player_id, old_active,
+                                   new_active, had_conditions_list,
+                                   self.is_trainer_effect)
         # Spikemuth: an Active moving to its owner's Bench during THEIR turn
         # takes counters (a gust during the opponent's turn does not).
         if player_id == self.session.turn_state.active_player_id:
