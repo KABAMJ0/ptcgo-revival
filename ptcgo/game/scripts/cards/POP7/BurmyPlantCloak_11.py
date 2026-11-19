@@ -1,4 +1,20 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.attributes import PokemonTypes
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+
+def _basic_grass_energy(card):
+    return (is_basic_energy_card(card)
+            and energy_provides_type(card, PokemonTypes.GRASS.value))
+
+
+def _wear_cloak_condition(board, player_id, pokemon):
+    return pokemon is not None and is_in_active_spot(pokemon)
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +37,10 @@ card = PokemonCardDef(
         Ability(
             title="Wear Cloak",
             game_text="Once during your turn (before your attack), if Burmy Plant Cloak is your Active Pok\u00e9mon, you may search your discard pile for a basic Grass Energy card and attach it to Burmy Plant Cloak.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_wear_cloak_condition,
+            effect=attach_from_discard(_basic_grass_energy, count=1,
+                                       target="self"),
         ),
         Attack(
             title="Plant Cloak Tackle",
