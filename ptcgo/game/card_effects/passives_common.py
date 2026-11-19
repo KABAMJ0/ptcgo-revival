@@ -234,6 +234,25 @@ class TeamDamageBoostPassive(Passive):
         calc.amount += self.amount
 
 
+class ReducesOwnAttacksPassive(Passive):
+    """The carrier's own attacks do N less ("during your opponent's next turn,
+    any damage done by attacks from the Defending Pokemon is reduced by N")."""
+
+    def __init__(self, amount):
+        self.amount = amount
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if calc.attacker is not carrier_pokemon(carrier):
+            return
+        calc.amount = max(0, calc.amount - self.amount)
+
+
+def weakens_own_attacks_passive(amount: int) -> Passive:
+    return ReducesOwnAttacksPassive(amount)
+
+
 def team_damage_boost_passive(amount, attacker_pred=None, target_pred=None,
                               once_key=None, to_active_only=True) -> Passive:
     """"Your <matching> Pokemon's attacks do +N to the opponent's Active"
