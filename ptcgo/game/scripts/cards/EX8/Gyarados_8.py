@@ -1,6 +1,18 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.attacks_common import damage_per, spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session import passives
+
+
+def _magikarp_counters(ctx):
+    """Damage counters on every Magikarp the player has in play."""
+    total = 0
+    for pokemon in ctx.my_pokemon_in_play():
+        if pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) != "Magikarp":
+            continue
+        total += (passives.effective_max_hp(ctx.board, pokemon)
+                  - pokemon.get_attribute(AttrID.HP, 0)) // 10
+    return total
 
 card = PokemonCardDef(
     guid="c41dcff2-60a6-5e27-b768-c709bef767e0",
@@ -32,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_magikarp_counters, 20),
         ),
         Attack(
             title="Pulverize",

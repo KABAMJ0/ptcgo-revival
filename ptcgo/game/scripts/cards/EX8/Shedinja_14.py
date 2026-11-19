@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import defender_is_ex, place_counters
 
 card = PokemonCardDef(
     guid="abff9c36-be6c-577b-ac82-8d34e291888a",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Extra Curse",
             game_text="Put 2 damage counters on the Defending Pok\u00e9mon. If the Defending Pok\u00e9mon is Pok\u00e9mon-ex, put 4 damage counters instead.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(lambda ctx: 4 if defender_is_ex(ctx) else 2),
         ),
     ],
 )

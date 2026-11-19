@@ -4,6 +4,22 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialC
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class DarkProtectionPassive(Passive):
+    """-10 damage from opposing attacks per Darkness Energy attached (max 20)."""
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.target is not holder:
+            return
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        darkness = sum(1 for energy in holder.children
+                       if energy_provides_type(energy, PokemonTypes.DARKNESS.value))
+        calc.amount = max(0, calc.amount - min(20, 10 * darkness))
 
 
 card = PokemonCardDef(
@@ -28,7 +44,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Protection",
             game_text="Any damage done to Crawdaunt by your opponent's attacks is reduced by 10 for each Darkness Energy attached to Crawdaunt (after applying Weakness and Resistance). You can't reduce more than 20 damage in this way.",
-            effect=unimplemented,
+            passive=DarkProtectionPassive(),
         ),
         Attack(
             title="Bubblebeam",
