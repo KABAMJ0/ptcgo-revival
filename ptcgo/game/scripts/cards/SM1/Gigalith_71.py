@@ -1,6 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _rock_artillery(ctx):
+    energies = [energy for pokemon in ctx.my_pokemon_in_play()
+                for energy in ctx.attached_energies(pokemon)
+                if energy_provides_type(energy, PokemonTypes.FIGHTING.value)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(
+        energies, len(energies), minimum=0,
+        prompt="Choose any amount of Fighting Energy to discard")
+    if not picks:
+        return
+    await ctx.discard_cards(picks)
+    await ctx.deal_damage(50 * len(picks))
+
 
 card = PokemonCardDef(
     guid="b7117b1e-af9d-5fa7-9352-7bb115870442",
@@ -26,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_rock_artillery,
         ),
         Attack(
             title="Rock Tumble",

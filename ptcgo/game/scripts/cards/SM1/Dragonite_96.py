@@ -1,7 +1,17 @@
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _dragon_wave(ctx):
+    for type_value in (PokemonTypes.GRASS.value, PokemonTypes.LIGHTNING.value):
+        await ctx.discard_energy_from(
+            ctx.attacker, 1,
+            predicate=lambda card: energy_provides_type(card, type_value),
+            prompt="Choose the Energy to discard from this Pok\u00e9mon")
+    await ctx.deal_damage()
+
 
 card = PokemonCardDef(
     guid="b33a1582-e923-532f-bb0a-37d4e3150744",
@@ -26,7 +36,7 @@ card = PokemonCardDef(
             game_text="Discard a Grass Energy and a Lightning Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1},
             damage=130,
-            effect=unimplemented,
+            effect=_dragon_wave,
         ),
         Attack(
             title="Giant Tail",

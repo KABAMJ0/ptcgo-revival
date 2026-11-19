@@ -1,6 +1,16 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
+
+
+async def _evil_orders(ctx):
+    count = len(ctx.my_bench())
+    picks = await ctx.search_deck(
+        None, count=count, minimum=0,
+        prompt="Choose up to 1 card per Benched Pok\u00e9mon") if count else []
+    await ctx.put_in_hand(picks, reveal=False)
+    await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="ac2f4563-74c7-5d3d-b95f-1c0af2c80587",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             title="Evil Orders",
             game_text="Search your deck for a number of cards up to the number of your Benched Pok\u00e9mon and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_evil_orders,
         ),
         Attack(
             title="Endeavor",

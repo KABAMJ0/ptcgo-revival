@@ -1,6 +1,18 @@
-from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+
+
+def _is_special_energy(card):
+    return bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
+
+async def _metallic_sound(ctx):
+    for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
+        await ctx.discard_energy_from(
+            pokemon, 99, predicate=_is_special_energy,
+            prompt="Discard all Special Energy from this Pok\u00e9mon")
+
 
 card = PokemonCardDef(
     guid="c4cc6609-9849-5bee-9e5f-42c0f74f96f9",
@@ -24,7 +36,7 @@ card = PokemonCardDef(
             title="Metallic Sound",
             game_text="Discard all Special Energy from each Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_metallic_sound,
         ),
         Attack(
             title="Aerial Ace",

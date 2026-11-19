@@ -1,6 +1,19 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, PokemonStage, \
+    Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.session.passives import Passive
+
+POISONED = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.POISONED]
+
+
+class PoisonSacsPassive(Passive):
+    """The opponent's Poisoned Pokemon keep Poison through evolving and devolving."""
+
+    def keeps_condition_on_evolve(self, condition, pokemon, carrier):
+        return (condition == POISONED
+                and pokemon.owning_player_id != carrier.owning_player_id)
+
 
 card = PokemonCardDef(
     guid="b9652670-d363-5688-973b-0b795f478dea",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Poison Sacs",
             game_text="Your opponent's Poisoned Pok\u00e9mon don't recover from that Special Condition when they evolve or devolve.",
-            effect=unimplemented,
+            passive=PoisonSacsPassive(),
         ),
         Attack(
             title="Toxic Strike",
