@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="Eevee does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="8557a910-6a32-59d9-a55f-30f531b6dffa",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Nidorino does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )

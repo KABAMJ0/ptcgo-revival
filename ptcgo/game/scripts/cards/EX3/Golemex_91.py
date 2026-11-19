@@ -33,7 +33,7 @@ card = PokemonCardDef(
             game_text="Golem ex does 50 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=recoil_attack(50, damage=0),
+            effect=recoil_attack(50),
         ),
     ],
 )

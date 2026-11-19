@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Bibarel does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Forretress does 40 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=recoil_attack(40, damage=0),
+            effect=recoil_attack(40),
         ),
     ],
 )

@@ -37,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flareon ex does 10 damage to itself.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

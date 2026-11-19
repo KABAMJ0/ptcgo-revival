@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Chansey does 60 damage to itself.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=80,
-            effect=recoil_attack(60, damage=0),
+            effect=recoil_attack(60),
         ),
     ],
 )

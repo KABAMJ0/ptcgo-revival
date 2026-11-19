@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Arcanine does 40 damage to itself.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=recoil_attack(40, damage=0),
+            effect=recoil_attack(40),
         ),
     ],
 )

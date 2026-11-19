@@ -38,7 +38,7 @@ card = PokemonCardDef(
             game_text="Bastiodon does 30 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=recoil_attack(30, damage=0),
+            effect=recoil_attack(30),
         ),
     ],
 )

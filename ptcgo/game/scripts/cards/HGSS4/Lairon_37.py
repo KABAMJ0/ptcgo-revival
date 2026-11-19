@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Lairon does 20 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

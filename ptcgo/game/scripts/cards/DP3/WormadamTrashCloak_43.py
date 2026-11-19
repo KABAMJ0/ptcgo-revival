@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Wormadam Trash Cloak does 20 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

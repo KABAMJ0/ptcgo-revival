@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Sudowoodo does 30 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=50,
-            effect=recoil_attack(30, damage=0),
+            effect=recoil_attack(30),
         ),
     ],
 )

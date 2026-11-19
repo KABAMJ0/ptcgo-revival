@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="Shelgon does 10 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )
