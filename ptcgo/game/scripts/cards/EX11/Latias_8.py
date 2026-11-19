@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _spiral_drain(ctx):
+    """Remove 2 damage counters from this Pokemon, all if fewer."""
+    holder = ctx.attacker
+    if holder is None:
+        return
+    from ptcgo.game.attributes import AttrID
+    damaged = ctx.max_hp(holder) - holder.get_attribute(AttrID.HP, 0)
+    if damaged > 0:
+        await ctx.heal(min(20, damaged), holder)
+
 card = PokemonCardDef(
     guid="69c3b9c9-1986-54b1-9f71-592d3cb45932",
     key="EX11",
@@ -29,7 +40,7 @@ card = PokemonCardDef(
             game_text="Remove 2 damage counters fro Latias.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_spiral_drain,
         ),
         Attack(
             title="Extra Crush",

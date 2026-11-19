@@ -2,6 +2,17 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, 
 from ptcgo.game.card_effects.support_common import swap_with_named
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _spiral_drain(ctx):
+    """Remove 3 damage counters from this Pokemon, all if fewer."""
+    holder = ctx.attacker
+    if holder is None:
+        return
+    from ptcgo.game.attributes import AttrID
+    damaged = ctx.max_hp(holder) - holder.get_attribute(AttrID.HP, 0)
+    if damaged > 0:
+        await ctx.heal(min(30, damaged), holder)
+
 card = PokemonCardDef(
     guid="9d8efebb-b82b-52ae-a96b-43ef0adc6cad",
     key="EX11",
@@ -31,7 +42,7 @@ card = PokemonCardDef(
             game_text="Remove 3 damage counter from Ditto (all if there are less than 3).",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_spiral_drain,
         ),
     ],
 )

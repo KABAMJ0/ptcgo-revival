@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
 
+async def _alert(ctx):
+    """Draw a card, then switch Brock's Zubat with a Benched Pokemon."""
+    await ctx.draw_cards(1, ctx.player_id)
+    await switch_self_attack()(ctx)
 card = PokemonCardDef(
     guid="62e7a0e0-5d1d-59d8-909a-3a405193531f",
     key="GYM1",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
             title="Alert",
             game_text="Draw a card. Then, switch Brock's Zubat with 1 of your Benched Pok\u00e9mon. You can't use this attack if your Bench is empty.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_alert,
         ),
         Attack(
             title="Wing Attack",

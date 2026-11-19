@@ -3,6 +3,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.support_common import heal_targets
+
 card = PokemonCardDef(
     guid="de952024-b035-5102-84b2-8f6333898876",
     key="EX11",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Delta Heal",
             game_text="Once during your turn (before your attack), you may remove 1 damage counter from each of your Pok\u00e9mon that has \u03b4 on its card. You can't use more than 1 Delta Heal Pok\u00e9-Power each turn. This power can't be used if Espeon is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=heal_targets(10, scope="each_own"),
         ),
         Attack(
             title="Psyshock",

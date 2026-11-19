@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _backup(ctx):
+    """If you have fewer than 6 cards in hand, draw until you have 6."""
+    shortfall = 6 - len(ctx.hand(ctx.player_id))
+    if shortfall > 0:
+        await ctx.draw_cards(shortfall, ctx.player_id)
+
 card = PokemonCardDef(
     guid="3e7e0e66-6784-587c-a322-e5fd88a6fdbc",
     key="EX11",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Backup",
             game_text="Once during your turn (before your attack), if you have less than 6 cards in your hand, you may draw cards until you have 6 cards in your hand. This power can't be used if Porygon2 is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=_backup,
         ),
         Attack(
             title="Machine Burst",
