@@ -1,3 +1,6 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=150,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True, ignore_target_effects=True),
         ),
     ],
 )

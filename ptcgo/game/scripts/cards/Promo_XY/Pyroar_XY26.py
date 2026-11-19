@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_discard_opponent_energy, flip_gate, self_energy_discard_attack
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
@@ -32,7 +36,7 @@ card = PokemonCardDef(
             game_text="Discard 2 Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2),
         ),
     ],
 )

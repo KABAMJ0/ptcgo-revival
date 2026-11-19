@@ -1,3 +1,6 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, Triggers, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents, place_counters
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             title="Swoop Across",
             game_text="This attack does 10 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_all_opponents(10),
         ),
     ],
 )

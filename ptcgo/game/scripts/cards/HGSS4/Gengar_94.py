@@ -7,6 +7,10 @@ async def _spread(ctx):
     await ctx.place_damage_counters(4)
 
 
+async def _spread_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(4)
+
 card = PokemonCardDef(
     guid="b45c0e9f-312e-5288-91d1-e8558b2f8063",
     key="HGSS4",
@@ -41,7 +45,7 @@ card = PokemonCardDef(
             title="Cursed Drop",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_spread_counters,
         ),
     ],
 )
