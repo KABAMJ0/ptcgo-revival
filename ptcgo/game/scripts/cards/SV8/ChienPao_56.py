@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import return_attached_energy
 
 card = PokemonCardDef(
     guid="f273d667-2d49-5488-805d-ffdf75fb75b9",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Put an Energy attached to this Pok\u00e9mon into your hand.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=return_attached_energy(count=1, to="hand", target="self"),
         ),
     ],
 )
