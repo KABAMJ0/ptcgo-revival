@@ -678,6 +678,13 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
             raise RuntimeError(
                 f"harness rig could not place the {target_kind} target on the board")
         if isinstance(runner_key, Ability):
+            # An ability with no body has nothing to exercise: the resolvers
+            # log and return for an unimplemented effect, which used to land
+            # the row in PASS and made a set's "0 FAIL" meaningless for every
+            # ability on the board. Report it as UNIMPL instead.
+            if not callable(getattr(runner_key, "effect", None)):
+                raise _SkipTest(
+                    "effect text not scripted (unimplemented/none)")
             note = _condition_blocks(definition, runner_key, rig, entities)
             if note:
                 raise _SkipTest(note)
@@ -793,8 +800,10 @@ def _print_summary(results: List[SmokeResult], args):
     print(f"=== effect smoke: set {args.set} ===")
     print(f"tests: {len(results)}  "
           + "  ".join(f"{k}: {v}" for k, v in sorted(counts.items())))
+    unimpl = counts.get(UNIMPL, 0)
     print(f"scripted effects exercised: {len(scripted)} "
-          f"(PASS {scripted_pass} / FAIL {len(scripted) - scripted_pass})")
+          f"(PASS {scripted_pass} / FAIL {len(scripted) - scripted_pass})"
+          f"  unimpl {unimpl} (not failures: no body to exercise)")
     fails = [r for r in results if r.status == FAIL]
     if fails:
         print("\nfailures:")
