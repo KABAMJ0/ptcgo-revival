@@ -34,7 +34,7 @@ import types
 from typing import Dict, List, Optional, Tuple
 
 from ptcgo.tools.reuse_effects import (CARDS_ROOT, Script, Transplant, _ability_calls,
-                                      _is_unimpl, _lit, _rank, all_scripts,
+                                      _int_literals, _is_unimpl, _lit, _rank, all_scripts,
                                       apply_transplants, copy_whole_card, loose_norm, norm)
 
 
@@ -169,12 +169,15 @@ def main(argv: Optional[List[str]] = None) -> int:
                 misses += 1
                 continue
             mine = _lit(kw["damage"].value, 0) if "damage" in kw else 0
-            if mine != plan.damage and plan.hardcodes_damage(text) and not args.allow_mismatch:
-                mismatches += 1
-                pairs.append(f"MISMATCH {stub.set_code}/{stub.stem} | {title} | "
-                             f"{ref.set_code}/{ref.stem} hard-codes {plan.damage}, "
-                             f"this card prints {mine}")
-                continue
+            if mine != plan.damage and not args.allow_mismatch:
+                unexplained = unexplained_literals(plan, text)
+                if unexplained or plan.hardcodes_damage(text):
+                    mismatches += 1
+                    pairs.append(f"MISMATCH {stub.set_code}/{stub.stem} | {title} | "
+                                 f"{ref.set_code}/{ref.stem} prints {plan.damage}, this card "
+                                 f"prints {mine}; copied body carries "
+                                 f"{unexplained or [plan.damage]}")
+                    continue
             plans.append((kw["effect"], plan))
             text_hits += 1
             bump(stub.set_code, 1)
@@ -203,6 +206,24 @@ def main(argv: Optional[List[str]] = None) -> int:
             fh.write("\n".join(pairs + refused) + "\n")
         print(f"pairs written to {args.report}")
     return 0
+
+
+def unexplained_literals(plan: Transplant, text: str) -> List[int]:
+    """Numbers the copied body carries that this card's printed text never mentions.
+
+    When two cards share a wording but print different damage, the source's body
+    usually hard-codes its own number as `base=`. If any integer in the copied code
+    is not a number from the shared wording, the fill would silently deal the other
+    card's damage (XY8/Xerneas_107 put `base=70` into two 50-damage Toxtricity),
+    so it is refused.
+    """
+    literals = set()
+    for keyword in plan.extra:
+        literals |= _int_literals(keyword.value)
+    for code in plan.defs.values():
+        literals |= _int_literals(ast.parse(code))
+    printed = {int(n) for n in __import__("re").findall(r"\d+", text or "")}
+    return sorted(literals - printed)
 
 
 def undefined_names(src: str, path: str) -> List[str]:
