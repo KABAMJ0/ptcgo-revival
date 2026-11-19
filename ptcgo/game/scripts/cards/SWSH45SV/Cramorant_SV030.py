@@ -3,6 +3,7 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="db6894f2-e070-5582-92d6-7eed3c35062d",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=damage_per(count_energy("self", "water"), 20),
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
         Attack(
             title="Hydro Pump",
