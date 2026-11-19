@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="68d047ab-2efe-5c66-a5ca-f013acf604d2",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Corner",
             game_text="The Defending Pok\u00e9mon can't retreat until the end of your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Gust",

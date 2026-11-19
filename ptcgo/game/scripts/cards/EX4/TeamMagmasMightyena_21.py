@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_EX
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
 card = PokemonCardDef(
     guid="cd8c2682-df42-51c8-8041-a5e316f4eaf2",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_pokemon_EX(ctx.defender), 40, base=40),
         ),
     ],
 )
