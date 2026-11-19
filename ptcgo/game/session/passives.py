@@ -701,6 +701,34 @@ def _carrier_in_play(entity: BoardEntity) -> bool:
         and parent.get_attribute(AttrID.NAME) in _IN_PLAY_AREAS
 
 
+_POKE_POWER_TYPES = ("poké-power", "poke-power", "pokémon power",
+                     "pokemon power")
+
+
+def has_poke_power(pokemon: PokemonEntity) -> bool:
+    """Whether `pokemon` prints at least one Poke-Power.
+
+    The vintage type is not in the scripts (no card sets `AbilityTypes`, and
+    every ability defaults to POKE_ABILITY), so it is read from the set JSON
+    beside the script, by ability title."""
+    from ptcgo.game.data_utils import def_for
+    from ptcgo.game.scripts.cards import printed_ability_type
+
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    for ability in getattr(definition, "abilities", []) or []:
+        printed = printed_ability_type(definition, getattr(ability, "title", "") or "")
+        if printed.strip().lower() in _POKE_POWER_TYPES:
+            return True
+    return False
+
+
+def poke_powers_locked(board: BoardState) -> bool:
+    """Whether a card has switched every Poke-Power off (Goop Gas Attack).
+
+    The flag is cleared by `TurnState.begin_turn` once its window passes."""
+    return bool(getattr(board, "poke_power_lock_through", 0))
+
+
 def ability_locked(board: BoardState, pokemon: PokemonEntity) -> bool:
     """Whether a passive (Path to the Peak) is disabling `pokemon`'s Abilities.
 
@@ -708,6 +736,8 @@ def ability_locked(board: BoardState, pokemon: PokemonEntity) -> bool:
     is never itself disabled by another lock (Garbotoxin-style recursion is
     out of scope -- Path to the Peak rides a Stadium so this is safe).
     """
+    if poke_powers_locked(board) and has_poke_power(pokemon):
+        return True
     return any(p.blocks_abilities(pokemon, c) for p, c, _ in _collect_passives(board))
 
 

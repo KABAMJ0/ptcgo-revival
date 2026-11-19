@@ -1,10 +1,62 @@
 import os
 import importlib.util
+import json
 import logging
 import sys
 from typing import Dict, List
 from ptcgo.game.models.card import Card, PokemonCard
 from ptcgo.game.attributes import AttrID, CardType
+
+# Printed ability types ("Poké-Power", "Poké-Body", "Ability") live only in the
+# set JSON beside the scripts, and a script never sets AbilityTypes itself, so a
+# card that has to tell a Poké-Power from a modern Ability reads them here.
+_PRINTED_ABILITY_TYPES: Dict[str, Dict[int, Dict[str, str]]] = {}
+
+
+def _printed_abilities_for_set(set_code: str) -> Dict[int, Dict[str, str]]:
+    """collector number -> {printed ability title: printed type} for one set."""
+    cached = _PRINTED_ABILITY_TYPES.get(set_code)
+    if cached is not None:
+        return cached
+    cached = {}
+    directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), set_code)
+    path = None
+    if os.path.isdir(directory):
+        wanted = f"{set_code.lower()}.json"
+        for name in sorted(os.listdir(directory)):
+            if name.lower() == wanted:
+                path = os.path.join(directory, name)
+                break
+    if path:
+        try:
+            with open(path, encoding="utf-8") as handle:
+                data = json.load(handle)
+            cards = data if isinstance(data, list) else data.get("cards", [])
+            for entry in cards:
+                named = {ability.get("name") or "": ability.get("type") or ""
+                         for ability in (entry.get("abilities") or [])}
+                if named:
+                    cached[int(entry.get("number", -1))] = named
+        except (OSError, ValueError, TypeError):
+            cached = {}
+    _PRINTED_ABILITY_TYPES[set_code] = cached
+    return cached
+
+
+def printed_ability_type(card_def, title: str) -> str:
+    """The printed type of the ability called `title` on `card_def`.
+
+    "Poké-Power", "Poké-Body", "Ability" and so on live only in the set JSON
+    beside the scripts; no script sets `AbilityTypes` itself, so a card that has
+    to tell a Poké-Power from a modern Ability reads it here. Matching is by
+    title because a script adds Attacks to `abilities` too, which the printed
+    list does not carry. Empty when the set or the title is unknown."""
+    set_code = getattr(card_def, "set_code", None)
+    number = getattr(card_def, "collector_number", None)
+    if not set_code or number is None or not title:
+        return ""
+    return _printed_abilities_for_set(set_code).get(int(number), {}).get(title, "")
+
 
 class ScriptLoader:
     """Dynamically loads card definition scripts from the filesystem."""

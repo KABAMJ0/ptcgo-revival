@@ -352,6 +352,10 @@ class TurnState:
                 if tp.expires_after_turn is None
                 or tp.expires_after_turn >= self.turn_number
             ]
+            # Goop Gas Attack: "until the end of your opponent's next turn".
+            if getattr(board, "poke_power_lock_through", 0) \
+                    and board.poke_power_lock_through < self.turn_number:
+                board.poke_power_lock_through = 0
 
     def mark_moved_to_active(self, entity_id: str) -> None:
         """Stamps the Active-spot arrival (once-this-turn triggers read

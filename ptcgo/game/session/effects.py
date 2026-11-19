@@ -831,6 +831,14 @@ class EffectContext:
             require_source_in_play=require_source_in_play,
         )
 
+    def lock_poke_powers(self, through_turn: Optional[int] = None) -> None:
+        """"All Pokemon Powers stop working until the end of your opponent's
+        next turn" (Goop Gas Attack); `ability_locked` reads the flag."""
+        self.board.poke_power_lock_through = (
+            self.session.turn_state.turn_number + 1 if through_turn is None
+            else through_turn
+        )
+
     def lock_retreat(self, target: PokemonEntity,
                      through_turn: Optional[int] = None) -> None:
         """"The Defending Pokemon can't retreat during your opponent's next

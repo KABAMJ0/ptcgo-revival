@@ -2698,6 +2698,14 @@ def opponent_switch_then_self_switch():
     return effect
 
 
+def stop_poke_powers():
+    """Every Poke-Power stops working until the end of the opponent's next
+    turn (Goop Gas Attack)."""
+    async def effect(ctx):
+        ctx.lock_poke_powers()
+    return effect
+
+
 def blaines_quiz(kind: str, draw: int = 2):
     """Put a card from your hand face down, let the opponent guess, and the
     winner draws `draw` cards (Blaine's Quiz #1 and #2).
