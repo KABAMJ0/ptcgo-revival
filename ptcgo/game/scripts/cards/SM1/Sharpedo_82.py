@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import damage_per, count_retreat_cost
 from ptcgo.game.session.passives import effective_retreat_cost
-from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=damage_per(count_retreat_cost("defender"), 20, base=60),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20, base=60),
         ),
     ],
 )

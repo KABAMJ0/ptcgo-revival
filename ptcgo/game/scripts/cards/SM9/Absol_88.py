@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30, base=30),
         ),
     ],
 )

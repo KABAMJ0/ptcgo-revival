@@ -35,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=130,
             damage_operator="+",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 50),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 50, base=130),
         ),
     ],
 )

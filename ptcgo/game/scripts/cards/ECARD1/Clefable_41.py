@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Moonlight",
             game_text="Once during your turn (before your attack), you may put a card from your hand back on your deck. If you do, search your deck for a basic Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward. This power can't be used if Clefable is affected by a Special Condition.",
-            effect=flip_damage(per_heads=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Doubleslap",
