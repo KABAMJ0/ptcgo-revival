@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack, snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="09408eba-8788-51ab-b41a-fbf5107d425f",
@@ -30,7 +30,7 @@ card = PokemonCardDef(
             title="Ice Blade",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any"),
         ),
     ],
 )

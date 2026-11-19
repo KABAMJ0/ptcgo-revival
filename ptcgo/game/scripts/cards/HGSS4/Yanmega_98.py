@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
@@ -45,14 +46,14 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 40 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any"),
         ),
         Attack(
             title="Sonicboom",
             game_text="This attack's damage isn't affected by Weakness or Resistance.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )
