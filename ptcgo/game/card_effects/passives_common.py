@@ -264,6 +264,12 @@ class TeamDamageBoostPassive(Passive):
             return
         if self.attacker_pred is not None and not self.attacker_pred(attacker):
             return
+        # A callable amount is the wording whose number depends on the board at
+        # resolution ("40 instead of 10 if the attacking player has more Prize
+        # cards remaining" -- Martial Arts Dojo).
+        amount = self.amount(calc, carrier) if callable(self.amount) else self.amount
+        if not amount:
+            return
         if self.to_active_only and not calc.to_active:
             return
         if self.target_pred is not None and not self.target_pred(calc.target):
@@ -272,7 +278,7 @@ class TeamDamageBoostPassive(Passive):
             if self.once_key in calc.applied_once:
                 return
             calc.applied_once.add(self.once_key)
-        calc.amount += self.amount
+        calc.amount += amount
 
 
 class ReducesOwnAttacksPassive(Passive):
@@ -1537,7 +1543,9 @@ class BenchCapacityPassive(Passive):
     """Bench cap for both players (Collapsed Stadium 4, Narrow Gym 4) or for
     the carrier's own side alone (Parallel City's down-arrow face: 3)."""
 
-    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap"):
+    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap",
+                 raise_pred=None):
+        self.raise_pred = raise_pred
         self.limit = limit
         self.mode = mode
         if mode not in ("cap", "raise"):
@@ -1556,22 +1564,29 @@ class BenchCapacityPassive(Passive):
             return None
         return self.limit if self._covers(player_id, carrier) else None
 
-    def bench_capacity_raise(self, player_id, carrier):
+    def bench_capacity_raise(self, player_id, carrier, board=None):
         if self.mode != "raise":
             return None
-        return self.limit if self._covers(player_id, carrier) else None
+        if not self._covers(player_id, carrier):
+            return None
+        if self.raise_pred is not None and not self.raise_pred(player_id, board):
+            return None
+        return self.limit
 
     def bench_trim_area(self, player_id, carrier):
         return "hand" if self.trim_to == "hand" and self._covers(player_id, carrier) else None
 
 
 def bench_capacity_passive(limit: int = 4, protects="each",
-                           trim_to: str = "discard", mode: str = "cap") -> Passive:
+                           trim_to: str = "discard", mode: str = "cap",
+                           raise_pred=None) -> Passive:
     """`protects='each'` caps both players (Narrow Gym, Collapsed Stadium);
     `'team'` caps only the Stadium holder's side (Parallel City's face).
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
-    return BenchCapacityPassive(limit, protects, trim_to, mode)
+    """`raise_pred(player_id, board)` gates a raise on board state (Area Zero
+    Underdepths: only while the player has a Tera Pokemon in play)."""
+    return BenchCapacityPassive(limit, protects, trim_to, mode, raise_pred)
 
 
 class SuppressAllToolsPassive(Passive):
