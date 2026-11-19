@@ -807,7 +807,7 @@ def mill_attack(count: int, opponent: bool = True,
 
 
 def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
-                            damage: Optional[int] = None):
+                            damage: Optional[int] = None, count_fn=None):
     """"This attack does N less damage for each Energy attached to your
     opponent's Active Pokemon": the printed (or damage) amount minus
     per * count, never below floor.
@@ -818,11 +818,14 @@ def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
     what the defender throws instead."""
     async def effect(ctx):
         base = damage if damage is not None else _printed(ctx)
-        defender = ctx.defender
-        count = 0
-        if defender is not None:
-            count = sum(1 for card in ctx.attached_energies(defender)
-                        if predicate is None or predicate(card))
+        if count_fn is not None:
+            count = count_fn(ctx)
+        else:
+            defender = ctx.defender
+            count = 0
+            if defender is not None:
+                count = sum(1 for card in ctx.attached_energies(defender)
+                            if predicate is None or predicate(card))
         await ctx.deal_damage(max(floor, base - per * count))
     return effect
 
@@ -1010,7 +1013,8 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
     return effect
 
 
-def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
+def reduce_defender_attacks(amount: int, damage: Optional[int] = None,
+                            through: str = "opponent"):
     """Printed (or `damage`) damage, then the Defending Pokemon's own attacks do
     `amount` less during the opponent's next turn ("any damage done by attacks
     from the Defending Pokemon is reduced by N").
@@ -1022,8 +1026,11 @@ def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
         defender = ctx.defender
         if defender is None:
             return
-        ctx.add_passive_through_opponents_turn(
-            defender, weakens_own_attacks_passive(amount))
+        shield = weakens_own_attacks_passive(amount)
+        if through == "mine":
+            ctx.add_passive_through_own_next_turn(defender, shield)
+        else:
+            ctx.add_passive_through_opponents_turn(defender, shield)
     return effect
 
 
