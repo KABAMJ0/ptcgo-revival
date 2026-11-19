@@ -17,7 +17,6 @@ card = PokemonCardDef(
     rarity=Rarities.Rare,
     # "If this Pokemon is in your hand when you are setting up to play, you may
     # put it face down in the Active Spot" is the definition flag, not a body.
-    setup_as_active=True,
     hp=160,
     elements=[PokemonTypes.FIRE],
     stage=PokemonStage.STAGE2,
