@@ -1,5 +1,6 @@
 """Global server addressing config — the single place to set the host players connect to."""
 import os
+from typing import Optional
 
 # The address players use to reach this server (IP or domain, no scheme/port).
 # For public hosting set this to your public IP/domain, or export PTCGO_PUBLIC_HOST.
@@ -18,7 +19,32 @@ DATABASE_URL = os.environ.get("PTCGO_DATABASE_URL")
 # WARNING: experimental bundle packing algorithm, we default to lz4 but lzma would cut the sizes in half
 BUNDLE_PACKER = os.environ.get("PTCGO_BUNDLE_PACKER", "lz4").strip().lower()
 
-HTTP_BASE_URL = f"http://{PUBLIC_HOST}:{HTTP_PORT}"
+# The URL players' clients use for every HTTP fetch (manifests, bundles, art).
+#
+# By default it is built from PUBLIC_HOST and HTTP_PORT, which is right when the HTTP
+# port is forwarded. Behind a reverse proxy or a Cloudflare Tunnel it is wrong: the
+# public URL has a hostname and no port, and it is HTTPS. Export
+#   PTCGO_HTTP_BASE_URL=https://cards.example.com
+# and that string is used VERBATIM as the base for every client-facing URL. A trailing
+# slash is stripped so `{base}/path` never doubles it. Unset keeps the old behaviour
+# exactly, including the per-request Host header fallback in the HTTP server.
+HTTP_BASE_URL_OVERRIDE = (os.environ.get("PTCGO_HTTP_BASE_URL") or "").strip().rstrip("/")
+
+
+def client_base_url(request_host: Optional[str] = None) -> str:
+    """The absolute base a client should fetch from, with no trailing slash.
+
+    With PTCGO_HTTP_BASE_URL set the override wins for every caller. Otherwise the
+    request's Host header is used when the server has one, falling back to
+    `PUBLIC_HOST:HTTP_PORT`.
+    """
+    if HTTP_BASE_URL_OVERRIDE:
+        return HTTP_BASE_URL_OVERRIDE
+    host = (request_host or "").strip() or f"{PUBLIC_HOST}:{HTTP_PORT}"
+    return ("http://" + host).rstrip("/")
+
+
+HTTP_BASE_URL = client_base_url()
 PLACEHOLDER_IMG = f"{HTTP_BASE_URL}/placeholder.png"
 
 # --- Operational tunables (env-overridable; safe defaults chosen to never affect legit play) ---

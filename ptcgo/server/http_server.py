@@ -467,7 +467,7 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_patch_manifest(self):
         """Source Logic: client_source/pie/pie-src/CheckForPatchBehavior.cs"""
-        host = self.headers.get("Host", state.SERVER_HOST)
+        base = config.client_base_url(self.headers.get("Host", state.SERVER_HOST))
         # Report OUR client's build so the Refresher sees "already up to date" and
         # launches the game instead of trying to download a patcher we don't serve.
         # The 2020/2022-era installer ships 2.94.0.5788; the repo's default of 5815
@@ -478,15 +478,15 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             "LatestMacPatcherVersion": 240,
             "LatestWindowsClientVersion": client_version,
             "LatestMacClientVersion": client_version,
-            "WindowsPatcherDownloadLink": f"http://{host}/refresher.zip",
-            "MacPatcherDownloadLink": f"http://{host}/refresher.zip"
+            "WindowsPatcherDownloadLink": f"{base}/refresher.zip",
+            "MacPatcherDownloadLink": f"{base}/refresher.zip"
         }
         self.send_json_response(response)
 
     def handle_messaging_manifest(self):
         """Source Logic: ServerManifestDataRetriever.cs — null 'messaging' array NREs the Tournament scene."""
-        host = self.headers.get("Host", state.SERVER_HOST)
-        self.send_json_response({"cdn_url": f"http://{host}/", "messaging": []})
+        base = config.client_base_url(self.headers.get("Host", state.SERVER_HOST))
+        self.send_json_response({"cdn_url": f"{base}/", "messaging": []})
 
     def _is_android(self):
         return "/android/" in urlparse(self.path).path.lower()
@@ -696,14 +696,15 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         state.SERVER_HOST = host
 
         # The AssetURL is the base for all .unity3d downloads.
-        cdn_base = f"http://{host}/"
+        base = config.client_base_url(host)
+        cdn_base = f"{base}/"
 
         self.send_json_response({
-            "hostName": f"http://{host}/cas",
+            "hostName": f"{base}/cas",
             "AssetURL": cdn_base,
-            "collectorURL": f"http://{host}/collector/",
-            "helpButtonDestination": f"http://{host}/help/",
-            "localizedSignup": f"http://{host}/signup/",
+            "collectorURL": f"{base}/collector/",
+            "helpButtonDestination": f"{base}/help/",
+            "localizedSignup": f"{base}/signup/",
             "serviceID": "pokemon_tcgo",
             "bacgroundRelease": "lobby" # Points to the broad lobby alias in our manifest
         })
@@ -787,7 +788,9 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 host = self.headers.get("Host", state.SERVER_HOST)
                 body = f"ticket={ticket}\n?ticket={ticket}\n&ticket={ticket}".encode('utf-8')
                 self.send_response(302)
-                self.send_header('Location', f'http://{host}/cas/sso/login?ticket={ticket}')
+                self.send_header('Location',
+                                 config.client_base_url(host)
+                                 + f'/cas/sso/login?ticket={ticket}')
                 self.send_header('Content-type', 'text/html')
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
