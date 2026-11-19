@@ -52,7 +52,9 @@ SIGNALS: Dict[str, str] = {
     "protect": r"prevent|protect|shield|ignore_modifier|no_weakness|unafflicted",
     "attach": r"attach",
     "switch": r"switch|gust|retreat",
-    "shuffle": r"shuffle",
+    # a search helper shuffles as part of putting the card in hand, so the
+    # "shuffle your deck" rider needs no separate signal
+    "shuffle": r"shuffle|search",
     "prize": r"prize",
     "look": r"look|peek|top_card|reorder",
 }
@@ -109,19 +111,17 @@ def audit_file(path: str) -> List[str]:
             continue
         title = ast.literal_eval(kw["title"]) if "title" in kw else "?"
         body = body_source(tree, effect, src)
-        called = {n.func.id for n in ast.walk(effect) if isinstance(n, ast.Call)
-                  and isinstance(n.func, ast.Name)}
-        called = set(called) or set(re.findall(r"([a-z_]+)\(", body))
+        primary = getattr(getattr(effect, "func", None), "id", "") if isinstance(effect, ast.Call) else ""
         missing = []
         for intent, pattern in INTENTS:
             if not re.search(pattern, printed, re.I):
                 continue
             if not re.search(SIGNALS[intent], body, re.I):
                 missing.append(intent)
-        if missing and called and called <= PURE_DAMAGE:
+        if missing and primary in PURE_DAMAGE:
             findings.append(
                 f"{path}: {title!r} -- text names {', '.join(missing)}; "
-                f"body is only {sorted(called)} | {printed[:90]}")
+                f"body is {primary}(...) | {printed[:90]}")
     return findings
 
 

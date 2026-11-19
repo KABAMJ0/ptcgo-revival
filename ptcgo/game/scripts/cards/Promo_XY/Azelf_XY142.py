@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Shining Eyes",
             game_text="Put 2 damage counters on each of your opponent's Pok\u00e9mon that has any damage counters on it.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=unimplemented,
         ),
         Attack(
             title="Mind Bend",
