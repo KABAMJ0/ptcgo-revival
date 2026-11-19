@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import on_bench, search_attach_energy
+from ptcgo.game.card_effects.trainers import pokemon_of
+
+_GRASS = pokemon_of("grass")
+
+
+def _benched_grass(pokemon) -> bool:
+    return on_bench(pokemon) and _GRASS(pokemon)
+
 
 card = PokemonCardDef(
     guid="a3428c0f-5160-5f79-96c0-d7ed2c18380a",
@@ -22,7 +31,7 @@ card = PokemonCardDef(
             title="Send Flowers",
             game_text="Search your deck for an Energy card and attach it to 1 of your Benched Grass Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(count=1, target_pred=_benched_grass),
         ),
         Attack(
             title="Leaf Step",

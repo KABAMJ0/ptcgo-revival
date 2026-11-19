@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+async def heartfelt_song(ctx):
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    await ctx.discard_energy_from(
+        target, 1,
+        predicate=lambda energy: energy_provides_type(
+            energy, PokemonTypes.DARKNESS.value),
+        prompt="Discard a Darkness Energy from the Defending Pok\u00e9mon")
+
 
 card = PokemonCardDef(
     guid="b93f31d9-b1a9-5b74-833a-9b4b89cdb47d",
@@ -28,7 +40,7 @@ card = PokemonCardDef(
             title="Heartfelt Song",
             game_text="Discard a Darkness Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=heartfelt_song,
         ),
     ],
 )

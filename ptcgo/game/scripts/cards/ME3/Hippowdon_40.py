@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def twister_spewing(ctx):
+    """80 damage; if you played Tarragon from your hand this turn, also
+    discard the top 3 cards of your opponent's deck."""
+    await ctx.deal_damage()
+    if ctx.played_trainer_this_turn("Tarragon") > 0:
+        milled = ctx.deck_top(3, player_id=ctx.opponent_id)
+        if milled:
+            await ctx.discard_cards(milled)
+
 
 card = PokemonCardDef(
     guid="0f55668d-a337-547a-9f15-778d37a03c64",
@@ -24,7 +35,7 @@ card = PokemonCardDef(
             game_text="If you played Tarragon from your hand during this turn, discard the top 3 cards of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=twister_spewing,
         ),
         Attack(
             title="Heavy Impact",

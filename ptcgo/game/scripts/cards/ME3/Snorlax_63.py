@@ -1,6 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def gormandizer(ctx):
+    """Flip until tails: search up to that many Basic Energy and attach
+    them to this Pokemon, then shuffle."""
+    heads = await ctx.flip_until_tails("Gormandizer")
+    holder = ctx.source if ctx.source is not None else ctx.attacker
+    if heads > 0 and holder is not None:
+        picks = await ctx.search_deck(
+            is_basic_energy_card, count=heads, minimum=0,
+            prompt=f"Choose up to {heads} Basic Energy card(s) to attach",
+        )
+        for energy in picks or []:
+            await ctx.attach_energy(energy, holder)
+    await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="1ee374af-2730-52bb-a786-05ec77d0df96",
@@ -23,7 +40,7 @@ card = PokemonCardDef(
             title="Gormandizer",
             game_text="Flip a coin until you get tails. Search your deck for an amount of Basic Energy up to the number of heads and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gormandizer,
         ),
         Attack(
             title="Collapse",
