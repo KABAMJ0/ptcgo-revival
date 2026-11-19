@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack, damage_per_extra_energy
 
 card = PokemonCardDef(
     guid="f0a233ef-f4c9-58b5-a64a-73757476afe6",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(per_energy=10, energy_type=PokemonTypes.WATER, base=20),
         ),
         Attack(
             title="Take Down",
