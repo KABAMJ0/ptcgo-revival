@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.scripts.cards import loader as card_loader
+
+
+def _has_holon_energy(ctx):
+    for energy in ctx.attached_energies(ctx.attacker):
+        card = card_loader.cards_by_guid.get((energy.archetype_id or "").lower())
+        if card is not None and "holon" in (getattr(card, "display_name", "") or "").lower():
+            return True
+    return False
+
+
+async def _holon_draw(ctx):
+    await ctx.draw_cards(1, ctx.player_id)
+    if _has_holon_energy(ctx):
+        await ctx.draw_cards(2, ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="a0b5de83-fb13-5903-9791-e51d838cc233",
@@ -27,7 +43,7 @@ card = PokemonCardDef(
             title="Holon Draw",
             game_text="Draw a card. If Castform has any Holon Energy cards attached to it, draw 2 more cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_holon_draw,
         ),
     ],
 )
