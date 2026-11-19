@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import retreat_free_when
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _no_energy(pokemon, carrier) -> bool:
+    return pokemon is not None and not [e for e in pokemon.children]
 
 card = PokemonCardDef(
     guid="589e8c33-3e2a-5400-bb49-fc866fcd9577",
@@ -22,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Free Flight",
             game_text="If Yanma has no Energy attached to it, Yanma's Retreat Cost is 0.",
-            effect=unimplemented,
+            passive=retreat_free_when(_no_energy),
         ),
         Attack(
             title="Dive",

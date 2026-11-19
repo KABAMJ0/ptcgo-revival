@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_darkness(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.DARKNESS.value)
 
 card = PokemonCardDef(
     guid="000a0a92-e455-5f06-913a-f39ccd4520bf",
@@ -21,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="DARK",
             game_text="Once during your turn, when you put Unown from your hand onto your Bench, you may search your deck for a Darkness Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=search_to_hand(_is_darkness, count=1, reveal=True),
         ),
         Attack(
             title="Hidden Power",

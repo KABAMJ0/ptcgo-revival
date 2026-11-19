@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+from ptcgo.game.attributes import CLIENT_SPECIAL_CONDITION_NAMES, SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _asleep_shield(calc, carrier) -> bool:
+    target = calc.target
+    if target is None:
+        return False
+    conds = target.get_attribute(AttrID.SPECIAL_CONDITIONS) or []
+    return CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP] in conds
 
 card = PokemonCardDef(
     guid="d9c8bc79-bede-562b-9e9f-e31ee5d8979e",
@@ -20,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Sweet Sleeping Face",
             game_text="As long as Magby is Asleep, prevents all damage done to Magby by attacks.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_asleep_shield),
         ),
         Attack(
             title="Play with Fire",

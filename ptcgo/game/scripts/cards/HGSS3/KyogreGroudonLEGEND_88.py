@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import is_energy_card
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _mega_tidal_wave(ctx):
+    deck = ctx.deck(ctx.opponent_id)
+    milled = deck[-5:] if deck else []
+    if milled:
+        await ctx.discard_cards(list(milled))
+    energy = sum(1 for card in milled if is_energy_card(card))
+    for pokemon in ctx.opponent_bench():
+        if energy:
+            await ctx.deal_damage(30 * energy, target=pokemon, apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="44c88a39-0256-5918-995f-d18d5142187a",
@@ -22,7 +33,7 @@ card = PokemonCardDef(
             title="Mega Tidal Wave",
             game_text="Discard the top 5 cards from your opponent's deck. This attack does 30 damage times the number of Energy cards you discarded to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_mega_tidal_wave,
         ),
         Attack(
             title="Massive Eruption",

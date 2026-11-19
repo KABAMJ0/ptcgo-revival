@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import raise_defender_retreat_cost_next_turn
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Sticky Liquid",
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon's Retreat Cost is Colorless more.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=raise_defender_retreat_cost_next_turn(1),
         ),
         Attack(
             title="Sludge Toss",

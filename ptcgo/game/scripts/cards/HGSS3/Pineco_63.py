@@ -1,7 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import apply_own_next_turn_boost
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+
+async def _focus_energy(ctx):
+    await ctx.deal_damage()
+    await apply_own_next_turn_boost(ctx, 40, "Surprise Attack")
 
 card = PokemonCardDef(
     guid="7564d13b-1800-54c7-b84f-8aadcbb1b4f6",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             title="Focus Energy",
             game_text="During your next turn, Pineco's Surprise Attack attack's base damage is 80.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_focus_energy,
         ),
         Attack(
             title="Surprise Attack",

@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _swallow_up(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    if defender.get_attribute(AttrID.HP, 0) < ctx.attacker.get_attribute(AttrID.HP, 0):
+        await ctx.deal_damage(100)
+    else:
+        await ctx.deal_damage(50)
 
 card = PokemonCardDef(
     guid="2bb4f7f7-a2c8-56fb-be59-d8425e6eafa5",
@@ -31,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_swallow_up,
         ),
     ],
 )

@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Fresh-Picked Fruit",
             game_text="Remove 6 damage counters from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=heal_targets(60, scope="bench_choice"),
         ),
         Attack(
             title="Cutting Wind",

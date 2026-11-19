@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import gust_then
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _sludge_drag(ctx):
+    async def _conditions(inner, new_active):
+        if new_active is not None:
+            await inner.apply_special_condition(new_active, SpecialConditions.CONFUSED)
+            await inner.apply_special_condition(new_active, SpecialConditions.POISONED)
+    await gust_then(_conditions)(ctx)
 
 card = PokemonCardDef(
     guid="10a01069-b6e1-5953-9fb0-9c79adbf2e39",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
             title="Sludge Drag",
             game_text="Switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon. The new Defending Pok\u00e9mon is now Confused and Poisoned.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=_sludge_drag,
         ),
         Attack(
             title="Pester",

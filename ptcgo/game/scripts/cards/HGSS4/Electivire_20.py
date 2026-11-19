@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _thunder_shot(ctx):
+    for pokemon in ctx.opponent_pokemon_in_play():
+        if ctx.attached_energies(pokemon):
+            await ctx.deal_damage(50, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="d7154a85-52ee-515a-a394-0e3116815519",
     key="HGSS4",
@@ -31,7 +36,7 @@ card = PokemonCardDef(
             title="Thunder Shot",
             game_text="This attack does 50 damage to each of your opponent's Pok\u00e9mon that has any Energy cards attached to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 3},
-            effect=unimplemented,
+            effect=_thunder_shot,
         ),
     ],
 )

@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 card = PokemonCardDef(
     guid="941d228a-4942-578f-846a-1688d32555dd",
     key="HGSS3",
