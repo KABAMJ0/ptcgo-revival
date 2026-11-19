@@ -44,7 +44,7 @@ INTENTS: List[Tuple[str, str]] = [
 SIGNALS: Dict[str, str] = {
     "heal": r"heal|remove_damage|cure",
     "draw": r"draw",
-    "search": r"search",
+    "search": r"search|ctx\.deck|deck\(\)",
     "mill": r"mill|discard_from_top|deck_top|top_card",
     "discard": r"discard",
     "counters": r"counter",
@@ -54,7 +54,7 @@ SIGNALS: Dict[str, str] = {
     "switch": r"switch|gust|retreat",
     # a search helper shuffles as part of putting the card in hand, so the
     # "shuffle your deck" rider needs no separate signal
-    "shuffle": r"shuffle|search",
+    "shuffle": r"shuffle|search|bottom_of_deck",
     "prize": r"prize",
     "look": r"look|peek|top_card|reorder",
 }
