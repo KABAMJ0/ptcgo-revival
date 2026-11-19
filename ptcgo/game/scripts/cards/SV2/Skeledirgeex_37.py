@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="819d6db4-612e-521d-9fce-808c8df494cf",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Heal 30 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=50,
-            effect=unimplemented,
+            effect=heal_targets(30, scope="each_own"),
         ),
         Attack(
             title="Burning Voice",

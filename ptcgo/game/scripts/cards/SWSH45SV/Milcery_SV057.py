@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="892541b2-8ee9-5ba0-a39b-a9677169b3eb",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Aromatherapy",
             game_text="Heal 10 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(10, scope="each_own"),
         ),
         Attack(
             title="Tackle",

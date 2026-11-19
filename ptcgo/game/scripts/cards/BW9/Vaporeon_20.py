@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="15e420bd-2559-586b-b75e-18d02d213321",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Refreshing Rain",
             game_text="Heal 30 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(30, scope="each_own"),
         ),
         Attack(
             title="Gold Breaker",
