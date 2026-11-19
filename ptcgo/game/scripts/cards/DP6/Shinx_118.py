@@ -1,6 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _lightning_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 
 card = PokemonCardDef(
     guid="ee2f3acc-dc58-55cd-bed0-cc9782bfab3f",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             title="Recharge",
             game_text="Search your deck for a Lightning Energy card attach it to Shinx. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(_lightning_energy, count=1, to_self=True),
         ),
         Attack(
             title="Double Kick",

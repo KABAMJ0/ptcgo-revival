@@ -1,33 +1,36 @@
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.attributes import SpecialConditions
-from ptcgo.game.data_utils import Activations
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
-from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.data_utils import Activations
+from ptcgo.game.attributes import SpecialConditions, AttrID
+from ptcgo.game.session.effects import full_stack
+from ptcgo.game.session.passives import carrier_pokemon
 
 
-def _is_lightning_or_metal(card):
-    return (energy_provides_type(card, PokemonTypes.LIGHTNING.value)
-            or energy_provides_type(card, PokemonTypes.METAL.value))
-
-
-def _electric_trans_condition(board, player_id, pokemon):
-    return unafflicted(board, player_id, pokemon)         and can_move_energy(_is_lightning_or_metal)(board, player_id, pokemon)
+async def _electric_trans(ctx):
+    """Electric Trans: move Lightning/Metal Energy between your Pokemon."""
+    await ctx.move_energy_freely(
+        ctx.my_pokemon_in_play(), ctx.my_pokemon_in_play(),
+        predicate=lambda e: (energy_provides_type(e, PokemonTypes.LIGHTNING.value)
+                             or energy_provides_type(e, PokemonTypes.METAL.value)),
+        max_count=None, prompt="Choose a Lightning or Metal Energy")
 
 
 async def _cyber_shock(ctx):
+    """Cyber Shock: one Lightning and one Metal off Magnezone, then Paralyze."""
     await ctx.discard_energy_from(
-        ctx.attacker, 1, predicate=lambda card: energy_provides_type(
-            card, PokemonTypes.LIGHTNING.value),
-        prompt="Discard a Lightning Energy attached to Magnezone")
+        ctx.attacker, 1,
+        predicate=lambda e: energy_provides_type(e, PokemonTypes.LIGHTNING.value),
+        prompt="Discard a Lightning Energy")
     await ctx.discard_energy_from(
-        ctx.attacker, 1, predicate=lambda card: energy_provides_type(
-            card, PokemonTypes.METAL.value),
-        prompt="Discard a Metal Energy attached to Magnezone")
+        ctx.attacker, 1,
+        predicate=lambda e: energy_provides_type(e, PokemonTypes.METAL.value),
+        prompt="Discard a Metal Energy")
     await ctx.deal_damage()
-    await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
-
+    defender = ctx.defender
+    if defender is not None and not ctx.effects_blocked(defender):
+        await ctx.apply_special_condition(defender, SpecialConditions.PARALYZED)
 
 card = PokemonCardDef(
     guid="6d5fe875-7551-5ef8-b917-18078ccd2969",
@@ -50,10 +53,10 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Electric Trans",
-            condition=_electric_trans_condition,
-            activation=Activations.UNLIMITED,
             game_text="As often as you like during your turn (before your attack), you may move a Lightning or Metal Energy attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon. This power can't be used if Magnezone is affected by a Special Condition.",
-            effect=move_energy_between(predicate=_is_lightning_or_metal, count=1),
+                        activation=Activations.UNLIMITED,
+                        condition=lambda board, player_id, pokemon: not pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS),
+            effect=_electric_trans,
         ),
         Attack(
             title="Cyber Shock",

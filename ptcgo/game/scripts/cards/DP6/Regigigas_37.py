@@ -1,6 +1,16 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate, snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
+
+
+async def _gigaton_heads(ctx):
+    await ctx.deal_damage(80)
+    await snipe_attack(20, pool="bench", count=1)(ctx)
+
+
+async def _gigaton_tails(ctx):
+    await ctx.deal_damage(60)
 
 card = PokemonCardDef(
     guid="ae2ab9b6-fb0c-53cb-94d8-c5d6f5a6dfe3",
@@ -31,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(_gigaton_heads, tails=_gigaton_tails),
         ),
     ],
 )

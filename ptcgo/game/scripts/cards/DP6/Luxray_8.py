@@ -1,33 +1,44 @@
+from ptcgo.game.session.passives import carrier_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.data_utils import subtypes_for
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
-from ptcgo.game.card_effects.pokemon import is_lightning_energy
-from ptcgo.game.card_effects.passives_common import Passive, carrier_pokemon
-from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.passives_common import Passive, is_in_active_spot
+from ptcgo.game.data_utils import def_for
 
 
-def _is_level_up(pokemon):
-    return "Level-Up" in (subtypes_for(pokemon.archetype_id) or [])
+def _other_player(board, player_id):
+    """The other seat on this board."""
+    return next(pid for pid in (getattr(board, "player_ids", None) or [])
+                if pid != player_id)
+
+
+def _pokemon_in_play(board, player_id):
+    """Every top-level Pokemon a player has in the Active spot or on the Bench."""
+    out = []
+    for area_name in ("activePokemonArea", "bench"):
+        area = board.find_player_area(player_id, area_name)
+        out.extend(getattr(area, "children", []) or [])
+    return [p for p in out if p is not None]
+
+
+def _is_level_up(pokemon) -> bool:
+    """A Pokemon LV.X: its definition carries the Level-Up subtype."""
+    subtypes = getattr(def_for(getattr(pokemon, "archetype_id", "") or ""),
+                       "subtypes", None) or []
+    return any(str(s).lower().startswith("level") for s in subtypes)
 
 
 class _Rivalry(Passive):
-    """+50 to Luxray's attacks on the Active while the opponent has a LV.X."""
+    """+50 to the Active while the opponent has a Pokemon LV.X in play."""
 
     def modify_damage_dealt(self, calc, carrier):
         attacker = calc.attacker
         if not (calc.is_attack and calc.is_opposing and attacker is not None):
             return
-        if carrier_pokemon(carrier) is not attacker or not calc.to_active:
+        if attacker is not carrier_pokemon(carrier) or not calc.to_active:
             return
-        owner = attacker.owning_player_id
-        for player_id in calc.board.player_ids:
-            if player_id == owner:
-                continue
-            if any(_is_level_up(pokemon) for pokemon in calc.board.pokemon_in_play(player_id)):
-                calc.amount += 50
-                return
-
+        opponent = _other_player(calc.board, carrier.owning_player_id)
+        if any(_is_level_up(p) for p in _pokemon_in_play(calc.board, opponent)):
+            calc.amount += 50
 
 card = PokemonCardDef(
     guid="a63384ed-5e61-5191-a276-f2683beaf653",
@@ -58,14 +69,14 @@ card = PokemonCardDef(
             game_text="Search your discard pile for a Lightning Energy card and attach it to Luxray.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=attach_from_discard(predicate=is_lightning_energy, count=1, target="self"),
+            effect=unimplemented,
         ),
         Attack(
             title="Shock Bolt",
             game_text="Discard all Lightning Energy attached to Luxray.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
-            effect=self_energy_discard_attack(all_energy=True, energy_type=PokemonTypes.LIGHTNING),
+            effect=unimplemented,
         ),
     ],
 )

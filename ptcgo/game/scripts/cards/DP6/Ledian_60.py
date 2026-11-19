@@ -4,23 +4,16 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
 
 
-async def _baton_pass_move(ctx, new_active):
-    old = ctx.attacker
-    if old is None or old is new_active:
-        return
-    await ctx.move_energy_freely(
-        [old], [new_active], max_count=None,
-        prompt="Choose Energy to move to your new Active Pok\u00e9mon")
+async def _move_energy_to_new_active(ctx, new_active):
+    await ctx.move_energy_freely([ctx.attacker], [new_active], max_count=None,
+                                 prompt="Choose an Energy to move")
 
 
-async def _baton_pass_move(ctx, new_active):
-    old = ctx.attacker
-    if old is None or old is new_active:
-        return
-    await ctx.move_energy_freely(
-        [old], [new_active], max_count=None,
-        prompt="Choose Energy to move to your new Active Pok\u00e9mon")
-
+async def _baton_pass(ctx):
+    """Baton Pass: printed damage, then an optional switch that carries Energy."""
+    await ctx.deal_damage()
+    await switch_self_attack(damage=0, optional=True,
+                             then=_move_energy_to_new_active)(ctx)
 
 card = PokemonCardDef(
     guid="870af73b-8933-5c8a-84cd-6c8f47d0fb76",
@@ -54,7 +47,7 @@ card = PokemonCardDef(
             game_text="You may switch Ledian with 1 of your Benched Pok\u00e9mon. If you do, move as many Energy cards attached to Ledian as you like to the new Active Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 2},
             damage=50,
-            effect=switch_self_attack(optional=True, then=_baton_pass_move),
+            effect=_baton_pass,
         ),
     ],
 )

@@ -1,29 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.data_utils import def_for, subtypes_for
-
-
-def _lvx_in_play(ctx, name):
-    for pokemon in ctx.my_pokemon_in_play():
-        definition = def_for(pokemon.archetype_id)
-        if (getattr(definition, "display_name", "") or "").startswith(name) \
-                and "Level-Up" in (subtypes_for(pokemon.archetype_id) or []):
-            return True
-    return False
-
-
-async def _healing_look(ctx):
-    for pokemon in ctx.my_bench():
-        await ctx.heal(30, pokemon)
+from ptcgo.game.data_utils import def_for
 
 
 async def _supreme_blast(ctx):
-    if not (_lvx_in_play(ctx, "Uxie") and _lvx_in_play(ctx, "Azelf")):
+    """Supreme Blast: nothing without both LV.X partners in play."""
+    names = {_display_name(p) for p in ctx.my_pokemon_in_play()}
+    if not {"Uxie LV.X", "Azelf LV.X"} <= names:
         return
     await ctx.deal_damage()
-    await ctx.discard_energy_from(
-        ctx.attacker, 99, prompt="Discard all Energy attached to Mesprit")
+    if ctx.attacker is not None:
+        energies = list(ctx.attached_energies(ctx.attacker))
+        if energies:
+            await ctx.discard_cards(energies)
 
+
+def _display_name(entity) -> str:
+    """The printed name of a card on the board (empty when unknown)."""
+    return getattr(def_for(getattr(entity, "archetype_id", "") or ""),
+                   "display_name", "") or ""
 
 card = PokemonCardDef(
     guid="26eedc2b-7976-56d3-98b5-3359c8913236",
@@ -47,7 +42,7 @@ card = PokemonCardDef(
             title="Healing Look",
             game_text="Remove 3 damage counters from each of your Benched Pok\u00e9mon.",
             cost={},
-            effect=_healing_look,
+            effect=unimplemented,
         ),
         Attack(
             title="Supreme Blast",

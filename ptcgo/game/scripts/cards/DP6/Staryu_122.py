@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _recover(ctx):
+    """The repair only happens when an Energy card actually leaves Staryu."""
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1, prompt="Choose an Energy to discard from Staryu")
+    if not discarded:
+        return
+    await ctx.heal(30, ctx.attacker)
+
 card = PokemonCardDef(
     guid="cb4fd053-e92b-59bd-8f3c-1c7883e7b629",
     key="DP6",
@@ -22,7 +31,7 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard an Energy attached to Staryu and remove 3 damage counters from Staryu.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_recover,
         ),
         Attack(
             title="Spinning Attack",
