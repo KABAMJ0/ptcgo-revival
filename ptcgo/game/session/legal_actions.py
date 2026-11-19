@@ -165,6 +165,9 @@ class TurnState:
     # entity_id -> last turn number retreat stays locked ("the Defending
     # Pokemon can't retreat"); LOCK_UNTIL_LEAVES_ACTIVE = until it leaves.
     retreat_locks: Dict[str, int] = field(default_factory=dict)
+    # Retreat locks an ATTACK imposed, so "remove all effects of attacks"
+    # (Channeler) can release exactly those.
+    attack_retreat_locks: Set[str] = field(default_factory=set)
     # Turn-scoped attacker-side damage boosts (Power Tablet); pruned by
     # expires_after_turn each begin_turn (None = this turn only).
     damage_modifiers: List[Any] = field(default_factory=list)
@@ -307,6 +310,10 @@ class TurnState:
             pid: kept for pid, locks in self.play_locks.items()
             if (kept := [(p, exp) for p, exp in locks
                          if exp is None or exp >= self.turn_number])
+        }
+        self.attack_retreat_locks = {
+            eid for eid in self.attack_retreat_locks
+            if eid in self.retreat_locks
         }
         self.attach_restrictions = {
             eid: exp for eid, exp in self.attach_restrictions.items()

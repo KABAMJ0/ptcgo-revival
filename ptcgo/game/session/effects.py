@@ -696,6 +696,10 @@ class EffectContext:
                 continue
             kept.append(modifier)
         state.target_damage_modifiers = kept
+        for eid in [e for e in state.attack_retreat_locks if e in ids]:
+            state.retreat_locks.pop(eid, None)
+            state.attack_retreat_locks.discard(eid)
+            cleared += 1
         for key in [k for k in state.attack_locks if k[0] in ids]:
             state.attack_locks.pop(key, None)
             cleared += 1
@@ -888,6 +892,8 @@ class EffectContext:
         turn" (default); pass legal_actions.LOCK_UNTIL_LEAVES_ACTIVE to hold
         the lock until it leaves the Active spot."""
         self.session.turn_state.lock_retreat(target.entity_id, through_turn)
+        if self.is_attack_effect():
+            self.session.turn_state.attack_retreat_locks.add(target.entity_id)
 
     async def use_trainer_from_opponent_discard(
         self, prompt: str = "Choose a Trainer card to use"
