@@ -3,6 +3,22 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def recover(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1,
+        predicate=lambda card: energy_provides_type(card, PokemonTypes.WATER.value),
+        prompt="Discard 1 Water Energy card attached to Starmie")
+    if not discarded:
+        return
+    pokemon = ctx.attacker
+    missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+    if missing > 0:
+        await ctx.heal(missing, pokemon)
+
 card = PokemonCardDef(
     guid="f86d55d6-0653-5c9d-a7e9-e60b6b92d21a",
     key="BASE1",
@@ -25,7 +41,7 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard 1 Water Energy card attached to Starmie in order to use this attack. Remove all damage counters from Starmie.",
             cost={PokemonTypes.WATER: 2},
-            effect=unimplemented,
+            effect=recover,
         ),
         Attack(
             title="Star Freeze",

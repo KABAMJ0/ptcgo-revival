@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
+
 card = PokemonCardDef(
     guid="49d22aab-f2f0-5c93-8e8a-f843ed0d1794",
     key="BASE1",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(10, energy_type=PokemonTypes.WATER, cap=20),
         ),
     ],
 )
