@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.data_utils import Triggers
+
+
+async def earthen_awakening(ctx):
+    """Heal 20 from this Pokemon when an Energy card is attached to it."""
+    attached = getattr(ctx, "attached_energy", None)
+    if attached is None or ctx.energy_receiver is not ctx.source:
+        return
+    await ctx.heal(20, target=ctx.source)
 
 
 card = PokemonCardDef(
@@ -23,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Earthen Awakening",
             game_text="Whenever you attach an Energy card from your hand to this Pok\u00e9mon, heal 20 damage from it.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=earthen_awakening,
         ),
         Attack(
             title="Gigas Punch",

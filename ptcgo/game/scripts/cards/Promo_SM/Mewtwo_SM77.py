@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import active_vs_active_debuff_passive
 
 card = PokemonCardDef(
     guid="d8c8e45e-2215-57ba-b6b6-0045aac0a465",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Pressure",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Active Pok\u00e9mon's attack do 20 less damage (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=active_vs_active_debuff_passive(20),
         ),
         Attack(
             title="Super Psy Bolt",

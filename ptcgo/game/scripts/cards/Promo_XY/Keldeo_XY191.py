@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class JustifiedPassive(Passive):
+    """This Pokemon's own attacks do 50 more to the opponent's Darkness Pokemon."""
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if calc.attacker is not carrier_pokemon(carrier) or calc.target is None:
+            return
+        if PokemonTypes.DARKNESS.value in (calc.target.get_attribute(AttrID.POKEMON_TYPES) or []):
+            calc.amount += 50
+
 
 card = PokemonCardDef(
     guid="16fe273d-51d3-523c-a171-c577fc0d2584",
@@ -21,7 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Justified",
             game_text="This Pok\u00e9mon's attacks do 50 more damage to your opponent's Darkness Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=JustifiedPassive(),
         ),
         Attack(
             title="Sacred Sword",

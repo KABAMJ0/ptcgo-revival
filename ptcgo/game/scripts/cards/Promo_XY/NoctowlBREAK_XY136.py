@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+
+async def night_scan(ctx):
+    """Reveal the opponent's hand; 30 plus 30 for each Trainer card in it."""
+    from ptcgo.game.attributes import CardType
+    cards = await ctx.reveal_hand(ctx.opponent_id)
+    trainers = sum(1 for c in (cards or [])
+                   if c.get_attribute(AttrID.CARD_TYPE) == CardType.TRAINER.value)
+    await ctx.deal_damage(30 + 30 * trainers)
+
 
 card = PokemonCardDef(
     guid="04d44328-1750-5b76-bff9-bd42715bc00d",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=night_scan,
         ),
     ],
 )

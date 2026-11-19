@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_hand
+
+async def double_charge(ctx):
+    """Attach up to 2 basic Energy cards from hand to 1 of your Benched Pokemon."""
+    from ptcgo.game.card_effects.support_common import on_bench
+    from ptcgo.game.session.passives import is_basic_energy
+    await attach_from_hand(is_basic_energy, 2, target="choice", target_pred=on_bench,
+                           minimum=0,
+                           prompt="Choose up to 2 basic Energy cards")(ctx)
+
 
 card = PokemonCardDef(
     guid="c8471fcc-7d43-5ef5-92c0-7576dd85f850",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             game_text="You may attach up to 2 basic Energy cards from your hand to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=40,
-            effect=unimplemented,
+            effect=double_charge,
         ),
     ],
 )

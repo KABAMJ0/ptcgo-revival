@@ -1,6 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+
+async def golden_wing(ctx):
+    """If Knocked Out by an attack while Active: move up to 2 basic Energy cards
+    from this Pokemon to your Benched Pokemon in any way you like."""
+    from ptcgo.game.session.passives import is_basic_energy
+    energies = [e for e in ctx.attached_energies(ctx.source) if is_basic_energy(e)]
+    bench = list(ctx.my_bench())
+    if not energies or not bench:
+        return
+    picks = await ctx.choose_cards(energies, 2, prompt="Choose up to 2 basic Energy to move")
+    for card in picks or []:
+        target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon")
+        if target is None:
+            break
+        await ctx.attach_energy(card, target)
+
 
 card = PokemonCardDef(
     guid="e05a32cd-0060-560b-a9c1-81b8f736b66c",
@@ -23,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Golden Wing",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, move up to 2 basic Energy cards from this Pok\u00e9mon to your Benched Pok\u00e9mon in any way you like.",
-            effect=unimplemented,
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=golden_wing,
         ),
         Attack(
             title="Fire Blast",

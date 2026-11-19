@@ -3,6 +3,16 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+async def stormy_seas(ctx):
+    """Flip until tails; attach one Water Energy from the deck per heads."""
+    from ptcgo.game.card_effects.pokemon import is_basic_water_energy
+    heads = await ctx.flip_until_tails("Stormy Seas")
+    if heads <= 0:
+        return
+    await search_attach_energy(is_basic_water_energy, heads, to_self=True)(ctx)
+
 
 card = PokemonCardDef(
     guid="ea29d0d5-73c7-5c7d-85c5-d22cf39d41bd",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             title="Stormy Seas",
             game_text="Flips a coin until you get tails. For each heads, search your deck for a Water Energy card and attach it to this Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=stormy_seas,
         ),
         Attack(
             title="Splash Burn",

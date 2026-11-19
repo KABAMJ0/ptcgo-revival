@@ -2,6 +2,21 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
+from ptcgo.game.card_effects.passives_common import attack_grant_passive, is_in_active_spot
+
+def _opponent_active_sources(board, pokemon, carrier):
+    """The opponent's Active Pokemon, whose printed attacks this may use.
+
+    The board hands no session here, so walk its entity cache for the opposing
+    Pokemon whose parent area is the Active spot."""
+    from ptcgo.game.models.board import PokemonEntity
+    mine = pokemon.owning_player_id
+    for entity in list(getattr(board, "_entity_cache", {}).values()):
+        if (isinstance(entity, PokemonEntity) and entity.owning_player_id != mine
+                and is_in_active_spot(entity)):
+            return [entity]
+    return []
+
 
 card = PokemonCardDef(
     guid="ad9d7205-fd76-5fda-80c2-6f9cddae0abe",
@@ -23,7 +38,7 @@ card = PokemonCardDef(
         Ability(
             title="Metamorphosis Gene",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon, it can use the attacks of your opponent's Active Pok\u00e9mon. (You still need the necessary Energy to use each attack.)",
-            effect=unimplemented,
+            passive=attack_grant_passive(_opponent_active_sources),
         ),
         Attack(
             title="Stick On",

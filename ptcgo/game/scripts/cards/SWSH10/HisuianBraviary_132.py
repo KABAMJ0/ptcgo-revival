@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 
+async def slashing_strike(ctx):
+    """Printed damage, then this attack is locked through the user's next turn."""
+    await ctx.deal_damage()
+    ability = ctx.ability
+    if ctx.attacker is not None and ability is not None and ability.ability_id:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ability.ability_id)
+
 card = PokemonCardDef(
     guid="1db0cd12-3529-52fe-998e-eb88e1bcf668",
     key="SWSH10",
@@ -35,6 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
             locks_next_turn=True,
+            effect=slashing_strike,
         ),
     ],
 )

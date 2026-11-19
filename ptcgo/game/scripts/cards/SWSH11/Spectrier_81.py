@@ -15,6 +15,14 @@ async def night_footsteps(ctx):
         await ctx.deal_damage(20, target=target, apply_modifiers=False, as_counters=True)
 
 
+async def phantom_strike(ctx):
+    """Printed damage, then this attack is locked through the user's next turn."""
+    await ctx.deal_damage()
+    ability = ctx.ability
+    if ctx.attacker is not None and ability is not None and ability.ability_id:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ability.ability_id)
+
 card = PokemonCardDef(
     guid="6876c033-5158-5bb9-b7fd-51b525cb65b1",
     key="SWSH11",
@@ -45,6 +53,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
             locks_next_turn=True,
+            effect=phantom_strike,
         ),
     ],
 )

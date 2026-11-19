@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _bullet_uppercut(ctx):
+    """Printed 10, +60 against a GX or EX; the damage ignores effects on the
+    opponent's Active."""
+    from ptcgo.game.card_effects.pokemon import is_pokemon_gx, is_pokemon_EX
+    target = ctx.defender
+    is_gx = target is not None and (is_pokemon_gx(target.archetype_id)
+                                    or is_pokemon_EX(target.archetype_id))
+    bonus = 60 if is_gx else 0
+    await ctx.deal_damage(10 + bonus, ignore_target_effects=True)
+
+
 card = PokemonCardDef(
     guid="48930db6-53ac-50f4-a169-0e798737cd29",
     key="Promo_SM",
@@ -26,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True, damage=None) if False else _bullet_uppercut,
         ),
         Attack(
             title="Swift Bolt Strike",

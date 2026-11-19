@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def peerless_hundred_blows(ctx):
+    """50 damage for each basic Energy card attached to this Pokemon."""
+    from ptcgo.game.session.passives import is_basic_energy
+    basic = [e for e in ctx.attached_energies(ctx.attacker) if is_basic_energy(e)]
+    await ctx.deal_damage(50 * len(basic))
+
+
 card = PokemonCardDef(
     guid="642dfe81-6a0b-52e2-a9b4-eb392c885693",
     key="Promo_SM",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=peerless_hundred_blows,
         ),
     ],
 )

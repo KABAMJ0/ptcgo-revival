@@ -1,12 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.data_utils import is_pokemon_v
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
-from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
-from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+
+def _energy_on_both_actives(ctx):
+    total = 0
+    for pokemon in (ctx.attacker, ctx.defender):
+        if pokemon is not None:
+            total += len(ctx.attached_energies(pokemon))
+    return total
+
 
 async def axe_break(ctx):
-    """120 damage; also 60 to 1 opposing Benched Pokemon V (no W/R)."""
+    """190 damage; also 60 to 1 opposing Benched Pokemon V (no W/R)."""
     await ctx.deal_damage()
     bench = [p for p in ctx.opponent_bench() if is_pokemon_v(p.archetype_id)]
     if bench:
@@ -49,7 +55,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_energy_on_both_actives, 60),
         ),
     ],
 )

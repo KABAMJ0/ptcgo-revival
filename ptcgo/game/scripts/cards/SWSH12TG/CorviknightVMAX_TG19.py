@@ -10,6 +10,14 @@ class LustrousBodyPassive(Passive):
         return target is carrier_pokemon(carrier)
 
 
+async def gmax_hurricane(ctx):
+    """Printed damage, then this attack is locked through the user's next turn."""
+    await ctx.deal_damage()
+    ability = ctx.ability
+    if ctx.attacker is not None and ability is not None and ability.ability_id:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ability.ability_id)
+
 card = PokemonCardDef(
     guid="39bbdcf8-5d31-50f2-80fd-cb3a24e09360",
     key="SWSH12TG",
@@ -40,6 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=240,
             locks_next_turn=True,
+            effect=gmax_hurricane,
         ),
     ],
 )

@@ -3,11 +3,17 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retreat_free_when
 
 async def _heal_own_bench(ctx):
     await ctx.deal_damage()
     for pokemon in ctx.my_bench():
         await ctx.heal(30, pokemon)
+
+
+def _is_latios(pokemon, carrier=None):
+    from ptcgo.game.data_utils import def_for
+    return (getattr(def_for(pokemon.archetype_id), "display_name", "") or "").startswith("Latios")
 
 
 card = PokemonCardDef(
@@ -30,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Flight Support",
             game_text="Your Latios in play have no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_is_latios),
         ),
         Attack(
             title="Misty Gale",

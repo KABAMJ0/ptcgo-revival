@@ -2,11 +2,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for,
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import _play_kind_predicate
 
 
 def _is_benched_gx_or_ex(pokemon) -> bool:
     subtypes = subtypes_for(pokemon.archetype_id)
     return ("GX" in subtypes or "EX" in subtypes) and not is_in_active_spot(pokemon)
+
+async def dark_moon(ctx):
+    """Printed damage, then the opponent can't play Trainer cards next turn."""
+    await ctx.deal_damage()
+    ctx.lock_plays(ctx.opponent_id,
+                   _play_kind_predicate(("trainer",)))
+
 
 card = PokemonCardDef(
     guid="f0cf1d7a-3447-5f4e-a03f-5b16a51f091b",
@@ -37,7 +46,7 @@ card = PokemonCardDef(
             title="Dark Moon-GX",
             game_text="Your opponent can't play any Trainer cards from their hand during their next turn. If this Pok\u00e9mon has at least 5 extra Darkness Energy attached to it (in addition to this attack's cost), your opponent's Active Pok\u00e9mon is Knocked Out. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=dark_moon,
         ),
     ],
 )

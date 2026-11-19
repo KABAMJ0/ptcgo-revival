@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import discard_from_hand_then
+
+def _any_card(card):
+    return True
+
+
+async def _pay_printed(ctx):
+    await ctx.deal_damage()
+
 
 card = PokemonCardDef(
     guid="04ee1c3c-f304-53ab-891e-c55b8646dfcf",
@@ -33,7 +42,7 @@ card = PokemonCardDef(
             game_text="Discard a card from your hand. If you can't discard a card, this attack does nothing.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=discard_from_hand_then(_any_card, 1, _pay_printed, prompt="Discard a card from your hand"),
         ),
     ],
 )

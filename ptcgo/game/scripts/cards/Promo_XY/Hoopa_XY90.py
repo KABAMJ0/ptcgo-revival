@@ -1,6 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def summoning_draw(ctx):
+    """Draw 3 cards if Pikachu is on your Bench (the whole attack, no damage)."""
+    if not named_in_play("Pikachu")(ctx):
+        return
+    await ctx.draw_cards(3)
+
 
 card = PokemonCardDef(
     guid="83338d69-3f72-59c7-9403-0f795cea3be9",
@@ -23,7 +31,7 @@ card = PokemonCardDef(
             title="Summoning Draw",
             game_text="If Pikachu is on your Bench, draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=summoning_draw,
         ),
         Attack(
             title="Double Spin",

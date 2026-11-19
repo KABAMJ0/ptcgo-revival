@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def solar_plant(ctx):
+    """50 (no W/R) to each opposing Pokemon; with 2 extra Energy, heal every one
+    of your Pokemon to full."""
+    from ptcgo.game.card_effects.attacks_common import extra_energy_attached
+    for pokemon in list(ctx.opponent_pokemon_in_play()):
+        await ctx.deal_damage(50, target=pokemon, apply_modifiers=False)
+    if extra_energy_attached(2)(ctx):
+        for pokemon in ctx.my_pokemon_in_play():
+            await ctx.heal(999, target=pokemon)
+
+
 card = PokemonCardDef(
     guid="b7d1166c-3630-5ca9-8770-8eec68c5d4f2",
     key="Promo_SM",
@@ -32,7 +43,7 @@ card = PokemonCardDef(
             title="Solar Plant-GX",
             game_text="This attack does 50 damage to each of your opponent's Pok\u00e9mon. If this Pok\u00e9mon has at least 2 extra Energy attached to it (in addition to this attack's cost), heal all damage from all of your Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=solar_plant,
         ),
     ],
 )

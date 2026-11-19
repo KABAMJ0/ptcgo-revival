@@ -2,6 +2,16 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def overspark(ctx):
+    """Discard all Lightning Energy from this Pokemon; 50 damage per card."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 99,
+        predicate=lambda c: energy_provides_type(c, PokemonTypes.LIGHTNING.value),
+        prompt="Choose Lightning Energy to discard")
+    await ctx.deal_damage(50 * len(discarded))
+
+
 card = PokemonCardDef(
     guid="c8d3348f-6acc-51a2-a039-04ec2a651617",
     key="Promo_XY",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=overspark,
         ),
     ],
 )

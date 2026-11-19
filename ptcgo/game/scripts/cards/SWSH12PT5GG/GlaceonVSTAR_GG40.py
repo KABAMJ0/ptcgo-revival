@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="e3f1d4a3-2beb-5a7d-80ef-8db609327ab9",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage from and effects of attacks done to this Pok\u00e9mon. (You can't use more than 1 VSTAR Power in a game.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=220,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, effects_too=True),
         ),
     ],
 )

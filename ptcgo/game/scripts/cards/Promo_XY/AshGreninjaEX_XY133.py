@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def dancing_shuriken(ctx):
+    """Flip 3 coins; 20 damage per heads to 1 of the opponent's Pokemon."""
+    results = await ctx.flip_coins(3, "Dancing Shuriken")
+    heads = sum(1 for r in results if r)
+    if heads <= 0:
+        return
+    pool = ctx.opponent_pokemon_in_play()
+    if not pool:
+        return
+    target = await ctx.choose_pokemon(pool, "Choose 1 of your opponent's Pokemon")
+    if target is not None:
+        await ctx.deal_damage(20 * heads, target=target, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="8d76a55a-dd34-5d5a-9b85-f6860b1a9bbf",
     key="Promo_XY",
@@ -22,7 +36,7 @@ card = PokemonCardDef(
             title="Dancing Shuriken",
             game_text="Flip 3 coins. This attack does 20 damage times the number of heads to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=dancing_shuriken,
         ),
         Attack(
             title="Ninja Blade",

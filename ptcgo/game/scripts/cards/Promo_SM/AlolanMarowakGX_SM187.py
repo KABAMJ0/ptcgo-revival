@@ -1,6 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+async def lost_boomerang(ctx):
+    """50 damage to 2 of the opponent's Pokemon, ignoring Weakness and
+    Resistance."""
+    await snipe_attack(50, pool="any", count=2, apply_modifiers=False,
+                       prompt="Choose up to 2 of your opponent's Pokemon")(ctx)
+
 
 card = PokemonCardDef(
     guid="a1cfff77-c983-535d-a7c0-adc034013271",
@@ -36,7 +44,7 @@ card = PokemonCardDef(
             title="Lost Boomerang-GX",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. This damage isn't affected by Weakness or Resistance. If a Pok\u00e9mon is Knocked Out by this damage, put that Pok\u00e9mon and all cards attached to it in the Lost Zone instead of the discard pile. (You can't use more than 1 GX attack in a game.)",
             cost={},
-            effect=unimplemented,
+            effect=lost_boomerang,
         ),
     ],
 )

@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, AttrID, PokemonStage, Rarities
+
+async def torpedo_dive(ctx):
+    """10 damage to each opposing Benched Pokemon for each Colorless in ITS
+    Retreat Cost."""
+    for pokemon in list(ctx.opponent_bench()):
+        # printed retreat cost lives on the entity's RETREAT_COST attribute,
+        # not on the definition object
+        colorless = pokemon.get_attribute(AttrID.RETREAT_COST) or 0
+        if colorless:
+            await ctx.deal_damage(10 * colorless, target=pokemon, apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="0c8ced55-2ccd-5bce-864c-a1639121cf33",
@@ -24,7 +35,7 @@ card = PokemonCardDef(
             game_text="This attack does 10 damage to each of your opponent's Benched Pok\u00e9mon for each Colorless in that Pok\u00e9mon's Retreat Cost. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=torpedo_dive,
         ),
     ],
 )

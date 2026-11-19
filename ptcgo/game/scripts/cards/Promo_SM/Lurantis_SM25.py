@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.attributes import AttrID
+
+def _grass_or_fire(pokemon):
+    types = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+    return PokemonTypes.GRASS.value in types or PokemonTypes.FIRE.value in types
+
 
 card = PokemonCardDef(
     guid="3aec109c-047e-5da6-bf5f-01076b00bafc",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Sunny Day",
             game_text="The attacks of your Grass Pok\u00e9mon and Fire Pok\u00e9mon do 20 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(20, attacker_pred=_grass_or_fire),
         ),
         Attack(
             title="Solar Beam",

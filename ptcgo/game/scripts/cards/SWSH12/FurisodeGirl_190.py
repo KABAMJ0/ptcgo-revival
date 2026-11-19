@@ -13,5 +13,5 @@ card = SupporterCardDef(
     set_code="SWSH12",
     rarity=Rarities.RareUltra,
     effect=furisode_girl,
-    condition=bench_has_room
+    condition=bench_has_room()
 )
