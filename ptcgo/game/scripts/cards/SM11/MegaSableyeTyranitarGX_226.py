@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _extra_prize(ctx):
+    """The opponent takes 1 more Prize card(s) if this attack Knocks Out their Active."""
+    ctx.add_extra_prize_watcher(prizes=1)
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="94f5c6e6-6959-5f26-8a46-9d132f13a161",
     key="SM11",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Pok\u00e9mon-GX or Pok\u00e9mon-EX is Knocked Out by damage from this attack, take 1 more Prize card.",
             cost={PokemonTypes.DARKNESS: 4, PokemonTypes.COLORLESS: 1},
             damage=210,
-            effect=unimplemented,
+            effect=_extra_prize,
         ),
         Attack(
             title="Gigafall-GX",

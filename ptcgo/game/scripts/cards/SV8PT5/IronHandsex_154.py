@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _extra_prize(ctx):
+    """The opponent takes 1 more Prize card(s) if this attack Knocks Out their Active."""
+    ctx.add_extra_prize_watcher(prizes=1)
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="f2b578f9-3e8d-5381-875c-2c7e33bf2995",
     key="SV8PT5",
@@ -27,7 +33,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Pok\u00e9mon is Knocked Out by damage from this attack, take 1 more Prize card.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=_extra_prize,
         ),
     ],
 )
