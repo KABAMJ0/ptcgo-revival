@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="dbe89f52-c486-5c35-911e-0b473c4e51f3",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Trade",
             game_text="You must discard a card from your hand in order to use this Ability. Once during your turn, you may draw 2 cards.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=discard_then_draw(1, 2),
         ),
         Attack(
             title="Night Joker",
