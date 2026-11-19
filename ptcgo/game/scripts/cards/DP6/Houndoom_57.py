@@ -1,5 +1,33 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import RetaliateCountersPassive, Passive
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.session.passives import carrier_pokemon
+
+
+def _bench_count(board, player_id) -> int:
+    area = board.find_player_area(player_id, "bench")
+    return len(getattr(area, "children", []) or [])
+
+
+def _other_player(board, player_id):
+    return next(pid for pid in (getattr(board, "player_ids", None) or [])
+                if pid != player_id)
+
+
+class _RevengeFang(Passive):
+    """+40 to the Active while Houndoom's owner has fewer Benched Pokemon."""
+
+    def modify_damage_dealt(self, calc, carrier):
+        attacker = calc.attacker
+        if not (calc.is_attack and calc.is_opposing and attacker is not None):
+            return
+        if attacker is not carrier_pokemon(carrier) or not calc.to_active:
+            return
+        mine = _bench_count(calc.board, carrier.owning_player_id)
+        theirs = _bench_count(calc.board, _other_player(calc.board, carrier.owning_player_id))
+        if mine < theirs:
+            calc.amount += 40
 
 card = PokemonCardDef(
     guid="13aa6d13-62b6-5b6d-99cc-cd127aaa1b81",
@@ -22,7 +50,7 @@ card = PokemonCardDef(
         Ability(
             title="Revenge Fang",
             game_text="If you have less Benched Pok\u00e9mon than your opponent, each of Houndoom's attacks does 40 more damage to the Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=_RevengeFang(),
         ),
         Attack(
             title="Burning Sensation",

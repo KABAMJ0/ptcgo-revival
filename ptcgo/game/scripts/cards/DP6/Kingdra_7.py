@@ -1,5 +1,40 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_water_energy
+
+
+async def _aqua_stream(ctx):
+    """Aqua Stream: 10 per Water Energy pulled from the discard, back on top."""
+    pile = [c for c in ctx.discard_pile() if is_water_energy(c)]
+    chosen = []
+    if pile:
+        chosen = await ctx.choose_cards(
+            pile, len(pile), minimum=0,
+            prompt="Choose any number of Water Energy cards")
+    if chosen:
+        await ctx.reveal_cards(chosen, to_player=ctx.opponent_id)
+    await ctx.deal_damage(10 * len(chosen))
+    for card in chosen:
+        await ctx.put_on_top_of_deck(card)
+    await ctx.shuffle_deck()
+
+
+async def _dragon_pump(ctx):
+    """Dragon Pump: discard 2 for +20 here and 20 on a Benched Pokemon."""
+    discarded = []
+    hand = list(ctx.hand())
+    if len(hand) >= 2 and await ctx.ask_yes_no("Discard 2 cards from your hand?"):
+        discarded = await ctx.choose_cards(hand, 2, prompt="Choose 2 cards to discard")
+    if len(discarded) < 2:
+        await ctx.deal_damage()
+        return
+    await ctx.discard_cards(discarded)
+    await ctx.deal_damage(60)
+    bench = ctx.opponent_bench()
+    if bench:
+        target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon")
+        if target is not None:
+            await ctx.deal_damage(20, target=target, apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="0567474d-c7bf-55fa-8d4a-ebcd474e98e0",
@@ -25,7 +60,7 @@ card = PokemonCardDef(
             cost={},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_aqua_stream,
         ),
         Attack(
             title="Dragon Pump",
@@ -33,7 +68,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_dragon_pump,
         ),
     ],
 )

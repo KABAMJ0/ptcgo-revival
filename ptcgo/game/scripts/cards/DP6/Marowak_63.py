@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _heavy_bone(ctx):
+    """Heavy Bone: printed damage; tails locks this attack for the next turn."""
+    await ctx.deal_damage()
+    heads = await ctx.flip_coins(1, "Heavy Bone")
+    if heads and all(heads):
+        return
+    if ctx.attacker is not None:
+        ctx.session.turn_state.lock_attack(
+            ctx.attacker.entity_id, ctx.ability.ability_id)
+
 card = PokemonCardDef(
     guid="45eb3332-deda-54f2-a10f-6970b07493a2",
     key="DP6",
@@ -26,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, Marowak can't use Heavy Bone during your next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=_heavy_bone,
         ),
         Attack(
             title="Bone Rush",

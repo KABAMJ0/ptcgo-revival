@@ -1,6 +1,27 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.session.effects import full_stack
+
+
+async def _psychic_restore(ctx):
+    """Psychic Restore: may tuck Uxie and its whole stack under the deck."""
+    await ctx.deal_damage()
+    if not await ctx.ask_yes_no(
+            "Put Uxie and all cards attached to it on the bottom of your deck?"):
+        return
+    pokemon = ctx.attacker
+    if pokemon is None:
+        return
+    was_active = pokemon is ctx.my_active()
+    stack = full_stack(pokemon)
+    deck = ctx.board.find_player_area(ctx.player_id, "deck")
+    for card in stack:
+        ctx.board.move_card(card.entity_id, deck.entity_id)
+    for card in stack:
+        await ctx.shuffle_deck_below(card)
+    if was_active:
+        await ctx.session._promote_new_active(ctx.player_id)
 
 card = PokemonCardDef(
     guid="60517751-4494-5c78-9ecb-ecd98ce303ce",
@@ -30,7 +51,7 @@ card = PokemonCardDef(
             game_text="You may put Uxie and all cards attached to it on the bottom of your deck in any order.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_psychic_restore,
         ),
     ],
 )

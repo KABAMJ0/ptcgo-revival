@@ -1,6 +1,22 @@
 from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _energy_reaction(ctx):
+    """Energy Reaction: Grass on attach Asleep, Psychic on attach Poisoned."""
+    energy = ctx.attached_energy
+    defender = ctx.defender
+    if energy is None or defender is None or ctx.effects_blocked(defender):
+        return
+    if energy_provides_type(energy, PokemonTypes.GRASS.value):
+        await ctx.apply_special_condition(defender, SpecialConditions.ASLEEP)
+    elif energy_provides_type(energy, PokemonTypes.PSYCHIC.value):
+        await ctx.apply_special_condition(defender, SpecialConditions.POISONED)
 
 card = PokemonCardDef(
     guid="4661bca6-364d-579d-8c3b-108dea4f541a",
@@ -23,7 +39,9 @@ card = PokemonCardDef(
         Ability(
             title="Energy Reaction",
             game_text="Once during your turn (before your attack), when you attach a Grass or Psychic Energy card from your hand to Vileplume (excluding effects of attacks or Pok\u00e9-Powers), you may use this power. If you attach a Grass Energy card, the Defending Pok\u00e9mon is now Asleep. If you attach a Psychic Energy card, the Defending Pok\u00e9mon is now Poisoned. This power can't be used if Vileplume is affected by a Special Condition.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS),
+            effect=_energy_reaction,
         ),
         Attack(
             title="Disturbing Pollen",
