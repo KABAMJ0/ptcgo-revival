@@ -155,6 +155,68 @@ def search_attach_energy(predicate=is_energy, count=1, to_self=False,
     return effect
 
 
+def swap_with_named(name: Optional[str] = None, predicate=None,
+                    destination: str = "deck", then=None):
+    """"Search your deck for another <name> and switch it with <name>" (Ditto's
+    Sudden Transformation): the deck copy takes the exact board spot with
+    everything attached, and the outgoing card goes to `destination` -- "deck"
+    is the bottom of the deck, the printed wording's pile.
+
+    `name` defaults to the source Pokemon's own display name; `then(ctx, new)`
+    gets the Pokémon now in play."""
+    async def effect(ctx):
+        source = ctx.attacker if ctx.attacker is not None else ctx.source
+        if source is None or not isinstance(source, PokemonEntity):
+            return None
+        wanted = (name or "").strip().lower()
+
+        def matches(card) -> bool:
+            if predicate is not None:
+                return predicate(card)
+            definition = def_for(getattr(card, "archetype_id", "") or "")
+            return bool(wanted) and (getattr(definition, "display_name", "") or "").strip().lower() == wanted
+
+        found = await ctx.search_deck(matches, count=1, minimum=0,
+                                      prompt=f"Search your deck for another {name or 'copy'}")
+        if not found:
+            return None
+        incoming = found[0]
+        swapped = await ctx.identity_swap(source, incoming, destination=destination)
+        if swapped and then is not None:
+            await then(ctx, incoming)
+        return incoming if swapped else None
+    return effect
+
+
+def trigger_counters(counters: int = 1, pred=None):
+    """"Whenever any player puts a Basic Pokemon onto their Bench / plays a
+    Pokemon to evolve / attaches an Energy, put N damage counters on that
+    Pokemon" -- a Stadium trigger body. Reads whichever entity the trigger is
+    about (benched_pokemon, evolved_pokemon or energy_receiver) and takes
+    `pred(pokemon, ctx)` for the type/stage gates."""
+    async def effect(ctx):
+        pokemon = (getattr(ctx, "benched_pokemon", None)
+                   or getattr(ctx, "evolved_pokemon", None)
+                   or getattr(ctx, "energy_receiver", None))
+        if pokemon is None or pred is not None and not pred(pokemon, ctx):
+            return
+        await ctx.deal_damage(counters * 10, target=pokemon, as_counters=True)
+    return effect
+
+
+def counters_each_in_play(counters: int = 1, pred=None):
+    """"Between turns, put N damage counters on each <matching> Pokemon in
+    play (both sides)" -- Shrine of Punishment, Faded Town."""
+    async def effect(ctx):
+        targets = [p for pid in (ctx.player_id, ctx.opponent_id)
+                   for p in ctx.session.board_state.pokemon_in_play(pid)]
+        for pokemon in targets:
+            if pred is not None and not pred(pokemon):
+                continue
+            await ctx.deal_damage(counters * 10, target=pokemon, as_counters=True)
+    return effect
+
+
 def bare_mill(count: int = 3, opponent: bool = True, then=None, predicate=None):
     """"Discard the top N cards of your opponent's deck" with no damage step,
     for the ability and Trainer printings of the same wording (mill_attack is
@@ -901,12 +963,14 @@ def _energy_pool(ctx, name, predicate=None):
 
 def move_energy_between(predicate=None, count=1, from_pool="any", to_pool="any",
                         source_pred=None, then=None,
-                        prompt="Choose an Energy to move"):
+                        prompt="Choose an Energy to move", to_pred=None):
     """"Move [up to N] Energy card(s) attached to <one of your Pokemon> to
     another of your Pokemon" (Sceptile, Simisear, Team Rocket's Energy).
 
     Pools are "any" (every Pokemon in play), "bench" or "active"; the holder is
-    never offered as its own destination. `count=None` allows any number."""
+    never offered as its own destination. `count=None` allows any number, and
+    `to_pred(pokemon, ctx)` narrows which Pokemon may receive it (Misty's Water
+    Command: "to your Active Pokemon")."""
     predicate = predicate or is_energy_card
 
     async def effect(ctx):
@@ -916,7 +980,8 @@ def move_energy_between(predicate=None, count=1, from_pool="any", to_pool="any",
                     if predicate(energy)]
         if not energies:
             return
-        destinations = _energy_pool(ctx, to_pool)
+        destinations = [p for p in _energy_pool(ctx, to_pool)
+                        if to_pred is None or to_pred(p, ctx)]
         if not destinations or (len(destinations) == 1 and destinations[0] is sources[0]
                                 and len(sources) == 1):
             return

@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import suppress_all_tools
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=153,
     set_code="SV6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=suppress_all_tools()
 )

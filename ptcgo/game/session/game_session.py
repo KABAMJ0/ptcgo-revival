@@ -130,7 +130,7 @@ from .passives import (
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
     carrier_pokemon,
     stadium_face, stadium_play_voided,
-    bench_trim_area, sleep_recovery_coins,
+    bench_trim_area, sleep_recovery_coins, trainer_play_cost,
     effective_bench_capacity, effective_max_hp,
     conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
     retreat_flips,
@@ -4388,6 +4388,7 @@ class GameSession:
         if not self.board_state.attach_card(card.entity_id, target_id):
             return
         self.turn_state.energy_attached = True
+        self.turn_state.energy_attaches_used += 1
         self.stat_add(player_id, "energyplayed")
         logging.info(
             f"[Session {self.game_id}] {self.players[player_id].screen_name} "
@@ -5127,6 +5128,9 @@ class GameSession:
         if isinstance(outgoing, CompositePokemonEntity)                 or isinstance(incoming, (ComponentCardEntity, CompositePokemonEntity)):
             return None
         source_area = incoming._containing_area_name()
+        # destination_name "deck" is the bottom of the owner's deck (Ditto's
+        # "put the first Ditto on the bottom of your deck"), which is an area
+        # like the others -- appending puts it underneath.
         dest = self.board_state.find_player_area(owner_id, destination_name)
         out_of_play = self.board_state.find_global_area("outOfPlay")
         if dest is None or out_of_play is None or source_area is None:
@@ -5233,11 +5237,17 @@ class GameSession:
         discard_area = self.board_state.find_player_area(player_id, "discard")
         if not trainer_area or not discard_area:
             return False
+        # "Discard 2 of the other cards in your hand in order to play this
+        # card" is paid BEFORE the card leaves the hand, so a declined or
+        # impossible cost cancels the play and leaves the card in hand.
+        if not await self._pay_trainer_play_cost(player_id, card):
+            return False
         if not self.board_state.move_card(card.entity_id, trainer_area.entity_id):
             return False
         card.owning_player_id = player_id  # global area move clears the owner
         if card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value:
             self.turn_state.supporter_played = True
+            self.turn_state.supporters_played += 1
         self._record_trainer_played(card)
         self.stat_add(player_id, "trainersplayed")
 
@@ -5466,6 +5476,34 @@ class GameSession:
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
 
+    async def _pay_trainer_play_cost(self, player_id, card) -> bool:
+        """Discards the trainer's play cost (its printed `play_cost` plus any a
+        passive charges) from the hand; False cancels the play."""
+        cost = trainer_play_cost(self.board_state, card, player_id)
+        if not cost:
+            return True
+        hand = self.board_state.find_player_area(player_id, "hand")
+        others = [c for c in (hand.children if hand else []) if c is not card]
+        if len(others) < cost:
+            logging.info(
+                f"[Session {self.game_id}] {card.entity_id} not played: "
+                f"{cost} other hand cards are required."
+            )
+            return False
+        ctx = EffectContext(self, player_id, card, None)
+        picks = await ctx.choose_cards(
+            others, cost, minimum=cost,
+            prompt="Choose cards to discard as this card's play cost")
+        if len(picks) < cost:
+            logging.info(
+                f"[Session {self.game_id}] {card.entity_id} not played: "
+                f"the play cost was declined."
+            )
+            return False
+        await ctx.discard_cards(picks)
+        await self._flush_effect_runs(ctx)
+        return True
+
     async def _void_stadium_play(self, player_id, card, existing):
         """Chaotic Swell: the Stadium being played and the one in play are both
         discarded, so the new Stadium has no effect at all."""
@@ -5573,6 +5611,15 @@ class GameSession:
             self.turn_state.consume_attack_cost_waiver(card, ability.title)
 
         ctx = await resolve_attack(self, player_id, card, ability, action_id)
+        # Stadium riders keyed on the attacker run after the attack resolves
+        # (Vermilion City Gym's Lt. Surge flip); their damage is its own step,
+        # so it lands after Weakness and Resistance like the printed wording.
+        rider_ctx = EffectContext(self, player_id, card, None)
+        defender = self.board_state.active_pokemon(self._opponent_id(player_id))
+        for passive, carrier in active_passives(self.board_state):
+            await passive.on_attack_resolved(rider_ctx, card, defender, carrier)
+        await self._flush_effect_runs(rider_ctx)
+        await self.resolve_knockouts(rider_ctx)
         # Effects like Aqua Return can remove the attacker itself from play.
         for pid in list(self.players.keys()):
             if self.board_state.active_pokemon(pid) is None \
