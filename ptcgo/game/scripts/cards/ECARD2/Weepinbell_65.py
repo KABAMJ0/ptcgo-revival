@@ -1,4 +1,12 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_hand
 from ptcgo.game.card_effects.attacks_common import flip_damage
+
+
+def _is_grass_energy(card):
+    return is_basic_energy_card(card) and energy_provides_type(card, PokemonTypes.GRASS.value)
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
@@ -25,7 +33,7 @@ card = PokemonCardDef(
             title="Growth",
             game_text="Attach up to 2 Grass Energy cards from your hand to Weepinbell.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(_is_grass_energy, count=2, target="self"),
         ),
         Attack(
             title="Double Razor Leaf",

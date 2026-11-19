@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.pokemon import is_pokemon_card
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import recover_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +25,9 @@ card = PokemonCardDef(
             title="Fishing Tail",
             game_text="Search your discard pile for a Baby Pok\u00e9mon, Basic Pok\u00e9mon, Evolution card, or basic Energy card, show it to your opponent, and then put it into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(lambda card: is_pokemon_card(card) or is_basic_energy_card(card),
+                                 count=1, reveal=True, to="hand",
+                                 prompt="Choose a card from your discard pile"),
         ),
         Attack(
             title="Bite",
