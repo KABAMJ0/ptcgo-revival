@@ -1,6 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
+async def purple_ray(ctx):
+    """Both Active Pokemon are now Confused."""
+    for pokemon in (ctx.my_active(), ctx.opponent_active()):
+        if pokemon is not None:
+            await ctx.apply_special_condition(pokemon, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="acd30c7d-b060-5081-81ad-cc053b03bd59",
@@ -22,7 +31,8 @@ card = PokemonCardDef(
         Ability(
             title="Purple Ray",
             game_text="Once during your turn, when you put Espeon Star from your hand onto your Bench, you may use this power. Each Active Pok\u00e9mon (both yours and your opponent's) is now Confused.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=purple_ray,
         ),
         Attack(
             title="Psychic Boom",
