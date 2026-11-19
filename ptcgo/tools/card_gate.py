@@ -72,6 +72,28 @@ def literal(node):
     return None
 
 
+def damage_value(kw: Dict[str, ast.keyword]) -> Optional[int]:
+    """The printed damage as an int.
+
+    Three cards in the tree carry a string ('30+' on ECARD3/MiracleSphere_129..131):
+    the operator is a client-side suffix, so '30+' and '30×' both compare as 30. An
+    unreadable value returns None rather than raising -- a detector that dies mid-range
+    hands the lane a clean exit code it did not earn.
+    """
+    if "damage" not in kw:
+        return None
+    raw = literal(kw["damage"].value)
+    if isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw
+    if isinstance(raw, str):
+        match = __import__("re").match(r"\s*(\d+)", raw)
+        if match:
+            return int(match.group(1))
+    return None
+
+
 def block_identity(kw: Dict[str, ast.keyword]) -> str:
     title = literal(kw["title"].value) if "title" in kw else "?"
     return str(title)
@@ -132,11 +154,15 @@ def numbers_in_body(expression) -> Set[int]:
 
 
 def analyze(src: str, path: str) -> List[Tuple[str, str, str]]:
-    """(detector, block, detail) violations in one card script."""
+    """(detector, block, detail) violations in one card script.
+
+    Never raises: an unreadable block becomes a named finding, so a lane can see the
+    oddity instead of reading a truncated run as a clean verdict.
+    """
     try:
         tree = ast.parse(src, path)
-    except SyntaxError:
-        return []
+    except SyntaxError as exc:
+        return [("parse", "file", f"cannot parse: {exc.msg} (line {exc.lineno})")]
     out: List[Tuple[str, str, str]] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call) or getattr(node.func, "id", "") not in ("Attack", "Ability"):
@@ -146,42 +172,52 @@ def analyze(src: str, path: str) -> List[Tuple[str, str, str]]:
         if effect is None or ast.unparse(effect.value) == "unimplemented":
             continue
         block = block_identity(kw)
-        printed_text = literal(kw["game_text"].value) if "game_text" in kw else ""
-        printed_text = printed_text or ""
-        body = body_source(tree, effect.value, src)
-        primary = getattr(getattr(effect.value, "func", None), "id", "")
-        missing = block_conflict(printed_text, body, primary) if is_local_name(tree, effect.value) else []
-        if missing:
-            out.append(("kind", block, f"text names {', '.join(missing)}; body is {primary or 'a helper'}"))
+        try:
+            out.extend(_analyse_block(tree, kw, effect, src))
+        except Exception as exc:  # noqa: BLE001 - report, never die mid-range
+            out.append(("parse", block, f"{type(exc).__name__}: {exc}"))
+    return out
 
-        printed_damage = literal(kw["damage"].value) if "damage" in kw else None
-        known = {int(n) for n in __import__("re").findall(r"\d+", printed_text)}
-        if printed_damage is not None:
-            known.add(int(printed_damage))
-        allowed = set(known)
-        for a in known:
-            for b in known:
-                allowed.add(a + b)
-                allowed.add(abs(a - b))
-        if "damage counter" in printed_text.lower():
-            # the engine stores damage, the card prints counters
-            for a in list(allowed):
-                allowed.add(a * 10)
-                if a % 10 == 0:
-                    allowed.add(a // 10)
-        stray = sorted(n for n in numbers_in_body(effect.value) if n not in allowed and n not in (0, 1))
-        if stray:
-            out.append(("number", block, f"body carries {stray}, text has {sorted(known)}"))
 
-        operator = literal(kw["damage_operator"].value) if "damage_operator" in kw else ""
-        if isinstance(effect.value, ast.Call) and primary in BASE_FNS and printed_damage is not None:
-            if operator in ("", "+") and not (primary == "flip_damage"
-                                              and any(k.arg == "per_heads" for k in effect.value.keywords)):
-                for k in effect.value.keywords:
-                    if k.arg == "base":
-                        base_value = literal(k.value)
-                        if isinstance(base_value, int) and base_value != printed_damage:
-                            out.append(("base", block, f"base={base_value} but damage={printed_damage}"))
+def _analyse_block(tree, kw, effect, src) -> List[Tuple[str, str, str]]:
+    out: List[Tuple[str, str, str]] = []
+    block = block_identity(kw)
+    printed_text = literal(kw["game_text"].value) if "game_text" in kw else ""
+    printed_text = printed_text or ""
+    body = body_source(tree, effect.value, src)
+    primary = getattr(getattr(effect.value, "func", None), "id", "")
+    missing = block_conflict(printed_text, body, primary) if is_local_name(tree, effect.value) else []
+    if missing:
+        out.append(("kind", block, f"text names {', '.join(missing)}; body is {primary or 'a helper'}"))
+
+    printed_damage = damage_value(kw)
+    known = {int(n) for n in __import__("re").findall(r"\d+", printed_text)}
+    if printed_damage is not None:
+        known.add(int(printed_damage))
+    allowed = set(known)
+    for a in known:
+        for b in known:
+            allowed.add(a + b)
+            allowed.add(abs(a - b))
+    if "damage counter" in printed_text.lower():
+        # the engine stores damage, the card prints counters
+        for a in list(allowed):
+            allowed.add(a * 10)
+            if a % 10 == 0:
+                allowed.add(a // 10)
+    stray = sorted(n for n in numbers_in_body(effect.value) if n not in allowed and n not in (0, 1))
+    if stray:
+        out.append(("number", block, f"body carries {stray}, text has {sorted(known)}"))
+
+    operator = literal(kw["damage_operator"].value) if "damage_operator" in kw else ""
+    if isinstance(effect.value, ast.Call) and primary in BASE_FNS and printed_damage is not None:
+        if operator in ("", "+") and not (primary == "flip_damage"
+                                          and any(k.arg == "per_heads" for k in effect.value.keywords)):
+            for k in effect.value.keywords:
+                if k.arg == "base":
+                    base_value = literal(k.value)
+                    if isinstance(base_value, int) and base_value != printed_damage:
+                        out.append(("base", block, f"base={base_value} but damage={printed_damage}"))
     return out
 
 
