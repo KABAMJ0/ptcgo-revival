@@ -6720,3 +6720,7 @@ def draw_then_prize_face_up(draw: int, count: int):
         await ctx.draw_cards(draw)
         await ctx.turn_prize_cards_face_up(count=count)
     return effect
+
+
+# The attacks queue's proposals import this name; it shipped longer.
+evolve_from_deck = evolve_from_deck_matching
