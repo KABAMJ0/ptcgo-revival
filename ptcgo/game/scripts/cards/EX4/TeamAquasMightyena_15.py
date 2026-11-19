@@ -1,3 +1,6 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.pokemon import is_pokemon_ex
+from ptcgo.game.card_effects.attacks_common import conditions_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon is Pok\u00e9mon-ex, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=conditions_if(lambda ctx: is_pokemon_ex(ctx.defender), SpecialConditions.CONFUSED),
         ),
     ],
 )

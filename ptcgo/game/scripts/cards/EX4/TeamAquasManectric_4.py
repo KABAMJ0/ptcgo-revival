@@ -1,3 +1,6 @@
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import move_energy_between
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Power Shift",
             game_text="Once during your turn (before your attack), you may move any number of basic Energy cards attached to 1 of your Pok\u00e9mon with Team Aqua in its name to another of your Pok\u00e9mon. This power can't be used if Team Aqua's Manectric is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=move_energy_between(is_basic_energy_card, count=None, prompt="Move any number of basic Energy cards"),
+            activation=Activations.ONCE_PER_TURN,
         ),
         Attack(
             title="Thunderspark",

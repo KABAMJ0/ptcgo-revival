@@ -1,3 +1,10 @@
+from ptcgo.game.card_effects.trainers import card_named_contains
+
+
+def defender_has(word):
+    return lambda ctx: card_named_contains(word)(ctx.defender)
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import conditions_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon has Team Aqua in its name, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=conditions_if(defender_has("team aqua"), SpecialConditions.BURNED),
         ),
         Attack(
             title="Damage Burn",

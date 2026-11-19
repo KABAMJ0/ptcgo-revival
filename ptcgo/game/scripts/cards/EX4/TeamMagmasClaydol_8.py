@@ -1,3 +1,6 @@
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.trainers import card_named_contains
+from ptcgo.game.card_effects.support_common import move_energy_between
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Magma Switch",
             game_text="Once during your turn (before your attack), you may move an Energy card attached to your Pok\u00e9mon with Team Magma in its name to another of your Pok\u00e9mon. This power can't be used if Team Magma's Claydol is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=move_energy_between(source_pred=card_named_contains("team magma"), count=1),
+            activation=Activations.ONCE_PER_TURN,
         ),
         Attack(
             title="Dark Hand",

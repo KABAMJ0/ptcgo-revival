@@ -1,3 +1,10 @@
+from ptcgo.game.card_effects.attacks_common import conditions_if
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.trainers import card_named_contains
+
+
+def defender_has(word):
+    return lambda ctx: card_named_contains(word)(ctx.defender)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
