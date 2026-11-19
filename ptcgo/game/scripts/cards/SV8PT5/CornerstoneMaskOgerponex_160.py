@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.trainers import attacker_has_ability
+from ptcgo.game.card_effects.passives_common import damage_shield_from
 
 card = PokemonCardDef(
     guid="0db1a6f3-76e7-52cd-9e47-4af9858bbf73",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Cornerstone Stance",
             game_text="Prevent all damage from attacks done to this Pok\u00e9mon by your opponent's Pok\u00e9mon that have an Ability.",
-            effect=unimplemented,
+            passive=damage_shield_from(attacker_has_ability()),
         ),
         Attack(
             title="Demolish",

@@ -1,6 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class _SeasonedSkill(Passive):
+    """Blood Moon costs [C] less for each Prize card the opponent has taken."""
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        opponents = [pid for pid in board.player_ids
+                     if pid != pokemon.owning_player_id]
+        if not opponents or "Colorless" not in cost:
+            return cost
+        taken = board.prizes_taken(opponents[0])
+        if taken <= 0:
+            return cost
+        cost["Colorless"] = max(0, cost["Colorless"] - taken)
+        return cost
 
 card = PokemonCardDef(
     guid="51953cab-21b8-5577-bbe0-2624582bec20",
@@ -22,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Seasoned Skill",
             game_text="Blood Moon used by this Pok\u00e9mon costs Colorless less for each Prize card your opponent has taken.",
-            effect=unimplemented,
+            passive=_SeasonedSkill(),
         ),
         Attack(
             title="Blood Moon",
