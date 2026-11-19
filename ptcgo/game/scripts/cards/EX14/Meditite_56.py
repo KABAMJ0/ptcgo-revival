@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="9b5c275b-9ac6-5f4e-8b42-e761c73d0331",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Pure Power",
             game_text="Put 2 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
     ],
 )

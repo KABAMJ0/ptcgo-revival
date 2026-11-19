@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="46e5bb52-b8f8-5f91-8e4e-be8cdfcb4074",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Psypower",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
     ],
 )

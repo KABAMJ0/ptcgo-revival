@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="b5231a1f-91f8-5f72-948d-f820bda029f6",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Cursed Drop",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
         Attack(
             title="Spill the Tea",
