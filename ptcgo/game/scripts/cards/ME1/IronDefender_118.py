@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import team_types_take_less_next_turn
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=118,
     set_code="ME1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=team_types_take_less_next_turn(30, "metal")
 )

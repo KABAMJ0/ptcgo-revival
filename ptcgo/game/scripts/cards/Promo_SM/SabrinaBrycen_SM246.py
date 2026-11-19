@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import sabrina_brycen
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=246,
     set_code="Promo_SM",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=sabrina_brycen()
 )
