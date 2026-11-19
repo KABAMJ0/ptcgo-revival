@@ -30,6 +30,13 @@ DEFAULT_OFFERS = (
         "price": 1,
         "sort_order": 20,
     },
+    {
+        # Charizard ex + a Fusion Strike pack + 1000 tokens back: 500 net for card and pack.
+        "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:bundle:charizard-ex-collection")),
+        "name": "Charizard ex Collection",
+        "price": 1500,
+        "sort_order": 5,
+    },
 )
 
 

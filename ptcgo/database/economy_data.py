@@ -196,9 +196,10 @@ def _grant_reward_in_session(session, account_id, reward):
         wallet.tickets += tickets
 
 
-def purchase_products(account_id, charges, grants):
-    """Deducts {currency: amount} and grants {archetype_id: count} as tradable in ONE
-    transaction. Returns an error message (nothing changed) or None on success."""
+def purchase_products(account_id, charges, grants, credit=None):
+    """Deducts {currency: amount}, grants {archetype_id: count} as tradable and credits
+    {currency: amount} (a bundle's tokens) in ONE transaction. Returns an error message
+    (nothing changed) or None on success."""
     with db_session() as session:
         if session.bind.dialect.name == "sqlite":
             session.execute(text("BEGIN IMMEDIATE"))
@@ -213,6 +214,12 @@ def purchase_products(account_id, charges, grants):
         for currency, amount in due.items():
             field = WALLET_FIELDS[currency]
             setattr(wallet, field, getattr(wallet, field) - amount)
+        for currency, amount in (credit or {}).items():
+            field = WALLET_FIELDS.get(currency)
+            if field is None or wallet is None:
+                session.rollback()
+                return PURCHASE_ERROR_CURRENCY
+            setattr(wallet, field, getattr(wallet, field) + int(amount))
         owned = {row.archetype_id: row for row in session.query(Collection).filter(
             Collection.account_id == account_id,
             Collection.archetype_id.in_(list(grants))).with_for_update()}

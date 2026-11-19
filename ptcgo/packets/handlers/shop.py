@@ -10,10 +10,10 @@ from .base import BaseHandler, handle
 from ptcgo.shop import shop_manager
 from ptcgo.game.scripts.products import loader as product_loader
 from ptcgo.game.attributes import AttrID
-from ptcgo.game.models.product import BoosterPack, Deck
+from ptcgo.game.models.product import BoosterPack, Bundle, Deck, expand_bundles
 from ptcgo.database.deck_products import open_products
 from ptcgo.database.async_utils import run_db
-from ptcgo.database.player_data import add_to_collection, get_decks_by_account_id
+from ptcgo.database.player_data import add_to_collection, get_decks_by_account_id, grant_coins
 from ptcgo.database.economy_data import purchase_products
 from ptcgo.server import activity
 
@@ -112,13 +112,16 @@ class ShopHandler(BaseHandler):
             if self.client.player and any(isinstance(product, Deck) for product in products):
                 self.client.player.decks = await run_db(
                     get_decks_by_account_id, self.client.player.account_id)
-                payload = self.client.player.get_decks_data()
+                payload = await run_db(self.client.player.get_decks_data)
                 await self.send(dict(payload, messageName=OutboundMsg.DECK_LIST.value))
             await self._send_notification(OutboundMsg.PRODUCTS_OPENED.value, opened)
 
         # Sync collection count after opening (unsolicited sync uses request_id=0)
         if self.client.player:
             await self.push_collection()
+            if any(isinstance(product, Bundle) for product in products):
+                await run_db(self.client.player.wallet.refresh_wallet)
+                await self.push_wallet()
 
     @staticmethod
     def _price_total(products_with_qty):
@@ -187,11 +190,15 @@ class ShopHandler(BaseHandler):
         def _persist_sync():
             purchased = []
             for arch_id, qty in archetypes.items():
-                pack_guid = shop.resolve_product_guid(arch_id)
-                for _ in range(qty):
-                    purchased.append(build_item(self._owner_id(), pack_guid, is_tradable=True))
-                if self.client.player:
-                    add_to_collection(self.client.player.account_id, pack_guid, count=qty, is_tradable=True)
+                granted, tokens = expand_bundles([shop.resolve_product_guid(arch_id)])
+                for guid in granted:
+                    for _ in range(qty):
+                        purchased.append(build_item(self._owner_id(), guid, is_tradable=True))
+                    if self.client.player:
+                        add_to_collection(self.client.player.account_id, guid, count=qty, is_tradable=True)
+                if tokens and self.client.player:
+                    grant_coins(self.client.player.account_id, tokens * qty)
+                    self.client.player.wallet.refresh_wallet()
             return purchased
 
         purchased_items = await run_db(_persist_sync)
@@ -256,10 +263,14 @@ class ShopHandler(BaseHandler):
         purchase_type = message.get("purchaseType")
         if purchase_type is not None and any(charges.values()) and purchase_type not in charges:
             logging.warning(f"[Shop] purchaseType {purchase_type} differs from listed currencies {list(charges)}")
-        product_guids = [shop.resolve_product_guid(listing.guid) for listing in listings]
+        # A bundle is fulfilled at purchase: its contents are granted and its tokens
+        # credited in the same transaction, so nothing has to be opened afterwards.
+        product_guids, bundle_tokens = expand_bundles(
+            [shop.resolve_product_guid(listing.guid) for listing in listings])
+        credit = {AttrID.TRAINER_TOKENS.value: bundle_tokens} if bundle_tokens else None
 
         def _purchase_sync():
-            error = purchase_products(player.account_id, charges, Counter(product_guids))
+            error = purchase_products(player.account_id, charges, Counter(product_guids), credit=credit)
             if error is None:
                 player.wallet.refresh_wallet()
             return error
