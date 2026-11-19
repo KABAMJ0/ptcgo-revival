@@ -530,6 +530,10 @@ def energy_provides_type(card, type_value) -> bool:
     return type_value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 
+def is_psychic_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.PSYCHIC.value)
+
+
 def is_lightning_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 

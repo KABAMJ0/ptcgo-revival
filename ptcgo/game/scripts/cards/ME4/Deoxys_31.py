@@ -3,6 +3,8 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_psychic_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy
 
 card = PokemonCardDef(
     guid="9d841b57-9658-525a-b35b-7de7d05facf5",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             title="Genome Charge",
             game_text="Search your deck for up to 2 Basic Psychic Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=damage_per(count_energy("defender"), 20),
+            effect=search_attach_energy(is_psychic_energy, count=2, to_self=True),
         ),
         Attack(
             title="Psychic",

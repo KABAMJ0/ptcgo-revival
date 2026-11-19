@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
 
 card = PokemonCardDef(
     guid="778951a6-f7ce-5d18-a075-e5a024c5963d",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=80,
             damage_operator="x",
-            effect=bonus_if(has_damage("defender"), 0, base=30),
+            effect=damage_per(count_prizes_taken("mine"), 80),
         ),
         Attack(
             title="Huge Bite",
