@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Flitter",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. Don't apply Weakness and Resistance. (Any other effects that would happen after applying Weakness and Resistance still happen.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="any", apply_modifiers=False),
         ),
     ],
 )

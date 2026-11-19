@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _return_attack(ctx):
+    results = await ctx.flip_coins(2, "Return Attack")
+    if not any(results):
+        return
+    attacker = ctx.attacker
+    if attacker is None:
+        return
+    counters = (ctx.max_hp(attacker) - attacker.get_attribute(AttrID.HP, 0)) // 10
+    if counters:
+        await ctx.deal_damage(10 * counters)
+
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="4818bdcc-31ef-56f5-8877-c3d9a58b5de9",
@@ -29,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_return_attack,
         ),
     ],
 )
