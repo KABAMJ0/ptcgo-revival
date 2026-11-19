@@ -1111,8 +1111,15 @@ class TrainerEffectShieldPassive(Passive):
     (Dew Guard: "prevent all effects of that card done to you or your hand")."""
 
     def __init__(self, supporters_only=True, protects=None, while_active=False,
-                 condition=None):
+                 condition=None, any_player=False, kinds=None):
         self.supporters_only = supporters_only
+        # The exact kinds a wording names ("Item or Supporter"). None keeps the
+        # old behaviour, which is every trainer kind -- right for "any Trainer
+        # card", wrong for a clause that names two.
+        self.kinds = tuple(kinds) if kinds else None
+        # "Whenever ANY player plays..." (a Stadium shielding itself) has no
+        # owner side to check against: the object of the effect IS the card.
+        self.any_player = any_player
         # protects(affected_entity_or_None, carrier): scopes the shield to
         # matching direct objects (None = the whole side, legacy behavior).
         self.protects = protects
@@ -1124,7 +1131,10 @@ class TrainerEffectShieldPassive(Passive):
                                board=None):
         if self.supporters_only and trainer_type != TrainerType.SUPPORTER.value:
             return False
-        if affected_player_id != carrier.owning_player_id:
+        if self.kinds is not None and trainer_type not in self.kinds:
+            return False
+        if not self.any_player \
+                and affected_player_id != carrier.owning_player_id:
             return False
         if self.while_active \
                 and not is_in_active_spot(carrier_pokemon(carrier) or carrier):
@@ -1137,12 +1147,34 @@ class TrainerEffectShieldPassive(Passive):
 
 
 def trainer_effect_shield_passive(supporters_only=True, protects=None,
-                                  while_active=False, condition=None) -> Passive:
+                                  while_active=False, condition=None,
+                                  any_player=False, kinds=None) -> Passive:
     """Dew Guard shape; the engine already scopes it to effects a DIFFERENT
     player's trainer card does to the shielded side. protects/while_active/
-    condition(board, carrier) narrow the shield (Princess's Curtain, Baffling)."""
+    condition(board, carrier) narrow the shield (Princess's Curtain, Baffling).
+    `any_player` drops the owner-side test for a card that shields ITSELF."""
     return TrainerEffectShieldPassive(supporters_only, protects, while_active,
-                                      condition)
+                                      condition, any_player, kinds)
+
+
+def item_or_supporter_effect_shield(protects="carrier",
+                                    any_player=False) -> Passive:
+    """"Whenever your opponent plays an Item or Supporter card from their hand,
+    prevent all effects of that card done to <protects>."
+
+    The Pokemon form (Axew, Pyroar, Galvantula, Cetitan ex, Fraxure) shields
+    the carrier itself; the Stadium form (Black Market, Wondrous Labyrinth)
+    shields the Stadium card as the effect's direct object, which a protects
+    callable spells. Both were hand-written classes before this."""
+    if protects in (None, "carrier"):
+        def target_pred(entity, carrier):
+            holder = carrier_pokemon(carrier) or carrier
+            return entity is not None and entity.entity_id == holder.entity_id
+    else:
+        target_pred = protects
+    return trainer_effect_shield_passive(
+        supporters_only=False, protects=target_pred, any_player=any_player,
+        kinds=(TrainerType.ITEM.value, TrainerType.SUPPORTER.value))
 
 
 class SupporterReplacementPassive(Passive):

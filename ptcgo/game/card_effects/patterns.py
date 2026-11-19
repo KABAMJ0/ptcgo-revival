@@ -15163,6 +15163,15 @@ class AbilityEffectShieldPassive(Passive):
         return target is carrier_pokemon(carrier)
 
 
+def _shield_item_or_supporter(m, ability):
+    """"Whenever your opponent plays an Item or Supporter card from their
+    hand, prevent all effects of that card done to this Pokemon." """
+    from ptcgo.game.card_effects.passives_common import (
+        item_or_supporter_effect_shield,
+    )
+    return item_or_supporter_effect_shield()
+
+
 def _shield_benched_metal_from_special_energy(m, ability):
     """"Prevent all damage done to your Metal Pokemon by attacks from your
     opponent's Pokemon that have any Special Energy attached to them"."""
@@ -19924,6 +19933,10 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"abilities done to this pokemon\. "
                 r"\(damage is not an effect\.\)"),
      _shield_attacks_and_abilities),
+    ("shield.item-or-supporter-holder",
+     re.compile(r"whenever your opponent plays an item or supporter card from "
+                r"their hand, prevent all effects of that card done to this "
+                r"pokemon\."), _shield_item_or_supporter),
     ("shield.team-type-from-special-energy",
      re.compile(r"prevent all damage done to your metal pokemon by attacks from "
                 r"your opponent's pokemon that have any special energy attached "
