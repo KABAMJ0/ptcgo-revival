@@ -560,6 +560,11 @@ class Passive:
         no opinion, the smallest override wins."""
         return None
 
+    def bench_capacity_raise(self, player_id: str, carrier: BoardEntity) -> Optional[int]:
+        """Bench size this passive RAISES `player_id` to (Sky Field: 8); None =
+        no opinion. Caps still win: the tighter of the two applies."""
+        return None
+
     def bench_trim_area(self, player_id: str, carrier: BoardEntity) -> Optional[str]:
         """Where a stack removed by the bench-shrink ruling goes ("hand" for
         Narrow Gym); None keeps the default discard."""
@@ -1440,6 +1445,12 @@ def effective_bench_capacity(board: BoardState, player_id: str) -> int:
     that caps lower still caps, so the two compose as "the tighter wins"."""
     overrides = getattr(board, "bench_limit_overrides", None) or {}
     base = overrides.get(player_id, BENCH_SLOT_COUNT)
+    raises = [
+        v for passive, carrier in active_passives(board)
+        for v in [passive.bench_capacity_raise(player_id, carrier)] if v is not None
+    ]
+    if raises:
+        base = max(base, max(raises))
     values = [
         v for passive, carrier in active_passives(board)
         for v in [passive.bench_capacity(player_id, carrier)] if v is not None

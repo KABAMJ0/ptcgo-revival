@@ -1421,12 +1421,41 @@ def poison_not_of_type(*types) -> Callable[[Any, Any], bool]:
     return pred
 
 
+class TeamHPBonusPassive(Passive):
+    """Every Pokemon on the chosen side(s) gets `amount` more max HP (Aspertia
+    City Gym's +20 to Colorless; Snowpoint Temple's +20 to the unevolved)."""
+
+    def __init__(self, amount=20, protects="each", pred=None, stacking_key=None):
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+        self.pred = pred
+        self.stacking_key = stacking_key
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if not self.protects(pokemon, carrier):
+            return 0
+        if self.pred is not None and not self.pred(pokemon, carrier):
+            return 0
+        return self.amount
+
+
+def team_hp_bonus(amount: int = 20, protects="each", pred=None,
+                  stacking_key=None) -> Passive:
+    """`protects='each'` covers both boards, `'team'` only the Stadium holder's
+    side (Aspertia's wording names both). `pred(pokemon, carrier)` narrows it by
+    type or stage."""
+    return TeamHPBonusPassive(amount, protects, pred, stacking_key)
+
+
 class BenchCapacityPassive(Passive):
     """Bench cap for both players (Collapsed Stadium 4, Narrow Gym 4) or for
     the carrier's own side alone (Parallel City's down-arrow face: 3)."""
 
-    def __init__(self, limit=4, protects="each", trim_to="discard"):
+    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap"):
         self.limit = limit
+        self.mode = mode
+        if mode not in ("cap", "raise"):
+            raise ValueError(f"bench capacity mode must be 'cap' or 'raise': {mode!r}")
         self.side_only = protects == "team"
         if protects not in ("each", "team"):
             raise ValueError(
@@ -1437,6 +1466,13 @@ class BenchCapacityPassive(Passive):
         return not self.side_only or player_id == carrier.owning_player_id
 
     def bench_capacity(self, player_id, carrier):
+        if self.mode != "cap":
+            return None
+        return self.limit if self._covers(player_id, carrier) else None
+
+    def bench_capacity_raise(self, player_id, carrier):
+        if self.mode != "raise":
+            return None
         return self.limit if self._covers(player_id, carrier) else None
 
     def bench_trim_area(self, player_id, carrier):
@@ -1444,12 +1480,12 @@ class BenchCapacityPassive(Passive):
 
 
 def bench_capacity_passive(limit: int = 4, protects="each",
-                           trim_to: str = "discard") -> Passive:
+                           trim_to: str = "discard", mode: str = "cap") -> Passive:
     """`protects='each'` caps both players (Narrow Gym, Collapsed Stadium);
     `'team'` caps only the Stadium holder's side (Parallel City's face).
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
-    return BenchCapacityPassive(limit, protects, trim_to)
+    return BenchCapacityPassive(limit, protects, trim_to, mode)
 
 
 class VoidsStadiumPlayPassive(Passive):
