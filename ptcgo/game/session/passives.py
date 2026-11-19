@@ -345,8 +345,11 @@ class Passive:
         """Returns the (possibly reduced) cost dict, client-name keyed."""
         return cost
 
-    def max_hp_bonus(self, pokemon: PokemonEntity, carrier: BoardEntity) -> int:
-        """Extra max HP granted to `pokemon` (e.g. Heat Fire Energy's +20)."""
+    def max_hp_bonus(self, pokemon: PokemonEntity, carrier: BoardEntity,
+                     board: Optional[BoardState] = None) -> int:
+        """Extra max HP granted to `pokemon` (e.g. Heat Fire Energy's +20).
+        `board` lets a bonus whose number depends on the game state read it
+        (Pangoro's per-taken-Prize HP); a constant bonus may ignore it."""
         return 0
 
     def modify_retreat_cost(
@@ -1079,7 +1082,7 @@ def effective_max_hp(board: BoardState, pokemon: PokemonEntity) -> int:
         key = passive.stacking_key
         if key is not None and key in seen_keys:
             continue
-        gained = passive.max_hp_bonus(pokemon, carrier)
+        gained = passive.max_hp_bonus(pokemon, carrier, board)
         if gained and key is not None:
             seen_keys.add(key)
         bonus += gained

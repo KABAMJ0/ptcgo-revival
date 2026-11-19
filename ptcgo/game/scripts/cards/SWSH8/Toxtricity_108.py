@@ -20,7 +20,7 @@ class MaximumDownerPassive(Passive):
     """If all your Pokemon in play are Fusion Strike, opposing Pokemon
     VMAX in play get -30 HP."""
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         holder = carrier_pokemon(carrier)
         if holder is None or pokemon.owning_player_id == holder.owning_player_id:
             return 0

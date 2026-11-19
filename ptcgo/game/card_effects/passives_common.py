@@ -385,9 +385,14 @@ def damage_shield_from(pred, protects="carrier") -> Passive:
 
 
 class TypedDamageBoostPassive(Passive):
-    """The holder's attacks do +N to opposing targets matching a type/pred."""
+    """The holder's attacks do +N to opposing targets matching a type/pred.
 
-    def __init__(self, type_or_pred, amount, to_active_only=True):
+    Self-scoped by construction: only the carrier's own attacks are boosted. The
+    target is the printed scope; `when(calc, carrier)` is the printed CONDITION
+    ("if this Pokemon has any Water Energy attached"), which a target type cannot
+    express."""
+
+    def __init__(self, type_or_pred, amount, to_active_only=True, when=None):
         if callable(type_or_pred):
             self.target_match = type_or_pred
         else:
@@ -397,6 +402,7 @@ class TypedDamageBoostPassive(Passive):
             )
         self.amount = amount
         self.to_active_only = to_active_only
+        self.when = when
 
     def modify_damage_dealt(self, calc, carrier):
         if not (calc.is_attack and calc.is_opposing):
@@ -405,28 +411,38 @@ class TypedDamageBoostPassive(Passive):
             return
         if self.to_active_only and not calc.to_active:
             return
+        if self.when is not None and not self.when(calc, carrier):
+            return
         if self.target_match(calc.target):
             calc.amount += self.amount
 
 
-def typed_damage_boost_tool(type_or_pred, amount, to_active_only=True) -> Passive:
+def typed_damage_boost_tool(type_or_pred, amount, to_active_only=True,
+                            when=None) -> Passive:
     """Gloves shape: the holder's attacks do +N versus opposing Active
-    targets of the given PokemonTypes (or matching target_pred(target))."""
-    return TypedDamageBoostPassive(type_or_pred, amount, to_active_only)
+    targets of the given PokemonTypes (or matching target_pred(target)).
+    `when(calc, carrier)` adds the printed condition on the attacker."""
+    return TypedDamageBoostPassive(type_or_pred, amount, to_active_only, when)
 
 
 class HpBonusPassive(Passive):
-    """The holder gets +N max HP (Cape of Toughness shape)."""
+    """The holder gets +N max HP (Cape of Toughness shape).
+
+    `amount` may be a callable `(board, pokemon, carrier)` for the wording whose
+    number depends on the game state ("+10 for each Prize card your opponent has
+    taken"), which a constant could not express."""
 
     def __init__(self, amount, holder_pred=None):
         self.amount = amount
         self.holder_pred = holder_pred
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is not pokemon:
             return 0
         if self.holder_pred is not None and not self.holder_pred(pokemon):
             return 0
+        if callable(self.amount):
+            return int(self.amount(board, pokemon, carrier) or 0)
         return self.amount
 
 
@@ -527,7 +543,7 @@ class HpPerTypedEnergyPassive(Passive):
         self.amount = amount
         self.type_value = type_value
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is not pokemon:
             return 0
         from ptcgo.game.card_effects.pokemon import energy_provides_type
@@ -1622,7 +1638,7 @@ class TeamHPBonusPassive(Passive):
         self.pred = pred
         self.stacking_key = stacking_key
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if not self.protects(pokemon, carrier):
             return 0
         if self.pred is not None and not self.pred(pokemon, carrier):

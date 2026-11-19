@@ -2212,7 +2212,7 @@ class CombinedPassive(Passive):
             part.modify_damage_taken(calc, carrier)
 
     # -- chained ints ------------------------------------------------------
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return sum(part.max_hp_bonus(pokemon, carrier) for part in self.parts)
 
     def tool_capacity(self, pokemon, carrier):
@@ -4289,7 +4289,7 @@ class EveryoneHpBonusPassive(Passive):
         self.amount = amount
         self.pred = pred
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return self.amount if self.pred(pokemon) else 0
 
 
@@ -8504,7 +8504,7 @@ class HeavyBootsPassive(Passive):
             return None
         return holder
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return self.amount if self._holder(carrier) is pokemon else 0
 
     def blocks_special_conditions(self, target, condition, carrier):

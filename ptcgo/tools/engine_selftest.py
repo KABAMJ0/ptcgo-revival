@@ -1162,7 +1162,7 @@ async def test_stacking_key_dedup():
     class HPBoost(Passive):
         stacking_key = "test-boost"
 
-        def max_hp_bonus(self, pokemon, carrier):
+        def max_hp_bonus(self, pokemon, carrier, board=None):
             return 20
 
     class OtherBoost(HPBoost):

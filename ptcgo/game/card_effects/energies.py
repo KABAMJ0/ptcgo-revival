@@ -95,7 +95,7 @@ class DoubleTurboPassive(Passive):
 class HeatFirePassive(Passive):
     """The Fire Pokemon this card is attached to gets +20 max HP."""
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is pokemon \
                 and _pokemon_has_type(pokemon, PokemonTypes.FIRE):
             return 20

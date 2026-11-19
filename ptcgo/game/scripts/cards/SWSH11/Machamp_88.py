@@ -5,7 +5,7 @@ from ptcgo.game.card_effects.attacks_common import lock_all_attacks
 
 
 class CrisisMusclesPassive(Passive):
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon is not carrier:
             return 0
         root = pokemon
