@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import mill_attack, self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="fcf07ba2-2279-55cc-9eb1-7621f3edb783",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="Discard the top 2 cards of your deck.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=40,
-            effect=unimplemented,
+            effect=mill_attack(count=2, opponent=False),
         ),
         Attack(
             title="Sky Judgment",

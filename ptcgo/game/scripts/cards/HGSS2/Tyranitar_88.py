@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, mill_attack
 
 card = PokemonCardDef(
     guid="e4056b63-3b9a-50d2-ab06-2dad5d33670d",
@@ -39,7 +39,7 @@ card = PokemonCardDef(
             game_text="Discard the top 3 cards of your deck.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=mill_attack(count=3, opponent=False),
         ),
     ],
 )
