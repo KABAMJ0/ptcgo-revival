@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="7f0eaeb2-cd7d-51af-8c50-3358de50e3a1",
+    key="EX7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Skiploom.Name",
+    display_name="Skiploom",
+    searchable_by=["Skiploom", "Stage 1", "Skiploom"],
+    subtypes=["Stage 1"],
+    collector_number=49,
+    set_code="EX7",
+    rarity=Rarities.Uncommon,
+    hp=60,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=0,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Hoppip.Name",
+    family_id=187,
+    abilities=[
+        Ability(
+            title="Buffer",
+            game_text="If Skiploom would be Knocked Out by an opponent's attack, flip a coin. If heads, Skiploom is not Knocked Out and its remaining HP becomes 10 instead.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Miracle Powder",
+            game_text="Flip a coin. If heads, choose 1 Special Condition. The Defending Pok\u00e9mon is now affected by that Special Condition.",
+            cost={PokemonTypes.COLORLESS: 1},
+            damage=10,
+            effect=unimplemented,
+        ),
+    ],
+)

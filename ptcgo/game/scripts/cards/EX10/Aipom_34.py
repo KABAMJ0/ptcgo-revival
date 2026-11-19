@@ -1,0 +1,33 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="6899bd2d-dd2a-5eb8-8aea-e22e8af6bcef",
+    key="EX10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Aipom.Name",
+    display_name="Aipom",
+    searchable_by=["Aipom", "Basic", "Aipom"],
+    subtypes=["Basic"],
+    collector_number=34,
+    set_code="EX10",
+    rarity=Rarities.Uncommon,
+    hp=50,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=190,
+    abilities=[
+        Ability(
+            title="Snappy Move",
+            game_text="Once during your turn (before your attack), if Aipom is on your Bench, you may draw a card. Then, discard all cards attached to Aipom and put Aipom on the bottom of your deck. You can't use more than 1 Snappy Move Pok\u00e9-Power each turn.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Snap Tail",
+            game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

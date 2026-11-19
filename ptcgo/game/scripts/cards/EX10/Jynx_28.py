@@ -1,0 +1,39 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="20c16008-2147-56ea-b8a0-7d16f97eb649",
+    key="EX10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Jynx.Name",
+    display_name="Jynx",
+    searchable_by=["Jynx", "Basic", "Jynx"],
+    subtypes=["Basic"],
+    collector_number=28,
+    set_code="EX10",
+    rarity=Rarities.Rare,
+    hp=70,
+    elements=[PokemonTypes.WATER],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.METAL,
+    family_id=124,
+    abilities=[
+        Ability(
+            title="Stages of Evolution",
+            game_text="As long as Jynx is an Evolved Pok\u00e9mon, prevent all effects of opponent's attacks, except damage, done to Jynx, and Jynx has no Weakness.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Freeze Light",
+            game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed. If tails, the Defending Pok\u00e9mon is now Burned.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Pure Power",
+            game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
+            cost={PokemonTypes.WATER: 1, PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="0c336896-01f2-52fc-b699-5bf18e24725b",
+    key="EX7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Rattata.Name",
+    display_name="Rattata",
+    searchable_by=["Rattata", "Basic", "Rattata"],
+    subtypes=["Basic"],
+    collector_number=72,
+    set_code="EX7",
+    rarity=Rarities.Common,
+    hp=40,
+    elements=[PokemonTypes.COLORLESS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIGHTING,
+    family_id=19,
+    abilities=[
+        Attack(
+            title="Call for Family",
+            game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Shuffle your deck afterward.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Snarl",
+            game_text="Flip a coin. If heads, this attack does 10 damage to the Defending Pok\u00e9mon. If tails, the Defending Pok\u00e9mon is now Paralyzed.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+    ],
+)

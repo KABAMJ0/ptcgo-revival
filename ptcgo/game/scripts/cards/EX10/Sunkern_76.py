@@ -1,0 +1,34 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="83c51430-03f1-57ce-9955-cb32cf8926ed",
+    key="EX10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Sunkern.Name",
+    display_name="Sunkern",
+    searchable_by=["Sunkern", "Basic", "Sunkern"],
+    subtypes=["Basic"],
+    collector_number=76,
+    set_code="EX10",
+    rarity=Rarities.Common,
+    hp=40,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.BASIC,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.WATER,
+    family_id=191,
+    abilities=[
+        Attack(
+            title="Minor Errand-Running",
+            game_text="Search your deck for a basic Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Rollout",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
+            damage=20,
+        ),
+    ],
+)

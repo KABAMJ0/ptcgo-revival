@@ -1,0 +1,35 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="08bc6202-5342-55da-af82-7d78e7832138",
+    key="EX7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.DarkAriados.Name",
+    display_name="Dark Ariados",
+    searchable_by=["Dark Ariados", "Stage 1", "DarkAriados"],
+    subtypes=["Stage 1"],
+    collector_number=30,
+    set_code="EX7",
+    rarity=Rarities.Uncommon,
+    hp=70,
+    elements=[PokemonTypes.GRASS, PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.FIRE,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Spinarak.Name",
+    family_id=167,
+    abilities=[
+        Attack(
+            title="Super Poison Breath",
+            game_text="Each Defending Pok\u00e9mon is now Poisoned.",
+            cost={PokemonTypes.COLORLESS: 1},
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Breaking Impact",
+            game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 20 damage for each Colorless Energy in that Pok\u00e9mon's Retreat Cost (after applying effects to the Retreat Cost). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,37 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="d58f4338-0a5c-5384-9dda-40e08e1d8893",
+    key="EX10",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.Meganium.Name",
+    display_name="Meganium",
+    searchable_by=["Meganium", "Stage 2", "Meganium"],
+    subtypes=["Stage 2"],
+    collector_number=9,
+    set_code="EX10",
+    rarity=Rarities.RareHolo,
+    hp=100,
+    elements=[PokemonTypes.GRASS],
+    stage=PokemonStage.STAGE2,
+    retreat_cost=3,
+    weakness_type=PokemonTypes.FIRE,
+    resistance_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Bayleef.Name",
+    family_id=152,
+    abilities=[
+        Ability(
+            title="Healing Aroma",
+            game_text="As long as Meganium is your Active Pok\u00e9mon, remove 1 damage counter from each Pok\u00e9mon (excluding Pok\u00e9mon-ex) (both yours and your opponent's) between turns.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Bouncy Move",
+            game_text="You may put up to 5 damage counters on Meganium. If you do, this attack does 50 damage plus 10 more damage for each damage counter you put on Meganium in this way.",
+            cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
+            damage=50,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)

@@ -1,0 +1,36 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+card = PokemonCardDef(
+    guid="132c9f9f-86df-55df-b247-7ff5b3ada6df",
+    key="EX7",
+    name="com.direwolfdigital.cake.data.archetypes.pokemon.DarkHoundoom.Name",
+    display_name="Dark Houndoom",
+    searchable_by=["Dark Houndoom", "Stage 1", "DarkHoundoom"],
+    subtypes=["Stage 1"],
+    collector_number=37,
+    set_code="EX7",
+    rarity=Rarities.Uncommon,
+    hp=70,
+    elements=[PokemonTypes.FIRE, PokemonTypes.DARKNESS],
+    stage=PokemonStage.STAGE1,
+    retreat_cost=1,
+    weakness_type=PokemonTypes.WATER,
+    evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Houndour.Name",
+    family_id=228,
+    abilities=[
+        Ability(
+            title="Fire Breath",
+            game_text="Once during your turn (before your attack), if Dark Houndoom is your Active Pok\u00e9mon, you may flip a coin. If heads, the Defending Pok\u00e9mon (choose 1 if there are 2) is now Burned. This power can't be used if Dark Houndoom is affected by a Special Condition.",
+            effect=unimplemented,
+        ),
+        Attack(
+            title="Fire Payback",
+            game_text="If you have less Benched Pok\u00e9mon than your opponent, this attack does 40 damage plus 20 more damage.",
+            cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
+            damage=40,
+            damage_operator="+",
+            effect=unimplemented,
+        ),
+    ],
+)
