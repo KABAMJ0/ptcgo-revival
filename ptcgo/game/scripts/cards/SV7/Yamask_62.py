@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="d5dcb283-c222-527e-bb63-c4c55591dcf1",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Ominous Eyes",
             game_text="Put 3 damage counters on 1 of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2},
-            effect=unimplemented,
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
     ],
 )
