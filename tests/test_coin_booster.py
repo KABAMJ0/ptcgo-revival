@@ -43,6 +43,23 @@ class CoinBoosterTest(unittest.TestCase):
         self.assertIsInstance(pack, product_model.BoosterPack)
         self.assertEqual(pack.product_type, ProductType.PACKS.value)
         self.assertEqual(pack.name, "Coin Booster")
+        # Base Set's own set attributes, so the client renders and opens it like a booster.
+        base = next(p for p in product_loader.products
+                    if p.key == "BASE1" and p.guid != COIN_BOOSTER and p.product_type == ProductType.PACKS.value)
+        for attr in (AttrID.SET_KEY, AttrID.SET_CACHE_KEY, AttrID.EXPANSION):
+            self.assertEqual(pack.get_attribute_value(attr), "BASE1", attr)
+            self.assertEqual(pack.get_attribute_value(attr), base.get_attribute_value(attr), attr)
+        self.assertEqual(pack.get_attribute_value(AttrID.IMAGE_NAME), "base1_booster")
+        self.assertTrue(os.path.exists(os.path.join(
+            os.path.dirname(product_loader.scripts_dir), "..", "..", "assets", "products",
+            "custom_packs", "base1_booster.png")))
+
+    def test_a_real_base_set_booster_still_opens_cards(self):
+        base = next(p for p in product_loader.products
+                    if p.key == "BASE1" and p.guid != COIN_BOOSTER and p.product_type == ProductType.PACKS.value)
+        cards = {c.guid for c in card_loader.cards if c.key == "BASE1"}
+        contents = base.open("-1")
+        self.assertTrue(contents and set(contents) <= cards, contents)
 
     def test_every_pack_is_ten_different_coins(self):
         pack = product_loader.products_by_guid[COIN_BOOSTER]
