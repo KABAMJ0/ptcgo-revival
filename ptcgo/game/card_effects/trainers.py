@@ -1495,6 +1495,18 @@ def basic_energy_of(type_name: str):
     return predicate
 
 
+def basic_energy_of_any(*type_names: str):
+    """Predicate: a Basic Energy card of ANY of the named types ("a Psychic or
+    Metal Energy card")."""
+    values = {POKEMON_TYPE_NAMES[name.lower()] for name in type_names}
+
+    def predicate(card):
+        return is_basic_energy_card(card) \
+            and any(value in (card.get_attribute(AttrID.POKEMON_TYPES) or [])
+                    for value in values)
+    return predicate
+
+
 def is_rule_box_free_pokemon(card) -> bool:
     return (is_pokemon_card(card) and not has_rule_box(card.archetype_id)
             and "ex" not in subtypes_for(card.archetype_id))
