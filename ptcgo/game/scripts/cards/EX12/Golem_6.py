@@ -1,6 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, snipe_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+def _is_fighting_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIGHTING.value)
+
+
+async def _mend(ctx):
+    """Attach a Fighting Energy from the discard pile, then remove 2 damage
+    counters from Golem."""
+    attached = await attach_from_discard(_is_fighting_energy, count=1,
+                                         target="self", minimum=0)(ctx)
+    if attached and ctx.attacker is not None:
+        await ctx.heal(20, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="a94eeb92-a4e3-5e36-9b4d-d23a480ed15d",
@@ -24,13 +40,13 @@ card = PokemonCardDef(
             title="Mend",
             game_text="Search your discard pile for a Fighting Energy card and attach it to Golem. If you do, remove 2 damage counters from Golem.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_mend,
         ),
         Attack(
             title="Enraged Linear Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage for each damage counter on Golem to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(lambda c: 10 * damage_counters_on("self")(c), pool="any"),
         ),
         Attack(
             title="Rock Tumble",

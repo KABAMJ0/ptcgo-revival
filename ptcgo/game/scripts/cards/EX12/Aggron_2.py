@@ -1,6 +1,30 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+from ptcgo.game.data_utils import def_for
+
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
+
+async def _heavy_blow(ctx):
+    """70 minus 10 per damage counter on Aggron; a flat 70 with React Energy."""
+    if _attacker_has_react(ctx):
+        await ctx.deal_damage(70)
+        return
+    await ctx.deal_damage(max(0, 70 - 10 * damage_counters_on("self")(ctx)))
+
 
 card = PokemonCardDef(
     guid="dc01c2d9-7198-53b2-b79e-c4d630973bc9",
@@ -27,7 +51,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
             damage_operator="-",
-            effect=unimplemented,
+            effect=_heavy_blow,
         ),
         Attack(
             title="Bound Crush",

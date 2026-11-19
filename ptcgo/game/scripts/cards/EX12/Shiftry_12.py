@@ -2,6 +2,23 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.attacks_common import conditions_if
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.data_utils import def_for
+
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
 
 card = PokemonCardDef(
     guid="8c2e911a-edcb-5756-93d4-cd7a10745918",
@@ -32,7 +49,7 @@ card = PokemonCardDef(
             game_text="If Shiftry has any React Energy cards attached to it, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=conditions_if(_attacker_has_react, SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Cross-Cut",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
+
 
 card = PokemonCardDef(
     guid="6f6d59a8-bcc0-5d4c-b7ed-3d0472a3e276",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Stages of Evolution",
             game_text="As long as Wobbuffet is an Evolved Pok\u00e9mon, your opponent pays Colorless more to retreat his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=opponent_retreat_tax_passive(1, active_only=True),
         ),
         Attack(
             title="Grind",

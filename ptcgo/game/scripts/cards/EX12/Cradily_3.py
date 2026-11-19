@@ -1,8 +1,42 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import def_for
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
+
+async def _devolution_wave(ctx):
+    """Devolve up to one opponent Evolved Pokemon per React Energy on Cradily;
+    the removed evolution cards are shuffled into the opponent's deck."""
+    limit = _react_count(ctx.attacker)
+    evolved = [pokemon for pokemon in ctx.opponent_pokemon_in_play()
+               if pokemon.get_attribute(AttrID.STAGE) in (
+                   PokemonStage.STAGE1.value, PokemonStage.STAGE2.value)]
+    if limit <= 0 or not evolved:
+        return
+    picked = await ctx.choose_cards(
+        evolved, min(limit, len(evolved)), minimum=0,
+        prompt="Choose Evolved Pokémon to devolve")
+    for pokemon in picked:
+        removed = await ctx.devolve_pokemon(pokemon, 1, destination="hand")
+        if removed:
+            await ctx.shuffle_into_deck(removed, ctx.opponent_id)
+
+
 card = PokemonCardDef(
     guid="7efab587-876e-55dd-8758-88dd5fe348c9",
     key="EX12",
@@ -25,7 +59,7 @@ card = PokemonCardDef(
             title="Devolution Wave",
             game_text="Count the number of React Energy cards attached to Cradily and choose up to that number of your opponent's Evolved Pok\u00e9mon. Remove the highest Stage Evolution card from each of those Pok\u00e9mon, then have your opponent shuffle those cards into his or her deck.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_devolution_wave,
         ),
         Attack(
             title="Linear Attack",
