@@ -941,6 +941,10 @@ def _stadium_ability_entries(
         ability = getattr(definition, "ability", None)
         if ability is None or ability.effect is None or not ability.ability_id:
             continue
+        # A triggered ability in this slot (Cursed Stone's checkup) fires on
+        # its own trigger; it is not a clickable once-per-turn action.
+        if getattr(ability, "trigger", None) is not None:
+            continue
         # "As often as he or she likes" (Ultimate Zone) is an UNLIMITED
         # stadium ability: it is never spent, so the per-turn key never fills.
         if ability.activation != Activations.UNLIMITED \
