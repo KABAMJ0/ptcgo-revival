@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="5f6b0085-e0d8-5e2c-8d91-db7440bbc704",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="This attack also does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", also_base=True, apply_modifiers=False),
         ),
         Attack(
             title="Boundless Power",

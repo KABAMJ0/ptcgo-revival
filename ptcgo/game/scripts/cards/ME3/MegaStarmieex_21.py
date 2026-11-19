@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="cb0e78f0-767e-5975-ad95-451cf893ae56",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack also does 50 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1},
             damage=120,
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="bench", also_base=True, apply_modifiers=False),
         ),
         Attack(
             title="Nebula Beam",
