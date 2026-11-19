@@ -2,6 +2,12 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 
+async def _settle_the_score(ctx):
+    printed = getattr(ctx.ability, "damage", 0) or 0
+    taken = ctx.session.turn_state.prizes_taken_last_turn.get(ctx.opponent_id, 0)
+    await ctx.deal_damage(printed + 80 * taken)
+
+
 card = PokemonCardDef(
     guid="84cb8e69-31ff-5d86-90d2-a31a2479c23b",
     key="SM2",
@@ -26,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_settle_the_score,
         ),
         Attack(
             title="Submission",

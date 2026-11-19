@@ -2,6 +2,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+async def _scrutinize(ctx):
+    top_cards = ctx.deck_top(2, ctx.opponent_id)
+    if not top_cards:
+        return
+    if len(top_cards) == 1:
+        picks = top_cards
+    else:
+        await ctx.reveal_cards(top_cards, to_player=ctx.player_id)
+        picks = await ctx.choose_cards(
+            top_cards, 1, minimum=1,
+            prompt="Choose a card to discard from the top of their deck")
+    await ctx.discard_cards(picks)
+
+
 card = PokemonCardDef(
     guid="a5efd131-a663-598b-8718-c970f267e327",
     key="SM2",
@@ -24,7 +38,7 @@ card = PokemonCardDef(
             title="Scrutinize",
             game_text="Look at the top 2 cards of your opponent's deck, discard 1 of them, and put the other card back.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_scrutinize,
         ),
         Attack(
             title="Slam",

@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.attributes import SpecialConditions
+
+async def _hot_poison(ctx):
+    target = ctx.opponent_active()
+    if target is None or ctx.effects_blocked(target):
+        return
+    await ctx.apply_special_condition(target, SpecialConditions.BURNED)
+    await ctx.apply_special_condition(target, SpecialConditions.POISONED)
+
 
 card = PokemonCardDef(
     guid="59398bbd-8dd7-5eed-892f-cdb27c1d2c2d",
@@ -23,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Hot Poison",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may leave your opponent's Active Pok\u00e9mon Burned and Poisoned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=_hot_poison,
         ),
         Attack(
             title="Flamethrower",

@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.attributes import AttrID
+
+async def _link_blast(ctx):
+    printed = getattr(ctx.ability, "damage", 0) or 0
+    defender = ctx.defender
+    if defender is not None and len(ctx.attached_energies(ctx.attacker)) == \
+            len(ctx.attached_energies(defender)):
+        await ctx.deal_damage(printed + 80)
+    else:
+        await ctx.deal_damage(printed)
 
 
 card = PokemonCardDef(
@@ -33,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_link_blast,
         ),
     ],
 )
