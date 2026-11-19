@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _heal_own_bench(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench():
+        await ctx.heal(100, pokemon)
+
+
 card = PokemonCardDef(
     guid="eba08337-e47b-59a4-b2b7-6016ec54260c",
     key="SV8PT5",
@@ -32,7 +38,7 @@ card = PokemonCardDef(
             game_text="Heal 100 damage from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1},
             damage=230,
-            effect=unimplemented,
+            effect=_heal_own_bench,
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="c52bdf00-812f-5820-b122-a121b5a41e90",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Gather Materials",
             game_text="You must discard a card from your hand in order to use this Ability. Once during your turn, you may draw 3 cards.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=discard_then_draw(1, 3),
         ),
         Attack(
             title="Special Hammer",

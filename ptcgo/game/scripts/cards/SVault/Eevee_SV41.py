@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 
 card = PokemonCardDef(
     guid="7dbbbdaa-b374-5ce5-b724-4db0091367ae",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Quick Draw",
             game_text="Flip a coin. If heads, draw a card.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=draw_attack(1)),
         ),
     ],
 )

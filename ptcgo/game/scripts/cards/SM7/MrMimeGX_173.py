@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="6f1c6b38-6c0d-501d-a4b2-e4874e1ec3f9",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Life Trick-GX",
             game_text="Heal all damage from this Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_attack(all_damage=True, target="self"),
         ),
     ],
 )
