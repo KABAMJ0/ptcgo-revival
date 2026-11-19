@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="f40b08e7-5ecc-514b-9938-7231a237c638",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Nutrients",
             game_text="Heal 30 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=heal_targets(30, scope="choice"),
         ),
         Attack(
             title="Spray Fluid",

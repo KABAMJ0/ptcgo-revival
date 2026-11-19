@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="ec083637-9e6c-50fa-a223-e3ae090402ef",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Salt Coating",
             game_text="Heal 20 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=heal_targets(20, scope="choice"),
         ),
         Attack(
             title="Tackle",
