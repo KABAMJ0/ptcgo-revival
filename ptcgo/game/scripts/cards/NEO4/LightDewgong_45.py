@@ -4,6 +4,16 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
+
+
+async def ice_pillar(ctx):
+    """Printed 40, then attacks do nothing to your Bench through the opponent's
+    next turn."""
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench():
+        ctx.add_passive_through_opponents_turn(pokemon, bench_damage_shield())
+
 card = PokemonCardDef(
     guid="4d4f729f-b906-5605-9c4f-39c50efaf4bb",
     key="NEO4",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             game_text="Until the end of your opponent's next turn, as long as Light Dewgong is your Active Pok\u00e9mon, prevent all damage done by attacks to your Benched Pok\u00e9mon. (Any other effects of attacks still happen.)",
             cost={PokemonTypes.WATER: 3},
             damage=40,
-            effect=unimplemented,
+            effect=ice_pillar,
         ),
     ],
 )

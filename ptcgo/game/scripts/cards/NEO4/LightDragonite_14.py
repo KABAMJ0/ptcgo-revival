@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import apply_protection
+
+
+async def light_wave(ctx):
+    """Printed 40, then no attack effects other than damage reach Light
+    Dragonite through the opponent's next turn."""
+    await ctx.deal_damage()
+    await apply_protection(ctx, target=ctx.attacker, effects_too=True)
+
 card = PokemonCardDef(
     guid="6c9bc5d2-8e77-5ea5-8e8a-614d318e39fc",
     key="NEO4",
@@ -29,7 +38,7 @@ card = PokemonCardDef(
             game_text="Prevent all effects of attacks, other than damage, done to Light Dragonite during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=light_wave,
         ),
     ],
 )

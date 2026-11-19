@@ -19,6 +19,28 @@ async def _warm_up(ctx):
         await ctx.attach_energy(found[0], target)
     await ctx.shuffle_deck()
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+def _fire_energy(card):
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+async def burning_flame(ctx):
+    """Two coins: on either tails the attack does nothing at all; otherwise 30
+    plus 20 per heads, with a Fire Energy discarded per heads."""
+    flips = await ctx.flip_coins(2, "Burning Flame")
+    heads = sum(1 for flip in flips if flip)
+    if heads < 2:
+        return
+    fire = [e for e in ctx.attached_energies(ctx.attacker) if _fire_energy(e)]
+    if len(fire) < heads:
+        return
+    for _ in range(heads):
+        await ctx.discard_energy_from(ctx.attacker, 1, predicate=_fire_energy,
+                                      prompt="Discard a Fire Energy")
+    await ctx.deal_damage(30 + 20 * heads)
+
 card = PokemonCardDef(
     guid="2d0dc74f-1f8b-5eb5-a135-e135471e6fa0",
     key="NEO4",
@@ -49,7 +71,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=burning_flame,
         ),
     ],
 )
