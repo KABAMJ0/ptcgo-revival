@@ -1,5 +1,14 @@
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.session.passives import carrier_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _has_darkness(pokemon, carrier):
+    if carrier_pokemon(carrier) is not pokemon:
+        return False
+    return any(energy_provides_type(child, PokemonTypes.DARKNESS.value)
+               for child in pokemon.children)
 
 card = PokemonCardDef(
     guid="9e850cbe-76ae-5685-b5da-83c1d87e7ba9",
@@ -21,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Lift",
             game_text="If Team Aqua's Carvanha has any Darkness Energy attached to it, the Retreat Cost for Team Aqua's Carvanha is 0.",
-            effect=unimplemented,
+            passive=retreat_free_when(_has_darkness),
         ),
         Attack(
             title="Slow-Acting Poison",

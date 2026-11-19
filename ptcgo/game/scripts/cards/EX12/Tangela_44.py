@@ -1,6 +1,33 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.passives_common import heal_activation
+from ptcgo.game.data_utils import Triggers, def_for
+from ptcgo.game.attributes import AttrID
+
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
+
+async def _reactive_healing(ctx):
+    """Attaching a React Energy from hand strips every damage counter."""
+    receiver = ctx.energy_receiver if ctx.energy_receiver is not None else ctx.source
+    if receiver is None or not _is_react(ctx.attached_energy):
+        return
+    damage = ctx.max_hp(receiver) - receiver.get_attribute(AttrID.HP, 0)
+    if damage > 0:
+        await ctx.heal(damage, receiver)
+
 
 card = PokemonCardDef(
     guid="f2bb927d-a029-58aa-9846-b7ebdef44b38",
@@ -23,7 +50,8 @@ card = PokemonCardDef(
         Ability(
             title="Reactive Healing",
             game_text="Whenever you attach a React Energy card from your hand to Tangela, remove all damage counters from Tangela.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=_reactive_healing,
         ),
         Attack(
             title="Entangling Vines",

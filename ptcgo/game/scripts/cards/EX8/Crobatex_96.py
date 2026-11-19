@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import flip_damage_condition, place_counters
+from ptcgo.game.card_effects.passives_common import unafflicted
 
 card = PokemonCardDef(
     guid="6c66ec83-1989-57a9-9f40-266ec2aa8997",
@@ -23,7 +25,9 @@ card = PokemonCardDef(
         Ability(
             title="Distortion",
             game_text="Once during your turn (before your attack), if Crobat ex is your Active Pok\u00e9mon, you may put 1 damage counter on 1 of your opponent's Pok\u00e9mon. This power can't be used if Crobat ex is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=place_counters(1, target="choose_any_opponent"),
         ),
         Attack(
             title="Cross Attack",
@@ -31,7 +35,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage_condition(coins=4, per_heads=20, min_heads=2,
+                                         condition=SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Pester",

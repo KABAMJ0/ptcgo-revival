@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="812a638c-b91c-51ae-8041-114731b4d13e",
@@ -24,7 +26,8 @@ card = PokemonCardDef(
             title="Back Burner",
             game_text="Search your discard pile for up to 2 basic Energy cards and attach them to your Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=2, target="choice",
+                                       distribute=True, minimum=0),
         ),
         Attack(
             title="Split Bomb",

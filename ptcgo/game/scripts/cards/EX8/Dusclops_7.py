@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_hand, place_counters
+
+_MAX_POWERFUL_HAND = 7
 
 card = PokemonCardDef(
     guid="3e53b946-96e5-5312-af79-665d772d3e0c",
@@ -31,7 +34,8 @@ card = PokemonCardDef(
             title="Powerful Hand",
             game_text="Count the number of cards in your hand. Put that many damage counters on the Defending Pok\u00e9mon. You can't put more than 7 damage counters in this way.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(
+                lambda ctx: min(count_hand("mine")(ctx), _MAX_POWERFUL_HAND)),
         ),
     ],
 )

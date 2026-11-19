@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.passives_common import unafflicted
 
 card = PokemonCardDef(
     guid="ab24f9c6-48ef-5ba6-8d9d-5e05a7d4cf00",
@@ -22,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Swing Dance",
             game_text="Once during your turn (before your attack), you may draw a card. This power can't be used if Ludicolo is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Healing Steps",

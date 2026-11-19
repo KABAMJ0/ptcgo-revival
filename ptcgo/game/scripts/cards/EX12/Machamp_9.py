@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.data_utils import def_for
+
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
 
 card = PokemonCardDef(
     guid="a375226b-8674-5647-ba6a-2a3438682498",
@@ -32,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(lambda c: _react_count(c.attacker), 20, base=60),
         ),
     ],
 )

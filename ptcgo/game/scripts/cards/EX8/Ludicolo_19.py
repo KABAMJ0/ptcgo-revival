@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.card_effects.passives_common import unafflicted
 
 card = PokemonCardDef(
     guid="1e4db9b2-ca86-5b7c-a6c5-6aedd5afe955",
@@ -22,7 +24,10 @@ card = PokemonCardDef(
         Ability(
             title="Happy Dance",
             game_text="Once during your turn (before your attack), you may remove 1 damage counter from each of your Pok\u00e9mon. You can't use more than 1 Happy Dance Pok\u00e9-Power each turn. This power can't be used if Ludicolo is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Happy Dance",
+            condition=unafflicted,
+            effect=heal_targets(10, scope="all_own"),
         ),
         Attack(
             title="Water Punch",

@@ -1,5 +1,20 @@
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+class ShellRetreatPassive(Passive):
+    """While any Energy is attached, damage done to Squirtle by an opponent's
+    attack is reduced by 10 (after W/R)."""
+
+    def modify_damage_taken(self, calc, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or calc.target is not holder:
+            return
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if any(is_energy_card(child) for child in holder.children):
+            calc.amount = max(0, calc.amount - 10)
 
 card = PokemonCardDef(
     guid="0b00b401-0109-5c60-a2bc-9b5935dd66ff",
@@ -21,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Shell Retreat",
             game_text="As long as Squirtle has any Energy cards attached to it, damage done to Squirtle by an opponent's attack is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=ShellRetreatPassive(),
         ),
         Attack(
             title="Tackle",

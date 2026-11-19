@@ -1,6 +1,23 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_resistance_passive
+from ptcgo.game.data_utils import def_for
+
+_FOSSIL_ATTACKERS = ("omanyte", "omastar", "kabuto", "kabutops", "kabutops ex")
+
+
+def _named(pokemon) -> str:
+    definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower()
+
+
+def _ancient_tentacles(calc, carrier) -> bool:
+    attacker = calc.attacker
+    return (calc.is_attack and attacker is not None
+            and attacker.owning_player_id == carrier.owning_player_id
+            and _named(attacker) in _FOSSIL_ATTACKERS)
+
 
 card = PokemonCardDef(
     guid="97da7b83-28a3-5cae-947c-4f6498e2cd8c",
@@ -23,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Ancient Tentacles",
             game_text="Damage done to your opponent's Pok\u00e9mon by your Omanyte, Omastar, Kabuto, Kabutops, or Kabutops ex isn't affected by Resistance.",
-            effect=unimplemented,
+            passive=no_resistance_passive(when=_ancient_tentacles),
         ),
         Attack(
             title="Rising Lunge",

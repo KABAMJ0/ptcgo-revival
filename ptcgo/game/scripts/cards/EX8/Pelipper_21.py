@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 
 card = PokemonCardDef(
     guid="c32f1610-5883-5bc2-942a-89c080bb5055",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your next turn, if any of your current Active Pok\u00e9mon does damage to any Defending Pok\u00e9mon, the attack does 30 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=boost_own_next_turn(30),
         ),
         Attack(
             title="Aqua Sonic",

@@ -1,5 +1,37 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import def_for
+
+def _is_react(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() == "react energy"
+
+
+def _react_count(pokemon) -> int:
+    return sum(1 for energy in (getattr(pokemon, "children", None) or [])
+               if _is_react(energy))
+
+
+def _attacker_has_react(ctx) -> bool:
+    return ctx.attacker is not None and _react_count(ctx.attacker) > 0
+
+
+def _named(pokemon) -> str:
+    definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower()
+
+
+async def _multiple_force(ctx):
+    """30 damage plus 10 more for each Magnemite and Magneton in play (both
+    sides) while Magneton has a React Energy attached."""
+    if not _attacker_has_react(ctx):
+        await ctx.deal_damage(30)
+        return
+    family = sum(1 for pokemon in
+                 ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play()
+                 if _named(pokemon) in ("magnemite", "magneton"))
+    await ctx.deal_damage(30 + 10 * family)
+
 
 card = PokemonCardDef(
     guid="225ad915-39c4-5128-9296-a3e69ab564d4",
@@ -31,7 +63,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_multiple_force,
         ),
         Attack(
             title="Magnetic Blast",

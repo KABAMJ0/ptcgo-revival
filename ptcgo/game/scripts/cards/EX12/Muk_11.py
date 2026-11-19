@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import Passive, is_in_active_spot
+from ptcgo.game.session.passives import carrier_pokemon
+
+class _ActiveAbilityLock(Passive):
+    """While the carrier is the Active Pokemon, no Pokemon in play can use
+    its Poke-Powers."""
+
+    def blocks_abilities(self, pokemon, carrier):
+        return is_in_active_spot(carrier_pokemon(carrier))
+
 
 card = PokemonCardDef(
     guid="60f7459d-84e6-583c-84dd-735ebd7828df",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Stench",
             game_text="As long as Muk is your Active Pok\u00e9mon, each player's Pok\u00e9mon can't use any Pok\u00e9-Powers.",
-            effect=unimplemented,
+            passive=_ActiveAbilityLock(),
         ),
         Attack(
             title="Poison Ring",

@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+
+
+def _is_solrock(pokemon, carrier) -> bool:
+    return pokemon.owning_player_id == carrier.owning_player_id \
+        and pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Solrock"
+
+
 
 card = PokemonCardDef(
     guid="0a8462f6-c6f5-508b-8163-fe7e38a70930",
@@ -21,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Moonglow",
             game_text="The Retreat Cost for each Solrock you have in play is 0.",
-            effect=unimplemented,
+            passive=retreat_free_when(_is_solrock),
         ),
         Attack(
             title="Foresight",

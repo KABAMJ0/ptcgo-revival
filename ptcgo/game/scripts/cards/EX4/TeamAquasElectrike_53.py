@@ -1,3 +1,5 @@
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.support_common import attach_from_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Self Charge",
             game_text="Attach an Energy card from your hand to Team Aqua's Electrike.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(target="self", count=1, minimum=1, prompt="Attach an Energy card from your hand"),
         ),
         Attack(
             title="Tackle",
