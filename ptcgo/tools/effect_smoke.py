@@ -31,6 +31,7 @@ from ptcgo.game.data_utils import (
     StadiumCardDef,
     TrainerCardDef,
     Triggers,
+    VUnionPokemonDef,
     has_rule_box,
     unimplemented,
 )
@@ -625,6 +626,13 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
         entities = rig.setup(target_kind)
         needed = "p1_active" if target_kind == "pokemon" else "target"
         if entities.get(needed) is None or entities.get("p1_active") is None:
+            if isinstance(definition, VUnionPokemonDef):
+                # A combined V-UNION is four pieces assembled on the bench
+                # (vunion.summon_pieces); the rig places single card entities,
+                # so this is a harness gap, not a card defect.
+                raise _SkipTest(
+                    "V-UNION combined form: needs its four pieces assembled in "
+                    "play, and the rig places single cards")
             raise RuntimeError(
                 f"harness rig could not place the {target_kind} target on the board")
         if isinstance(runner_key, Ability):

@@ -109,11 +109,31 @@ class PlayLockPassive(Passive):
             return False
         return True
 
-    def blocks_trainer_play(self, card, player_id, carrier) -> bool:
-        return self._locks(player_id, card, carrier, None)
+    def blocks_trainer_play(self, card, player_id, carrier, board=None) -> bool:
+        return self._locks(player_id, card, carrier, board)
 
     def blocks_play(self, player_id, card, carrier, board=None) -> bool:
         return self._locks(player_id, card, carrier, board)
+
+
+def fewer_pokemon_in_play(board, player_id, carrier) -> bool:
+    """Condition for `play_lock_passive`: the carrier's owner has fewer Pokemon
+    in play than the opponent (Omastar's Fossil Bind).
+
+    `player_id` is the player the lock would stop, so when the carrier carries
+    no owner id the locked player is the one who is not the owner."""
+    if board is None:
+        return False
+    owner = carrier.owning_player_id
+    ids = list(getattr(board, "player_ids", None) or [])
+    if owner is not None:
+        opponent = next((pid for pid in ids if pid != owner), None)
+        mine = owner
+    else:
+        opponent, mine = player_id, next((pid for pid in ids if pid != player_id), None)
+    if mine is None or opponent is None:
+        return False
+    return len(board.pokemon_in_play(mine)) < len(board.pokemon_in_play(opponent))
 
 
 def play_lock_passive(*kinds, excluding=None, while_active: bool = True,
