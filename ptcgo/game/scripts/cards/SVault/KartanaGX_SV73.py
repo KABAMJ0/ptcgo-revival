@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import full_stack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _shuffle_self_in(ctx):
+    await ctx.deal_damage()
+    await ctx.shuffle_into_deck(full_stack(ctx.attacker), ctx.player_id)
+    if not await ctx.session._promote_new_active(ctx.player_id):
+        screen = ctx.session.players[ctx.player_id].screen_name
+        await ctx.session.end_game(
+            ctx.opponent_id, f"{screen} has no Pokémon left"
+        )
+
 
 card = PokemonCardDef(
     guid="a6dc3316-048f-5078-86c1-2d19df322953",
@@ -29,7 +40,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=_shuffle_self_in,
         ),
         Attack(
             title="Blade-GX",

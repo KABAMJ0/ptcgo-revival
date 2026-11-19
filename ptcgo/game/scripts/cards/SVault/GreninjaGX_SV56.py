@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.session.effects import full_stack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _shuffle_self_in(ctx):
+    await ctx.deal_damage()
+    await ctx.shuffle_into_deck(full_stack(ctx.attacker), ctx.player_id)
+    if not await ctx.session._promote_new_active(ctx.player_id):
+        screen = ctx.session.players[ctx.player_id].screen_name
+        await ctx.session.end_game(
+            ctx.opponent_id, f"{screen} has no Pokémon left"
+        )
+
 
 card = PokemonCardDef(
     guid="31f6da84-8014-57bd-93e6-71190f442765",
@@ -29,7 +40,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=110,
-            effect=unimplemented,
+            effect=_shuffle_self_in,
         ),
         Attack(
             title="Shadowy Hunter-GX",
