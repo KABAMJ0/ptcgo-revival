@@ -66,11 +66,13 @@ from .passives import (
     effective_bench_capacity,
     effective_max_hp,
     effective_pokemon_types,
+    energy_discard_destination,
     energy_removal_blocked,
     healing_blocked,
     modified_heal_amount,
     supporter_effect_replacement,
     trainer_effects_blocked,
+    trainer_play_flips,
 )
 
 # CakeAttackEffect's damageType is a string array of client type names.
