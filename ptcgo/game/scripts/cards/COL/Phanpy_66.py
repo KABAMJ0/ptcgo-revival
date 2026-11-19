@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+
+def _has_energy(pokemon, carrier):
+    if pokemon.owning_player_id != carrier.owning_player_id:
+        return False
+    return bool(pokemon.children)
+
+
+_ultra_thick_skin = takes_less_passive(10, protects=_has_energy)
+
 card = PokemonCardDef(
     guid="1d92f887-24ae-5a8d-8398-9e6a1d2eea2d",
     key="COL",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Ultra-Thick Skin",
             game_text="As long as Phanpy has Energy attached to it, any damage done to Phanpy by attacks is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=_ultra_thick_skin,
         ),
         Attack(
             title="Rock Smash",

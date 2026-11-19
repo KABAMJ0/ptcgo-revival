@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import AttrID, CLIENT_SPECIAL_CONDITION_NAMES, SpecialConditions
+
+
+async def poison_effect(ctx):
+    """Printed 20, or 80 and the Poison cured while Seviper is Poisoned."""
+    poisoned = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.POISONED] in \
+        (ctx.attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+    await ctx.deal_damage(80 if poisoned else 20)
+    if poisoned:
+        await ctx.cure_condition(ctx.attacker, SpecialConditions.POISONED)
+
 card = PokemonCardDef(
     guid="f7fa8156-1660-51d5-acd3-8b73b29e81af",
     key="COL",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=poison_effect,
         ),
     ],
 )
