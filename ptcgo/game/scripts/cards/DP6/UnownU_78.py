@@ -21,7 +21,7 @@ class _Unseen(Passive):
         return bool(calc.is_attack and calc.is_opposing
                     and self._covers(calc.target, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return self._covers(target, carrier)
 
 

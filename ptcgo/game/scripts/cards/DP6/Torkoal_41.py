@@ -20,7 +20,7 @@ class _WhiteSmoke(Passive):
         return bool(calc.is_attack and calc.is_opposing
                     and _my_benched(calc.target, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return _my_benched(target, carrier)
 
 card = PokemonCardDef(
