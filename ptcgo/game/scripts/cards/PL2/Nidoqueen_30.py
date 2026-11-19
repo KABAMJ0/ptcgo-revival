@@ -1,6 +1,14 @@
+from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+
+async def maternal_comfort(ctx):
+    """Between turns: one damage counter comes off each of your Pokemon."""
+    for pokemon in ctx.my_pokemon_in_play():
+        await ctx.heal(10, pokemon)
 
 card = PokemonCardDef(
     guid="333e6341-6ab9-5a9c-b22d-f4625d7a00c8",
@@ -24,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Maternal Comfort",
             game_text="At any times between turns, remove 1 damage counter from each of your Pok\u00e9mon. You can't use more than 1 Maternal Comfort Pok\u00e9-Body between turns.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=maternal_comfort,
         ),
         Attack(
             title="Mega Punch",

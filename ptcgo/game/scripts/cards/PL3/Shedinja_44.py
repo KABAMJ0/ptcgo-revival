@@ -1,3 +1,26 @@
+from ptcgo.game.attributes import AbilityTypes
+from ptcgo.game.data_utils import def_for
+
+
+def _has_kind(pokemon, *kinds):
+    """Whether this Pokemon carries a printed ability of one of `kinds`
+    (POKE_POWER / POKE_BODY), read off the definition's restored kinds."""
+    if pokemon is None:
+        return False
+    definition = def_for(pokemon.archetype_id)
+    for ability in getattr(definition, "abilities", []) or []:
+        if getattr(ability, "ability_type", None) in kinds:
+            return True
+    return False
+
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _from_kind_holder(calc, carrier) -> bool:
+    """Prevent everything from an attacker holding a Power or Body."""
+    attacker = calc.attacker
+    return _has_kind(attacker, AbilityTypes.POKE_POWER,
+                     AbilityTypes.POKE_BODY)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +45,7 @@ card = PokemonCardDef(
         Ability(
             title="Marvel Shell",
             game_text="Prevent all effects of attacks, including damage, done to Shedinja by your opponent's Pok\u00e9mon that has any Pok\u00e9-Powers or Pok\u00e9-Bodies.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_from_kind_holder),
         ),
         Attack(
             title="Spike Wound",

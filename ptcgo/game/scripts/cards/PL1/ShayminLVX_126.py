@@ -1,3 +1,34 @@
+from ptcgo.game.attributes import AbilityTypes
+from ptcgo.game.data_utils import def_for
+
+
+def _has_kind(pokemon, *kinds):
+    """Whether this Pokemon carries a printed ability of one of `kinds`
+    (POKE_POWER / POKE_BODY), read off the definition's restored kinds."""
+    if pokemon is None:
+        return False
+    definition = def_for(pokemon.archetype_id)
+    for ability in getattr(definition, "abilities", []) or []:
+        if getattr(ability, "ability_type", None) in kinds:
+            return True
+    return False
+
+from ptcgo.game.card_effects.passives_common import team_hp_bonus, pokemon_of_types
+from ptcgo.game.attributes import PokemonTypes
+
+
+GRASS = pokemon_of_types(PokemonTypes.GRASS)
+
+
+def _grass_team(pokemon, carrier) -> bool:
+    """Your Grass Pokemon, excluding Shaymin itself."""
+    if pokemon is None or carrier is None:
+        return False
+    if pokemon.owning_player_id != getattr(carrier, "owning_player_id", None):
+        return False
+    if "Shaymin" in (getattr(def_for(pokemon.archetype_id), "display_name", "") or ""):
+        return False
+    return GRASS(pokemon)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +54,8 @@ card = PokemonCardDef(
         Ability(
             title="Thankfulness",
             game_text="Each of your Grass Pok\u00e9mon (excluding any Shaymin) gets +40 HP. You can't use more than 1 Thankfulness Pok\u00e9-Body each turn.",
-            effect=unimplemented,
+            passive=team_hp_bonus(40, protects="team", pred=_grass_team,
+                                  stacking_key="Thankfulness"),
         ),
         Attack(
             title="Seed Flare",
