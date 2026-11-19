@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def _mysterious_dance(ctx):
+    """1 damage counter per Benched Pokemon on the opponent's side, placed on
+    any of their Pokemon as the player likes."""
+    count = len(ctx.opponent_bench())
+    if count <= 0:
+        return
+    await ctx.place_damage_counters(count, ctx.opponent_pokemon_in_play())
+
 card = PokemonCardDef(
     guid="744aa9f0-4eb1-5aea-b9d7-41f7abfdfb1b",
     key="SM9",
@@ -29,7 +37,7 @@ card = PokemonCardDef(
             title="Mysterious Dance",
             game_text="For each of your opponent's Benched Pok\u00e9mon, put 1 damage counter on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_mysterious_dance,
         ),
     ],
 )

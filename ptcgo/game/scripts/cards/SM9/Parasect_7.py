@@ -51,7 +51,7 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Panic Spores",
-            game_text="Put 2 damage counters on your opponent's Confused Pok\u00e9mon between turns.",
+            game_text="Once during your turn (before your attack), if your opponent's Active Pok\u00e9mon is Confused, you may put 2 damage counters on that Pok\u00e9mon.",
             activation=Activations.ONCE_PER_TURN,
             condition=_opponent_active_confused,
             effect=_panic_spores,
