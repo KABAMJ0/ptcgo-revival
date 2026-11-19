@@ -4827,8 +4827,15 @@ def search_deck_or_discard_to_hand(predicate=None, count: int = 1):
 
 
 def pokemon_lv_x():
-    """Predicate: a Pokemon LV.X."""
-    return pokemon_of_subtype("LV.X")
+    """Predicate: a Pokemon LV.X.
+
+    The corpus stores the printed subtype as **"Level-Up"**, not "LV.X", so a
+    predicate looking for the literal "LV.X" matched nothing -- it silently
+    turned three Ball searches and every LV.X-targeting attack into no-ops.
+    Both spellings are accepted so a set list that writes either still matches."""
+    printed = pokemon_of_subtype("Level-Up")
+    literal = pokemon_of_subtype("LV.X")
+    return lambda card: printed(card) or literal(card)
 
 
 def discard_hand_draw(draw: int = 7):

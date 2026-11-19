@@ -1,4 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (PokemonCardDef, Attack, Ability,
+                                      Triggers, unimplemented)
+from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Bright Look",
             game_text="Once during your turn (before your attack), when you put Luxray GL LV.X from your hand onto your Active Luxray GL, you may switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=gust_attack(damage_before=0),
         ),
         Attack(
             title="Flash Impact",
