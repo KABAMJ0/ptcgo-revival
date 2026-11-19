@@ -3,12 +3,12 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 def flip_the_script_available(board, player_id, pokemon) -> bool:
-    """Flip the Script is offered only when one of your Pokemon was Knocked Out
-    during your opponent's last turn."""
-    ledger = getattr(board, "pokemon_left_play_last_turn", None)
-    if ledger is None:
-        return True
-    return any(r.get("owner_id") == player_id for r in ledger)
+    """Offered only when one of your Pokemon was Knocked Out during your
+    opponent's last turn."""
+    turn_state = getattr(board, "turn_state", None)
+    ledger = getattr(turn_state, "pokemon_left_play_last_turn", None) or []
+    return any(record.get("owner_id") == player_id for record in ledger)
+
 
 from ptcgo.game.card_effects.trainers import draw_n
 
