@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 
 async def form_change(ctx):
     source = ctx.source
@@ -46,7 +47,7 @@ card = PokemonCardDef(
             game_text="During your next turn, Deoxys's attacks do 40 more damage to the Defending Pok\u00e9mon (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=boost_own_next_turn(40),
         ),
     ],
 )
