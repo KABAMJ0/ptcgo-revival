@@ -14,7 +14,7 @@ card = StadiumCardDef(
     set_code="XY7",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="FadedTown_73",
+        title="Faded Town",
         trigger=Triggers.BETWEEN_TURNS,
         effect=counters_each_in_play(2, lambda p: has_pokemon_subtype(p, "MEGA")),
     )

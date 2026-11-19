@@ -13,7 +13,7 @@ card = StadiumCardDef(
     set_code="SV2",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="CalamitousSnowyMountain_174",
+        title="Calamitous Snowy Mountain",
         trigger=Triggers.ON_ENERGY_ATTACHED,
         effect=trigger_counters(2, lambda p, c: has_pokemon_subtype(p, "Basic") or True),
     )
