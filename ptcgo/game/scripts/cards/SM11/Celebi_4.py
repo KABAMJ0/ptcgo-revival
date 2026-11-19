@@ -12,8 +12,11 @@ async def _time_spiral(ctx):
     if not evolved:
         return
     target = await ctx.choose_pokemon(evolved, "Choose one of their Pokemon")
-    if target is not None:
-        await ctx.devolve_pokemon(target, steps=1, destination="deck")
+    if target is None:
+        return
+    stripped = await ctx.devolve_pokemon(target, steps=1, destination="deck")
+    if stripped:
+        await ctx.shuffle_deck(ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="b59c8b79-1069-5a8c-85d2-e1ef64fe95d9",
