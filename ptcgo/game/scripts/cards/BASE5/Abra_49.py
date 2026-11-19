@@ -3,6 +3,12 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
+async def vanish(ctx):
+    """Shuffle Abra into your deck, discarding all cards attached to Abra."""
+    await remove_self_from_play(destination="deck")(ctx)
+
 card = PokemonCardDef(
     guid="71616308-3e9a-5ddf-9cd6-74bbb9497861",
     key="BASE5",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             title="Vanish",
             game_text="Shuffle Abra into your deck. (Discard all cards attached to Abra.)",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=vanish,
         ),
         Attack(
             title="Psyshock",

@@ -2,6 +2,28 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def magnetic_lines(ctx):
+    """Printed 30; move a basic Energy off the Defending Pokemon onto one of
+    their Benched Pokemon."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    bench = ctx.opponent_bench()
+    if defender is None or not bench:
+        return
+    energies = [e for e in ctx.attached_energies(defender) if is_basic_energy_card(e)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(energies, 1, minimum=1,
+                                   prompt="Choose a basic Energy to move")
+    if not picks:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon to attach it to")
+    if target is not None:
+        await ctx.attach_energy(picks[0], target)
+
 card = PokemonCardDef(
     guid="07dff565-eaab-590c-94d1-8fa32f6ed077",
     key="BASE5",
@@ -32,7 +54,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon has any basic Energy cards attached to it, choose 1 of them. If your opponent has any Benched Pok\u00e9mon, choose 1 of them and attach that Energy card to it.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=30,
-            effect=unimplemented,
+            effect=magnetic_lines,
         ),
     ],
 )

@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def mega_flame(ctx):
+    """Printed 50, then one Fire Energy discarded per tails of two."""
+    await ctx.deal_damage()
+    flips = await ctx.flip_coins(2, "Mega Flame")
+    tails = sum(1 for flip in flips if not flip)
+    for _ in range(tails):
+        gone = await ctx.discard_energy_from(
+            ctx.attacker, 1,
+            predicate=lambda card: energy_provides_type(card, PokemonTypes.FIRE.value),
+            prompt="Discard a Fire Energy from Entei")
+        if not gone:
+            break
+
 card = PokemonCardDef(
     guid="a8aa24a3-0ea8-5bd6-81ad-9ee17eb52979",
     key="NEO3",
@@ -28,7 +44,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. For each tails, discard 1 Fire Energy card from Entei, if it has any.",
             cost={PokemonTypes.FIRE: 3},
             damage=50,
-            effect=unimplemented,
+            effect=mega_flame,
         ),
     ],
 )

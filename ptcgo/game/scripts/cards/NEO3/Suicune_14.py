@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def aurora_wave(ctx):
+    """Printed 30; both heads Paralyzes, exactly one heads Asleeps."""
+    await ctx.deal_damage()
+    flips = await ctx.flip_coins(2, "Aurora Wave")
+    heads = sum(1 for flip in flips if flip)
+    if heads == 2:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
+    elif heads == 1:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.ASLEEP)
+
 card = PokemonCardDef(
     guid="19403144-d856-5231-8f84-5105ce2c6b7b",
     key="NEO3",
@@ -28,7 +41,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If both are heads, the Defending Pok\u00e9mon is now Paralyzed. If only 1 is heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.WATER: 3},
             damage=30,
-            effect=unimplemented,
+            effect=aurora_wave,
         ),
     ],
 )

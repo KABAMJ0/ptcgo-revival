@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="This attack can't be used during your next turn. (Benching Farfetch'd ends this effect.)",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

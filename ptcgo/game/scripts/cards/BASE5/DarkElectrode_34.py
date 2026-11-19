@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import distribute_energy
+
+
+async def energy_bomb(ctx):
+    """Printed 30, then every Energy on Dark Electrode moves to your Bench in
+    any way you like - or is discarded when the Bench is empty."""
+    await ctx.deal_damage()
+    energies = list(ctx.attached_energies(ctx.attacker))
+    if not energies:
+        return
+    if ctx.my_bench():
+        await distribute_energy(ctx, energies, ctx.my_bench())
+    else:
+        await ctx.discard_cards(energies)
+
 card = PokemonCardDef(
     guid="ac91ad10-7a1e-5e6c-b41a-df0691dd0421",
     key="BASE5",
@@ -29,7 +44,7 @@ card = PokemonCardDef(
             game_text="Take all Energy cards attached to Dark Electrode and attach them to your Benched Pok\u00e9mon (in any way you choose). If you have no Benched Pok\u00e9mon, discard all Energy cards attached to Dark Electrode.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=30,
-            effect=unimplemented,
+            effect=energy_bomb,
         ),
     ],
 )

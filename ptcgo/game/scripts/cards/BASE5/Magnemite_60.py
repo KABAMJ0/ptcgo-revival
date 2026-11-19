@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.data_utils import def_for
+
+
+def _is_magnet_family(pokemon) -> bool:
+    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
+    return name in ("Magnemite", "Magneton", "Dark Magneton")
+
+
+async def magnetism(ctx):
+    """Printed 10 plus 10 per Magnemite/Magneton/Dark Magneton on your Bench."""
+    bonus = sum(1 for pokemon in ctx.my_bench() if _is_magnet_family(pokemon))
+    await ctx.deal_damage(10 + 10 * bonus)
+
 card = PokemonCardDef(
     guid="12fb6027-cda8-517a-9bcc-2cd941c1910c",
     key="BASE5",
@@ -29,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=magnetism,
         ),
     ],
 )

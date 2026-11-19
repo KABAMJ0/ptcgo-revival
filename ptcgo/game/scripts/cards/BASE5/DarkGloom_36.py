@@ -4,6 +4,20 @@ from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.attributes import AttrID, SpecialConditions
+
+
+async def pollen_stench(ctx):
+    """Flip a coin: heads Confuses the Defending Pokemon, tails Confuses your
+    Active."""
+    heads = await ctx.flip_coins(1, "Pollen Stench")
+    target = ctx.opponent_active() if (heads and heads[0]) else ctx.my_active()
+    await ctx.apply_special_condition(target, SpecialConditions.CONFUSED)
+
+
+async def sneer(ctx):
+    pass
+
 card = PokemonCardDef(
     guid="300f099f-3f1e-5a5d-9767-e83d11b731fb",
     key="BASE5",
@@ -25,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Pollen Stench",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, the Defending Pok\u00e9mon is now Confused; if tails, your Active Pok\u00e9mon is now Confused. This power can't be used if Dark Gloom is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            effect=pollen_stench,
         ),
         Attack(
             title="Poisonpowder",

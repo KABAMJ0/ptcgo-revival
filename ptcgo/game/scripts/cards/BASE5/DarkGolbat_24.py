@@ -2,6 +2,21 @@ from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.data_utils import Triggers
+
+
+async def sneak_attack(ctx):
+    """When played from hand, 10 to a chosen opposing Pokemon with Weakness and
+    Resistance applied."""
+    pool = ctx.opponent_pokemon_in_play()
+    if not pool:
+        return
+    if not await ctx.ask_yes_no("Have Dark Golbat do 10 damage to 1 of their Pokemon?"):
+        return
+    target = await ctx.choose_pokemon(pool, "Choose 1 of your opponent's Pokemon")
+    if target is not None:
+        await ctx.deal_damage(10, target=target)
+
 card = PokemonCardDef(
     guid="ae12f2fd-7fb0-597f-bf54-f2b3b4d1dc35",
     key="BASE5",
@@ -24,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Sneak Attack",
             game_text="When you play Dark Golbat from your hand, you may choose 1 of your opponent's Pok\u00e9mon. If you do, Dark Golbat does 10 damage to that Pok\u00e9mon. Apply Weakness and Resistance.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=sneak_attack,
         ),
         Attack(
             title="Flitter",

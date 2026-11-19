@@ -18,6 +18,17 @@ async def _ball_of_flame(ctx):
         await ctx.deal_damage(20, target=target, apply_modifiers=False)
     await ctx.deal_damage()
 
+from ptcgo.game.data_utils import Triggers
+
+
+async def hot_plate(ctx):
+    """A Basic or Baby Pokemon put onto either Bench from hand takes 10 with no
+    Weakness or Resistance."""
+    benched = getattr(ctx, "benched_pokemon", None)
+    if benched is None:
+        return
+    await ctx.deal_damage(10, target=benched, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="d98f82a6-1051-5e84-ab42-3507c800e4b6",
     key="NEO4",
@@ -39,7 +50,8 @@ card = PokemonCardDef(
         Ability(
             title="Hot Plate",
             game_text="As long as Dark Magcargo is your Active Pok\u00e9mon, whenever a player puts a Baby Pok\u00e9mon or Basic Pok\u00e9mon onto his or her Bench from his or her hand, this power does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance.) This power stops working if Dark Magcargo is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            trigger=Triggers.ON_POKEMON_BENCHED,
+            effect=hot_plate,
         ),
         Attack(
             title="Ball of Flame",

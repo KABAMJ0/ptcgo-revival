@@ -2,6 +2,26 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_choice
 
+from ptcgo.game.session.passives import Passive
+
+
+class SinkholePassive(Passive):
+    """Whenever the opponent's Active retreats, they flip a coin; on tails it
+    takes 20 damage with no Weakness or Resistance."""
+
+    async def on_retreat(self, ctx, pokemon, carrier):
+        if pokemon.owning_player_id == carrier.owning_player_id:
+            return
+        heads = await ctx.flip_coins(1, "Sinkhole")
+        if not (heads and heads[0]):
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
+
+def _sinkhole():
+    """Whenever your opponent's Active Pokemon retreats, your opponent flips a
+    coin; on tails this power does 20 damage to that Pokemon."""
+    return SinkholePassive()
+
 card = PokemonCardDef(
     guid="827390ff-08fd-5a42-99dd-22f235f5e263",
     key="BASE5",
@@ -24,7 +44,7 @@ card = PokemonCardDef(
         Ability(
             title="Sinkhole",
             game_text="Whenever your opponent's Active Pok\u00e9mon retreats, your opponent flips a coin. If tails, this power does 20 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance.) This power stops working while Dark Dugtrio is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_sinkhole(),
         ),
         Attack(
             title="Knock Down",

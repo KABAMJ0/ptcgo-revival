@@ -3,6 +3,21 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.session.effects import is_basic_pokemon, is_evolution_pokemon
+
+
+def _basic_or_evolution(card):
+    return is_basic_pokemon(card) or is_evolution_pokemon(card)
+
+
+async def reel_in(ctx):
+    """When played, up to 3 Basic Pokemon and/or Evolution cards come back from
+    the discard pile."""
+    await recover_from_discard(_basic_or_evolution, count=3, minimum=0,
+                               prompt="Choose up to 3 Basic Pokemon or Evolution cards")(ctx)
+
 card = PokemonCardDef(
     guid="b0d59cb5-aaa7-5f0e-8b2c-b61888b0ebc4",
     key="BASE5",
@@ -24,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Reel In",
             game_text="When you play Dark Slowbro from your hand, choose up to 3 Basic Pok\u00e9mon and/or Evolution cards from your discard pile and put them into your hand.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=reel_in,
         ),
         Attack(
             title="Fickle Attack",

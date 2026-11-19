@@ -16,6 +16,18 @@ async def sonic_bleed(ctx):
     if ctx.opponent_bench():
         await gust_attack(opponent_chooses=True)(ctx)
 
+async def psychic_cut(ctx):
+    """60 plus 20 for each of your face-down Prize cards you turn face up."""
+    face_down = ctx.face_down_prize_cards()
+    turned = []
+    if face_down:
+        picks = await ctx.choose_cards(
+            face_down, len(face_down), minimum=0,
+            prompt="Choose any number of face-down Prize cards to turn face up")
+        if picks:
+            turned = await ctx.turn_prize_cards_face_up(cards=list(picks))
+    await ctx.deal_damage(60 + 20 * len(turned or []))
+
 card = PokemonCardDef(
     guid="e38d3357-62d4-5056-a00e-f3048d9ab02d",
     key="POP7",
@@ -46,7 +58,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=psychic_cut,
         ),
     ],
 )

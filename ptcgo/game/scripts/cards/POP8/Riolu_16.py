@@ -2,6 +2,11 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.attributes import SpecialConditions
+
+_inner_focus = condition_immunity_passive([SpecialConditions.PARALYZED])
+
 card = PokemonCardDef(
     guid="eb0e29dd-1bf8-5560-9624-9f399ca2d58e",
     key="POP8",
@@ -22,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Inner Focus",
             game_text="Riolu can't be Paralyzed.",
-            effect=unimplemented,
+            passive=_inner_focus,
         ),
         Attack(
             title="Quick Attack",

@@ -2,6 +2,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def perish_song(ctx):
+    """Knocks the Defending Pokemon Out when it is Asleep and was hit with Night
+    Eyes during your last turn."""
+    defender = ctx.defender
+    if defender is None:
+        return
+    from ptcgo.game.attributes import CLIENT_SPECIAL_CONDITION_NAMES, AttrID, SpecialConditions
+    asleep = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.ASLEEP] in \
+        (defender.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+    if not asleep:
+        return
+    if ctx.attack_used_last_turn("Night Eyes", entity=ctx.attacker, whose="own"):
+        await ctx.knock_out(defender)
+
 card = PokemonCardDef(
     guid="4dcf9cd2-21e5-54c0-b403-5eb967410a4d",
     key="NEO3",
@@ -29,7 +43,7 @@ card = PokemonCardDef(
             title="Perish Song",
             game_text="If the Defending Pok\u00e9mon is Asleep and was attacked with Night Eyes during your last turn, it is Knocked Out.",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=perish_song,
         ),
     ],
 )

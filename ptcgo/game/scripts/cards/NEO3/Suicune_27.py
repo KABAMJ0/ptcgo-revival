@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def crystal_wave(ctx):
+    """Printed 30; heads adds 10, tails lets the opponent switch their Active."""
+    heads = await ctx.flip_coins(1, "Crystal Wave")
+    if heads and heads[0]:
+        await ctx.deal_damage(40)
+    else:
+        await ctx.deal_damage(30)
+        await opponent_switches(ctx)
+
 card = PokemonCardDef(
     guid="5262e0e0-63cf-551f-97f8-c9a2c8cb6ebd",
     key="NEO3",
@@ -29,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=crystal_wave,
         ),
     ],
 )

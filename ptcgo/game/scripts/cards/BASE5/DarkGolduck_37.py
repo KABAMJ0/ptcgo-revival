@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def third_eye(ctx):
+    """Discard an Energy from Dark Golduck to draw up to 3 cards."""
+    gone = await ctx.discard_energy_from(ctx.attacker, 1,
+                                         prompt="Discard an Energy from Dark Golduck")
+    if not gone:
+        return
+    await ctx.draw_cards(3)
+
 card = PokemonCardDef(
     guid="46764d09-7b8a-5d48-a920-17d2695fdb80",
     key="BASE5",
@@ -23,7 +31,7 @@ card = PokemonCardDef(
             title="Third Eye",
             game_text="Discard 1 Energy card attached to Dark Golduck in order to draw up to 3 cards.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=third_eye,
         ),
         Attack(
             title="Super Psy",

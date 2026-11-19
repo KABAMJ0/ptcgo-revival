@@ -11,6 +11,15 @@ def _is_asleep(ctx) -> bool:
             in (attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or []))
 
 
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.data_utils import Triggers
+
+
+async def comatose(ctx):
+    """Whenever an Energy is attached to Komala from your hand, it falls
+    Asleep."""
+    await ctx.apply_special_condition(ctx.source, SpecialConditions.ASLEEP)
+
 card = PokemonCardDef(
     guid="8525448c-f8df-5c36-9207-5ee60e545408",
     key="SM2",
@@ -31,7 +40,8 @@ card = PokemonCardDef(
         Ability(
             title="Comatose",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever you attach an Energy from your hand to it, it is now Asleep.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=comatose,
         ),
         Attack(
             title="Hypno Roll",
