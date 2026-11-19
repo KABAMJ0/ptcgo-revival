@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import return_stadium_to_hand
 
 card = ItemCardDef(
     guid="12867848-b64c-5cdd-aa7d-6ab5ce1a7fa4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=0,
     set_code="HGSS3",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=return_stadium_to_hand()
 )
