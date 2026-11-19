@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="8b936d58-6b48-59fd-8cfb-6e58d2b46ae0",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Discard a Stadium in play.",
             cost={PokemonTypes.DARKNESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Power Rush",

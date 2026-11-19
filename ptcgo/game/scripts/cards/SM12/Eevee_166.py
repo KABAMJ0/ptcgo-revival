@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_supporter_card
 
 card = PokemonCardDef(
     guid="4f2775c2-267d-59c2-a38e-4e0ecca0901e",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Lead",
             game_text="Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_supporter_card, reveal=True),
         ),
         Attack(
             title="Bite",

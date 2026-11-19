@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 
 card = PokemonCardDef(
     guid="b4f99003-b3b9-5048-9b72-9b72942f561e",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=lock_opponent_plays("item"),
         ),
     ],
 )
