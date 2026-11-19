@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                   SpecialConditions)
+from ptcgo.game.card_effects.support_common import gust_then
 
 
 card = PokemonCardDef(
@@ -25,7 +26,8 @@ card = PokemonCardDef(
             title="Inviting Poison",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. The new Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.GRASS: 1},
-            effect=discard_opponent_energy_attack(1),
+            effect=gust_then(lambda ctx, active: ctx.apply_special_condition(
+                active, SpecialConditions.POISONED)),
         ),
         Attack(
             title="Flower Tornado",

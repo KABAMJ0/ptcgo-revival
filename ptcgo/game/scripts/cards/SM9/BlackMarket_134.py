@@ -1,20 +1,16 @@
 from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities, TrainerType
-from ptcgo.game.card_effects.trainers import fewer_prize_for_darkness_knockout
+from ptcgo.game.card_effects.trainers import (combine_passives,
+                                              fewer_prize_for_darkness_knockout)
 from ptcgo.game.session.passives import Passive
 
 
-class BlackMarketPassive(Passive):
-    """Two printed clauses: the opponent takes 1 fewer Prize card for a
-    Darkness Pokemon with Darkness Energy knocked out by an attack (the
-    factory passive), and no opposing Item or Supporter effect can touch this
-    Stadium card."""
-
-    def __init__(self):
-        self._prizes = fewer_prize_for_darkness_knockout()
-
-    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
-        return self._prizes.modify_prizes_for_knockout(pokemon, ctx, count, carrier)
+class PrismStarStadiumShield(Passive):
+    """The clause both SM9 Prism Star Stadiums print: "Whenever any player
+    plays an Item or Supporter card from their hand, prevent all effects of
+    that card done to this Stadium card." The engine asks this hook while a
+    Trainer effect names the Stadium itself (Effects.discard_stadium), and the
+    printed wording shields it from its own owner as well as the opponent."""
 
     def blocks_trainer_effects(self, affected_player_id, trainer_card,
                                trainer_type, carrier, affected_entity=None,
@@ -36,5 +32,6 @@ card = StadiumCardDef(
     collector_number=134,
     set_code="SM9",
     rarity=Rarities.Rare,
-    passive=BlackMarketPassive()
+    passive=combine_passives(fewer_prize_for_darkness_knockout(),
+                             PrismStarStadiumShield())
 )
