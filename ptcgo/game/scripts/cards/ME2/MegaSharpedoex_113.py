@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="e4403bdf-b9c5-5a45-8610-05f3f50b358c",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Draw 2 cards.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Hungry Jaws",

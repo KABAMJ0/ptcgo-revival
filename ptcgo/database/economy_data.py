@@ -112,18 +112,26 @@ def delete_code(code_string):
         return deleted > 0
 
 
+# Redemption failures ride as LocalizableText. Only the invalid-code case has a
+# string in the client ("shop.redeemcodes.invalidcode" = Invalid Code); the other
+# two are plain text because the client ships nothing for them.
+CODE_INVALID = "shop.redeemcodes.invalidcode"
+CODE_EXPIRED = "This code has expired."
+CODE_USED = "You have already used this code."
+
+
 def check_code(code_string, account_id):
     """Validates a code for an account. Returns (ok, reward_or_None, reason_token)."""
     with db_session() as session:
         code = session.query(RedemptionCode).filter_by(code_string=code_string.strip().upper()).first()
         if not code or not code.enabled:
-            return False, None, "shop.redeemcodes.error.invalidcode"
+            return False, None, CODE_INVALID
         if code.max_uses > 0 and code.current_uses >= code.max_uses:
-            return False, None, "shop.redeemcodes.error.codeexpired"
+            return False, None, CODE_EXPIRED
         already = session.query(CodeRedemptionEntry).filter_by(
             code_string=code.code_string, account_id=account_id).first()
         if already:
-            return False, None, "shop.redeemcodes.error.codealreadyused"
+            return False, None, CODE_USED
         return True, code.reward_json, None
 
 
@@ -134,13 +142,13 @@ def redeem_code(code_string, account_id):
         with db_session() as session:
             code = session.query(RedemptionCode).filter_by(code_string=code_string).first()
             if not code or not code.enabled:
-                return False, None, "shop.redeemcodes.error.invalidcode"
+                return False, None, CODE_INVALID
             if code.max_uses > 0 and code.current_uses >= code.max_uses:
-                return False, None, "shop.redeemcodes.error.codeexpired"
+                return False, None, CODE_EXPIRED
             already = session.query(CodeRedemptionEntry).filter_by(
                 code_string=code_string, account_id=account_id).first()
             if already:
-                return False, None, "shop.redeemcodes.error.codealreadyused"
+                return False, None, CODE_USED
 
             code.current_uses += 1
             session.add(CodeRedemptionEntry(code_string=code_string, account_id=account_id))
@@ -150,7 +158,17 @@ def redeem_code(code_string, account_id):
             return True, reward, None
     except Exception as e:
         logging.error(f"[Economy] Failed to redeem code {code_string} for {account_id}: {e}")
-        return False, None, "shop.redeemcodes.error.invalidcode"
+        return False, None, CODE_INVALID
+
+
+def grant_reward_in_session(session, account_id, reward):
+    """Grants a reward dict inside the caller's session.
+
+    Public entry to the same grant that code redemption and shop payouts use, so
+    a reward paid elsewhere in the database lands in the collection and wallet
+    exactly the way a redeemed code does.
+    """
+    _grant_reward_in_session(session, account_id, reward)
 
 
 def _grant_reward_in_session(session, account_id, reward):

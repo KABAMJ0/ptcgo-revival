@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="89348d1f-934f-508b-8a75-84c72793d10b",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             game_text="Heal 50 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 4},
             damage=160,
-            effect=unimplemented,
+            effect=heal_targets(50, scope="each_own"),
         ),
     ],
 )

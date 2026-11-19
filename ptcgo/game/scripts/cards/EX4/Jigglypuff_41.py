@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _rest(ctx, counters):
+    await ctx.deal_damage()
+    target = ctx.attacker
+    await ctx.cure_all_conditions(target)
+    await ctx.heal(counters * 10, target)
+    await ctx.apply_special_condition(target, SpecialConditions.ASLEEP)
 
 card = PokemonCardDef(
     guid="82993508-572c-5f8d-ba30-4791313c399d",
@@ -30,7 +38,7 @@ card = PokemonCardDef(
             title="Rest",
             game_text="Remove all Special Conditions and 3 damage counters from Jigglypuff (all if there are less than 3). Jigglypuff is now Asleep.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=lambda ctx: _rest(ctx, 3),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
 
 card = PokemonToolCardDef(
     guid="ca356f20-8348-56dc-8aa3-f650d36c0f43",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=93,
     set_code="XY10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=attack_effect_shield_passive()
 )

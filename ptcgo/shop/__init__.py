@@ -30,7 +30,8 @@ class ShopManager:
     def _add_tokens_product(self):
         cur_guid = "00000000-0000-0000-0000-000000000002"
         cur_attrs = {
-            str(AttrID.NAME.value): {"type": "json", "value": json.dumps({"id": "ids_item_token"})},
+            # Plain text: the client has no `ids_item_token` string.
+            str(AttrID.NAME.value): {"type": "json", "value": json.dumps({"id": "Trainer Tokens"})},
             str(AttrID.EXPANSION.value): {"type": "string", "value": "core"},
             str(AttrID.PRODUCT_TYPE.value): {"type": "int", "value": 6},  # ProductType.CURRENCY
             str(AttrID.CURRENCY_TYPE.value): {"type": "int", "value": -706482148},  # CurrencyType.VIRTUAL_CURRENCY

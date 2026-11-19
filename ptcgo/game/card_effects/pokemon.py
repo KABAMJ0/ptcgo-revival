@@ -1202,3 +1202,11 @@ async def phantom_transformation(ctx):
     if picks:
         await ctx.identity_swap(ctx.source, picks[0], destination="discard",
                                 transfer=False)
+
+
+async def phantom_dive(ctx):
+    """Dragapult ex: 200 to the Active, then 6 damage counters spread over the
+    opponent's Bench "in any way you like"."""
+    await ctx.deal_damage()
+    if ctx.opponent_bench():
+        await ctx.place_damage_counters(6, ctx.opponent_bench())

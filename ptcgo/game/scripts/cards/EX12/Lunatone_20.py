@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_trainer_card
 
 card = PokemonCardDef(
     guid="ea2e76c8-941c-596d-9a88-d8162f18f424",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             title="Moon Guidance",
             game_text="Search your deck for a Trainer card (excluding Supporter cards), show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_trainer_card, count=1, reveal=True),
         ),
         Attack(
             title="Psyshock",

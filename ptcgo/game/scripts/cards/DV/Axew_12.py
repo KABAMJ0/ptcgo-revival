@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import card_named_contains
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +25,9 @@ card = PokemonCardDef(
             title="Signs of Evolution",
             game_text="Flip a coin. If heads, search your deck for Fraxure, reveal it, and put it into your hand, Shuffle your deck afterward.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=search_to_hand(
+                card_named_contains("Fraxure"), count=1, reveal=True
+            )),
         ),
         Attack(
             title="Scratch",

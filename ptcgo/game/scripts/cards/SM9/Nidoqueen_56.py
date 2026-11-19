@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.pokemon import is_pokemon_gx
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.trainers import excluding
+from ptcgo.game.card_effects.trainers import any_of
+from ptcgo.game.card_effects.trainers import all_of
 from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 from ptcgo.game.session.effects import is_evolution_pokemon
 
@@ -24,7 +31,18 @@ card = PokemonCardDef(
         Ability(
             title="Queen's Call",
             game_text="Once during your turn (before your attack), you may search your deck for a Pok\u00e9mon that isn't a Pok\u00e9mon-GX or Pok\u00e9mon-EX, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(
+                all_of(
+                    is_pokemon_card,
+                    excluding(any_of(
+                        lambda card: is_pokemon_gx(card.archetype_id),
+                        is_pokemon_ex,
+                    )),
+                ),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Power Lariat",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_each_from_deck
 
 card = PokemonCardDef(
     guid="6515de06-04bd-5fcc-ad78-9a1bca49f2bb",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Cellular Ascension",
             game_text="For each of your Benched Pok\u00e9mon, search your deck for a card that evolves from that Pok\u00e9mon and put it onto that Pok\u00e9mon to evolve it. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=evolve_each_from_deck(),
         ),
         Attack(
             title="Evo-Lariat",

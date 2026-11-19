@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def blazing_destruction(ctx):
+    """Discard a Stadium in play."""
+    if ctx.stadium_in_play():
+        await ctx.discard_stadium()
+
+
 card = PokemonCardDef(
     guid="8a9e0f41-57ac-5418-a7d8-088293a77e56",
     key="SV3PT5",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
             title="Blazing Destruction",
             game_text="Discard a Stadium in play.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=blazing_destruction,
         ),
         Attack(
             title="Steady Firebreathing",

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage, recoil_attack
 
 card = PokemonCardDef(
     guid="613a8daa-3797-579e-adab-554fed120ad1",
@@ -26,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=30),
         ),
         Attack(
             title="Iron Tackle",
             game_text="This Pok\u00e9mon does 30 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
     ],
 )

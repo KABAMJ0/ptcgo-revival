@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
 from ptcgo.game.card_effects.trainers import pokemon_named, pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 _is_future = pokemon_of_subtype("Future")
 _is_iron_crown = pokemon_named("Iron Crown")
@@ -35,7 +36,7 @@ card = PokemonCardDef(
             title="Twin Shotels",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. This attack's damage isn't affected by Weakness or Resistance, or by any effects on those Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=2, apply_modifiers=False),
         ),
     ],
 )

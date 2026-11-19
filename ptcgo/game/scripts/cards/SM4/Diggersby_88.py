@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="bfa76be0-70f2-5782-b02a-4eb8e24712dc",

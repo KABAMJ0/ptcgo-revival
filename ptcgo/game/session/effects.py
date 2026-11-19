@@ -69,6 +69,7 @@ from .passives import (
     discard_to_hand_blocked,
     energy_discard_destination,
     energy_removal_blocked,
+    fire_active_switched,
     healing_blocked,
     modified_heal_amount,
     supporter_effect_replacement,
@@ -662,6 +663,46 @@ class EffectContext:
         )
         return True
 
+    async def clear_attack_effects(self, player_id: Optional[str] = None) -> int:
+        """Removes the effects attacks have left on a player's side (Channeler):
+        every Special Condition, the attack-granted passives, and the attack
+        and player attack locks. Returns how many carriers were cleared.
+
+        Provenance is what makes this safe: only passives stamped
+        `from_attack` are removed, so a shield or bonus a Trainer or Ability
+        granted survives, as the card's wording requires."""
+        pid = player_id or self.player_id
+        state = self.session.turn_state
+        cleared = 0
+        for pokemon in self.board.pokemon_in_play(pid):
+            if await self.cure_all_conditions(pokemon):
+                cleared += 1
+        keep = []
+        for temp in self.board.temporary_passives:
+            if temp.from_attack and temp.carrier_entity_id in {
+                    p.entity_id for p in self.board.pokemon_in_play(pid)}:
+                cleared += 1
+                continue
+            keep.append(temp)
+        self.board.temporary_passives = keep
+        ids = {p.entity_id for p in self.board.pokemon_in_play(pid)}
+        kept = []
+        for modifier in state.target_damage_modifiers:
+            on_my_side = (modifier.target_entity_id in ids
+                          or (modifier.target_entity_id is None
+                              and modifier.owner_player_id == pid))
+            if modifier.from_attack and on_my_side:
+                cleared += 1
+                continue
+            kept.append(modifier)
+        state.target_damage_modifiers = kept
+        for key in [k for k in state.attack_locks if k[0] in ids]:
+            state.attack_locks.pop(key, None)
+            cleared += 1
+        if state.player_attack_locks.pop(pid, None) is not None:
+            cleared += 1
+        return cleared
+
     async def cure_all_conditions(self, target: Optional[PokemonEntity]) -> bool:
         """Removes every Special Condition from `target` ("...it recovers from
         all Special Conditions"); returns True if any were removed."""
@@ -719,7 +760,8 @@ class EffectContext:
         """Attaches an effect-granted passive to `target` (expires_after_turn
         None = until it leaves the Active spot / play)."""
         self.board.temporary_passives.append(
-            TempPassive(passive, target.entity_id, expires_after_turn)
+            TempPassive(passive, target.entity_id, expires_after_turn,
+                        from_attack=self.is_attack_effect())
         )
 
     def add_passive_through_opponents_turn(self, target, passive) -> None:
@@ -792,6 +834,7 @@ class EffectContext:
             owner_player_id=owner_player_id,
             attacks_only=attacks_only,
             source_entity_id=getattr(self.source, "entity_id", None),
+            from_attack=self.is_attack_effect(),
         ))
 
     def schedule_turn_effect(self, boundary, effect: Callable, *,
@@ -829,6 +872,14 @@ class EffectContext:
             source=self.source,
             source_entity_id=getattr(self.source, "entity_id", None),
             require_source_in_play=require_source_in_play,
+        )
+
+    def lock_poke_powers(self, through_turn: Optional[int] = None) -> None:
+        """"All Pokemon Powers stop working until the end of your opponent's
+        next turn" (Goop Gas Attack); `ability_locked` reads the flag."""
+        self.board.poke_power_lock_through = (
+            self.session.turn_state.turn_number + 1 if through_turn is None
+            else through_turn
         )
 
     def lock_retreat(self, target: PokemonEntity,
@@ -2567,6 +2618,7 @@ class EffectContext:
         # All effects (Special Conditions, attack locks) end when a Pokemon
         # leaves the Active spot; the state-clearing lives in one shared helper.
         had_conditions = bool(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS))
+        had_conditions_list = list(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
         self.session.clear_pokemon_effects(old_active)
         if had_conditions:
             self._queue(
@@ -2605,6 +2657,12 @@ class EffectContext:
             self.session._entity_moved_msg(old_active.entity_id, bench_area.entity_id, slot),
             bracket=bracket,
         )
+        # Dust Island: a Stadium watches the swap itself ("whenever either
+        # player switches their Poisoned Active Pokemon ... with the effect of
+        # a Trainer card"), so the cause travels with the swap.
+        await fire_active_switched(board, self, player_id, old_active,
+                                   new_active, had_conditions_list,
+                                   self.is_trainer_effect)
         # Spikemuth: an Active moving to its owner's Bench during THEIR turn
         # takes counters (a gust during the opponent's turn does not).
         if player_id == self.session.turn_state.active_player_id:

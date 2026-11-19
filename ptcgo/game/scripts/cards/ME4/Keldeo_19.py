@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import energy_move_attack, snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Move an Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 2},
             damage=70,
-            effect=unimplemented,
+            effect=energy_move_attack(count=1),
         ),
     ],
 )

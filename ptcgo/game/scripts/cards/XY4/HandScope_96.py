@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+
+
+async def reveal_opponent_hand(ctx):
+    """Your opponent reveals his or her hand."""
+    await ctx.reveal_hand(ctx.opponent_id)
+
 
 card = ItemCardDef(
     guid="90f305ed-6ccb-5e8a-9a38-23aa6cc73527",
@@ -11,5 +17,5 @@ card = ItemCardDef(
     collector_number=96,
     set_code="XY4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=reveal_opponent_hand
 )

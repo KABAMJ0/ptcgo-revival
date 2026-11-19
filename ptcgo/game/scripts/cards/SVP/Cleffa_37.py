@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="bab52bb9-c25d-54a6-b66d-58a206e80504",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Grasping Draw",
             game_text="Draw cards until you have 7 cards in your hand.",
             cost={},
-            effect=unimplemented,
+            effect=draw_until_effect(7),
         ),
     ],
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import behind_on_prizes
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = SupporterCardDef(
     guid="927ec19c-138b-5975-9212-74bc5a4d12bd",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=89,
     set_code="HGSS4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(None, 2), condition=behind_on_prizes()
 )

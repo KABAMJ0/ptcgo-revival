@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, lock_self_attack
 
 card = PokemonCardDef(
     guid="4e8804d9-2b1a-5f8a-9856-8c1a870a79b2",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(count=1),
         ),
         Attack(
             title="Aqua Slash",
             game_text="During your next turn, this Pok\u00e9mon can't attack.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=140,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="7c72b4d6-f1c8-5f43-8bfe-09e44922fde9",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Division",
             game_text="Search your deck for up to 2 Koffing and put them onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named("koffing"), count=2),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_energy
 
 card = PokemonCardDef(
     guid="c3ac3921-02c1-520e-8793-eaa2b934488a",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: count_energy("defender", PokemonTypes.WATER)(ctx) > 0, 30),
         ),
     ],
 )

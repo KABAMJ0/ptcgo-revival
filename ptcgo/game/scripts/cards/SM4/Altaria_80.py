@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.card_effects.trainers import is_dragon_pokemon
 
 card = PokemonCardDef(
     guid="6616e1f3-6893-51ed-9146-d5c5fe02c1bb",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Draco Melody",
             game_text="Flip a coin. If heads, search your deck for a Dragon Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_or_nothing(then=search_to_bench(is_dragon_pokemon, count=1)),
         ),
         Attack(
             title="Cotton Guard",

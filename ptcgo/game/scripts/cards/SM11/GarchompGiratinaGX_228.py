@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on, snipe_attack
 
 card = PokemonCardDef(
     guid="e8750733-da37-5cb2-ac05-18d1e265543d",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="This attack does 40 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Calamitous Slash",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=160,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 80),
         ),
         Attack(
             title="GG End-GX",

@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+async def effect(ctx):
+    await ctx.reorder_deck_top(5)
+
 
 card = PokemonCardDef(
     guid="09adcbe2-1041-56b1-84fa-8ca3e920e647",
@@ -23,7 +27,10 @@ card = PokemonCardDef(
         Ability(
             title="Terraforming",
             game_text="Once during your turn (before your attack), you may look at the top 5 cards from your deck and put them back on top of your deck in any order. This power can't be used if Aggron is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(
+                AttrID.SPECIAL_CONDITIONS),
+            effect=effect,
         ),
         Attack(
             title="Metal Claw",

@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 
 card = PokemonCardDef(
     guid="4762f0f5-be9b-552b-9269-f614a8de1691",
@@ -28,7 +30,11 @@ card = PokemonCardDef(
             title="Cry for Help",
             game_text="Search your deck for a Metal Pok\u00e9mon (excluding Pok\u00e9mon-ex), show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(
+                lambda card: is_pokemon_of_type(card, "metal"),
+                count=1,
+                reveal=True,
+            ),
         ),
         Attack(
             title="Steel Wing",

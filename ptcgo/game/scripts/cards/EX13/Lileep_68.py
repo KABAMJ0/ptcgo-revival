@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="0480319e-073e-5f7d-ac2c-18c1d7023b32",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Poison Tentacles",
             game_text="The Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Mud Shot",

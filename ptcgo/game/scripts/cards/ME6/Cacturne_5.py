@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="a31e6d22-d2b3-52cc-81d0-4aebd84d1ac8",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="This attack does 30 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Punishing Needles",

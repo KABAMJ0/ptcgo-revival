@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="ebb995bc-309b-56bc-9f91-776c44f7a30d",
@@ -23,14 +24,14 @@ card = PokemonCardDef(
             game_text="This attack does 30 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="bench", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Knuckle Impact",
             game_text="This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.FIGHTING: 3},
             damage=160,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Absorption-GX",

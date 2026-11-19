@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import surges_bargain
 
 card = SupporterCardDef(
     guid="26abf223-0583-584c-9980-ece3eeb17652",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=185,
     set_code="ME1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=surges_bargain(4)
 )

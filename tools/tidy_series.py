@@ -51,9 +51,9 @@ CUSTOM_NAMES = {"CUSTOM", "FREE_ENERGY"}
 # Series the 2020 client's collection filter was never built for. The sets stay
 # owned and playable -- they simply do not appear in a picker whose vocabulary is
 # Black & White through Sword & Shield.
-HIDDEN_FROM_FILTER = {
-    "Base", "Neo", "E-Card", "Gym", "EX", "Diamond & Pearl", "Platinum", "POP Series",
-}
+# Every era is listed in the collection filter. The old eras were hidden on the
+# person's earlier instruction; they asked for Base and the rest back.
+HIDDEN_FROM_FILTER = set()
 
 # The client builds the filter's label key from the block string itself:
 # block "SM" looks up "collection.filter.series.sm". That is why the shipped set

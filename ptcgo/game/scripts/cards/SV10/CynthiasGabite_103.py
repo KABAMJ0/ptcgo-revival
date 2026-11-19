@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="a575b576-7d30-5fc3-ac88-36847c97223e",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Champion's Call",
             game_text="Once during your turn, you may search your deck for a Cynthia's Pok\u00e9mon, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(named("cynthia's"), count=1, reveal=True),
         ),
         Attack(
             title="Dragonslice",

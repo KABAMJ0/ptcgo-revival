@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import typed_energy_free_retreat_passive
 
 card = PokemonCardDef(
     guid="58a8ce0a-02a7-549a-abfd-67e4f7c85158",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Flare Float",
             game_text="If this Pok\u00e9mon has any Fire Energy attached, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=typed_energy_free_retreat_passive(PokemonTypes.FIRE),
         ),
         Attack(
             title="Blazing Flight",

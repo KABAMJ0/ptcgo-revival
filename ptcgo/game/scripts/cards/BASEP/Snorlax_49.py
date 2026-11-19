@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
 card = PokemonCardDef(
     guid="f8589435-6dc1-5a25-aa2b-8f556aba1562",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Guard",
             game_text="As long as Snorlax is your Active Pok\u00e9mon, the Defending Pok\u00e9mon can't Retreat. This power stops working when Snorlax is affected by a Special Condition.",
-            effect=unimplemented,
+            passive=condition_retreat_lock_passive(carrier_clear=True),
         ),
         Attack(
             title="Roll Over",

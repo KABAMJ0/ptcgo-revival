@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="b68011f0-5032-5116-960d-9cc76cc8e8f6",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Healing Pirouette",
             game_text="Heal 20 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=heal_targets(20, scope="each_own"),
         ),
         Attack(
             title="Crescent Purge",

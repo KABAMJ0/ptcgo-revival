@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="06b55a59-f0b3-5c9d-bc99-62d748a20f97",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Flame Kick",
             game_text="Discard 2 Fire Energy attached to Blaziken. This attack does 80 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(80, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

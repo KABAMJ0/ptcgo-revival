@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import return_attached_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, flip_damage
 
 card = PokemonCardDef(
     guid="3c48063d-9c89-55e6-8191-e3bcf6211ba6",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=damage_counters_on("defender"), base=30, per_heads=10),
         ),
     ],
 )

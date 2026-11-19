@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import all_of, named, is_supporter_card
 
 card = PokemonCardDef(
     guid="40835d2f-57b2-5cbb-8be7-e2aa26362c65",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=all_of(is_supporter_card, named("team rocket")), max_count=99, per=60, base=0),
         ),
         Attack(
             title="Hammer In",

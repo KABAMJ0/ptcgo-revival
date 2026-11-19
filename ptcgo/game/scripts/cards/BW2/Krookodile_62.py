@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="3da2c124-e0ee-5885-85be-32854b5092ce",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Black Eyes",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is your Active Pok\u00e9mon, you may flip a coin. If heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(),
         ),
         Attack(
             title="Thrash",

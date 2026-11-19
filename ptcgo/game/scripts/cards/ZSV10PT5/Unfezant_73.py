@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="d22f0bbf-b50c-548f-9bb5-dfbf60572b59",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Add On",
             game_text="Draw 4 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(4),
         ),
         Attack(
             title="Swift Flight",

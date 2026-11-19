@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="ac215469-e2c6-5dc3-b74d-7f2df0b3c97b",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.GRASS: 3},
             damage=110,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=False),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="79ff3208-3405-5b91-88a0-199c89f07d21",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Le Parfum",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may search your deck for any card and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_hand(None, count=1, reveal=False),
         ),
         Attack(
             title="Squeeze",

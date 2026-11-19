@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="b8e247b4-0cc9-585e-b642-d2daeb0291a6",
@@ -22,7 +23,9 @@ card = PokemonCardDef(
         Ability(
             title="Starbirth",
             game_text="During your turn, you may search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck. (You can't use more than 1 VSTAR Power in a game.)",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            vstar=True,
+            effect=search_to_hand(None, count=2, reveal=False),
         ),
         Attack(
             title="Trinity Nova",

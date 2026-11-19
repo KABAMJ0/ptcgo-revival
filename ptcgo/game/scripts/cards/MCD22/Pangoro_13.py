@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="010bbd04-cc07-5a98-994a-c215f7c5455b",

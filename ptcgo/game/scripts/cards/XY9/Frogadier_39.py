@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="0117edf5-cdd7-5916-983d-b368f2a5fd02",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Water Duplicates",
             game_text="Search your deck for up to 3 Frogadier and put them onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("frogadier"), count=3),
         ),
     ],
 )

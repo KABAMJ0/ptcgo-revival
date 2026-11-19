@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, lock_self_attack
 
 card = PokemonCardDef(
     guid="92b3da31-b2a8-5f3b-bf0e-1ec7f6d92f37",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), per=10, base=20),
         ),
         Attack(
             title="Scorching Breath",
             game_text="This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

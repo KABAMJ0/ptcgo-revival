@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="1fc27e8f-6574-56c7-8717-d05dcc42a447",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Aqua Call",
             game_text="Search your deck for Pok\u00e9mon that has Team Aqua in its name, show up to 3 of them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(named("team aqua"), count=3, reveal=True),
         ),
         Attack(
             title="Wave Splash",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="4007438f-2a75-5347-b49b-99b1ecc55b01",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Mirage Barrage",
             game_text="Discard 2 Energy from this Pok\u00e9mon. This attack does 120 damage to 2 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(120, pool="any", count=2, apply_modifiers=False),
         ),
     ],
 )

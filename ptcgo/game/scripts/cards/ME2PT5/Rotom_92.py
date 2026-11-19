@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="9c96396a-bfdb-52ad-8524-b4fbc14da99f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Roto Call",
             game_text="You may search your deck for any number of Pok\u00e9mon that have \"Rotom\" in their name and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named("rotom"), count=5),
         ),
         Attack(
             title="Gadget Show",

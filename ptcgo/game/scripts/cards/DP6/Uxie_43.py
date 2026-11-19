@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="60517751-4494-5c78-9ecb-ecd98ce303ce",
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Set Up",
             game_text="Once during your turn, when you put Uxie from your hand onto your Bench, you may draw cards until you have 7 cards in your hand.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=draw_until_effect(7),
         ),
         Attack(
             title="Psychic Restore",

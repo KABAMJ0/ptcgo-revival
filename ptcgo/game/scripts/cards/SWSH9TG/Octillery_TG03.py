@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="47d68d32-476c-513c-932c-bc109eee3173",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Rapid Strike Search",
             game_text="Once during your turn, you may search your deck for a Rapid Strike card, reveal it, and put it into your hand. Then, shuffle your deck. You can't use more than 1 Rapid Strike Search Ability each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(named("rapid strike"), count=1, reveal=True),
         ),
         Attack(
             title="Waterfall",

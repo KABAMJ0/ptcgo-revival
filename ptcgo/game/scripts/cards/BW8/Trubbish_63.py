@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
 
 card = PokemonCardDef(
     guid="57eed303-2a46-56fd-b93e-76fe4698745c",
@@ -22,7 +24,12 @@ card = PokemonCardDef(
             title="Pile Up",
             game_text="Flip a coin. If heads, search your deck for a Pok\u00e9mon Tool card, reveal it, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=search_to_hand(
+                lambda card: card.get_attribute(AttrID.TRAINER_TYPE) in (
+                    TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value
+                ),
+                count=1, reveal=True,
+            )),
         ),
         Attack(
             title="Sludge Toss",

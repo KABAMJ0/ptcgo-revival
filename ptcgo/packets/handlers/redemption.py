@@ -14,7 +14,7 @@ class RedemptionHandler(BaseHandler):
         await self.send({
             "messageName": message_name or OutboundMsg.INVALID_CODE.value,
             "code": code,
-            "reason": {"id": reason or "shop.redeemcodes.error.invalidcode"}
+            "reason": {"id": reason or economy_data.CODE_INVALID}
         }, request_id)
 
     async def _sync_player_state(self):

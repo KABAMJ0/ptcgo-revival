@@ -1,7 +1,8 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import FossilItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import FossilBodyPassive, fossil_discard_ability
 
-card = ItemCardDef(
+card = FossilItemCardDef(
     guid="fb246ca9-8581-558e-81e2-ce65e6141c9d",
     key="DP6",
     name="com.direwolfdigital.cake.data.archetypes.trainer.ClawFossil.Name",
@@ -11,5 +12,7 @@ card = ItemCardDef(
     collector_number=138,
     set_code="DP6",
     rarity=Rarities.Common,
-    effect=unimplemented
+    hp=40,
+    passive=FossilBodyPassive(blocks_conditions=True),
+    abilities=[fossil_discard_ability()],
 )

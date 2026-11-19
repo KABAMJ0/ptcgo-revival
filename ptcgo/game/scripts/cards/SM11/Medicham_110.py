@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _spread_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(4)
+
+
 card = PokemonCardDef(
     guid="b98d8774-25a8-5d8e-ba8b-764df056420a",
     key="SM11",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             title="Pure Power",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=_spread_counters,
         ),
         Attack(
             title="Master Strike",

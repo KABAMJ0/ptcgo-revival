@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="7ff6f1c7-0339-556e-bc23-e78253b8aa50",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Draw 2 cards.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Techno Turbo",

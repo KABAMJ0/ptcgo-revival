@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.passives_common import heal_activation
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, AttrID
+from ptcgo.game.card_effects.attacks_common import recoil_attack
+
+_heal, _heal_condition = heal_activation(30, flip=True)
+
 
 card = PokemonCardDef(
     guid="59999993-d1fd-5071-8780-a9c11b03bcb4",
@@ -22,14 +27,16 @@ card = PokemonCardDef(
         Ability(
             title="Softboiled",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, heal 30 damage from your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=_heal,
+            condition=_heal_condition,
         ),
         Attack(
             title="Double-Edge",
             game_text="This Pok\u00e9mon does 60 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=unimplemented,
+            effect=recoil_attack(60),
         ),
     ],
 )

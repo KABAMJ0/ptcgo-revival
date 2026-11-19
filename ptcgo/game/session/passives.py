@@ -81,6 +81,9 @@ class TargetDamageModifier:
     opposing_only: bool = True
     # The effect that created it, for clear_pokemon_effects bookkeeping.
     source_entity_id: Optional[str] = None
+    # Whether an attack's effect created it, so a card that removes "all
+    # effects of attacks" (Channeler) can leave the others alone.
+    from_attack: bool = False
 
     def applies_to(self, calc: "DamageCalc") -> bool:
         """Whether this modifier is part of THIS damage calculation."""
@@ -219,6 +222,7 @@ class TempPassive:
     passive: "Passive"
     carrier_entity_id: str
     expires_after_turn: Optional[int] = None
+    from_attack: bool = False
 
 
 class DamageCalc:
@@ -566,6 +570,19 @@ class Passive:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
 
+    async def on_active_switched(self, ctx, player_id: str,
+                                 outgoing: PokemonEntity,
+                                 incoming: PokemonEntity,
+                                 outgoing_conditions: List[str],
+                                 via_trainer: bool,
+                                 carrier: BoardEntity) -> None:
+        """Runs after `outgoing` leaves the Active spot for `incoming`.
+
+        `outgoing_conditions` is the condition list captured before the swap
+        cleared them; `via_trainer` is whether a Trainer's effect caused it
+        (Dust Island)."""
+        return None
+
     async def on_retreat(self, ctx, pokemon: PokemonEntity,
                          carrier: BoardEntity) -> None:
         """Runs after `pokemon` finishes retreating, this passive's carrier
@@ -701,6 +718,46 @@ def _carrier_in_play(entity: BoardEntity) -> bool:
         and parent.get_attribute(AttrID.NAME) in _IN_PLAY_AREAS
 
 
+_POKE_POWER_TYPES = ("poké-power", "poke-power", "pokémon power",
+                     "pokemon power")
+
+
+def has_poke_power(pokemon: PokemonEntity) -> bool:
+    """Whether `pokemon` prints at least one Poke-Power.
+
+    The vintage type is not in the scripts (no card sets `AbilityTypes`, and
+    every ability defaults to POKE_ABILITY), so it is read from the set JSON
+    beside the script, by ability title."""
+    from ptcgo.game.data_utils import def_for
+    from ptcgo.game.scripts.cards import printed_ability_type
+
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    for ability in getattr(definition, "abilities", []) or []:
+        printed = printed_ability_type(definition, getattr(ability, "title", "") or "")
+        if printed.strip().lower() in _POKE_POWER_TYPES:
+            return True
+    return False
+
+
+def poke_powers_locked(board: BoardState) -> bool:
+    """Whether a card has switched every Poke-Power off (Goop Gas Attack).
+
+    The flag is cleared by `TurnState.begin_turn` once its window passes."""
+    return bool(getattr(board, "poke_power_lock_through", 0))
+
+
+async def fire_active_switched(board: BoardState, ctx, player_id: str,
+                                outgoing: PokemonEntity,
+                                incoming: PokemonEntity,
+                                outgoing_conditions: List[str],
+                                via_trainer: bool) -> None:
+    """Runs every passive's `on_active_switched` after an Active swap."""
+    for passive, carrier in active_passives(board):
+        await passive.on_active_switched(
+            ctx, player_id, outgoing, incoming, outgoing_conditions,
+            via_trainer, carrier)
+
+
 def ability_locked(board: BoardState, pokemon: PokemonEntity) -> bool:
     """Whether a passive (Path to the Peak) is disabling `pokemon`'s Abilities.
 
@@ -708,6 +765,8 @@ def ability_locked(board: BoardState, pokemon: PokemonEntity) -> bool:
     is never itself disabled by another lock (Garbotoxin-style recursion is
     out of scope -- Path to the Peak rides a Stadium so this is safe).
     """
+    if poke_powers_locked(board) and has_poke_power(pokemon):
+        return True
     return any(p.blocks_abilities(pokemon, c) for p, c, _ in _collect_passives(board))
 
 

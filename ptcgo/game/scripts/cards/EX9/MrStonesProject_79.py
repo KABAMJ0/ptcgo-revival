@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_basic_cards_either_zone
 
 card = SupporterCardDef(
     guid="3ae7468f-1fa1-5ff7-8522-b7e5ba2477b8",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=79,
     set_code="EX9",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_basic_cards_either_zone(2)
 )

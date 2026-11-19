@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import card_named_contains
 
 card = ItemCardDef(
     guid="a0881ca1-94ef-5432-a287-d0ba20123a69",
@@ -11,5 +13,5 @@ card = ItemCardDef(
     collector_number=74,
     set_code="NEO2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_bench(card_named_contains('unown'), 1)
 )

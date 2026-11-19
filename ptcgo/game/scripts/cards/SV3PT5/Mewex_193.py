@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="cc23d8f7-f2cd-5fd6-b3a1-7e84271a13e2",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Restart",
             game_text="Once during your turn, you may draw cards until you have 3 cards in your hand.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=draw_until_effect(3),
         ),
         Attack(
             title="Genome Hacking",

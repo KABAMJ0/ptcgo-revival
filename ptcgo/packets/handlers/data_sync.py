@@ -184,10 +184,8 @@ def _load_localizations():
                 {"key": k, "value": v} for k, v in json.load(f).items())
     except (OSError, ValueError) as e:
         logging.warning(f"[TCP] custom labels unavailable: {e}")
-    custom_strings += [
-        {"key": "ids_card_name_spirit", "value": "Custom Card"},
-        {"key": "minspec.init.collection", "value": "Initializing collection..."},
-    ]
+    custom_strings.append(
+        {"key": "minspec.init.collection", "value": "Initializing collection..."})
 
     # Register card-specific display names
     for card in CARDS_DB:
@@ -241,6 +239,14 @@ DEFAULT_VALIDATION_FORMATS = [
 ]
 
 
+def _log_requested_formats(addr, formats_list):
+    """Names the ids the client asked us to validate, so a reply can be traced."""
+    names = [FormatManager().format_name(str(guid)) for guid in formats_list]
+    logging.info(
+        f"[Rules] [{addr}] Validation requested for "
+        + ", ".join(f"{name} ({guid})" for name, guid in zip(names, formats_list)))
+
+
 def _is_avatar_deck(deck_dict):
     piles = deck_dict.get("piles", {}) or {}
     cards = deck_dict.get("cards", {}) or {}
@@ -268,6 +274,16 @@ def _write_attr(attr, vt, vd, coerce=False):
     elif vt == "uuid":
         attr.value.objectType = obj_type.UUID
         _proto_uuid_write(uuid.UUID(str(vd)), attr.value.guidValue)
+
+
+# The three PvE league scenarios. The seed keeps each scenario's GUID, which the
+# client keys its own progress by, so it must not follow the label: the names are
+# plain text because the client ships no `ids_league_*` strings.
+LEAGUE_SCENARIOS = (
+    ("ids_league_gold", "Gold League", "Clear the Gold League's Trainers.", 1),
+    ("ids_league_platinum", "Platinum League", "Clear the Platinum League's Trainers.", 2),
+    ("ids_league_city", "City League", "Clear the City League's Trainers.", 3),
+)
 
 
 def _card_final_attrs(card_data, key):
@@ -313,6 +329,17 @@ def _cached_card_archetypes_bytes(key):
         return proto.SerializeToString()
 
     return _cached_payload(f"archproto:{key}", build)
+
+
+def _client_format_rows(results):
+    """Drop formats the client does not name in `DeckFormat`.
+
+    `TrainerChallenge` is ours - the deck list and the trainer challenge picker
+    read it through other paths - but it travels in this response, and a deck map
+    keyed on a name the client's switch does not know leaves every deck in no
+    category: the deck tabs read 0 and the versus picker lists nothing.
+    """
+    return [r for r in results if str(r.get("formatName")) != "TrainerChallenge"]
 
 
 class DataSyncHandler(BaseHandler):
@@ -411,9 +438,10 @@ class DataSyncHandler(BaseHandler):
 
     @staticmethod
     def _build_family_map():
-        # Default family 0 MUST exist to prevent KeyNotFoundException (idk why)
+        # Default family 0 MUST exist to prevent KeyNotFoundException (idk why).
+        # Plain text: the client has no `ids_family_none` string.
         family_map = {
-            "0": json.dumps({"id": "ids_family_none"})
+            "0": json.dumps({"id": "None"})
         }
         for card in CARDS_DB:
             if not isinstance(card, PokemonCard):
@@ -695,7 +723,17 @@ class DataSyncHandler(BaseHandler):
         if self.client.player:
             res = self.client.player.get_decks_data()
             res["messageName"] = OutboundMsg.DECK_LIST.value
+        logging.info(f"[TCP] [{self.client.addr}] Sending {len(res.get('decks') or [])} decks.")
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
+        # DeckValidationManager.updateValidations only populates its per-deck models
+        # (isValidModifiedDeck & co, which the versus deck list filters on) when it
+        # receives DecksValidated. On the first call it does not consume rows: it asks
+        # for validation of every deck instead. Nothing else asks on a fresh client,
+        # so without this nudge the versus screen has no models and lists no decks in
+        # any queue until the player saves a deck.
+        await self.client.send_packet(
+            {"messageName": OutboundMsg.DECKS_VALIDATED.value, "results": []},
+            request_id)
 
     @handle(InboundMsg.GET_AVATAR_DECK_LIST)
     async def handle_get_avatar_deck_list(self, message, request_id, flags):
@@ -861,6 +899,7 @@ class DataSyncHandler(BaseHandler):
         
         decks_list = message.get("decks", [])
         formats_list = message.get("formats", []) or DEFAULT_VALIDATION_FORMATS
+        _log_requested_formats(self.client.addr, formats_list)
 
         owned = None
         if self.client.player:
@@ -873,6 +912,9 @@ class DataSyncHandler(BaseHandler):
                 continue
             results.extend(validate_deck(deck_dict, formats_list, owned_counts=owned))
 
+        results = _client_format_rows(results)
+        logging.info("[Rules] ValidateDecks answered: "
+                     + ", ".join(f"{r['formatName']}={r['valid']}" for r in results[:18]))
         res = {
             "messageName": OutboundMsg.DECKS_VALIDATED.value,
             "results": results
@@ -884,6 +926,7 @@ class DataSyncHandler(BaseHandler):
         logging.info(f"[TCP] [{self.client.addr}] Client requested validation of all decks.")
         
         formats_list = message.get("formats", []) or DEFAULT_VALIDATION_FORMATS
+        _log_requested_formats(self.client.addr, formats_list)
 
         results = []
         if self.client.player:
@@ -894,6 +937,7 @@ class DataSyncHandler(BaseHandler):
                     continue
                 results.extend(validate_deck(deck_dict, formats_list, owned_counts=owned))
 
+        results = _client_format_rows(results)
         res = {
             "messageName": OutboundMsg.DECKS_VALIDATED.value,
             "results": results
@@ -903,17 +947,15 @@ class DataSyncHandler(BaseHandler):
     @handle(InboundMsg.GET_PROTOBUF_SCENARIOS)
     async def handle_get_protobuf_scenarios(self, message, request_id, flags):
         sc_proto = progression_pb2.AllScenarios()
-        leagues = [("ids_league_gold", 1), ("ids_league_platinum", 2),
-                   ("ids_league_city", 3)]
-        for token, lid in leagues:
+        for seed, name, description, lid in LEAGUE_SCENARIOS:
             scenario = progression_pb2.Scenario()
-            u_obj = uuid.UUID(bytes=hashlib.md5(token.encode()).digest())
+            u_obj = uuid.UUID(bytes=hashlib.md5(seed.encode()).digest())
             self._to_proto_uuid(u_obj, scenario.scenarioID)
             a_list = [
                 (AttrID.SCENARIO_LEAGUE_ID, base_pb2.Object.Type.INT, lid),
-                (AttrID.NAME, base_pb2.Object.Type.JSON, json.dumps({"id": token})),
+                (AttrID.NAME, base_pb2.Object.Type.JSON, json.dumps({"id": name})),
                 (AttrID.SCENARIO_DESCRIPTION, base_pb2.Object.Type.JSON,
-                 json.dumps({"id": token + "_desc"})),
+                 json.dumps({"id": description})),
                 (AttrID.SCENARIO_IMAGE, base_pb2.Object.Type.JSON,
                  json.dumps({"id": ""})),
                 (201470, base_pb2.Object.Type.JSON, "{}"),

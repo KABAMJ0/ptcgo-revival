@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 
 card = PokemonCardDef(
     guid="06251efa-e95a-5361-bf88-37b51873890a",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Energy Support",
             game_text="Search your deck for a Psychic Energy card. Show that card to your opponent, then put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("psychic"), count=1, reveal=True),
         ),
         Attack(
             title="Mind Shock",

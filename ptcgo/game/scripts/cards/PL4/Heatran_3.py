@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.trainers import any_of
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.attacks_common import condition_attack, mill_scaled_damage
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="285b3e2f-ff61-5cf5-988a-08cde1d97bbe",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Magma Mantle",
@@ -31,7 +34,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_scaled_damage(
+                3, 20, base=60,
+                pred=any_of(
+                    lambda card: energy_provides_type(card, PokemonTypes.FIRE.value),
+                    lambda card: energy_provides_type(card, PokemonTypes.METAL.value),
+                ),
+            ),
         ),
     ],
 )
