@@ -15163,6 +15163,13 @@ class AbilityEffectShieldPassive(Passive):
         return target is carrier_pokemon(carrier)
 
 
+def _lock_self_attacks(m, ability):
+    """"During your next turn, this Pokemon can't attack." Printed damage, then
+    every attack on the user locks -- `lock_self_attack` is that body."""
+    from ptcgo.game.card_effects.attacks_common import lock_self_attack
+    return lock_self_attack()
+
+
 def _evolve_early_self(m, ability):
     """"If you go second, this Pokemon can evolve during your first turn."
     The grant belongs to the ONE Pokemon that prints it, so the passive takes
@@ -15534,6 +15541,9 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"search your deck for a card that evolves from this pokemon "
                 r"and put it onto this pokemon to evolve it\. then, shuffle "
                 r"your deck\."), _evolve_from_deck),
+    ("lock.self-all-attacks-next-turn",
+     re.compile(r"during your next turn, this pokemon can't attack\."),
+     _lock_self_attacks),
     ("evolve.early-self",
      re.compile(r"if you go second, this pokemon can evolve during your first "
                 r"turn\."), _evolve_early_self),
