@@ -330,6 +330,22 @@ def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
+def damage_shield_from(pred, protects="carrier") -> Passive:
+    """"Prevent all damage done to this Pokemon by attacks from <X>": full
+    prevention gated on the ATTACKER, not the target. `pred` takes the
+    attacking Pokemon -- `attacker_is_gx_or_ex()`, `attacker_of_types("Darkness")`,
+    `attacker_has_ability()`, or any callable of your own."""
+    protects_match = _protects_pred(protects)
+
+    def shield(calc, carrier) -> bool:
+        attacker = calc.attacker
+        if attacker is None or not protects_match(calc.target, carrier):
+            return False
+        return bool(pred(attacker))
+
+    return prevent_damage_when(shield)
+
+
 class TypedDamageBoostPassive(Passive):
     """The holder's attacks do +N to opposing targets matching a type/pred."""
 
