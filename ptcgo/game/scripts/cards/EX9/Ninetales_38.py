@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.FIRE: 1},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Searing Flame",

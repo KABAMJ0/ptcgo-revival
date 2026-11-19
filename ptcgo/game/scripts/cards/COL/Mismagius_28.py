@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="7cf57621-8b39-5416-b197-caa2e4bc8388",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True),
         ),
         Attack(
             title="Poltergeist",

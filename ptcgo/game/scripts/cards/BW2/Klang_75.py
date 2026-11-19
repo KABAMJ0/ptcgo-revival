@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="79a325f1-0f70-5d3d-b403-46e9f1a1e273",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             title="Metal Sound",
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Guard Press",

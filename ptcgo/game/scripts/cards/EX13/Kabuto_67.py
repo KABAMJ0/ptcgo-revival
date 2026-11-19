@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="92828325-d385-567d-9eb2-5fd3a9e661ae",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Eerie Light",
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Shell Attack",

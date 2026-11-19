@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="59c9288e-1c70-5f31-88ae-3e8f176a5f09",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
     ],
 )

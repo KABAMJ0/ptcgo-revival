@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="ea8435bc-40f0-5359-a964-ddfb44661366",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sing",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True),
         ),
         Attack(
             title="Metronome",

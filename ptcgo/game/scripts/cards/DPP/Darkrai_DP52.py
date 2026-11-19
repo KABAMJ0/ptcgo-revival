@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="019e7883-3ffa-5501-bfe6-8bc08c054db1",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True),
         ),
     ],
 )
