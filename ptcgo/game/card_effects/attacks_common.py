@@ -1676,6 +1676,27 @@ def search_bench_as_basic(names, count, prompt):
     return effect
 
 
+def extra_prize_this_attack(damage: Optional[int] = None, prizes: int = 1,
+                            also=None):
+    """"If your opponent's Pokemon is Knocked Out by damage from this attack,
+    take N more Prize card(s)" (Lugia-EX, Entei). Set on the attack's own ctx,
+    so it cannot leak into a later attack the way a turn-scoped watcher does;
+    the KO resolution consumes it once."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        ctx.extra_prizes += prizes
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def attacker_entered_active_this_turn(ctx) -> bool:
+    """cond_fn for `bonus_if`: this Pokemon was on the Bench and became the
+    Active Pokemon this turn (Golisopod-GX's Armor Press)."""
+    attacker = ctx.attacker if ctx.attacker is not None else ctx.source
+    return attacker is not None and bool(ctx.entered_active_this_turn(attacker))
+
+
 def on_evolve(then, optional=True):
     """Generic evolution rider: "When you play this Pokemon from your hand to
     evolve 1 of your Pokemon, you may ...". Pair with
