@@ -38,6 +38,7 @@ from ptcgo.game.session.passives import (
 )
 from ptcgo.game.card_effects.passives_common import (
     ability_lock_passive,
+    team_damage_boost_passive,
     attack_discount_passive,
     free_attack_cost_passive,
     previous_evolution_grant_passive,
@@ -9642,3 +9643,30 @@ def guess_card_name(draws: int, attack_hint: bool = False):
 def guess_card_hp(draws: int):
     """`guess_pokemon_from_hand` for the printings that ask for the HP."""
     return guess_pokemon_from_hand("hp", "Guess this Pokemon's HP.", draws, draws)
+
+
+def draw_until_then_turn_ends(hand_size: int = 7):
+    """"Once during each player's turn, that player may draw until they have
+    `hand_size` cards; if they do, their turn ends" (Tropical Beach)."""
+    async def effect(ctx):
+        asked = await ctx.ask_yes_no(
+            "Draw until you have %d cards in your hand?" % hand_size,
+            player_id=ctx.player_id)
+        if not asked:
+            return
+        drew = await ctx.draw_until(hand_size)
+        if drew:
+            ctx.ends_turn = True
+    return effect
+
+
+def heal_each_with_pokemon_in_play(amount: int, minimum: int = 6):
+    """"If that player has `minimum` Pokemon in play, they may heal `amount`
+    from each of their Pokemon" (Champions Festival)."""
+    async def effect(ctx):
+        if len(ctx.my_pokemon_in_play()) < minimum:
+            return
+        await heal_where(amount, "each_own")(ctx)
+    return effect
+
+
