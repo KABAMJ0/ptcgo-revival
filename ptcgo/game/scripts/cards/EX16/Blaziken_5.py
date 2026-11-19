@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
 
+async def _fire_stream(ctx):
+    """Printed damage, discard a Fire Energy from Blaziken, then 10 to each opposing Benched."""
+    await ctx.deal_damage()
+    await ctx.discard_energy_from(ctx.attacker, 1, prompt="Discard a Fire Energy")
+    await spread_damage(10, side="opponent")(ctx)
 card = PokemonCardDef(
     guid="9ad3ce4f-5372-5a7b-9588-1b8c28243db1",
     key="EX16",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             game_text="Discard a Fire Energy card attached to Blaziken. This attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=_fire_stream,
         ),
     ],
 )

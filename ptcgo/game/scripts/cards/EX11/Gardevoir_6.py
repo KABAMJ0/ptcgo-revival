@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_counters_on, damage_per, snipe_attack
 card = PokemonCardDef(
     guid="dab32318-b040-5ad7-9d6d-0084f2370cd8",
     key="EX11",
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             title="Psychic Rage",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage for each damage counter on Gardevoir to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(lambda ctx: damage_counters_on("self")(ctx) * 10, pool="any"),
         ),
         Attack(
             title="Black Magic",
@@ -36,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 20, base=10),
         ),
     ],
 )
