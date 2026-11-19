@@ -33,7 +33,7 @@ import sys
 import types
 from typing import Dict, List, Optional, Tuple
 
-from ptcgo.tools.card_gate import analyze as gate_analyze
+from ptcgo.tools.card_gate import analyze as gate_analyze, damage_value
 from ptcgo.tools.kind_audit import block_conflict
 from ptcgo.tools.reuse_effects import (CARDS_ROOT, Script, Transplant, _ability_calls,
                                       _int_literals, _is_unimpl, _lit, _rank, all_scripts,
@@ -175,7 +175,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             if any(_is_unimpl(k.value) for k in plan.extra):
                 misses += 1
                 continue
-            mine = _lit(kw["damage"].value, 0) if "damage" in kw else 0
+            mine = damage_value(kw) or 0
             if mine != plan.damage and not args.allow_mismatch:
                 unexplained = unexplained_literals(plan, text)
                 if unexplained or plan.hardcodes_damage(text):
