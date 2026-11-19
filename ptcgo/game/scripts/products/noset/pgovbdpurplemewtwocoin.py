@@ -1,0 +1,8 @@
+from ptcgo.game.data_utils import CoinDef
+
+product = CoinDef(
+    guid="e6a9f3c1-3fee-5821-8488-c418fd934697",
+    key="NoSet",
+    name="PGOVBD Purple Mewtwo Coin Coin",
+    image_url="pgovbdpurplemewtwo",
+)

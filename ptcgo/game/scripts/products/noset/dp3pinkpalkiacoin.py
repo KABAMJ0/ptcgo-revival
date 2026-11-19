@@ -1,0 +1,8 @@
+from ptcgo.game.data_utils import CoinDef
+
+product = CoinDef(
+    guid="ff0b1667-05e0-5f95-807c-445fc3fe8672",
+    key="NoSet",
+    name="DP3 Pink Palkia Coin Coin",
+    image_url="dp3pinkpalkia",
+)

@@ -1,0 +1,8 @@
+from ptcgo.game.data_utils import CoinDef
+
+product = CoinDef(
+    guid="d7461e07-214c-5af3-977e-1e498c3abc01",
+    key="NoSet",
+    name="CSV9 Gold Togepi Coin Coin",
+    image_url="csv9goldtogepi",
+)
