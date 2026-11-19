@@ -1,5 +1,33 @@
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _watcheck(ctx):
+    """Look at the top 5 of the opponent's deck and put them back in any order."""
+    top = ctx.deck_top(5, ctx.opponent_id)
+    if len(top) <= 1:
+        return
+    picked_ids = await ctx.session.prompt_card_chooser(
+        ctx.player_id, ctx.source.entity_id, top, len(top), minimum=len(top),
+        prompt="Put the cards back in any order.", ordered=True,
+    )
+    by_id = {c.entity_id: c for c in top}
+    order = [by_id[i] for i in picked_ids if i in by_id]
+    for card in top:
+        if card not in order:
+            order.append(card)
+    deck = ctx.board.find_player_area(ctx.opponent_id, "deck")
+    for card in order:
+        deck.children.remove(card)
+    for card in reversed(order):
+        deck.children.append(card)
+
+
+async def _quick_tail_smash_heads(ctx):
+    """20 printed plus the 60 the heads rider adds."""
+    await ctx.deal_damage(80)
+
 
 card = PokemonCardDef(
     guid="0876a883-621b-5d93-9a46-78b966ce3264",
@@ -23,7 +51,7 @@ card = PokemonCardDef(
             title="Watcheck",
             game_text="Look at the top 5 cards of your opponent's deck and put them back on top of his or her deck in any order.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_watcheck,
         ),
         Attack(
             title="Quick Tail Smash",
@@ -31,7 +59,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=1, then=_quick_tail_smash_heads),
         ),
     ],
 )

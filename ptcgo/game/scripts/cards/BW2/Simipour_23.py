@@ -1,5 +1,14 @@
+from ptcgo.game.card_effects.attacks_common import self_has_energy_of_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _grass_power(ctx):
+    """Printed 30; heals 20 from itself only with Grass Energy attached."""
+    await ctx.deal_damage()
+    if self_has_energy_of_type(PokemonTypes.GRASS)(ctx):
+        await ctx.heal(20, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="26035b7b-ad20-5b8a-adf0-1f3cf81f8d13",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has any Grass Energy attached to it, heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=_grass_power,
         ),
         Attack(
             title="Rushing Water",
