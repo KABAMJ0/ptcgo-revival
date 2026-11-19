@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_bench, damage_counters_on, damage_per, snipe_attack
+from ptcgo.game.card_effects.support_common import move_energy_between
+
 card = PokemonCardDef(
     guid="dab32318-b040-5ad7-9d6d-0084f2370cd8",
     key="EX11",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Energy Jump",
             game_text="Once during your turn (before your attack), you may move an Energy card attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon. This power can't be used if Gardevoir is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=move_energy_between(),
         ),
         Attack(
             title="Psychic Rage",
