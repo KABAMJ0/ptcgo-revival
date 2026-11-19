@@ -12,9 +12,10 @@ from ptcgo.game.content import pack_rules
 
 SHOP_SKU_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "spiritptcgo.shop.sku")
 
-# Keyed by GUID: the pack carries the BASE1 set key so the client can open it.
+# The Coin Chest (once the Coin Booster) is matched by GUID, never by its set key.
 COIN_BOOSTER_GUID = str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER"))
-COIN_BOOSTER_SIZE = 10
+# The client's treasure box sequence has two prize slots.
+COIN_BOOSTER_SIZE = 2
 # Gold and silver coins were the prize coins; they turn up less often than the rest.
 COIN_WEIGHTS = (("gold", 0.35), ("silver", 0.6))
 
