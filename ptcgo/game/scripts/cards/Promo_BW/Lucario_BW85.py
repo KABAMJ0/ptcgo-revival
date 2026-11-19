@@ -1,6 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.attacks_common import on_evolve
+from ptcgo.game.content.definitions import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _draw_two(ctx):
+    await ctx.draw_cards(2, ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="9e0013d9-f88c-511b-b690-ac6cd29065cf",
@@ -23,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Intuition",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may draw 2 cards.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(_draw_two),
         ),
         Attack(
             title="Fast Punch",

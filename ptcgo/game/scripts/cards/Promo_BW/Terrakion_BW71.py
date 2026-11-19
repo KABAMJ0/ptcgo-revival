@@ -1,5 +1,6 @@
 from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.passives_common import typed_damage_boost_tool
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Justified",
             game_text="Each of this Pok\u00e9mon's attacks does 50 more damage to Darkness Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=typed_damage_boost_tool(PokemonTypes.DARKNESS, 50,
+                                            to_active_only=False),
         ),
         Attack(
             title="Crushing Blow",
