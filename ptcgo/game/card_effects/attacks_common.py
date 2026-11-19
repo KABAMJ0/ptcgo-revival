@@ -22,6 +22,7 @@ from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, s
 from ptcgo.game.card_effects.passives_common import (
     condition_immunity_passive,
     no_weakness_passive,
+    weakens_own_attacks_passive,
 )
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_special_energy
@@ -318,13 +319,21 @@ def damage_per(count_fn, per: int, base: int = 0, cap: Optional[int] = None,
 # Snipe / spread
 # ----------------------------------------------------------------------
 
-def snipe_attack(amount: int, pool="bench", count: int = 1,
+def snipe_attack(amount, pool="bench", count: int = 1,
                  side: str = "opponent", also_base: bool = False,
                  apply_modifiers: Optional[bool] = None, optional: bool = False,
                  self_damage: int = 0, also=None, prompt: Optional[str] = None):
     """Deal `amount` to `count` chosen Pokemon (pool 'bench'|'any'|predicate).
     apply_modifiers None = engine auto (W/R only when the target is the
-    opponent's Active); also_base deals printed damage to the Active first."""
+    opponent's Active); also_base deals printed damage to the Active first.
+
+    `amount` may be a callable taking the ctx, for the printings whose snipe
+    scales with a count ("this attack does 30 damage for each Energy attached to
+    that Pokemon"): it is evaluated once per resolution, like `damage_per`."""
+
+    def _amount(ctx):
+        return amount(ctx) if callable(amount) else amount
+
     async def effect(ctx):
         if pool == "any":
             candidates = _in_play(ctx, side)
@@ -334,19 +343,20 @@ def snipe_attack(amount: int, pool="bench", count: int = 1,
             candidates = [p for p in _in_play(ctx, side) if pool(p)]
         picks = []
         if candidates:
+            value = _amount(ctx)
             if len(candidates) <= count and not optional:
                 picks = candidates
             else:
-                text = prompt or (f"Choose a Pokémon to take {amount} damage"
+                text = prompt or (f"Choose a Pokémon to take {value} damage"
                                   if count == 1 else
-                                  f"Choose {count} Pokémon to take {amount} damage")
+                                  f"Choose {count} Pokémon to take {value} damage")
                 picks = await ctx.choose_cards(
                     candidates, count, minimum=0 if optional else None, prompt=text)
         queue_shield = len(picks) + int(also_base) == 1
         if also_base:
             await ctx.deal_damage(queue_shield=queue_shield)
         for target in picks:
-            await ctx.deal_damage(amount, target=target,
+            await ctx.deal_damage(_amount(ctx), target=target,
                                     apply_modifiers=apply_modifiers,
                                     queue_shield=queue_shield)
         await _finish(ctx, self_damage, also)
@@ -937,6 +947,23 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
+    """Printed (or `damage`) damage, then the Defending Pokemon's own attacks do
+    `amount` less during the opponent's next turn ("any damage done by attacks
+    from the Defending Pokemon is reduced by N").
+
+    `protect_next_turn` is the opposite direction: it shields the target from
+    incoming hits, while this one weakens the hits the target throws."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None:
+            return
+        ctx.add_passive_through_opponents_turn(
+            defender, weakens_own_attacks_passive(amount))
     return effect
 
 
