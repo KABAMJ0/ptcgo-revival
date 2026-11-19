@@ -1,5 +1,28 @@
+from ptcgo.game.data_utils import Activations
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def mode_crash(ctx):
+    """Every Special Energy in play on the opponent's side is discarded."""
+    for pokemon in ctx.opponent_pokemon_in_play():
+        energies = [energy for energy in ctx.attached_energies(pokemon)
+                    if is_special_energy(energy)]
+        if energies:
+            await ctx.discard_cards(energies)
+
+
+async def decode(ctx):
+    """Up to two cards from the deck go on top of it in any order."""
+    picks = await ctx.search_deck(None, count=2, minimum=0,
+                                  prompt="Choose up to 2 cards")
+    if not picks:
+        return
+    for card in picks:
+        await ctx.put_on_top_of_deck(card)
+    await ctx.shuffle_deck()
 
 card = PokemonCardDef(
     guid="2d8fbfa8-8ce9-51a2-a4a4-17226a606cca",
@@ -22,12 +45,14 @@ card = PokemonCardDef(
         Ability(
             title="Mode Crash",
             game_text="Once during your turn (before your attack), when you put Porygon-Z LV.X from your hand onto your Active Porygon-Z, you may discard all of your opponent's Special Energy cards in play.",
-            effect=unimplemented,
+            effect=mode_crash,
         ),
         Ability(
             title="Decode",
             game_text="Once during your turn (before your attack), you may search your deck for up to any 2 cards and shuffle your deck afterward. Then, put those cards on top of your deck in any order. This power can't be used if Porygon-Z is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=unafflicted,
+            effect=decode,
         ),
     ],
 )
