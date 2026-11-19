@@ -567,11 +567,18 @@ def defender_has_condition(condition):
 
 
 def named_in_play(*names, side: str = "mine", require_all: bool = False):
-    """cond_fn: Pokemon with these names (EVOLUTION_LOGIC_NAME) are in play."""
+    """cond_fn: Pokemon with these names are in play.
+
+    The attribute is the LOGIC name ("Regirockex"), which has no separators,
+    while a lane reads the card and writes "Regirock ex". Both sides go through
+    `name_key`, so either spelling matches without the caller knowing which
+    field it is quoting -- three dead clauses came from this exact gap."""
+    from ptcgo.game.card_effects.pokemon import name_key
+
     def cond(ctx) -> bool:
-        present = {p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME)
+        present = {name_key(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME))
                    for p in _in_play(ctx, side)}
-        wanted = set(names)
+        wanted = {name_key(n) for n in names}
         return wanted <= present if require_all else bool(wanted & present)
     return cond
 
@@ -1223,20 +1230,6 @@ def discard_defender_tools_then_damage(damage: Optional[int] = None):
     return effect
 
 
-def no_weakness_next_turn(damage: Optional[int] = None):
-    """Printed (or `damage`) damage, then the attacker has no Weakness during
-    the opponent's next turn ("During your opponent's next turn, this Pokemon
-    has no Weakness"). The shield is a temporary passive, so it ends with the
-    turn window the same way a protection rider does."""
-    async def effect(ctx):
-        await ctx.deal_damage(damage)
-        if ctx.attacker is None:
-            return
-        ctx.add_passive_through_opponents_turn(
-            ctx.attacker, no_weakness_passive())
-    return effect
-
-
 def identity_swap_from_deck(named: str, prompt: str = ""):
     """Search your deck for another `<named>` and switch it with this Pokemon,
     keeping everything on it ("Any cards attached to Ditto, damage counters,
@@ -1244,11 +1237,11 @@ def identity_swap_from_deck(named: str, prompt: str = ""):
 
     The swap itself is `ctx.identity_swap`, the same one Nanu and Ogre's Mask
     use, so attachments, damage, conditions and turn stamps all transfer."""
-    want = named.strip().lower()
+    from ptcgo.game.card_effects.pokemon import name_matches
 
     def matches(card) -> bool:
         definition = def_for(getattr(card, "archetype_id", "") or "")
-        return (getattr(definition, "display_name", "") or "").strip().lower() == want
+        return name_matches(getattr(definition, "display_name", ""), named)
 
     async def effect(ctx):
         pool = [card for card in ctx.deck() if matches(card)]

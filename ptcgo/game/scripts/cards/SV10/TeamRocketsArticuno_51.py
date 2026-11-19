@@ -1,4 +1,24 @@
+from ptcgo.game.attributes import AttrID
+
+
+def _team_basic():
+    """(target, carrier) pred: your Basic Pokemon whose printed name carries
+    "Team Rocket's" -- the wording names a GROUP, not this Pokemon."""
+    named = pokemon_named("team rocket")
+
+    def pred(target, carrier):
+        return (target.owning_player_id == carrier.owning_player_id
+                and target.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value
+                and named(target))
+
+    return pred
+
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonStage
+from ptcgo.game.card_effects.passives_common import (
+    attack_effect_shield_passive, pokemon_named,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +42,8 @@ card = PokemonCardDef(
         Ability(
             title="Repelling Veil",
             game_text="Prevent all effects of attacks used by your opponent's Pok\u00e9mon done to your Basic Team Rocket's Pok\u00e9mon. (Existing effects are not removed. Damage is not an effect.)",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(protects=_team_basic()),
+
         ),
         Attack(
             title="Dark Frost",

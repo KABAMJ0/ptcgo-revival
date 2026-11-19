@@ -45,6 +45,7 @@ from ptcgo.game.card_effects.passives_common import (
     condition_immunity_passive,
     is_in_active_spot,
     TempShieldPassive,
+    AttackShieldPassive,
     hp_bonus_tool,
     no_resistance_passive,
     retreat_free_when,
@@ -788,7 +789,7 @@ class BigParasolPassive(Passive):
     """While the holder is in the Active Spot, shields the owner's whole
     side from the opponent's attack EFFECTS (not damage)."""
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         holder = carrier_pokemon(carrier)
         if holder is None or target.owning_player_id != holder.owning_player_id:
             return False
@@ -1550,14 +1551,6 @@ def draw_n(n: int):
     return effect
 
 
-def discard_hand_draw(n: int):
-    """Discard your whole hand, then draw `n` (Professor's Research shape)."""
-    async def effect(ctx):
-        await ctx.discard_cards(ctx.hand())
-        await ctx.draw_cards(n)
-    return effect
-
-
 def shuffle_hand_draw(n: int, opponent_prizes_low=None):
     """Shuffle your hand into your deck, then draw `n`. With
     opponent_prizes_low=(threshold, n_low) the draw becomes `n_low` once the
@@ -2219,7 +2212,7 @@ class CombinedPassive(Passive):
             part.modify_damage_taken(calc, carrier)
 
     # -- chained ints ------------------------------------------------------
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return sum(part.max_hp_bonus(pokemon, carrier) for part in self.parts)
 
     def tool_capacity(self, pokemon, carrier):
@@ -2378,8 +2371,8 @@ class CombinedPassive(Passive):
     def blocks_attack(self, pokemon, carrier):
         return any(part.blocks_attack(pokemon, carrier) for part in self.parts)
 
-    def blocks_attack_effects(self, target, carrier):
-        return any(part.blocks_attack_effects(target, carrier)
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
+        return any(part.blocks_attack_effects(target, carrier, attacker, board)
                    for part in self.parts)
 
     def blocks_bench_damage(self, calc, carrier):
@@ -4240,39 +4233,36 @@ def attacker_has_subtypes(*subtypes, exclude=()):
     return predicate
 
 
-class AttackerGatedPassive(Passive):
+class AttackerGatedPassive(AttackShieldPassive):
     """The holder takes `amount` less damage (or none at all) from attacks by
     attackers matching `attacker`; `holder` gates which Pokemon it protects
-    and `effects_too` also shields it from the attack's effects."""
+    and `effects_too` also shields it from the attack's effects.
+
+    Both halves gate on the same attacker: the effect half used to ignore
+    `attacker` entirely, so a Tool that says "from Pokemon with an Ability"
+    cut the damage but let every Ability-holder's attack effects through."""
 
     def __init__(self, amount, holder=None, attacker=None, prevent=False,
                  effects_too=False):
         self.amount = amount
         self.holder = holder
-        self.attacker = attacker
         self.prevent = prevent
-        self.effects_too = effects_too
+        protects = None if holder is None else (
+            lambda target, carrier: carrier_pokemon(carrier) is target
+            and bool(holder(target)))
+        super().__init__(attacker, protects, damage=True,
+                         effects_too=effects_too)
 
-    def _applies(self, calc, carrier):
-        if not (calc.is_attack and calc.is_opposing):
-            return False
-        if carrier_pokemon(carrier) is not calc.target:
-            return False
-        if self.holder is not None and not self.holder(calc.target):
-            return False
-        if self.attacker is None:
-            return calc.attacker is not None
-        return calc.attacker is not None and self.attacker(calc.attacker)
+    def _answers(self, calc, carrier) -> bool:
+        return bool(calc.is_attack and calc.is_opposing
+                    and self._covers(calc.target, carrier, calc.attacker))
 
     def modify_damage_taken(self, calc, carrier):
-        if self.amount and self._applies(calc, carrier):
+        if self.amount and self._answers(calc, carrier):
             calc.amount = max(0, calc.amount - self.amount)
 
     def prevents_damage(self, calc, carrier):
-        return bool(self.prevent and self._applies(calc, carrier))
-
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+        return bool(self.prevent and self._answers(calc, carrier))
 
 
 def takes_less_from(amount: int, holder=None, attacker=None):
@@ -4299,7 +4289,7 @@ class EveryoneHpBonusPassive(Passive):
         self.amount = amount
         self.pred = pred
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return self.amount if self.pred(pokemon) else 0
 
 
@@ -4326,13 +4316,16 @@ def has_energy_of(*type_names):
 
 
 def pokemon_named(word: str):
-    """Pokemon predicate: the printed name contains `word` ("Psyduck")."""
-    wanted = word.lower()
+    """Pokemon predicate: the printed name contains `word` ("Psyduck").
+
+    Both spellings resolve: the corpus stores "Regirock ex" as a display name and
+    "Regirockex" as a logic name, and a lane quotes whichever it read."""
+    from ptcgo.game.card_effects.pokemon import name_contains
 
     def predicate(card):
         definition = def_for(card.archetype_id)
-        return is_pokemon_card(card) and wanted in (
-            getattr(definition, "display_name", "") or "").lower()
+        return is_pokemon_card(card) and name_contains(
+            getattr(definition, "display_name", ""), word)
     return predicate
 
 
@@ -6931,20 +6924,6 @@ def each_player_shuffle_flip_draw(heads: int, tails: int):
 
 
 # --- discard-ultra-beast-draw-per ---
-def discard_pred_draw_per(predicate, count: int, per: int):
-    """Discard up to `count` matching cards from your hand, then draw `per` for
-    each (Ultra Recon Squad, Roxie)."""
-    async def effect(ctx):
-        hand = [c for c in ctx.hand() if predicate is None or predicate(c)]
-        if not hand:
-            return
-        picks = await ctx.choose_cards(
-            hand, count, minimum=0, prompt="Choose cards to discard")
-        if not picks:
-            return
-        await ctx.discard_cards(picks)
-        await ctx.draw_cards(per * len(picks))
-    return effect
 
 
 # --- discard-not-rule-box-draw-per ---
@@ -6979,22 +6958,6 @@ def each_player_discard_to(keep: int):
 
 
 # --- opponent-hand-bottom-draw-same ---
-def opponent_hand_to_bottom_draw_same(optional: bool = False):
-    """The opponent counts their hand, puts it on the bottom of their deck, and
-    draws that many (Meddling Memo; Peeking Red Card makes it optional)."""
-    async def effect(ctx):
-        hand = ctx.hand(ctx.opponent_id)
-        if not hand:
-            return
-        if optional and not await ctx.ask_yes_no(
-                "Have your opponent shuffle their hand into their deck?"):
-            return
-        count = len(hand)
-        for card in hand:
-            await ctx.put_on_bottom_of_deck(card)
-        await ctx.shuffle_deck(ctx.opponent_id)
-        await ctx.draw_cards(count, ctx.opponent_id)
-    return effect
 
 
 # --- opponent-hand-bottom-draw-optional ---
@@ -8544,7 +8507,7 @@ class HeavyBootsPassive(Passive):
             return None
         return holder
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         return self.amount if self._holder(carrier) is pokemon else 0
 
     def blocks_special_conditions(self, target, condition, carrier):
@@ -8618,32 +8581,7 @@ def prize_ahead_tool(amount, attacker_side, to_active_only=False):
     return PrizeAheadPassive(amount, attacker_side, to_active_only)
 
 
-def team_aqua_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team aqua" in name.lower()
-
-
-def team_magma_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Magma in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team magma" in name.lower()
-
-
 # --- Pokemon Tool passives and turn-boundary hooks -----------------------------
-
-
-
-def team_aqua_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team aqua" in name.lower()
-
-
-def team_magma_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Magma in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team magma" in name.lower()
 
 
 # --- Pokemon Tool passives and turn-boundary hooks -----------------------------
@@ -8665,12 +8603,13 @@ def team_magma_target(pokemon) -> bool:
 # --- Benching an Evolution as a Basic; Burn overrides -----------------------
 
 def card_named_any(names):
-    """Predicate: a card whose printed name contains one of `names`."""
-    lowered = [name.lower() for name in names]
+    """Predicate: a card whose printed name contains one of `names`, in either
+    spelling the corpus stores."""
+    from ptcgo.game.card_effects.pokemon import name_contains
 
     def predicate(card):
-        label = (getattr(def_for(card.archetype_id), "display_name", "") or "").lower()
-        return any(name in label for name in lowered)
+        label = getattr(def_for(card.archetype_id), "display_name", "") or ""
+        return any(name_contains(label, name) for name in names)
     return predicate
 
 
@@ -9541,8 +9480,14 @@ def basic_from_hand_as_active():
     return effect
 
 
-def bench_has_room():
-    """Play condition: the Bench has a free slot (Lt. Surge)."""
+def bench_has_room_condition():
+    """Play condition: the Bench has a free slot (Lt. Surge).
+
+    Named apart from `bench_has_room(board, player_id)` on purpose: the two used
+    to share a name, so this zero-argument factory SHADOWED the predicate every
+    other card passes straight to `condition=`. Furisode Girl and CaraLiss then
+    handed the engine a factory it called with (board, player_id) -- a TypeError
+    at play time, with the loader clean."""
     def check(board, player_id):
         bench = board.find_player_area(player_id, "bench")
         used = len(bench.children) if bench else 0

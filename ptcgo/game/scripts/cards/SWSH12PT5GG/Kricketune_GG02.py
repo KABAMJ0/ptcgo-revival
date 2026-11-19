@@ -6,7 +6,7 @@ from ptcgo.game.session.passives import Passive
 class SwellingTunePassive(Passive):
     stacking_key = "SwellingTune"
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon.owning_player_id != carrier.owning_player_id:
             return 0
         if pokemon.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Kricketune":
