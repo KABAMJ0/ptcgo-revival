@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import (
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Leaf Bringer",
             game_text="Attach up to 2 Basic Grass Energy cards from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("grass"), count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Binding Greed",

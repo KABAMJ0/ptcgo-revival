@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Instruct",
             game_text="Once during your turn (before your attack), you may draw cards until you have 3 cards in your hand.",
-            effect=unimplemented,
+            effect=draw_until_effect(3),
         ),
         Attack(
             title="Psychic",

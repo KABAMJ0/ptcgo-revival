@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Flare Bringer",
             game_text="Attach up to 2 Basic Fire Energy cards from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("fire"), count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Megafire of Envy",

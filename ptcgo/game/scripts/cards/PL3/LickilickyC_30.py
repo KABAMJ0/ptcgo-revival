@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Licking-Licking Heal",
             game_text="Attach a Basic Energy card from your hand to 1 of your Pok\u00e9mon. Then, remove 2 damage counters from that Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Return",
