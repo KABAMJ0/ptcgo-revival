@@ -15163,6 +15163,15 @@ class AbilityEffectShieldPassive(Passive):
         return target is carrier_pokemon(carrier)
 
 
+def _evolve_early_self(m, ability):
+    """"If you go second, this Pokemon can evolve during your first turn."
+    The grant belongs to the ONE Pokemon that prints it, so the passive takes
+    the carrier argument -- `evolve_early_passive` (the Stadium shape) covers
+    every matching Pokemon and is the wrong body for this wording."""
+    from ptcgo.game.card_effects.trainers import evolve_early_self_passive
+    return evolve_early_self_passive()
+
+
 def _energy_string_pred(phrase: str):
     """"Psychic or Metal" / "basic Fighting" -> a predicate on an Energy card."""
     from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
@@ -15525,6 +15534,9 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"search your deck for a card that evolves from this pokemon "
                 r"and put it onto this pokemon to evolve it\. then, shuffle "
                 r"your deck\."), _evolve_from_deck),
+    ("evolve.early-self",
+     re.compile(r"if you go second, this pokemon can evolve during your first "
+                r"turn\."), _evolve_early_self),
     ("attach.energy-from-discard",
      re.compile(r"attach (?:a|(\d+)) basic energy cards? from your discard "
                 r"pile to (?:this pokemon|(?:a|\d+) of your benched pokemon)\."),
