@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import bare_mill
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Sudden Shearing",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard the top card of your opponent's deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=bare_mill(count=1, opponent=True),
         ),
         Attack(
             title="Vengeful Crush",
