@@ -1,5 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_stadium_card
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
@@ -24,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Mapping",
             game_text="Once during your turn, when you play Porygon2 from your hand to evolve 1 of your Pok\u00e9mon, you may search your deck for a Stadium card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_hand(is_stadium_card, count=1, reveal=True),
         ),
         Attack(
             title="3-D Attack",

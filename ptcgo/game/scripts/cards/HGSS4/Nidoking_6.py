@@ -1,8 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import Passive
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.session.passives import carrier_pokemon
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+class _PheromoneStamina(Passive):
+    """+20 max HP per Nidoqueen this Nidoking's owner has in play."""
+
+    def max_hp_bonus(self, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return 0
+        return 20 * sum(
+            1 for p in board.pokemon_in_play(pokemon.owning_player_id)
+            if (def_for(p.archetype_id or "").display_name or "") == "Nidoqueen")
 
 card = PokemonCardDef(
     guid="2903b0c1-a8c3-5f35-aa63-8223a89b2aec",
@@ -26,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Pheromone Stamina",
             game_text="Nidoking gets +20 HP for each Nidoqueen you have in play.",
-            effect=unimplemented,
+            passive=_PheromoneStamina(),
         ),
         Attack(
             title="Venomous Horn",

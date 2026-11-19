@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _illumise_in_play(ctx) -> bool:
+    for pokemon in ctx.my_pokemon_in_play():
+        definition = def_for(getattr(pokemon, "archetype_id", "") or "")
+        if definition is not None and (definition.display_name or "") == "Illumise":
+            return True
+    return False
+
+
+async def _illumisile(ctx):
+    if not _illumise_in_play(ctx):
+        return
+    await snipe_attack(30, pool="bench", count=1, apply_modifiers=False)(ctx)
 
 card = PokemonCardDef(
     guid="38c3ba15-9efe-54c8-9c66-b51420ffdecc",
@@ -22,7 +37,7 @@ card = PokemonCardDef(
             title="Illumisile",
             game_text="If you don't have Illumise in play, this attack does nothing. Choose 1 of your opponent's Benched Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=_illumisile,
         ),
         Attack(
             title="Firefly Light",

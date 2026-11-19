@@ -2,6 +2,21 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
+from ptcgo.game.data_utils import def_for
+
+
+def _is_pineco_or_forretress(pokemon):
+    name = (getattr(def_for(pokemon.archetype_id), "display_name", "") or "").lower()
+    return name.startswith("pineco") or name.startswith("forretress")
+
+
+async def _everyone_explode_now(ctx):
+    mine = [p for p in ctx.my_pokemon_in_play() if _is_pineco_or_forretress(p)]
+    await ctx.deal_damage(30 * len(mine))
+    for pokemon in mine:
+        await ctx.deal_damage(30, target=pokemon, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="3cb9b9b5-ac5d-5706-958a-e315a2c7d16c",
     key="COL",
@@ -34,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_everyone_explode_now,
         ),
     ],
 )

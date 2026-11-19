@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.attributes import AttrID
+
+
+from ptcgo.game.card_effects.passives_common import unafflicted
+
+
+async def _spray_splash(ctx):
+    await place_counters(1, target="choose_any_opponent")(ctx)
+
 
 card = PokemonCardDef(
     guid="9a6592ff-4602-5d6b-bcdd-ad69c432df1d",
@@ -22,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Spray Splash",
             game_text="Once during your turn (before your attack), you may put 1 damage counter on 1 of your opponent's Pok\u00e9mon. This power can't be used if Kingdra is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=_spray_splash,
         ),
         Attack(
             title="Dragon Steam",

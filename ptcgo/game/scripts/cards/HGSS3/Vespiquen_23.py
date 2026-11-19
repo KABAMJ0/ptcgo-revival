@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, prevent_damage_when
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+def _benched_grass(calc, carrier) -> bool:
+    target = calc.target
+    if target is None or is_in_active_spot(target):
+        return False
+    return PokemonTypes.GRASS.value in (target.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="8c4969f8-5ca7-5394-bb96-f3cd43fa8b3f",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Defense Sign",
             game_text="Prevent all damage done to your Benched Grass Pok\u00e9mon by attacks.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_benched_grass),
         ),
         Attack(
             title="Mach Wind",

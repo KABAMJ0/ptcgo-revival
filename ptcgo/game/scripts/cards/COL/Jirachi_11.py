@@ -1,5 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+PSYCHIC = PokemonTypes.PSYCHIC.value
+
+
+def _is_psychic_energy(card):
+    return energy_provides_type(card, PSYCHIC)
+
+
+async def _stardust_song(ctx):
+    results = await ctx.flip_coins(3, "Stardust Song")
+    heads = sum(1 for result in results if result)
+    if heads:
+        await attach_from_discard(_is_psychic_energy, count=heads, target="self",
+                                  minimum=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="c35221d3-5cfa-5437-bae9-4b20d68e54a9",
@@ -21,6 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Stardust Song",
             game_text="Once during your turn, when you put Jirachi from your hand onto your Bench, you may flip 3 coins. For each heads, search your discard pile for a Psychic Energy card and attach it to Jirachi.",
+            trigger=Triggers.ON_PLAY,
             effect=unimplemented,
         ),
         Attack(

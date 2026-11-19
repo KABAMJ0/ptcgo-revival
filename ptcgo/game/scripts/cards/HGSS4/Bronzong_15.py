@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _legend_half(card) -> bool:
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return definition is not None and "LEGEND" in (getattr(definition, "subtypes", None) or [])
 
 card = PokemonCardDef(
     guid="d8e804d0-1802-590f-a79d-6dca0331507a",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             title="Legend Ceremony",
             game_text="Search your deck for both halves of a Pok\u00e9mon LEGEND, show them to your opponent, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(_legend_half, count=2, minimum=0, reveal=True),
         ),
         Attack(
             title="Reflect Energy",

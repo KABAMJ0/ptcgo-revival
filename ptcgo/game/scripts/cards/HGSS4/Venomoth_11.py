@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _poison_moth_wind(ctx):
+    heads = await ctx.flip_coins(1, "Poison Moth Wind")
+    if heads and heads[0]:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+    else:
+        await ctx.apply_special_condition(ctx.attacker, SpecialConditions.POISONED)
 
 card = PokemonCardDef(
     guid="d88df1d0-422e-5334-8be3-1fd3b601f5e8",
@@ -24,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Poison Moth Wind",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Poisoned. If tails, your Active Pok\u00e9mon is now Poisoned. This power can't be used if Venomoth is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=_poison_moth_wind,
         ),
         Attack(
             title="Stun Spore",

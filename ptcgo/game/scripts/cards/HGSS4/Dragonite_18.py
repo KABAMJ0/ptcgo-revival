@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _dragon_stamp(ctx):
+    heads = await ctx.flip_coins(2, "Dragon Stamp")
+    if not any(heads):
+        return
+    await ctx.deal_damage()
+    if all(heads):
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
 
 card = PokemonCardDef(
     guid="62a0c1c2-df91-5172-8bf9-5aa208eb2c30",
@@ -32,7 +41,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If both of them are tails, this attack does nothing. If both of them are heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=80,
-            effect=unimplemented,
+            effect=_dragon_stamp,
         ),
     ],
 )

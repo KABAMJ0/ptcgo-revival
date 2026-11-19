@@ -1,5 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import apply_own_next_turn_boost
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _focus_energy(ctx):
+    await ctx.deal_damage()
+    await apply_own_next_turn_boost(ctx, 30, "Bite")
 
 card = PokemonCardDef(
     guid="05fbb793-ba0c-5f56-a603-47c790ccbd05",
@@ -22,7 +27,7 @@ card = PokemonCardDef(
             title="Focus Energy",
             game_text="During your next turn, Carvanha's Bite attack's base damage is 40.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_focus_energy,
         ),
         Attack(
             title="Bite",

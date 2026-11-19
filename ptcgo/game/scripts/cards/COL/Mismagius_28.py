@@ -4,6 +4,24 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.data_utils import def_for
+
+
+async def _poltergeist_look_at_hand(ctx):
+    hand = ctx.hand(ctx.opponent_id)
+    trainers = sum(1 for card in hand if _trainerish(card))
+    if trainers:
+        await ctx.deal_damage(30 * trainers)
+
+
+def _trainerish(card):
+    from ptcgo.game.data_utils import def_for
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    name = (getattr(definition, "display_name", "") or "").lower()
+    return type(definition).__name__ in ("TrainerCardDef", "SupporterCardDef") \
+        or "stadium" in name or "supporter" in name
+
+
 card = PokemonCardDef(
     guid="7cf57621-8b39-5416-b197-caa2e4bc8388",
     key="COL",
@@ -36,7 +54,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_poltergeist_look_at_hand,
         ),
     ],
 )

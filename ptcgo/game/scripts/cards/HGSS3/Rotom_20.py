@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _plasma_arrow(ctx):
+    pool = ctx.opponent_pokemon_in_play()
+    if not pool:
+        return
+    target = await ctx.choose_pokemon(
+        pool, "Choose 1 of your opponent's Pok\u00e9mon")
+    if target is None:
+        return
+    energy = len(ctx.attached_energies(target))
+    if energy:
+        await ctx.deal_damage(20 * energy, target=target, apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="ca7c6cb6-3645-52fa-b12b-93053aac4cee",
@@ -28,7 +41,7 @@ card = PokemonCardDef(
             title="Plasma Arrow",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 20 damage for each Energy attached to that Pok\u00e9mon. This attack's damage isn't affected by Weakness or Resistance.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=_plasma_arrow,
         ),
     ],
 )

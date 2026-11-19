@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.card_effects.support_common import is_basic
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +24,8 @@ card = PokemonCardDef(
             title="Rambunctious Party",
             game_text="Look at the top 5 cards of your deck. Choose as many Basic Pok\u00e9mon as you like and put them onto your Bench. Shuffle the other cards back into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=look_at_top(5, take=5, predicate=is_basic, minimum=0, rest="shuffle",
+                             prompt="Choose Basic Pok\u00e9mon to put onto your Bench"),
         ),
         Attack(
             title="Rain Splash",

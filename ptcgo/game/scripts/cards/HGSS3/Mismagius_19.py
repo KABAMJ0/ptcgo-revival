@@ -1,8 +1,15 @@
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import is_trainer_card
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _look_at_hand_count_trainers(ctx):
+    hand = await ctx.reveal_hand(ctx.opponent_id)
+    trainers = sum(1 for card in (hand or ctx.hand(ctx.opponent_id))
+                   if is_trainer_card(card))
+    await ctx.deal_damage(30 * trainers)
 
 card = PokemonCardDef(
     guid="0952c98d-326e-5da4-af40-dd44d7b2dd6f",
@@ -36,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_look_at_hand_count_trainers,
         ),
     ],
 )

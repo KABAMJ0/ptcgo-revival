@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Tangling Tendrils",
             game_text="As long as Victreebel is your Active Pok\u00e9mon, your opponent's Active Pok\u00e9mon's Retreat Cost is ColorlessColorless more.",
-            effect=unimplemented,
+            passive=opponent_retreat_tax_passive(2, active_only=True),
         ),
         Attack(
             title="Acidic Drain",

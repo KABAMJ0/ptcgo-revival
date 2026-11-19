@@ -2,6 +2,13 @@ from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import bonus_if, named_in_play
+
+
+def _plusle_on_bench(ctx):
+    return bool(named_in_play("Plusle", side="mine")(ctx))
+
+
 card = PokemonCardDef(
     guid="85e3d0db-5cb5-5789-919a-210d06b5149d",
     key="HGSS2",
@@ -32,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_plusle_on_bench, 20, base=10),
         ),
     ],
 )

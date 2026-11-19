@@ -2,6 +2,24 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, 
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.support_common import draw_until_effect
 
+async def _lost_burn(ctx):
+    pool = []
+    for pokemon in ctx.my_pokemon_in_play():
+        pool.extend(ctx.attached_energies(pokemon))
+    if pool:
+        picks = await ctx.choose_cards(
+            pool, len(pool), minimum=0,
+            prompt="Choose any number of Energy to put in the Lost Zone")
+        if picks:
+            await ctx.move_to_lost_zone(list(picks))
+            await ctx.deal_damage(50 * len(picks))
+            return
+    await ctx.deal_damage(_printed_damage(ctx))
+
+
+def _printed_damage(ctx) -> int:
+    return getattr(ctx.ability, "damage", 0) or 0
+
 card = PokemonCardDef(
     guid="1f7c3624-13ff-5839-a116-11d0b13c28af",
     key="HGSS4",
@@ -35,7 +53,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_lost_burn,
         ),
     ],
 )

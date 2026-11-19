@@ -1,4 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+
+
+async def _mine_peek_top(ctx):
+    top = ctx.deck_top(1, player_id=ctx.opponent_id)
+    if not top:
+        return
+    await ctx.reveal_cards(top, to_player=ctx.player_id)
+    if await ctx.ask_yes_no("Have your opponent shuffle their deck?"):
+        await ctx.shuffle_deck(ctx.opponent_id)
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +32,7 @@ card = PokemonCardDef(
             title="Mine",
             game_text="Look at the top card of your opponent's deck. Then, you may have your opponent shuffle his or her deck.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=_mine_peek_top,
         ),
         Attack(
             title="Mud-Slap",

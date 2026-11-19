@@ -2,6 +2,9 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+
+
 card = PokemonCardDef(
     guid="fc35f2f8-2883-581d-9151-d1b2ed587b24",
     key="HGSS2",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Perfect Metal",
             game_text="Steelix can't be affected by any Special Conditions",
-            effect=unimplemented,
+            passive=condition_immunity_passive(),
         ),
         Attack(
             title="Energy Stream",

@@ -1,4 +1,18 @@
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.session.passives import Passive
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+
+
+class _DangerPerception(Passive):
+    """While Scizor ex's remaining HP is 60 or less it deals 40 more damage
+    (before Weakness and Resistance)."""
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.attacker is carrier):
+            return
+        if carrier.get_attribute(AttrID.HP, 0) <= 60:
+            calc.amount += 40
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_evolution_pokemon
@@ -26,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Danger Perception",
             game_text="As long as Scizor ex's remaining HP is 60 or less, Scizor ex does 40 more damage to the Defending Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=_DangerPerception(),
         ),
         Attack(
             title="Steel Wing",

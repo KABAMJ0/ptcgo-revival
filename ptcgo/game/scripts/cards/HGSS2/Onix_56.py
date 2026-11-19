@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _energy_healer(ctx):
+    if ctx.attaching_player_id == ctx.player_id:
+        await ctx.heal(10, ctx.source)
+
 
 card = PokemonCardDef(
     guid="cddd0f8d-49c1-57d2-b46c-8e5172fb6de3",
@@ -21,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Energy Healer",
             game_text="Whenever you attach an Energy card from your hand to Onix, remove a damage counter from Onix.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=_energy_healer,
         ),
         Attack(
             title="Boundless Power",

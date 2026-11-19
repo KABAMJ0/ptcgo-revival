@@ -1,8 +1,24 @@
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+def _is_fire(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+async def _lava_flow(ctx):
+    fire = [e for e in ctx.attached_energies(ctx.attacker) if _is_fire(e)]
+    picks = []
+    if fire:
+        picks = await ctx.choose_cards(
+            fire, len(fire), minimum=0,
+            prompt="Choose any number of Fire Energy to discard")
+    if picks:
+        await ctx.discard_cards(list(picks))
+    await ctx.deal_damage(60 + 20 * len(picks))
 
 card = PokemonCardDef(
     guid="48b90675-78b2-502c-a927-a7388df03590",
@@ -35,7 +51,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_lava_flow,
         ),
     ],
 )

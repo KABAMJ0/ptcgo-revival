@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
+
+GRASS = PokemonTypes.GRASS.value
+
+
 card = PokemonCardDef(
     guid="6e0475ee-2185-57f0-bc15-828351a3e175",
     key="HGSS1",

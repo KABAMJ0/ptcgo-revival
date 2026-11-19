@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.support_common import return_attached_energy
+
 
 card = PokemonCardDef(
     guid="34f24f94-5e43-571c-891b-8a08bff535af",
@@ -21,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="RETURN",
             game_text="Once during your turn, when you put Unown from your hand onto your Bench, you may return all Energy attached to 1 of your Pok\u00e9mon to your hand.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=return_attached_energy(count=None, all=True, target="choice", to="hand"),
         ),
         Attack(
             title="Hidden Power",
