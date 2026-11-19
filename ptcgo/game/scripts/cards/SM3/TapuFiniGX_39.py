@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack, spread_damage, place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import full_stack
+
+
+async def tapu_storm_gx(ctx):
+    """Shuffle the opponent's Active Pokemon and all cards attached to it into
+    their deck; nothing at all while they have no Benched Pokemon."""
+    active = ctx.opponent_active()
+    if active is None or not ctx.opponent_bench():
+        return
+    await ctx.shuffle_into_deck(full_stack(active), ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="e31cd883-f5f0-5026-858b-6d1dd90e5f26",
@@ -36,7 +47,7 @@ card = PokemonCardDef(
             title="Tapu Storm-GX",
             game_text="Shuffle your opponent's Active Pok\u00e9mon and all cards attached to it into their deck. If your opponent has no Benched Pok\u00e9mon, this attack does nothing. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=tapu_storm_gx,
         ),
     ],
 )

@@ -2,6 +2,13 @@ from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def night_roam(ctx):
+    """One damage counter on every Pokemon in play, both sides included."""
+    for pokemon in list(ctx.my_pokemon_in_play()) + list(ctx.opponent_pokemon_in_play()):
+        await ctx.deal_damage(10, target=pokemon, as_counters=True)
+
+
 card = PokemonCardDef(
     guid="ab2df1d9-e066-5c66-b776-f10ded64db54",
     key="SM3",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             title="Night Roam",
             game_text="Put 1 damage counter on each Pok\u00e9mon (both yours and your opponent's).",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=night_roam,
         ),
         Attack(
             title="Ambush",

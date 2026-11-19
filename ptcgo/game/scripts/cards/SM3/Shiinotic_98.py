@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, count_energy
+
+
+async def strength_sap(ctx):
+    """Printed 30; heal 30 from this Pokemon for each Energy card on the
+    opponent's Active."""
+    await ctx.deal_damage()
+    attached = count_energy("defender", cards=True)(ctx)
+    if attached:
+        await ctx.heal(30 * attached, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="89424f26-d479-5184-b86e-5e18f7621dfa",
@@ -26,7 +36,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon 30 damage times the amount of Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=strength_sap,
         ),
         Attack(
             title="Sleep Pulse",

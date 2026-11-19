@@ -1,6 +1,21 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import (
+    AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.session.effects import full_stack
+
+
+async def bye_bye_heal(ctx):
+    """Heal all damage from every one of your Pokemon, then shuffle this
+    Pokemon and all cards attached to it into your deck."""
+    for pokemon in list(ctx.my_pokemon_in_play()):
+        missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+        if missing > 0:
+            await ctx.heal(missing, pokemon)
+    if ctx.attacker is not None:
+        await ctx.shuffle_into_deck(full_stack(ctx.attacker), ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="400314cf-bcf5-532b-b723-2bae6a488e12",
@@ -24,7 +39,7 @@ card = PokemonCardDef(
             title="Bye-Bye Heal",
             game_text="Heal all damage from all of your Pok\u00e9mon. Shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=bye_bye_heal,
         ),
         Attack(
             title="Stun Spore",

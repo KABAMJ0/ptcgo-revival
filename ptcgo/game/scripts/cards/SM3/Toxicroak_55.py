@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import (
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, PokemonStage,
+    Rarities, SpecialConditions,
+)
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def poison_boost(ctx):
+    """Printed 80, +80 while this Pokemon is Poisoned; then that condition is
+    removed from it."""
+    attacker = ctx.attacker
+    poison = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.POISONED]
+    poisoned = attacker is not None \
+        and poison in (attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+    await ctx.deal_damage(80 + (80 if poisoned else 0))
+    if poisoned:
+        await ctx.cure_condition(attacker, SpecialConditions.POISONED)
+
 
 card = PokemonCardDef(
     guid="bbef14a1-fd41-5bf4-81a4-2cab9a42438c",
@@ -33,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=poison_boost,
         ),
     ],
 )

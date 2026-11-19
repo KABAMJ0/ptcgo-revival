@@ -2,6 +2,25 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import (
+    attacker_is_basic, is_in_active_spot,
+)
+from ptcgo.game.session.passives import Passive
+
+
+_is_basic = attacker_is_basic()
+
+
+class _DisgustingPollenPassive(Passive):
+    """"As long as this Pokemon is your Active Pokemon, your opponent's Basic
+    Pokemon can't attack." A stage test rather than a name test, so every
+    Basic the opponent controls is covered, promoted ones included."""
+
+    def blocks_attack(self, pokemon, carrier):
+        return (is_in_active_spot(carrier)
+                and pokemon.owning_player_id != carrier.owning_player_id
+                and _is_basic(pokemon))
+
 
 
 card = PokemonCardDef(
@@ -25,7 +44,7 @@ card = PokemonCardDef(
         Ability(
             title="Disgusting Pollen",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Basic Pok\u00e9mon can't attack.",
-            effect=unimplemented,
+            passive=_DisgustingPollenPassive(),
         ),
         Attack(
             title="Downer Shock",

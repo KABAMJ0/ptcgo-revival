@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, condition_attack
+
+
+def _gx_attack_used(ctx) -> bool:
+    """The opponent has already spent their once-per-game GX attack."""
+    used = getattr(ctx.session.turn_state, "gx_attack_used", set())
+    return ctx.opponent_id in used
+
 
 card = PokemonCardDef(
     guid="89544f1c-4cb6-529d-8cc9-46f4b7282388",
@@ -33,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_gx_attack_used, 80),
         ),
     ],
 )
