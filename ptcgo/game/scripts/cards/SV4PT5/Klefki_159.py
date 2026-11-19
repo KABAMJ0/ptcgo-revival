@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Mischievous Lock",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, Basic Pok\u00e9mon in play (both yours and your opponent's) have no Abilities, except for Mischievous Lock.",
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Joust",
