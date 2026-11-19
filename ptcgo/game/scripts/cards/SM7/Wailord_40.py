@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 4},
             damage=200,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=40, count_fn=damage_counters_on("self")),
         ),
     ],
 )
