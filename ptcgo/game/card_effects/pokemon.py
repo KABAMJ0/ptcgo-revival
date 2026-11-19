@@ -534,6 +534,18 @@ def is_psychic_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.PSYCHIC.value)
 
 
+def is_water_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.WATER.value)
+
+
+def is_fire_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+def is_fighting_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIGHTING.value)
+
+
 def is_lightning_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 
