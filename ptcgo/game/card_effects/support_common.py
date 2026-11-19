@@ -155,6 +155,27 @@ def search_attach_energy(predicate=is_energy, count=1, to_self=False,
     return effect
 
 
+def bare_mill(count: int = 3, opponent: bool = True, then=None, predicate=None):
+    """"Discard the top N cards of your opponent's deck" with no damage step,
+    for the ability and Trainer printings of the same wording (mill_attack is
+    the attack-side twin, which deals the printed damage first).
+
+    `then` runs after the discard and receives the milled cards; `predicate`
+    narrows what `then` sees (Energy among them) without changing what is
+    discarded."""
+    async def effect(ctx):
+        pid = ctx.opponent_id if opponent else ctx.player_id
+        milled = ctx.deck_top(count, player_id=pid)
+        if not milled:
+            return []
+        await ctx.discard_cards(milled)
+        if then is not None:
+            matches = [c for c in milled if predicate is None or predicate(c)]
+            await then(ctx, matches)
+        return milled
+    return effect
+
+
 def look_top_attach_energy(n, predicate=is_energy, rest="shuffle",
                            target_pred=None, distribute=True, minimum=0):
     """Look at the top `n` deck cards and attach the Energy you find there;
@@ -472,9 +493,12 @@ async def opponent_switches(ctx):
     return target
 
 
-def switch_self_attack(damage=None, optional=False, bench_predicate=None):
+def switch_self_attack(damage=None, optional=False, bench_predicate=None,
+                       then=None):
     """Damage first (text order), then switch this Pokémon with a Benched one
-    of your choice; optional adds the "you may" dialog."""
+    of your choice; optional adds the "you may" dialog. `then(ctx, new_active)`
+    runs only when the switch actually happened, for the "if you do, ..."
+    riders (move Energy onto it, put counters on it)."""
     async def effect(ctx):
         if damage is not None:
             if damage > 0:
@@ -489,10 +513,12 @@ def switch_self_attack(damage=None, optional=False, bench_predicate=None):
                 "Switch this Pokémon with 1 of your Benched Pokémon?"):
             return None
         target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
-        if target is not None:
-            await ctx.switch_active(ctx.player_id, target)
-        # The new Active (or None) is the signal for "then the opponent switches".
-        return target
+        if target is not None and await ctx.switch_active(ctx.player_id, target):
+            if then is not None:
+                await then(ctx, target)
+            # The new Active (or None) is the signal for "then the opponent switches".
+            return target
+        return None
     return effect
 
 

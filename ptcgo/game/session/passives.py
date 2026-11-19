@@ -506,6 +506,11 @@ class Passive:
         its owner's hand (Pokemon Tower)."""
         return False
 
+    def voids_stadium_play(self, carrier: BoardEntity) -> bool:
+        """True to discard any Stadium played while this one is in play, and
+        this one with it ("the new Stadium card has no effect", Chaotic Swell)."""
+        return False
+
     def trainer_play_flips(self, card: BoardEntity, player_id: str,
                            carrier: BoardEntity) -> bool:
         """True to coin-flip a Trainer play before it resolves; tails makes the
@@ -553,6 +558,17 @@ class Passive:
     def bench_capacity(self, player_id: str, carrier: BoardEntity) -> Optional[int]:
         """Bench size override for `player_id` (Collapsed Stadium 4); None =
         no opinion, the smallest override wins."""
+        return None
+
+    def bench_trim_area(self, player_id: str, carrier: BoardEntity) -> Optional[str]:
+        """Where a stack removed by the bench-shrink ruling goes ("hand" for
+        Narrow Gym); None keeps the default discard."""
+        return None
+
+    def sleep_recovery_coins(self, pokemon: PokemonEntity,
+                             carrier: BoardEntity) -> Optional[int]:
+        """Coins an Asleep `pokemon` flips to wake at Checkup (Slumbering
+        Forest: 2, and one tails keeps it Asleep); None = no opinion."""
         return None
 
     def attack_keeps_turn(self, attacker: PokemonEntity, ability: Any,
@@ -1382,6 +1398,38 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     for rewrite in (getattr(board, "energy_type_overrides", None) or []):
         options = rewrite.apply(options, energy, holder, board)
     return options
+
+
+def stadium_play_voided(board: BoardState) -> bool:
+    """True when a Stadium played from hand is discarded on arrival instead of
+    replacing the one in play (Chaotic Swell)."""
+    return any(passive.voids_stadium_play(carrier)
+               for passive, carrier in active_passives(board))
+
+
+def bench_trim_area(board: BoardState, player_id: str) -> str:
+    """Where an over-capacity bench stack goes: "hand" when the capacity
+    passive in force asks for it (Narrow Gym), else "discard" (Collapsed
+    Stadium's ruling)."""
+    for passive, carrier in active_passives(board):
+        if passive.bench_capacity(player_id, carrier) is None:
+            continue
+        area = passive.bench_trim_area(player_id, carrier)
+        if area:
+            return area
+    return "discard"
+
+
+def sleep_recovery_coins(board: BoardState, pokemon: PokemonEntity,
+                         default: int = 1) -> int:
+    """Coins `pokemon` flips to wake from Asleep; the highest passive wins, so
+    a Thumping Snore rider (already in `default`) is never lowered."""
+    coins = default
+    for passive, carrier in active_passives(board):
+        value = passive.sleep_recovery_coins(pokemon, carrier)
+        if value is not None:
+            coins = max(coins, value)
+    return coins
 
 
 def effective_bench_capacity(board: BoardState, player_id: str) -> int:
