@@ -4229,6 +4229,11 @@ class GameSession:
 
     async def _execute_play_basic(self, player_id: str, card):
         """Plays a Basic Pokemon from hand onto the bench."""
+        if "Level-Up" in [subtype for subtype in subtypes_for(card.archetype_id)]:
+            logging.warning(
+                f"[Session {self.game_id}] Refused a LV.X as a bench play "
+                f"({card.entity_id}); it levels up onto a Pokemon in play.")
+            return False
         bench_area = self.board_state.find_player_area(player_id, "bench")
         if not bench_area or len(bench_area.children) >= \
                 effective_bench_capacity(self.board_state, player_id):

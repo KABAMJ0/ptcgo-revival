@@ -680,6 +680,13 @@ def _is_gx_attack(definition) -> bool:
         (getattr(definition, "title", "") or "").endswith("-GX")
 
 
+def is_level_up_card(card) -> bool:
+    """A Pokemon LV.X. All 77 print it with `stage=BASIC`, which is the stage of
+    the Pokemon it levels up, so the stage alone offers it the bench play and a
+    LV.X ends up playable straight from hand as a Basic."""
+    return "Level-Up" in (getattr(def_for(card.archetype_id), "subtypes", None) or [])
+
+
 def compute_legal_actions(
     board: BoardState,
     state: TurnState,
@@ -714,6 +721,10 @@ def compute_legal_actions(
         if isinstance(card, PokemonEntity):
             stage = card.get_attribute(AttrID.STAGE)
             if stage == PokemonStage.BASIC.value:
+                # A LV.X levels up onto a Pokemon already in play; its stage is
+                # the lower card's, so without this gate it plays to the bench.
+                if is_level_up_card(card):
+                    continue
                 if getattr(def_for(card.archetype_id), "unplayable_from_hand", False):
                     continue  # Shedinja: enters play only via an effect
                 # Fossils stay Item cards in hand: Item locks gate the bench play.
