@@ -144,7 +144,7 @@ class AdminConsoleTests(unittest.TestCase):
                  "trades/list", "trades/cancel", "trades/cancel-account", "trades/reopen",
                  "cards/bans/add", "cards/bans/remove", "cards/detail", "cards/overrides/save",
                  "cards/overrides/delete", "cards/overrides/apply", "server/broadcast", "admin/password",
-                 "players/deck", "cards/bodies"]
+                 "players/deck", "cards/bodies", "players/chat", "chat/recent"]
 
     def test_every_new_endpoint_refuses_without_a_session(self):
         for endpoint in self.NEW_GETS:
@@ -322,6 +322,56 @@ class AdminConsoleTests(unittest.TestCase):
         self.assertEqual(body["abilities"][0]["body"], {"status": "admin", "source": "vanilla"})
         for bad in ({}, {"query": "a", "status": "weird"}, {"query": "a", "limit": 0}, {"query": "a", "limit": "3"}):
             self.assertEqual(self.post("cards/bodies", bad)[0], 400, bad)
+
+    def test_coverage_shows_both_counts(self):
+        from ptcgo.tools import effect_coverage
+        status, body = self.get("monitor/coverage")
+        self.assertEqual(status, 200, body)
+        totals = body["totals"]
+        self.assertEqual(totals["script_stubs"], totals["stubbed"] + totals["wording"])
+        by_set = {r["set"]: r for r in body["sets"]}
+        for row in body["sets"]:
+            self.assertEqual(row["script_stubs"], row["stubbed"] + row["wording"], row["set"])
+        infos = effect_coverage.scan_cards(only_set="BASE1")
+        self.assertEqual(by_set["BASE1"]["script_stub_cards"], sum(i.is_stub for i in infos))
+        self.assertEqual(by_set["BASE1"]["script_stubs"],
+                         sum(len(i.signature) for i in infos))
+        self.assertGreater(totals["trainer_effects"], 0)
+        # Abilities a wording pattern bound as passives keep the marker as their effect;
+        # they have a body and must not count as stubs (165 did before this fix).
+        self.assertEqual(totals["wording"], card_loader.pattern_bound)
+        status, body = self.post("cards/bodies", {"query": "Safeguard", "set": "BW10"})
+        for card in body["cards"]:
+            for b in card["bodies"]:
+                if b["slot"] == "Safeguard":
+                    self.assertEqual(b["status"], "pattern")
+
+    def test_chat_log_records_and_reads(self):
+        from ptcgo.packets.handlers.social import SocialHandler
+        sent = []
+
+        async def send_packet(packet, request_id=0, flags=0):
+            sent.append(packet)
+        sender = SimpleNamespace(player=SimpleNamespace(account_id=self.p1, screen_name="Ash", username="ash"),
+                                 chat_rooms={"Lobby_Spirit_1"}, send_packet=send_packet, addr=("127.0.0.1", 1))
+        sender.server = SimpleNamespace(clients=[sender], clients_by_account={self.p1: sender})
+        handler = SocialHandler(sender)
+        asyncio.run(handler.handle_room_chat({"roomID": "Lobby_Spirit_1", "message": "trade me your Blitzle or else"}, 0, 0))
+        asyncio.run(handler.handle_private_chat({"accountID": self.p2, "message": "psst scam offer"}, 0, 0))
+        status, body = self.post("players/chat", {"account_id": self.p1, "limit": 10})
+        self.assertEqual(status, 200, body)
+        kinds = [(m["kind"], m["message"]) for m in body["messages"][:2]]
+        self.assertEqual(kinds, [("private", "psst scam offer"), ("room", "trade me your Blitzle or else")])
+        status, body = self.post("players/chat", {"account_id": self.p2})
+        self.assertEqual([m["message"] for m in body["messages"]][:1], ["psst scam offer"])
+        status, body = self.post("chat/recent", {"query": "blitzle"})
+        self.assertEqual((status, body["messages"][0]["from"]), (200, "Ash"))
+        before = len(audits("admin_call"))
+        for bad, code in (({"account_id": "nobody"}, 404), ({"account_id": self.p1, "limit": 0}, 400),
+                          ({"account_id": self.p1, "limit": "5"}, 400), ({"account_id": self.p1, "query": 5}, 400)):
+            self.assertEqual(self.post("players/chat", bad)[0], code, bad)
+        self.assertEqual(self.post("chat/recent", {"limit": 99999})[0], 400)
+        self.assertEqual(len(audits("admin_call")), before)  # read-only: no audit rows
 
     def test_fonts_are_self_hosted(self):
         page = admin_api.route_admin("GET", "/admin", None)[1].decode()

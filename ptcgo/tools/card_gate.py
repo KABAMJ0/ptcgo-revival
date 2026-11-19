@@ -37,7 +37,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 try:
     from ptcgo.tools.kind_audit import INTENTS, PURE_DAMAGE, SIGNALS, block_conflict
-    from ptcgo.tools.ctx_check import build_inventory, check_file as ctx_findings
+    from ptcgo.tools.ctx_check import build_inventory, check_source as ctx_check_source
 except ImportError:  # a lane whose branch predates the companion module
     sys.exit(
         "card_gate needs ptcgo/tools/kind_audit.py from the same tree, and this branch "
@@ -53,9 +53,12 @@ IGNORE_KWARGS = {"coins", "count", "take", "minimum", "max_count", "counters", "
 
 
 def changed_files(since: str) -> List[str]:
+    """Card scripts the range touches, including ones git does not track yet."""
     out = subprocess.run(["git", "diff", "--name-only", since, "--", CARDS_ROOT],
                          capture_output=True, text=True).stdout.split()
-    return [p for p in out if p.endswith(".py")]
+    fresh = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--", CARDS_ROOT],
+                           capture_output=True, text=True).stdout.split()
+    return [p for p in dict.fromkeys(out + fresh) if p.endswith(".py")]
 
 
 def file_at(rev: str, path: str) -> Optional[str]:
@@ -276,10 +279,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m ptcgo.tools.card_gate",
                                      description="Report card-body violations newly introduced in a range.")
     parser.add_argument("--since", required=True, help="Base revision to compare HEAD against.")
-    parser.add_argument("--strict-ctx", action="store_true",
-                        help="Let ctx findings (unknown / wrong-path fields) fail the gate too. "
-                             "Off by default: ctx is built in several places, so these are "
-                             "reported as a class and a count until a lane asks for them.")
+    parser.add_argument("--ctx-warn", action="store_true",
+                        help="Report ctx findings (unknown / wrong-path fields) without failing "
+                             "the gate. Off by default: they fail, but only when the range adds one.")
     parser.add_argument("--quiet", action="store_true",
                         help="Print the summary and files with new violations only, not a "
                              "verdict line per clean file.")
@@ -289,7 +291,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     paths = changed_files(args.since)
-    ctx_fields, ctx_assigned, _members = build_inventory()
+    ctx_fields, ctx_paths, _members = build_inventory()
     new_all: List[Tuple[str, str, str, str]] = []
     files_with_new = 0
     for path in paths:
@@ -301,20 +303,22 @@ def main(argv: Optional[List[str]] = None) -> int:
         head_hits = set(analyze(head_src, path))
         base_hits = set(analyze(base_src, path)) if base_src is not None else set()
         fresh = sorted(head_hits - base_hits)
-        fresh_ctx = sorted(set(ctx_findings(path, ctx_fields, ctx_assigned)))
-        blocked = [f for f in fresh if args.strict_ctx or not f[0].startswith("ctx-")]
-        if fresh_ctx:
-            print(f"{path}")
-            for kind, block, detail in fresh_ctx:
-                print(f"   [ctx-{kind}] {block}: {detail}")
-                new_all.append((path, f"ctx-{kind}", block, detail))
-            files_with_new += 1 if not fresh else 0
-        if fresh:
+        head_ctx = set((f"ctx-{kind}", block, detail)
+                       for kind, block, detail in ctx_check_source(head_src, path, ctx_fields, ctx_paths))
+        base_ctx = set((f"ctx-{kind}", block, detail)
+                       for kind, block, detail in ctx_check_source(base_src, path, ctx_fields, ctx_paths)) \
+            if base_src is not None else set()
+        fresh_ctx = sorted(head_ctx - base_ctx)
+        if fresh or fresh_ctx:
             files_with_new += 1
             print(f"{path}")
             for detector, block, detail in fresh:
                 print(f"   [{detector}] {block}: {detail}")
                 new_all.append((path, detector, block, detail))
+            for detector, block, detail in fresh_ctx:
+                print(f"   [{detector}] {block}: {detail}" + ("  (warn)" if args.ctx_warn else ""))
+                if not args.ctx_warn:
+                    new_all.append((path, detector, block, detail))
         elif not args.quiet:
             print(f"{path}: clean")
 

@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, condition_attack
+
+def _behind_on_prizes(board, player_id, pokemon=None):
+    mine = board.find_player_area(player_id, "prizePile")
+    other = next((p for p in board.player_ids if p != player_id), None)
+    theirs = board.find_player_area(other, "prizePile")
+    return bool(mine and theirs and len(mine.children) > len(theirs.children))
+
 
 card = PokemonCardDef(
     guid="bbc325b2-a9cd-5a4f-828d-3d9bddb34556",
@@ -37,7 +44,8 @@ card = PokemonCardDef(
             game_text="You can use this attack only if you have more Prize cards remaining than your opponent. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 3},
             damage=250,
-            effect=unimplemented,
+            condition=_behind_on_prizes,
+            effect=condition_attack(),
         ),
     ],
 )

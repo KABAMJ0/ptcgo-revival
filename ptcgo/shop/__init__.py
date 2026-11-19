@@ -35,7 +35,7 @@ class ShopManager:
             str(AttrID.EXPANSION.value): {"type": "string", "value": "core"},
             str(AttrID.PRODUCT_TYPE.value): {"type": "int", "value": 6},  # ProductType.CURRENCY
             str(AttrID.CURRENCY_TYPE.value): {"type": "int", "value": -706482148},  # CurrencyType.VIRTUAL_CURRENCY
-            str(AttrID.ARCHETYPE_ID.value): {"type": "string", "value": cur_guid},
+            str(AttrID.ARCHETYPE_ID.value): {"type": "uuid", "value": cur_guid},
             str(AttrID.IMAGE_URL.value): {"type": "string", "value": LOCAL_IMG},
             str(AttrID.CATALOG_ID.value): {"type": "string", "value": cur_guid},
             str(AttrID.SET_CACHE_KEY.value): {"type": "string", "value": "core"},

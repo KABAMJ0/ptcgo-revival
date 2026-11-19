@@ -3,7 +3,7 @@ from ptcgo.game.attributes import DefaultCosmetic
 
 product = CoinDef(
     guid=DefaultCosmetic.COIN.value,
-    key="NoSet",
+    key="core",
     name="Basic Coin",
     image_url="arceusgold201278113514"
 )

@@ -1,6 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+
+async def _rapid_vernier(ctx):
+    """On the bench play: you may switch this Pokemon with your Active, and if
+    you did, move any amount of Energy from your other Pokemon to it."""
+    if not await ctx.ask_yes_no(
+        "Switch this Pokémon with your Active Pokémon?"
+    ):
+        return
+    if not await ctx.switch_active(ctx.player_id, ctx.source):
+        return
+    sources = [p for p in ctx.my_pokemon_in_play() if p is not ctx.source]
+    if sources:
+        await ctx.move_energy_freely(
+            sources, [ctx.source],
+            prompt="Choose any number of Energy cards to move to Iron Leaves ex")
 
 card = PokemonCardDef(
     guid="4bb0a238-4d32-585e-9795-64dbc2f057db",
@@ -22,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Rapid Vernier",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may switch it with your Active Pok\u00e9mon. If you do, you may move any amount of Energy from your other Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=_rapid_vernier,
         ),
         Attack(
             title="Prism Edge",

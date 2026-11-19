@@ -1022,6 +1022,14 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
 .other-bodies { margin-top: 12px; display: grid; gap: 6px; }
 .other-bodies .ob { display: flex; gap: 8px; align-items: baseline; font-size: var(--t-sm); padding: 7px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); }
 .other-bodies .ob .grow { flex: 1; min-width: 0; }
+
+/* chat log */
+.chat-list { display: grid; gap: 0; }
+.chat-line { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.chat-line.inbound { box-shadow: inset 3px 0 0 var(--info); padding-left: 10px; }
+.chat-time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chat-meta { font-size: var(--t-sm); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.chat-text { margin-top: 3px; white-space: pre-wrap; word-break: break-word; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
@@ -1056,6 +1064,7 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
 <symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20 15 9"/><path d="M14 4v3M19 9h-3M17.5 5.5l-2 2M18 3l.6 1.4L20 5l-1.4.6L18 7l-.6-1.4L16 5l1.4-.6z"/></symbol>
 <symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></symbol>
 <symbol id="i-audit" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
 <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
 </defs></svg>
 
@@ -1080,6 +1089,7 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
         <button class="nav-item" data-view="players"><svg class="ico"><use href="#i-players"/></svg><span class="label">Players</span></button>
         <button class="nav-item" data-view="accounts"><svg class="ico"><use href="#i-accounts"/></svg><span class="label">Accounts</span></button>
         <button class="nav-item" data-view="trades"><svg class="ico"><use href="#i-trades"/></svg><span class="label">Trades</span><span class="nav-badge" id="badgeTrades">–</span></button>
+        <button class="nav-item" data-view="chatlog"><svg class="ico"><use href="#i-chat"/></svg><span class="label">Chat log</span></button>
       </div>
       <div class="nav-group">
         <div class="nav-label">Game rules</div>
@@ -1149,7 +1159,7 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
                 <thead><tr>
                   <th class="sortable" data-sort="set" onclick="sortSets('set')">Set<span class="caret"></span></th>
                   <th class="sortable num" data-sort="cards" onclick="sortSets('cards')">Scripted cards<span class="caret"></span></th>
-                  <th class="sortable" data-sort="stubbed" onclick="sortSets('stubbed')">Stubbed effects<span class="caret"></span></th>
+                  <th class="sortable" data-sort="stubbed" onclick="sortSets('stubbed')">Stubbed at load<span class="caret"></span></th>
                   <th class="sortable" data-sort="eligible" onclick="sortSets('eligible')">Booster<span class="caret"></span></th>
                 </tr></thead>
                 <tbody></tbody>
@@ -1297,14 +1307,16 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
                 <option value="complete">Fully implemented</option>
               </select>
             </div>
+            <div class="panel-note" id="coverageExplain">A <b>script stub</b> is an attack or ability written as <code>unimplemented</code> in its card file; <b>stubbed at load</b> is what still has no body once the server starts, because the wording patterns fill many script stubs at load. Per set, script stubs = stubbed at load + bound from wording.</div>
             <div class="table-scroll" style="--table-max: 58vh">
               <table class="grid" id="coverageTable">
                 <thead><tr>
                   <th class="sortable" data-sort="set" onclick="sortCoverage('set')">Set<span class="caret"></span></th>
-                  <th class="sortable num" data-sort="cards" onclick="sortCoverage('cards')">Cards<span class="caret"></span></th>
+                  <th class="sortable num hide-narrow" data-sort="cards" onclick="sortCoverage('cards')">Cards<span class="caret"></span></th>
                   <th class="sortable num" data-sort="entries" onclick="sortCoverage('entries')">Entries<span class="caret"></span></th>
-                  <th class="sortable num" data-sort="stubbed" onclick="sortCoverage('stubbed')">Stubbed<span class="caret"></span></th>
-                  <th class="sortable num" data-sort="implemented" onclick="sortCoverage('implemented')">Implemented<span class="caret"></span></th>
+                  <th class="sortable num" data-sort="stubbed" onclick="sortCoverage('stubbed')" title="No body after the server starts">Stubbed at load<span class="caret"></span></th>
+                  <th class="sortable num hide-narrow" data-sort="wording" onclick="sortCoverage('wording')" title="Script stubs the wording patterns filled at load">Bound from wording<span class="caret"></span></th>
+                  <th class="sortable num" data-sort="script_stubs" onclick="sortCoverage('script_stubs')" title="Entries written as unimplemented in the card files">Script stubs<span class="caret"></span></th>
                   <th style="width:130px">Share</th>
                 </tr></thead>
                 <tbody></tbody>
@@ -1492,6 +1504,19 @@ tr.leaving > td { animation: row-leave .28s ease-in forwards; }
             </table>
           </div>
           <div class="panel-foot"><span class="count" id="tradesCount"></span></div>
+        </div>
+      </section>
+
+
+      <section class="view" id="tab-chatlog" data-view="chatlog">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Chat log</h2><div class="panel-sub">room and private messages, newest first</div><div class="spacer"></div>
+            <div class="search"><svg class="ico"><use href="#i-search"/></svg><input id="chatSearch" type="search" placeholder="Player, room or words" oninput="debounce('chat', loadChatlog, 300)"></div>
+          </div>
+          <div class="panel-note">Read-only. Messages are recorded from this version on and kept for 30 days in logs/chat-*.jsonl on the server. Open a player for their messages and trade offers side by side.</div>
+          <div class="panel-body"><div class="chat-list" id="chatList"></div></div>
+          <div class="panel-foot"><span class="count" id="chatCount"></span></div>
         </div>
       </section>
 
@@ -2065,6 +2090,7 @@ const VIEWS = {
   players:     {title:'Players',        sub:'Every account, what it owns, and the tools to change it', enter: enterPlayers},
   accounts:    {title:'Accounts',       sub:'Admin rights and bulk grants for testing', enter: enterAccounts},
   trades:      {title:'Trades',         sub:'Inspect trade offers and take bad ones down', enter: enterTrades},
+  chatlog:     {title:'Chat log',       sub:'What players said, for answering a report', enter: enterChatlog},
   bans:        {title:'Card bans',      sub:'Cards refused by deck validation and matchmaking in every format', enter: enterBans},
   behaviour:   {title:'Card behaviour', sub:'Persisted attack overrides, applied at load time', enter: enterBehaviour},
   server:      {title:'Broadcast & security', sub:'Server notices and the admin password', enter: enterServer},
@@ -2213,7 +2239,7 @@ function renderOverview() {
     ['Card sets', fmtNum(Object.keys(o.set_counts).length), `${fmtNum(o.eligible_sets.length)} booster-eligible`],
     ['Card scripts', cardsIndexed === null ? '—' : fmtNum(cardsIndexed), 'indexed into the catalogue'],
     ['Shop items', fmtNum(o.shop_items), `${fmtNum(o.codes)} codes · ${fmtNum(o.pages)} pages`],
-    ['Effect coverage', pct === null ? '—' : pct + '%', cover ? `${fmtNum(cover.stubbed)} entries still stubbed` : 'counting…'],
+    ['Effect coverage', pct === null ? '—' : pct + '%', cover ? `${fmtNum(cover.stubbed)} entries stubbed at load (${fmtNum(cover.script_stubs || 0)} in the card files)` : 'counting…'],
     ['Trade offers', fmtNum(o.trades), 'recent offers on file'],
   ].map(([l, v, m]) => `<div class="stat"><div class="stat-label">${l}</div><div class="stat-value">${v}</div><div class="stat-meta">${esc(m)}</div></div>`).join('');
 
@@ -2243,7 +2269,8 @@ function renderOverview() {
       <div class="kv" style="margin-top:12px">
         <div class="kv-row"><span class="k">Hand-scripted</span><span class="v">${fmtNum(cover.scripted)}</span></div>
         <div class="kv-row"><span class="k">Bound from wording</span><span class="v">${fmtNum(cover.wording)}</span></div>
-        <div class="kv-row"><span class="k">Stubbed</span><span class="v">${fmtNum(cover.stubbed)}</span></div>
+        <div class="kv-row"><span class="k">Stubbed at load</span><span class="v">${fmtNum(cover.stubbed)}</span></div>
+        <div class="kv-row"><span class="k">Script stubs (in files)</span><span class="v">${fmtNum(cover.script_stubs || 0)}</span></div>
         <div class="kv-row"><span class="k">Sets with stubs</span><span class="v">${fmtNum(stubbedSets)}</span></div>
       </div>`;
   } else {
@@ -2535,7 +2562,8 @@ function renderCoverageView() {
   $('#coverageStats').innerHTML = [
     ['Attack &amp; ability entries', fmtNum(t.entries), `across ${fmtNum(t.cards)} card scripts`],
     ['Implemented', fmtNum(t.implemented), `${fmtNum(t.wording)} bound from wording · ${fmtNum(t.scripted)} hand-scripted`],
-    ['Stubbed', fmtNum(t.stubbed), `${fmtNum(COVERAGE.sets.filter(s => s.stubbed > 0).length)} sets affected`],
+    ['Stubbed at load', fmtNum(t.stubbed), `${fmtNum(COVERAGE.sets.filter(s => s.stubbed > 0).length)} sets affected`],
+    ['Script stubs', fmtNum(t.script_stubs), `${fmtNum(t.script_stub_cards)} card files; ${fmtNum(t.wording)} already bound from wording`],
     ['Coverage', pct + '%', 'of every resolvable entry'],
   ].map(([l, v, m]) => `<div class="stat"><div class="stat-label">${l}</div><div class="stat-value">${v}</div><div class="stat-meta">${esc(m)}</div></div>`).join('');
   $('#coverageStamp').textContent = 'counted from loaded definitions, after wording binding';
@@ -2549,7 +2577,9 @@ function renderCoverageView() {
   $('#coverageExtra').innerHTML = `
     <div class="kv-row"><span class="k">Card scripts counted</span><span class="v">${fmtNum(t.cards)}</span></div>
     <div class="kv-row"><span class="k">Sets</span><span class="v">${fmtNum(t.sets)}</span></div>
-    <div class="kv-row"><span class="k">Hand-scripted entries</span><span class="v">${fmtNum(t.scripted)}</span></div>`;
+    <div class="kv-row"><span class="k">Hand-scripted entries</span><span class="v">${fmtNum(t.scripted)}</span></div>
+    <div class="kv-row"><span class="k">Trainer play effects (not entries)</span><span class="v">${fmtNum(t.trainer_effects)}</span></div>
+    <div class="kv-row"><span class="k">Trainer effects stubbed at load / in files</span><span class="v">${fmtNum(t.trainer_stubbed)} / ${fmtNum(t.trainer_script_stubs)}</span></div>`;
   renderCoverage();
 }
 function sortCoverage(key) {
@@ -2582,13 +2612,14 @@ function renderCoverage() {
     const impl = share - wording;
     return `<tr>
       <td><span class="mono cell-main">${esc(s.set)}</span></td>
-      <td class="num muted">${fmtNum(s.cards)}</td>
+      <td class="num muted hide-narrow">${fmtNum(s.cards)}</td>
       <td class="num">${fmtNum(s.entries)}</td>
       <td class="num">${s.stubbed ? `<span style="color:var(--warn)">${fmtNum(s.stubbed)}</span>` : '<span class="pill on">0</span>'}</td>
-      <td class="num">${fmtNum(s.implemented)}</td>
+      <td class="num muted hide-narrow">${fmtNum(s.wording)}</td>
+      <td class="num">${fmtNum(s.script_stubs)}<div class="cell-sub">${fmtNum(s.script_stub_cards)} files</div></td>
       <td><div class="mini-bar" title="${share}% implemented"><i class="impl" style="width:${impl}%"></i><i class="word" style="width:${wording}%"></i><i class="stub" style="width:${100 - share}%"></i></div></td>
     </tr>`;
-  }).join('') || `<tr><td colspan="6">${emptyState('No set matches that filter.')}</td></tr>`;
+  }).join('') || `<tr><td colspan="7">${emptyState('No set matches that filter.')}</td></tr>`;
   $('#coverageCount').textContent = `${rows.length} of ${COVERAGE.sets.length} sets`;
 }
 
@@ -4493,7 +4524,7 @@ async function openPlayer(account_id, tab='summary') {
       title: a.username,
       sub: (a.screen_name || 'no screen name') + ' · joined ' + fmtDate(Date.parse(a.created_at)) + (online ? ' · online now' : '') + (a.is_banned ? ' · banned' : ''),
       body: '<div class="tabs" id="playerTabs">' +
-        [['summary', 'Summary'], ['inventory', 'Inventory', d.totals.distinct_cards], ['decks', 'Decks', d.decks.length], ['matches', 'Matches'], ['trades', 'Trades']]
+        [['summary', 'Summary'], ['inventory', 'Inventory', d.totals.distinct_cards], ['decks', 'Decks', d.decks.length], ['matches', 'Matches'], ['chat', 'Chat'], ['trades', 'Trades']]
           .map(([k, l, n]) => '<button data-tab="' + k + '" onclick="playerTab(\'' + k + '\')">' + l + (n != null ? '<span class="tab-count">' + n + '</span>' : '') + '</button>').join('') +
         '</div><div id="playerTabBody"></div>',
       foot: (online ? '<button class="mini" onclick="kickPlayer()">Kick</button>' : '') +
@@ -4513,7 +4544,7 @@ function playerTab(tab) {
   if (!host) return;
   host.innerHTML = '<div class="skel row"></div><div class="skel row"></div>';
   ({summary: renderPlayerSummary, inventory: renderPlayerInventory, decks: renderPlayerDecks,
-    matches: renderPlayerMatches, trades: renderPlayerTrades})[tab](host).catch(e => { host.innerHTML = emptyState(e.message, 'i-alert'); });
+    matches: renderPlayerMatches, chat: renderPlayerChat, trades: renderPlayerTrades})[tab](host).catch(e => { host.innerHTML = emptyState(e.message, 'i-alert'); });
 }
 async function renderPlayerSummary(host) {
   const d = CURRENT_PLAYER, a = d.account;
@@ -4985,6 +5016,41 @@ async function inspectDeck(deck_id) {
         '<div class="show-narrow cell-sub">' + (c.known ? 'legal in ' + fmts.filter(f => c.legality[f]).length + ' of ' + fmts.length + ' formats' : 'unknown card') + '</div></td></tr>').join('') +
       '</tbody></table></div>';
   } catch(e) { host.innerHTML = emptyState(e.message, 'i-alert'); }
+}
+
+
+/* ----------------------------------------------------------------- chat log */
+function chatLine(m, focusId) {
+  const where = m.kind === 'private' ? 'to ' + esc(m.to || (m.to_id || '').slice(0, 8)) : esc(m.room || 'room');
+  const inbound = focusId && m.to_id === focusId;
+  return '<div class="chat-line' + (inbound ? ' inbound' : '') + '"><span class="chat-time">' + fmtClock(m.at) + '<br><span class="faint">' + esc(String(m.at || '').slice(5, 10)) + '</span></span>' +
+    '<div class="chat-body"><div class="chat-meta"><b>' + esc(m.from || (m.from_id || '').slice(0, 8)) + '</b> <span class="pill ' + (m.kind === 'private' ? 'info' : 'tag') + '">' + (m.kind === 'private' ? 'private' : 'room') + '</span> <span class="muted">' + where + '</span></div>' +
+    '<div class="chat-text">' + esc(m.message) + '</div></div></div>';
+}
+async function renderPlayerChat(host) {
+  const id = CURRENT_PLAYER.account.account_id;
+  const d = await api('players/chat', {account_id: id, limit: 300});
+  host.innerHTML = '<div class="row" style="margin-bottom:10px;align-items:center"><div class="search" style="flex:1"><svg class="ico"><use href="#i-search"/></svg><input id="pchatSearch" type="search" placeholder="Filter these messages"></div></div>' +
+    '<p class="factory-doc" style="margin-bottom:8px">Messages this player sent, plus private messages sent to them, from the last ' + d.retention_days + ' days. Received private messages have a tinted edge. Their trade offers are on the Trades tab.</p>' +
+    '<div class="chat-list" id="pchatList"></div>';
+  const draw = () => {
+    const q = ($('#pchatSearch').value || '').toLowerCase();
+    const rows = d.messages.filter(m => !q || (m.message + ' ' + (m.room || '') + ' ' + (m.to || '') + ' ' + (m.from || '')).toLowerCase().includes(q));
+    $('#pchatList').innerHTML = rows.map(m => chatLine(m, id)).join('') || emptyState(d.messages.length ? 'No message matches.' : 'No chat recorded for this player.', 'i-chat');
+  };
+  $('#pchatSearch').oninput = draw;
+  draw();
+}
+let CHATLOG = [];
+async function enterChatlog() { await loadChatlog(); }
+async function loadChatlog() {
+  try {
+    const d = await api('chat/recent', {limit: 500, query: $('#chatSearch')?.value || null});
+    CHATLOG = d.messages || [];
+    $('#chatList').innerHTML = CHATLOG.map(m => chatLine(m)).join('') || emptyState('No chat recorded yet. Messages are kept from this version on.', 'i-chat');
+    $('#chatCount').textContent = CHATLOG.length + ' messages shown, newest first';
+    clearBanner($('#tab-chatlog'));
+  } catch(e) { banner($('#tab-chatlog'), 'Chat log: ' + e.message, 'err', 'Retry', loadChatlog); }
 }
 
 (async function init() {

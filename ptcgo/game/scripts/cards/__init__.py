@@ -212,12 +212,21 @@ class ScriptLoader:
         row = self.coverage.setdefault(reference.split("/", 1)[0], {
             "cards": 0, "entries": 0, "stubbed": 0,
             "wording": 0, "scripted": 0, "plain": 0,
+            "trainer_effects": 0, "trainer_stubbed": 0,
         })
         row["cards"] += 1
+        # A Trainer's play effect is a card-level body, not an attack/ability entry, so it
+        # is tallied beside the entries rather than inside them.
+        from ptcgo.game.data_utils import TrainerCardDef
+        if isinstance(card_def, TrainerCardDef):
+            row["trainer_effects"] += 1
+            row["trainer_stubbed"] += int(card_def.effect is unimplemented)
         for ability in getattr(card_def, "abilities", None) or []:
             row["entries"] += 1
             effect = getattr(ability, "effect", None)
-            if effect is unimplemented:
+            # A wording pattern can bind an Ability as a passive and leave its effect
+            # as the marker, so the marker alone is a stub only with no passive.
+            if effect is unimplemented and getattr(ability, "passive", None) is None:
                 row["stubbed"] += 1
             elif str(getattr(ability, "effect_source", "") or "").startswith("pattern:"):
                 row["wording"] += 1
