@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import active_vs_active_debuff_passive
 
 card = PokemonCardDef(
     guid="76406781-67e0-50fe-b482-8a6c027d4d41",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Intimidating Pattern",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Active Pok\u00e9mon's attacks do 30 less damage (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=None,
+            passive=active_vs_active_debuff_passive(30),
         ),
         Attack(
             title="Venomous Fang",
