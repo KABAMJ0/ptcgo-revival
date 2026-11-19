@@ -1,4 +1,5 @@
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -14,6 +15,9 @@ card = PokemonCardDef(
     collector_number=28,
     set_code="ME1",
     rarity=Rarities.Rare,
+    # "If this Pokemon is in your hand when you are setting up to play, you may
+    # put it face down in the Active Spot" is the definition flag, not a body.
+    setup_as_active=True,
     hp=160,
     elements=[PokemonTypes.FIRE],
     stage=PokemonStage.STAGE2,
@@ -32,7 +36,9 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 3 Basic Energy cards and attach them to your Benched Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=search_attach_energy(predicate=is_basic_energy_card, count=3, to_self=True),
+            effect=search_attach_energy(
+                predicate=is_basic_energy_card, count=3, distribute=True,
+                target_pred=lambda p: not is_in_active_spot(p)),
         ),
     ],
 )
