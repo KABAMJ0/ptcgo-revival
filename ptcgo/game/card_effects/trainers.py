@@ -9742,3 +9742,31 @@ def discard_opponent_special_energy_to_lost_zone(count: int = 1):
         if picks:
             await ctx.move_to_lost_zone(picks)
     return effect
+
+
+def rotom_identity_swap():
+    """Search your deck for a Rotom and switch it with a Rotom you have in play.
+    Attached cards and damage move over; Special Conditions and effects of
+    attacks do not; the old Rotom shuffles back into the deck (Charon's
+    Choice)."""
+    async def effect(ctx):
+        in_play = [pokemon for pokemon in ctx.my_pokemon_in_play()
+                   if pokemon_named("rotom")(pokemon)]
+        if not in_play:
+            return
+        found = await ctx.search_deck(
+            lambda card: is_pokemon_card(card) and pokemon_named("rotom")(card),
+            count=1, minimum=1, prompt="Choose a Rotom to switch in")
+        if not found:
+            await ctx.shuffle_deck()
+            return
+        outgoing = in_play[0] if len(in_play) == 1 else await ctx.choose_pokemon(
+            in_play, "Choose the Rotom to switch out")
+        if outgoing is None:
+            return
+        swapped = await ctx.identity_swap(
+            outgoing, found[0], destination="deck", transfer=True)
+        if swapped:
+            ctx.session.clear_pokemon_effects(found[0])
+        await ctx.shuffle_deck()
+    return effect
