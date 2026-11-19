@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 
 card = PokemonCardDef(
     guid="f6adc6c9-f6cc-5c77-b3e0-5ab8575ef385",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon already has any damage counters on it, this attack does 40 damage plus 40 more damage.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 40),
         ),
         Attack(
             title="Guard Claw",
