@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
 
 card = PokemonCardDef(
     guid="7be2ac2d-67b6-5121-a8b4-9270342f853b",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack does 20 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 3, PokemonTypes.COLORLESS: 1},
             damage=180,
-            effect=unimplemented,
+            effect=spread_damage(20, side="mine"),
         ),
     ],
 )
