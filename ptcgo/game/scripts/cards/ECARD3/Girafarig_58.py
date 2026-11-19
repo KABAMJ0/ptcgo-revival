@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_energy
+
+
+def _energy_counts_differ(ctx):
+    return count_energy("self", cards=True)(ctx) != count_energy("defender", cards=True)(ctx)
+
+
 card = PokemonCardDef(
     guid="9ba1fa1f-1763-5b1d-9e6a-5e01ae420456",
     key="ECARD3",
@@ -29,7 +36,7 @@ card = PokemonCardDef(
             game_text="If Girafarig and the Defending Pok\u00e9mon don't have the same number of Energy cards attached to them, this attack's base damage is 10 instead of 40.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=bonus_if(_energy_counts_differ, -30, base=40),
         ),
     ],
 )

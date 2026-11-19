@@ -4,6 +4,17 @@ from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.attributes import AttrID
+
+
+async def _empathic_healing(ctx):
+    celebi = ctx.attacker
+    types = set(celebi.get_attribute(AttrID.POKEMON_TYPES) or [])
+    for pokemon in ctx.my_pokemon_in_play():
+        if pokemon is celebi or types & set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or []):
+            await ctx.heal(20, pokemon)
+
+
 card = PokemonCardDef(
     guid="4e5e9173-a765-59d7-98e4-13638e6883ce",
     key="ECARD3",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
             title="Empathic Healing",
             game_text="Remove 2 damage counters from Celebi and each Pok\u00e9mon that's the same type (color) as Celebi.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=_empathic_healing,
         ),
         Attack(
             title="Mind Bend",

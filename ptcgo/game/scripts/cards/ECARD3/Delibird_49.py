@@ -2,6 +2,26 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.trainers import is_tool_card
+from ptcgo.game.data_utils import def_for
+
+
+def _is_tm_or_tool(card):
+    if is_tool_card(card):
+        return True
+    name = (getattr(def_for(card.archetype_id), "display_name", "") or "").lower()
+    return "technical machine" in name
+
+
+async def _limited_delivery(ctx):
+    found = await ctx.search_deck(
+        _is_tm_or_tool, count=1, minimum=0,
+        prompt="Search your deck for a Technical Machine or Pokémon Tool card")
+    if found:
+        await ctx.put_in_hand(found, reveal=True)
+    await ctx.shuffle_deck()
+
+
 card = PokemonCardDef(
     guid="97445aa1-48cf-50a6-904c-b9e715735cb7",
     key="ECARD3",
@@ -23,7 +43,7 @@ card = PokemonCardDef(
             title="Limited Delivery",
             game_text="Search your deck for a Technical Machine or Pok\u00e9mon Tool card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_limited_delivery,
         ),
         Attack(
             title="Kick Away",

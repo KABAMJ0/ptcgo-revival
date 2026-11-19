@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import typed_energy_free_retreat_passive
+
+
 card = PokemonCardDef(
     guid="4c489076-6601-5535-806a-2a30f7b9a287",
     key="ECARD3",
@@ -21,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Psychoflow",
             game_text="As long as there is a Psychic Energy card attached to Abra, its Retreat Cost is 0.",
-            effect=unimplemented,
+            passive=typed_energy_free_retreat_passive(PokemonTypes.PSYCHIC.value),
         ),
         Attack(
             title="Headbutt",

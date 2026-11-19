@@ -6,6 +6,17 @@ from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _burn_booster(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1, prompt="Discard an Energy card attached to Flareon")
+    if not discarded:
+        return
+    bonus = 10 if energy_provides_type(discarded[0], PokemonTypes.FIRE.value) else 0
+    await ctx.deal_damage(40 + bonus)
+
 
 card = PokemonCardDef(
     guid="b6bf7d26-8c68-5371-a107-333846164e38",
@@ -43,7 +54,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_burn_booster,
         ),
     ],
 )

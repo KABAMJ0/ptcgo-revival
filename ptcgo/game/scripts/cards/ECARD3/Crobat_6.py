@@ -1,5 +1,35 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import is_pokemon_card
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.attributes import SpecialConditions, AttrID
+
+
+async def _carry_off_peek_and_pick(ctx):
+    results = await ctx.flip_coins(1, "Carry Off")
+    if not (results and results[0]):
+        return
+    await ctx.reveal_hand(of_player=ctx.opponent_id)
+    candidates = [card for card in ctx.hand(ctx.opponent_id) if is_pokemon_card(card)]
+    if not candidates:
+        return
+    picks = await ctx.choose_cards(
+        candidates, 1, minimum=0,
+        prompt="Choose a Pokémon from your opponent's hand to shuffle into their deck")
+    if picks:
+        await ctx.shuffle_into_deck(picks)
+
+
+async def _double_cross(ctx):
+    results = await ctx.flip_coins(2, "Double Cross")
+    heads = sum(1 for result in results if result)
+    if heads:
+        await ctx.deal_damage(40 * heads)
+    if heads == 0 and ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+
 
 card = PokemonCardDef(
     guid="f269990f-978a-5666-a067-8f7bac713efb",
@@ -22,7 +52,9 @@ card = PokemonCardDef(
         Ability(
             title="Carry Off",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, look at your opponent's hand. If your opponent has any Baby Pok\u00e9mon, Basic Pok\u00e9mon, or Evolution cards there, choose 1 of them. Your opponent shuffles that card into his or her deck. This power can't be used if Crobat is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=_carry_off_peek_and_pick,
         ),
         Attack(
             title="Double Cross",
@@ -30,7 +62,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_double_cross,
         ),
     ],
 )
