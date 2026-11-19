@@ -1,5 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.attributes import AttrID
+
+def _magikarp_counters(ctx):
+    total = 0
+    for pokemon in ctx.my_bench():
+        definition = def_for(pokemon.archetype_id)
+        if getattr(definition, "display_name", "") != "Magikarp":
+            continue
+        max_hp = ctx.max_hp(pokemon)
+        total += max(0, (max_hp - (pokemon.get_attribute(AttrID.HP) or max_hp)) // 10)
+    return total
+
+
+async def full_retaliation(ctx):
+    """Printed 30, +30 for each damage counter on each Benched Magikarp."""
+    await ctx.deal_damage(30 + 30 * _magikarp_counters(ctx))
+
 
 card = PokemonCardDef(
     guid="14c436c2-3657-5cb6-88d5-b7e1b9479496",
@@ -25,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=full_retaliation,
         ),
         Attack(
             title="Thrash",
