@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+async def octolock(ctx):
+    """Until this Grapploct leaves the Active Spot, the Defending Pokemon's
+    attacks cost Colorless Colorless more, and it can't retreat. This effect
+    can't be applied more than once."""
+    defender = ctx.defender
+    if defender is not None and not ctx.effects_blocked(defender):
+        ctx.attacker._octolock_target_id = defender.entity_id
 
 card = PokemonCardDef(
     guid="64212560-ea04-53f2-9248-ccb5f0431ea3",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             title="Octolock",
             game_text="Until this Grapploct leaves the Active Spot, the Defending Pok\u00e9mon's attacks cost ColorlessColorless more, and the Defending Pok\u00e9mon can't retreat. This effect can't be applied more than once.",
             cost={PokemonTypes.FIGHTING: 2},
-            effect=unimplemented,
+            effect=octolock,
         ),
         Attack(
             title="Tough Swing",

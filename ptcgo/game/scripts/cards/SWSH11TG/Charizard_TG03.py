@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.support_common import look_at_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, def_for
+from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+
+def _is_leon(card):
+    definition = def_for(card.archetype_id)
+    return bool(definition) and getattr(definition, "display_name", "") == "Leon"
 
 card = PokemonCardDef(
     guid="5ba844d8-f7d2-5aef-b985-18b254438c19",
@@ -32,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", pred=_is_leon), 50, base=100),
         ),
     ],
 )

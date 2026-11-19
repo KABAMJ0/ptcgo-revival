@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_item_card
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+async def star_abyss(ctx):
+    """VSTAR Power: you may put up to 2 Item cards from your discard pile into your hand."""
+    items = [c for c in ctx.discard_pile() if is_item_card(c)]
+    picks = await ctx.choose_cards(
+        items, 2, minimum=0,
+        prompt="Choose up to 2 Item cards to put into your hand.",
+    )
+    await ctx.put_in_hand(picks, reveal=False)
 
 card = PokemonCardDef(
     guid="12bd9548-97f3-5839-9e36-395b072d7785",
@@ -22,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Star Abyss",
             game_text="During your turn, you may put up to 2 Item cards from your discard pile into your hand. (You can't use more than 1 VSTAR Power in a game.)",
-            effect=unimplemented,
+            effect=star_abyss,
         ),
         Attack(
             title="Dark Pulse",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("mine", energy_type=PokemonTypes.DARKNESS), 30, base=30),
         ),
     ],
 )

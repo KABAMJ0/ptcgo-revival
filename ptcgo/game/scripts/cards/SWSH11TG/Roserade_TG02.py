@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions, AttrID
+
+async def assassins_rose(ctx):
+    """60. If the opponent's Active is affected by a Special Condition,
+    also do 60 to 1 of the opponent's Benched Pokemon (no W/R)."""
+    defender = ctx.defender
+    conditions = defender.get_attribute(AttrID.SPECIAL_CONDITIONS) if defender else None
+    affected = bool(conditions)
+    await ctx.deal_damage()
+    if affected:
+        bench = ctx.opponent_bench()
+        if bench:
+            target = await ctx.choose_pokemon(bench, "Choose 1 of your opponent's Benched Pokémon")
+            if target is not None:
+                await ctx.deal_damage(60, target=target, apply_modifiers=False)
 
 card = PokemonCardDef(
     guid="32a1c391-b535-5fec-ad4a-4dbf4651683a",
@@ -32,7 +47,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon is affected by a Special Condition, this attack also does 60 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=assassins_rose,
         ),
     ],
 )

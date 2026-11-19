@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.support_common import look_at_top
 card = PokemonCardDef(
     guid="b76e43f3-e67b-5c13-accc-66ea2d0839a3",
     key="XY6",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Diminutive Desire",
             game_text="Look at the top 7 cards of your deck and put 1 of them into your hand. Shuffle the other cards back into your deck.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=look_at_top(7, take=1),
         ),
         Attack(
             title="Doom Desire",

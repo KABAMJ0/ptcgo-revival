@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="e85ec9b5-2407-575d-8e02-a451816df6b1",
     key="SV8PT5",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 60),
         ),
         Attack(
             title="Moss Agate",

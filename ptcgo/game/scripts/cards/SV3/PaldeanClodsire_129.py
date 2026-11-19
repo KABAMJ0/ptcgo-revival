@@ -1,7 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition
-
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition, condition_attack
 card = PokemonCardDef(
     guid="1fce15e9-669d-50ee-bf7d-9c51a35b1941",
     key="SV3",
@@ -24,7 +23,7 @@ card = PokemonCardDef(
             title="Splattering Poison",
             game_text="Both Active Pok\u00e9mon are now Poisoned.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, both_actives=True),
         ),
         Attack(
             title="Venoshock",

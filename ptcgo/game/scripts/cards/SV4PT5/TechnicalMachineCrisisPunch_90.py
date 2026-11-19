@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, Rarities
-from ptcgo.game.card_effects.trainers import discard_tool_at_end_of_turn, opponent_one_prize_left
+from ptcgo.game.card_effects.trainers import discard_tool_at_end_of_turn
+
+
+def _opponent_one_prize_left(board, player_id, pokemon) -> bool:
+    opponent = next((pid for pid in board.player_ids if pid != player_id), None)
+    if opponent is None:
+        return False
+    pile = board.find_player_area(opponent, "prizePile")
+    return pile is not None and len(pile.children) == 1
 
 card = PokemonToolCardDef(
     guid="625128f2-da71-59b3-90bd-39d1a71dd6e0",
@@ -18,7 +26,7 @@ card = PokemonToolCardDef(
             game_text="You can use this attack only when your opponent has exactly 1 Prize card remaining.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=280,
-            condition=opponent_one_prize_left(),
+            condition=_opponent_one_prize_left,
         ),
         Ability(
             title="Technical Machine: Crisis Punch",

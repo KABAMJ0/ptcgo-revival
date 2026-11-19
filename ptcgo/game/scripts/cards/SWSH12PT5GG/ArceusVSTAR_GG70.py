@@ -1,7 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, is_pokemon_v
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 card = PokemonCardDef(
     guid="b8e247b4-0cc9-585e-b642-d2daeb0291a6",
     key="SWSH12PT5GG",
@@ -32,7 +34,10 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 3 basic Energy cards and attach them to your Pok\u00e9mon V in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=200,
-            effect=unimplemented,
+            effect=search_attach_energy(
+                is_basic_energy_card, count=3,
+                target_pred=lambda p: is_pokemon_v(p.archetype_id),
+            ),
         ),
     ],
 )

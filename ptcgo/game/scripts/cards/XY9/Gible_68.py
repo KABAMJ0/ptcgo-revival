@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.support_common import discard_then_draw
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="130bf92e-b5d6-5657-a4f1-44cd2fe7586e",
     key="XY9",
@@ -22,7 +22,7 @@ card = PokemonCardDef(
             title="Never Enough",
             game_text="Discard a card from your hand. If you do, draw 2 cards.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=discard_then_draw(1, 2, optional=True),
         ),
     ],
 )

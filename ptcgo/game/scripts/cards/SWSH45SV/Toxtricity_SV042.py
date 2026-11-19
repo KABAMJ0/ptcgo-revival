@@ -2,6 +2,13 @@ from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def risk_taker(ctx):
+    """Flip a coin. If heads, discard the top 5 cards of your opponent's
+    deck. If tails, discard the top 5 cards of your deck."""
+    heads = await ctx.flip_coins(1, "Risk Taker")
+    pid = ctx.opponent_id if heads[0] else ctx.player_id
+    await ctx.discard_cards(ctx.deck_top(5, player_id=pid))
+
 card = PokemonCardDef(
     guid="47230708-24f0-5f58-be64-73d562eebbf9",
     key="SWSH45SV",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             title="Risk Taker",
             game_text="Flip a coin. If heads, discard the top 5 cards of your opponent's deck. If tails, discard the top 5 cards of your deck.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=risk_taker,
         ),
         Attack(
             title="Thunder Jolt",

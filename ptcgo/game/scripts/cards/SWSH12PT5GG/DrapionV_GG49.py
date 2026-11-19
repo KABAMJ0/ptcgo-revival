@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.pokemon import WildStylePassive, dynamic_tail
 card = PokemonCardDef(
     guid="930da419-01d6-5f22-a77e-e81e209e8485",
     key="SWSH12PT5GG",
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             game_text="This attack also does 60 damage to 1 of your Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 4},
             damage=190,
-            effect=unimplemented,
+            effect=dynamic_tail,
         ),
     ],
 )

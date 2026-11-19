@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
-
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 card = PokemonCardDef(
     guid="e9ef1ef6-f187-520d-9ceb-6ce9f6d4b646",
     key="SWSH10TG",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 50),
         ),
     ],
 )

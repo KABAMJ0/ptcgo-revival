@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
-
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 card = PokemonCardDef(
     guid="5c00a7af-58a5-5fff-b85a-7c4ca02f3ce7",
     key="SWSH9TG",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("self"), 80),
         ),
     ],
 )

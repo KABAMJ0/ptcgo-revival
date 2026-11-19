@@ -1,7 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="9fdb84c6-6d45-5362-8898-6ad65efa6a03",
     key="SVault",
@@ -37,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 50),
         ),
     ],
 )

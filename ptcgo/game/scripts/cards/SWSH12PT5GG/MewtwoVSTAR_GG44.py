@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+async def psy_purge(ctx):
+    energies = [
+        e for p in ctx.my_pokemon_in_play() for e in ctx.attached_energies(p)
+        if energy_provides_type(e, PokemonTypes.PSYCHIC.value)
+    ]
+    picks = await ctx.choose_cards(
+        energies, 3, minimum=0,
+        prompt="Discard up to 3 Psychic Energy from your Pokémon.",
+    )
+    await ctx.discard_cards(picks)
+    if picks:
+        await ctx.deal_damage(90 * len(picks))
 
 card = PokemonCardDef(
     guid="30b8dc56-bcf5-5bac-9c00-28a90572b407",
@@ -27,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=90,
             damage_operator="x",
-            effect=unimplemented,
+            effect=psy_purge,
         ),
         Attack(
             title="Star Raid",

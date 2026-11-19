@@ -2,7 +2,8 @@ from ptcgo.game.card_effects.trainers import is_supporter_card
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.card_effects.pokemon import luminous_sign, aqua_return
 card = PokemonCardDef(
     guid="4a32bc00-42cc-5159-8660-de94adb445f0",
     key="SWSH12PT5GG",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Shuffle this Pok\u00e9mon and all attached cards into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=aqua_return,
         ),
     ],
 )

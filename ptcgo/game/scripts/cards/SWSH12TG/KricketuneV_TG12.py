@@ -1,6 +1,21 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+async def _exciting_stage(ctx):
+    """Once per turn: draw to 3 (4 if this Pokémon is Active)."""
+    target = 4 if in_active_spot(ctx.board, ctx.player_id, ctx.source) else 3
+    if await ctx.ask_yes_no(f"Draw cards until you have {target} cards in your hand?"):
+        await ctx.draw_until(target)
+
+
+def _exciting_stage_condition(board, player_id, pokemon):
+    target = 4 if in_active_spot(board, player_id, pokemon) else 3
+    hand = board.find_player_area(player_id, "hand")
+    hand_size = len(hand.children) if hand else 0
+    return hand_size < target
 
 card = PokemonCardDef(
     guid="e8a8a506-3550-53f4-a14b-806f51831b98",
@@ -22,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Exciting Stage",
             game_text="Once during your turn, you may draw cards until you have 3 cards in your hand. If this Pok\u00e9mon is in the Active Spot, you may draw cards until you have 4 cards in your hand instead. You can't use more than 1 Exciting Stage Ability each turn.",
-            effect=unimplemented,
+            effect=_exciting_stage,
+            condition=_exciting_stage_condition,
         ),
         Attack(
             title="X-Scissor",

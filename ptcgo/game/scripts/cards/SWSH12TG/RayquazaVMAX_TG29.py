@@ -1,5 +1,38 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+async def azure_pulse(ctx):
+    """Once per turn: you may discard your hand and draw 3 cards."""
+    if not await ctx.ask_yes_no("Discard your hand and draw 3 cards?"):
+        return
+    await ctx.discard_cards(ctx.hand())
+    await ctx.draw_cards(3)
+
+async def max_burst(ctx):
+    """You may discard any amount of basic Fire or Lightning Energy from
+    this Pokemon; +80 damage for each card discarded this way."""
+    attached = [
+        e for e in ctx.attached_energies(ctx.attacker)
+        if _is_basic_type(e, PokemonTypes.FIRE.value)
+        or _is_basic_type(e, PokemonTypes.LIGHTNING.value)
+    ]
+    picks = []
+    if attached:
+        picks = await ctx.choose_cards(
+            attached, len(attached), minimum=0,
+            prompt="Discard any amount of basic Fire or Lightning Energy from this Pokémon.",
+        )
+        if picks:
+            await ctx.discard_cards(picks)
+    await ctx.deal_damage(20 + 80 * len(picks))
+
+
+def _is_basic_type(card, type_value):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_basic_energy_card(card) and type_value in types
 
 card = PokemonCardDef(
     guid="eb7396f0-e455-5ceb-b3ad-252652894ff0",
@@ -21,7 +54,7 @@ card = PokemonCardDef(
         Ability(
             title="Azure Pulse",
             game_text="Once during your turn, you may discard your hand and draw 3 cards.",
-            effect=unimplemented,
+            effect=azure_pulse,
         ),
         Attack(
             title="Max Burst",
@@ -29,7 +62,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.LIGHTNING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=max_burst,
         ),
     ],
 )

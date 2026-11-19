@@ -1,6 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard, has_attack_titled
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.support_common import requires_hand
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per, has_attack_titled
+_HAS_MAD_PARTY = has_attack_titled("Mad Party")
+
+
+async def tea_break(ctx):
+    """Discard a Pokémon with the Mad Party attack from hand to use this
+    Ability. Once during your turn, you may draw 2 cards."""
+    picks = await ctx.discard_from_hand(
+        1, predicate=_HAS_MAD_PARTY,
+        prompt="Discard a Pokémon that has the Mad Party attack.",
+    )
+    if not picks:
+        return
+    if await ctx.ask_yes_no("Draw 2 cards?"):
+        await ctx.draw_cards(2)
 card = PokemonCardDef(
     guid="9a2c83af-30f8-5650-ae8e-d01987413d20",
     key="SWSH45SV",
@@ -23,7 +40,8 @@ card = PokemonCardDef(
         Ability(
             title="Tea Break",
             game_text="You must discard a Pok\u00e9mon that has the Mad Party attack from your hand in order to use this Ability. Once during your turn, you may draw 2 cards.",
-            effect=unimplemented,
+            effect=tea_break,
+            condition=requires_hand(_HAS_MAD_PARTY),
         ),
         Attack(
             title="Mad Party",

@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.pokemon import primate_wisdom
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 card = PokemonCardDef(
     guid="2b191c7b-b3e9-5125-811f-a95057813806",
     key="SWSH9TG",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Primate Wisdom",
             game_text="Once during your turn, you may switch a card from your hand with the top card of your deck.",
-            effect=unimplemented,
+            effect=primate_wisdom,
         ),
         Attack(
             title="Whap Down",

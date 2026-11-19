@@ -1,5 +1,26 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+async def deep_sea_king(ctx):
+    """Ally Active KO'd by an opponent's attack: you may move any amount of Water Energy from it to this Pokemon."""
+    if not ctx.ko_from_attack or ctx.ko_pokemon is None:
+        return
+    if ctx.board.active_pokemon(ctx.player_id) is not ctx.ko_pokemon:
+        return
+    pool = [e for e in ctx.attached_energies(ctx.ko_pokemon)
+            if energy_provides_type(e, PokemonTypes.WATER.value)]
+    if not pool:
+        return
+    if not await ctx.ask_yes_no(
+            "Move any amount of Water Energy from your Knocked Out Active to this Pokémon?"):
+        return
+    await ctx.move_energy_freely(
+        [ctx.ko_pokemon], [ctx.source],
+        predicate=lambda e: energy_provides_type(e, PokemonTypes.WATER.value),
+    )
 
 card = PokemonCardDef(
     guid="d7799e20-ebf0-550a-b42a-6ee9f8ec28bc",
@@ -22,7 +43,7 @@ card = PokemonCardDef(
         Ability(
             title="Deep Sea King",
             game_text="When your Active Pok\u00e9mon is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon, you may move any amount of Water Energy from that Pok\u00e9mon to this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=deep_sea_king,
         ),
         Attack(
             title="Aqua Burst",
@@ -30,7 +51,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", energy_type=PokemonTypes.WATER), 40),
         ),
     ],
 )

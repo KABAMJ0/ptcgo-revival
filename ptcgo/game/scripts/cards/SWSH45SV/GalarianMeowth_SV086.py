@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, def_for
+from ptcgo.game.card_effects.support_common import requires_hand
+def _is_galarian_perrserker(card):
+    d = def_for(card.archetype_id)
+    return bool(d) and d.display_name == "Galarian Perrserker"
 
+
+async def evolution_roar(ctx):
+    await ctx.discard_from_hand(2, prompt="Discard 2 cards to use Evolution Roar")
+    if await ctx.ask_yes_no("Search your deck for a Galarian Perrserker?"):
+        picks = await ctx.search_deck(
+            _is_galarian_perrserker, count=1, minimum=0,
+            prompt="Choose a Galarian Perrserker to put into your hand.",
+        )
+        await ctx.put_in_hand(picks, reveal=True)
+        await ctx.shuffle_deck()
 card = PokemonCardDef(
     guid="5368e040-fbfb-55bc-af77-d753291f00d7",
     key="SWSH45SV",
@@ -22,7 +37,8 @@ card = PokemonCardDef(
         Ability(
             title="Evolution Roar",
             game_text="You must discard 2 cards from your hand in order to use this Ability. Once during your turn, you may search your deck for a Galarian Perrserker, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            effect=evolution_roar,
+            condition=requires_hand(n=2),
         ),
         Attack(
             title="Scratch",

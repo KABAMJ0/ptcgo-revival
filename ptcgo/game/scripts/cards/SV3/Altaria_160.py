@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 card = PokemonCardDef(
     guid="a0e0247b-f156-5a79-b3fe-f41ad9f71ba8",
     key="SV3",
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Asleep. During Pok\u00e9mon Checkup, your opponent flips 2 coins instead of 1. If either of them is tails, that Pok\u00e9mon is still Asleep.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.METAL: 1},
             damage=110,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, checkup_coins=2),
         ),
     ],
 )

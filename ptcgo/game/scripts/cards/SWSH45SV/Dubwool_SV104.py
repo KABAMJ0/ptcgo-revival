@@ -1,6 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import TakesLessPassive
+
+async def leaf_guard(ctx):
+    """180. During your opponent's next turn, this Pokémon takes 30 less
+    damage from attacks (after applying Weakness and Resistance)."""
+    await ctx.deal_damage()
+    ctx.add_passive_through_opponents_turn(ctx.attacker, TakesLessPassive(30))
 
 card = PokemonCardDef(
     guid="967e1b05-23d1-5f21-b3c7-add0a09fee09",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=leaf_guard,
         ),
         Attack(
             title="Double-Edge",

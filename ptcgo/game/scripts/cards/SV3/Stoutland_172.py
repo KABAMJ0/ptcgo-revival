@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="16dcf8ec-f180-5240-af91-f20914d5e64e",
     key="SV3",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Sharp Fang",

@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
+from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+
+def _is_serena_card(card):
+    definition = def_for(getattr(card, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Serena"
 
 card = PokemonCardDef(
     guid="ed793162-1d5b-51ae-a31b-ab4088b1bdfb",
@@ -30,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", _is_serena_card), 60),
         ),
     ],
 )

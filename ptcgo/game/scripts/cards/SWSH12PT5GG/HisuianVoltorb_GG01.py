@@ -1,6 +1,27 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+def _only_turn_2(board, player_id, pokemon):
+    return board.turn_state.turn_number == 2
 
+
+async def cheerful_charge(ctx):
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    chosen = await ctx.choose_cards(
+        bench, 2, minimum=0, prompt="Choose up to 2 Benched Pokémon.",
+    )
+    if not chosen:
+        return
+    for pokemon in chosen:
+        picks = await ctx.search_deck(
+            is_basic_energy_card, count=1, minimum=0,
+            prompt="Choose a basic Energy card to attach.",
+        )
+        if picks:
+            await ctx.attach_energy(picks[0], pokemon)
+    await ctx.shuffle_deck()
 card = PokemonCardDef(
     guid="23435d80-9c51-531f-86bf-2af730e5f8ed",
     key="SWSH12PT5GG",
@@ -22,7 +43,8 @@ card = PokemonCardDef(
             title="Cheerful Charge",
             game_text="You can use this attack only if you go second, and only during your first turn. Choose up to 2 of your Benched Pok\u00e9mon. For each of those Pok\u00e9mon, search your deck for a basic Energy card and attach it to that Pok\u00e9mon. Then, shuffle your deck.",
             cost={},
-            effect=unimplemented,
+            effect=cheerful_charge,
+            condition=_only_turn_2,
         ),
         Attack(
             title="Ram",

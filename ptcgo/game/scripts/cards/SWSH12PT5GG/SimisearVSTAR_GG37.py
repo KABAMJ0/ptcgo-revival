@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+from ptcgo.game.card_effects.trainers import is_energy_card
+
+async def fireball_fever(ctx):
+    """You may discard up to 5 cards from the top of your deck: 40 more damage each."""
+    top = ctx.deck_top(5)
+    picks = []
+    if top:
+        picks = await ctx.choose_cards(
+            top, len(top), minimum=0, display_cards=top,
+            prompt="Choose up to 5 cards to discard from the top of your deck",
+        )
+        if picks:
+            await ctx.discard_cards(picks)
+    await ctx.deal_damage(40 + 40 * len(picks))
 
 card = PokemonCardDef(
     guid="a0ec8818-56ea-53b2-8c96-283d39cb0bd2",
@@ -25,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=fireball_fever,
         ),
         Attack(
             title="Ember Star",
@@ -33,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", pred=is_energy_card), 30),
         ),
     ],
 )

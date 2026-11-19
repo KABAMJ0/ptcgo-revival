@@ -2,7 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, uni
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_trainer_card
-
+from ptcgo.game.card_effects.attacks_common import snipe_attack, lock_all_attacks
 card = PokemonCardDef(
     guid="b72fdaeb-528a-5d3b-842b-a6b6292ebc92",
     key="SWSH45SV",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=1, side="opponent", also_base=True),
         ),
     ],
 )

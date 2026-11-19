@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if, has_tool
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="20c3a95e-7330-5d5c-847c-9fd24ebe2c05",
     key="SV6",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(has_tool), 80),
         ),
         Attack(
             title="Land Crush",

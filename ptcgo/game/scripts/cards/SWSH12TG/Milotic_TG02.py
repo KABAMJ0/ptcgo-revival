@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
-
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack
 card = PokemonCardDef(
     guid="0c2f1086-ea28-5523-8b32-a8908206c827",
     key="SWSH12TG",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Water Arrow",
             game_text="This attack does 50 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=1),
         ),
         Attack(
             title="Mellow Wave",

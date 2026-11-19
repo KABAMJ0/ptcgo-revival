@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.pokemon import UnfazedFatPassive, thumping_snore
 card = PokemonCardDef(
     guid="62e43f8e-4d98-5c88-8c32-48cb1f925086",
     key="SWSH11TG",
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon is now Asleep. During Pok\u00e9mon Checkup, flip 2 coins instead of 1. If either of them is tails, this Pok\u00e9mon is still Asleep.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=thumping_snore,
         ),
     ],
 )

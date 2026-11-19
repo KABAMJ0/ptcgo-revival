@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="626460ae-3cdf-58d5-aaef-0aba907399de",
     key="SV8PT5",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Protective Bell",
             game_text="All of your Pok\u00e9mon take 10 less damage from attacks from your opponent's Pok\u00e9mon (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10, protects="team"),
         ),
         Attack(
             title="Heavy Impact",

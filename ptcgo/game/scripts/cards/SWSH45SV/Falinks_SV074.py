@@ -2,6 +2,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
+from ptcgo.game.card_effects.support_common import search_to_bench, is_basic
+
+def _falinks_named(p):
+    d = def_for(p.archetype_id)
+    return bool(d and d.display_name and "Falinks" in d.display_name)
 
 card = PokemonCardDef(
     guid="31d59c12-32c9-5e04-833b-216a0c9b0e69",
@@ -32,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", pred=_falinks_named), 30),
         ),
     ],
 )

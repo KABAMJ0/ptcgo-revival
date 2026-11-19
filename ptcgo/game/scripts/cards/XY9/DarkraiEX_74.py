@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="a3fcc9f0-e1c7-5521-87e8-c0eaef560158",
     key="XY9",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("mine", energy_type=PokemonTypes.DARKNESS), 20, base=20),
         ),
         Attack(
             title="Dark Head",

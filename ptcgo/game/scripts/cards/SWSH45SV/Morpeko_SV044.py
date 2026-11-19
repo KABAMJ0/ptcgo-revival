@@ -1,7 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_supporter_card
 card = PokemonCardDef(
     guid="e8c027cc-667b-57ee-879f-ec6ac07f4506",
     key="SWSH45SV",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks. During your opponent's next turn, that Pok\u00e9mon can't use that attack.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Spark",

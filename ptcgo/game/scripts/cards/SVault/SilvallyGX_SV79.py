@@ -1,8 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, subtypes_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
+def _basic_free_retreat(pokemon, carrier) -> bool:
+    return (pokemon.owning_player_id == carrier.owning_player_id
+            and "Basic" in subtypes_for(pokemon.archetype_id))
 card = PokemonCardDef(
     guid="811e4082-6371-54ba-ad1b-bc3053e2b6bc",
     key="SVault",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Gyro Unit",
             game_text="Your Basic Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_basic_free_retreat),
         ),
         Attack(
             title="Turbo Drive",
@@ -39,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 50),
         ),
     ],
 )

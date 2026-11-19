@@ -1,5 +1,45 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, CardType
+
+async def sun_energy(ctx):
+    lunatones = _my_lunatones(ctx.my_pokemon_in_play())
+    cards = [c for c in ctx.discard_pile() if _is_psychic_energy_card(c)]
+    if not lunatones or not cards:
+        return
+    if not await ctx.ask_yes_no(
+        "Attach a Psychic Energy card from your discard pile to 1 of your Lunatone?"
+    ):
+        return
+    picks = await ctx.choose_cards(cards, 1, prompt="Choose a Psychic Energy card to attach")
+    if not picks:
+        return
+    target = await ctx.choose_pokemon(
+        lunatones, "Choose a Lunatone to attach the Energy to"
+    ) or lunatones[0]
+    await ctx.attach_energy(picks[0], target)
+
+
+def sun_energy_condition(board, player_id, pokemon):
+    if not _my_lunatones(board.pokemon_in_play(player_id)):
+        return False
+    discard = board.find_player_area(player_id, "discard")
+    return bool(discard) and any(_is_psychic_energy_card(c) for c in discard.children)
+
+
+LUNATONE_NAME = "com.direwolfdigital.cake.data.archetypes.pokemon.Lunatone.Name"
+
+
+def _is_psychic_energy_card(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value \
+        and PokemonTypes.PSYCHIC.value in types
+
+
+def _my_lunatones(pokemon_list):
+    return [p for p in pokemon_list
+            if p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == LUNATONE_NAME]
 
 card = PokemonCardDef(
     guid="a03c0666-fc7d-5885-989a-69717aee4594",
@@ -21,7 +61,8 @@ card = PokemonCardDef(
         Ability(
             title="Sun Energy",
             game_text="Once during your turn, you may attach a Psychic Energy card from your discard pile to 1 of your Lunatone.",
-            effect=unimplemented,
+            effect=sun_energy,
+            condition=sun_energy_condition,
         ),
         Attack(
             title="Spinning Attack",

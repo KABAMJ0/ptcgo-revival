@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.session.effects import is_evolution_pokemon
+
+async def spider_net(ctx):
+    """On evolve: you may gust one of the opponent's Benched Evolution Pokemon."""
+    candidates = [p for p in ctx.opponent_bench() if is_evolution_pokemon(p)]
+    if not candidates:
+        return
+    if not await ctx.ask_yes_no(
+            "Switch 1 of your opponent's Benched Evolution Pokémon with their Active Pokémon?"):
+        return
+    target = await ctx.choose_pokemon(
+        candidates, "Choose the opponent's new Active Pokémon"
+    )
+    if target is not None:
+        await ctx.switch_active(ctx.opponent_id, target)
 
 card = PokemonCardDef(
     guid="86744baf-3b8e-58d3-9e9e-361b7057c32b",
@@ -23,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Spider Net",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may switch 1 of your opponent's Benched Evolution Pok\u00e9mon with their Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=spider_net,
         ),
         Attack(
             title="Poison Sting",

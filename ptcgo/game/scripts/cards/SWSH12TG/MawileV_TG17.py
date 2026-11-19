@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
-
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 card = PokemonCardDef(
     guid="190b7a2f-b33d-587c-8c1b-7d589606c432",
     key="SWSH12TG",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
     ],
 )

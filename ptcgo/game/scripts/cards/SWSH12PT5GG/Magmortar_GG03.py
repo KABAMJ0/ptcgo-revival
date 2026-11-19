@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+def _electivire_on_bench(ctx) -> bool:
+    return any(p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Electivire"
+               for p in ctx.my_bench())
 
 card = PokemonCardDef(
     guid="472d6ade-07db-5c2f-94c8-639266449c45",
@@ -30,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_electivire_on_bench, 120),
         ),
     ],
 )

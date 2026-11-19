@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.session.effects import is_trainer_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="6e5b96c8-b6a0-55de-a1f6-bf9cfcb1c659",
     key="XY9",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Put a Trainer card from your discard pile into your hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=recover_from_discard(is_trainer_card, count=1, to="hand"),
         ),
     ],
 )

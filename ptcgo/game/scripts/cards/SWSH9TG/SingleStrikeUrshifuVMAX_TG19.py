@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def gmax_one_blow(ctx):
+    await ctx.discard_energy_from(
+        ctx.attacker, 99, prompt="Discard all Energy from this Pokémon"
+    )
+    await ctx.deal_damage(ignore_target_effects=True)
+
 card = PokemonCardDef(
     guid="c16f9aba-aa90-5ad0-bbcb-3daf8e33be97",
     key="SWSH9TG",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             game_text="Discard all Energy from this Pok\u00e9mon. This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 3, PokemonTypes.COLORLESS: 1},
             damage=270,
-            effect=unimplemented,
+            effect=gmax_one_blow,
         ),
     ],
 )

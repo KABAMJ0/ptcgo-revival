@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+async def _feather_slice(ctx):
+    bonus = False
+    if ctx.hand_size() > 0 and await ctx.ask_yes_no(
+        "You may discard a card from your hand. If you do, this attack does 70 more damage."
+    ):
+        picks = await ctx.discard_from_hand(1, prompt="Discard a card for Feather Slice")
+        bonus = bool(picks)
+    await ctx.deal_damage(70 + (70 if bonus else 0))
 
 card = PokemonCardDef(
     guid="6582f551-a462-5435-b58c-2f19252a1e1a",
@@ -31,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_feather_slice,
         ),
     ],
 )

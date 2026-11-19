@@ -1,6 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
+from ptcgo.game.card_effects.trainers import is_darkness_pokemon
+from ptcgo.game.models.board import PokemonEntity
+from ptcgo.game.session.passives import Passive
 card = PokemonCardDef(
     guid="0b50525b-09a5-589b-b2b7-3fda2c881214",
     key="SWSH45SV",
@@ -30,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", is_darkness_pokemon), 30),
         ),
     ],
 )

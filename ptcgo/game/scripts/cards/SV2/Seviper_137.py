@@ -1,6 +1,7 @@
+from ptcgo.game.session.effects import is_evolution_pokemon
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="4e9f71ef-7f56-562f-86ce-7ff2c891500b",
     key="SV2",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(is_evolution_pokemon), 50, base=20),
         ),
     ],
 )

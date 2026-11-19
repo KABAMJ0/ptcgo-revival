@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+async def glance(ctx):
+    """Look at the top card of your opponent's deck."""
+    top = ctx.deck_top(1, player_id=ctx.opponent_id)
+    if not top:
+        return
+    await ctx.present_card_choice(
+        top[0], "Top card of your opponent's deck", ["OK"])
+
 card = PokemonCardDef(
     guid="1fdb2c25-8613-522c-935d-a006aa3bf46f",
     key="SWSH45SV",
@@ -23,7 +31,7 @@ card = PokemonCardDef(
             title="Glance",
             game_text="Look at the top card of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=glance,
         ),
         Attack(
             title="Tail Slap",

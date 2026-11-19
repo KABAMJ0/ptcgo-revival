@@ -1,6 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import requires_in_play, search_to_hand
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+def _is_garchomp(pokemon) -> bool:
+    definition = def_for(getattr(pokemon, "archetype_id", None) or "")
+    return getattr(definition, "display_name", None) == "Garchomp"
 
 card = PokemonCardDef(
     guid="2f25b7ec-b33c-580f-8ba3-af8feb0e4d49",
@@ -23,7 +28,8 @@ card = PokemonCardDef(
         Ability(
             title="Precognitive Aura",
             game_text="Once during your turn (before your attack), if you have Garchomp in play, you may search your deck for a card and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            effect=search_to_hand(),
+            condition=requires_in_play(_is_garchomp),
         ),
         Attack(
             title="Missile Jab",
