@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import place_counters
+
+
+async def _spread_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(2)
+
 
 card = PokemonCardDef(
     guid="e3404047-1365-58be-8cf6-eb0d5a666dfb",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             title="Clay Curse",
             game_text="Put 2 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=place_counters(2, target="choose_any_opponent"),
+            effect=_spread_counters,
         ),
         Attack(
             title="Clay Pulse",
