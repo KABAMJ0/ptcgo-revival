@@ -783,11 +783,15 @@ class EffectContext:
     def add_damage_taken_modifier(self, amount: int, target=None, *,
                                   for_player: Optional[str] = None,
                                   through: str = "opponent_next_turn",
-                                  attacks_only: bool = True) -> None:
+                                  attacks_only: bool = True,
+                                  target_predicate=None) -> None:
         """"The Defending Pokemon takes N more damage from attacks (after
         applying Weakness and Resistance)" (Mabosstiff, Stunfisk, Onix) and
         its mirror "each of your opponent's Pokemon takes N less damage"
         (Zamazenta VSTAR). `amount` is signed: positive = more damage taken.
+
+        `target_predicate` narrows a `for_player` modifier to some of that
+        player's Pokemon ("your Metal Pokemon take 30 less this turn").
 
         Pass `target` (a PokemonEntity) for the one-Pokemon wording; the
         modifier is dropped when that card leaves play or evolves. Pass
@@ -837,6 +841,7 @@ class EffectContext:
             target_entity_id=target_entity_id,
             owner_player_id=owner_player_id,
             attacks_only=attacks_only,
+            target_predicate=target_predicate,
             source_entity_id=getattr(self.source, "entity_id", None),
             from_attack=self.is_attack_effect(),
         ))
@@ -1926,6 +1931,37 @@ class EffectContext:
         for vid, entries in reveal_batches.items():
             self._queue_reveal_batch(entries, vid)
 
+    def spend_free_attachment(self) -> None:
+        """"Instead of your free Energy attachment" (Blaine): marks this turn's
+        manual attach as used, so an effect attach does not leave it available."""
+        self.session.turn_state.energy_attaches_used += 1
+
+    def allow_extra_attachment(self, count: int = 1) -> None:
+        """"You may attach N Energy cards this turn": widens the manual attach
+        budget the offer reads."""
+        state = self.session.turn_state
+        state.energy_attach_slots = max(state.energy_attach_slots,
+                                        state.energy_attaches_used + count)
+
+    def allow_extra_supporter(self, count: int = 1) -> None:
+        """"You may play 2 Supporter cards this turn" (Lt. Surge's Strategy):
+        raises this turn's Supporter slots. The offer reads it, so the second
+        Supporter is legal only after the effect resolves."""
+        state = self.session.turn_state
+        state.supporter_slots = max(state.supporter_slots,
+                                    state.supporters_played + count)
+
+    async def reveal_top(self, count: int = 1) -> List[CardEntity]:
+        """"Reveal the top N cards of your deck" to the player who is looking,
+        and return them -- they stay on top (Legend Box inspects ten and benches
+        a LEGEND pair out of them). Never opens the deck browser, so the rest of
+        the deck stays hidden; the cards are revealed where they sit."""
+        cards = self.deck_top(count)
+        if not cards:
+            return []
+        await self.reveal_cards(cards, to_player=self.player_id)
+        return cards
+
     async def reveal_hand(self, of_player: Optional[str] = None,
                           to_player: Optional[str] = None) -> List[CardEntity]:
         """View-only reveal browser over a player's whole hand ("your opponent
@@ -2471,7 +2507,8 @@ class EffectContext:
     async def identity_swap(self, outgoing: PokemonEntity, incoming: CardEntity,
                             destination: str = "discard",
                             transfer: bool = True) -> bool:
-        """Switches an in-play Pokemon with a hand/discard card; see
+        """Switches an in-play Pokemon with a hand/discard card (destination
+        "deck" puts the outgoing card on the bottom); see
         GameSession.perform_identity_swap. transfer=True carries attachments/
         damage/conditions/turn stamps onto the new Pokemon; a transferred
         damage total covering its HP queues a knockout. The TransformSwap

@@ -574,6 +574,10 @@ class TrainerCardDef(CardDefinition):
     `condition(board, player_id) -> bool` gates when the card may be played
     at all (e.g. Ultra Ball needs 2 other cards in hand to discard); a
     3-arg `condition(board, player_id, card)` also gets the hand copy (Nugget).
+
+    `play_cost` is the number of OTHER hand cards that must be discarded to
+    play the card at all; it is enforced in the legal-action offer and paid
+    before the effect resolves.
     """
     def __init__(
         self,
@@ -594,12 +598,19 @@ class TrainerCardDef(CardDefinition):
         foil: Optional[Foil] = None,
         play_targets: Optional[Callable] = None,
         play_target_prompt: str = "Choose a target",
+        play_cost: int = 0,
     ):
         super().__init__(guid, key, name, collector_number, set_code, rarity, display_name, searchable_by, subtypes, attributes, foil)
         self.effect = effect
         self.condition = condition
         self.play_targets = play_targets
         self.play_target_prompt = play_target_prompt
+        # "Discard 2 of the other cards in your hand in order to play this
+        # card" (Misty): OTHER hand cards that must be discarded as a cost of
+        # PLAYING, so it gates the offer as well as being paid at resolution.
+        # A Stadium wording charging a cost on another card's play is
+        # Passive.trainer_play_cost instead.
+        self.play_cost = int(play_cost or 0)
         # Trainers have no PIE_ABILITIES slot; declared abilities register for
         # the session's trigger scans only (Dream Ball's ON_TAKEN_AS_PRIZE).
         self.abilities: List[Ability] = abilities or []
