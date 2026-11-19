@@ -350,6 +350,11 @@ class Passive:
         `board` lets stadium-gated hooks read global state (Thwackey)."""
         return cost
 
+    def blocks_bench_damage(self, calc: "DamageCalc", carrier: BoardEntity) -> bool:
+        """True to prevent attack damage to BENCHED Pokemon (Mountain Ring,
+        Sky Pillar); only consulted when the target sits on a Bench."""
+        return False
+
     def blocks_attack_effects(self, target: PokemonEntity, carrier: BoardEntity) -> bool:
         """True to shield `target` from opponents' attack EFFECTS (not damage)."""
         return False
@@ -1008,6 +1013,10 @@ def compute_damage(
     for passive, carrier in passives:
         if calc.ignore_target_effects and carrier_pokemon(carrier) is calc.target:
             continue
+        if calc.to_bench and passive.blocks_bench_damage(calc, carrier):
+            calc.prevented = True
+            calc.amount = 0
+            break
         if passive.prevents_damage(calc, carrier):
             calc.prevented = True
             calc.amount = 0

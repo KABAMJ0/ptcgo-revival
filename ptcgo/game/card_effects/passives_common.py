@@ -1421,6 +1421,53 @@ def poison_not_of_type(*types) -> Callable[[Any, Any], bool]:
     return pred
 
 
+class BenchDamageShieldPassive(Passive):
+    """Mountain Ring ("prevent all damage done to Benched Pokemon by attacks")
+    and Sky Pillar (the same plus the attack's effects)."""
+
+    def __init__(self, effects_too=False):
+        self.effects_too = effects_too
+
+    def blocks_bench_damage(self, calc, carrier):
+        return True
+
+    def blocks_attack_effects(self, target, carrier):
+        if not self.effects_too:
+            return False
+        parent = getattr(target, "parent", None)
+        return bool(parent) and parent.get_attribute(AttrID.NAME) == "bench"
+
+
+def bench_damage_shield(effects_too: bool = False) -> Passive:
+    """`effects_too=True` is Sky Pillar; the default is Mountain Ring."""
+    return BenchDamageShieldPassive(effects_too)
+
+
+class RetreatCostModifierPassive(Passive):
+    """Retreat cost +/- N, optionally for one group of Pokemon ("each Pokemon
+    without Team Aqua in its name pays [C] more", "Basic Pokemon pay [C]
+    more") -- the Stadium wording base."""
+
+    def __init__(self, delta, pred=None, active_only=False):
+        self.delta = delta
+        self.pred = pred
+        self.active_only = active_only
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if self.active_only and not is_in_active_spot(pokemon):
+            return cost
+        if self.pred is not None and not self.pred(pokemon, board):
+            return cost
+        return max(0, cost + self.delta)
+
+
+def retreat_cost_modifier(delta: int, pred=None,
+                          active_only: bool = False) -> Passive:
+    """`delta` +1 charges more, -1 pays less; `pred(pokemon, board)` narrows
+    who it applies to and `active_only` is "your Active Pokemon"."""
+    return RetreatCostModifierPassive(delta, pred, active_only)
+
+
 class TeamHPBonusPassive(Passive):
     """Every Pokemon on the chosen side(s) gets `amount` more max HP (Aspertia
     City Gym's +20 to Colorless; Snowpoint Temple's +20 to the unevolved)."""
