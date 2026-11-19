@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.card_effects.support_common import attach_from_hand
+
+async def giant_geyser(ctx):
+    """Attach any number of Water Energy cards from hand to your Pokemon in any
+    way you like."""
+    from ptcgo.game.card_effects.pokemon import is_basic_water_energy
+    await attach_from_hand(is_basic_water_energy, 99, target="distribute",
+                           minimum=0, distribute=True,
+                           prompt="Choose Water Energy to attach")(ctx)
+
 
 card = PokemonCardDef(
     guid="e4a373b2-155e-506b-bfd1-42dfe2f74982",
@@ -37,7 +47,7 @@ card = PokemonCardDef(
             title="Giant Geyser-GX",
             game_text="Attach any number of Water Energy cards from your hand to your Pok\u00e9mon in any way you like. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=giant_geyser,
         ),
     ],
 )

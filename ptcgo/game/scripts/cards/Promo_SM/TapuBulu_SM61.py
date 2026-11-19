@@ -3,6 +3,12 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
 
+async def calm_strike(ctx):
+    """Printed 60, +60 once this player's GX attack has been used."""
+    used = ctx.player_id in getattr(ctx.session.turn_state, "gx_attack_used", set())
+    await ctx.deal_damage(60 + (60 if used else 0))
+
+
 card = PokemonCardDef(
     guid="d1f8a989-602f-5c34-88dc-85e464acecf3",
     key="Promo_SM",
@@ -33,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=calm_strike,
         ),
     ],
 )

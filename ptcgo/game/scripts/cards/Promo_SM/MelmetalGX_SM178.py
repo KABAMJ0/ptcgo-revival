@@ -3,6 +3,18 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.card_effects.passives_common import takes_less_passive
 
+async def iron_force(ctx):
+    """Attach any number of Metal Energy from the discard pile to this Pokemon."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type
+    pool = [c for c in ctx.discard_pile(ctx.player_id)
+            if energy_provides_type(c, PokemonTypes.METAL.value)]
+    if not pool:
+        return
+    picks = await ctx.choose_cards(pool, len(pool), prompt="Choose Metal Energy to attach")
+    for card in picks or []:
+        await ctx.attach_energy(card, ctx.attacker)
+
+
 card = PokemonCardDef(
     guid="95696891-373f-50df-bb36-b613d5a4b601",
     key="Promo_SM",
@@ -39,7 +51,7 @@ card = PokemonCardDef(
             title="Iron Force-GX",
             game_text="Attach any number of Metal Energy cards from your discard pile to this Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=iron_force,
         ),
     ],
 )

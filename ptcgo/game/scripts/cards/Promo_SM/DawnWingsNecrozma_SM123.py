@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.attributes import AttrID
+
+async def gulf_stream(ctx):
+    """Printed 20, +20 per damage counter on this Pokemon while exactly 6 Prize
+    cards remain."""
+    pile = ctx.board.find_player_area(ctx.player_id, "prizePile")
+    remaining = len(pile.children) if pile else None
+    max_hp = ctx.max_hp(ctx.attacker)
+    counters = max(0, (max_hp - (ctx.attacker.get_attribute(AttrID.HP) or max_hp)) // 10)
+    bonus = 20 * counters if remaining == 6 else 0
+    await ctx.deal_damage(20 + bonus)
+
 
 card = PokemonCardDef(
     guid="0666f414-32cd-5e9a-a1ff-ef7dd9de7a7f",
@@ -26,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=gulf_stream,
         ),
         Attack(
             title="Sword of Dawn",
