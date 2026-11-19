@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+from ptcgo.game.card_effects.passives_common import unafflicted
+
+
+async def _second_sight(ctx):
+    opponent = await ctx.ask_yes_no("Look at the top 3 cards of your opponent's deck?")
+    player_id = ctx.opponent_id if opponent else ctx.player_id
+    await ctx.reorder_deck_top(3, player_id=player_id)
+
 
 card = PokemonCardDef(
     guid="24c19e98-a06f-5ec2-ab43-bf2b2438a9cd",
@@ -24,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Second Sight",
             game_text="Once during your turn (before your attack), you may look at the top 3 cards of that player's deck and put them back on top of that player's deck in any order. This power can't be used if Slowking is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=_second_sight,
         ),
         Attack(
             title="Psyshock",

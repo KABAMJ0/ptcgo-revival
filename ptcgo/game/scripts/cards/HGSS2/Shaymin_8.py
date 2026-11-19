@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.support_common import move_energy_between
+
 
 card = PokemonCardDef(
     guid="d66d29ab-d322-5c9f-b9f0-60cd8ddf9746",
@@ -22,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Celebration Wind",
             game_text="Once during your turn, when you put Shaymin from your hand onto your Bench, you may move as many Energy cards attached to your Pok\u00e9mon as you like to any of your other Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=move_energy_between(count=None, from_pool="any", to_pool="any"),
         ),
         Attack(
             title="Energy Bloom",

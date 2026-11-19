@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
+
+GRASS = PokemonTypes.GRASS.value
+
+
+def _grass_team_no_weakness(target, carrier):
+    return (target.owning_player_id == carrier.owning_player_id
+            and GRASS in (target.get_attribute(AttrID.POKEMON_TYPES) or []))
+
+
 card = PokemonCardDef(
     guid="6e0475ee-2185-57f0-bc15-828351a3e175",
     key="HGSS1",

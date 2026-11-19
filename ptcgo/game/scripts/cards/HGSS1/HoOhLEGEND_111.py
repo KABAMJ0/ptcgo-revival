@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
+
 card = PokemonCardDef(
     guid="6c2dd2bd-d3ff-59cd-861e-7abefba6bb94",
     key="HGSS1",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Sacred Rainbow",
             game_text="All Energy attached to Ho-Oh LEGEND are Fire Energy instead of their usual type.",
-            effect=unimplemented,
+            passive=rewrite_energy_types_passive(PokemonTypes.FIRE.value),
         ),
         Attack(
             title="Bright Wing",

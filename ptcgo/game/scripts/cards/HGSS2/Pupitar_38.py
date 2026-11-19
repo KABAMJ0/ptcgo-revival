@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
+
+
 card = PokemonCardDef(
     guid="fe80c89a-0eb7-5af6-bf8a-eaeb5ee436b2",
     key="HGSS2",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Boost Gas",
             game_text="If Pupitar has any Energy attached to it, the Retreat Cost of Pupitar is 0.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(inverted=True),
         ),
         Attack(
             title="Rage",

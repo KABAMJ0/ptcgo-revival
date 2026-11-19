@@ -1,5 +1,19 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.trainers import is_energy_card
+
+
+async def _ocean_grow_peek_top(ctx):
+    top = ctx.deck_top(5)
+    energies = [card for card in top if is_energy_card(card)]
+    if energies:
+        for card in energies:
+            await ctx.attach_energy(card, ctx.source)
+    rest = [card for card in top if card not in energies]
+    if rest:
+        await ctx.discard_cards(rest)
+
 
 card = PokemonCardDef(
     guid="1a06a4e4-3e94-5693-b3cc-aaf52c558a2f",
@@ -22,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Ocean Grow",
             game_text="Once during your turn, when you put Lugia LEGEND into play, you may look at the top 5 cards of your deck and attach all Energy cards you find there to Lugia LEGEND. Discard the other cards.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=_ocean_grow_peek_top,
         ),
         Attack(
             title="Elemental Blast",
