@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Metal Wallop attack does 40 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=boost_own_next_turn(40, attack_title="Metal Wallop"),
         ),
     ],
 )

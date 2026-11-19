@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -34,7 +35,7 @@ card = PokemonCardDef(
             title="Stalking Claws-GX",
             game_text="This attack does 120 damage to 1 of your opponent's Pok\u00e9mon. This damage isn't affected by Weakness, Resistance, or any other effects on that Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(120, pool="any"),
         ),
     ],
 )

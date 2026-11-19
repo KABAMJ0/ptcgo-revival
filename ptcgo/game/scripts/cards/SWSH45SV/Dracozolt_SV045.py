@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon's Amping Up attack does 90 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=boost_own_next_turn(90, attack_title="Amping Up"),
         ),
         Attack(
             title="Giga Impact",

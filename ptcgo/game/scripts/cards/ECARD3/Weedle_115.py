@@ -29,7 +29,7 @@ card = PokemonCardDef(
             title="Poison Horn",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
     ],
 )

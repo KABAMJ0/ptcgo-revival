@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Singe",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Dark Shock",

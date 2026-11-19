@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="97ea4125-ba27-54b8-9691-d885e00c7541",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Poison Vine",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
         Attack(
             title="Sharp Leaf",

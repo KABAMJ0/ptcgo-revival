@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack, flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=30),
         ),
         Attack(
             title="Steel Tackle",

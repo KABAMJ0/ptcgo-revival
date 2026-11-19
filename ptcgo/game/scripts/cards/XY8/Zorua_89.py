@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="4fcbee24-70fe-5b2b-ab93-9e8610950faa",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1),
         ),
     ],
 )

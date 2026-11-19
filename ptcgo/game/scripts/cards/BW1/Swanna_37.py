@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             title="Feather Dance",
             game_text="During your next turn, each of this Pok\u00e9mon's attacks does 40 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=boost_own_next_turn(40),
         ),
         Attack(
             title="Aqua Ring",
