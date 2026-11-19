@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_pokemon_card
 
 card = PokemonCardDef(
     guid="4463c5ba-736f-53a1-a550-20611c59a0d7",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Find a Friend",
             game_text="Search your deck for a Pok\u00e9mon, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_pokemon_card, reveal=True),
         ),
         Attack(
             title="Tackle",
