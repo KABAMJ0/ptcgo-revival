@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=1, per_heads=20),
         ),
         Attack(
             title="Double Spin",
