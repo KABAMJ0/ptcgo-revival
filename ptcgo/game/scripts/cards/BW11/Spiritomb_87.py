@@ -1,5 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import subtypes_for
+from ptcgo.game.session.passives import Passive
+
+
+class SealingScreamPassive(Passive):
+    """Neither player can play an ACE SPEC card from their hand. Spiritomb need
+    not be Active, so there is no position gate."""
+
+    @staticmethod
+    def _is_ace_spec(card):
+        return any(subtype.lower() == "ace spec" for subtype in
+                   subtypes_for(getattr(card, "archetype_id", "") or ""))
+
+    def blocks_trainer_play(self, card, player_id, carrier, board=None):
+        return self._is_ace_spec(card)
+
+    def blocks_play(self, player_id, card, carrier, board=None):
+        return self._is_ace_spec(card)
+
 
 card = PokemonCardDef(
     guid="1adae36b-b635-593b-af1f-10f58caa4e1d",
@@ -20,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Sealing Scream",
             game_text="Each player can't play any ACE SPEC cards from his or her hand.",
-            effect=unimplemented,
+            passive=SealingScreamPassive(),
         ),
         Attack(
             title="Hexed Mirror",

@@ -1,6 +1,15 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy
+
+
+async def tiptoe_step(ctx):
+    """Draw 1 for each Psychic Energy attached to this Pokemon."""
+    count = count_energy("self", PokemonTypes.PSYCHIC)(ctx)
+    if count > 0:
+        await ctx.draw_cards(count)
+
 
 card = PokemonCardDef(
     guid="463ccdb8-0dc8-5795-b62a-69f7cc343cc2",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="Tiptoe Step",
             game_text="Draw a card for each Psychic Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=tiptoe_step,
         ),
         Attack(
             title="Double Slap",

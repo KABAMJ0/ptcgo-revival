@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="5275a0d4-ba4d-5bd5-9317-a865f7936c86",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Captivate",
             game_text="Flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with the Defending Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=gust_attack()),
         ),
     ],
 )

@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def ambush_bite(ctx):
+    """Flip a coin: heads pays the printed 20 plus 20 more and strips an Energy
+    from the Defending Pokemon; tails pays the printed 20 alone."""
+    heads = await ctx.flip_coins(1, "Ambush Bite")
+    if not (heads and heads[0]):
+        await ctx.deal_damage()
+        return
+    await ctx.deal_damage(40)
+    defender = ctx.defender
+    if defender is not None and not ctx.effects_blocked(defender):
+        await ctx.discard_energy_from(
+            defender, 1,
+            prompt="Choose an Energy to discard from the Defending Pokémon")
+
+
 card = PokemonCardDef(
     guid="66c3933a-3ebc-5448-996a-ddd1718a1a51",
     key="BW11",
@@ -25,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=ambush_bite,
         ),
     ],
 )
