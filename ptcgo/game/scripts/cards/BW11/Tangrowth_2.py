@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import flip_bonus, no_retreat_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="d84fe5b2-1824-5c09-90ea-223968795c1f",

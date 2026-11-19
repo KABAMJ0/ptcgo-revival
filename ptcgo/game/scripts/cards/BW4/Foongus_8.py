@@ -3,6 +3,7 @@ from ptcgo.game.session.effects import is_pokemon_card
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
 
 card = PokemonCardDef(
     guid="ca5709e5-f088-500d-9d17-10e2627a0af6",
@@ -36,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_bonus(20),
         ),
     ],
 )

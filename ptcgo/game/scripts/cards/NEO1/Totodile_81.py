@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack, flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="796b35ca-cf03-5b3f-9ab5-3adb33af6887",
