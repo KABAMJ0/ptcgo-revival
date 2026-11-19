@@ -2,10 +2,18 @@ from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.card_effects.passives_common import heal_activation
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.attributes import AttrID
 
 _heal, _heal_condition = heal_activation(30, target_pred=lambda p: PokemonTypes.WATER.value in (
     p.get_attribute(AttrID.POKEMON_TYPES) or []
 ))
+
+
+async def cure_shower(ctx):
+    """Heal all damage from each of your Water Pokemon."""
+    for pokemon in ctx.my_pokemon_in_play():
+        if PokemonTypes.WATER.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or []):
+            await ctx.heal(999, target=pokemon)
 
 
 card = PokemonCardDef(
@@ -45,7 +53,7 @@ card = PokemonCardDef(
             title="Cure Shower-GX",
             game_text="Heal all damage from all of your Water Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=cure_shower,
         ),
     ],
 )

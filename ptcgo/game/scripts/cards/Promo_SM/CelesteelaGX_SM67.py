@@ -3,6 +3,12 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def blaster_gx(ctx):
+    """Printed 180, then turn all of your face-down Prize cards face up."""
+    await ctx.deal_damage()
+    await ctx.turn_prize_cards_face_up()
+
+
 card = PokemonCardDef(
     guid="49e5c794-4f64-595f-956e-82db76856427",
     key="Promo_SM",
@@ -39,7 +45,7 @@ card = PokemonCardDef(
             game_text="Turn all of your Prize cards face up. (Those Prize cards remain face up for the rest of the game.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=blaster_gx,
         ),
     ],
 )

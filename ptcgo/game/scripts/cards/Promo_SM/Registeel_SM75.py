@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def iron_fist(ctx):
+    """Printed 90; heal 30 from this Pokemon while Regice is on your Bench."""
+    await ctx.deal_damage()
+    if named_in_play("Regice")(ctx):
+        await ctx.heal(30, target=ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="f964da9f-b9cc-5e45-b4c0-d50217fd8093",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             game_text="If Regice is on your Bench, heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=iron_fist,
         ),
     ],
 )

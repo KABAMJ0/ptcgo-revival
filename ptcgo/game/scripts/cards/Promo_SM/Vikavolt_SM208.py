@@ -2,11 +2,22 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 
 
 def _is_lightning_energy(card) -> bool:
     return (is_energy_card(card)
             and energy_provides_type(card, PokemonTypes.LIGHTNING.value))
+
+class StealthyBodyPassive(Passive):
+    """No Weakness while any Stadium card is in play."""
+
+    def modify_weakness(self, calc, carrier):
+        board = getattr(calc, "board", None)
+        slot = board.find_global_area("activeStadium") if board is not None else None
+        if slot is not None and slot.children and calc.target is carrier_pokemon(carrier):
+            calc.weakness_applies = False
+
 
 card = PokemonCardDef(
     guid="061ac64c-5ca1-57cb-a0af-610ad9b2f227",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
         Ability(
             title="Stealthy Body",
             game_text="If there is any Stadium card in play, this Pok\u00e9mon has no Weakness.",
-            effect=unimplemented,
+            passive=StealthyBodyPassive(),
         ),
         Attack(
             title="Electricannon",
