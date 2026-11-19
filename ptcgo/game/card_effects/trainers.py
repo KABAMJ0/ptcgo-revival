@@ -241,6 +241,21 @@ def _opponent_energies(board, player_id):
     return out
 
 
+def opponent_one_prize_left():
+    """Attack condition: the opponent has exactly 1 Prize card left.
+
+    Takes the engine's `condition(board, player_id, pokemon)` signature --
+    `legal_actions` calls every ability condition that way, so a one-argument
+    `condition(ctx)` is a TypeError at selection time, not at load time."""
+    def condition(board, player_id, pokemon=None) -> bool:
+        opponent = next((p for p in board.player_ids if p != player_id), None)
+        if not opponent:
+            return False
+        area = board.find_player_area(opponent, "prizePile")
+        return bool(area) and len(area.children) == 1
+    return condition
+
+
 def opponent_has_energy_attached(board, player_id) -> bool:
     return bool(_opponent_energies(board, player_id))
 
@@ -2168,12 +2183,25 @@ class AllAbilitiesOffPassive(Passive):
 
 
 class CombinedPassive(Passive):
-    """Two continuous effects printed on one card ("... takes 30 less damage
-    and has no Weakness"), each hook forwarded to every part."""
+    """Several continuous effects printed on one card ("... takes 30 less
+    damage and has no Weakness").
+
+    A Stadium or Tool carries exactly one `passive`, so every two-clause card
+    elsewhere in the pool was either a hand-written delegating class or left
+    stubbed. Every hook on `Passive` is forwarded here, classified by what a
+    second part should do to the first part's answer:
+
+    - mutating hooks (the `modify_damage_*` family) run for every part;
+    - boolean hooks are true if ANY part is true;
+    - chained-int and chained-list hooks pass part A's result into part B;
+    - optional-value hooks keep the first non-None answer;
+    - the two async riders run every part in order until one returns a value.
+    """
 
     def __init__(self, *parts):
         self.parts = parts
 
+    # -- mutating (calc) ---------------------------------------------------
     def modify_damage_dealt(self, calc, carrier):
         for part in self.parts:
             part.modify_damage_dealt(calc, carrier)
@@ -2190,27 +2218,310 @@ class CombinedPassive(Passive):
         for part in self.parts:
             part.modify_damage_taken(calc, carrier)
 
+    # -- chained ints ------------------------------------------------------
     def max_hp_bonus(self, pokemon, carrier):
         return sum(part.max_hp_bonus(pokemon, carrier) for part in self.parts)
 
-    def modify_retreat_cost(self, cost, pokemon, carrier, board):
-        for part in self.parts:
-            cost = part.modify_retreat_cost(cost, pokemon, carrier, board)
-        return cost
+    def tool_capacity(self, pokemon, carrier):
+        return sum(part.tool_capacity(pokemon, carrier) for part in self.parts)
 
-    def suppresses_tool(self, tool, carrier):
-        return any(part.suppresses_tool(tool, carrier) for part in self.parts)
+    def counters_on_active_to_bench(self, pokemon, carrier):
+        return sum(part.counters_on_active_to_bench(pokemon, carrier)
+                   for part in self.parts)
+
+    def heal_on_evolve(self, evolved, pre_evolution, player_id, carrier):
+        return sum(part.heal_on_evolve(evolved, pre_evolution, player_id, carrier)
+                   for part in self.parts)
 
     def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
         for part in self.parts:
             count = part.modify_prizes_for_knockout(pokemon, ctx, count, carrier)
         return count
 
+    def modify_burn_counters(self, counters, pokemon, carrier):
+        for part in self.parts:
+            counters = part.modify_burn_counters(counters, pokemon, carrier)
+        return counters
+
+    def poison_checkup_counters(self, pokemon, carrier, counters):
+        for part in self.parts:
+            counters = part.poison_checkup_counters(pokemon, carrier, counters)
+        return counters
+
+    def modify_heal_amount(self, pokemon, carrier, amount):
+        for part in self.parts:
+            amount = part.modify_heal_amount(pokemon, carrier, amount)
+        return amount
+
+    def modify_resistance_amount(self, amount, calc, carrier):
+        for part in self.parts:
+            amount = part.modify_resistance_amount(amount, calc, carrier)
+        return amount
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        for part in self.parts:
+            cost = part.modify_retreat_cost(cost, pokemon, carrier, board)
+        return cost
+
+    def trainer_play_cost(self, card, player_id, carrier):
+        return sum(part.trainer_play_cost(card, player_id, carrier)
+                   for part in self.parts)
+
+    # -- chained containers ------------------------------------------------
+    def modify_energy_provided(self, options, energy, holder, board):
+        for part in self.parts:
+            options = part.modify_energy_provided(options, energy, holder, board)
+        return options
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        for part in self.parts:
+            types = part.modify_pokemon_types(types, pokemon, carrier)
+        return types
+
+    def modify_subtypes(self, subtypes, pokemon, carrier):
+        for part in self.parts:
+            subtypes = part.modify_subtypes(subtypes, pokemon, carrier)
+        return subtypes
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        for part in self.parts:
+            cost = part.modify_attack_cost(cost, pokemon, carrier, board)
+        return cost
+
+    def granted_attacks(self, board, pokemon, carrier):
+        out = []
+        for part in self.parts:
+            out.extend(part.granted_attacks(board, pokemon, carrier))
+        return out
+
+    # -- first non-None answer ---------------------------------------------
+    def bench_capacity(self, player_id, carrier):
+        for part in self.parts:
+            value = part.bench_capacity(player_id, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def bench_capacity_raise(self, player_id, carrier, board=None):
+        for part in self.parts:
+            value = part.bench_capacity_raise(player_id, carrier, board)
+            if value is not None:
+                return value
+        return None
+
+    def bench_trim_area(self, player_id, carrier):
+        for part in self.parts:
+            value = part.bench_trim_area(player_id, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def energy_discard_destination(self, energy, pokemon, discarder_id, carrier):
+        for part in self.parts:
+            value = part.energy_discard_destination(
+                energy, pokemon, discarder_id, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def knockout_destination(self, pokemon, carrier, from_attack=False):
+        for part in self.parts:
+            value = part.knockout_destination(pokemon, carrier, from_attack)
+            if value is not None:
+                return value
+        return None
+
+    def prize_destination(self, pokemon, ctx, carrier):
+        for part in self.parts:
+            value = part.prize_destination(pokemon, ctx, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def replace_supporter_effect(self, card, player_id, carrier):
+        for part in self.parts:
+            value = part.replace_supporter_effect(card, player_id, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def retreat_cost_destination(self, pokemon, energy, carrier):
+        for part in self.parts:
+            value = part.retreat_cost_destination(pokemon, energy, carrier)
+            if value is not None:
+                return value
+        return None
+
+    def sleep_recovery_coins(self, pokemon, carrier):
+        for part in self.parts:
+            value = part.sleep_recovery_coins(pokemon, carrier)
+            if value is not None:
+                return value
+        return None
+
+    # -- boolean: any part -------------------------------------------------
+    def attack_keeps_turn(self, attacker, ability, ctx, carrier):
+        return any(part.attack_keeps_turn(attacker, ability, ctx, carrier)
+                   for part in self.parts)
+
+    def attacks_despite_conditions(self, pokemon, carrier):
+        return any(part.attacks_despite_conditions(pokemon, carrier)
+                   for part in self.parts)
+
+    def blocks_abilities(self, pokemon, carrier):
+        return any(part.blocks_abilities(pokemon, carrier) for part in self.parts)
+
+    def blocks_ability_effects(self, target, carrier):
+        return any(part.blocks_ability_effects(target, carrier)
+                   for part in self.parts)
+
+    def blocks_attack(self, pokemon, carrier):
+        return any(part.blocks_attack(pokemon, carrier) for part in self.parts)
+
+    def blocks_attack_effects(self, target, carrier):
+        return any(part.blocks_attack_effects(target, carrier)
+                   for part in self.parts)
+
+    def blocks_bench_damage(self, calc, carrier):
+        return any(part.blocks_bench_damage(calc, carrier) for part in self.parts)
+
+    def blocks_burn_recovery(self, pokemon, carrier):
+        return any(part.blocks_burn_recovery(pokemon, carrier)
+                   for part in self.parts)
+
+    def blocks_discard(self, card, carrier):
+        return any(part.blocks_discard(card, carrier) for part in self.parts)
+
+    def blocks_energy_removal(self, energy, mover_player_id, carrier):
+        return any(part.blocks_energy_removal(energy, mover_player_id, carrier)
+                   for part in self.parts)
+
+    def blocks_evolution(self, player_id, target, carrier):
+        return any(part.blocks_evolution(player_id, target, carrier)
+                   for part in self.parts)
+
+    def blocks_play(self, player_id, card, carrier, board=None):
+        return any(part.blocks_play(player_id, card, carrier, board)
+                   for part in self.parts)
+
+    def blocks_retreat(self, pokemon, carrier):
+        return any(part.blocks_retreat(pokemon, carrier) for part in self.parts)
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        return any(part.blocks_special_conditions(target, condition, carrier)
+                   for part in self.parts)
+
+    def blocks_trainer_effects(self, affected_player_id, trainer_card,
+                               trainer_type, carrier, affected_entity=None,
+                               board=None):
+        return any(
+            part.blocks_trainer_effects(affected_player_id, trainer_card,
+                                        trainer_type, carrier, affected_entity,
+                                        board)
+            for part in self.parts)
+
+    def blocks_trainer_play(self, card, player_id, carrier, board=None):
+        return any(part.blocks_trainer_play(card, player_id, carrier, board)
+                   for part in self.parts)
+
+    def discard_to_hand_blocked(self, card, carrier):
+        return any(part.discard_to_hand_blocked(card, carrier)
+                   for part in self.parts)
+
+    def keeps_condition_on_evolve(self, condition, pokemon, carrier):
+        return any(part.keeps_condition_on_evolve(condition, pokemon, carrier)
+                   for part in self.parts)
+
+    def may_evolve_early(self, pokemon, carrier):
+        return any(part.may_evolve_early(pokemon, carrier) for part in self.parts)
+
+    def offers_attack_coin_reroll(self, player_id, carrier):
+        return any(part.offers_attack_coin_reroll(player_id, carrier)
+                   for part in self.parts)
+
+    def permits_retreat_while_immobilized(self, pokemon, carrier):
+        return any(part.permits_retreat_while_immobilized(pokemon, carrier)
+                   for part in self.parts)
+
+    def permits_turn_continue_after_mega(self, pokemon, carrier):
+        return any(part.permits_turn_continue_after_mega(pokemon, carrier)
+                   for part in self.parts)
+
+    def prevents_damage(self, calc, carrier):
+        return any(part.prevents_damage(calc, carrier) for part in self.parts)
+
+    def prevents_healing(self, target, carrier):
+        return any(part.prevents_healing(target, carrier) for part in self.parts)
+
+    def retreat_flips(self, pokemon, carrier):
+        return any(part.retreat_flips(pokemon, carrier) for part in self.parts)
+
+    def suppresses_special_energy(self, energy, carrier):
+        return any(part.suppresses_special_energy(energy, carrier)
+                   for part in self.parts)
+
+    def suppresses_tool(self, tool, carrier):
+        return any(part.suppresses_tool(tool, carrier) for part in self.parts)
+
+    def taxes_energy_attach(self, attaching_player_id, energy, target, carrier):
+        return any(part.taxes_energy_attach(attaching_player_id, energy, target,
+                                            carrier)
+                   for part in self.parts)
+
+    def trainer_play_flips(self, card, player_id, carrier):
+        return any(part.trainer_play_flips(card, player_id, carrier)
+                   for part in self.parts)
+
+    def voids_stadium_play(self, carrier):
+        return any(part.voids_stadium_play(carrier) for part in self.parts)
+
+    def wr_applies_to_bench(self, calc, carrier):
+        return any(part.wr_applies_to_bench(calc, carrier) for part in self.parts)
+
+    # -- async riders ------------------------------------------------------
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        for part in self.parts:
+            hook = getattr(part, "damage_interceptor", None)
+            if hook is None:
+                continue
+            outcome = await hook(ctx, calc, target, carrier)
+            if outcome is not None:
+                return outcome
+        return None
+
+    async def attack_followup(self, ctx, carrier):
+        for part in self.parts:
+            hook = getattr(part, "attack_followup", None)
+            if hook is None:
+                continue
+            await hook(ctx, carrier)
+
+    async def on_active_switched(self, ctx, player_id, outgoing, incoming,
+                                 outgoing_conditions, via_trainer, carrier):
+        for part in self.parts:
+            await part.on_active_switched(ctx, player_id, outgoing, incoming,
+                                          outgoing_conditions, via_trainer,
+                                          carrier)
+
+    async def on_attack_resolved(self, ctx, attacker, defender, carrier):
+        for part in self.parts:
+            await part.on_attack_resolved(ctx, attacker, defender, carrier)
+
+    async def on_retreat(self, ctx, pokemon, carrier):
+        for part in self.parts:
+            await part.on_retreat(ctx, pokemon, carrier)
+
 
 def combined(*parts):
     """One passive from several (a tool that both reduces damage and removes
-    Weakness)."""
+    Weakness).
+
+    `combine_passives` is the same factory under the name the lanes ask for;
+    one implementation, so a hook added later cannot land in only one of them."""
     return CombinedPassive(*parts)
+
+
+combine_passives = combined
 
 
 # --- Composed shapes -------------------------------------------------------

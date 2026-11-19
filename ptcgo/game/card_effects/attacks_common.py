@@ -1676,6 +1676,30 @@ def search_bench_as_basic(names, count, prompt):
     return effect
 
 
+def on_evolve(then, optional=True):
+    """Generic evolution rider: "When you play this Pokemon from your hand to
+    evolve 1 of your Pokemon, you may ...". Pair with
+    `Ability(trigger=Triggers.ON_EVOLVE, effect=on_evolve(body)); body(ctx)`
+    is the clause after the dash, so a family no longer needs a factory each."""
+    async def effect(ctx):
+        if optional and not await ctx.ask_yes_no(
+                "Use this Pokémon's effect?"):
+            return
+        await then(ctx)
+    return effect
+
+
+def on_bench_play(then, optional=True):
+    """Generic bench-play rider: "When you play this Pokemon from your hand
+    onto your Bench, you may ..." (`Triggers.ON_PLAY` on a Basic)."""
+    async def effect(ctx):
+        if optional and not await ctx.ask_yes_no(
+                "Use this Pokémon's effect?"):
+            return
+        await then(ctx)
+    return effect
+
+
 def poison_defender_on_evolve(counters=1):
     """"When you play this Pokemon from your hand to evolve 1 of your Pokemon,
     you may choose 1 of the Defending Pokemon. That Pokemon is now Poisoned.
