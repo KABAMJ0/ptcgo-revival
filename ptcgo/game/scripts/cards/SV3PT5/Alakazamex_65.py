@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 
 card = PokemonCardDef(
     guid="4b26dd61-8346-5707-ad3a-dc0a33d76c45",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=damage_per(count_bench("opponent"), 30, base=90),
+            effect=damage_per(count_bench("opponent"), per=30, base=90),
         ),
         Attack(
             title="Dimensional Hand",

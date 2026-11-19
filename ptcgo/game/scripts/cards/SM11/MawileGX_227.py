@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 
 card = PokemonCardDef(
     guid="03558dfe-a99f-50be-9b98-7ac60eb72c35",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_bench("opponent"), 30, base=10),
+            effect=damage_per(count_bench("opponent"), per=30, base=10),
         ),
         Attack(
             title="Big Eater-GX",

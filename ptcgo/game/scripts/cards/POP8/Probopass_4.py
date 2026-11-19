@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import flip_damage, snipe_attack
 
 card = PokemonCardDef(
     guid="931181fd-264e-5a97-a1cf-c446be34f87f",
@@ -34,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, base=50, bonus_per_heads=20),
         ),
     ],
 )
