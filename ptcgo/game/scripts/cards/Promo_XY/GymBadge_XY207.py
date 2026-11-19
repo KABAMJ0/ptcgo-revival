@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_until_tails_draw
 
 card = ItemCardDef(
     guid="6c657c87-c8ce-58f2-bc6e-dd8b85989243",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=207,
     set_code="Promo_XY",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=flip_until_tails_draw(1)
 )
