@@ -618,6 +618,16 @@ def gust_attack(damage_to_new_active=0, damage_before=None, opponent_chooses=Fal
     return effect
 
 
+def gust_then_damage(amount: int, opponent_chooses: bool = False):
+    """"Switch in 1 of your opponent's Benched Pokemon to the Active Spot. This
+    attack does N damage to the new Active Pokemon." A thin name for
+    `gust_attack(damage_to_new_active=amount, damage_before=0)`, which already
+    chains the switched-in Active as the target; both attack and ability bodies
+    can use it."""
+    return gust_attack(damage_to_new_active=amount, damage_before=0,
+                       opponent_chooses=opponent_chooses)
+
+
 def gust_then(then, opponent_chooses=False):
     """Gust composite: switch, then `then(ctx, new_active)` (conditions etc.)."""
     async def effect(ctx):

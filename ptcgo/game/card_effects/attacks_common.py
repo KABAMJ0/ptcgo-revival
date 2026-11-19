@@ -1293,6 +1293,18 @@ def lock_self_attack(damage: Optional[int] = None):
     return effect
 
 
+def no_weakness_next_turn(damage: Optional[int] = None):
+    """"During your opponent's next turn, this Pokemon has no Weakness":
+    printed (or `damage`) damage, then a one-turn no-Weakness shield on the user
+    through the opponent's turn -- the install `apply_protection` already does."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        if ctx.attacker is not None:
+            ctx.add_passive_through_opponents_turn(
+                ctx.attacker, no_weakness_passive(protects="carrier"))
+    return effect
+
+
 def no_retreat_attack(damage: Optional[int] = None, also=None):
     """"The Defending Pokemon can't retreat during your opponent's next
     turn": printed damage plus the retreat lock."""
