@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="2e81095c-4539-5528-a36e-928fcb4b7bcf",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Calm Mind",
             game_text="Heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=heal_attack(30),
         ),
     ],
 )
