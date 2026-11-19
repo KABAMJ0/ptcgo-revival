@@ -684,7 +684,8 @@ def is_level_up_card(card) -> bool:
     """A Pokemon LV.X. All 77 print it with `stage=BASIC`, which is the stage of
     the Pokemon it levels up, so the stage alone offers it the bench play and a
     LV.X ends up playable straight from hand as a Basic."""
-    return "Level-Up" in (getattr(def_for(card.archetype_id), "subtypes", None) or [])
+    return any(str(subtype).strip().lower() in ("level-up", "lv.x")
+               for subtype in (getattr(def_for(card.archetype_id), "subtypes", None) or []))
 
 
 def compute_legal_actions(

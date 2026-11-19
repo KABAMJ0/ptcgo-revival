@@ -4827,8 +4827,9 @@ def search_deck_or_discard_to_hand(predicate=None, count: int = 1):
 
 
 def pokemon_lv_x():
-    """Predicate: a Pokemon LV.X."""
-    return pokemon_of_subtype("LV.X")
+    """Predicate: a Pokemon LV.X. Matched on the printed subtype the corpus
+    actually stores ("Level-Up"), not "LV.X", which no card prints."""
+    return pokemon_of_subtype("level-up")
 
 
 def discard_hand_draw(draw: int = 7):
@@ -7970,12 +7971,18 @@ def team_rocket_ko_last_turn():
 
 
 def no_pokemon_with_abilities():
-    """Play condition: none of your Pokemon in play has an Ability."""
+    """Play condition: none of your Pokemon in play has an Ability.
+
+    PIE_ABILITIES carries the printed ATTACKS too -- a Pokemon with no Ability
+    still has one entry per attack -- so an "any entry" test was false on every
+    board with a Pokemon in play, and the card was never playable. Ask the
+    definition for a non-Attack entry, the same rule as `attacker_has_ability`."""
     def check(board, player_id):
         for pokemon in board.pokemon_in_play(player_id):
-            for entry in pokemon.get_attribute(AttrID.PIE_ABILITIES) or []:
-                if isinstance(entry, dict):
-                    return False
+            definition = def_for(pokemon.archetype_id)
+            if any(not isinstance(entry, Attack)
+                   for entry in getattr(definition, "abilities", None) or []):
+                return False
         return True
     return check
 
