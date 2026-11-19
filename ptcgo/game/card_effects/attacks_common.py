@@ -806,6 +806,27 @@ def mill_attack(count: int, opponent: bool = True,
     return effect
 
 
+def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
+                            damage: Optional[int] = None):
+    """"This attack does N less damage for each Energy attached to your
+    opponent's Active Pokemon": the printed (or damage) amount minus
+    per * count, never below floor.
+
+    predicate narrows which attached cards count (an Energy type, "Basic
+    Energy"); counting is per CARD, which is what "for each Energy attached"
+    means. This is the self-side twin of reduce_defender_attacks, which cuts
+    what the defender throws instead."""
+    async def effect(ctx):
+        base = damage if damage is not None else _printed(ctx)
+        defender = ctx.defender
+        count = 0
+        if defender is not None:
+            count = sum(1 for card in ctx.attached_energies(defender)
+                        if predicate is None or predicate(card))
+        await ctx.deal_damage(max(floor, base - per * count))
+    return effect
+
+
 def mill_then_attach_energy(count: int = 3, damage: Optional[int] = None,
                             basic_only: bool = False):
     """"Discard the top 3 cards of your deck. If any of those cards are Energy
