@@ -9051,12 +9051,18 @@ def team_rocket_great_ball():
 
 
 def fossil_evolution_card(card) -> bool:
-    """Predicate: an Evolution card that evolves from a card with Fossil in its
-    name (Fossil Excavator)."""
+    """Predicate: a Stage 1/Stage 2 that evolves FROM a card with Fossil in its
+    name ("a Stage 1 or Stage 2 Evolution card that evolves from a Fossil" --
+    Fossil Excavator, Pokémon Research Lab).
+
+    The link lives on EVOLUTION_LOGIC_FROM, the pre-evolution's logic name
+    ("UnidentifiedFossil", "MysteriousFossil", "SkullFossil"). Reading the
+    card's own name (EVOLUTION_LOGIC_NAME) matched nothing: no fossil evolver
+    carries "fossil" in its own name."""
     if not is_evolution_pokemon(card):
         return False
-    logic = (card.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) or "").lower()
-    return "fossil" in logic
+    from_name = (card.get_attribute(AttrID.EVOLUTION_LOGIC_FROM) or "").lower()
+    return "fossil" in from_name
 
 
 def search_fossil_or_fossil_evolution(count: int = 1):
