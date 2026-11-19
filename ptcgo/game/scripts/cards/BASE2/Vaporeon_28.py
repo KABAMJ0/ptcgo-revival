@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_choice
 
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
+
 card = PokemonCardDef(
     guid="508c96d2-1a3a-5896-a7c1-015ff7b764e7",
     key="BASE2",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(10, energy_type=PokemonTypes.WATER, cap=20),
         ),
     ],
 )

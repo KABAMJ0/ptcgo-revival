@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import retreat_discount
+
 card = PokemonCardDef(
     guid="7916be8f-8ae5-5dd0-86cf-1db66563874c",
     key="BASE2",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Retreat Aid",
             game_text="As long as Dodrio is Benched, pay Colorless less to retreat your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=retreat_discount(1, target_pred="team"),
         ),
         Attack(
             title="Rage",
