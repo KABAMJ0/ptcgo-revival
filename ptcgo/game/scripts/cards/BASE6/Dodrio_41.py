@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, retreat_discount
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _own_active_while_benched(pokemon, carrier):
+    return (pokemon.owning_player_id == carrier.owning_player_id
+            and is_in_active_spot(pokemon)
+            and not is_in_active_spot(carrier))
+
 
 card = PokemonCardDef(
     guid="c2c0f5ff-8206-5124-bab2-f1911b9d145d",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Retreat Aid",
             game_text="As long as Dodrio is Benched, pay Colorless less to retreat your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=retreat_discount(1, target_pred=_own_active_while_benched),
         ),
         Attack(
             title="Rage",

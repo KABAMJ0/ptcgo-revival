@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import flip_protection
+
 
 card = PokemonCardDef(
     guid="9b6212b7-bf14-551d-a6f8-7e921bd24241",
@@ -26,7 +28,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(
+                per_energy=20, energy_type=PokemonTypes.WATER, cap=40, base=30),
         ),
         Attack(
             title="Rocket Tackle",
