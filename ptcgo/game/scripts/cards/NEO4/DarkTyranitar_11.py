@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _fling_away(ctx):
+    """Fling Away: 30 instead of 50, plus 30 on a Benched Pokemon."""
+    bench = ctx.opponent_bench()
+    if not bench:
+        await ctx.deal_damage()
+        return
+    await ctx.deal_damage(30)
+    target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon")
+    if target is not None:
+        await ctx.deal_damage(30, target=target, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="670e39b1-2ace-5ac0-bca3-fd84f7a3a8af",
     key="NEO4",
@@ -33,7 +45,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, this attack does 30 damage instead of 50 and choose 1 of those Benched Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 3, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=_fling_away,
         ),
     ],
 )

@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _rock_tackle(ctx):
+    """Rock Tackle: printed damage, 10 to itself and this attack locked."""
+    await ctx.deal_damage()
+    if ctx.attacker is not None:
+        await ctx.deal_damage(10, target=ctx.attacker, apply_modifiers=False)
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                          ctx.ability.ability_id)
+
 card = PokemonCardDef(
     guid="f335917b-8b2f-584f-b5ec-315ef27ee132",
     key="NEO4",
@@ -25,7 +34,7 @@ card = PokemonCardDef(
             game_text="Dark Pupitar does 10 damage to itself. Dark Pupitar can't use this attack during your next turn.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_rock_tackle,
         ),
         Attack(
             title="Explosive Evolution",

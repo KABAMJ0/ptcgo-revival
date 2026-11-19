@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _mind_shock(ctx):
+    """Mind Shock: no Weakness or Resistance on this hit."""
+    await ctx.deal_damage(ignore_weakness=True, ignore_resistance=True,
+                          apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="4eccbf9b-71fb-568c-85d8-d2bb0cdd9f52",
     key="NEO4",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             game_text="Don't apply Weakness or Resistance for this attack.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=30,
-            effect=unimplemented,
+            effect=_mind_shock,
         ),
     ],
 )

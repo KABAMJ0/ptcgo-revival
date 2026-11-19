@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _crushing_blow(ctx):
+    """Crushing Blow: heads drops one of the Defending Pokemon's Energy."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    if not ctx.attached_energies(defender):
+        return
+    heads = await ctx.flip_coins(1, "Crushing Blow")
+    if heads and all(heads):
+        await ctx.discard_energy_from(defender, 1)
+
 card = PokemonCardDef(
     guid="43e8fbce-e3c5-5b6c-8d24-e54c503366a0",
     key="NEO4",
@@ -29,7 +42,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon has any Energy cards attached to it, flip a coin. If heads, choose 1 of those cards and discard it.",
             cost={PokemonTypes.WATER: 3},
             damage=50,
-            effect=unimplemented,
+            effect=_crushing_blow,
         ),
     ],
 )
