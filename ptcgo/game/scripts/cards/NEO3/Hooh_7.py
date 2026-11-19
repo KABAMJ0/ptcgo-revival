@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 card = PokemonCardDef(
     guid="25ff4c77-b907-5811-912a-4281811ea431",
@@ -36,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.FIRE: 5},
             damage=90,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )
