@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+def _my_pokemon_with_metal_energy(pokemon, carrier):
+    if pokemon.owning_player_id != carrier.owning_player_id:
+        return False
+    return any(energy_provides_type(child, PokemonTypes.METAL.value)
+               for child in pokemon.children)
+
 
 card = PokemonCardDef(
     guid="51515ca5-bf48-5222-b9fd-12edccb034e9",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Metal Bridge",
             game_text="All of your Pok\u00e9mon that have Metal Energy attached have no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_my_pokemon_with_metal_energy),
         ),
         Attack(
             title="Iron Blaster",
