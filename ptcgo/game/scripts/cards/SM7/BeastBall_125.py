@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype, take_prize_of
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=125,
     set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=take_prize_of(pokemon_of_subtype("Ultra Beast"))
 )

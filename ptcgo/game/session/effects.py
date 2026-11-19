@@ -66,11 +66,14 @@ from .passives import (
     effective_bench_capacity,
     effective_max_hp,
     effective_pokemon_types,
+    discard_to_hand_blocked,
+    energy_discard_destination,
     energy_removal_blocked,
     healing_blocked,
     modified_heal_amount,
     supporter_effect_replacement,
     trainer_effects_blocked,
+    trainer_play_flips,
 )
 
 # CakeAttackEffect's damageType is a string array of client type names.
@@ -1802,6 +1805,10 @@ class EffectContext:
                 continue
             if self._energy_removal_blocked(card):
                 continue
+            # Pokemon Tower: a card already in a discard pile stays there when
+            # an effect would return it to hand.
+            if discard_to_hand_blocked(self.board, card):
+                continue
             if isinstance(card, CompositePokemonEntity):
                 departed.update(self._queue_composite_departure(card, hand, cards))
                 continue
@@ -1971,11 +1978,22 @@ class EffectContext:
         await self._move_to_public_pile(cards, "lostZone")
 
     async def _move_to_public_pile(self, cards: List[CardEntity], area_name: str):
+        requested = area_name
         departed = set()
         for card in cards:
             if card.entity_id in departed:
                 continue
             owner = card.owning_player_id or self.player_id
+            area_name = requested
+            # Ecogym: an Energy discarded from a Pokemon returns to its owner's
+            # hand instead of the discard pile. This is the single choke point
+            # every discard path runs through, so a script that discards an
+            # attached Energy directly gets the same redirect as the verbs.
+            if requested == "discard" and isinstance(card, EnergyEntity) \
+                    and isinstance(getattr(card, "parent", None), PokemonEntity) \
+                    and energy_discard_destination(
+                        self.board, card, card.parent, self.player_id) == "hand":
+                area_name = "hand"
             pile = self.board.find_player_area(owner, area_name)
             if not pile:
                 continue
@@ -2033,11 +2051,16 @@ class EffectContext:
                 self.deferred_actions.append(_fire_hand_discard)
 
     async def look_at_prizes_take_basic(self) -> bool:
-        """Hisuian Heavy Ball: look at your face-down Prizes; you may reveal a
-        Basic Pokemon to your hand and put the source card in its place as a
+        """Hisuian Heavy Ball: reveal a Basic Pokemon from your face-down
+        Prizes into your hand, the source card taking its place."""
+        return await self.look_at_prizes_take(is_basic_pokemon)
+
+    async def look_at_prizes_take(self, predicate=None) -> bool:
+        """Look at your face-down Prizes; you may reveal one matching
+        `predicate` to your hand and put the source card in its place as a
         face-down Prize. Always shuffles the Prizes (re-hiding them).
 
-        Returns True when a Basic was taken (the source now sits in the Prize
+        Returns True when a card was taken (the source now sits in the Prize
         pile, so the caller must NOT discard it); False when declined.
 
         Sends immediately (not via the deferred bracket runs) so the reveal,
@@ -2048,10 +2071,11 @@ class EffectContext:
         if not prize_area or not prize_area.children:
             return False
         prizes = list(prize_area.children)
-        basics = [c for c in prizes if is_basic_pokemon(c, self.board)]
+        eligible = [c for c in prizes
+                    if predicate is None or predicate(c, self.board)]
         picked_id = await session.prompt_prize_reveal_pick(
             self.player_id, self.source.entity_id,
-            [c.entity_id for c in prizes], [c.entity_id for c in basics],
+            [c.entity_id for c in prizes], [c.entity_id for c in eligible],
         )
         picked = self.board.get_entity(picked_id) if picked_id else None
         opponent = self.opponent_id
@@ -2062,7 +2086,7 @@ class EffectContext:
             if slot is None:
                 slot = prizes.index(picked)
             hand = self.board.find_player_area(self.player_id, "hand")
-            # Take the Basic to hand via WithOpenPrizeCards: once a Prize is
+            # Take the card to hand via WithOpenPrizeCards: once a Prize is
             # picked, r.B's own cleanup skips the fan teardown and defers to
             # this bracket, which cancels the explore command, flips+flies the
             # taken card to hand and CLOSES the present (blackout off,
@@ -3166,6 +3190,19 @@ async def resolve_trainer_effect(session, player_id: str, card,
             ctx.is_trainer_effect = True
             await replacement(ctx)
             return ctx
+    # Chaos Gym: "whenever a player plays a Trainer card other than a Stadium,
+    # that player flips a coin. If tails, that card does nothing."
+    if trainer_play_flips(session.board_state, card, player_id):
+        flip_ctx = EffectContext(session, player_id, card, None)
+        results = await flip_ctx.flip_coins(1)
+        if not (results and results[0]):
+            await session._flush_effect_runs(flip_ctx)
+            logging.info(
+                f"[Effects {session.game_id}] {card.entity_id} did nothing: "
+                f"Chaos Gym flip was tails."
+            )
+            return None
+        await session._flush_effect_runs(flip_ctx)
     effect = TRAINER_EFFECTS_BY_GUID.get((card.archetype_id or "").lower())
     if effect is None or effect is unimplemented:
         logging.warning(

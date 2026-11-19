@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    attacks_blocked,
     plays_blocked,
     trainer_play_blocked,
 )
@@ -1040,6 +1041,8 @@ def _attack_entries(
         )
         return []
 
+    if attacks_blocked(board, active):
+        return []  # Blizzard Town: 40 HP or less remaining can't attack
     energies = board.attached_energies(active)
     entries = []
     for ability in abilities:
