@@ -401,7 +401,15 @@ def main():
         
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         cards = json.load(f)
-    
+
+    lettered = sorted({str(c.get("number", "0")) for c in cards
+                       if not str(c.get("number", "0")).isdigit()})
+    lettered_map = {num: 200 + i for i, num in enumerate(lettered)}
+    for card in cards:
+        raw_number = str(card.get("number", "0"))
+        if raw_number in lettered_map:
+            card["number"] = str(lettered_map[raw_number])
+
     # Build name map for family resolution
     for card in cards:
         if "Pok" in card.get("supertype", ""):

@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Nap",
             game_text="Remove 2 damage counters from Seedot.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=flip_damage(per_heads=20),
+            effect=heal_attack(20),
         ),
         Attack(
             title="Double Spin",
