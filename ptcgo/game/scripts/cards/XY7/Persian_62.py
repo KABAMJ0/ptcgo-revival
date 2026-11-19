@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_bonus
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_bonus
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="c45e2878-e89a-51e3-8530-a7ff4f454bf4",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
         Attack(
             title="Ambush",
