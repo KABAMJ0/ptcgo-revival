@@ -1,7 +1,9 @@
 from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import bare_mill
+from ptcgo.game.card_effects.passives_common import item_or_supporter_effect_shield
+
+
 
 card = PokemonCardDef(
     guid="a8c37eee-abdd-539c-9d94-e54524d6268d",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Unnerve",
             game_text="Whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=item_or_supporter_effect_shield(),
         ),
         Attack(
             title="Dragon Pulse",

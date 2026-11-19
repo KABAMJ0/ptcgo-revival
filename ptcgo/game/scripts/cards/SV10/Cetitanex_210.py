@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+from ptcgo.game.card_effects.passives_common import item_or_supporter_effect_shield
+
+
 
 card = PokemonCardDef(
     guid="58d3993c-e4b7-5095-8e5c-2e13064c23c9",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Snow Camouflage",
             game_text="Whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=item_or_supporter_effect_shield(),
         ),
         Attack(
             title="Crushing Press",
