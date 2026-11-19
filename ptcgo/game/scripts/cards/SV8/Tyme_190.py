@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import guess_card_hp
 
 card = SupporterCardDef(
     guid="8e96902d-7a32-5f45-be73-76988ff9a711",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=190,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=guess_card_hp(4)
 )

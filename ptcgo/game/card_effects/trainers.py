@@ -9476,3 +9476,75 @@ async def personality_test(ctx):
         await ctx.draw_cards(3, ctx.opponent_id)
     else:
         await ctx.draw_cards(3)
+
+
+def _guess_label(pokemon, attribute: str) -> str:
+    definition = def_for(pokemon.archetype_id)
+    if attribute == "hp":
+        printed = definition.extra_attributes.get(str(AttrID.HP.value)) or {}
+        return "%s HP" % printed.get("value", 0)
+    return getattr(definition, "display_name", "") or ""
+
+
+def _first_attack_title(pokemon) -> str:
+    for ability in getattr(def_for(pokemon.archetype_id), "abilities", None) or []:
+        if isinstance(ability, Attack) and getattr(ability, "title", ""):
+            return ability.title
+    return ""
+
+
+def guess_pokemon_from_hand(attribute: str, question: str,
+                            draws_right: int, draws_wrong: int,
+                            announce_attack: bool = False):
+    """Put 1 Pokemon from your hand face down and let the opponent guess
+    `attribute` about it ("name" or "hp") from a button set; a right guess draws
+    them `draws_right`, a wrong one draws you `draws_wrong`. The Pokemon returns
+    to your hand either way (Cedric Juniper, Blaine's Quiz, Tyme).
+
+    The client has no text entry, so the answer arrives as a pick from a set:
+    the card's own value plus the values of the Pokemon in your hand and in
+    play, which are the ones the opponent could plausibly name.
+    """
+    async def effect(ctx):
+        candidates = [card for card in ctx.hand()
+                      if is_pokemon_card(card) and _guess_label(card, "name")]
+        if not candidates:
+            return
+        picks = await ctx.choose_cards(
+            candidates, 1, minimum=0,
+            prompt="Choose a Pokemon from your hand")
+        if not picks:
+            return
+        shown = picks[0]
+        pool = candidates + [pokemon for pokemon in ctx.my_pokemon_in_play()]
+        labels = []
+        for card in pool:
+            label = _guess_label(card, attribute)
+            if label and label not in labels:
+                labels.append(label)
+        truth = labels.index(_guess_label(shown, attribute))
+        if len(labels) < 2:
+            return
+        ask = question
+        attack = _first_attack_title(shown) if announce_attack else ""
+        if attack:
+            ask = "%s It has the attack %s." % (question, attack)
+        guess = await ctx.ask_opponent(ask, labels)
+        await ctx.reveal_cards([shown])
+        if guess == truth:
+            await ctx.draw_cards(draws_right, ctx.opponent_id)
+        else:
+            await ctx.draw_cards(draws_wrong)
+    return effect
+
+
+def guess_card_name(draws: int, attack_hint: bool = False):
+    """`guess_pokemon_from_hand` for the printings that ask for the card's name."""
+    return guess_pokemon_from_hand(
+        "name", "Guess which Pokemon this is.", draws, draws,
+        announce_attack=attack_hint)
+
+
+def guess_card_hp(draws: int):
+    """`guess_pokemon_from_hand` for the printings that ask for the HP."""
+    return guess_pokemon_from_hand("hp", "Guess this Pokemon's HP.", draws, draws)
