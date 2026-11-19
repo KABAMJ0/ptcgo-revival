@@ -2,10 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_water_energy(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER.value)
+from ptcgo.game.card_effects.pokemon import is_water_energy
 
 
 card = PokemonCardDef(
@@ -32,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=10,
             damage_operator="x",
-            effect=damage_per(count_discard("mine", _is_water_energy), 10),
+            effect=damage_per(count_discard("mine", is_water_energy), 10),
         ),
     ],
 )

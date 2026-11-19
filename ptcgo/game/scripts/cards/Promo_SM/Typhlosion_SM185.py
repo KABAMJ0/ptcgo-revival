@@ -3,10 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialC
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
-
-def _is_fire_energy(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
 
 card = PokemonCardDef(
     guid="3c93b688-3f3d-59a9-8916-06b8fb21dbb0",
@@ -30,7 +28,7 @@ card = PokemonCardDef(
             title="Exploder",
             game_text="Search your deck for up to 3 Fire Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=search_attach_energy(_is_fire_energy, count=3),
+            effect=search_attach_energy(is_fire_energy, count=3),
         ),
         Attack(
             title="Bursting Inferno",

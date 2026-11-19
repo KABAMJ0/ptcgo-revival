@@ -546,6 +546,27 @@ def is_fighting_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.FIGHTING.value)
 
 
+def is_basic_water_energy(card) -> bool:
+    """ "a basic Water Energy": the type AND that it is not a Special Energy."""
+    from ptcgo.game.card_effects.trainers import is_basic_energy_card
+    return is_basic_energy_card(card) and is_water_energy(card)
+
+
+def is_basic_fire_energy(card) -> bool:
+    from ptcgo.game.card_effects.trainers import is_basic_energy_card
+    return is_basic_energy_card(card) and is_fire_energy(card)
+
+
+def is_basic_fighting_energy(card) -> bool:
+    from ptcgo.game.card_effects.trainers import is_basic_energy_card
+    return is_basic_energy_card(card) and is_fighting_energy(card)
+
+
+def is_basic_psychic_energy(card) -> bool:
+    from ptcgo.game.card_effects.trainers import is_basic_energy_card
+    return is_basic_energy_card(card) and is_psychic_energy(card)
+
+
 def is_lightning_energy(card) -> bool:
     return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
 

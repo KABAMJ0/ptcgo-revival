@@ -26,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Rocket Brain",
             game_text="As often as you like during your turn, you may move 1 damage counter from 1 of your Team Rocket's Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=damage_per(count_energy("defender"), 40),
+            effect=unimplemented,
         ),
         Attack(
             title="Psychic",

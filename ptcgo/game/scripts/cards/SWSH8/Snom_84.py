@@ -2,14 +2,11 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_water_energy(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER.value)
+from ptcgo.game.card_effects.pokemon import is_water_energy
 
 
 find_ice = search_to_hand(
-    predicate=_is_water_energy, count=2, reveal=True,
+    predicate=is_water_energy, count=2, reveal=True,
     prompt="Choose up to 2 Water Energy cards to put into your hand.",
 )
 

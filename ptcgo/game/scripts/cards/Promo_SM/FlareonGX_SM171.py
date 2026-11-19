@@ -6,10 +6,8 @@ from ptcgo.game.card_effects.attacks_common import (
     self_energy_discard_attack,
 )
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
-
-def _is_fire_energy_card(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
 
 card = PokemonCardDef(
     guid="d64e09fa-2b87-595d-bfbd-6de809a1582e",
@@ -49,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=20,
             damage_operator="x",
-            effect=damage_per(count_discard("mine", _is_fire_energy_card), 20),
+            effect=damage_per(count_discard("mine", is_fire_energy), 20),
         ),
     ],
 )

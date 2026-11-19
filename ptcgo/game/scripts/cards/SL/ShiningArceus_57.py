@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
 
 card = PokemonCardDef(
     guid="e6147f47-b51d-5d5c-ad9e-b21b5b445a3f",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Fabled Defense",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks.",
-            effect=unimplemented,
+            passive=bench_damage_shield(),
         ),
         Attack(
             title="Ultimate Arrow",

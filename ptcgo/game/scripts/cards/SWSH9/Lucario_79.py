@@ -1,10 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_fighting_energy_card(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIGHTING.value)
+from ptcgo.game.card_effects.pokemon import is_fighting_energy
 
 
 async def roaring_resolve(ctx):
@@ -14,7 +11,7 @@ async def roaring_resolve(ctx):
         return
     await ctx.deal_damage(20, target=ctx.source, apply_modifiers=False, as_counters=True)
     picks = await ctx.search_deck(
-        _is_fighting_energy_card, count=1, minimum=0,
+        is_fighting_energy, count=1, minimum=0,
         prompt="Choose a Fighting Energy card to attach.",
     )
     if picks:
@@ -26,7 +23,7 @@ async def aura_sphere_volley(ctx):
     """Discard all Fighting Energy from this Pokémon. This attack does 60
     more damage for each card discarded this way."""
     discarded = await ctx.discard_energy_from(
-        ctx.source, 99, predicate=_is_fighting_energy_card,
+        ctx.source, 99, predicate=is_fighting_energy,
         prompt="Discard all Fighting Energy from this Pokémon",
     )
     await ctx.deal_damage(10 + 60 * len(discarded))

@@ -3,6 +3,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
 
 
 card = PokemonCardDef(
@@ -26,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Erasing Sound",
             game_text="Each of your Pok\u00e9mon has no Weakness.",
-            effect=protect_next_turn(reduce=20),
+            passive=no_weakness_passive(protects="team"),
         ),
         Attack(
             title="Knock Back",

@@ -2,10 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.support_common import search_attach_energy
-
-
-def _is_water_energy(card):
-    return energy_provides_type(card, PokemonTypes.WATER.value)
+from ptcgo.game.card_effects.pokemon import is_water_energy
 
 
 async def dynamic_wave(ctx):
@@ -45,7 +42,7 @@ card = PokemonCardDef(
             title="Wave Summoning",
             game_text="Search your deck for a Water Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_attach_energy(predicate=_is_water_energy, count=1, to_self=True),
+            effect=search_attach_energy(predicate=is_water_energy, count=1, to_self=True),
         ),
         Attack(
             title="Dynamic Wave",

@@ -4,6 +4,7 @@ from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.card_effects.passives_common import prevent_damage_when
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+from ptcgo.game.card_effects.pokemon import is_psychic_energy
 
 
 def _attacker_is_colorless(calc, carrier) -> bool:
@@ -12,9 +13,6 @@ def _attacker_is_colorless(calc, carrier) -> bool:
             and PokemonTypes.COLORLESS.value
             in (calc.attacker.get_attribute(AttrID.POKEMON_TYPES) or []))
 
-
-def _is_psychic_energy(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.PSYCHIC.value)
 
 card = PokemonCardDef(
     guid="997a24ad-3af5-52be-aa84-d2e8930b7d07",
@@ -44,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=10,
             damage_operator="+",
-            effect=discard_for_bonus(source="self-energy", predicate=_is_psychic_energy,
+            effect=discard_for_bonus(source="self-energy", predicate=is_psychic_energy,
                               max_count=99, per=60, optional=False, base=10),
         ),
         Attack(

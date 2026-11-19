@@ -3,16 +3,13 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_v
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.support_common import distribute_energy
-
-
-def _is_fire_energy(card):
-    return energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 async def spreading_flames(ctx):
     """Attach up to 3 Fire Energy cards from your discard pile to your
     Pokemon, any way you like."""
-    cards = [c for c in ctx.discard_pile() if _is_fire_energy(c)]
+    cards = [c for c in ctx.discard_pile() if is_fire_energy(c)]
     if not cards:
         return
     picks = await ctx.choose_cards(

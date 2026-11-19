@@ -3,13 +3,10 @@ from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.card_effects.pokemon import is_fighting_energy
 
 
-def _is_fighting_energy(card):
-    return energy_provides_type(card, PokemonTypes.FIGHTING.value)
-
-
-_has_fighting_energy_in_discard = requires_discard(_is_fighting_energy)
+_has_fighting_energy_in_discard = requires_discard(is_fighting_energy)
 
 
 def mystery_charge_condition(board, player_id, pokemon):
@@ -21,7 +18,7 @@ def mystery_charge_condition(board, player_id, pokemon):
 
 
 mystery_charge = attach_from_discard(
-    predicate=_is_fighting_energy, count=1, target="choice",
+    predicate=is_fighting_energy, count=1, target="choice",
     prompt="Choose a Fighting Energy card to attach.",
 )
 

@@ -5,14 +5,11 @@ from ptcgo.game.card_effects.support_common import distribute_energy, requires_d
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_water_pokemon
-
-
-def _is_water_energy(card):
-    return is_basic_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER.value)
+from ptcgo.game.card_effects.pokemon import is_basic_water_energy
 
 
 async def star_portal(ctx):
-    pool = [c for c in ctx.discard_pile() if _is_water_energy(c)]
+    pool = [c for c in ctx.discard_pile() if is_basic_water_energy(c)]
     if not pool:
         return
     picks = await ctx.choose_cards(
@@ -28,7 +25,7 @@ async def star_portal(ctx):
 
 
 def _star_portal_condition(board, player_id, pokemon=None):
-    return requires_discard(_is_water_energy)(board, player_id, pokemon) and \
+    return requires_discard(is_basic_water_energy)(board, player_id, pokemon) and \
         any(is_water_pokemon(p) for p in board.pokemon_in_play(player_id))
 
 

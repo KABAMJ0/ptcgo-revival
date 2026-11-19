@@ -1,6 +1,9 @@
 from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, count_retreat_cost
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.card_effects.passives_common import retaliate_counters_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.pokemon import in_active_spot
@@ -38,8 +41,9 @@ card = PokemonCardDef(
         Ability(
             title="Rough Skin",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if this Pok\u00e9mon is Knocked Out), put 3 damage counters on the Attacking Pok\u00e9mon.",
-            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
-            effect=counterattack,
+trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+effect=counterattack,
+passive=retaliate_counters_passive(3),
         ),
         Attack(
             title="Aqua Impact",
