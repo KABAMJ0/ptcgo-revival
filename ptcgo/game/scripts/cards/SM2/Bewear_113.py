@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Triggers
+
+
+async def drastic_draw(ctx):
+    """On evolve: you may draw 3 cards."""
+    if await ctx.ask_yes_no("Draw 3 cards?"):
+        await ctx.draw_cards(3)
+
 
 card = PokemonCardDef(
     guid="2502d43c-307b-54de-81f9-7ca610710184",
@@ -22,7 +30,8 @@ card = PokemonCardDef(
         Ability(
             title="Rake It In",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may draw 3 cards.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=drastic_draw,
         ),
         Attack(
             title="Dangerous Blow",

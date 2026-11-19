@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import return_pokemon_to_hand
+
+
+async def sky_return(ctx):
+    """30 damage, then return this Pokemon and all cards attached to it to your
+    hand."""
+    pokemon = ctx.attacker
+    await ctx.deal_damage()
+    await return_pokemon_to_hand(lambda p: p is pokemon, with_attachments="same")(ctx)
+
 
 card = PokemonCardDef(
     guid="b766a345-e0da-52fd-8436-79b9acf45485",
@@ -23,7 +33,7 @@ card = PokemonCardDef(
             game_text="Return this Pok\u00e9mon and all cards attached to it to your hand.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=sky_return,
         ),
     ],
 )

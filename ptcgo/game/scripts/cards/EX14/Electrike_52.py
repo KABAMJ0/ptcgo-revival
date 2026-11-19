@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="6ae30600-daf7-52a1-8e91-fe60ad8e27c1",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Sniff Out",
             game_text="Put any 1 card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1),
         ),
         Attack(
             title="Quick Blow",

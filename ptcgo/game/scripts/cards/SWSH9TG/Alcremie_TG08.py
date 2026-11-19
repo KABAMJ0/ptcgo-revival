@@ -1,5 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import AttrID, CardType, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_special_energy
+
+
+async def rainbow_flavor(ctx):
+    """10, +40 for each distinct type of basic Energy attached to all of your Pokemon."""
+    types = set()
+    for pokemon in ctx.my_pokemon_in_play():
+        for energy in ctx.attached_energies(pokemon):
+            if energy.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value \
+                    and not is_special_energy(energy):
+                types.update(energy.get_attribute(AttrID.POKEMON_TYPES) or [])
+    await ctx.deal_damage(10 + 40 * len(types))
 
 card = PokemonCardDef(
     guid="dcb84769-68c8-5212-9964-36487742bf27",
@@ -17,12 +29,13 @@ card = PokemonCardDef(
     retreat_cost=1,
     weakness_type=PokemonTypes.METAL,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Milcery.Name",
-    family_id=869,
+    family_id=868,
     abilities=[
+        # Marker ability: the Caf\u00e9 Master supporter script checks for it on
+        # the Active before applying its "Your turn ends." clause.
         Ability(
             title="Additional Order",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your turn does not end when you use Caf\u00e9 Master.",
-            effect=unimplemented,
         ),
         Attack(
             title="Rainbow Flavor",
@@ -30,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=rainbow_flavor,
         ),
     ],
 )

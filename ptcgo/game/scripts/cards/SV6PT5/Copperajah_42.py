@@ -1,6 +1,20 @@
 from ptcgo.game.card_effects.passives_common import play_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_all_attacks
+
+
+async def strong_arm_lariat(ctx):
+    """You may do 100 more damage; if you do, this Pokémon can't attack next turn."""
+    if await ctx.ask_yes_no(
+        "Do 100 more damage? If you do, this Pokémon can't attack during "
+        "your next turn."
+    ):
+        await ctx.deal_damage(200)
+        lock_all_attacks(ctx, ctx.attacker)
+    else:
+        await ctx.deal_damage(100)
+
 
 card = PokemonCardDef(
     guid="e6591cec-883d-5d7f-8dcf-9aadcaf4b3ed",
@@ -32,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 3, PokemonTypes.COLORLESS: 1},
             damage=130,
             damage_operator="+",
-            effect=unimplemented,
+            effect=strong_arm_lariat,
         ),
     ],
 )

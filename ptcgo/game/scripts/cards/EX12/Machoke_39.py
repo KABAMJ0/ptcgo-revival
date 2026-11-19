@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+
 
 card = PokemonCardDef(
     guid="76ef0b3e-4f37-5397-b9f0-c43f6a1423c3",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             title="Split Kick",
             game_text="Does 20 damage to each Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Magnum Punch",

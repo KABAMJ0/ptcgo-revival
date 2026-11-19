@@ -2,6 +2,9 @@ from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="3489ea66-224b-51af-9ed3-1628b04cc089",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             title="Sleep Poison",
             game_text="The Defending Pok\u00e9mon is now Asleep and Poisoned.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, SpecialConditions.POISONED),
         ),
     ],
 )

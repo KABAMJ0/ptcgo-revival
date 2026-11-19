@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+
 
 card = PokemonCardDef(
     guid="8597ac47-5cc3-5283-aab3-e517b28f6eb3",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Insomnia",
             game_text="This Pok\u00e9mon can't be Asleep.",
-            effect=unimplemented,
+            passive=condition_immunity_passive(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Tackle",

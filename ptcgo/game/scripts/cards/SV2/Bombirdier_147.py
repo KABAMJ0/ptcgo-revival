@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+
 
 card = PokemonCardDef(
     guid="ec8290b4-e5b6-52fd-8494-ee7e14dc21ae",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Delivery Pocket",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic_pokemon, count=1),
         ),
         Attack(
             title="Dark Edge",

@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_endure_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+
 
 card = PokemonCardDef(
     guid="a2ed8c1e-ec28-539e-ad00-4bd1d8e22422",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If either of them is tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=2),
         ),
         Attack(
             title="Endure",

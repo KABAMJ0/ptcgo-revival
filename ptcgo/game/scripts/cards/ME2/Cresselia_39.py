@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
 
 card = PokemonCardDef(
     guid="1e00e54e-4db9-5a47-87b0-e1bcbad07aab",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Swelling Light",
             game_text="Search your deck for up to 2 Basic Psychic Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy('defender'), 20),
         ),
         Attack(
             title="Aurora Beam",

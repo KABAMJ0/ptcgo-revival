@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.card_effects.trainers import heal_each_with_pokemon_in_play, stadium_ability
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=231,
     set_code="Promo_SM",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    ability=stadium_ability('Champions Festival', heal_each_with_pokemon_in_play(10, 6))
 )

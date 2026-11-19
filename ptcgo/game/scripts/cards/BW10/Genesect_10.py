@@ -5,6 +5,8 @@ from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.card_effects.patterns import is_pokemon_of_type
 from ptcgo.game.card_effects.trainers import all_of
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+
 
 card = PokemonCardDef(
     guid="38dd311e-e2f4-576b-928d-6486052540ba",

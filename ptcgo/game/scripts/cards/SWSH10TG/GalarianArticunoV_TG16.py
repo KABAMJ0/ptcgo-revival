@@ -1,6 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import requires_hand
+
+
+async def reconstitute(ctx):
+    """Discard 2 cards from your hand. Once during your turn, you may draw a
+    card."""
+    await ctx.discard_from_hand(2, prompt="Discard 2 cards to use Reconstitute")
+    if await ctx.ask_yes_no("Draw a card?"):
+        await ctx.draw_cards(1)
+
 
 card = PokemonCardDef(
     guid="7b7f240c-0e63-5a5d-964d-0b456ab3ef77",
@@ -23,11 +33,13 @@ card = PokemonCardDef(
         Ability(
             title="Reconstitute",
             game_text="You must discard 2 cards from your hand in order to use this Ability. Once during your turn, you may draw a card.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=requires_hand(n=2),
+            effect=reconstitute,
         ),
         Attack(
             title="Psyray",
-            game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
+            game_text="Your opponent's Active Pokémon is now Confused.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=110,
             effect=condition_attack(SpecialConditions.CONFUSED),

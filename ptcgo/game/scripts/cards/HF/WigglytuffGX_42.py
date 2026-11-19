@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.support_common import heal_attack
+
 
 card = PokemonCardDef(
     guid="99b4c70e-f439-56cb-bb8d-6b371d5bec05",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             game_text="Heal all damage from this Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FAIRY: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=heal_attack(all_damage=True, target='self'),
         ),
     ],
 )

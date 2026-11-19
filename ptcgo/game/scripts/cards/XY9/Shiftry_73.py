@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import electromagnetic_sonar
+
 
 card = PokemonCardDef(
     guid="6e5b96c8-b6a0-55de-a1f6-bf9cfcb1c659",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="Put a Trainer card from your discard pile into your hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=electromagnetic_sonar,
         ),
     ],
 )

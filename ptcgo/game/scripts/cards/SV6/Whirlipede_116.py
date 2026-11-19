@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="43321eaa-cf2b-5ba6-a918-a9743dfa1fd3",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Poison Ring",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, no_retreat=True),
         ),
         Attack(
             title="Spinning Attack",

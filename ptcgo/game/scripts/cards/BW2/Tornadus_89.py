@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def _hurricane(ctx):
+    await ctx.deal_damage()
+    bench = ctx.my_bench()
+    if bench:
+        await ctx.move_energy_freely(
+            [ctx.attacker], bench, predicate=is_basic_energy_card, max_count=1,
+            prompt="Choose a basic Energy to move to a Benched Pokémon",
+        )
+
 
 card = PokemonCardDef(
     guid="54689dba-f787-5d3f-9762-d305d6d4b1f6",
@@ -30,7 +42,7 @@ card = PokemonCardDef(
             game_text="Move a basic Energy from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
-            effect=unimplemented,
+            effect=_hurricane,
         ),
     ],
 )

@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
 
 card = PokemonCardDef(
     guid="c1ddc55c-f9a6-525b-a50a-a808e9e0e1d6",

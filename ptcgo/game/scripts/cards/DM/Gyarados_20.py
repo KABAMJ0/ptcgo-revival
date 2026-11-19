@@ -11,6 +11,7 @@ async def commotion(ctx):
     for pokemon in ctx.my_bench():
         await ctx.deal_damage(20, target=pokemon, apply_modifiers=False,
                               as_counters=True)
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 
 card = PokemonCardDef(
@@ -42,7 +43,7 @@ card = PokemonCardDef(
             game_text="You may discard any Stadium card in play.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=160,
-            effect=unimplemented,
+            effect=discard_stadium_attack(optional=True),
         ),
     ],
 )

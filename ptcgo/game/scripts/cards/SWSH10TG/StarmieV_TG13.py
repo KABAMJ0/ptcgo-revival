@@ -1,6 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+
+async def swift(ctx):
+    """50 damage; isn't affected by Weakness/Resistance or any effects on the opponent's Active."""
+    await ctx.deal_damage(apply_modifiers=False, ignore_target_effects=True)
+
 
 card = PokemonCardDef(
     guid="e9ef1ef6-f187-520d-9ceb-6ce9f6d4b646",
@@ -21,18 +27,18 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Swift",
-            game_text="This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pok\u00e9mon.",
+            game_text="This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pokémon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True, ignore_target_effects=True),
+            effect=swift,
         ),
         Attack(
             title="Energy Spiral",
-            game_text="This attack does 50 damage for each Energy attached to all of your opponent's Pok\u00e9mon.",
+            game_text="This attack does 50 damage for each Energy attached to all of your opponent's Pokémon.",
             cost={PokemonTypes.WATER: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 50),
         ),
     ],
 )

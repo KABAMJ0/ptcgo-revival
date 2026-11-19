@@ -1,6 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.pokemon import star_chronos
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+metal_blast = damage_per(count_energy("self", energy_type=PokemonTypes.METAL), 40, base=40)
 
 card = PokemonCardDef(
     guid="9bc76c5c-76d4-5fde-a27a-6e007d034857",
@@ -27,14 +30,15 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=damage_per(count_energy("self", PokemonTypes.METAL), per=40, base=40),
+            effect=metal_blast,
         ),
         Attack(
             title="Star Chronos",
             game_text="Take another turn after this one. (Skip Pok\u00e9mon Checkup.) (You can't use more than 1 VSTAR Power in a game.)",
             cost={PokemonTypes.METAL: 4, PokemonTypes.COLORLESS: 1},
             damage=220,
-            effect=unimplemented,
+            vstar=True,
+            effect=star_chronos,
         ),
     ],
 )

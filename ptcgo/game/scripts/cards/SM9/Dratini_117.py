@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+
 
 card = PokemonCardDef(
     guid="4a074075-eedf-56a5-bcd1-bf357e5a79e5",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Defensive Scales",
             game_text="Prevent all effects of your opponent's attacks, except damage, done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Rain Splash",

@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import UnfazedFatPassive, thumping_snore
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -20,15 +21,15 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Unfazed Fat",
-            game_text="Prevent all effects of attacks from your opponent's Pok\u00e9mon done to this Pok\u00e9mon. (Damage is not an effect.)",
-            effect=unimplemented,
+            game_text="Prevent all effects of attacks from your opponent's Pokémon done to this Pokémon. (Damage is not an effect.)",
+            passive=UnfazedFatPassive(),
         ),
         Attack(
             title="Thumping Snore",
-            game_text="This Pok\u00e9mon is now Asleep. During Pok\u00e9mon Checkup, flip 2 coins instead of 1. If either of them is tails, this Pok\u00e9mon is still Asleep.",
+            game_text="This Pokémon is now Asleep. During Pokémon Checkup, flip 2 coins instead of 1. If either of them is tails, this Pokémon is still Asleep.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=thumping_snore,
         ),
     ],
 )

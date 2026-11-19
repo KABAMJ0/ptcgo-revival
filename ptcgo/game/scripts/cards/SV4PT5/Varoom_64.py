@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="becb7151-5120-598b-b3a9-69b9a8c90045",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Rev",
             game_text="Put up to 2 Basic Energy cards from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(is_basic_energy_card, count=2, to='hand'),
         ),
         Attack(
             title="Headbutt",

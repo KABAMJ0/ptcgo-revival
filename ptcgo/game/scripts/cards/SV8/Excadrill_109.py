@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_bench
+from ptcgo.game.attributes import AttrID
+
+
+_metal_on_bench = lambda ctx: count_bench("mine", _is_metal)(ctx) > 0
+
+
+_is_metal = lambda pokemon: PokemonTypes.METAL.value in (
+    pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
 
 card = PokemonCardDef(
     guid="8780bc37-bced-5aa7-9ca9-bfafbc7336e6",
@@ -33,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_metal_on_bench, 80),
         ),
     ],
 )

@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def threatening_pattern(ctx):
+    await ctx.deal_damage()
+    if not ctx.effects_blocked(ctx.defender):
+        ctx.restrict_attachments(ctx.defender)
+
+
 card = PokemonCardDef(
     guid="8cce7261-6758-5202-aece-b65aa7c3334e",
     key="ME4",
@@ -25,7 +32,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, Energy can't be attached from your opponent's hand to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=threatening_pattern,
         ),
         Attack(
             title="Overwhelming Pain",

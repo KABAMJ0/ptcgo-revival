@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 
 card = PokemonCardDef(
     guid="8d765c1a-5da9-5d77-9f2c-5006ade352f2",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             title="Dash Attack",
             game_text="Choose 1 of your opponent's Benched Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool='bench', count=1, apply_modifiers=False),
         ),
     ],
 )

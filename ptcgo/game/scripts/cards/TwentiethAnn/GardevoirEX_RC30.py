@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
+
 
 card = PokemonCardDef(
     guid="c00cece1-4af6-5c09-ac9f-e778a0c9feba",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, this Pok\u00e9mon has no Weakness.",
             cost={PokemonTypes.FAIRY: 3},
             damage=100,
-            effect=unimplemented,
+            effect=no_weakness_next_turn(),
         ),
     ],
 )

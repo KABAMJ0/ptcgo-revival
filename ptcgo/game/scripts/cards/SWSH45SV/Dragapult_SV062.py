@@ -1,6 +1,14 @@
-from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
+
+
+async def phantom_force(ctx):
+    """120 damage; put 3 damage counters on the opponent's Benched Pokemon
+    in any way you like."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3, candidates=ctx.opponent_bench())
+
 
 card = PokemonCardDef(
     guid="b5739999-bdd8-5bc6-80c2-68e59615c753",
@@ -31,7 +39,7 @@ card = PokemonCardDef(
             game_text="Put 3 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=120,
-            effect=unimplemented,
+            effect=phantom_force,
         ),
     ],
 )

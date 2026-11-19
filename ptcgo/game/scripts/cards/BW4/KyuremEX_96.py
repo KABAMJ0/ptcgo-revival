@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
+
 
 card = PokemonCardDef(
     guid="27a61d6c-53d8-559a-b792-bca0a0865dd9",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=False),
         ),
         Attack(
             title="Hail Blizzard",

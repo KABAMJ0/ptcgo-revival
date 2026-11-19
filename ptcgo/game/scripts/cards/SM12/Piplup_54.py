@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
+from ptcgo.game.session.effects import is_basic_pokemon
+
+
+async def tie_up(ctx):
+    """20. If the Defending Pokemon is a Basic Pokemon, it can't attack next turn."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is not None and is_basic_pokemon(defender):
+        lock_defender_attacks(ctx)
+
 
 card = PokemonCardDef(
     guid="fe4a5a7f-bbfc-5908-942e-ad048720e336",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon is a Basic Pok\u00e9mon, it can't attack during your opponent's next turn.",
             cost={PokemonTypes.WATER: 3},
             damage=80,
-            effect=unimplemented,
+            effect=tie_up,
         ),
     ],
 )

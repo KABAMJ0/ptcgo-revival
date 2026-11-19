@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+
 
 card = PokemonCardDef(
     guid="bb5367d3-48c2-5611-b1c9-aac2a6891150",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage('self'), 100),
         ),
         Attack(
             title="Explosive Vortex",

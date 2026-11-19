@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_choice
+
 
 card = PokemonCardDef(
     guid="84b0c6fc-2db8-5941-a5b1-490edeb7b481",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_choice(heads=30, tails=10),
         ),
         Attack(
             title="Pin Missle",

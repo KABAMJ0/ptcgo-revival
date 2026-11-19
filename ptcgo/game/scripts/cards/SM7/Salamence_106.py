@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="573149ba-f905-5069-836f-e98befd0c542",
@@ -17,12 +18,12 @@ card = PokemonCardDef(
     retreat_cost=3,
     weakness_type=PokemonTypes.FAIRY,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Shelgon.Name",
-    family_id=371,
+    family_id=373,
     abilities=[
         Ability(
             title="Dragon Wind",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon, once during your turn (before your attack), you may switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Dragon Claw",

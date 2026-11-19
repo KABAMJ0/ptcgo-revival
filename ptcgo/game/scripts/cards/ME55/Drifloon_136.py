@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import psychic_leap
+
 
 card = PokemonCardDef(
     guid="be2b6ab2-6f85-5849-8d92-eb39ace67126",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all attached cards into your deck.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=20,
-            effect=unimplemented,
+            effect=psychic_leap,
         ),
     ],
 )

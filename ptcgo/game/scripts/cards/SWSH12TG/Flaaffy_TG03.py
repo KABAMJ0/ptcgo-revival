@@ -1,5 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+
+def _dynamotor_condition(board, player_id, pokemon):
+    bench = board.find_player_area(player_id, "bench")
+    if not bench or not bench.children:
+        return False
+    discard = board.find_player_area(player_id, "discard")
+    cards = discard.children if discard else []
+    return any(is_lightning_energy(c) for c in cards)
+
 
 card = PokemonCardDef(
     guid="3fa1ec4c-a1aa-5bc9-9319-0ecf9699b0ac",
@@ -17,12 +30,18 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.FIGHTING,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Mareep.Name",
-    family_id=180,
+    family_id=179,
     abilities=[
         Ability(
             title="Dynamotor",
             game_text="Once during your turn (before your attack), you may attach a Lightning Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_dynamotor_condition,
+            effect=attach_from_discard(
+                predicate=is_lightning_energy, count=1, minimum=0,
+                target=lambda p: not is_in_active_spot(p),
+                prompt="Choose a Lightning Energy card to attach to a Benched Pok\u00e9mon",
+            ),
         ),
         Attack(
             title="Electro Ball",

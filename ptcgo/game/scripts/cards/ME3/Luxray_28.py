@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
+
 
 card = PokemonCardDef(
     guid="a39c5b98-3cfa-554b-a711-c16d5417c7ca",
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken('mine'), 70),
         ),
         Attack(
             title="Strong Volt",

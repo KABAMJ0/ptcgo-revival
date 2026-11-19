@@ -8,6 +8,8 @@ from ptcgo.game.card_effects.passives_common import ability_lock_passive
 def _basic_pokemon_v(pokemon, carrier):
     return "Basic" in subtypes_for(pokemon.archetype_id) \
         and is_pokemon_v(pokemon.archetype_id)
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
 
 card = PokemonCardDef(
     guid="8b1daaec-3ccf-5aab-947a-6517ff767c2a",
@@ -37,7 +39,7 @@ card = PokemonCardDef(
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=remove_self_from_play('hand'),
         ),
     ],
 )

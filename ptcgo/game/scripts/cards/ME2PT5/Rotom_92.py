@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.card_effects.trainers import named
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+
+def _my_tools(ctx):
+    return sum(
+        1 for tool, pokemon in ctx.tools_in_play()
+        if pokemon.owning_player_id == ctx.player_id
+    )
+
 
 card = PokemonCardDef(
     guid="9c96396a-bfdb-52ad-8524-b4fbc14da99f",
@@ -33,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_my_tools, 30),
         ),
     ],
 )

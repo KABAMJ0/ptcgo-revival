@@ -2,6 +2,9 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import pokemon_named
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
+
 
 card = PokemonCardDef(
     guid="36355701-69d0-515b-90cc-2125f06b3242",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play('mine', pokemon_named('Alolan')), 20),
         ),
     ],
 )

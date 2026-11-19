@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, count_prizes_taken
 from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken("opponent"), 30, base=120),
         ),
     ],
 )

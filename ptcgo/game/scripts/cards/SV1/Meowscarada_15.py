@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
+
 
 card = PokemonCardDef(
     guid="c9d27df7-8f09-5ca0-8078-b650eba9e7b3",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may put an Energy attached to your opponent's Active Pok\u00e9mon into their hand.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=flip_damage(per_heads=90, until_tails=True),
         ),
         Attack(
             title="Flower Blast",

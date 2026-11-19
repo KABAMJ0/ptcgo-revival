@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def loop_cannon(ctx):
+    """160 damage. Put 2 Energy attached to this Pokémon into your hand."""
+    await ctx.deal_damage()
+    attached = ctx.attached_energies(ctx.attacker)
+    if not attached:
+        return
+    picks = await ctx.choose_cards(
+        attached, min(2, len(attached)),
+        prompt="Choose Energy to put into your hand.",
+    )
+    await ctx.put_in_hand(picks, reveal=False)
+
+
 card = PokemonCardDef(
     guid="d6573607-4dec-51ce-bea6-ad48628924b0",
     key="SV2",
@@ -31,7 +45,7 @@ card = PokemonCardDef(
             game_text="Put 2 Energy attached to this Pok\u00e9mon into your hand.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=230,
-            effect=unimplemented,
+            effect=loop_cannon,
         ),
     ],
 )

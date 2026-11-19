@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import recoil_attack, discard_stadium_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
 
 card = PokemonCardDef(
     guid="c607ac1a-0b35-5d39-a643-84edccd17fb2",

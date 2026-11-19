@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
+
 
 card = PokemonCardDef(
     guid="c43ecdc1-497f-5963-a9d7-fead4deb878e",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.WATER: 2},
             damage=30,
-            effect=unimplemented,
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Double Slap",

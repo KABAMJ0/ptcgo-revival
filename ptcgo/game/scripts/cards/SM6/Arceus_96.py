@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+
 
 card = PokemonCardDef(
     guid="c8c0e0eb-bab8-5d40-8644-2a2589e7cc35",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="First Law",
             game_text="Prevent all effects of your opponent's attacks, except damage, done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Trinity Star",

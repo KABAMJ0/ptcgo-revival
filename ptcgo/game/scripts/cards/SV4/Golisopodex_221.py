@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def electro_wheel(ctx):
+    await ctx.deal_damage()
+    picks = await ctx.discard_energy_from(ctx.attacker, 1, prompt="Discard an Energy from this Pokémon.")
+    if not picks:
+        return
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
+    if target is not None:
+        await ctx.switch_active(ctx.player_id, target)
+
+
 card = PokemonCardDef(
     guid="a1b49f40-4664-5440-88e4-7fa1b9527b17",
     key="SV4",
@@ -29,7 +43,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy from this Pok\u00e9mon. If you do, switch it with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=170,
-            effect=unimplemented,
+            effect=electro_wheel,
         ),
     ],
 )

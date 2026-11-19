@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def noble_light(ctx):
+    for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
+        await ctx.heal(30, pokemon)
+
+
 card = PokemonCardDef(
     guid="8c5cf12e-a34e-5983-800b-1687dfc0f30d",
     key="ME4",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
             title="Gentle Light",
             game_text="Heal 30 damage from each Pok\u00e9mon (both yours and your opponent's).",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=noble_light,
         ),
         Attack(
             title="Eternity Bloom",

@@ -11,6 +11,8 @@ def _nine_tools_in_discard(board, pokemon, carrier) -> bool:
     tools = [card for card in (area.children if area else [])
              if card.get_attribute(AttrID.TRAINER_TYPE) in _TOOL_TYPES]
     return len(tools) >= 9
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+
 
 card = PokemonCardDef(
     guid="bed91645-0fba-5e32-a887-8f2faff9ef05",
@@ -39,7 +41,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(special_only=True),
         ),
     ],
 )

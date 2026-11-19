@@ -1,6 +1,13 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
+
+
+async def _timber_cleave(ctx):
+    """Flip 2 coins. If both are heads, the opponent's Active is Knocked Out."""
+    coins = await ctx.flip_coins(2, "Timber Cleave")
+    if all(coins):
+        await ctx.knock_out(ctx.defender)
 
 card = PokemonCardDef(
     guid="b1febf35-587d-5802-b0cf-ac11ef87a791",
@@ -18,13 +25,13 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Scyther.Name",
-    family_id=900,
+    family_id=123,
     abilities=[
         Attack(
             title="Timber Cleave",
             game_text="Flip 2 coins. If both of them are heads, your opponent's Active Pok\u00e9mon is Knocked Out.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_timber_cleave,
         ),
         Attack(
             title="Berserker Tackle",

@@ -10,6 +10,8 @@ async def _shuffle_self_in(ctx):
         await ctx.session.end_game(
             ctx.opponent_id, f"{screen} has no Pokémon left"
         )
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.data_utils import Triggers
 
 
 card = PokemonCardDef(
@@ -33,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Shuriken Flurry",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may put 3 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=place_counters(3, target='choose_any_opponent'),
         ),
         Attack(
             title="Haze Slash",

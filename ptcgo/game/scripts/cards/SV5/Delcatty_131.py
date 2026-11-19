@@ -2,6 +2,18 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+async def regal_blender(ctx):
+    """Printed damage, then you may move any amount of Energy between your
+    Pokémon in any way you like."""
+    await ctx.deal_damage()
+    mine = ctx.my_pokemon_in_play()
+    if len(mine) > 1 and await ctx.ask_yes_no(
+        "Move any amount of Energy from your Pokémon to your other Pokémon?"
+    ):
+        await ctx.move_energy_freely(mine, mine)
+
+
 card = PokemonCardDef(
     guid="d96b3bf9-6f39-5acb-88ff-de44e8b5d5cd",
     key="SV5",
@@ -32,7 +44,7 @@ card = PokemonCardDef(
             game_text="You may move any amount of Energy from your Pok\u00e9mon to your other Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=110,
-            effect=unimplemented,
+            effect=regal_blender,
         ),
     ],
 )

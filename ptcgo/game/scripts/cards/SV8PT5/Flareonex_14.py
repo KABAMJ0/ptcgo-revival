@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 card = PokemonCardDef(
     guid="0d35e76a-5129-50f7-9b85-6284dd4a7600",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=search_attach_energy(is_basic_energy_card, count=2, distribute=False),
         ),
         Attack(
             title="Carnelian",

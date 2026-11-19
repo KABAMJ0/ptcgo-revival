@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
+
 
 card = PokemonCardDef(
     guid="e6656a27-f969-50c3-9d68-e2c76c4a3bba",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
             title="Eeeeeeek",
             game_text="Shuffle your hand into your deck, then draw 7 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=shuffle_hand_into_deck_draw(7),
         ),
     ],
 )

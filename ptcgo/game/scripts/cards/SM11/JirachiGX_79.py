@@ -3,6 +3,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.trainers import is_energy_card, pokemon_of
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+
 
 card = PokemonCardDef(
     guid="92f3fcf4-c07d-500a-ad7a-75cf755cf78f",

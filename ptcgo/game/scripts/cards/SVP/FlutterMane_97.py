@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import (
+    ability_lock_passive, is_in_active_spot, opposing_active,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 async def _spread_bench(ctx):
@@ -27,7 +30,9 @@ card = PokemonCardDef(
         Ability(
             title="Midnight Fluttering",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent's Active Pok\u00e9mon has no Abilities, except for Midnight Fluttering.",
-            effect=unimplemented,
+            passive=ability_lock_passive(
+                lambda pokemon, carrier: opposing_active(pokemon, carrier)
+                and is_in_active_spot(carrier)),
         ),
         Attack(
             title="Hex Hurl",

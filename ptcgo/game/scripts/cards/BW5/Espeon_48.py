@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 card = PokemonCardDef(
     guid="c9c8ba61-5776-5c09-b93c-f48a8e43eb41",
     key="BW5",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Your opponent reveals his or her hand.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
     ],
 )

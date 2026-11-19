@@ -2,6 +2,19 @@ from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def stealth_poison(ctx):
+    """70, opponent's Active becomes Poisoned, then switch this Pokémon with 1 of your Benched."""
+    await ctx.deal_damage()
+    await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+    bench = ctx.my_bench()
+    if bench:
+        target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
+        if target is not None:
+            await ctx.switch_active(ctx.player_id, target)
+
 
 card = PokemonCardDef(
     guid="08f12d37-3f2e-528f-8d8d-07ebdf0941e7",
@@ -32,7 +45,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=stealth_poison,
         ),
     ],
 )

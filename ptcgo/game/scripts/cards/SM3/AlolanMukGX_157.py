@@ -8,6 +8,8 @@ async def _tri_hazard(ctx, new_active):
     for condition in (SpecialConditions.BURNED, SpecialConditions.PARALYZED,
                       SpecialConditions.POISONED):
         await ctx.apply_special_condition(new_active, condition)
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+
 
 card = PokemonCardDef(
     guid="26e0fdbb-096b-57b8-9856-fec22f6827b4",

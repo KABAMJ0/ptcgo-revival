@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import (
+    is_basic, remove_self_from_play, search_attach_energy,
+)
+from ptcgo.game.card_effects.trainers import (
+    is_basic_energy_card, is_water_energy_card,
+)
+
+
+def _basic_water_energy(card):
+    return is_basic_energy_card(card) and is_water_energy_card(card)
 
 card = PokemonCardDef(
     guid="852db530-7c7c-5c3a-97a3-568ee8db19ec",
@@ -22,14 +32,15 @@ card = PokemonCardDef(
             title="Mise en Place",
             game_text="Search your deck for up to 2 Basic Water Energy cards and attach them to 1 of your Basic Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(_basic_water_energy, count=2,
+                                       distribute=False, target_pred=is_basic),
         ),
         Attack(
             title="Curl Up",
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=unimplemented,
+            effect=remove_self_from_play("hand"),
         ),
     ],
 )

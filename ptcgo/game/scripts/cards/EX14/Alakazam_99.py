@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="f8f70d4f-dbaa-5776-8ddf-9780fc27ffb4",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Psychic Select",
             game_text="Put any 1 card from your discard pile into your hand.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1),
         ),
         Attack(
             title="Skill Copy",

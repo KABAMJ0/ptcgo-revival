@@ -1,5 +1,30 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def miracle_powder(ctx):
+    """30. Flip a coin. Heads: choose a Special Condition for the Defending Pokemon."""
+    await ctx.deal_damage()
+    if not (await ctx.flip_coins(1, "Miracle Powder"))[0]:
+        return
+    target = ctx.defender
+    if target is None:
+        return
+    idx = await ctx.choose(
+        "Choose a Special Condition", [name for name, _ in _CONDITION_CHOICES],
+    )
+    await ctx.apply_special_condition(target, _CONDITION_CHOICES[idx][1])
+
+
+_CONDITION_CHOICES = [
+    ("Asleep", SpecialConditions.ASLEEP),
+    ("Burned", SpecialConditions.BURNED),
+    ("Confused", SpecialConditions.CONFUSED),
+    ("Paralyzed", SpecialConditions.PARALYZED),
+    ("Poisoned", SpecialConditions.POISONED),
+]
+
 
 card = PokemonCardDef(
     guid="3308512b-144f-5897-b361-52c2859d5fcb",
@@ -31,7 +56,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, choose a Special Condition. Your opponent's Active Pok\u00e9mon is now affected by that Special Condition.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=miracle_powder,
         ),
     ],
 )

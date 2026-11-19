@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
+
+def _is_psychic_energy(card) -> bool:
+    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.PSYCHIC.value)
+
+
+def _is_benched(pokemon) -> bool:
+    return not is_in_active_spot(pokemon)
 
 card = PokemonCardDef(
     guid="dec7134c-92b1-55e5-a200-ffcd63952cb1",
@@ -17,12 +28,13 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.PSYCHIC,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Inkay.Name",
-    family_id=686,
+    family_id=687,
     abilities=[
         Ability(
             title="Psychic Recharge",
             game_text="Once during your turn (before your attack), you may attach a Psychic Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=attach_from_discard(_is_psychic_energy, count=1,
+                                       target=_is_benched),
         ),
         Attack(
             title="Psychic Sphere",

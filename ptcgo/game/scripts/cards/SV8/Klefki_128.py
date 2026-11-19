@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import discard_then_draw
+
 
 card = PokemonCardDef(
     guid="da42868f-84ae-57d5-9676-98dd846c627a",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Stick 'n' Draw",
             game_text="Discard a card from your hand. If you do, draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_then_draw(1, 2, optional=True),
         ),
         Attack(
             title="Hook",

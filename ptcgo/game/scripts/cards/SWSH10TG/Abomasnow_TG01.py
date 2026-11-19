@@ -1,5 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, subtypes_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class ToughnessBoostPassive(Passive):
+    """Your Single Strike Pokemon (except any Abomasnow) get +50 HP."""
+
+    stacking_key = "ToughnessBoost"
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if pokemon.owning_player_id != carrier.owning_player_id:
+            return 0
+        pdef = def_for(pokemon.archetype_id)
+        if pdef is not None and pdef.name.endswith("pokemon.Abomasnow.Name"):
+            return 0
+        if "Single Strike" not in subtypes_for(pokemon.archetype_id):
+            return 0
+        return 50
+
 
 card = PokemonCardDef(
     guid="a03fd19a-0e2d-5264-bac7-6b65fcc8c577",
@@ -17,12 +35,12 @@ card = PokemonCardDef(
     retreat_cost=3,
     weakness_type=PokemonTypes.FIRE,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Snover.Name",
-    family_id=460,
+    family_id=459,
     abilities=[
         Ability(
             title="Toughness Boost",
             game_text="Your Single Strike Pok\u00e9mon in play, except any Abomasnow, get +50 HP. You can't apply more than 1 Toughness Boost Ability at a time.",
-            effect=unimplemented,
+            passive=ToughnessBoostPassive(),
         ),
         Attack(
             title="Mega Punch",

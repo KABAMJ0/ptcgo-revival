@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class LustrousBodyPassive(Passive):
+    """Prevent all effects of your opponent's Pokémon's Abilities done to this Pokémon."""
+
+    def blocks_ability_effects(self, target, carrier):
+        return target is carrier_pokemon(carrier)
+
 
 card = PokemonCardDef(
     guid="2dbd63c7-564e-591d-8617-aaacff93bc75",
@@ -22,7 +31,7 @@ card = PokemonCardDef(
         Ability(
             title="Luminous Wing",
             game_text="Prevent all effects of your opponent's Pok\u00e9mon's Abilities done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=LustrousBodyPassive(),
         ),
         Attack(
             title="Shooting Moons",

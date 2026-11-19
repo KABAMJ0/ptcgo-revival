@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+
+
+def _heatproof_pred(calc, carrier):
+    if calc.target is not carrier:
+        return False
+    types = calc.attacker.get_attribute(AttrID.POKEMON_TYPES) or []
+    return PokemonTypes.FIRE.value in types
+
 
 card = PokemonCardDef(
     guid="36d32820-0b3e-50f0-b9a1-140e2c83f41f",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Water Bubble",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Fire Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_heatproof_pred),
         ),
         Attack(
             title="Aqua Edge",
