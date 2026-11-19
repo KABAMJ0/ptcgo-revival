@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Rock Kagura",
             game_text="Search your deck for a Basic Fighting Energy card and attach it to 1 of your Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=mill_attack(1, opponent=True),
+            effect=search_attach_energy(basic_energy_of("Fighting"), count=1, distribute=True),
         ),
         Attack(
             title="Mountain Ramming",

@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.attacks_common import spread_damage, damage_all_opponents, flip_discard_opponent_energy
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -27,14 +27,14 @@ card = PokemonCardDef(
             title="Wide Laser",
             game_text="This attack does 10 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=damage_all_opponents(10),
         ),
         Attack(
             title="Hyper Beam",
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=spread_damage(10, side="opponent"),
+            effect=flip_discard_opponent_energy(damage=50),
         ),
     ],
 )

@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Amass",
             game_text="Search your deck for a basic Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=energy_move_attack(1),
+            effect=search_attach_energy(is_basic_energy_card, count=1, to_self=True),
         ),
         Attack(
             title="Power Cyclone",

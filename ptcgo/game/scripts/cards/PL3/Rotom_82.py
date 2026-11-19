@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=40,
             damage_operator="x",
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Uproar",

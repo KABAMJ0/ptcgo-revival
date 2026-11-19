@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=flip_damage(per_heads=80, until_tails=True),
+            effect=unimplemented,
         ),
         Attack(
             title="Rock Cannon",

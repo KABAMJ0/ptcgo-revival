@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Panic Spores",
             game_text="Put 2 damage counters on your opponent's Confused Pok\u00e9mon between turns.",
-            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
+            effect=unimplemented,
         ),
         Attack(
             title="Mysterious Powder",
