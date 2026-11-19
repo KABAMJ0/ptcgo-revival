@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, flip_damage
 
 card = PokemonCardDef(
     guid="e00b9e86-7bf2-59a2-a578-85a12e58ea75",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.METAL: 1},
             damage=20,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(count=1),
         ),
         Attack(
             title="Spiral Rush",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(until_tails=True, per_heads=30, base=60),
         ),
     ],
 )

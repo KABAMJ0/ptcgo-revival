@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, recoil_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=40,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(count=1),
         ),
         Attack(
             title="Wild Press",
