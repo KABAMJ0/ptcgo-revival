@@ -1,4 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Floral Fragrance",
             game_text="Once during your turn (before your attack), you may search your deck for a Pok\u00e9mon, reveal it, and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=search_to_hand(predicate=is_pokemon_card, count=1, minimum=1),
         ),
         Attack(
             title="Poison Powder",
