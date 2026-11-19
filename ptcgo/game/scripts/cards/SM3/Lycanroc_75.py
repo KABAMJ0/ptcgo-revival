@@ -1,6 +1,7 @@
+from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, active_is, bonus_if
 
 card = PokemonCardDef(
     guid="4c13e677-143f-51aa-a4c9-e6687f7a3b22",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(is_basic_pokemon), 30),
         ),
         Attack(
             title="Corner",

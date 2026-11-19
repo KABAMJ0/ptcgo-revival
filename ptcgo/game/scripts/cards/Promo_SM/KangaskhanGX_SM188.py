@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, bonus_if, defender_has_condition
 
 card = PokemonCardDef(
     guid="64ebe692-9f18-59ff-8900-9f75ad4dd1e9",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_has_condition(SpecialConditions.CONFUSED), 80),
         ),
         Attack(
             title="Familial Combo-GX",
