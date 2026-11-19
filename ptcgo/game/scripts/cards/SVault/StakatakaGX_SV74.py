@@ -3,6 +3,18 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
 
 
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+from ptcgo.game.data_utils import subtypes_for
+
+
+def _ultra_beast(pokemon, carrier):
+    if pokemon.owning_player_id != carrier.owning_player_id:
+        return False
+    return "Ultra Beast" in (subtypes_for(pokemon.archetype_id) or [])
+
+
+_ultra_wall = takes_less_passive(10, protects=_ultra_beast)
+
 card = PokemonCardDef(
     guid="63696928-845d-56df-83fc-ccbd3d93f001",
     key="SVault",
@@ -24,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Ultra Wall",
             game_text="Your Ultra Beasts take 10 less damage from your opponent's attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=_ultra_wall,
         ),
         Attack(
             title="Gigaton Stomp",
