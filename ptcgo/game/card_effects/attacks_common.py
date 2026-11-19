@@ -12,6 +12,7 @@ from typing import Optional
 from ptcgo.game.attributes import (
     AbilityTypes,
     AttrID,
+    CardType,
     CLIENT_SPECIAL_CONDITION_NAMES,
     PokemonStage,
     PokemonTypes,
@@ -19,6 +20,7 @@ from ptcgo.game.attributes import (
     TrainerType,
 )
 from ptcgo.game.data_utils import Attack, def_for, has_rule_box, is_pokemon_v, subtypes_for
+from ptcgo.game.models.board import PokemonEntity
 from ptcgo.game.card_effects.passives_common import (
     condition_immunity_passive,
     no_weakness_passive,

@@ -30,6 +30,7 @@ def _display_name(entity) -> str:
     return getattr(def_for(getattr(entity, "archetype_id", "") or ""),
                    "display_name", "") or ""
 
+
 card = PokemonCardDef(
     guid="8af232ef-b7e8-5499-9acf-1185e589e2c2",
     key="NEO4",

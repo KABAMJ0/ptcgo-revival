@@ -3,6 +3,16 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def _terror_strike(ctx):
+    """Flip a coin. If heads and the opponent has a Bench, the opponent
+    switches one of them with the Defending Pokemon, after the damage."""
+    await ctx.deal_damage()
+    heads = await ctx.flip_coins(1, "Terror Strike")
+    if heads and heads[0]:
+        await opponent_switches(ctx)
 
 card = PokemonCardDef(
     guid="923c9c0c-ba49-5c93-9eb5-87682234732c",
@@ -27,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads and if your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches it with the Defending Pok\u00e9mon. (Do the damage before switching the Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=_terror_strike,
         ),
         Attack(
             title="Poison Fang",

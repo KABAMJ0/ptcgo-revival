@@ -1,6 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import AttrID
+
+
+async def chain_lightning(ctx):
+    """Printed 20, then 10 to every Benched Pokemon of the Defending Pokemon's
+    type on both sides - unless the Defending Pokemon is Colorless."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None:
+        return
+    types = set(defender.get_attribute(AttrID.POKEMON_TYPES) or [])
+    if not types or PokemonTypes.COLORLESS.value in types:
+        return
+    for pid in (ctx.player_id, ctx.opponent_id):
+        for pokemon in ctx.board.find_player_area(pid, "bench").children:
+            if types & set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or []):
+                await ctx.deal_damage(10, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="bf14528a-e0ab-58a5-8e69-49b539484861",
     key="BASE2",
@@ -29,7 +47,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon isn't Colorless, this attack does 10 damage to each Benched Pok\u00e9mon of the same type as the Defending Pok\u00e9mon (including your own).",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=20,
-            effect=unimplemented,
+            effect=chain_lightning,
         ),
     ],
 )

@@ -1,5 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, subtypes_for
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class _Scare(Passive):
+    """While Dark Feraligatr is a clean Active, the opponent's Baby Pokemon
+    cannot attack and their Baby Powers are off."""
+
+    def _covers(self, pokemon, carrier) -> bool:
+        holder = carrier_pokemon(carrier)
+        if holder is None or pokemon.owning_player_id == carrier.owning_player_id:
+            return False
+        if not is_in_active_spot(holder):
+            return False
+        if holder.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            return False
+        return "Baby" in subtypes_for(pokemon.archetype_id)
+
+    def blocks_attack(self, pokemon, carrier):
+        return self._covers(pokemon, carrier)
+
+    def blocks_abilities(self, pokemon, carrier):
+        return self._covers(pokemon, carrier)
 
 
 async def _crushing_blow(ctx):
@@ -35,7 +58,7 @@ card = PokemonCardDef(
         Ability(
             title="Scare",
             game_text="As long as Dark Feraligatr is your Active Pok\u00e9mon, all of your opponent's Baby Pok\u00e9mon Powers stop working and your opponent's Baby Pok\u00e9mon can't attack. This power stops working while Dark Feraligatr is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_Scare(),
         ),
         Attack(
             title="Crushing Blow",

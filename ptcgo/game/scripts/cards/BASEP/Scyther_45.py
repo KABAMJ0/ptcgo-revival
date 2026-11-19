@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="Scyther can't use this attack during your next turn. (Benching or evolving Scyther ends this effect.)",
             cost={PokemonTypes.GRASS: 2},
             damage=40,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

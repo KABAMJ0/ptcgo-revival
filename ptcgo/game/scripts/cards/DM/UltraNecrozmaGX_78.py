@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+def _prizes_low(board, player_id, pokemon=None):
+    remaining = sum(len(board.find_player_area(pid, "prizePile").children)
+                    for pid in board.player_ids)
+    return remaining <= 6
+
+
+async def sky_scorching_light(ctx):
+    """Put 6 damage counters on each of the opponent's Pokemon."""
+    for pokemon in list(ctx.opponent_pokemon_in_play()):
+        await ctx.deal_damage(60, target=pokemon, apply_modifiers=False, as_counters=True)
+
 card = PokemonCardDef(
     guid="8a92730a-daa1-56e2-9269-cc7407318e21",
     key="DM",
@@ -30,7 +41,8 @@ card = PokemonCardDef(
             title="Sky-Scorching Light-GX",
             game_text="You can use this attack only if the total of both players' remaining Prize cards is 6 or less. Put 6 damage counters on each of your opponent's Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            condition=_prizes_low,
+            effect=sky_scorching_light,
         ),
     ],
 )

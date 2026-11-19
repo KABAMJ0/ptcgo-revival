@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.passives_common import extra_poison_counters
+
 card = PokemonCardDef(
     guid="7330079b-6b6c-5fd8-966c-c01453629801",
     key="SVault",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="More Poison",
             game_text="Put 1 more damage counter on your opponent's Poisoned Pok\u00e9mon between turns.",
-            effect=unimplemented,
+            passive=extra_poison_counters(1, opponents_only=True),
         ),
         Attack(
             title="Venomous Fang",

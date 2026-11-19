@@ -2,6 +2,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import condition_retreat_lock_passive
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def roll_over(ctx):
+    """Printed 30, Snorlax is now Asleep, then on heads the Defending Pokemon
+    is Asleep too."""
+    await ctx.deal_damage()
+    if ctx.attacker is not None:
+        await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
+    heads = await ctx.flip_coins(1, "Roll Over")
+    if heads and heads[0]:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.ASLEEP)
+
 card = PokemonCardDef(
     guid="f8589435-6dc1-5a25-aa2b-8f556aba1562",
     key="BASEP",
@@ -30,7 +43,7 @@ card = PokemonCardDef(
             game_text="Snorlax is now Asleep. Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=30,
-            effect=unimplemented,
+            effect=roll_over,
         ),
     ],
 )

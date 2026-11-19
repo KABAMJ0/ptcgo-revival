@@ -1,8 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import move_counters_ability, unafflicted
+from ptcgo.game.data_utils import Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+_swap_counters, _has_move = move_counters_ability(1, "mine")
+
+
+def _can_swap(board, player_id, pokemon):
+    return unafflicted(board, player_id, pokemon) \
+        and _has_move(board, player_id, pokemon)
+
 
 card = PokemonCardDef(
     guid="17ddadd2-030f-50df-8e6e-a550f6be9759",
@@ -25,7 +35,9 @@ card = PokemonCardDef(
         Ability(
             title="Damage Swap",
             game_text="As often as you like during your turn (before your attack), you may move 1 damage counter from 1 of your Pok\u00e9mon to another as long as you don't Knock Out that Pok\u00e9mon. This power can't be used if Alakazam is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=_can_swap,
+            effect=_swap_counters,
         ),
         Attack(
             title="Confuse Ray",

@@ -2,6 +2,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_choice
 
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def flames_of_rage(ctx):
+    """Discard 2 Fire Energy from Arcanine, then 40 plus 10 per damage counter
+    on Arcanine."""
+    await ctx.discard_energy_from(
+        ctx.attacker, 2,
+        predicate=lambda card: energy_provides_type(card, PokemonTypes.FIRE.value),
+        prompt="Discard 2 Fire Energy attached to Arcanine")
+    await damage_per(damage_counters_on("self"), 10, base=40)(ctx)
+
 card = PokemonCardDef(
     guid="c7635583-6923-511f-99ca-4fb9b4e313d7",
     key="BASEP",
@@ -34,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flames_of_rage,
         ),
     ],
 )

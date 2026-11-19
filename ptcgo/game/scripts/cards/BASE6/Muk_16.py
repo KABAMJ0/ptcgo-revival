@@ -1,6 +1,19 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import ability_lock_passive
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+def _ignores_powers(pokemon, carrier):
+    """Every Pokemon Power other than Toxic Gases: a Toxic Gas is never
+    switched off by another one, and this power stops while Muk itself is
+    affected by a Special Condition."""
+    if carrier.get_attribute(AttrID.SPECIAL_CONDITIONS) or []:
+        return False
+    definition = def_for(pokemon.archetype_id)
+    return not any(getattr(ability, "title", "") == "Toxic Gas"
+                   for ability in (getattr(definition, "abilities", None) or []))
+
 
 card = PokemonCardDef(
     guid="f7fdae30-cb57-57e5-bc87-f69c75ab6f40",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Toxic Gas",
             game_text="Ignore all Pok\u00e9mon Powers other than Toxic Gases. This power stops working while Muk is affected by a Special Condition.",
-            effect=unimplemented,
+            passive=ability_lock_passive(_ignores_powers),
         ),
         Attack(
             title="Sludge",

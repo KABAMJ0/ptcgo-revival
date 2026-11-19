@@ -1,4 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +28,8 @@ card = PokemonCardDef(
             title="Recharge",
             game_text="Flip a coin. If heads, search your deck for a Lightning Energy card and attach it to Pikachu. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(search_attach_energy(is_lightning_energy,
+                                                 count=1, to_self=True)),
         ),
         Attack(
             title="Thunderbolt",

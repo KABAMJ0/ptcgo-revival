@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+from ptcgo.game.card_effects.passives_common import shield_from_defender_next_turn
+async def snivel(ctx):
+    """The Defending Pokemon's attacks do 20 less to Cubone next turn."""
+    await shield_from_defender_next_turn(reduce=20)(ctx)
+
+
 card = PokemonCardDef(
     guid="312f5645-6962-547e-a7a6-b3f8e1febd1b",
     key="BASE4",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
             title="Snivel",
             game_text="If the Defending Pok\u00e9mon attacks Cubone during your opponent's next turn, any damage done by the attack is reduced by 20 (after applying Weakness and Resistance). (Benching either Pok\u00e9mon ends this effect.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snivel,
         ),
         Attack(
             title="Rage",

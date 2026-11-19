@@ -1,5 +1,20 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _mountain_smasher(ctx):
+    fighting = [energy for energy in ctx.attached_energies(ctx.attacker)
+                if energy_provides_type(energy, PokemonTypes.FIGHTING.value)]
+    if not fighting:
+        return
+    results = await ctx.flip_coins(len(fighting), "Mountain Smasher")
+    heads = sum(1 for result in results if result)
+    if heads <= 0:
+        return
+    await ctx.deal_damage(20 * heads)
+    await bare_mill(heads, opponent=True)(ctx)
 
 
 async def _fling_away(ctx):
@@ -38,7 +53,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_mountain_smasher,
         ),
         Attack(
             title="Fling Away",

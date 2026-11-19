@@ -1,8 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.session.effects import is_basic_pokemon
-from ptcgo.game.card_effects.trainers import all_of, named
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
+from ptcgo.game.card_effects.trainers import all_of, named, team_magma_target
 
 card = PokemonCardDef(
     guid="832fc007-ff56-594b-9af7-f7b47447eabd",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", team_magma_target), 20),
         ),
     ],
 )

@@ -1,6 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+async def metronome(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    candidates = [(defender, attack) for attack in ctx.attacks_of(defender)]
+    if not candidates:
+        return
+    picked = await ctx.choose_attack_to_copy(candidates, "Choose an attack to copy")
+    if picked is None:
+        return
+    source, chosen = picked
+    await ctx.use_attack(chosen, source=source)
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
 card = PokemonCardDef(
     guid="1b6549de-1adf-5613-98d9-32d147d8ee27",
     key="BASE4",
@@ -24,7 +43,7 @@ card = PokemonCardDef(
             title="Metronome",
             game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. Metronome copies that attack except for its Energy costs and anything else required in order to use that attack, such as discarding Energy cards. (No matter what type the Defending Pok\u00e9mon is, Clefable's type is still Colorless.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=metronome,
         ),
         Attack(
             title="Minimize",

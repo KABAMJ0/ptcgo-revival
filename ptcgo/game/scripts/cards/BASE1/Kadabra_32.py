@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def recover(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1,
+        predicate=lambda card: energy_provides_type(card, PokemonTypes.PSYCHIC.value),
+        prompt="Discard 1 PSYCHIC Energy card attached to Kadabra")
+    if not discarded:
+        return
+    pokemon = ctx.attacker
+    missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+    if missing > 0:
+        await ctx.heal(missing, pokemon)
+
 
 card = PokemonCardDef(
     guid="13e17998-12f1-5163-9d6b-b1ae6d2ea9fa",
@@ -23,7 +38,7 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard 1 Psychic Energy card attached to Kadabra in order to use this attack. Remove all damage counters from Kadabra.",
             cost={PokemonTypes.PSYCHIC: 2},
-            effect=unimplemented,
+            effect=recover,
         ),
         Attack(
             title="Super Psy",

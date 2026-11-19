@@ -7,7 +7,7 @@ from ptcgo.game.card_effects.support_common import remove_self_from_play
 
 async def _burning_poison(ctx):
     choice = await ctx.choose("Choose Burned or Poisoned", ["Burned", "Poisoned"])
-    condition = SpecialConditions.BURNED if choice == "Burned" else SpecialConditions.POISONED
+    condition = (SpecialConditions.BURNED, SpecialConditions.POISONED)[choice]
     if ctx.defender is not None:
         await ctx.apply_special_condition(ctx.defender, condition)
     if await ctx.ask_yes_no("Return Gliscor and all cards attached to it to your hand?"):

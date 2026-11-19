@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations
+from ptcgo.game.card_effects.attacks_common import flip_gate
+
+
+async def _laugh(ctx):
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        await ctx.shuffle_deck(player_id)
+
 
 card = PokemonCardDef(
     guid="35af0226-4a8d-57b3-8578-0a3565f5c4a7",
@@ -20,8 +28,9 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="[Laugh]",
+            activation=Activations.ONCE_PER_TURN,
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, each player shuffles his or her deck. This power can be used even if Unown [L] is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            effect=flip_gate(then=_laugh),
         ),
         Attack(
             title="Hidden Power",

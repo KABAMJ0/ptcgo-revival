@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+
+async def _all_the_presents(ctx):
+    heads = await ctx.flip_until_tails("All the Presents")
+    if heads:
+        picks = await ctx.search_deck(
+            None, count=heads, minimum=0,
+            prompt="Choose up to one card per heads to put into your hand")
+        await ctx.put_in_hand(picks, reveal=False)
+    await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="fed0f65d-a804-5bd2-aaa7-ad767c82c65a",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             title="All the Presents",
             game_text="Flip a coin until you get tails. For each heads, you may search your deck for a card and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_all_the_presents,
         ),
         Attack(
             title="Surprise Attack",

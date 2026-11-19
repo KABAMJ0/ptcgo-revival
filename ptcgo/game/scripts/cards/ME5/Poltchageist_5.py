@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+from ptcgo.game.card_effects.trainers import combined, holder_ability_shield
 
 card = PokemonCardDef(
     guid="f45e7725-690a-576c-a33e-b86a99f4f743",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Hide 'n' Sneak",
             game_text="Prevent all effects of your opponent's Pok\u00e9mon's attacks and Abilities done to this Pok\u00e9mon. (Damage is not an effect.)",
-            effect=unimplemented,
+            passive=combined(attack_effect_shield_passive(), holder_ability_shield()),
         ),
         Attack(
             title="Furtive Drop",

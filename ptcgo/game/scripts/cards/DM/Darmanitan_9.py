@@ -2,6 +2,19 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import attach_from_hand
+
+
+def _fire_energy(card):
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+async def heat_assist(ctx):
+    """Attach up to 3 Fire Energy from your hand to your Pokemon in any way."""
+    await attach_from_hand(_fire_energy, count=3, distribute=True, minimum=0,
+                           prompt="Choose up to 3 Fire Energy to attach")(ctx)
+
 card = PokemonCardDef(
     guid="fa48510e-6146-5674-9c87-0778335176a2",
     key="DM",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             title="Heat Assist",
             game_text="Attach up to 3 Fire Energy cards from your hand to your Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=heat_assist,
         ),
         Attack(
             title="Darmani-Hands",

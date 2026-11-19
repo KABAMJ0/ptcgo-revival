@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
 
 card = PokemonCardDef(
     guid="94173eaf-4cb3-5a0b-a92c-03b398138086",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(per_energy=10, energy_type=PokemonTypes.WATER, cap=20, base=20),
         ),
         Attack(
             title="Spike Cannon",

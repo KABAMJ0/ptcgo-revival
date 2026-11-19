@@ -1,6 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.pokemon import is_basic_water_energy
+
+
+async def riptide(ctx):
+    """20 per Basic Water Energy in the discard pile, then shuffle them in."""
+    energies = [card for card in ctx.discard_pile() if is_basic_water_energy(card)]
+    if not energies:
+        return
+    await ctx.deal_damage(20 * len(energies))
+    await ctx.shuffle_into_deck(energies, ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="29e3891e-f14a-5b12-abc1-73143ff22fa0",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=riptide,
         ),
         Attack(
             title="Swirling Waves",

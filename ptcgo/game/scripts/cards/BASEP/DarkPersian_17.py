@@ -2,6 +2,17 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import gust_attack
+
+
+async def tempt(ctx):
+    """On heads, switch 1 of the opponent's Benched Pokemon with their Active -
+    only when they have a Bench at all."""
+    if not ctx.opponent_bench():
+        return
+    await flip_gate(then=gust_attack())(ctx)
+
 card = PokemonCardDef(
     guid="715e6d95-7aef-565b-923c-7ca3979c47fa",
     key="BASEP",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             title="Tempt",
             game_text="If your opponent has any Benched Pok\u00e9mon, flip a coin. If heads, choose 1 of your opponent's Benched Pok\u00e9mon and switch it with the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=tempt,
         ),
         Attack(
             title="Poison Claws",

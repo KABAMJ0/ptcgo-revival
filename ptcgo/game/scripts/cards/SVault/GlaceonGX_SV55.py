@@ -4,6 +4,18 @@ from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 
 
+from ptcgo.game.card_effects.passives_common import ability_lock_passive
+from ptcgo.game.data_utils import has_rule_box
+
+
+def _their_rule_box(pokemon, carrier):
+    if pokemon.owning_player_id == carrier.owning_player_id:
+        return False
+    return has_rule_box(pokemon.archetype_id)
+
+
+_freezing_gaze = ability_lock_passive(_their_rule_box)
+
 card = PokemonCardDef(
     guid="e9cc02c1-f5a4-5f17-be7c-46dbdcd864ec",
     key="SVault",
@@ -25,7 +37,7 @@ card = PokemonCardDef(
         Ability(
             title="Freezing Gaze",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Pok\u00e9mon-GX and Pok\u00e9mon-EX in play, in their hand, and in their discard pile have no Abilities, except for Freezing Gaze.",
-            effect=unimplemented,
+            passive=_freezing_gaze,
         ),
         Attack(
             title="Frost Bullet",

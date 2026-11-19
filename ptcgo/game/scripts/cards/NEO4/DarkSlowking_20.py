@@ -1,5 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import unafflicted
+
+
+def _look_at_top_condition(board, player_id, pokemon) -> bool:
+    return unafflicted(board, player_id, pokemon)
+
+
+async def _look_at_top_and_shuffle(ctx):
+    results = await ctx.flip_coins(1, "Cunning")
+    if not (results and results[0]):
+        return
+    top = ctx.deck_top(1, player_id=ctx.opponent_id)
+    if not top:
+        return
+    await ctx.reveal_cards(top, to_player=ctx.player_id)
+    if await ctx.ask_yes_no("Have your opponent shuffle his or her deck?"):
+        await ctx.shuffle_deck(ctx.opponent_id)
 
 
 async def _mind_shock(ctx):
@@ -28,7 +45,9 @@ card = PokemonCardDef(
         Ability(
             title="Cunning",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, look at the top card of your opponent's deck. Then, you may have your opponent shuffle his or her deck. This power can't be used if Dark Slowking is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_look_at_top_condition,
+            effect=_look_at_top_and_shuffle,
         ),
         Attack(
             title="Mind Shock",

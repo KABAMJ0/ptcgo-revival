@@ -1,4 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.support_common import (
+    attach_from_hand, hand_attach_condition,
+)
+from ptcgo.game.card_effects.trainers import basic_energy_of, pokemon_of
+
+
+WATER_ENERGY = basic_energy_of("water")
+WATER_POKEMON = pokemon_of("water")
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
@@ -23,7 +34,11 @@ card = PokemonCardDef(
         Ability(
             title="Rain Dance",
             game_text="As often as you like during your turn (before your attack), you may attach a Water Energy from your hand to 1 of your Water Pok\u00e9mon. This power can't be used if Feraligatr is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=unafflicted,
+            effect=attach_from_hand(WATER_ENERGY, target="choice",
+                                    target_pred=WATER_POKEMON,
+                                    minimum=0),
         ),
         Attack(
             title="Hydro Crunch",

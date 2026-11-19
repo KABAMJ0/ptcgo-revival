@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.attributes import SpecialConditions
+
+
+class _DeepSleep(Passive):
+    """Every Asleep Pokemon flips two coins at Checkup and only wakes on both
+    heads; off while this Dark Gengar itself is Asleep, Confused or Paralyzed."""
+
+    def sleep_recovery_coins(self, pokemon, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or holder.get_attribute(AttrID.SPECIAL_CONDITIONS):
+            return None
+        return 2
 
 
 async def _pull_in(ctx):
@@ -37,7 +49,7 @@ card = PokemonCardDef(
         Ability(
             title="Deep Sleep",
             game_text="As long as any Dark Gengar are in play, a player flips 2 coins for each of his or her Pok\u00e9mon that is Asleep at the end of each turn. If either of them is tails, that Pok\u00e9mon is still Asleep. This power stops working if Dark Gengar is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_DeepSleep(),
         ),
         Attack(
             title="Pull In",

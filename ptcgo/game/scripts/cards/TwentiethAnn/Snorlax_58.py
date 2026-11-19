@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import sleep_recovery_coins
+
 card = PokemonCardDef(
     guid="a56f6412-3ca1-593d-bc87-c7124f6e01e6",
     key="TwentiethAnn",
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Stir and Snooze",
             game_text="If this Pok\u00e9mon is Asleep, flip 2 coins instead of 1 between turns. If either of them is tails, this Pok\u00e9mon is still Asleep.",
-            effect=unimplemented,
+            passive=sleep_recovery_coins(2),
         ),
         Attack(
             title="Sleepy Press",

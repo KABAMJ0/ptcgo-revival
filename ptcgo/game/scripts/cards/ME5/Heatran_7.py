@@ -1,7 +1,18 @@
+from ptcgo.game.attributes import (
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, PokemonStage,
+    Rarities, SpecialConditions,
+)
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+
+BURNED = CLIENT_SPECIAL_CONDITION_NAMES[SpecialConditions.BURNED]
+
+
+def _burned(attacker) -> bool:
+    """Attacker predicate: the attacking Pokemon is Burned."""
+    return BURNED in (attacker.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+
 
 card = PokemonCardDef(
     guid="a8ac9f57-1d4f-5eb2-9f32-8e39e629b06d",
@@ -31,7 +42,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Burned Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=_burned),
         ),
     ],
 )

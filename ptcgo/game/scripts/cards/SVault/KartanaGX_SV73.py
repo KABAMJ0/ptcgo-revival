@@ -13,6 +13,10 @@ async def _shuffle_self_in(ctx):
         )
 
 
+async def blade_gx(ctx):
+    """Take a Prize card."""
+    await ctx.take_prizes(1)
+
 card = PokemonCardDef(
     guid="a6dc3316-048f-5078-86c1-2d19df322953",
     key="SVault",
@@ -47,7 +51,7 @@ card = PokemonCardDef(
             title="Blade-GX",
             game_text="Take a Prize card. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=blade_gx,
         ),
     ],
 )
