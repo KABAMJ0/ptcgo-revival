@@ -1,7 +1,17 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+
+async def _drag_off(ctx):
+    bench = ctx.opponent_bench()
+    target = None
+    if bench:
+        target = await ctx.choose_pokemon(
+            bench, "Choose the new Defending Pok\u00e9mon") or bench[0]
+        await ctx.switch_active(ctx.opponent_id, target)
+    await ctx.deal_damage(target=target)
 
 card = PokemonCardDef(
     guid="ccdc078a-590d-5c79-8ff0-a94ab83baf8e",
@@ -24,14 +34,14 @@ card = PokemonCardDef(
         Ability(
             title="Immunity",
             game_text="Prevent all effects of your opponent's attacks done to Machamp.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Drag Off",
             game_text="Before doing damage, if your opponent has any Benched Pok\u00e9mon, choose 1 of them and switch it with the Defending Pok\u00e9mon. If your opponent has no Benched Pok\u00e9mon, ignore this effect.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_drag_off,
         ),
         Attack(
             title="Hurricane Punch",

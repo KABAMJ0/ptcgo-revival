@@ -1,5 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _bench_advantage(ctx) -> int:
+    return max(0, len(ctx.my_bench()) - len(ctx.opponent_bench()))
 
 card = PokemonCardDef(
     guid="1120db89-fdcb-5d7d-8cfc-70f024ea71dd",
@@ -33,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_bench_advantage, 10, base=30),
         ),
     ],
 )

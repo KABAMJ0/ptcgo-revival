@@ -1,6 +1,21 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, unafflicted
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+def _strange_spiral_ready(board, player_id, pokemon) -> bool:
+    return (is_in_active_spot(pokemon) and unafflicted(board, player_id, pokemon)
+            and any(is_basic_energy_card(e) for e in board.attached_energies(pokemon)))
+
+
+async def _strange_spiral(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1, predicate=is_basic_energy_card, minimum=1,
+        prompt="Choose a basic Energy to discard from Poliwrath")
+    if discarded and ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
 
 card = PokemonCardDef(
     guid="a8c83f18-8634-51e9-b32c-7cd63d2b60c8",
@@ -23,7 +38,9 @@ card = PokemonCardDef(
         Ability(
             title="Strange Spiral",
             game_text="Once during your turn (before your attack), if Poliwrath is your Active Pok\u00e9mon, you may discard a basic Energy card attached to Poliwrath. If you do, the Defending Pok\u00e9mon is now Confused. This power can't be used if Poliwrath is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_strange_spiral_ready,
+            effect=_strange_spiral,
         ),
         Attack(
             title="Spiral Punch",
