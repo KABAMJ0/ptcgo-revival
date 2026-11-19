@@ -109,6 +109,11 @@ class ScriptLoader:
                 logging.error("[Scripts] Failed to resolve card %s", error)
 
         invalid = self._resolve_legends(resolved) | self._resolve_vunions(resolved)
+        # Admin overrides (card_overrides table) land on resolved definitions before
+        # wording patterns bind, so an overridden effect is never re-bound.
+        from ptcgo.game.content import card_overrides
+        card_overrides.apply_at_load(
+            {ref: d for ref, d in resolved.items() if ref not in invalid})
         # Wording-driven effects bind here, once, after every definition is
         # resolved: card_effects imports this module indirectly, so the
         # resolver cannot be imported at module scope.

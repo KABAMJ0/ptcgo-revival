@@ -9,6 +9,7 @@ from ptcgo.game.models.formats import GameFormat, FORMAT_WIRE_NAMES
 from ptcgo.game.content.sets import card_script_counts
 from ptcgo.game.scripts.cards import loader as card_loader
 from ptcgo.game.decks.theme_decks import theme_decks
+from ptcgo.game.decks import card_bans
 
 FORMATS_PATH = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', '..', 'database', 'json_data', 'formats.json'
@@ -180,6 +181,8 @@ class FormatManager:
         """Legality ignoring any legalFrom time gate (the formatLegality bool slot)."""
         fmt = self.by_guid(format_guid)
         if fmt is None:
+            return False
+        if card_bans.is_banned(card.guid):
             return False
         if fmt.guid == DeckFormat.THEME.value:
             return card.guid.lower() in theme_decks.registry.legal_cards

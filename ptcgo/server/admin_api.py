@@ -5,11 +5,12 @@ from urllib.parse import parse_qs
 import logging
 import os
 import re
+import threading
 import time
 
 from urllib.parse import unquote
 from ptcgo.server import http_server
-from ptcgo.database import db_session, Account, TradeOffer
+from ptcgo.database import db_session, Account, TradeOffer, AdminAudit
 from ptcgo.database import economy_data
 from ptcgo.game.progression.seasons import SEASONS_PATH, VersusSeasonManager
 from ptcgo.game.attributes import AttrID
@@ -298,9 +299,39 @@ def _live_state():
     }
 
 
-def _audit(action, detail=""):
-    """Records one admin mutation for the activity feed."""
-    activity.record(action, detail=detail)
+# The acting admin for the request this thread is serving. Set by route_admin from
+# the server-side session, never from the request body.
+_ctx = threading.local()
+
+
+def current_admin():
+    return getattr(_ctx, "admin", None) or {}
+
+
+def mark_audited():
+    _ctx.audited = True
+
+
+def _audit(action, detail="", diff=None, target="", session=None):
+    """Records one admin mutation: the activity feed plus a persisted AdminAudit row
+    naming the acting admin. Pass the caller's `session` to commit both together."""
+    admin = current_admin().get("username", "")
+    mark_audited()
+    diff = diff if diff is not None else {"detail": detail}
+    activity.record(action, account=admin, detail=detail, target=target, diff=diff)
+    row = AdminAudit(admin=admin, action=action, target=str(target or detail)[:190], diff_json=diff)
+    if session is not None:
+        session.add(row)
+        return
+    try:
+        with db_session() as audit_session:
+            audit_session.add(row)
+    except Exception as e:
+        logging.error(f"[Admin] could not persist audit row for {action}: {e}")
+
+
+def _is_self(account_id):
+    return bool(account_id) and account_id == current_admin().get("account_id")
 
 
 def _players_overview():
@@ -410,9 +441,12 @@ def _clear_collection(account_id):
     with db_session() as session:
         if not session.query(Account).filter_by(account_id=account_id).first():
             return _err(404, "account not found")
+        rows = session.query(Collection).filter_by(account_id=account_id).all()
+        before = {r.archetype_id: [r.tradable_count, r.nontradable_count] for r in rows}
         removed = session.query(Collection).filter_by(account_id=account_id).delete()
+        _audit("admin_wipe_collection", f"{account_id} rows={removed}", target=account_id,
+               diff={"account_id": account_id, "before": before, "after": {}}, session=session)
     logging.info(f"[Admin] Cleared collection for {account_id} ({removed} rows)")
-    activity.record("admin_wipe_collection", detail=f"{account_id} rows={removed}")
     return _ok({"removed": int(removed)})
 
 
@@ -421,6 +455,7 @@ def _reset_wallet(account_id, coins=None, gems=None, tickets=None):
         wallet = session.query(Wallet).filter_by(account_id=account_id).first()
         if wallet is None:
             return _err(404, "wallet not found")
+        before = {"coins": wallet.coins, "gems": wallet.gems, "tickets": wallet.tickets}
         if coins is not None:
             wallet.coins = int(coins)
         if gems is not None:
@@ -428,17 +463,24 @@ def _reset_wallet(account_id, coins=None, gems=None, tickets=None):
         if tickets is not None:
             wallet.tickets = int(tickets)
         snapshot = {"coins": wallet.coins, "gems": wallet.gems, "tickets": wallet.tickets}
+        _audit("admin_wallet", f"{account_id} set wallet", target=account_id,
+               diff={"account_id": account_id, "before": before, "after": snapshot}, session=session)
     return _ok({"wallet": snapshot})
 
 
 def _set_banned(account_id, banned):
+    if banned and _is_self(account_id):
+        return _err(400, "you cannot ban your own account")
     with db_session() as session:
         account = session.query(Account).filter_by(account_id=account_id).first()
         if account is None:
             return _err(404, "account not found")
+        before = bool(account.is_banned)
         account.is_banned = bool(banned)
+        _audit("admin_ban" if banned else "admin_unban", f"{account.username}", target=account_id,
+               diff={"account_id": account_id, "before": {"is_banned": before},
+                     "after": {"is_banned": bool(banned)}}, session=session)
     logging.info(f"[Admin] {'Banned' if banned else 'Unbanned'} account {account_id}")
-    activity.record("admin_ban" if banned else "admin_unban", detail=account_id)
     return _ok({"account_id": account_id, "is_banned": bool(banned)})
 
 
@@ -446,6 +488,8 @@ def _delete_account(account_id, confirm):
     """Removes the account and every row that references it."""
     if (confirm or "").strip().upper() != "DELETE":
         return _err(400, 'type DELETE in the confirmation box')
+    if _is_self(account_id):
+        return _err(400, "you cannot delete your own account")
     from ptcgo.database.base import Base
     from sqlalchemy import text
 
@@ -463,9 +507,11 @@ def _delete_account(account_id, confirm):
                 table.delete().where(table.c.account_id == account_id))
             if result.rowcount:
                 removed[table.name] = int(result.rowcount)
+        _audit("admin_delete_account", account.username, target=account_id,
+               diff={"account_id": account_id, "username": account.username, "rows": removed},
+               session=session)
         session.delete(account)
     logging.warning(f"[Admin] Deleted account {account_id}: {removed}")
-    activity.record("admin_delete_account", detail=account_id)
     return _ok({"deleted": account_id, "rows": removed})
 
 
@@ -502,7 +548,8 @@ def _login(data):
     if not admin:
         return _err(401, "invalid credentials or not an admin account")
     token = admin_auth.create_session(admin["account_id"], admin["username"])
-    _audit("admin_login", admin["username"])
+    _ctx.admin = {"account_id": admin["account_id"], "username": admin["username"]}
+    _audit("admin_login", admin["username"], target=admin["account_id"])
     status, payload, ctype = _ok({"username": admin["username"]})
     return status, payload, ctype, [("Set-Cookie", admin_auth.session_cookie(token))]
 
@@ -530,8 +577,11 @@ def route_admin(method, path, body, headers=None):
     if body:
         try:
             data = json.loads(body)
-        except (json.JSONDecodeError, TypeError):
+        except (json.JSONDecodeError, TypeError, UnicodeDecodeError):
             return _err(400, "invalid JSON body")
+        if not isinstance(data, dict):
+            return _err(400, "JSON body must be an object")
+    _ctx.admin, _ctx.audited = None, False
 
     token = admin_auth.token_from_headers(headers)
     session = admin_auth.get_session(token)
@@ -544,17 +594,42 @@ def route_admin(method, path, body, headers=None):
         return status, payload, ctype, [("Set-Cookie", admin_auth.session_cookie("", clear=True))]
     if method == 'GET' and endpoint == 'session':
         if session:
-            return _ok({"authenticated": True, "username": session["username"]})
+            return _ok({"authenticated": True, "username": session["username"],
+                    "account_id": session["account_id"]})
         return _json(200, {"ok": True, "authenticated": False})
 
     if session is None:
         return _err(401, "authentication required")
 
+    from ptcgo.server import admin_console
+    _ctx.admin = {"account_id": session["account_id"], "username": session["username"]}
+    bare_endpoint, _, query_string = endpoint.partition("?")
     try:
-        return _dispatch(method, endpoint, data)
+        result = admin_console.dispatch(method, bare_endpoint, data, query_string, token)
+        if result is None:
+            result = _dispatch(method, endpoint, data)
     except Exception as e:
         logging.error(f"[Admin] API error on {method} {path}: {e}", exc_info=True)
         return _err(500, str(e))
+    if (method == 'POST' and result[0] < 400 and not getattr(_ctx, "audited", False)
+            and bare_endpoint not in admin_console.READ_ONLY_POSTS):
+        _audit("admin_call", bare_endpoint, target=bare_endpoint,
+               diff={"endpoint": bare_endpoint, "request": _redact(data)})
+    return result
+
+
+def _redact(data):
+    """The request as the audit log keeps it: no passwords, no uploaded images."""
+    out = {}
+    for key, value in (data or {}).items():
+        if "password" in key.lower() or key in ("image", "current", "new"):
+            out[key] = "[redacted]"
+        elif isinstance(value, str) and len(value) > 500:
+            out[key] = value[:500] + "…"
+        else:
+            out[key] = value
+    text = json.dumps(out, default=str)
+    return out if len(text) <= 20000 else {"truncated": text[:20000]}
 
 
 def _dispatch(method, endpoint, data):
@@ -609,6 +684,8 @@ def _dispatch(method, endpoint, data):
         account_id = data.get("account_id")
         if not account_id:
             return _err(400, "account_id required")
+        if _is_self(account_id) and not data.get("is_admin"):
+            return _err(400, "you cannot remove your own admin rights")
         if not set_admin(account_id, bool(data.get("is_admin"))):
             return _err(404, "account not found")
         _audit("admin_rights", f"{account_id} admin={bool(data.get('is_admin'))}")
