@@ -1,5 +1,19 @@
+from ptcgo.game.card_effects.support_common import search_attach_energy, switch_self_attack
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _energy_glide(ctx):
+    """Attach a Lightning Energy from the deck to itself; if one was attached,
+    switch this Pokemon with a Benched one. The attach is detected by the
+    Energy count, because search_attach_energy reports nothing back."""
+    attached = search_attach_energy(basic_energy_of("lightning"), count=1,
+                                    to_self=True)
+    before = len(ctx.attached_energies(ctx.attacker))
+    await attached(ctx)
+    if len(ctx.attached_energies(ctx.attacker)) > before:
+        await switch_self_attack()(ctx)
+
 
 card = PokemonCardDef(
     guid="256fe356-5a0a-5782-b2ae-f06a273ab98c",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             title="Energy Glide",
             game_text="Search your deck for a Lightning Energy card and attach it to this Pok\u00e9mon. Shuffle your deck afterward. If you attached Energy in this way, switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_energy_glide,
         ),
         Attack(
             title="Electron Crush",

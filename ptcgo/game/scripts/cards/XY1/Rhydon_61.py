@@ -1,5 +1,18 @@
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, flip_gate
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+async def _mad_mountain(ctx):
+    """Both heads mills one card per damage counter on this Pokemon."""
+    results = await ctx.flip_coins(2, "Mad Mountain")
+    if not (results and all(results)):
+        return
+    counters = max(0, (ctx.max_hp(ctx.attacker)
+                       - ctx.attacker.get_attribute(AttrID.HP, 0)) // 10)
+    if counters > 0:
+        await mill_attack(counters, opponent=True)(ctx)
+
 
 card = PokemonCardDef(
     guid="530587cf-3ea3-55e6-b9fd-35ca196a2001",
@@ -28,7 +41,7 @@ card = PokemonCardDef(
             title="Mad Mountain",
             game_text="Flip 2 coins. If both of them are heads, discard the top card of your opponent's deck for each damage counter on this Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 3, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_mad_mountain,
         ),
     ],
 )

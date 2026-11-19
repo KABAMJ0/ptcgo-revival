@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _lunatone_benched(ctx):
+    from ptcgo.game.card_effects.support_common import entity_name
+    return any(entity_name(p) == "Lunatone" for p in ctx.my_bench())
+
 
 card = PokemonCardDef(
     guid="b5286690-9511-5749-805e-e60210ab82a0",
@@ -24,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_lunatone_benched, 30),
         ),
         Attack(
             title="Solar Beam",

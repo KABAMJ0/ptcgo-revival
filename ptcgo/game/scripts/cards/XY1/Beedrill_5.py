@@ -1,6 +1,19 @@
+from ptcgo.game.card_effects.passives_common import shield_from_defender_next_turn
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _flash_needle(ctx):
+    """40 per head; all heads also shields this Pokemon from everything."""
+    results = await ctx.flip_coins(3, "Flash Needle")
+    heads = sum(1 for r in results if r)
+    amount = 40 * heads
+    if amount > 0:
+        await ctx.deal_damage(amount)
+    if heads == 3 and ctx.attacker is not None:
+        await shield_from_defender_next_turn(prevent=True, effects_too=True)(ctx)
+
 
 card = PokemonCardDef(
     guid="5963bb27-70a0-5fc0-91b3-b486f80897e9",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_flash_needle,
         ),
     ],
 )

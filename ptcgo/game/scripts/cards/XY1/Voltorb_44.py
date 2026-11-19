@@ -1,5 +1,15 @@
+from ptcgo.game.content.definitions import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _destiny_burst(ctx):
+    attacker = getattr(ctx, "ko_attacker", None)
+    if attacker is None:
+        return
+    results = await ctx.flip_coins(1, "Destiny Burst")
+    if results and results[0]:
+        await ctx.deal_damage(50, target=attacker, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="e26087cc-fcf2-5030-b402-1a68f18d72dd",
@@ -21,7 +31,8 @@ card = PokemonCardDef(
         Ability(
             title="Destiny Burst",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, flip a coin. If heads, put 5 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=_destiny_burst,
         ),
         Attack(
             title="Rollout",

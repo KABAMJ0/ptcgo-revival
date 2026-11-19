@@ -1,6 +1,18 @@
+from ptcgo.game.card_effects.passives_common import ability_lock_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _gastro_acid(ctx):
+    """Printed 20; the Defending Pokemon has no Abilities until the end of my
+    next turn, which is a lock scoped through the opponent's turn."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    ctx.add_passive_through_opponents_turn(
+        defender, ability_lock_passive(lambda p, c: p is defender))
+
 
 card = PokemonCardDef(
     guid="239d53c9-a709-5809-9a73-475bffb5a909",
@@ -25,7 +37,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon has no Abilities until the end of your next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_gastro_acid,
         ),
         Attack(
             title="Poison Jab",

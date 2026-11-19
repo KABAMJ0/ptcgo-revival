@@ -1,6 +1,23 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _geomancy(ctx):
+    """Choose 2 Benched Pokemon; each takes a Fairy Energy from the deck."""
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    targets = bench if len(bench) <= 2 else await ctx.choose_cards(
+        bench, 2, minimum=1, prompt="Choose 2 Benched Pok\u00e9mon")
+    predicate = basic_energy_of("fairy")
+    for target in targets:
+        picks = await ctx.search_deck(predicate, count=1, minimum=0,
+                                      prompt="Choose a Fairy Energy to attach")
+        if picks:
+            await ctx.attach_energy(picks[0], target)
+    await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="283fcc93-0244-5f24-a6b6-2b3ec80822f1",
@@ -24,7 +41,7 @@ card = PokemonCardDef(
             title="Geomancy",
             game_text="Choose 2 of your Benched Pok\u00e9mon. For each of those Pok\u00e9mon, search your deck for a Fairy Energy card and attach it to that Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=_geomancy,
         ),
         Attack(
             title="Rainbow Spear",
