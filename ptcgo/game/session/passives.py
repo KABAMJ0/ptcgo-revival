@@ -455,7 +455,8 @@ class Passive:
         return []
 
     def blocks_trainer_play(
-        self, card: BoardEntity, player_id: str, carrier: BoardEntity
+        self, card: BoardEntity, player_id: str, carrier: BoardEntity,
+        board: Optional["BoardState"] = None
     ) -> bool:
         """True to forbid `player_id` playing `card` from hand (Vileplume)."""
         return False
@@ -1035,7 +1036,7 @@ def ability_effects_blocked(board: BoardState, target: PokemonEntity) -> bool:
 def trainer_play_blocked(board: BoardState, player_id: str, card: BoardEntity) -> bool:
     """Whether a continuous passive forbids playing `card` from hand."""
     return any(
-        passive.blocks_trainer_play(card, player_id, carrier)
+        passive.blocks_trainer_play(card, player_id, carrier, board)
         for passive, carrier in active_passives(board)
     )
 
