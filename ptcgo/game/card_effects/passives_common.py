@@ -2037,6 +2037,71 @@ def reorder_top(where: str = "top"):
     return effect
 
 
+async def _attach_energy_where(ctx, energies, target="choice",
+                               candidates=None, distribute=False):
+    """The tail both attach-from-a-pile factories share: put `energies` on a
+    chosen Pokemon, on one named holder, or spread them "in any way you like"."""
+    from ptcgo.game.card_effects.support_common import distribute_energy
+
+    pool = candidates(ctx) if callable(candidates) else ctx.my_pokemon_in_play()
+    pool = list(pool or [])
+    if distribute:
+        return await distribute_energy(ctx, energies, pool)
+    if target == "self":
+        holder = ctx.source
+    elif target == "active":
+        holder = ctx.my_active()
+    else:
+        if not pool:
+            return []
+        if len(pool) == 1:
+            holder = pool[0]
+        else:
+            holder = await ctx.choose_pokemon(
+                pool, "Choose a Pokémon to attach the Energy to")
+    if holder is None:
+        return []
+    attached = []
+    for energy in energies:
+        await ctx.attach_energy(energy, holder)
+        attached.append((energy, holder))
+    return attached
+
+
+def attach_energy_from_discard(count: int = 1, predicate=None,
+                               target="choice", candidates=None,
+                               distribute: bool = False):
+    """"Attach N Energy card(s) from your discard pile to <target>" as a
+    standalone ability body (Metagross-GX's Geotech System).
+
+    `attach_energy_from_cards` is the twin for a pile an earlier step already
+    produced; it takes `(ctx, cards)`, so a card whose FIRST act is to reach into
+    the discard had no factory and reached for a damage body instead. `target`
+    is "choice" (prompt among your Pokemon), "self" or "active"; `candidates(ctx)`
+    narrows the pool; `distribute=True` is "in any way you like"."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+
+    def matches(card) -> bool:
+        return (predicate or is_energy_card)(card)
+
+    async def effect(ctx):
+        available = [card for card in ctx.discard_pile() if matches(card)]
+        if not available:
+            return []
+        if len(available) > count:
+            picks = await ctx.choose_cards(
+                available, count, minimum=count,
+                prompt="Choose Energy from your discard pile to attach")
+        else:
+            picks = available[:count]
+        if not picks:
+            return []
+        return await _attach_energy_where(ctx, list(picks), target=target,
+                                          candidates=candidates,
+                                          distribute=distribute)
+    return effect
+
+
 def attach_energy_from_cards(target="choice", predicate=None,
                              distribute: bool = False):
     """Follow-up for a first part that produced cards: attach the Energy among
@@ -2049,29 +2114,11 @@ def attach_energy_from_cards(target="choice", predicate=None,
         return (predicate or is_energy_card)(card)
 
     async def effect(ctx, cards):
-        from ptcgo.game.card_effects.support_common import distribute_energy
-
         energies = [card for card in (cards or []) if matches(card)]
         if not energies:
             return []
-        if distribute:
-            # "attach them to your Pokemon in any way you like"
-            return await distribute_energy(ctx, energies, ctx.my_pokemon_in_play())
-        if target == "self":
-            holder = ctx.source
-        else:
-            candidates = ctx.my_pokemon_in_play()
-            if not candidates:
-                return []
-            holder = await ctx.choose_pokemon(
-                candidates, "Choose a Pokémon to attach the Energy to")
-            if holder is None:
-                return []
-        attached = []
-        for energy in energies:
-            await ctx.attach_energy(energy, holder)
-            attached.append((energy, holder))
-        return attached
+        return await _attach_energy_where(ctx, energies, target=target,
+                                          distribute=distribute)
     return effect
 
 

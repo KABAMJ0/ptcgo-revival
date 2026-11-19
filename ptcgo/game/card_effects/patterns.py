@@ -15163,6 +15163,42 @@ class AbilityEffectShieldPassive(Passive):
         return target is carrier_pokemon(carrier)
 
 
+def _energy_string_pred(phrase: str):
+    """"Psychic or Metal" / "basic Fighting" -> a predicate on an Energy card."""
+    from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+    from ptcgo.game.card_effects.trainers import POKEMON_TYPE_NAMES
+
+    words = [w.strip() for w in phrase.replace(" and ", ", ")
+             .replace(" or ", ", ").split(",")]
+    basic_only = "basic" in words
+    wanted = [POKEMON_TYPE_NAMES[w] for w in words
+              if w in POKEMON_TYPE_NAMES]
+
+    def pred(card) -> bool:
+        if not is_energy_card(card):
+            return False
+        if basic_only and getattr(card, "subtypes", None) \
+                and "Special" in (getattr(card, "subtypes", []) or []):
+            return False
+        return any(energy_provides_type(card, value) for value in wanted)
+
+    return pred
+
+
+def _attach_energy_from_discard(m, ability):
+    """"...attach N <type> Energy card(s) from your discard pile to <where>"."""
+    from ptcgo.game.card_effects.passives_common import attach_energy_from_discard
+
+    count = m.group("count")
+    count = 1 if count in (None, "a", "an") else int(count)
+    where = m.group("where")
+    target = "self" if "this pokemon" in where else (
+        "active" if "active" in where else "choice")
+    return attach_energy_from_discard(
+        count=count, predicate=_energy_string_pred(m.group("types")),
+        target=target)
+
+
 def _shield_item_or_supporter(m, ability):
     """"Whenever your opponent plays an Item or Supporter card from their
     hand, prevent all effects of that card done to this Pokemon." """
@@ -19933,6 +19969,11 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"abilities done to this pokemon\. "
                 r"\(damage is not an effect\.\)"),
      _shield_attacks_and_abilities),
+    ("attach.energy-from-discard",
+     re.compile(r"attach (?P<count>a|an|1|\d+) (?P<types>[a-z\- ]+?) energy "
+                r"cards? from your discard pile to (?P<where>your active "
+                r"pokemon|this pokemon|1 of your pokemon)\."),
+     _attach_energy_from_discard),
     ("shield.item-or-supporter-holder",
      re.compile(r"whenever your opponent plays an item or supporter card from "
                 r"their hand, prevent all effects of that card done to this "
