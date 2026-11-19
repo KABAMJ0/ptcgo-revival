@@ -3882,10 +3882,14 @@ def attacker_has_special_energy():
 
 
 def attacker_has_ability():
-    """Attacker predicate: the attacker prints at least one Ability."""
+    """Attacker predicate: the attacker prints at least one Ability.
+
+    `PokemonCardDef.abilities` carries Attacks too, so a truthiness test is
+    true for 12,756 of the 16,547 Pokemon defs; require a non-Attack entry."""
     def predicate(attacker):
         definition = def_for(attacker.archetype_id)
-        return bool(getattr(definition, "abilities", None))
+        return any(not isinstance(entry, Attack)
+                   for entry in getattr(definition, "abilities", None) or [])
     return predicate
 
 
@@ -4883,12 +4887,15 @@ def draw_then_turn_boost(draw: int, amount: int):
 
 
 def draw_from_bottom(count: int):
-    """Draw `count` cards from the bottom of your deck (Looker)."""
+    """Draw `count` cards from the bottom of your deck (Looker).
+
+    The deck's top is its LAST child (`board.deal_from_deck` deals
+    `children[-1]`), so the bottom is the head of the list."""
     async def effect(ctx):
         deck = ctx.deck()
         if not deck:
             return
-        picks = deck[-count:]
+        picks = deck[:count]
         for card in picks:
             await ctx.put_in_hand([card], reveal=False)
     return effect
