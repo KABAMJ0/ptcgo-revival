@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import EnergyTypeRewritePassive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
@@ -24,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Dark Aura",
             game_text="All Energy attached to this Pok\u00e9mon are Darkness Energy instead of their usual type.",
-            effect=unimplemented,
+            passive=EnergyTypeRewritePassive(PokemonTypes.DARKNESS.value,
+                                             protects="carrier"),
         ),
         Attack(
             title="Berserker Blade",

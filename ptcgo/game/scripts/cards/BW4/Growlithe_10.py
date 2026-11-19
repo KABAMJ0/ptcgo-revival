@@ -1,4 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_bonus
@@ -24,7 +27,8 @@ card = PokemonCardDef(
             title="Stoke",
             game_text="Flip a coin. If heads, search your deck for a Fire Energy card and attach it to this Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(search_attach_energy(basic_energy_of("fire"), count=1,
+                                                to_self=True)),
         ),
         Attack(
             title="Firebreathing",

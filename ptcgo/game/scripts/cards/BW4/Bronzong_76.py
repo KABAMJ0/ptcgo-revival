@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.attacks_common import count_hand, damage_per
+from ptcgo.game.card_effects.passives_common import healing_block_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _blocks_every_heal(target, carrier):
+    return True
+
 
 card = PokemonCardDef(
     guid="a126bc48-c8ba-5976-bd95-db6f8bd670c5",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Heal Block",
             game_text="Damage can't be healed from any Pok\u00e9mon (both yours and your opponent's). (Damage counters can still be moved.)",
-            effect=unimplemented,
+            passive=healing_block_passive(_blocks_every_heal),
         ),
         Attack(
             title="Oracle Inflict",
@@ -31,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_hand("opponent"), 10, base=30),
         ),
     ],
 )

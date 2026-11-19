@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _burn_after(ctx):
+    if ctx.defender is not None and not ctx.effects_blocked(ctx.defender):
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
@@ -32,7 +38,7 @@ card = PokemonCardDef(
             game_text="Discard all Energy attached to this Pok\u00e9mon. The Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, also=_burn_after),
         ),
     ],
 )

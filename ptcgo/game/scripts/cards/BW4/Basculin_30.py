@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="If, before this Pok\u00e9mon does damage, the Defending Pok\u00e9mon has no damage counters on it, this attack does nothing.",
             cost={PokemonTypes.WATER: 1},
             damage=40,
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 0, else_nothing=True),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             game_text="You may move 1 Energy attached to this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=energy_move_attack(count=1),
         ),
         Attack(
             title="Rock Tumble",
