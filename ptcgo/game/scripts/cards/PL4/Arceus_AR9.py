@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.trainers import pokemon_lv_x
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +26,8 @@ card = PokemonCardDef(
             game_text="Prevent all effects of attacks, including damage, done to Arceus by Pok\u00e9mon LV.X during your opponent's next turn.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, effects_too=True,
+                                     attacker_pred=pokemon_lv_x()),
         ),
     ],
 )

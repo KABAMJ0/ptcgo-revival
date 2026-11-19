@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import (PokemonCardDef, Attack, Ability,
+                                      Triggers, unimplemented)
+from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
+                                   SpecialConditions)
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="4bd62747-2043-502e-a5b7-8e081e3046c6",
@@ -23,7 +26,9 @@ card = PokemonCardDef(
         Ability(
             title="Shoot Poison",
             game_text="Once during your turn (before your attack), when you put Gliscor LV.X from your hand onto your Active Gliscor, you may choose 1 of the Defending Pok\u00e9mon. That Pok\u00e9mon is now Paralyzed and Poisoned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=condition_attack(SpecialConditions.PARALYZED,
+                                    SpecialConditions.POISONED, damage=0),
         ),
         Attack(
             title="Night Slash",

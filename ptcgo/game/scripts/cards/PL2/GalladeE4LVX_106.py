@@ -1,5 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import (damage_per, damage_counters_on,
+                                                    place_counters)
+from ptcgo.game.data_utils import (PokemonCardDef, Attack, Ability,
+                                      Triggers, unimplemented)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
@@ -24,7 +26,8 @@ card = PokemonCardDef(
         Ability(
             title="Blade Storm",
             game_text="Once during your turn (before your attack), when you put Gallade E4 LV.X from your hand onto your Active Gallade E4, you may put 1 damage counter on each of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=place_counters(1, target="each_opponent"),
         ),
         Attack(
             title="Aimed Cut",
