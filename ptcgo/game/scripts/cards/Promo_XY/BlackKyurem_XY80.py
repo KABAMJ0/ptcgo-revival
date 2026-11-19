@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import condition_attack, recoil_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=recoil_attack(20),
         ),
     ],
 )
