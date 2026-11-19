@@ -1,5 +1,7 @@
 from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
 
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: is_pokemon_ex(ctx.defender), 80),
         ),
     ],
 )
