@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 30 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2},
             damage=180,
-            effect=unimplemented,
+            effect=spread_damage(30, side="mine"),
         ),
     ],
 )

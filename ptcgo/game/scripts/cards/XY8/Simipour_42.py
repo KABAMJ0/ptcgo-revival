@@ -31,7 +31,7 @@ card = PokemonCardDef(
             title="Hand Fling",
             game_text="This attack does 10 damage times the number of cards in your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
     ],
 )

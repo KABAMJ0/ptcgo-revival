@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, discard all Pok\u00e9mon Tools from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
     ],
 )

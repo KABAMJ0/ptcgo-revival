@@ -7,10 +7,6 @@ async def _spread(ctx):
     await ctx.place_damage_counters(3)
 
 
-async def _spread_counters(ctx):
-    await ctx.deal_damage()
-    await ctx.place_damage_counters(4)
-
 card = PokemonCardDef(
     guid="da216ba6-34ab-58c4-b490-858c74ba2605",
     key="BW6",
@@ -31,13 +27,13 @@ card = PokemonCardDef(
         Ability(
             title="Empty Shell",
             game_text="If this Pok\u00e9mon is Knocked Out, your opponent can't take any Prize cards for it.",
-            effect=_spread,
+            effect=unimplemented,
         ),
         Attack(
             title="Cursed Drop",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=_spread_counters,
+            effect=_spread,
         ),
     ],
 )

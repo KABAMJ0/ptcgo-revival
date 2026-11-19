@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="61f7fc1b-e33f-5924-b0a9-e532f3c9fc6f",
@@ -34,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=290,
             damage_operator="-",
-            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
+            effect=unimplemented,
         ),
     ],
 )

@@ -7,10 +7,6 @@ async def _spread(ctx):
     await ctx.place_damage_counters(3)
 
 
-async def _spread_counters(ctx):
-    await ctx.deal_damage()
-    await ctx.place_damage_counters(4)
-
 card = PokemonCardDef(
     guid="df7a3004-13c0-50c9-8d56-329081ae5b8b",
     key="EX9",
@@ -32,13 +28,13 @@ card = PokemonCardDef(
         Ability(
             title="Wise Aura",
             game_text="As long as Medicham ex is your Active Pok\u00e9mon, each Pok\u00e9mon (excluding Pok\u00e9mon-ex) (both yours and your opponent's) can't use any Pok\u00e9-Powers.",
-            effect=_spread,
+            effect=unimplemented,
         ),
         Attack(
             title="Pure Power",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=_spread_counters,
+            effect=_spread,
         ),
         Attack(
             title="Sky Kick",

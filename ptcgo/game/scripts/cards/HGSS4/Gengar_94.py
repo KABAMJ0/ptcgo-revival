@@ -7,10 +7,6 @@ async def _spread(ctx):
     await ctx.place_damage_counters(4)
 
 
-async def _spread_counters(ctx):
-    await ctx.deal_damage()
-    await ctx.place_damage_counters(4)
-
 card = PokemonCardDef(
     guid="b45c0e9f-312e-5288-91d1-e8558b2f8063",
     key="HGSS4",
@@ -33,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Catastrophe",
             game_text="As long as Gengar is your Active Pok\u00e9mon, if any of your opponent's Pok\u00e9mon would be Knocked Out, put that Pok\u00e9mon in the Lost Zone instead of discarding. (Discard all cards attached to that Pok\u00e9mon.)",
-            effect=_spread,
+            effect=unimplemented,
         ),
         Attack(
             title="Hurl into Darkness",
@@ -45,7 +41,7 @@ card = PokemonCardDef(
             title="Cursed Drop",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=_spread_counters,
+            effect=_spread,
         ),
     ],
 )

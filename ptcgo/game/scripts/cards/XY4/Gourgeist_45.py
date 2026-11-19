@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_hand("mine"), 10),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import no_weakness_passive
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon's attacks do 30 less damage\u00a0(before applying Weakness and Resistance).",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=reduce_defender_attacks(30),
         ),
     ],
 )

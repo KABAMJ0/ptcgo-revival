@@ -7,10 +7,6 @@ async def _spread(ctx):
     await ctx.place_damage_counters(4)
 
 
-async def _spread_counters(ctx):
-    await ctx.deal_damage()
-    await ctx.place_damage_counters(4)
-
 card = PokemonCardDef(
     guid="fbf9fe63-7f35-5ec5-851d-9df4a02f6707",
     key="TwentiethAnn",
@@ -32,13 +28,13 @@ card = PokemonCardDef(
         Ability(
             title="Drag Along",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, flip a coin. If heads, the Attacking Pok\u00e9mon is Knocked Out.",
-            effect=_spread,
+            effect=unimplemented,
         ),
         Attack(
             title="Snowy Drop",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=_spread_counters,
+            effect=_spread,
         ),
     ],
 )

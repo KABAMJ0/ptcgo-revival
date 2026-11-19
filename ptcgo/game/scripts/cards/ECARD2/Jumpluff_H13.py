@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=30),
         ),
     ],
 )

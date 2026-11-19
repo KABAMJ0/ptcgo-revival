@@ -1,8 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.session.passives import effective_retreat_cost
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="f5a22eb7-e912-57bb-bf9b-1c19e370f054",
@@ -25,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Big Net",
             game_text="Your opponent's Active Evolution Pok\u00e9mon's Retreat Cost is Colorless more.",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="String Bind",
@@ -33,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(defender_retreat_cost, 30, base=10),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
         ),
     ],
 )

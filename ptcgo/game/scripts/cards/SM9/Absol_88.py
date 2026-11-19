@@ -1,8 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.session.passives import effective_retreat_cost
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="7611cbed-f87c-5eb4-aef0-387aca6979bb",
@@ -25,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Ambition",
             game_text="If your opponent's Active Pok\u00e9mon is a Basic Pok\u00e9mon, its Retreat Cost is Colorless more.",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Shadow Seeker",
@@ -33,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=damage_per(defender_retreat_cost, 30, base=30),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
         ),
     ],
 )

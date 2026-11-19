@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", include_active=False),
         ),
     ],
 )

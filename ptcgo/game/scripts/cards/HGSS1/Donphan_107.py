@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
         Attack(
             title="Heavy Impact",
