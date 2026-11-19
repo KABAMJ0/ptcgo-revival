@@ -1,5 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+def _basic_energy_on_actives(ctx):
+    return sum(
+        1
+        for pokemon in (ctx.my_active(), ctx.opponent_active())
+        if pokemon is not None
+        for energy in ctx.attached_energies(pokemon)
+        if is_basic_energy_card(energy)
+    )
+
 
 card = PokemonCardDef(
     guid="78c7f91b-dcdb-5db2-83f0-f02011759b5f",
@@ -30,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_basic_energy_on_actives, 10),
         ),
     ],
 )
