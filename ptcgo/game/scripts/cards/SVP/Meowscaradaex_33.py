@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Bouquet Magic",
             game_text="You must discard a Basic Grass Energy card from your hand in order to use this Ability. Once during your turn, you may put 3 damage counters on 1 of your opponent's Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 120),
         ),
         Attack(
             title="Scratching Nails",
