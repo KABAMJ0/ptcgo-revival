@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="af7a3d84-a33e-5cf9-ba1c-fa11d5b42cd3",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(defender_retreat_cost, 20, base=20),
         ),
         Attack(
             title="Mountain Drop",

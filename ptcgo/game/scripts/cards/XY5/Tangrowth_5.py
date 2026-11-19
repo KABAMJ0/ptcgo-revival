@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import heal_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="6949fc15-103e-5628-826e-d72479c0ed7d",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(defender_retreat_cost, 10, base=80),
         ),
     ],
 )
