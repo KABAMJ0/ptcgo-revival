@@ -36,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(_distinct_bench_types, 30, base=70),
+            effect=damage_per(_distinct_bench_types, 30, base=10),
         ),
         Attack(
             title="Power Creation",

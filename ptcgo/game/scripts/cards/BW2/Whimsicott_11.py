@@ -1,4 +1,6 @@
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.support_common import search_attach_energy, on_bench
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             title="Helping Hand",
             game_text="Search your deck for a basic Energy card and attach it to 1 of your Benched Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=protect_next_turn(reduce=30),
+            effect=search_attach_energy(is_basic_energy_card, count=1, target_pred=on_bench),
         ),
         Attack(
             title="Cotton Guard",

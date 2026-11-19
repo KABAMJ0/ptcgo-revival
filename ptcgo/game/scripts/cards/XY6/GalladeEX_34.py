@@ -34,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 3},
             damage=50,
             damage_operator="+",
-            effect=damage_per(count_prizes_remaining('mine'), 20, base=20),
+            effect=damage_per(count_prizes_remaining('mine'), 20, base=50),
         ),
     ],
 )

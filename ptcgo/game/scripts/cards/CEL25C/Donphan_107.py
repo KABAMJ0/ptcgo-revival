@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.trainers import holder_takes_less
 
 card = PokemonCardDef(
     guid="799d21a1-528f-5181-a7d1-10217598f9cb",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="Any damage done to Donphan by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=holder_takes_less(20),
         ),
         Attack(
             title="Earthquake",
