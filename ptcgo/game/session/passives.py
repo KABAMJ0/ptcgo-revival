@@ -81,6 +81,9 @@ class TargetDamageModifier:
     opposing_only: bool = True
     # The effect that created it, for clear_pokemon_effects bookkeeping.
     source_entity_id: Optional[str] = None
+    # Whether an attack's effect created it, so a card that removes "all
+    # effects of attacks" (Channeler) can leave the others alone.
+    from_attack: bool = False
 
     def applies_to(self, calc: "DamageCalc") -> bool:
         """Whether this modifier is part of THIS damage calculation."""

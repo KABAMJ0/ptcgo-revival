@@ -686,6 +686,16 @@ class EffectContext:
             keep.append(temp)
         self.board.temporary_passives = keep
         ids = {p.entity_id for p in self.board.pokemon_in_play(pid)}
+        kept = []
+        for modifier in state.target_damage_modifiers:
+            on_my_side = (modifier.target_entity_id in ids
+                          or (modifier.target_entity_id is None
+                              and modifier.owner_player_id == pid))
+            if modifier.from_attack and on_my_side:
+                cleared += 1
+                continue
+            kept.append(modifier)
+        state.target_damage_modifiers = kept
         for key in [k for k in state.attack_locks if k[0] in ids]:
             state.attack_locks.pop(key, None)
             cleared += 1
@@ -824,6 +834,7 @@ class EffectContext:
             owner_player_id=owner_player_id,
             attacks_only=attacks_only,
             source_entity_id=getattr(self.source, "entity_id", None),
+            from_attack=self.is_attack_effect(),
         ))
 
     def schedule_turn_effect(self, boundary, effect: Callable, *,
