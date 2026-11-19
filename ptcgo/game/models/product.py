@@ -12,7 +12,8 @@ from ptcgo.game.content import pack_rules
 
 SHOP_SKU_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "spiritptcgo.shop.sku")
 
-COIN_BOOSTER_KEY = "COINBOOSTER"
+# Keyed by GUID: the pack carries the BASE1 set key so the client can open it.
+COIN_BOOSTER_GUID = str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER"))
 COIN_BOOSTER_SIZE = 10
 # Gold and silver coins were the prize coins; they turn up less often than the rest.
 COIN_WEIGHTS = (("gold", 0.35), ("silver", 0.6))
@@ -149,7 +150,7 @@ class BoosterPack(Product):
         ]
 
     def open(self, account_id: str) -> list[str]:
-        if self.key.upper() == COIN_BOOSTER_KEY:
+        if self.guid.lower() == COIN_BOOSTER_GUID:
             return assemble_coin_pack()
 
         # Get all cards in the game
