@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, ignore_modifier_attack
+
+
+def _benched_damage_counters(ctx) -> int:
+    """Damage counters on all of your Benched Pokemon."""
+    return sum(max(0, (ctx.max_hp(p) - p.get_attribute(AttrID.HP, 0)) // 10)
+               for p in ctx.my_bench())
+
 
 card = PokemonCardDef(
     guid="477b02d8-07c0-523f-b8c9-029ae467e0b8",
@@ -27,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_benched_damage_counters, 10, base=10),
         ),
         Attack(
             title="Buster Swing",

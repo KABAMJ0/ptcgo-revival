@@ -2,6 +2,19 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def forceful_tackle(ctx):
+    """Up to 9 damage counters on itself; 90 damage plus 10 for each counter
+    placed in this way."""
+    placed = await ctx.choose(
+        "Put up to 9 damage counters on this Pokémon.",
+        [str(i) for i in range(10)],
+    )
+    if placed > 0:
+        await ctx.deal_damage(placed * 10, target=ctx.attacker, as_counters=True)
+    await ctx.deal_damage(90 + 10 * placed)
+
+
 card = PokemonCardDef(
     guid="804662a7-fd1d-51f1-bafe-061d90264d6a",
     key="SM4",
@@ -34,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=forceful_tackle,
         ),
     ],
 )

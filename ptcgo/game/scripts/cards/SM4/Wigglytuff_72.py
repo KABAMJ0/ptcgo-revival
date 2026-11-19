@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, condition_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+def _opponent_has_darkness_energy(ctx) -> bool:
+    return any(
+        energy_provides_type(energy, PokemonTypes.DARKNESS.value)
+        for pokemon in ctx.opponent_pokemon_in_play()
+        for energy in ctx.attached_energies(pokemon)
+    )
+
 
 card = PokemonCardDef(
     guid="173b6403-ea6f-5f52-8af6-fcc7c356f3e9",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_opponent_has_darkness_energy, 60),
         ),
     ],
 )

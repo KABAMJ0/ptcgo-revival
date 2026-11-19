@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack, condition_attack
 
+
+async def symbiont_gx(ctx):
+    """Add the top 2 cards of the opponent's deck to their Prize cards."""
+    cards = ctx.deck_top(2, ctx.opponent_id)
+    if cards:
+        await ctx.put_in_prizes(cards, player_id=ctx.opponent_id)
+
+
 card = PokemonCardDef(
     guid="1b8ed6ca-a6fb-5d71-8f3c-9aa2ee5f3b13",
     key="SM4",
@@ -36,7 +44,7 @@ card = PokemonCardDef(
             title="Symbiont-GX",
             game_text="Add the top 2 cards of your opponent's deck to their Prize cards. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=symbiont_gx,
         ),
     ],
 )

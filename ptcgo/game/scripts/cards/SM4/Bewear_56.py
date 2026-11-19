@@ -1,7 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+
+def _not_fire(attacker) -> bool:
+    """The attackers Fluffy answers: every non-Fire Pokemon."""
+    types = attacker.get_attribute(AttrID.POKEMON_TYPES) or []
+    return PokemonTypes.FIRE.value not in types
+
 
 card = PokemonCardDef(
     guid="d39573d3-372f-5739-a302-9eaa257cd1ba",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Fluffy",
             game_text="This Pok\u00e9mon takes 30 less damage from the attacks of your opponent's non-Fire Pok\u00e9mon (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, attacker_pred=_not_fire),
         ),
         Attack(
             title="Cross-Cut",
