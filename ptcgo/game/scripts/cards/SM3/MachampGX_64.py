@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, bonus_if, defender_is_evolved
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+
 
 card = PokemonCardDef(
     guid="6dd09574-ce4a-5b24-a344-e667a0626aaa",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             game_text="Discard any Stadium card in play.",
             cost={PokemonTypes.FIGHTING: 3},
             damage=130,
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Muscle Punch-GX",
