@@ -167,6 +167,23 @@ def damage_counters_on(target_fn="self"):
     return count
 
 
+def count_retreat_cost(side: str = "defender"):
+    """The retreat cost of the Active Pokemon on `side`, as a count function.
+
+    Every printed retreat cost in the corpus is a plain integer of colourless
+    pips, so "for each Colorless in your opponent's Active Pokemon's retreat
+    cost" is that number and needs no per-type breakdown."""
+    from ptcgo.game.session.passives import effective_retreat_cost
+
+    def count(ctx) -> int:
+        pokemon = ctx.defender if side == "defender" else ctx.attacker
+        if pokemon is None:
+            return 0
+        return effective_retreat_cost(ctx.board, pokemon)
+
+    return count
+
+
 def count_hand(side: str = "mine"):
     def count(ctx) -> int:
         return ctx.hand_size(_side_pid(ctx, side))
@@ -807,7 +824,7 @@ def mill_attack(count: int, opponent: bool = True,
 
 
 def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
-                            damage: Optional[int] = None):
+                            damage: Optional[int] = None, count_fn=None):
     """"This attack does N less damage for each Energy attached to your
     opponent's Active Pokemon": the printed (or damage) amount minus
     per * count, never below floor.
@@ -818,12 +835,38 @@ def damage_reduction_on_self(per: int = 10, predicate=None, floor: int = 0,
     what the defender throws instead."""
     async def effect(ctx):
         base = damage if damage is not None else _printed(ctx)
-        defender = ctx.defender
-        count = 0
-        if defender is not None:
-            count = sum(1 for card in ctx.attached_energies(defender)
-                        if predicate is None or predicate(card))
+        if count_fn is not None:
+            count = count_fn(ctx)
+        else:
+            defender = ctx.defender
+            count = 0
+            if defender is not None:
+                count = sum(1 for card in ctx.attached_energies(defender)
+                            if predicate is None or predicate(card))
         await ctx.deal_damage(max(floor, base - per * count))
+    return effect
+
+
+def damage_half_remaining_hp(round_to: int = 10, ignore_modifiers: bool = True):
+    """"Does damage to the Defending Pokemon equal to half its remaining HP,
+    rounded up to the nearest 10" (Super Fang): one body for the four Raticate
+    printings rather than a local copy each.
+
+    `ignore_modifiers` keeps the number equal to the printed rule; pass False
+    for a printing that lets Weakness and Resistance apply."""
+    async def effect(ctx):
+        defender = ctx.defender
+        if defender is None:
+            return
+        remaining = max(0, defender.get_attribute(AttrID.HP, 0))
+        half = (remaining + 1) // 2
+        if round_to:
+            half = ((half + round_to - 1) // round_to) * round_to
+        await ctx.deal_damage(
+            half,
+            ignore_weakness=ignore_modifiers,
+            ignore_resistance=ignore_modifiers,
+        )
     return effect
 
 
@@ -924,6 +967,26 @@ def lock_defender_attacks(ctx, defender=None) -> bool:
 # Damage-counter placement
 # ----------------------------------------------------------------------
 
+def bench_counter_picks(picks: int = 2, each: int = 1, then=None):
+    """"Choose N of your opponent's Benched Pokemon and put M damage counter(s)
+    on each": distinct bench picks, each taking its own counters. The
+    active-allocation chooser (place_counters' choose_any_opponent) spends one
+    pool across the whole board, which is a different ruling."""
+    async def effect(ctx):
+        bench = ctx.opponent_bench()
+        if not bench:
+            return []
+        chosen = await ctx.choose_cards(
+            bench, min(picks, len(bench)), minimum=0,
+            prompt="Choose Benched Pokémon to put damage counters on")
+        for pokemon in chosen:
+            await ctx.deal_damage(each * 10, target=pokemon, as_counters=True)
+        if then is not None:
+            await then(ctx, chosen)
+        return chosen
+    return effect
+
+
 def place_counters(count_or_fn, target: str = "opponent_active", also=None):
     """Put damage counters (raw, no W/R; effect-shield gated by the engine):
     target 'opponent_active'|'choose_any_opponent'|'each_opponent'|'self'|
@@ -1010,7 +1073,8 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
     return effect
 
 
-def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
+def reduce_defender_attacks(amount: int, damage: Optional[int] = None,
+                            through: str = "opponent"):
     """Printed (or `damage`) damage, then the Defending Pokemon's own attacks do
     `amount` less during the opponent's next turn ("any damage done by attacks
     from the Defending Pokemon is reduced by N").
@@ -1022,8 +1086,11 @@ def reduce_defender_attacks(amount: int, damage: Optional[int] = None):
         defender = ctx.defender
         if defender is None:
             return
-        ctx.add_passive_through_opponents_turn(
-            defender, weakens_own_attacks_passive(amount))
+        shield = weakens_own_attacks_passive(amount)
+        if through == "mine":
+            ctx.add_passive_through_own_next_turn(defender, shield)
+        else:
+            ctx.add_passive_through_opponents_turn(defender, shield)
     return effect
 
 

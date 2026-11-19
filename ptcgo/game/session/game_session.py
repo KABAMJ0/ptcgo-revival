@@ -129,7 +129,8 @@ from .passives import (
     ability_granting_card, ability_locked, active_passives, active_to_bench_counters,
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
     carrier_pokemon,
-    stadium_face,
+    stadium_face, stadium_play_voided,
+    bench_trim_area, sleep_recovery_coins,
     effective_bench_capacity, effective_max_hp,
     conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
     retreat_flips,
@@ -2665,12 +2666,30 @@ class GameSession:
                 player_id, candidates[0].entity_id, candidates, overflow,
                 prompt=PROMPT_DISCARD_BENCH,
             )
+            to_hand = bench_trim_area(self.board_state, player_id) == "hand"
             for entity_id in picked_ids[:overflow]:
                 picked = self.board_state.get_entity(entity_id)
                 if isinstance(picked, PokemonEntity) and picked.parent is bench:
-                    await self._discard_bench_stack(player_id, picked)
+                    if to_hand:
+                        await self._return_bench_stack_to_hand(player_id, picked)
+                    else:
+                        await self._discard_bench_stack(player_id, picked)
                     discarded = True
         return discarded
+
+    async def _return_bench_stack_to_hand(self, player_id: str, pokemon):
+        """Returns a benched stack to its owner's hand for the bench-shrink
+        ruling (Narrow Gym: "returns it and all cards attached to it to his or
+        her hand"). put_in_hand resets the stack's damage, conditions and
+        ability usage and reveals it on the way, which is the same trip a
+        Trainer-driven bounce takes."""
+        ctx = EffectContext(self, player_id, pokemon.parent or pokemon, None)
+        await ctx.put_in_hand([pokemon] + _stack_descendants(pokemon), reveal=True)
+        await self._flush_effect_runs(ctx)
+        logging.info(
+            f"[Session {self.game_id}] {pokemon.entity_id} "
+            f"({self.players[player_id].screen_name}) returned to hand by the "
+            f"bench capacity ruling.")
 
     async def _discard_bench_stack(self, player_id: str, pokemon):
         """Discards a benched stack (Pokemon + attachments) for the bench-shrink
@@ -3445,7 +3464,9 @@ class GameSession:
 
     async def _checkup_sleep(self, player_id: str, active):
         """Sleep flip: all heads wakes (Thumping Snore's rider flips 2 coins)."""
-        coins = self.sleep_checkup_coins.get(active.entity_id, 1)
+        coins = sleep_recovery_coins(
+            self.board_state, active,
+            self.sleep_checkup_coins.get(active.entity_id, 1))
         flips = [random.choice([0, 1]) for _ in range(coins)]
         woke = all(f == 0 for f in flips)
         self.stat_add(player_id, "headsflipped", flips.count(0))
@@ -5287,6 +5308,9 @@ class GameSession:
         if not stadium_area:
             return
         existing = stadium_area.children[0] if stadium_area.children else None
+        if existing is not None and stadium_play_voided(self.board_state):
+            await self._void_stadium_play(player_id, card, existing)
+            return
         position = len(stadium_area.children)
         if not self.board_state.move_card(card.entity_id, stadium_area.entity_id):
             return
@@ -5441,6 +5465,27 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _void_stadium_play(self, player_id, card, existing):
+        """Chaotic Swell: the Stadium being played and the one in play are both
+        discarded, so the new Stadium has no effect at all."""
+        moves = []
+        for entity in (existing, card):
+            owner_id = entity.owning_player_id or player_id
+            discard = self.board_state.find_player_area(owner_id, "discard")
+            if discard is None:
+                continue
+            position = len(discard.children)
+            if self.board_state.move_card(entity.entity_id, discard.entity_id):
+                moves.append(self._entity_moved_msg(
+                    entity.entity_id, discard.entity_id, position))
+        logging.info(
+            f"[Session {self.game_id}] {card.entity_id} discarded on arrival: "
+            f"the Stadium in play voids Stadium plays."
+        )
+        if moves:
+            await self._send_play_sequence(
+                player_id, GameSequence.GROUPED_MOVE, moves, [card])
 
     async def _choose_stadium_facing(self, player_id, card, definition):
         """"Choose which way this card faces before you play it": stores the
