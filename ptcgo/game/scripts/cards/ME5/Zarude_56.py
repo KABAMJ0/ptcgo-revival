@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.trainers import named
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
+
+def _bench_has_shadowy_darkness(ctx) -> bool:
+    return any(named("Shadowy Darkness Energy")(energy)
+               for pokemon in ctx.my_bench()
+               for energy in ctx.attached_energies(pokemon))
 
 
 card = PokemonCardDef(
@@ -33,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 3},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_bench_has_shadowy_darkness, 70),
         ),
     ],
 )

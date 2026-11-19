@@ -1,4 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class LusterFloatPassive(Passive):
+    """Latios' Retreat Cost is 0 while a Latias is in play on its own side."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        for other in board.pokemon_in_play(pokemon.owning_player_id):
+            if other.owning_player_id != pokemon.owning_player_id:
+                continue
+            if getattr(def_for(other.archetype_id), "display_name", "") == "Latias":
+                return 0
+        return cost
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Luster Float",
             game_text="If you have Latias in play, the Retreat Cost for Latios is 0.",
-            effect=unimplemented,
+            passive=LusterFloatPassive(),
         ),
         Attack(
             title="Infinite Wing",

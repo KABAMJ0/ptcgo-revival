@@ -1,6 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+import random
+
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_gate, random_card_to_deck
+
+
+async def horrifying_bite(ctx):
+    """30; flip until tails, then shuffle that many random cards of the
+    opponent's hand into their deck."""
+    await ctx.deal_damage()
+    heads = await ctx.flip_until_tails("Horrifying Bite")
+    hand = ctx.hand(ctx.opponent_id)
+    if heads <= 0 or not hand:
+        return
+    picks = random.sample(hand, min(heads, len(hand)))
+    await ctx.reveal_cards(picks)
+    await ctx.shuffle_into_deck(picks, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="91bf69d3-d712-51fc-8018-664616bd2685",
@@ -26,7 +41,7 @@ card = PokemonCardDef(
             game_text="Flip a coin until you get tails. For each heads, choose a random card from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=horrifying_bite,
         ),
         Attack(
             title="Hammer In",

@@ -1,6 +1,24 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_pokemon_ex
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class FragileHuskPassive(Passive):
+    """Knocked Out by an opponent's Pokemon ex attack: no Prize cards."""
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return count
+        if not ctx.is_attack_effect():
+            return count
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+            return count
+        if not is_pokemon_ex(attacker):
+            return count
+        return 0
 
 
 card = PokemonCardDef(
@@ -25,7 +43,7 @@ card = PokemonCardDef(
         Ability(
             title="Fragile Husk",
             game_text="If this Pok\u00e9mon is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon ex, your opponent can't take any Prize cards for it.",
-            effect=unimplemented,
+            passive=FragileHuskPassive(),
         ),
         Attack(
             title="Damage Beat",

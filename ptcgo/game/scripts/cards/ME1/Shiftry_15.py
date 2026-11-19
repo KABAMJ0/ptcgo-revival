@@ -1,6 +1,27 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_gate
+from ptcgo.game.session.effects import full_stack
+
+
+async def _shuffle_a_defender_away(ctx):
+    targets = ctx.opponent_pokemon_in_play()
+    if not targets:
+        return
+    chosen = await ctx.choose_pokemon(
+        targets, "Choose 1 of your opponent's Pokémon")
+    if chosen is None:
+        return
+    was_active = chosen is ctx.opponent_active()
+    await ctx.shuffle_into_deck(full_stack(chosen), ctx.opponent_id)
+    if was_active:
+        async def _promote():
+            if not await ctx.session._promote_new_active(ctx.opponent_id):
+                screen = ctx.session.players[ctx.opponent_id].screen_name
+                await ctx.session.end_game(
+                    ctx.player_id, f"{screen} has no Pokémon left")
+        ctx.deferred_actions.append(_promote)
+
 
 card = PokemonCardDef(
     guid="53921530-4314-5662-8d8c-45ab882e2267",
@@ -24,7 +45,7 @@ card = PokemonCardDef(
             title="Reversing Gust",
             game_text="Flip a coin. If heads, choose 1 of your opponent's Pok\u00e9mon. Shuffle that Pok\u00e9mon and all attached cards into their deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=flip_gate(_shuffle_a_defender_away),
         ),
         Attack(
             title="Perplex",

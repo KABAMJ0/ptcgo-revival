@@ -1,7 +1,8 @@
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="26a1b82c-0bad-5dd6-851e-74da804647b5",
@@ -20,11 +21,11 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Raboot.Name",
     family_id=813,
+    setup_as_active=True,
     abilities=[
         Ability(
             title="Explosiveness",
             game_text="If this Pok\u00e9mon is in your hand when you are setting up to play, you may put it face down in the Active Spot.",
-            effect=unimplemented,
         ),
         Attack(
             title="Turbo Flare",

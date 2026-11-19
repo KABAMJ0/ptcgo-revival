@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def all_you_can_yeet(ctx):
+    """Discard any number of cards from your hand (the whole effect)."""
+    hand = ctx.hand()
+    if not hand:
+        return
+    picks = await ctx.choose_cards(hand, len(hand), minimum=0,
+                                   prompt="Discard any number of cards")
+    if picks:
+        await ctx.discard_cards(picks)
+
+
 card = PokemonCardDef(
     guid="714b5cf0-5cad-596f-9f7b-a70f078fe03a",
     key="ME5",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             title="All-You-Can-Yeet",
             game_text="You may discard any number of cards from your hand.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=all_you_can_yeet,
         ),
         Attack(
             title="Headbutt",

@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import (
+    pokemon_of_types, team_damage_boost_passive,
+)
+
+_FIGHTING = pokemon_of_types(PokemonTypes.FIGHTING.value)
+
 
 card = PokemonCardDef(
     guid="769c79c2-87cd-51fc-9ded-bd089be5e159",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Powerful a-Salt",
             game_text="Attacks used by your Fighting Pok\u00e9mon do 30 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(30, attacker_pred=_FIGHTING),
         ),
         Attack(
             title="Hammer In",
