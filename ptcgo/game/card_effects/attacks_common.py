@@ -537,14 +537,17 @@ def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
 
 def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                      min_heads: int = 1, tails_conditions=(),
-                     always_conditions=(), heads_bonus_damage: int = 0,
-                     self_conditions=(), both_actives: bool = False,
-                     no_retreat: bool = False, counters: int = 1,
-                     checkup_coins: int = 1, damage: Optional[int] = None,
-                     also=None):
+                     tails_self_conditions=(), always_conditions=(),
+                     heads_bonus_damage: int = 0, self_conditions=(),
+                     both_actives: bool = False, no_retreat: bool = False,
+                     counters: int = 1, checkup_coins: int = 1,
+                     damage: Optional[int] = None, also=None):
     """Printed damage + Special Conditions on the Defending Pokemon; flip=True
     gates `conditions`/self_conditions/no_retreat/heads_bonus_damage on
-    min_heads heads (tails_conditions on failure, always_conditions always)."""
+    min_heads heads (tails_conditions on failure, always_conditions always).
+
+    `tails_self_conditions` is the mirror wording "if tails, YOUR Active
+    Pokemon is now X": those land on the attacker, not the defender."""
     async def effect(ctx):
         success = True
         if flip:
@@ -561,6 +564,11 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                 ctx.defender, condition,
                 checkup_coins=checkup_coins, poison_counters=counters)
             if both_actives:
+                await ctx.apply_special_condition(
+                    ctx.attacker, condition,
+                    checkup_coins=checkup_coins, poison_counters=counters)
+        if not success:
+            for condition in tails_self_conditions:
                 await ctx.apply_special_condition(
                     ctx.attacker, condition,
                     checkup_coins=checkup_coins, poison_counters=counters)
@@ -926,6 +934,34 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def identity_swap_from_deck(named: str, prompt: str = ""):
+    """Search your deck for another `<named>` and switch it with this Pokemon,
+    keeping everything on it ("Any cards attached to Ditto, damage counters,
+    Special Conditions, and effects on it are now on the new Pokemon").
+
+    The swap itself is `ctx.identity_swap`, the same one Nanu and Ogre's Mask
+    use, so attachments, damage, conditions and turn stamps all transfer."""
+    want = named.strip().lower()
+
+    def matches(card) -> bool:
+        definition = def_for(getattr(card, "archetype_id", "") or "")
+        return (getattr(definition, "display_name", "") or "").strip().lower() == want
+
+    async def effect(ctx):
+        pool = [card for card in ctx.deck() if matches(card)]
+        if not pool:
+            return
+        picked = await ctx.choose_cards(
+            pool, 1, minimum=1,
+            prompt=prompt or f"Choose another {named} from your deck")
+        if not picked or ctx.source is None:
+            return
+        await ctx.identity_swap(ctx.source, picked[0])
+        await ctx.shuffle_deck()
+
     return effect
 
 

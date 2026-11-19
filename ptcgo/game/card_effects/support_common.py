@@ -819,7 +819,11 @@ def attach_from_hand(predicate=None, count=1, target="choice", target_pred=None,
                 await _attach_all(ctx, picks, pokemon)
                 attached = [(card, pokemon) for card in picks]
         if then is not None and attached:
-            await then(ctx, attached)
+            # Sync or async: a rider that only reads the pairs is written
+            # plainly, and one that moves cards awaits.
+            outcome = then(ctx, attached)
+            if outcome is not None and hasattr(outcome, "__await__"):
+                await outcome
         # The (card, target) pairs are the "did an Energy actually land" signal
         # for composed()/do_a_then_b riders.
         return attached
