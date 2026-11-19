@@ -2471,7 +2471,8 @@ class EffectContext:
     async def identity_swap(self, outgoing: PokemonEntity, incoming: CardEntity,
                             destination: str = "discard",
                             transfer: bool = True) -> bool:
-        """Switches an in-play Pokemon with a hand/discard card; see
+        """Switches an in-play Pokemon with a hand/discard card (destination
+        "deck" puts the outgoing card on the bottom); see
         GameSession.perform_identity_swap. transfer=True carries attachments/
         damage/conditions/turn stamps onto the new Pokemon; a transferred
         damage total covering its HP queues a knockout. The TransformSwap

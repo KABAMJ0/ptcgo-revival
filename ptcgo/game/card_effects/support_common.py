@@ -155,6 +155,39 @@ def search_attach_energy(predicate=is_energy, count=1, to_self=False,
     return effect
 
 
+def swap_with_named(name: Optional[str] = None, predicate=None,
+                    destination: str = "deck", then=None):
+    """"Search your deck for another <name> and switch it with <name>" (Ditto's
+    Sudden Transformation): the deck copy takes the exact board spot with
+    everything attached, and the outgoing card goes to `destination` -- "deck"
+    is the bottom of the deck, the printed wording's pile.
+
+    `name` defaults to the source Pokemon's own display name; `then(ctx, new)`
+    gets the Pokémon now in play."""
+    async def effect(ctx):
+        source = ctx.attacker if ctx.attacker is not None else ctx.source
+        if source is None or not isinstance(source, PokemonEntity):
+            return None
+        wanted = (name or "").strip().lower()
+
+        def matches(card) -> bool:
+            if predicate is not None:
+                return predicate(card)
+            definition = def_for(getattr(card, "archetype_id", "") or "")
+            return bool(wanted) and (getattr(definition, "display_name", "") or "").strip().lower() == wanted
+
+        found = await ctx.search_deck(matches, count=1, minimum=0,
+                                      prompt=f"Search your deck for another {name or 'copy'}")
+        if not found:
+            return None
+        incoming = found[0]
+        swapped = await ctx.identity_swap(source, incoming, destination=destination)
+        if swapped and then is not None:
+            await then(ctx, incoming)
+        return incoming if swapped else None
+    return effect
+
+
 def bare_mill(count: int = 3, opponent: bool = True, then=None, predicate=None):
     """"Discard the top N cards of your opponent's deck" with no damage step,
     for the ability and Trainer printings of the same wording (mill_attack is
