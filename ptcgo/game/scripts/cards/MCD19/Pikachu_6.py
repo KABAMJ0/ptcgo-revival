@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin until you get tails. This attack does 20 damage for each heads.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(per_heads=20, until_tails=True),
         ),
     ],
 )

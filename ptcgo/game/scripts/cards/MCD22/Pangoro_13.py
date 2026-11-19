@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Shakedown",

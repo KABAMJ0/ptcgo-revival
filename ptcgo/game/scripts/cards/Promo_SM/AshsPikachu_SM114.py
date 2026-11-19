@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=20, until_tails=True),
         ),
         Attack(
             title="Thunderbolt",
