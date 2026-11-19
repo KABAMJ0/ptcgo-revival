@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Ice Face",
             game_text="If this Pok\u00e9mon has full HP, it takes 60 less damage from your opponent's attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", include_active=False),
         ),
         Attack(
             title="Blizzard",

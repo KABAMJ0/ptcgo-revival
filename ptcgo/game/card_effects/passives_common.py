@@ -70,6 +70,13 @@ def unafflicted(board, player_id, pokemon) -> bool:
     return not (pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
 
 
+def empty_hand(board, player_id, pokemon) -> bool:
+    """Board-level Ability.condition: the player has no cards in hand ("you
+    can't use this power if you have any cards in your hand")."""
+    hand = board.find_player_area(player_id, "hand")
+    return hand is not None and not hand.children
+
+
 _PLAY_KIND_TESTS = {
     "item": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.ITEM.value,
     "supporter": lambda card: card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value,

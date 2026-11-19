@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Rescue Kedge",
             game_text="Put up to 2 Pok\u00e9mon from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Annihilating Anchor",

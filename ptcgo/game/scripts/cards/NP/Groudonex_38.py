@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Frenzy",
             game_text="As long as your opponent has Kyogre, Kyogre ex, Rayquaza, or Rayquaza ex in play, Groudon ex's attacks do 40 more damage to the Defending Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine"),
         ),
         Attack(
             title="Mix-Up",
