@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Activations, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def propagation(ctx) -> None:
+    """From the discard pile: put this Pokemon into your hand."""
+    if not await ctx.ask_yes_no("Put this Pokémon into your hand?"):
+        return
+    await ctx.put_in_hand([ctx.source])
+
 
 card = PokemonCardDef(
     guid="a0c73251-03d7-5750-9b82-f806ac3a4fa9",
@@ -22,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Propagation",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is in your discard pile, you may put this Pok\u00e9mon into your hand.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            usable_from="discard",
+            effect=propagation,
         ),
         Attack(
             title="Seed Bomb",

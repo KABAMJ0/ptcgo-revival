@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class ToolboxPassive(Passive):
+    """This Pokemon may hold up to 4 Pokemon Tools; anything else holds 1."""
+
+    def tool_capacity(self, pokemon, carrier):
+        return 4 if pokemon is carrier else 1
+
 
 card = PokemonCardDef(
     guid="93e46875-45e9-54e8-bb63-d8e5bb07d720",
@@ -22,7 +31,7 @@ card = PokemonCardDef(
         Ability(
             title="Toolbox",
             game_text="This Pok\u00e9mon may have up to 4 Pok\u00e9mon Tool cards attached to it. (If this Pok\u00e9mon loses this Ability, discard Pok\u00e9mon Tool cards attached to this Pok\u00e9mon until only 1 Pok\u00e9mon Tool card remains.)",
-            effect=unimplemented,
+            passive=ToolboxPassive(),
         ),
         Attack(
             title="Cutting Wind",

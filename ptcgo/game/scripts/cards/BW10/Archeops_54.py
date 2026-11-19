@@ -1,6 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+async def swift_dive(ctx) -> None:
+    """Base damage 50 while this Pokemon has 50 or less HP left, else 100."""
+    attacker = ctx.attacker
+    low = attacker is not None and attacker.get_attribute(AttrID.HP, 0) <= 50
+    await ctx.deal_damage(50 if low else None)
+
 
 card = PokemonCardDef(
     guid="6628961e-2c2a-5568-ba79-450a4158439c",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon's remaining HP is 50 or less, this attack's base damage is 50.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=100,
-            effect=unimplemented,
+            effect=swift_dive,
         ),
     ],
 )

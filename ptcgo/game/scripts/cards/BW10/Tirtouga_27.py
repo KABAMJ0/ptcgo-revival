@@ -1,6 +1,17 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Activations, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def prehistoric_call(ctx) -> None:
+    """From the discard pile: put this Pokemon on the bottom of the deck."""
+    if not await ctx.ask_yes_no(
+            "Put this Pokémon on the bottom of your deck?"):
+        return
+    await ctx.put_on_bottom_of_deck(ctx.source)
+
 
 card = PokemonCardDef(
     guid="b989a6a5-b6c1-5ca8-9f48-998ade5470fb",
@@ -23,7 +34,9 @@ card = PokemonCardDef(
         Ability(
             title="Prehistoric Call",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is in your discard pile, you may put this Pok\u00e9mon on the bottom of your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            usable_from="discard",
+            effect=prehistoric_call,
         ),
         Attack(
             title="Slam",

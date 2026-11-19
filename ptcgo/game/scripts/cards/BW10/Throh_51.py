@@ -1,6 +1,9 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import (
+    count_retreat_cost, damage_per, flip_damage,
+)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="ab3c56d2-0a63-5853-a8e7-47326e1a48d6",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_per(count_retreat_cost("defender"), -20, base=80),
         ),
     ],
 )

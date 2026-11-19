@@ -2,6 +2,22 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def crush_and_burn(ctx) -> None:
+    """Discard any number of your Energy cards; 30 damage each."""
+    energies = [energy for pokemon in ctx.my_pokemon_in_play()
+                for energy in ctx.attached_energies(pokemon)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(
+        energies, len(energies), minimum=0,
+        prompt="Choose any number of Energy cards to discard")
+    if not picks:
+        return
+    await ctx.discard_cards(list(picks))
+    await ctx.deal_damage(30 * len(picks))
+
+
 card = PokemonCardDef(
     guid="58927603-efc5-50f5-a266-9e55052c13e2",
     key="BW10",
@@ -26,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=crush_and_burn,
         ),
         Attack(
             title="Thunder Tempest",
