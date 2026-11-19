@@ -223,6 +223,43 @@ ARCHETYPE_KEYS = [
     "BW3", "SM1"
 ]
 
+# The client's own format tokens (CardBannedInfoClickBehaviour.orderedList). Its ban
+# popup names only a format whose token it carries, and Standard travels as "Modified"
+# -- the same mapping FORMAT_WIRE_NAMES keeps for the validation rows.
+BAN_FORMAT_TOKENS = ("Modified", "Expanded", "Legacy", "Unlimited", "ThemeDeck")
+BAN_TOKEN_BY_FORMAT = {
+    DeckFormat.STANDARD.value: "Modified",
+    DeckFormat.EXPANDED.value: "Expanded",
+    DeckFormat.LEGACY.value: "Legacy",
+    DeckFormat.UNLIMITED.value: "Unlimited",
+    DeckFormat.THEME.value: "ThemeDeck",
+}
+
+
+def _banned_cards_by_format():
+    """{archetype guid: "Modified,Expanded,..."} -- the map BannedItemManager parses.
+
+    The value is not prose: the client splits it on commas into a HashSet of format
+    tokens and compares each against the format it draws, so a card banned everywhere
+    needs all five. A card_bans row is format-agnostic (one ban applies in every
+    format) and carries all five; a format's own `bannedCards` metadata carries only
+    that format's token.
+    """
+    from ptcgo.game.decks import card_bans
+
+    reasons = {}
+    for guid in card_bans.banned():
+        reasons.setdefault(str(guid).lower(), set()).update(BAN_FORMAT_TOKENS)
+    manager = FormatManager()
+    for fmt in manager.formats:
+        token = BAN_TOKEN_BY_FORMAT.get(str(fmt.guid).lower())
+        if token is None:
+            continue
+        for guid in manager.banned_guids(fmt.guid):
+            reasons.setdefault(guid, set()).add(token)
+    return {guid: ",".join(sorted(tokens)) for guid, tokens in reasons.items()}
+
+
 BASIC_ENERGY_NAMES = [
     "Grass Energy", "Fire Energy", "Water Energy", "Lightning Energy",
     "Psychic Energy", "Fighting Energy", "Darkness Energy", "Metal Energy",
@@ -404,8 +441,12 @@ class DataSyncHandler(BaseHandler):
 
     @handle(InboundMsg.GET_ALL_BANNED_CARDS_BY_FORMATS)
     async def handle_get_all_banned_cards_by_formats(self, message, request_id, flags):
-        res = {"messageName": OutboundMsg.ALL_BANNED_CARDS_BY_FORMAT.value,
-               "cards": {}}
+        # The client keeps its own ban list from this answer (BannedItemManager) and the
+        # deck builder badges the cards from it, so an empty map is what makes a banned
+        # card look legal until a save or a tournament join refuses it.
+        cards = _banned_cards_by_format()
+        logging.info(f"[Rules] [{self.client.addr}] Sending {len(cards)} banned card(s).")
+        res = {"messageName": OutboundMsg.ALL_BANNED_CARDS_BY_FORMAT.value, "cards": cards}
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
 
     @handle(InboundMsg.VIEW_MY_LOTS)
@@ -721,7 +762,7 @@ class DataSyncHandler(BaseHandler):
     async def handle_get_deck_list(self, message, request_id, flags):
         res = {"messageName": OutboundMsg.DECK_LIST.value, "decks": []}
         if self.client.player:
-            res = self.client.player.get_decks_data()
+            res = await run_db(self.client.player.get_decks_data)
             res["messageName"] = OutboundMsg.DECK_LIST.value
         logging.info(f"[TCP] [{self.client.addr}] Sending {len(res.get('decks') or [])} decks.")
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
@@ -831,6 +872,13 @@ class DataSyncHandler(BaseHandler):
                 "name": AttrID.SELECTED_DECK_BOX.value,
                 "value": DefaultCosmetic.DECK_BOX.value
             }
+
+        # A coin, sleeve or deck box the account does not own would leave the client unable
+        # to resolve the deck; save the default for that slot instead.
+        if self.client.player and not _is_avatar_deck(deck_dict):
+            from ptcgo.game.decks.cosmetics import allowed_cosmetics, fix_deck_cosmetics
+            allowed = await run_db(allowed_cosmetics, self.client.player.account_id)
+            fix_deck_cosmetics({"deckID": deck_dict.get("deckID"), "attributes": attrs_dict}, allowed)
 
         # Validate the deck; an illegal deck still SAVES (PTCGO keeps WIP decks),
         # legality only gates the client's format badges and play flows.

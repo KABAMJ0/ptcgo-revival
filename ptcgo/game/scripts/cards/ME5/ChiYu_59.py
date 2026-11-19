@@ -9,14 +9,6 @@ async def whirling_envy(ctx):
     await ctx.deal_damage(20 + (90 if counters >= 2 else 0),
                           ignore_weakness=True)
 
-async def whirling_envy(ctx):
-    """20 base, +90 while this Pokemon carries 2 or more damage counters;
-    the printed damage ignores Weakness."""
-    hurt = len(ctx.attached_damage_counters(ctx.attacker)) >= 2 if hasattr(ctx, "attached_damage_counters") else False
-    amount = 110 if hurt else 20
-    await ctx.deal_damage(amount, ignore_weakness=True)
-
-
 card = PokemonCardDef(
     guid="e46a2813-d9b5-5529-a986-51c44ad9dd20",
     key="ME5",

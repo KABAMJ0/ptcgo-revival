@@ -8,6 +8,7 @@ from ptcgo.database.async_utils import run_db
 from ptcgo.database.social import add_friend_relationship, remove_friend_relationship, get_friends_by_account_id
 from ptcgo.game.models.social import Friend, FriendListStatus
 from .base import BaseHandler, handle
+from ptcgo.server import chat_log
 
 # RoomType.Lobby == 0; the client's AvailableRooms handler (s.w) auto-joins a
 # random Lobby-typed room, which keeps JoinedRooms[0] a safe switch-back target
@@ -15,7 +16,6 @@ from .base import BaseHandler, handle
 LOBBY_ROOMS = [
     {"roomID": "Lobby_Spirit_1", "displayName": "Spirit Lobby", "roomType": 0},
 ]
-
 
 class SocialHandler(BaseHandler):
     def _chat_rooms(self, client=None):
@@ -60,6 +60,9 @@ class SocialHandler(BaseHandler):
             "purpose": purpose,
             "targetWasOnline": target_client is not None
         }
+
+        chat_log.record("private", self.client.player.account_id, self.client.player.screen_name, chat_msg,
+                        to_id=target_id, to_name=notify_packet["toUserInfo"]["displayName"])
 
         # 1. Echo back to sender so they see their own message in the UI
         await self.client.send_packet(notify_packet, 0)
@@ -132,6 +135,8 @@ class SocialHandler(BaseHandler):
             "userInfo": self._chat_user_info(),
             "message": chat_msg,
         }
+        chat_log.record("room", self.client.player.account_id, self.client.player.screen_name, chat_msg,
+                        room=room_id)
         for member in self._room_member_clients(room_id):
             await member.send_packet(notify, 0)
 

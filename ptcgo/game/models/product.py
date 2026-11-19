@@ -12,13 +12,39 @@ from ptcgo.game.content import pack_rules
 
 SHOP_SKU_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "spiritptcgo.shop.sku")
 
+# The Coin Chest (once the Coin Booster) is matched by GUID, never by its set key.
+COIN_BOOSTER_GUID = str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:COINBOOSTER"))
+# The client's treasure box sequence has two prize slots.
+COIN_BOOSTER_SIZE = 2
+# Gold and silver coins were the prize coins; they turn up less often than the rest.
+COIN_WEIGHTS = (("gold", 0.35), ("silver", 0.6))
+
+
+def coin_weight(product) -> float:
+    name = product.name.lower()
+    return next((w for word, w in COIN_WEIGHTS if word in name), 1.0)
+
+
+def assemble_coin_pack(size: int = COIN_BOOSTER_SIZE) -> list:
+    """{size} different coin GUIDs, weighted by coin_weight, never the default coin."""
+    from ptcgo.game.scripts.products import loader as product_loader
+    default = DefaultCosmetic.COIN.value.lower()
+    coins = [p for p in product_loader.products
+             if p.product_type == ProductType.COINS.value and p.guid.lower() != default]
+    if len(coins) < size:
+        raise ValueError(f"only {len(coins)} coins are loaded; a Coin Booster needs {size}")
+    # Weighted sampling without replacement: each coin draws a key u**(1/w), the
+    # largest keys win, so a pack never holds the same coin twice.
+    keyed = sorted(coins, key=lambda p: random.random() ** (1.0 / coin_weight(p)), reverse=True)
+    return [p.guid for p in keyed[:size]]
+
 
 def make_shop_sku(product: "Product") -> "Product":
     """A shop-facing alias of a product with its own GUID, so the client's dynamic-archetype
     eviction on shop exit (ClearDynamicArchetypes) never touches the owned collection GUID."""
     sku_guid = str(uuid.uuid5(SHOP_SKU_NAMESPACE, product.guid))
     attrs = copy.deepcopy(product.attributes)
-    attrs[str(AttrID.ARCHETYPE_ID.value)] = {"type": "string", "value": sku_guid}
+    attrs[str(AttrID.ARCHETYPE_ID.value)] = {"type": "uuid", "value": sku_guid}
     attrs[str(AttrID.CATALOG_ID.value)] = {"type": "string", "value": sku_guid}
     return Product(sku_guid, product.key, attrs, [dict(p) for p in product.prices])
 
@@ -125,6 +151,9 @@ class BoosterPack(Product):
         ]
 
     def open(self, account_id: str) -> list[str]:
+        if self.guid.lower() == COIN_BOOSTER_GUID:
+            return assemble_coin_pack()
+
         # Get all cards in the game
         all_cards = card_loader.cards
         
@@ -335,6 +364,36 @@ class BoosterPack(Product):
         # 2. Assemble the pack (10 cards ordered from common up to rare)
         pack_guids = assemble_pack_contents(set_key)
         return pack_guids
+
+class Bundle(Product):
+    """Several grants sold as one product (BundleDef): archetypes plus Trainer Tokens."""
+    is_bundle = True
+
+    def __init__(self, guid: str, key: str, attributes: Optional[Dict[str, Any]] = None,
+                 prices: Optional[List[Dict[str, Any]]] = None, *, grants=(), tokens=0):
+        super().__init__(guid, key, attributes, prices)
+        # Not "contents": anything with contents is read as a deck by the theme deck registry.
+        self.grants = list(grants)
+        self.tokens = int(tokens)
+
+    def open(self, account_id: str) -> list[str]:
+        return list(self.grants)
+
+
+def expand_bundles(product_guids):
+    """(granted GUIDs, Trainer Tokens to credit) for a purchase: each bundle is replaced by
+    its contents, everything else is granted as itself."""
+    from ptcgo.game.scripts.products import loader as product_loader
+    granted, tokens = [], 0
+    for guid in product_guids:
+        product = product_loader.products_by_guid.get(guid) or product_loader.products_by_guid.get(str(guid).lower())
+        if isinstance(product, Bundle):
+            granted.extend(product.grants)
+            tokens += product.tokens
+        else:
+            granted.append(guid)
+    return granted, tokens
+
 
 class DeckBox(Product):
     def __init__(self, guid: str, key: str, attributes: Optional[Dict[str, Any]] = None,

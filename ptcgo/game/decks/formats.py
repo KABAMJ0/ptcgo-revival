@@ -177,6 +177,14 @@ class FormatManager:
             self._ref_cache[fmt.guid] = cached
         return cached
 
+    def banned_guids(self, format_guid: str) -> Set[str]:
+        """Archetype GUIDs this format's metadata bans, minus the ones it exempts."""
+        fmt = self.by_guid((format_guid or "").lower())
+        if fmt is None:
+            return set()
+        banned, extra = self._resolved_refs(fmt)
+        return set(banned) - set(extra)
+
     def is_card_eventually_legal(self, format_guid: str, card) -> bool:
         """Legality ignoring any legalFrom time gate (the formatLegality bool slot)."""
         fmt = self.by_guid(format_guid)

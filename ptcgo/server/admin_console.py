@@ -37,6 +37,7 @@ READ_ONLY_POSTS = {
     "login", "logout", "players/detail", "cards/search", "cards/lookup",
     "players/inventory", "players/decks", "players/matches", "players/trades",
     "trades/list", "cards/detail", "cards/bodies", "players/deck",
+    "players/chat", "chat/recent",
 }
 
 
@@ -751,13 +752,13 @@ def body_of(entry, is_attack):
     effect = getattr(entry, "effect", None)
     source = str(getattr(entry, "effect_source", "") or "")
     passive = getattr(entry, "passive", None)
-    if effect is unimplemented:
+    if effect is unimplemented and passive is None:
         return {"status": "stub", "source": "unimplemented"}
     if source.startswith("admin:"):
         return {"status": "admin", "source": source[6:]}
     if source.startswith("pattern:"):
         return {"status": "pattern", "source": source[8:]}
-    if effect is not None:
+    if effect is not None and effect is not unimplemented:
         trigger = getattr(entry, "trigger", None)
         return {"status": "scripted", "source": _callable_source(effect)
                 + (f" (on {trigger})" if trigger else "")}
@@ -898,6 +899,81 @@ def inspect_deck(data):
                 "format_names": format_names, "deck_problems": deck_problems, "cards": cards})
 
 
+# ------------------------------------------------------------ script stubs
+
+_SCRIPT_STUBS = {"rows": None}
+
+
+def script_stub_counts():
+    """{set folder: {"script_stubs", "script_stub_cards", "trainer_script_stubs"}} read from the
+    card files the way ptcgo/tools/effect_coverage.py reads them (AST, never imported).
+    Scripts only change with a deploy, and a deploy restarts the process, so one scan per
+    process is current."""
+    if _SCRIPT_STUBS["rows"] is not None:
+        return _SCRIPT_STUBS["rows"]
+    import ast
+    from ptcgo.tools import effect_coverage as ec
+    root = card_loader.scripts_dir
+    rows = {}
+    for set_code in sorted(os.listdir(root)):
+        set_dir = os.path.join(root, set_code)
+        if not os.path.isdir(set_dir) or set_code in ec.SKIP_DIRS:
+            continue
+        row = rows.setdefault(set_code, {"script_stubs": 0, "script_stub_cards": 0, "trainer_script_stubs": 0})
+        for filename in os.listdir(set_dir):
+            if not filename.endswith(".py") or filename == "__init__.py":
+                continue
+            try:
+                with open(os.path.join(set_dir, filename), encoding="utf-8") as f:
+                    tree = ast.parse(f.read())
+            except (OSError, SyntaxError):
+                continue
+            call = ec._find_card_call(tree)
+            if call is None:
+                continue
+            card_level = ec._is_unimplemented(
+                ec._call_kwargs(call, ["guid", "key", "name", "collector_number", "set_code", "rarity"]).get("effect"))
+            entries = sum(1 for node in ast.walk(call)
+                          if node is not call and isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                          and node.func.id in ec.ABILITY_CALL_NAMES
+                          and ec._is_unimplemented(ec._call_kwargs(node, ["title", "game_text"]).get("effect")))
+            row["script_stubs"] += entries
+            row["trainer_script_stubs"] += int(card_level)
+            row["script_stub_cards"] += int(bool(entries or card_level))
+    _SCRIPT_STUBS["rows"] = rows
+    return rows
+
+
+# --------------------------------------------------------------- chat log
+
+def _chat_lines(data, account_id=None):
+    from ptcgo.server import chat_log
+    try:
+        limit = _int(data.get("limit", 200), "limit", 1, 2000)
+    except ValueError as exc:
+        return None, _err(400, str(exc))
+    query = data.get("query")
+    if query is not None and not isinstance(query, str):
+        return None, _err(400, "query must be text")
+    return chat_log.recent(account_id=account_id, query=query, limit=limit), None
+
+
+def player_chat(data):
+    with db_session() as session:
+        account = _account(session, data.get("account_id"))
+        if account is None:
+            return _err(404, "account not found")
+        account_id = account.account_id
+    lines, error = _chat_lines(data, account_id)
+    from ptcgo.server import chat_log
+    return error or _ok({"messages": lines, "retention_days": chat_log.RETENTION_DAYS})
+
+
+def chat_recent(data):
+    lines, error = _chat_lines(data)
+    return error or _ok({"messages": lines})
+
+
 # --------------------------------------------------------------- dispatch
 
 def dispatch(method, endpoint, data, query_string, token):
@@ -923,6 +999,8 @@ def dispatch(method, endpoint, data, query_string, token):
         "players/trades": player_trades,
         "players/kick": kick_player,
         "players/deck": inspect_deck,
+        "players/chat": player_chat,
+        "chat/recent": chat_recent,
         "cards/bodies": card_bodies_search,
         "trades/list": trades_list,
         "trades/cancel": trade_cancel,

@@ -168,11 +168,16 @@ def _coverage_by_set():
     """
     if not card_loader.cards:
         card_loader.load_all()
+    from ptcgo.server.admin_console import script_stub_counts
+    script = script_stub_counts()
+    blank = {"script_stubs": 0, "script_stub_cards": 0, "trainer_script_stubs": 0}
     rows = []
     for code, row in sorted(getattr(card_loader, "coverage", {}).items()):
-        rows.append({**row, "set": code, "implemented": row["entries"] - row["stubbed"]})
+        rows.append({"trainer_effects": 0, "trainer_stubbed": 0, **row, **script.get(code, blank),
+                     "set": code, "implemented": row["entries"] - row["stubbed"]})
     rows.sort(key=lambda r: (-r["stubbed"], r["set"]))
-    keys = ("cards", "entries", "stubbed", "wording", "scripted", "plain")
+    keys = ("cards", "entries", "stubbed", "wording", "scripted", "plain", "script_stubs",
+            "script_stub_cards", "trainer_effects", "trainer_stubbed", "trainer_script_stubs")
     totals = {k: sum(r[k] for r in rows) for k in keys}
     totals["implemented"] = totals["entries"] - totals["stubbed"]
     totals["sets"] = len(rows)

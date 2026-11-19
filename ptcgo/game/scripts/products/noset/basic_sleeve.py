@@ -3,7 +3,7 @@ from ptcgo.game.attributes import DefaultCosmetic
 
 product = SleeveDef(
     guid=DefaultCosmetic.SLEEVE.value,
-    key="NoSet",
+    key="core",
     name="Basic Sleeve",
     image_url="_default_sleeve"
 )

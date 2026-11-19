@@ -35,7 +35,7 @@ class ShopManager:
             str(AttrID.EXPANSION.value): {"type": "string", "value": "core"},
             str(AttrID.PRODUCT_TYPE.value): {"type": "int", "value": 6},  # ProductType.CURRENCY
             str(AttrID.CURRENCY_TYPE.value): {"type": "int", "value": -706482148},  # CurrencyType.VIRTUAL_CURRENCY
-            str(AttrID.ARCHETYPE_ID.value): {"type": "string", "value": cur_guid},
+            str(AttrID.ARCHETYPE_ID.value): {"type": "uuid", "value": cur_guid},
             str(AttrID.IMAGE_URL.value): {"type": "string", "value": LOCAL_IMG},
             str(AttrID.CATALOG_ID.value): {"type": "string", "value": cur_guid},
             str(AttrID.SET_CACHE_KEY.value): {"type": "string", "value": "core"},
@@ -80,6 +80,8 @@ class ShopManager:
                     continue
                 if product.key.upper() not in eligible:
                     continue
+                if getattr(product, "is_bundle", False):
+                    continue  # a bundle sells only through its shop row, never at pack price
                 if product.guid.lower() in items_by_guid:
                     continue  # admin row takes precedence
                 product.prices = [{"name": AttrID.TRAINER_TOKENS.value, "value": DEFAULT_BOOSTER_PRICE}]
