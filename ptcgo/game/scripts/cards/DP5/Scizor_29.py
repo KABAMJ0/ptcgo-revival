@@ -1,6 +1,16 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _defender_has_special_energy(ctx) -> bool:
+    defender = ctx.defender
+    if defender is None:
+        return False
+    return any(is_special_energy(energy)
+               for energy in ctx.attached_energies(defender))
 
 card = PokemonCardDef(
     guid="cf1730da-e9b6-5462-89e0-5d32300f3a49",
@@ -27,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_defender_has_special_energy, 50, base=30),
         ),
         Attack(
             title="X-Scissor",

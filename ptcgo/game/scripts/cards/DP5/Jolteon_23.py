@@ -3,6 +3,21 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+async def lightning_strike(ctx):
+    """50, or 90 when two Energy come off Jolteon."""
+    attached = list(ctx.attached_energies(ctx.attacker))
+    if len(attached) < 2:
+        await ctx.deal_damage(50)
+        return
+    picked = await ctx.choose_cards(
+        attached, 2, minimum=2, prompt="Choose 2 Energy to discard")
+    if len(picked) < 2:
+        await ctx.deal_damage(50)
+        return
+    await ctx.discard_cards(picked)
+    await ctx.deal_damage(90)
+
 card = PokemonCardDef(
     guid="8eceda41-6e74-52e8-9bd8-8bb4c498ff0f",
     key="DP5",
@@ -34,7 +49,7 @@ card = PokemonCardDef(
             game_text="You may discard 2 Energy attached to Jolteon. If you do, this attack's base damage is 90 instead of 50.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=lightning_strike,
         ),
     ],
 )
