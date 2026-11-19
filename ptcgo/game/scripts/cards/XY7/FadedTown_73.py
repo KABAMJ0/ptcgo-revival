@@ -1,6 +1,7 @@
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, Ability, Triggers
+from ptcgo.game.card_effects.support_common import counters_each_in_play
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.data_utils import StadiumCardDef, Ability, Triggers
-from ptcgo.game.card_effects.trainers import stadium_checkup_counters, pokemon_has_any_subtype
 
 card = StadiumCardDef(
     guid="7c3fbfb4-e8e8-5fba-aa41-921b5747b179",
@@ -13,8 +14,8 @@ card = StadiumCardDef(
     set_code="XY7",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="Faded Town",
+        title="FadedTown_73",
         trigger=Triggers.BETWEEN_TURNS,
-        effect=stadium_checkup_counters(2, pokemon_has_any_subtype("MEGA")),
-    ),
+        effect=counters_each_in_play(2, lambda p: has_pokemon_subtype(p, "MEGA")),
+    )
 )

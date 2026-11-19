@@ -1,6 +1,7 @@
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, Ability, Triggers
+from ptcgo.game.card_effects.support_common import counters_each_in_play
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.data_utils import StadiumCardDef, Ability, Triggers
-from ptcgo.game.card_effects.trainers import stadium_checkup_counters, pokemon_has_any_subtype
 
 card = StadiumCardDef(
     guid="f3eb7eaf-99b4-5356-9f22-2039c546c38f",
@@ -13,8 +14,8 @@ card = StadiumCardDef(
     set_code="SM7",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="Shrine of Punishment",
+        title="ShrineofPunishment_143",
         trigger=Triggers.BETWEEN_TURNS,
-        effect=stadium_checkup_counters(1, pokemon_has_any_subtype("GX", "EX")),
-    ),
+        effect=counters_each_in_play(1, lambda p: has_pokemon_subtype(p, "GX", "EX", "ex")),
+    )
 )

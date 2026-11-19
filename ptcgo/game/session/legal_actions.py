@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    trainer_play_cost,
     attacks_blocked,
     plays_blocked,
     trainer_play_blocked,
@@ -133,8 +134,16 @@ class TurnState:
     turn_number: int = 0
     active_player_id: Optional[str] = None
     supporter_played: bool = False
+    # "You may play 2 Supporter cards this turn" (Lt. Surge's Strategy): the
+    # per-turn limit an effect raises; supporters_played counts what was used.
+    supporter_slots: int = 1
+    supporters_played: int = 0
     stadium_played: bool = False
     energy_attached: bool = False
+    # "You may attach N Energy this turn" / "instead of your free Energy
+    # attachment": the manual attach budget an effect may spend or widen.
+    energy_attach_slots: int = 1
+    energy_attaches_used: int = 0
     retreated: bool = False
     # entity_id -> turn number it entered play (or last evolved). Entities
     # placed during setup are absent and default to turn 0.
@@ -263,8 +272,12 @@ class TurnState:
         self.turn_number += 1
         self.active_player_id = player_id
         self.supporter_played = False
+        self.supporters_played = 0
+        self.supporter_slots = 1
         self.stadium_played = False
         self.energy_attached = False
+        self.energy_attach_slots = 1
+        self.energy_attaches_used = 0
         self.retreated = False
         self.used_abilities = set()
         self.used_named_abilities = set()
@@ -642,6 +655,14 @@ def _active_immobilized(board: BoardState, player_id: str) -> bool:
     return any(c in _IMMOBILIZING_CONDITIONS for c in (conditions or []))
 
 
+def _other_hand_cards(board, player_id: str, card) -> int:
+    """Hand cards other than `card` itself -- what a play cost may discard."""
+    hand = board.find_player_area(player_id, "hand")
+    if hand is None:
+        return 0
+    return sum(1 for child in hand.children if child is not card)
+
+
 def trainer_play_target_ids(board: BoardState, player_id: str, card) -> Optional[List[str]]:
     """Returns declared play targets, or None for a trainer without targeting."""
     selector = getattr(def_for(card.archetype_id), "play_targets", None)
@@ -729,7 +750,8 @@ def compute_legal_actions(
                 ))
 
         elif isinstance(card, EnergyEntity):
-            if state.energy_attached or not in_play_ids:
+            if state.energy_attaches_used >= state.energy_attach_slots \
+                    or not in_play_ids:
                 continue
             if state.play_locked(player_id, card) \
                     or plays_blocked(board, player_id, card):
@@ -761,6 +783,12 @@ def compute_legal_actions(
             if condition is not None \
                     and not trainer_condition_met(condition, board, player_id, card):
                 continue
+            # "Discard 2 of the other cards in your hand in order to play this
+            # card" (Misty), and No Removal Gym's charge: the cost is a
+            # playability rule, so it must gate the offer, not fail later.
+            cost = trainer_play_cost(board, card, player_id)
+            if cost and _other_hand_cards(board, player_id, card) < cost:
+                continue
             target_infos = []
             if trainer_type in (TrainerType.ITEM.value, TrainerType.SUPPORTER.value):
                 targets = trainer_play_target_ids(board, player_id, card)
@@ -777,7 +805,8 @@ def compute_legal_actions(
                     target_infos,
                 ))
             elif trainer_type == TrainerType.SUPPORTER.value:
-                if not state.supporter_played and state.turn_number > 1:
+                if state.supporters_played < state.supporter_slots \
+                        and state.turn_number > 1:
                     entries.append(_target_map_entry(
                         game_id, card.entity_id,
                         action_id_for(card.entity_id, "supporter"), ACTION_USE_TRAINER,

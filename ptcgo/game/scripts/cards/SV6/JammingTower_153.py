@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import suppress_all_tools
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import ToolsSuppressedStadiumPassive
 
 card = StadiumCardDef(
     guid="93d010a6-cfc7-5705-8da2-569790f8cbea",
@@ -12,5 +12,5 @@ card = StadiumCardDef(
     collector_number=153,
     set_code="SV6",
     rarity=Rarities.Uncommon,
-    passive=ToolsSuppressedStadiumPassive()
+    passive=suppress_all_tools()
 )

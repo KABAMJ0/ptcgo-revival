@@ -1,6 +1,6 @@
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, Ability, Triggers
+from ptcgo.game.card_effects.support_common import trigger_counters
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.data_utils import StadiumCardDef, Ability, Triggers
-from ptcgo.game.card_effects.trainers import stadium_evolve_counters
 
 card = StadiumCardDef(
     guid="47e7adfc-ca5b-5eaf-ab1e-cf478e51515d",
@@ -13,8 +13,8 @@ card = StadiumCardDef(
     set_code="SM3",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="Po Town",
+        title="PoTown_121",
         trigger=Triggers.ON_EVOLVE,
-        effect=stadium_evolve_counters(3),
-    ),
+        effect=trigger_counters(3),
+    )
 )
