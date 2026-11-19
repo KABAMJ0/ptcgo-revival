@@ -790,7 +790,10 @@ def extra_energy_beyond_cost(ctx, energy_type=None) -> int:
     cost = 0
     for cost_type, count in (getattr(ctx.ability, "cost", None) or {}).items():
         value = getattr(cost_type, "value", cost_type)
-        if value in (PokemonTypes.COLORLESS.value, PokemonTypes.UNSET.value) \
+        # An untyped gate ("at least N extra Energy") subtracts the WHOLE cost;
+        # only a typed gate ignores the cost it did not ask about.
+        if type_value is None \
+                or value in (PokemonTypes.COLORLESS.value, PokemonTypes.UNSET.value) \
                 or value == type_value:
             cost += count
     return attached - cost

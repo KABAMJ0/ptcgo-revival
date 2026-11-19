@@ -14816,6 +14816,70 @@ def _extra_energy_prize_instead(m, ability, deal_damage: bool = True):
     return effect
 
 
+def _ee_compound_prefix(text: str):
+    """The clause a compound extra-Energy attack runs BEFORE its gate, as a rider
+    (the composition deals the printed damage once, so this must not)."""
+    low = text.strip().rstrip(".").lower()
+
+    if re.fullmatch(r"attach 5 basic energy cards from your discard pile to your "
+                    r"pok[eé]mon in any way you like", low):
+        async def attach_five(ctx):
+            from ptcgo.game.card_effects.support_common import attach_from_discard
+            from ptcgo.game.session.passives import is_basic_energy
+            pool = [card for card in ctx.discard_pile() if is_basic_energy(card)]
+            if not pool:
+                return
+            await attach_from_discard(predicate=is_basic_energy, count=5,
+                                      target="choice", distribute=True,
+                                      minimum=min(5, len(pool)))(ctx)
+        return attach_five
+
+    return None
+
+
+def _ee_compound_tail(text: str, cond):
+    """The gated clause of a compound extra-Energy attack, or None."""
+    low = text.strip().rstrip(".").lower()
+
+    if re.fullmatch(r"your opponent's active pok[eé]mon is now burned and confused", low):
+        async def burn_and_confuse(ctx):
+            if not cond(ctx) or ctx.defender is None:
+                return
+            await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
+            await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+        return burn_and_confuse
+
+    if re.fullmatch(r"prevent all effects of attacks, including damage, done to it "
+                    r"during your opponent's next turn", low):
+        async def shield_self(ctx):
+            if not cond(ctx):
+                return
+            from ptcgo.game.card_effects.passives_common import apply_protection
+            await apply_protection(ctx, prevent=True, effects_too=True)
+        return shield_self
+
+    return None
+
+
+def _extra_energy_compound(m, ability):
+    """A prefix clause, then the gate, then a payload the single-sentence entry
+    cannot reach. Declines if either half is unknown, so the card stays a stub
+    rather than silently losing a clause."""
+    prefix_effect = _ee_compound_prefix(m.group("prefix"))
+    if prefix_effect is None:
+        return None
+    cond = _extra_energy_attached(int(m.group("req")), m.group("type"))
+    tail_effect = _ee_compound_tail(m.group("tail"), cond)
+    if tail_effect is None:
+        return None
+
+    async def effect(ctx):
+        await prefix_effect(ctx)
+        await ctx.deal_damage()
+        await tail_effect(ctx)
+    return effect
+
+
 def _extra_energy_tail(m, ability, deal_damage: bool = True):
     """The gate, then a payload that is not a flat damage bonus: "if this Pokemon
     has at least N extra <type> Energy attached (in addition to this attack's
@@ -15619,6 +15683,12 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"remaining than your opponent, this attack does (\d+) more "
                 r"damage\."), _bonus_prize_comparison),
     # -- batch 8: remaining generic riders ---------------------------------
+    ("bonus.extra-energy-compound",
+     re.compile(r"(?P<prefix>.+?)\. if this pok[eé]mon has at least (?P<req>\d+) "
+                r"extra (?:(?P<type>" + _TYPE_WORDS + r") )?energy attached"
+                r"(?: to it)?(?: \(in addition to this attack's cost\))?, "
+                r"(?P<tail>.+)", re.IGNORECASE),
+     _extra_energy_compound),
     ("bonus.extra-energy-prize-instead",
      re.compile(r"if your opponent's pok[eé]mon is knocked out by damage from "
                 r"this attack, take (\d+) more prize cards?\. if this pok[eé]mon "
