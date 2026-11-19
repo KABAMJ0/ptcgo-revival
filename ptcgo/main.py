@@ -117,11 +117,21 @@ def main():
     http_server = AssetHTTPServer()
     http_server.start()
 
+    # The admin panel moves to its own listener when PTCGO_ADMIN_PORT differs, so a
+    # tunnel pointed at the asset port can never reach it. Unset, this block is a no-op
+    # and /admin stays on the asset listener.
+    admin_server = None
+    if config.ADMIN_ON_SEPARATE_PORT:
+        admin_server = AssetHTTPServer(port=config.ADMIN_PORT, admin_only=True)
+        admin_server.start()
+
     try:
         asyncio.run(run_server())
     except KeyboardInterrupt:
         print("\nShutting down gracefully...")
         http_server.stop()
+        if admin_server is not None:
+            admin_server.stop()
 
 if __name__ == '__main__':
     main()

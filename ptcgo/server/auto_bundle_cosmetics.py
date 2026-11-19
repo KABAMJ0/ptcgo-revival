@@ -179,7 +179,12 @@ def compile_cosmetic_bundle(category, custom_dir, template_file, target_bundle_f
                 new_mappings.append((f"{prefix}/{custom_name}", new_info))
                 new_mappings.append((f"{prefix}//{custom_name}", new_info))
                 # Add full URL container aliases to allow the client to resolve HTTP URL strings in AssetBundle-mode seamlessly
-                for base_url in {config.HTTP_BASE_URL, "http://127.0.0.1:8000"}:
+                # The client resolves these alias keys by exact string, so keep the
+                # legacy host:port form alongside the configured base: a bundle built
+                # before PTCGO_HTTP_BASE_URL was set must still resolve.
+                legacy_base = f"http://{config.PUBLIC_HOST}:{config.HTTP_PORT}"
+                for base_url in {config.HTTP_BASE_URL, legacy_base,
+                                 "http://127.0.0.1:8000"}:
                     new_mappings.append((f"{base_url}/products/{custom_name}.png", new_info))
                     new_mappings.append((f"{base_url}/products/{custom_name}", new_info))
                     new_mappings.append((f"{prefix}/{base_url}/products/{custom_name}.png", new_info))
