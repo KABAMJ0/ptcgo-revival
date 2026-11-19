@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_water_energy
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, damage_all_opponents
+
+water_cyclone = move_energy_between(
+    is_water_energy, count=1, from_pool="active", to_pool="bench",
+    prompt="Move a Water Energy to a Benched Pokémon",
+)
 
 card = PokemonCardDef(
     guid="3405b653-9144-512c-b91f-ab50220813cd",
@@ -23,7 +31,9 @@ card = PokemonCardDef(
         Ability(
             title="Water Cyclone",
             game_text="As often as you like during your turn (before your attack), you may move a Water Energy attached to 1 of your Active Pok\u00e9mon to 1 of your Benched Pok\u00e9mon. This power can't be used if Swampert is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=water_cyclone,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(is_water_energy, from_pool="active", to_pool="bench"),
         ),
         Attack(
             title="Spinning Tail",
