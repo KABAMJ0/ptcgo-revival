@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _paralyzing_hit(ctx):
+    """Printed damage, then one coin: heads Paralyzes the defender and discards
+    an Energy from it. One flip covers both halves, as the card prints it."""
+    await ctx.deal_damage()
+    if not (await ctx.flip_coins(1))[0]:
+        return
+    defender = ctx.defender
+    if defender is None:
+        return
+    if not ctx.effects_blocked(defender):
+        await ctx.apply_special_condition(defender, SpecialConditions.PARALYZED)
+    if ctx.attached_energies(defender):
+        await ctx.discard_energy_from(defender, 1)
 
 card = PokemonCardDef(
     guid="47beaee1-765e-5f0f-bc44-8422dc2c5371",
@@ -25,7 +39,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed, and discard an Energy from that Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=flip_discard_opponent_energy(),
+            effect=_paralyzing_hit,
         ),
         Attack(
             title="Frosty Typhoon",
