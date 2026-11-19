@@ -24,8 +24,9 @@ from ptcgo.game.card_effects.passives_common import (
     no_weakness_passive,
     weakens_own_attacks_passive,
 )
-from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.session.effects import is_special_energy
+from ptcgo.game.session.passives import is_basic_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
 
 _TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
@@ -802,6 +803,30 @@ def mill_attack(count: int, opponent: bool = True,
             await also(ctx)
         # The milled cards are the signal for "if any of those are Energy, ...".
         return milled
+    return effect
+
+
+def mill_then_attach_energy(count: int = 3, damage: Optional[int] = None,
+                            basic_only: bool = False):
+    """"Discard the top 3 cards of your deck. If any of those cards are Energy
+    cards, attach them to this Pokemon" (Rayquaza-EX's Dragon Burst): the whole
+    top goes to the discard and the Energy among it comes straight back onto
+    the attacker."""
+    test = is_basic_energy if basic_only else is_energy_card
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        milled = ctx.deck_top(count)
+        if not milled:
+            return []
+        energies = [card for card in milled if test(card)]
+        await ctx.discard_cards(milled)
+        attached = []
+        if ctx.attacker is not None:
+            for energy in energies:
+                if await ctx.attach_energy(energy, ctx.attacker):
+                    attached.append(energy)
+        return attached
     return effect
 
 
