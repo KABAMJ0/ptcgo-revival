@@ -9698,3 +9698,21 @@ class FewerPrizeForKnockedOutPassive(Passive):
 
 def fewer_prize_for_darkness_knockout() -> Passive:
     return FewerPrizeForKnockedOutPassive()
+
+
+def switch_then_heal(amount: int, active_pred=None):
+    """Switch your Active with 1 of your Benched Pokemon; if you do, heal
+    `amount` from the Pokemon that went to the Bench. `active_pred` narrows the
+    Active the card names ("your Active Water Pokemon" -- Switch Raft)."""
+    async def effect(ctx):
+        old_active = ctx.my_active()
+        bench = ctx.my_bench()
+        if old_active is None or not bench:
+            return
+        if active_pred is not None and not active_pred(old_active):
+            return
+        target = await ctx.choose_play_target(bench, "Choose your new Active Pokemon")
+        if target is None or not await ctx.switch_active(ctx.player_id, target):
+            return
+        await ctx.heal(amount, old_active)
+    return effect
