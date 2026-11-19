@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
 from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
@@ -40,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 20, base=10),
         ),
     ],
 )

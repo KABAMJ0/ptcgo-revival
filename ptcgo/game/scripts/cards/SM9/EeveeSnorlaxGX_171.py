@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_evolved
 from ptcgo.game.card_effects.support_common import attach_from_hand
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_evolved, 120),
         ),
         Attack(
             title="Megaton Friends-GX",

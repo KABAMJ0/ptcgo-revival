@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.attacks_common import place_counters, count_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,13 +28,13 @@ card = PokemonCardDef(
             title="Breakdown",
             game_text="For each card in your opponent's hand, put 1 damage counter on their Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(lambda ctx: 1 * count_hand("opponent")(ctx), target="opponent_active"),
         ),
         Attack(
             title="Life Trick-GX",
             game_text="Heal all damage from this Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_attack(all_damage=True, target="self"),
         ),
     ],
 )

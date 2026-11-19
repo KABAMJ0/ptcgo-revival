@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, damage_per, count_retreat_cost
 
 card = PokemonCardDef(
     guid="b4328c45-7933-56b7-8e02-6ff2856ed265",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=100,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_retreat_cost("defender"), 10, base=100),
         ),
     ],
 )

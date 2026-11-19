@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import lock_self_attack, snipe_attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, snipe_attack, count_prizes_remaining, damage_per
 
 card = PokemonCardDef(
     guid="77809d35-dd4e-58b8-8f2d-6f3d231ff067",
@@ -39,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 3},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_remaining("mine"), 40),
         ),
     ],
 )

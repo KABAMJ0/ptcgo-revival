@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.trainers import named
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, damage_per, count_bench
 
 card = PokemonCardDef(
     guid="69cfff0a-06dd-58e2-9aff-b236962c3217",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", named("Passimian")), 30),
         ),
     ],
 )

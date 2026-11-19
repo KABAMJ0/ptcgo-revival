@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack, damage_per, count_in_play, has_tool
 
 card = PokemonCardDef(
     guid="ae260771-d991-5440-a484-40af7a9eda92",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", has_tool), 30),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=remove_self_from_play("deck", optional=True),
         ),
         Attack(
             title="Blade-GX",

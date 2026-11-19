@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, spread_damage
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             game_text="Attach an Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=50,
-            effect=unimplemented,
+            effect=attach_from_discard(count=1, target="self"),
         ),
         Attack(
             title="Super Zap Cannon",

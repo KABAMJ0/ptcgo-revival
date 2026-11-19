@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(stadium_in_play_cond, 60),
         ),
         Attack(
             title="Iron Rule-GX",

@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, smokescreen_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 _provides = lambda type_value: (
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Fire Slash",

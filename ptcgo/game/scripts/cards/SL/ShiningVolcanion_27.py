@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import flip_damage, snipe_attack
 
 card = PokemonCardDef(
     guid="e7d1f0b9-2455-5704-8b87-5e5a2afd1399",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Dual Pump",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 3},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=2),
         ),
         Attack(
             title="Quad Smash",

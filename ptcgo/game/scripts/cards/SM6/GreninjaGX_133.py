@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.card_effects.attacks_common import place_counters, snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="You may shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=110,
-            effect=unimplemented,
+            effect=remove_self_from_play("deck", optional=True),
         ),
         Attack(
             title="Shadowy Hunter-GX",

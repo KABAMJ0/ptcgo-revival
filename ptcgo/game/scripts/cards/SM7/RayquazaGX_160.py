@@ -1,5 +1,5 @@
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
-from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.support_common import attach_from_discard, discard_then_draw
 from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
@@ -40,7 +40,7 @@ card = PokemonCardDef(
             title="Tempest-GX",
             game_text="Discard your hand and draw 10 cards. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=discard_then_draw(0, 10, whole_hand=True),
         ),
     ],
 )

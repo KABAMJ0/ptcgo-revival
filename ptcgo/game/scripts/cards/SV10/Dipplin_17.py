@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.support_common import return_attached_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Put an Energy attached to this Pok\u00e9mon into your hand.",
             cost={PokemonTypes.GRASS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(), return_attached_energy(count=1)),
         ),
     ],
 )

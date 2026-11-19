@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), 50),
         ),
     ],
 )

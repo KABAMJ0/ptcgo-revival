@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, evolves_from_chain
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.support_common import search_to_hand, switch_self_attack
 
 
 def _evolves_from_eevee(card):
@@ -35,7 +35,7 @@ card = PokemonCardDef(
             game_text="Switch Eevee with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
     ],
 )

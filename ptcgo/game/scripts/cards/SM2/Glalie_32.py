@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, bonus_if, has_damage
 from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -34,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("self"), 80),
         ),
     ],
 )
