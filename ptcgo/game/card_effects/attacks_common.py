@@ -1514,14 +1514,28 @@ def discard_random_hand_attack(count: int = 1, opponent: bool = True,
 # Flip gates (riders with no damage of their own)
 # ----------------------------------------------------------------------
 
-def flip_gate(then, coins: int = 1, tails: bool = False):
-    """Flip `coins`; on all heads run `then(ctx)` (a following rider).
-    `tails=True` inverts the gate to "if ANY of them is tails": the corpus has
-    both directions, and "Flip a coin. If tails, ..." is the other one."""
+def flip_gate(then=None, coins: int = 1, tails=None):
+    """Flip `coins` and run the branch the flip selects.
+
+    - `flip_gate(rider)` -- on all heads, run `rider(ctx)`.
+    - `flip_gate(rider, tails=True)` -- on ANY tails, run `rider(ctx)`.
+    - `flip_gate(heads_rider, tails=tails_rider)` -- both branches, which the
+      corpus prints as often as the single one ("Flip a coin. If heads, X. If
+      tails, Y."). Pass `then=None` for a card that prints only the tails
+      branch; its printed damage is still dealt by `ctx.deal_damage` elsewhere
+      in the body, so passing neither branch moves no damage.
+
+    `tails` is the tail branch when it is callable and the gate inversion when
+    it is `True`, so every older call site keeps its meaning."""
     async def effect(ctx):
         results = await ctx.flip_coins(coins, _title(ctx))
         success = bool(results) and all(results)
-        if success != bool(tails):
+        if callable(tails):
+            branch = then if success else tails
+            if branch is not None:
+                await branch(ctx)
+            return
+        if success != bool(tails) and then is not None:
             await then(ctx)
     return effect
 

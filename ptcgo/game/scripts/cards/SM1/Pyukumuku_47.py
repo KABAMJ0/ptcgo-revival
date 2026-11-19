@@ -1,7 +1,13 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.passives_common import on_ko_from_attack
+
+
+async def _innards_out(ctx):
+    if ctx.attacker is not None:
+        await ctx.deal_damage(60, target=ctx.attacker, apply_modifiers=False,
+                              as_counters=True)
 
 card = PokemonCardDef(
     guid="58d01e93-4c99-57a6-981c-7b40618d2cbe",
@@ -23,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Innards Out",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, put 6 damage counters on the Attacking Pok\u00e9mon.",
-            effect=flip_damage(per_heads=30, until_tails=True),
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=on_ko_from_attack(_innards_out),
         ),
         Attack(
             title="Continuous Tumble",
