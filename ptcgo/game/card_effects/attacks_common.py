@@ -7,7 +7,7 @@ coroutine run after the factory's own work.
 """
 
 import random
-from typing import Callable, Optional
+from typing import Optional
 
 from ptcgo.game.attributes import (
     AbilityTypes,
@@ -667,79 +667,26 @@ def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
 # Special-condition attacks (supersedes card_effects.pokemon.condition_attack)
 # ----------------------------------------------------------------------
 
-def extra_energy_count(ctx, type_value=None) -> int:
-    """Energy attached to the attacker BEYOND this attack's own cost -- the
-    "extra Energy (in addition to this attack's cost)" count of the TAG TEAM
-    gates. Counts Energy CARDS that can provide `type_value` (None counts every
-    attached Energy) and subtracts what the printed cost already asks for, so a
-    Pokemon paying `{W: 2}` needs two Water left over."""
-
-    attached = list(ctx.attached_energies(ctx.attacker) or [])
-    cost = getattr(ctx.ability, "cost", None) or {}
-    if type_value is None:
-        matching = len(attached)
-        paid = sum(int(count) for count in cost.values())
-    else:
-        matching = sum(1 for card in attached
-                       if energy_provides_type(card, type_value))
-        paid = sum(int(count) for energy_type, count in cost.items()
-                   if getattr(energy_type, "value", energy_type) == type_value)
-    return matching - paid
-
-
-def has_extra_energy(required: int, type_values=None) -> Callable:
-    """The gate on its own, for a card whose success branch is not a flat damage
-    bonus (a spread, an extra discard, a hand lock). `type_values` is one type, an
-    iterable of types -- requiring `required` extra of EACH, which is what "at
-    least 1 extra Fire, Water, and Lightning Energy" prints -- or None for any
-    Energy."""
-    if type_values is None:
-        values = (None,)
-    elif isinstance(type_values, (list, tuple, set)):
-        values = tuple(getattr(t, "value", t) for t in type_values)
-    else:
-        values = (getattr(type_values, "value", type_values),)
-
-    def pred(ctx) -> bool:
-        return all(extra_energy_count(ctx, value) >= required for value in values)
-    return pred
-
-
 def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                      min_heads: int = 1, tails_conditions=(),
                      tails_self_conditions=(), always_conditions=(),
                      heads_bonus_damage: int = 0, self_conditions=(),
                      both_actives: bool = False, no_retreat: bool = False,
                      counters: int = 1, checkup_coins: int = 1,
-                     damage: Optional[int] = None, also=None,
-                     extra_energy=None):
+                     damage: Optional[int] = None, also=None):
     """Printed damage + Special Conditions on the Defending Pokemon; flip=True
     gates `conditions`/self_conditions/no_retreat/heads_bonus_damage on
     min_heads heads (tails_conditions on failure, always_conditions always).
 
     `tails_self_conditions` is the mirror wording "if tails, YOUR Active
-    Pokemon is now X": those land on the attacker, not the defender.
-
-    `extra_energy=(required, type_values, then)` gates a bonus on "if this
-    Pokemon has at least `required` extra <type> Energy attached to it (in
-    addition to this attack's cost)": `then` is an int added to the damage or an
-    async callable run on success. The gate is independent of the coin flip --
-    both must hold."""
+    Pokemon is now X": those land on the attacker, not the defender."""
     async def effect(ctx):
         success = True
         if flip:
             results = await ctx.flip_coins(coins, _title(ctx))
             success = sum(1 for r in results if r) >= min_heads
         base_val = damage if damage is not None else _printed(ctx)
-        extra_bonus, extra_then = 0, None
-        if extra_energy is not None:
-            required, type_values, then = extra_energy
-            if has_extra_energy(required, type_values)(ctx):
-                if callable(then):
-                    extra_then = then
-                else:
-                    extra_bonus = int(then or 0)
-        amount = base_val + (heads_bonus_damage if success else 0) + extra_bonus
+        amount = base_val + (heads_bonus_damage if success else 0)
         if amount > 0:
             await ctx.deal_damage(amount)
         applied = list(always_conditions) + \
@@ -766,8 +713,6 @@ def condition_attack(*conditions, flip: bool = False, coins: int = 1,
                 defender = ctx.defender
                 if defender is not None and not ctx.effects_blocked(defender):
                     ctx.lock_retreat(defender)
-        if extra_then is not None:
-            await extra_then(ctx)
         if also is not None:
             await also(ctx)
     return effect

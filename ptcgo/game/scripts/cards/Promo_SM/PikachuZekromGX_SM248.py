@@ -2,7 +2,6 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import condition_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="fcde684c-c4c1-5462-882f-821a89f2027c",
@@ -34,10 +33,7 @@ card = PokemonCardDef(
             game_text="If this Pokemon has at least 3 extra Lightning Energy attached to it (in addition to this attack's cost), this attack does 170 damage to 1 of your opponent's Benched Pokemon. (Don't apply Weakness and Resistance for Benched Pokemon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=200,
-            effect=condition_attack(
-                damage=200,
-                extra_energy=(3, PokemonTypes.LIGHTNING, snipe_attack(170, count=1)),
-            ),
+            effect=unimplemented,
         ),
     ],
 )
