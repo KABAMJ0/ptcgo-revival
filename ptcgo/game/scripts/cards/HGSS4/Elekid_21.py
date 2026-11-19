@@ -1,7 +1,11 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
+
+async def _elekid_asleep(ctx):
+    """Elekid is now Asleep, after the snipe lands."""
+    await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
 card = PokemonCardDef(
     guid="64fee633-2f17-5b12-a74f-124ca180d90c",
     key="HGSS4",
@@ -27,7 +31,7 @@ card = PokemonCardDef(
             title="Sparking Ball",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 20 damage to that Pok\u00e9mon. This attack's damage isn't affected by Weakness or Resistance. Elekid is now Asleep.",
             cost={},
-            effect=snipe_attack(20, pool="any", apply_modifiers=False),
+            effect=snipe_attack(20, pool="any", apply_modifiers=False, also=_elekid_asleep),
         ),
     ],
 )
