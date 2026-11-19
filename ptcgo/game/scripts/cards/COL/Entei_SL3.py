@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Extreme Speed",
             game_text="Entei's Retreat Cost is Colorless Energy less for each Fire Energy attached to Entei.",
-            effect=unimplemented,
+            effect=mill_attack(3, opponent=False),
         ),
         Attack(
             title="Wild Blaze",

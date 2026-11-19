@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Deep Sea Swirl",
             game_text="Shuffle your hand into your deck. Then, draw 5 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=shuffle_hand_into_deck_draw(5),
         ),
         Attack(
             title="Wave Splash",

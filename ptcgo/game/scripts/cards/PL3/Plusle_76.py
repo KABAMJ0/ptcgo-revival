@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Greedy Draw",
             game_text="If you have the same number of cards or less in your hand as your opponent, draw cards until you have 1 more card than your opponent. (If you have more cards in your hand than your opponent, this attack does nothing.)",
             cost={},
-            effect=unimplemented,
+            effect=attach_from_hand(basic_energy_of("lightning"), count=1, target="choice"),
         ),
         Attack(
             title="Hand Charge",

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Growth",
             game_text="Attach a Grass Energy card from your hand to this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(basic_energy_of("grass"), count=1, target="self"),
         ),
         Attack(
             title="Razor Leaf",
