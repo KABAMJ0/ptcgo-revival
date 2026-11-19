@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="32783b63-f8ed-58e7-8178-b1ccd10a9c55",
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             title="Knock Off",
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
-            effect=discard_random_hand_attack(count=1),
+            effect=discard_random_hand_attack(1),
         ),
     ],
 )

@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="e1c20194-11cf-5c3a-95f0-65a6034474f1",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Random Spark",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=snipe_attack(10, pool="any", count=1, apply_modifiers=False),
+            effect=snipe_attack(10, pool="any"),
         ),
         Attack(
             title="Lightning Ball",

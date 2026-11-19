@@ -1,7 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, flip_damage
 
 card = PokemonCardDef(
     guid="d0fb4bc1-3af5-5da9-8334-7ed237369479",
@@ -26,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=discard_random_hand_attack(count=1),
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Lickichop",
@@ -34,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=60,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=60),
+            effect=unimplemented,
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Stare",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. Don't apply Weakness and Resistance for this attack. (Any other effects that would happen after applying Weakness and Resistance still happen.) If that Pok\u00e9mon has a Pok\u00e9mon Power, that power stops working until the end of your opponent's next turn.",
             cost={PokemonTypes.GRASS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="any"),
         ),
         Attack(
             title="Poison Vapor",

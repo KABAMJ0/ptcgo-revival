@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="b5a90365-8e0e-5edc-8e85-95dd4f6d333a",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=discard_opponent_energy_attack(count=1),
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Grand Echo-GX",

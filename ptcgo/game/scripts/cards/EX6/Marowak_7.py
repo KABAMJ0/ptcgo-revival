@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="1c6ef96e-84da-5661-8cce-4b1acb45c740",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
-            effect=snipe_attack(30, pool="any", count=1, apply_modifiers=False),
+            effect=snipe_attack(30, pool="any"),
         ),
         Attack(
             title="Vengeance",
