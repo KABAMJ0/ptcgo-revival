@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+
+def _is_holon_energy(card):
+    from ptcgo.game.scripts.cards import loader as card_loader
+    definition = card_loader.cards_by_guid.get((getattr(card, "archetype_id", "") or "").lower())
+    return definition is not None and \
+        (getattr(definition, "display_name", "") or "").lower().startswith("holon energy")
+
 card = PokemonCardDef(
     guid="6892386a-3aba-5124-b4a8-0094766be0cb",
     key="EX11",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
             game_text="Search your deck for a Holon Energy card and attach it to Flareon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=search_attach_energy(_is_holon_energy, count=1, to_self=True),
         ),
         Attack(
             title="Return Burn",
