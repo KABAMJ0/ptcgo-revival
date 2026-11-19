@@ -3472,13 +3472,25 @@ def evolve_early_passive(type_name=None):
     return EvolveEarlyPassive(wanted)
 
 
-class EvolveEarlyPassive(Passive):
-    """Stadium: matching Pokemon can evolve on the turn they are played."""
+def evolve_early_self_passive():
+    """"If you go second, this Pokemon can evolve during your first turn."
+    The reverse of a Stadium's wording: the grant belongs to the one Pokemon
+    carrying it, not to everything that matches a type."""
+    return EvolveEarlyPassive(None, self_only=True)
 
-    def __init__(self, wanted_type):
+
+class EvolveEarlyPassive(Passive):
+    """Matching Pokemon can evolve on the turn they are played. `self_only`
+    scopes the grant to the carrier, which is what the five self-printing cards
+    say; a Stadium leaves it False and covers every matching Pokemon."""
+
+    def __init__(self, wanted_type, self_only: bool = False):
         self.wanted_type = wanted_type
+        self.self_only = self_only
 
     def may_evolve_early(self, pokemon, carrier):
+        if self.self_only and pokemon is not carrier:
+            return False
         if self.wanted_type is None:
             return True
         return self.wanted_type in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
