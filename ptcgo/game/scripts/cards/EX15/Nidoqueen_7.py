@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_discard, damage_per
+from ptcgo.game.card_effects.pokemon import is_pokemon_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.support_common import search_to_hand
@@ -41,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", is_pokemon_card), 10, base=30),
         ),
     ],
 )

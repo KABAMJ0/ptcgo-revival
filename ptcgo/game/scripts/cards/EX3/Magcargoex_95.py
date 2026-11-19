@@ -1,5 +1,20 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def lava_flow(ctx):
+    """Printed 40, plus 20 for each basic Energy you discard from Magcargo ex
+    (you may discard any number)."""
+    energies = [card for card in ctx.attached_energies(ctx.attacker)
+                if is_basic_energy_card(card)]
+    discarded = 0
+    if energies:
+        picks = await ctx.choose_cards(
+            energies, len(energies), minimum=0,
+            prompt="Discard any number of basic Energy cards from Magcargo ex")
+        if picks:
+            discarded = len(await ctx.discard_cards(picks) or picks)
+    await ctx.deal_damage(40 + 20 * discarded)
 
 card = PokemonCardDef(
     guid="2bc3e705-afe2-57be-9111-677a3e445566",
@@ -32,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=lava_flow,
         ),
     ],
 )
