@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_evolution_pokemon
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="033fa0a2-3b4f-5e4b-8d07-2eca9b26ba8d",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Fast Evolution",
             game_text="Search your deck for an Evolution card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_evolution_pokemon, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Double Scratch",

@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.card_effects.support_common import baby_evolution, search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import all_of, is_basic_pokemon, pokemon_of
 
 _baby_effect, _baby_in_hand = baby_evolution("Mantine")
 
@@ -33,7 +34,12 @@ card = PokemonCardDef(
             title="Call for Friends",
             game_text="Search your deck for a Water Basic Pok\u00e9mon, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={},
-            effect=unimplemented,
+            effect=search_to_hand(
+                all_of(pokemon_of("water"), is_basic_pokemon),
+                count=1,
+                minimum=1,
+                reveal=True,
+            ),
         ),
     ],
 )

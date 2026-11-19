@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="2f94f51c-0983-5434-a571-4d5c59c92db9",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Pluck Off",
             game_text="Search your deck for up to 3 Basic Grass Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("grass"), count=3, minimum=0, reveal=True),
         ),
         Attack(
             title="Hammer Whip",

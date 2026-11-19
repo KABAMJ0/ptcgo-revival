@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="7261d67c-57cf-55fe-8527-907111f32d52",
@@ -27,7 +29,10 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness or Resistance. Tyrogue is now Asleep.",
             cost={},
             damage=30,
-            effect=unimplemented,
+            effect=composed(
+                ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
+                then=lambda ctx: ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP),
+            ),
         ),
     ],
 )

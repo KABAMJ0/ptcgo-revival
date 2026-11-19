@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.trainers import discard_stadium_card, is_stadium_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="16f6f3bd-3789-5db2-a9b3-6f3b42ee9a63",
@@ -24,7 +27,10 @@ card = PokemonCardDef(
             game_text="Search your deck for a Stadium card, show it to your opponent, and put it into your hand. Shuffle your deck afterward. If there is any Stadium card in play, discard it.",
             cost={PokemonTypes.WATER: 1},
             damage=10,
-            effect=unimplemented,
+            effect=composed(
+                search_to_hand(is_stadium_card, count=1, minimum=1, reveal=True),
+                then=discard_stadium_card(),
+            ),
         ),
         Attack(
             title="Roar of Time",
