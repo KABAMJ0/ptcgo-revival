@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -29,7 +32,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, flip a coin. If heads, choose 1 of them and this attack does 10 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(10), flip_gate(snipe_attack(10, pool="bench", count=1, apply_modifiers=False))),
         ),
     ],
 )
