@@ -819,7 +819,20 @@ class GameSession:
                     f"[Session {self.game_id}] Ignoring stale selection reply "
                     f"(counter {reply_counter}, expected {expected_counter}): {reply}"
                 )
+                # Re-arm AND re-send. Nothing else puts this offer back on the
+                # wire, so a discarded duplicate leaves the client waiting on a
+                # prompt it has already answered, and the player sees the
+                # selection time out while the server sees no reply at all.
+                pending = player._pending_offer
                 player.pending_choice_future = loop.create_future()
+                if pending is not None:
+                    name, value, flags = self._offer_for_replay(pending)
+                    await player.send_packet(name, value, flags)
+                    await player.flush_outbound()
+                    logging.info(
+                        f"[Session {self.game_id}] Re-sent the outstanding offer "
+                        f"after discarding a stale reply."
+                    )
         finally:
             self._leave_prompt_checkpoint()
             if timer_running:
