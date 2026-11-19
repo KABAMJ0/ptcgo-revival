@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.session.passives import effective_pokemon_types
+
+
+async def _steel_wave(ctx):
+    """Printed damage, then 10 to each benched Pokemon sharing a type with the
+    Defending one (no Weakness or Resistance on the bench)."""
+    types_of = lambda pokemon: set(effective_pokemon_types(ctx.board, pokemon) or [])
+    foe_types = types_of(ctx.opponent_active())
+    await spread_damage(10, also_base=True,
+                        pred=lambda p: bool(types_of(p) & foe_types))(ctx)
+
 
 card = PokemonCardDef(
     guid="3313f51d-db5f-501f-9439-42a02bab6b72",
@@ -30,7 +42,7 @@ card = PokemonCardDef(
             game_text="This attack does 10 damage to each of your opponent's Benched Pok\u00e9mon that are the same type (color) as the Defending Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
-            effect=unimplemented,
+            effect=_steel_wave,
         ),
     ],
 )
