@@ -2,6 +2,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+async def _exeggutor_scaled_snipe(ctx):
+    attacker = ctx.attacker or ctx.source
+    amount = 20 * len(ctx.attached_energies(attacker))
+    pool = [p for p in ctx.opponent_bench() if p is not None]
+    if ctx.opponent_active() is not None:
+        pool.append(ctx.opponent_active())
+    if not pool:
+        return
+    target = await ctx.choose_pokemon(pool, "Choose a Pokémon")
+    if target is not None:
+        await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="437c3481-74ed-59bb-a876-3fb37a0ca9ce",
     key="SM4",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             title="Tropical Head",
             game_text="This attack does 20 damage times the amount of Energy attached to this Pok\u00e9mon to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=_exeggutor_scaled_snipe,
         ),
         Attack(
             title="Dragon Hammer",
