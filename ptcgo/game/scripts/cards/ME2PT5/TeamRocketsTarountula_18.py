@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="9a789f6d-896b-5fe8-bf30-005e68505e70",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon also does 10 damage to itself.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )
