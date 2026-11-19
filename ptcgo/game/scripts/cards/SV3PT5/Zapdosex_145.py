@@ -1,5 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import has_energy_of
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class _VoltaicFloat(Passive):
+    """No Retreat Cost while this Pokemon has any Lightning Energy attached."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if carrier_pokemon(carrier) is not pokemon:
+            return cost
+        return 0 if has_energy_of("lightning")(pokemon) else cost
 
 card = PokemonCardDef(
     guid="079af3bf-5083-57e8-b546-f833686f91bf",
@@ -22,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Voltaic Float",
             game_text="If this Pok\u00e9mon has any Lightning Energy attached, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=_VoltaicFloat(),
         ),
         Attack(
             title="Multishot Lightning",

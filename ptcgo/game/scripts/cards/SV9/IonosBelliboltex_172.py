@@ -1,6 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.support_common import attach_from_hand, hand_attach_condition
+from ptcgo.game.card_effects.trainers import basic_energy_of, card_named_any
+
+async def _electric_streamer(ctx):
+    """Attach a Basic Lightning Energy from hand to 1 of your Iono's Pokemon."""
+    await attach_from_hand(
+        basic_energy_of("lightning"), count=1, target="choice",
+        target_pred=card_named_any(["Iono's"]), minimum=1,
+        prompt="Choose a Basic Lightning Energy to attach",
+    )(ctx)
 
 card = PokemonCardDef(
     guid="cd0ff55a-317b-5e3d-80dc-6584a7928e3e",
@@ -23,7 +33,11 @@ card = PokemonCardDef(
         Ability(
             title="Electric Streamer",
             game_text="As often as you like during your turn, you may attach a Basic Lightning Energy card from your hand to 1 of your Iono's Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=hand_attach_condition(basic_energy_of("lightning"),
+                                            target="choice",
+                                            target_pred=card_named_any(["Iono's"])),
+            effect=_electric_streamer,
         ),
         Attack(
             title="Thunderous Bolt",

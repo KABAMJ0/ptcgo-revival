@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+class _EffectShield(Passive):
+    """Opposing attacks' effects do nothing to this Pokemon; damage is not an
+    effect, so the damage pipeline is untouched."""
+
+    def blocks_attack_effects(self, target, carrier):
+        return target is carrier_pokemon(carrier)
 
 card = PokemonCardDef(
     guid="faaffb80-7fdd-582f-b945-002b5ca833b9",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Flare Veil",
             game_text="Prevent all effects of attacks used by your opponent's Pok\u00e9mon done to this Pok\u00e9mon. (Damage is not an effect.)",
-            effect=unimplemented,
+            passive=_EffectShield(),
         ),
         Attack(
             title="Combustion",

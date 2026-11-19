@@ -2,6 +2,30 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
+async def _torrential_pump(ctx):
+    """Printed damage to the Active; optionally shuffle 3 of this Pokemon's
+    Energy in for 120 more to one of the opponent's Benched Pokemon."""
+    await ctx.deal_damage()
+    energies = ctx.attached_energies(ctx.source)
+    if len(energies) < 3:
+        return
+    if not await ctx.ask_yes_no(
+        "Shuffle 3 Energy into your deck to also do 120 to a Benched Pokémon?"
+    ):
+        return
+    picks = await ctx.choose_cards(
+        energies, 3, minimum=3, prompt="Choose 3 Energy to shuffle into your deck")
+    if not picks:
+        return
+    await ctx.shuffle_into_deck(picks)
+    bench = ctx.opponent_bench()
+    if not bench:
+        return
+    target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+        bench, "Choose a Benched Pokémon")
+    if target is not None:
+        await ctx.deal_damage(120, target=target, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="2ba96d97-00b8-585b-bd12-192e53efa7b0",
     key="SV6",
@@ -30,7 +54,7 @@ card = PokemonCardDef(
             game_text="You may shuffle 3 Energy attached to this Pok\u00e9mon into your deck. If you do, this attack also does 120 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=_torrential_pump,
         ),
     ],
 )
