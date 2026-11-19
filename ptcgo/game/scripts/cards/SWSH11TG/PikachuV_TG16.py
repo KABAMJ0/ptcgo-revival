@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
 
 card = PokemonCardDef(
     guid="50a47df8-0bb9-5179-a786-ae2fa15a4bb8",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Charge",
             game_text="Search your deck for up to 2 Lightning Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=self_energy_discard_attack(all_energy=True),
+            effect=search_attach_energy(is_lightning_energy, count=2, to_self=True),
         ),
         Attack(
             title="Thunderbolt",

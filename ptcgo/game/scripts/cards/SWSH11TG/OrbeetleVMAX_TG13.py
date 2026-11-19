@@ -3,6 +3,7 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="beb561db-b431-586b-a3f2-656dc9dea5d4",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Eerie Beam",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may put 1 damage counter on each of your opponent's Pok\u00e9mon.",
-            effect=damage_per(count_energy("defender"), 50),
+            effect=place_counters(1, target="each_opponent"),
         ),
         Attack(
             title="G-Max Wave",

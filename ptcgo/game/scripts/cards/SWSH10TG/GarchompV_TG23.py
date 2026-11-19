@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="4c368823-d862-51eb-addf-bedb73b4d18b",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Sonic Strike",
             game_text="Discard 3 Energy from this Pok\u00e9mon. This attack does 220 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
-            effect=snipe_attack(220, pool="any", count=1, apply_modifiers=False),
+            effect=self_energy_discard_attack(count=3, before_damage=True, also=snipe_attack(220, pool="any", count=1)),
         ),
     ],
 )

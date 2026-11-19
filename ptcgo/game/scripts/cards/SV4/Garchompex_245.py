@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="ebfc6790-c326-54ce-b483-186156b45d52",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             title="Sonic Dive",
             game_text="Discard 2 Energy from this Pok\u00e9mon. This attack does 120 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=snipe_attack(120, pool="any", count=1, apply_modifiers=False),
+            effect=self_energy_discard_attack(count=2, before_damage=True, also=snipe_attack(120, pool="any", count=1)),
         ),
     ],
 )

@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Seafaring",
             game_text="Flip 3 coins. For each heads, attach a Water Energy card from your discard pile to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=damage_per(count_energy("self", "water"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Hydro Pump",

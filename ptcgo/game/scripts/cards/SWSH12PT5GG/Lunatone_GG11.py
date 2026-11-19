@@ -3,6 +3,7 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.card_effects.support_common import discard_then_draw
 
 card = PokemonCardDef(
     guid="5e92f2de-5c9c-52e4-a469-e99a83de3f49",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             title="Cycle Draw",
             game_text="Discard a card from your hand. If you do, draw 3 cards.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=damage_per(count_energy("self", "psychic"), 30),
+            effect=discard_then_draw(1, 3),
         ),
         Attack(
             title="Moon Kinesis",

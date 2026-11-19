@@ -2,7 +2,6 @@ from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
 card = PokemonCardDef(
     guid="db6894f2-e070-5582-92d6-7eed3c35062d",
     key="SWSH45SV",

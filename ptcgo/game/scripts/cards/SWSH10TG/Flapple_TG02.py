@@ -3,6 +3,8 @@ from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 
 card = PokemonCardDef(
     guid="708cf79e-e795-553b-8fc8-77ea7563a950",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Apple Drop",
             game_text="Once during your turn, you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon. If you placed any damage counters in this way, shuffle this Pok\u00e9mon and all attached cards into your deck.",
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=place_counters(2, target="choose_any_opponent", also=lambda ctx: remove_self_from_play("deck")(ctx)),
         ),
         Attack(
             title="Acid Spray",

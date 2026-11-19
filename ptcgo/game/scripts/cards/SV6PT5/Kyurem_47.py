@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, snipe_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 async def gmax_rapid_flow(ctx):
     """Discard all Energy from this Pokémon, then 120 to 2 of the opponent's Pokémon (no W/R on Bench)."""
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             title="Trifrost",
             game_text="Discard all Energy from this Pok\u00e9mon. This attack does 110 damage to 3 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
-            effect=gmax_rapid_flow,
+            effect=self_energy_discard_attack(all_energy=True, before_damage=True, also=snipe_attack(110, pool="any", count=3)),
         ),
     ],
 )

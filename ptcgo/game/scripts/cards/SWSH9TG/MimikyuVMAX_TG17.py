@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Ominous Numbers",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like. If you played Acerola's Premonition from your hand during this turn, place 13 damage counters instead.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=discard_random_hand_attack(1),
+            effect=unimplemented,
         ),
         Attack(
             title="Max Shadow",

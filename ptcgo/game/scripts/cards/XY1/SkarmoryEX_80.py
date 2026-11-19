@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
 
 card = PokemonCardDef(
     guid="70ef0839-fc4e-5798-b068-4f8593cdde94",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, discard all Pok\u00e9mon Tool cards attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=bonus_if(has_damage("defender"), 40),
+            effect=discard_defender_tools_then_damage(),
         ),
         Attack(
             title="Tailspin Piledriver",
