@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_then, switch_self_attack
+
+
+async def rapid_spin(ctx, _new_active):
+    """The opponent switches first (their choice), then you switch one of
+    yours in."""
+    await switch_self_attack(damage=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="f82ffe30-fdbf-5f81-bb7a-7f2ca1dad025",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, he or she chooses 1 of them and switches it with his or her Active Pok\u00e9mon, then, if you have any Benched Pok\u00e9mon, you switch 1 of them with your Active Pok\u00e9mon. (Do the damage before switching the Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 3},
             damage=50,
-            effect=unimplemented,
+            effect=gust_then(rapid_spin, opponent_chooses=True),
         ),
     ],
 )

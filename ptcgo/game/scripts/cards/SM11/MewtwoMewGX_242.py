@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import extra_energy_beyond_cost
+
+async def miraculous_duo(ctx):
+    await ctx.deal_damage()
+    if extra_energy_beyond_cost(ctx) < 1:
+        return
+    for pokemon in ctx.my_pokemon_in_play():
+        await ctx.heal(ctx.max_hp(pokemon), pokemon)
+
 
 card = PokemonCardDef(
     guid="bbf10084-0ddf-592e-a430-ab8808378817",
@@ -28,7 +37,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has at least 1 extra Energy attached to it (in addition to this attack's cost), heal all damage from all of your Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=miraculous_duo,
         ),
     ],
 )

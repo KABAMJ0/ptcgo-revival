@@ -1,5 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
+
+
+async def aero_trail(ctx):
+    """On play from hand to the Bench: you may move any number of Lightning
+    Energy from your other Pokemon to this Pokemon, then switch it in."""
+    me = ctx.source
+    others = [p for p in ctx.my_pokemon_in_play() if p is not me]
+    if not any(is_lightning_energy(energy)
+               for pokemon in others
+               for energy in ctx.attached_energies(pokemon)):
+        return
+    if not await ctx.ask_yes_no(
+        "Move any number of Lightning Energy from your other Pok\u00e9mon "
+        "to this Pok\u00e9mon?"
+    ):
+        return
+    moved = await ctx.move_energy_freely(
+        others, [me], predicate=is_lightning_energy,
+        prompt="Choose Lightning Energy to move")
+    if moved and me is not ctx.my_active():
+        await ctx.switch_active(ctx.player_id, me)
+
 
 card = PokemonCardDef(
     guid="a24e144f-3140-52f2-89ba-f52a468767fc",
@@ -20,7 +43,8 @@ card = PokemonCardDef(
         Ability(
             title="Aero Trail",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may move any number of Lightning Energy from your other Pok\u00e9mon to this Pok\u00e9mon. If you do, switch this Pok\u00e9mon with your Active Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=aero_trail,
         ),
         Attack(
             title="Sky-High Claws",

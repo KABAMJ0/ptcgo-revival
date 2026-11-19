@@ -1,5 +1,10 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+async def prison_panic(ctx):
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="96ad98e7-2823-5e11-827e-fc461b443540",
@@ -23,7 +28,8 @@ card = PokemonCardDef(
         Ability(
             title="Prison Panic",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. Make your opponent's Active Pok\u00e9mon Confused.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=prison_panic,
         ),
         Attack(
             title="Psychic Sphere",

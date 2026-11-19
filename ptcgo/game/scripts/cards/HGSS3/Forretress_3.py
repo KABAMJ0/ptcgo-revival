@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 card = PokemonCardDef(
     guid="0b61a62b-c4a3-5200-910f-cf0fbf50ae43",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Everyone Explode Now",

@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retaliate_counters_passive
+
+
+async def shellnado_spin(ctx):
+    """180 damage; during the opponent's next turn, whoever damages this
+    Pokemon takes 12 damage counters."""
+    await ctx.deal_damage()
+    if ctx.attacker is not None:
+        ctx.add_passive_through_opponents_turn(
+            ctx.attacker, retaliate_counters_passive(12))
+
 
 card = PokemonCardDef(
     guid="9dd4452a-256e-58b8-92d9-8c65f10179d0",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, if this Pok\u00e9mon is damaged by an attack (even if this Pok\u00e9mon is Knocked Out), place 12 damage counters on the Attacking Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=180,
-            effect=unimplemented,
+            effect=shellnado_spin,
         ),
     ],
 )

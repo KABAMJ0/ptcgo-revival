@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.support_common import bare_mill

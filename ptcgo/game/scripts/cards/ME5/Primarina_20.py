@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_all_from_one
 
 card = PokemonCardDef(
     guid="5330b0a7-73f4-52e0-9b22-9ce5c68e3156",
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Enriching Melody",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. Heal all damage from 1 of your Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=heal_all_from_one(),
         ),
         Attack(
             title="Aqua Return",

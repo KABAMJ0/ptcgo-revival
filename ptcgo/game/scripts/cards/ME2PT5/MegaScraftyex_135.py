@@ -1,5 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+async def counterattacking_crest(ctx):
+    if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None:
+        return
+    await ctx.deal_damage(50, target=attacker, apply_modifiers=False, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="e871fd1c-6813-5b9e-9769-abce78383803",
@@ -22,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Counterattacking Crest",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), place 5 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=counterattacking_crest,
         ),
         Attack(
             title="Outlaw Leg",

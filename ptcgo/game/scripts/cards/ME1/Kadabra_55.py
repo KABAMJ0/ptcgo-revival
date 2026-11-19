@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="5d429cb0-be48-55c0-8965-718e53057b83",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Psychic Draw",
             game_text="Once during your turn, when you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may use this Ability. Draw 2 cards.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Super Psy Bolt",
