@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_per_heads
 
 card = PokemonCardDef(
     guid="288c4a42-3fc8-52c3-acfb-28788fdfe84d",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Flip a coin until you get tails. For each heads, discard the top card of your opponent's deck.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=mill_per_heads(1, opponent=True),
         ),
     ],
 )
