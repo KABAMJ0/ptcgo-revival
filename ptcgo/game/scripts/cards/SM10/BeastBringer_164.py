@@ -17,6 +17,8 @@ class BeastBringerPassive(Passive):
             return count
         if getattr(ctx, "attacker", None) is not holder:
             return count
+        if ctx.board.active_pokemon(pokemon.owning_player_id) is not pokemon:
+            return count
         if not (is_pokemon_gx(pokemon) or is_pokemon_EX(pokemon)):
             return count
         if "Ultra Beast" not in subtypes_for(holder.archetype_id):
