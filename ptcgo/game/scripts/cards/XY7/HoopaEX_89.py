@@ -2,7 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, uni
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import is_pokemon_ex
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="73398816-5345-541d-8ecc-40cea3564764",
     key="XY7",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             title="Hyperspace Fury",
             game_text="Discard 2 Energy attached to this Pok\u00e9mon. This attack does 100 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=snipe_attack(100, pool="any", count=1, apply_modifiers=False),
         ),
     ],
 )

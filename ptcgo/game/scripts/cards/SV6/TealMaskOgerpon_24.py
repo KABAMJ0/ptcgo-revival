@@ -7,7 +7,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
-
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per, mill_attack
+from ptcgo.game.card_effects.attacks_common import mill_attack
 card = PokemonCardDef(
     guid="9cf65c99-f49d-5c30-b05f-9db928537607",
     key="SV6",

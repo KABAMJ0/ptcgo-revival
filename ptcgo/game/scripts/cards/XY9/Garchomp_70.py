@@ -7,7 +7,6 @@ from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_ca
 from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.card_effects.trainers import is_pokemon_ex
 
-
 card = PokemonCardDef(
     guid="40e40b77-e00b-521a-ad31-9875c2ea2b7b",
     key="XY9",

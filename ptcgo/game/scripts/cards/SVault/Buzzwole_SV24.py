@@ -1,6 +1,10 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
+def _six_prizes_left(ctx):
+    return count_prizes_remaining("opponent")(ctx) == 6
 
 card = PokemonCardDef(
     guid="d5706ff6-10bd-5868-8a39-06f790d120ff",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_six_prizes_left, 90),
         ),
         Attack(
             title="Swing Around",

@@ -2,8 +2,7 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.support_common import heal_attack
-
-
+from ptcgo.game.card_effects.attacks_common import flip_damage
 card = PokemonCardDef(
     guid="4614e89c-9942-5135-8cae-6908b493bdb2",
     key="XY4",

@@ -2,7 +2,6 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 
-
 card = PokemonCardDef(
     guid="90bf96b4-79f2-5099-8a53-d8d4660bb411",
     key="XY10",

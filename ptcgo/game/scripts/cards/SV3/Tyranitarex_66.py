@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import bench_has_damage_counters, bonus_if
 card = PokemonCardDef(
     guid="3257aeb1-a34d-5c4a-81e7-8741376003cc",
     key="SV3",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2},
             damage=150,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(bench_has_damage_counters, 100),
         ),
     ],
 )

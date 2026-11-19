@@ -3,8 +3,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
-
-
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if
 card = PokemonCardDef(
     guid="65ed396e-4497-5a96-b7e6-6c52ad7ae4b2",
     key="SV4",

@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.support_common import heal_targets
 card = PokemonCardDef(
     guid="55a8b93a-de28-5849-a9c1-6e4d9dc03fb8",
     key="XY10",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Sweeping Cure",
             game_text="Heal 90 damage from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(90, scope="bench_choice"),
         ),
         Attack(
             title="Knock Away",

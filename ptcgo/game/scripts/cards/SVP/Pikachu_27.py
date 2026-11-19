@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.session.effects import is_pokemon_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 card = PokemonCardDef(
     guid="9060c5b6-9eb6-5925-9e67-a35fc820880f",
     key="SVP",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine"), 10, base=30),
         ),
     ],
 )

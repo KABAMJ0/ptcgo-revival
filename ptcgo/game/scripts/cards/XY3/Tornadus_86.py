@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.trainers import draw_n
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+def _same_hand_size(ctx):
+    return ctx.hand_size() == ctx.hand_size(ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="18073539-656f-5059-aa52-c1fa6384946e",
@@ -33,7 +39,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_same_hand_size, 60),
         ),
     ],
 )

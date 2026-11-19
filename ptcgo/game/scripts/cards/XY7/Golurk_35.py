@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import energy_move_attack
-
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 card = PokemonCardDef(
     guid="919ae753-fcb6-5965-b628-3221c3def5b8",
     key="XY7",

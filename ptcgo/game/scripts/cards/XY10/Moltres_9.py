@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 card = PokemonCardDef(
     guid="91db996a-d27c-55c4-b2c1-9d4c8c4eeeff",
     key="XY10",

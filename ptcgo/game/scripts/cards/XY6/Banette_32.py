@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, subtypes_for
+
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(7, [ctx.opponent_active()])
 
 
 async def _place_active_counters(ctx):

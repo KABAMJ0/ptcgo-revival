@@ -3,7 +3,6 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialC
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_any_condition
 
-
 card = PokemonCardDef(
     guid="fb626682-aa6e-5b48-bada-fb0203cadbbd",
     key="SV4PT5",

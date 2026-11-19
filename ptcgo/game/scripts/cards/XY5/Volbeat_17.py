@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_any_condition
 card = PokemonCardDef(
     guid="c0bb20c9-daf2-564a-b549-813788b015ce",
     key="XY5",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_has_any_condition, 30),
         ),
     ],
 )
