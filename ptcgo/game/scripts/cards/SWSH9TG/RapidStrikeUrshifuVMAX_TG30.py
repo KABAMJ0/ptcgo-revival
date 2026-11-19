@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import bonus_if, snipe_attack
 card = PokemonCardDef(
     guid="843aa361-4e24-5638-a6ab-e6ab25895c95",
     key="SWSH9TG",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.entered_active_this_turn(ctx.attacker), 120),
         ),
         Attack(
             title="G-Max Rapid Flow",

@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import damage_per, count_discard, has_attack_titled
 card = PokemonCardDef(
     guid="9a2c83af-30f8-5650-ae8e-d01987413d20",
     key="SWSH45SV",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_discard("mine", has_attack_titled("Mad Party")), 20),
         ),
     ],
 )

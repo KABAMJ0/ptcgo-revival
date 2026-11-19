@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
+from ptcgo.game.card_effects.attacks_common import bonus_if, snipe_attack
 card = PokemonCardDef(
     guid="b62c3393-f99c-535c-9cff-3b15d8a1e429",
     key="SV6PT5",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: ctx.entered_active_this_turn(ctx.attacker), 120),
         ),
         Attack(
             title="Shattering Speed",

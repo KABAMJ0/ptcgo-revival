@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_basic_pokemon
+
+async def oppressing_sandstorm(ctx):
+    """If your opponent's Active Pokemon is a Basic Pokemon, it is Knocked Out."""
+    defender = ctx.defender
+    if defender is not None and is_basic_pokemon(defender):
+        await ctx.knock_out(defender)
 
 card = PokemonCardDef(
     guid="9eae99c1-fab3-51b5-ac19-a27fbec8a7f1",
@@ -30,7 +37,7 @@ card = PokemonCardDef(
             title="Axe Blast",
             game_text="If your opponent's Active Pok\u00e9mon is a Basic Pok\u00e9mon, it is Knocked Out.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=oppressing_sandstorm,
         ),
     ],
 )

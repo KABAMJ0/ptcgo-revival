@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+
+async def gritty_comeback(ctx):
+    """Switch all damage counters on this Pokemon with those on the opponent's Active."""
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    self_counters = damage_counters_on("self")(ctx)
+    opp_counters = damage_counters_on("defender")(ctx)
+    await ctx.set_damage_counters(ctx.source, opp_counters)
+    await ctx.set_damage_counters(defender, self_counters)
 
 card = PokemonCardDef(
     guid="cc120e0c-a621-57ad-9793-0990d3684b9e",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
             title="Damage Change",
             game_text="Switch all damage counters on this Pok\u00e9mon with those on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gritty_comeback,
         ),
     ],
 )
