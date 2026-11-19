@@ -1,6 +1,26 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
+
+def _hand_above_four(board, player_id, pokemon):
+    opponent = next((pid for pid in board.player_ids if pid != player_id), None)
+    if opponent is None:
+        return False
+    hand = board.find_player_area(opponent, "hand")
+    return bool(hand) and len(hand.children) > 4
+
+
+async def scornful_storm(ctx):
+    hand = ctx.hand(ctx.opponent_id)
+    excess = len(hand) - 4
+    if excess <= 0:
+        return
+    await ctx.discard_from_hand(
+        excess, minimum=excess, player_id=ctx.opponent_id,
+        prompt="Discard cards until you have 4 cards in your hand.",
+    )
+
 
 card = PokemonCardDef(
     guid="538c37f4-8c23-5be4-9a09-49a8fef3771c",
@@ -23,7 +43,9 @@ card = PokemonCardDef(
         Ability(
             title="Scornful Storm",
             game_text="Once during your turn (before your attack), you may have your opponent discard cards from his or her hand until he or she has 4 cards left in his or her hand.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_hand_above_four,
+            effect=scornful_storm,
         ),
         Attack(
             title="Shred",
