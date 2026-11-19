@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="305b909b-4352-5b43-b728-8f4e74034429",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Share",
             game_text="Heal 20 damage from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=heal_targets(20, scope="bench_choice"),
         ),
         Attack(
             title="Ram",

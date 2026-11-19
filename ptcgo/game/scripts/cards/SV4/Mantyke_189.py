@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="bfa2ea08-6889-5276-854a-3be94d3574bf",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Buoyant Healing",
             game_text="Heal 120 damage from 1 of your Benched Pok\u00e9mon.",
             cost={},
-            effect=unimplemented,
+            effect=heal_targets(120, scope="bench_choice"),
         ),
     ],
 )

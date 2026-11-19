@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="1b2e6b12-bb57-5d2f-aefd-767841c507d4",
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             game_text="Flareon ex does 10 damage to itself.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=recoil_attack(10, damage=0),
         ),
     ],
 )

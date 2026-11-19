@@ -38,7 +38,7 @@ card = PokemonCardDef(
             game_text="(You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3, PokemonTypes.COLORLESS: 1},
             damage=250,
-            effect=unimplemented,
+            effect=None,
         ),
     ],
 )

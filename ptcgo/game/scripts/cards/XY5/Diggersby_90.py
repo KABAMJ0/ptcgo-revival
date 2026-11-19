@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_per_heads
 
 card = PokemonCardDef(
     guid="bf2f0637-7c94-5bc1-8a11-1e7cabf9f96e",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Ear Dig",
             game_text="Flip a coin until you get tails. For each heads, discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=mill_per_heads(1, opponent=True),
         ),
         Attack(
             title="Hammer In",

@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="df0e2a77-f665-52de-9b2b-099861d2c6f2",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Chansey does 80 damage to itself.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=80,
-            effect=unimplemented,
+            effect=recoil_attack(80, damage=0),
         ),
     ],
 )

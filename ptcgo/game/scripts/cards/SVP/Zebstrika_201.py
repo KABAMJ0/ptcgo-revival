@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import discard_hand_draw
 
 card = PokemonCardDef(
     guid="cbeee9fd-1d09-56b5-b6aa-1fcd08f4cf42",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Full Speed",
             game_text="Discard your hand and draw 6 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_hand_draw(6),
         ),
         Attack(
             title="Head Bolt",

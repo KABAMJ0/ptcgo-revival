@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.support_common import swap_with_named
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +22,9 @@ card = PokemonCardDef(
         Ability(
             title="Duplicate",
             game_text="Once during your turn (before your attack), you may search your deck for another Ditto and switch it with Ditto. (Any cards attached to Ditto, damage counters, Special Conditions, and effects on it are now on the new Pok\u00e9mon.) If you do, put Ditto on top of your deck. Shuffle your deck afterward. You can't use more than 1 Duplicate Pok\u00e9-Power each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Duplicate",
+            effect=swap_with_named(),
         ),
         Attack(
             title="Thunderbolt",

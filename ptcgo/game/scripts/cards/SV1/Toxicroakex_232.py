@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="c9113c37-861d-5d87-ad4c-e7d2fe18a702",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
+            effect=search_to_hand(None, count=2, reveal=False),
         ),
         Attack(
             title="Toxic Ripper",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. During Pok\u00e9mon Checkup, put 6 damage counters on that Pok\u00e9mon instead of 1.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=6),
         ),
     ],
 )

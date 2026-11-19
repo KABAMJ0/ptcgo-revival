@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import TakesLessPassive
 
 card = PokemonCardDef(
     guid="6c70ddc1-425d-5d2c-addb-4d7b2f5e847c",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Laid-Back",
             game_text="Any damage done to this Pok\u00e9mon by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=TakesLessPassive(20),
         ),
         Attack(
             title="Mud Gun",
