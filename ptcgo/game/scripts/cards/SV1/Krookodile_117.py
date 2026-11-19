@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy, spread_damage
 
 card = PokemonCardDef(
     guid="02dc5906-c2fc-5af2-ac91-520cf6cc21c3",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 30 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2},
             damage=180,
-            effect=unimplemented,
+            effect=spread_damage(30, side="mine"),
         ),
     ],
 )
