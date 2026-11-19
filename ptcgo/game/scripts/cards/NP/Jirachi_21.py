@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import (
+    count_energy, damage_per, self_energy_discard_attack,
+)
+from ptcgo.game.card_effects.support_common import draw_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +26,7 @@ card = PokemonCardDef(
             title="The Third Eye",
             game_text="Discard an Energy card attached to Jirachi and draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1, also=draw_attack(3)),
         ),
         Attack(
             title="Psywave",
@@ -30,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("defender"), 10),
         ),
     ],
 )
