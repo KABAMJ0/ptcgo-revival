@@ -2,6 +2,24 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.session.passives import is_basic_energy
+
+
+async def _flower_supplement(ctx):
+    """Flip; on heads attach one basic Energy from hand to a Benched Pokemon."""
+    current = [c for c in ctx.hand() if is_basic_energy(c)]
+    if not current or not ctx.my_bench():
+        return
+    results = await ctx.flip_coins(1, "Flower Supplement")
+    if not (results and results[0]):
+        return
+    picks = await ctx.choose_cards(current, 1,
+                                   prompt="Choose a basic Energy to attach")
+    target = await ctx.choose_pokemon(ctx.my_bench(),
+                                     "Choose a Benched Pokémon")
+    if picks and target is not None:
+        await ctx.attach_energy(picks[0], target)
+
 
 card = PokemonCardDef(
     guid="283137ad-9637-5815-9e85-52d1f621f7df",
@@ -25,7 +43,7 @@ card = PokemonCardDef(
         Ability(
             title="Flower Supplement",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, attach 1 basic Energy card from your hand to 1 of your Benched Pok\u00e9mon. This power can't be used if Bellossom is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=_flower_supplement,
         ),
         Attack(
             title="Knife Leaf",
