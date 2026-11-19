@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Unaware",
             game_text="Prevent all effects of attacks, excluding damage, done to Bibarel.",
-            effect=unimplemented,
+            effect=lock_chosen_defender_attack(),
         ),
         Attack(
             title="Amnesia",

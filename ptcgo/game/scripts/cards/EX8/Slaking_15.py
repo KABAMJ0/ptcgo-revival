@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Lazy Aura",
             game_text="As long as Slaking is your Active Pok\u00e9mon, any damage done by attacks from your opponent's Pok\u00e9mon-ex is reduced by 30 (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=lock_chosen_defender_attack(),
         ),
         Attack(
             title="Amnesia",
