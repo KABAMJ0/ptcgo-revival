@@ -1,8 +1,12 @@
 from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.card_effects.support_common import opponent_switches
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+async def resonate(ctx):
+    await opponent_switches(ctx)
 
 card = PokemonCardDef(
     guid="330f9202-4cdc-566a-ac60-faf255fa6328",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             title="Resonate",
             game_text="Your opponent switches each Defending Pok\u00e9mon with his or her Benched Pok\u00e9mon. If your opponent has only 1 Benched Pok\u00e9mon, you choose the Defending Pok\u00e9mon to switch.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=resonate,
         ),
         Attack(
             title="Healing Sound",

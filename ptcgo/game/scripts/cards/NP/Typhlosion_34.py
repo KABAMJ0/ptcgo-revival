@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.attacks_common import condition_attack, damage_counters_on, damage_per
+
+async def burning_aura(ctx):
+    if ctx.source is None or not is_in_active_spot(ctx.source):
+        return
+    for target in (ctx.my_active(), ctx.opponent_active()):
+        if target is not None:
+            await ctx.deal_damage(10, target=target, apply_modifiers=False,
+                                  as_counters=True)
 
 card = PokemonCardDef(
     guid="0875485a-8b33-5c49-ac3b-8cf7497cbc74",
@@ -23,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Burning Aura",
             game_text="As long as Typhlosion is your Active Pok\u00e9mon, put 1 damage counter on each Active Pok\u00e9mon (both yours and your opponent's) between turns.",
-            effect=unimplemented,
+            effect=burning_aura,
+            trigger=Triggers.BETWEEN_TURNS,
         ),
         Attack(
             title="Flickering Flames",

@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def wrapped_in_wind(ctx):
+    await ctx.deal_damage()
+    await attach_from_hand(
+        is_basic_energy_card, count=1, target="self", minimum=0,
+        prompt="Attach a basic Energy card from your hand to this Pokémon?",
+    )(ctx)
 
 card = PokemonCardDef(
     guid="b5f4b412-e929-5dbd-b3d7-0a85c7889d9b",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             game_text="You may attach a basic Energy card from your hand to this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=wrapped_in_wind,
         ),
         Attack(
             title="Pike",

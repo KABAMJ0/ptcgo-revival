@@ -1,7 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
-from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy, return_attached_energy
+from ptcgo.game.card_effects.passives_common import composed
+
+
+async def _burn_defender(ctx, returned):
+    await ctx.apply_special_condition(ctx.defender, SpecialConditions.BURNED)
 
 
 def _is_holon_energy(card):
@@ -40,7 +45,11 @@ card = PokemonCardDef(
             game_text="You may return an Energy card attached to Flareon to your hand. If you do, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=composed(
+                lambda ctx: ctx.deal_damage(),
+                return_attached_energy(1, to="hand", target="self",
+                                       then=_burn_defender),
+            ),
         ),
     ],
 )

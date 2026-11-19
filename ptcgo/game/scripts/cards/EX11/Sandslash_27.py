@@ -1,6 +1,19 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.pokemon import is_pokemon_ex
+
+
+async def _delta_storm(ctx):
+    """Checkup counters while Sandslash is the Active: 1 on each of the
+    opponent's Pokemon-ex."""
+    if ctx.source is None or not is_in_active_spot(ctx.source):
+        return
+    for pokemon in ctx.opponent_pokemon_in_play():
+        if is_pokemon_ex(pokemon):
+            await ctx.deal_damage(10, target=pokemon, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="21a18ccb-fb75-5d09-9fbe-135d86bb15f6",
@@ -23,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Delta Storm",
             game_text="As long as Sandslash is your Active Pok\u00e9mon, put 1 damage counter on each of your opponent's Pok\u00e9mon-ex between turns.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=_delta_storm,
         ),
         Attack(
             title="Rend",

@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.passives_common import protect_next_turn
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import on_evolve, recoil_attack
+
+
+async def _evolutionary_flame(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    await ctx.apply_special_condition(defender, SpecialConditions.BURNED)
+    await ctx.apply_special_condition(defender, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="1b2e6b12-bb57-5d2f-aefd-767841c507d4",
@@ -24,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Evolutionary Flame",
             game_text="Once during your turn, when you play Flareon ex from your hand to evolve 1 of your Pok\u00e9mon, you may choose 1 of the Defending Pok\u00e9mon. That Pok\u00e9mon is now Burned and Confused.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(_evolutionary_flame),
         ),
         Attack(
             title="Flame Screen",

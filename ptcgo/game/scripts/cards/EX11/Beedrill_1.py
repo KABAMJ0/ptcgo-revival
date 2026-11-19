@@ -1,7 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.passives_common import self_ko_ability, unafflicted
+
+
+async def _final_sting_body(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    await ctx.apply_special_condition(defender, SpecialConditions.PARALYZED)
+    await ctx.apply_special_condition(
+        defender, SpecialConditions.POISONED, poison_counters=2)
+
 
 card = PokemonCardDef(
     guid="91628e74-d45c-5243-aec9-b6bfea8f114b",
@@ -24,7 +35,9 @@ card = PokemonCardDef(
         Ability(
             title="Final Sting",
             game_text="Once during your turn (before your attack), you may Knock Out Beedrill. If you do, choose 1 of your opponent's Defending Pok\u00e9mon. That Pok\u00e9mon is now Paralyzed and Poisoned. Put 2 damage counters instead of 1 on that Pok\u00e9mon between turns. This power can't be used if Beedrill is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=self_ko_ability(_final_sting_body),
         ),
         Attack(
             title="Super Slash",

@@ -1,8 +1,9 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import on_evolve, snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 card = PokemonCardDef(
     guid="af55acd7-f2a1-5c3a-971b-8e7470cd63c9",
     key="EX11",
@@ -24,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Prowl",
             game_text="Once during your turn, when you play Persian from your hand to evolve 1 of your Pok\u00e9mon, you may search your deck for any 1 card and put it into your hand. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(search_to_hand(count=1, reveal=False)),
         ),
         Attack(
             title="Snap Tail",
