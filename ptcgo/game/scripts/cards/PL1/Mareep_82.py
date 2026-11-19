@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done to Mareep by attacks is reduced by 10 (after applying Weakness and Resistance).",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=10,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=10),
         ),
     ],
 )
