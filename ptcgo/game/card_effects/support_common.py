@@ -9,6 +9,8 @@ the bottom accept both the trainer (board, player_id) and the ability
 
 from typing import Callable, List, Optional
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
 from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import def_for
 from ptcgo.game.models.board import CardEntity, PokemonEntity

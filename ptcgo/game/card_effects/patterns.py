@@ -24,8 +24,8 @@ import unicodedata
 from typing import Callable, List, Optional, Tuple
 
 from ptcgo.game.attributes import (
-    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonTypes, SpecialConditions,
-    TrainerType,
+    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
+    SpecialConditions, TrainerType,
 )
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import (
