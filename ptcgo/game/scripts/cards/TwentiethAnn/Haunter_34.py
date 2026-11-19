@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="e77152af-7db8-5291-9ade-d7544195b1b1",
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Gothic Fear",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may leave both Active Pok\u00e9mon Confused.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=condition_attack(SpecialConditions.CONFUSED, both_actives=True, damage=0),
         ),
         Attack(
             title="Poison Ring",

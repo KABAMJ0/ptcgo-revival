@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, condition_attack
 
 card = PokemonCardDef(
     guid="35905f7c-52bb-511b-97a1-a3119c79f82d",
@@ -22,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Empty Light",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may leave both Active Pok\u00e9mon Confused and Poisoned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=condition_attack(SpecialConditions.CONFUSED, SpecialConditions.POISONED, both_actives=True, damage=0),
         ),
         Attack(
             title="Lock Up",
