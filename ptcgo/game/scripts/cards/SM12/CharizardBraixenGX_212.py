@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="9de0043a-229f-5497-997b-cd44acec0aee",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="You may search your deck for up to 3 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 3, PokemonTypes.COLORLESS: 1},
             damage=180,
-            effect=unimplemented,
+            effect=search_to_hand(None, count=3, reveal=False),
         ),
         Attack(
             title="Crimson Flame Pillar-GX",

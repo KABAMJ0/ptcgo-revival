@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(7, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="882ab3e4-70e4-5efd-9b5f-a638e27e4f17",
     key="SV4PT5",
@@ -27,7 +32,7 @@ card = PokemonCardDef(
             title="Ghost Eye",
             game_text="Put 7 damage counters on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_place_active_counters,
         ),
     ],
 )

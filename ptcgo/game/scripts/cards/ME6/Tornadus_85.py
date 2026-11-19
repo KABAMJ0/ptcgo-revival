@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="3dba6b17-4b65-54b6-9595-83797623111c",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
-            effect=unimplemented,
+            effect=draw_until_effect(6, optional=True),
         ),
     ],
 )

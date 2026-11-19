@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="a1ab2049-13df-56e1-8cfe-acf0d7b229ce",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="You may search your deck for up to 3 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 3},
             damage=150,
-            effect=unimplemented,
+            effect=search_to_hand(None, count=3, reveal=False),
         ),
     ],
 )
