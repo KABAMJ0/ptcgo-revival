@@ -1,8 +1,8 @@
-from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
-
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
+from ptcgo.game.card_effects.attacks_common import bench_has_damage_counters, bonus_if
 card = PokemonCardDef(
     guid="9d8a061d-0664-5643-8990-f565e02a83dc",
     key="SM2",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(bench_has_damage_counters, 70),
         ),
         Attack(
             title="Big Wheel-GX",

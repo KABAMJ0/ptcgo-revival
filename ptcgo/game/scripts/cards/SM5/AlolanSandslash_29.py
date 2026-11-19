@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
+
 
 card = PokemonCardDef(
     guid="67c0133f-be9a-5d06-be51-48e52fbcd206",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, if this Pok\u00e9mon is damaged by an attack (even if this Pok\u00e9mon is Knocked Out), put 6 damage counters on the Attacking Pok\u00e9mon.",
             cost={},
             damage=30,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Frost Breath",

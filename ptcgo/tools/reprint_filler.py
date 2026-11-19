@@ -33,6 +33,7 @@ import sys
 import types
 from typing import Dict, List, Optional, Tuple
 
+from ptcgo.tools.kind_audit import block_conflict
 from ptcgo.tools.reuse_effects import (CARDS_ROOT, Script, Transplant, _ability_calls,
                                       _int_literals, _is_unimpl, _lit, _rank, all_scripts,
                                       apply_transplants, copy_whole_card, loose_norm, norm)
@@ -178,6 +179,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                                  f"prints {mine}; copied body carries "
                                  f"{unexplained or [plan.damage]}")
                     continue
+            stray = stray_numbers(plan, text, mine)
+            if stray:
+                refused.append(f"REFUSED  {stub.set_code}/{stub.stem} | {title}: body carries "
+                               f"{stray}, the card's text has none")
+                continue
+            conflict = copied_kind_conflict(text, plan)
+            if conflict:
+                refused.append(f"REFUSED  {stub.set_code}/{stub.stem} | {title}: text names "
+                               f"{', '.join(conflict)}, {ref.set_code}/{ref.stem}'s body has no "
+                               f"trace of it")
+                continue
             plans.append((kw["effect"], plan))
             text_hits += 1
             bump(stub.set_code, 1)
@@ -206,6 +218,59 @@ def main(argv: Optional[List[str]] = None) -> int:
             fh.write("\n".join(pairs + refused) + "\n")
         print(f"pairs written to {args.report}")
     return 0
+
+
+def copied_kind_conflict(printed: str, plan: Transplant) -> List[str]:
+    """Kinds the text names that the copied body never performs.
+
+    A donor can be wrong on its own card -- five `Scary Face` printings carry their
+    neighbouring attack's `discard an Energy attached` body -- so an exact text match
+    still has to be checked for kind before it is written, or the filler re-installs
+    the defect the previous wave stubbed out.
+    """
+    body = plan.keyword_text("")
+    for code in plan.defs.values():
+        body += "\n" + code
+    primary = ""
+    for keyword in plan.extra:
+        if getattr(keyword.value, "func", None) is not None and hasattr(keyword.value.func, "id"):
+            primary = keyword.value.func.id
+            break
+    return block_conflict(printed, body, primary)
+
+
+def stray_numbers(plan: Transplant, text: str, printed: Optional[int]) -> List[int]:
+    """Literals the copied body carries that this card's text never mentions.
+
+    The read-back rule: every number in a body must come from the card's own text or
+    its printed damage, sums and differences included. A donor whose body is wrong for
+    its own card otherwise hands us a body that pays a number the client never shows
+    (SV8/Scovillainex's `Double Type` carried `damage_per(..., 70)` under an ability
+    that only changes its type).
+    """
+    digits = {int(n) for n in __import__("re").findall(r"\d+", text or "")}
+    if printed is not None:
+        digits.add(int(printed))
+    allowed = set(digits)
+    for a in digits:
+        for b in digits:
+            allowed.add(a + b)
+            allowed.add(abs(a - b))
+    allowed |= {0, 1}
+    literals = set()
+    for keyword in plan.extra:
+        literals |= _int_literals(keyword.value)
+    for code in plan.defs.values():
+        literals |= _int_literals(ast.parse(code))
+    for keyword in plan.extra:
+        for node in ast.walk(keyword.value):
+            if isinstance(node, ast.Call):
+                for k in node.keywords:
+                    if k.arg in ("coins", "count", "take", "minimum", "max_count", "counters", "index"):
+                        for sub in ast.walk(k.value):
+                            if isinstance(sub, ast.Constant) and type(sub.value) is int:
+                                literals.discard(sub.value)
+    return sorted(literals - allowed)
 
 
 def unexplained_literals(plan: Transplant, text: str) -> List[int]:

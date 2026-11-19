@@ -49,7 +49,7 @@ SIGNALS: Dict[str, str] = {
     "discard": r"discard",
     "counters": r"counter",
     "condition": r"condition|asleep|confused|paralyzed|poisoned|burned",
-    "protect": r"prevent|protect|shield|ignore_modifier|no_weakness|unafflicted",
+    "protect": r"prevent|protect|shield|ignore|no_weakness|unafflicted|apply_modifiers",
     "attach": r"attach",
     "switch": r"switch|gust|retreat",
     # a search helper shuffles as part of putting the card in hand, so the
@@ -61,6 +61,27 @@ SIGNALS: Dict[str, str] = {
 
 PURE_DAMAGE = {"damage_per", "flip_damage", "bonus_if", "flip_gate", "damage_if",
                "damage_per_extra_energy", "damage_per_energy", "deal_damage"}
+
+
+def block_conflict(printed: str, body: str, primary: str = "") -> List[str]:
+    """Intents the printed text names that the body has no trace of.
+
+    `primary` is the outermost factory of the effect expression when it is a bare
+    call; the block is only reported when that factory is damage-only, so a body
+    that does something else entirely is caught while a helper that merely has no
+    obvious name is not.
+    """
+    if not printed:
+        return []
+    missing = []
+    for intent, pattern in INTENTS:
+        if not re.search(pattern, printed, re.I):
+            continue
+        if not re.search(SIGNALS[intent], body, re.I):
+            missing.append(intent)
+    if missing and primary and primary not in PURE_DAMAGE:
+        return []
+    return missing
 
 
 def card_files() -> List[str]:
@@ -112,12 +133,7 @@ def audit_file(path: str) -> List[str]:
         title = ast.literal_eval(kw["title"]) if "title" in kw else "?"
         body = body_source(tree, effect, src)
         primary = getattr(getattr(effect, "func", None), "id", "") if isinstance(effect, ast.Call) else ""
-        missing = []
-        for intent, pattern in INTENTS:
-            if not re.search(pattern, printed, re.I):
-                continue
-            if not re.search(SIGNALS[intent], body, re.I):
-                missing.append(intent)
+        missing = block_conflict(printed, body, primary)
         if missing and primary in PURE_DAMAGE:
             findings.append(
                 f"{path}: {title!r} -- text names {', '.join(missing)}; "

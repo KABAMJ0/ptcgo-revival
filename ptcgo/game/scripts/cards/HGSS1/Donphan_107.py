@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.trainers import holder_takes_less
 
 card = PokemonCardDef(
     guid="d6e02f8c-1d0d-5677-8dd5-abc025ebceeb",
@@ -20,12 +21,12 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.WATER,
     resistance_type=PokemonTypes.LIGHTNING,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Phanpy.Name",
-    family_id=231,
+    family_id=232,
     abilities=[
         Ability(
             title="Exoskeleton",
             game_text="Any damage done to Donphan by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=holder_takes_less(20),
         ),
         Attack(
             title="Earthquake",

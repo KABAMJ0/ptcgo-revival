@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
         Attack(
             title="Plentiful Placement",
