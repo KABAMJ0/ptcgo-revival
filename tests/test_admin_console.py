@@ -597,10 +597,17 @@ class PreExistingEndpointsAnswer(unittest.TestCase):
              ("pages/delete", {"id": -1}, 404),
              ("pages/assets/custom", {"image": "nope"}, 400)]
 
+    @classmethod
+    def setUpClass(cls):
+        with db_session() as s:
+            if s.query(Account).filter_by(username="sweeper").first() is None:
+                s.add(Account(account_id=str(uuid.uuid4()), username="sweeper", screen_name="Sweeper",
+                              password_hash=hash_password(ADMIN_PASS), is_admin=True))
+
     def test_preexisting_endpoints_answer(self):
-        status, _ = call("POST", "login", {"username": "root", "password": ADMIN_PASS})
+        status, _ = call("POST", "login", {"username": "sweeper", "password": ADMIN_PASS})
         self.assertEqual(status, 200)
-        token = next(t for t, s in admin_auth._sessions.items() if s["username"] == "root")
+        token = next(t for t, s in admin_auth._sessions.items() if s["username"] == "sweeper")
         self.assertEqual(call("GET", "session", token=token)[1]["authenticated"], True)
         self.assertEqual(admin_api.route_admin("GET", "/admin", None)[0], 200)
         for endpoint in self.GETS:
