@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3)
+
+
 card = PokemonCardDef(
     guid="15df4802-2249-55b8-9ffa-6a386fdac3cb",
     key="SV3PT5",
@@ -22,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Mimic Barrier",
             game_text="If this Pok\u00e9mon and your opponent's Active Pok\u00e9mon have the same amount of Energy attached, prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Psypower",

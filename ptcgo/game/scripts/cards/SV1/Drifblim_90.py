@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(8)
+
+
 card = PokemonCardDef(
     guid="7e3b790b-a5d2-555a-8a4b-81c7328f0065",
     key="SV1",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             title="Curse Spreading",
             game_text="Put 8 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=_spread,
         ),
     ],
 )

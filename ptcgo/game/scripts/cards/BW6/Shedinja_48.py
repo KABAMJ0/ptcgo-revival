@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3)
+
+
 card = PokemonCardDef(
     guid="da216ba6-34ab-58c4-b490-858c74ba2605",
     key="BW6",
@@ -21,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Empty Shell",
             game_text="If this Pok\u00e9mon is Knocked Out, your opponent can't take any Prize cards for it.",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Cursed Drop",

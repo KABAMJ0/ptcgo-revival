@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(4)
+
+
 card = PokemonCardDef(
     guid="1fb0b000-59d0-5074-aba9-070f6d2933dc",
     key="ME55C",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Catastrophe",
             game_text="As long as Gengar is your Active Pok\u00e9mon, if any of your opponent's Pok\u00e9mon would be Knocked Out, put that Pok\u00e9mon in the Lost Zone instead of discarding. (Discard all cards attached to that Pok\u00e9mon.)",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Hurl into Darkness",

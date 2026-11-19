@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(3)
+
+
 card = PokemonCardDef(
     guid="46e5bb52-b8f8-5f91-8e4e-be8cdfcb4074",
     key="SM10",
@@ -21,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Bench Barrier",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks.",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Psypower",
