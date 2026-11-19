@@ -62,6 +62,12 @@ SIGNALS: Dict[str, str] = {
 PURE_DAMAGE = {"damage_per", "flip_damage", "bonus_if", "flip_gate", "damage_if",
                "damage_per_extra_energy", "damage_per_energy", "deal_damage"}
 
+# Kinds that cannot be what the other kinds' wording asks for: a body that only
+# discards Energy is not a "does 20 damage to each benched Pokemon" attack, and a
+# body that only confuses is not a "draw 3 cards" attack. Used to catch the shape
+# the pure-damage rule misses -- an effect body on the wrong block of the same card.
+CONFLICTING = {"discard", "attach", "heal", "draw", "mill", "counters", "switch", "protect"}
+
 
 def card_files() -> List[str]:
     out = []
@@ -118,10 +124,17 @@ def audit_file(path: str) -> List[str]:
                 continue
             if not re.search(SIGNALS[intent], body, re.I):
                 missing.append(intent)
+        named = [intent for intent, pattern in INTENTS if re.search(pattern, printed, re.I)]
+        shown = [intent for intent in named if re.search(SIGNALS[intent], body, re.I)]
         if missing and primary in PURE_DAMAGE:
             findings.append(
                 f"{path}: {title!r} -- text names {', '.join(missing)}; "
                 f"body is {primary}(...) | {printed[:90]}")
+        elif named and not shown and set(named) & CONFLICTING:
+            findings.append(
+                f"{path}: {title!r} -- text names {', '.join(named)}; body shows "
+                f"{', '.join(sorted(i for i in CONFLICTING if re.search(SIGNALS[i], body, re.I)))}"
+                f" | {printed[:90]}")
     return findings
 
 
