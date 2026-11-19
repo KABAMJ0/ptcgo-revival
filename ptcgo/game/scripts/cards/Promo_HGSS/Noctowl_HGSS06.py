@@ -1,4 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.card_effects.passives_common import unafflicted
+
+
+async def look_at_opponent_hand(ctx):
+    """Look at the opponent's hand: a view-only browser for this player."""
+    await ctx.reveal_hand(of_player=ctx.opponent_id, to_player=ctx.player_id)
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
@@ -24,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Night Scope",
             game_text="Once during your turn (before your attack), you may look at your opponent's hand. This power can't be used if Noctowl is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=look_at_opponent_hand,
         ),
         Attack(
             title="Hypnoblast",

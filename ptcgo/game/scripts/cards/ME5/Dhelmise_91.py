@@ -1,5 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.data_utils import def_for
+
+
+def _hide_n_sneak_in_discard(ctx) -> int:
+    """Pokemon in your discard pile that print the Hide 'n' Sneak Ability."""
+    count = 0
+    for card in ctx.discard_pile():
+        definition = def_for(card.archetype_id)
+        if any(getattr(ability, "title", "") == "Hide 'n' Sneak"
+               for ability in getattr(definition, "abilities", []) or []):
+            count += 1
+    return count
+
+
+def _four_hide_n_sneak(ctx) -> bool:
+    return _hide_n_sneak_in_discard(ctx) >= 4
+
 
 card = PokemonCardDef(
     guid="e20b7168-debf-55ed-af44-b2125ab33f01",
@@ -25,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_four_hide_n_sneak, 140),
         ),
     ],
 )

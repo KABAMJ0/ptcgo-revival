@@ -1,7 +1,18 @@
-from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic, attacker_is_evolution
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def riotous_blasting(ctx):
+    """200; you may discard all Energy from this Pokemon to do 130 more."""
+    energies = list(ctx.attached_energies(ctx.attacker))
+    if energies and await ctx.ask_yes_no(
+            "Discard all Energy from this Pokémon to do 130 more damage?"):
+        await ctx.discard_energy_from(ctx.attacker, len(energies))
+        await ctx.deal_damage(330)
+        return
+    await ctx.deal_damage(200)
+
 
 card = PokemonCardDef(
     guid="cb589bf6-efbe-573f-a9db-bd41fc983148",
@@ -34,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 3},
             damage=200,
             damage_operator="+",
-            effect=unimplemented,
+            effect=riotous_blasting,
         ),
     ],
 )

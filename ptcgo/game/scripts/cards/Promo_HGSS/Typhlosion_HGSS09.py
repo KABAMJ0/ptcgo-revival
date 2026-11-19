@@ -1,4 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+
+async def flare_destroy(ctx):
+    """70; one Energy off Typhlosion and one off the Defending Pokemon."""
+    await ctx.deal_damage(70)
+    await ctx.discard_energy_from(ctx.attacker, 1)
+    defender = ctx.defender
+    if defender is not None and not ctx.effects_blocked(defender):
+        await ctx.discard_energy_from(defender, 1)
+
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -29,7 +39,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy card attached to Typhlosion and discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=unimplemented,
+            effect=flare_destroy,
         ),
     ],
 )

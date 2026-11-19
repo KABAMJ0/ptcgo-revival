@@ -1,4 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import named_in_play
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+async def infinite_wind(ctx):
+    """40; and with Latios on the Bench, 2 counters off each of your Benched."""
+    await ctx.deal_damage(40)
+    if not named_in_play("Latios", side="mine")(ctx):
+        return
+    for pokemon in ctx.my_bench():
+        await ctx.heal(20, pokemon)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,14 +33,14 @@ card = PokemonCardDef(
             game_text="Search your discard pile for a basic Energy card and attach it to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=search_attach_energy(count=1, distribute=True),
         ),
         Attack(
             title="Infinite Wind",
             game_text="If Latios is on your Bench, remove 2 damage counters from each of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=infinite_wind,
         ),
     ],
 )

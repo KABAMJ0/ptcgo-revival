@@ -1,7 +1,12 @@
-from ptcgo.game.card_effects.support_common import heal_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import (
+    can_move_energy, heal_attack, move_energy_between,
+)
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import heal_attack
+
+_BASIC_GRASS = basic_energy_of("grass")
+
 
 card = PokemonCardDef(
     guid="bfc39012-7762-514d-808d-ed256ec36e41",
@@ -24,7 +29,10 @@ card = PokemonCardDef(
         Ability(
             title="Solar Transfer",
             game_text="As often as you like during your turn, you may use this Ability. Move a Basic Grass Energy from 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            effect=move_energy_between(_BASIC_GRASS, count=1,
+                                       prompt="Choose a Grass Energy to move"),
+            condition=can_move_energy(_BASIC_GRASS),
         ),
         Attack(
             title="Jungle Dump",

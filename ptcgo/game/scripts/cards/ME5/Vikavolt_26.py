@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import named
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
+async def giga_railgun(ctx):
+    """Printed damage only while a Voltaic Lightning Energy is attached."""
+    has_voltaic = any(
+        named("Voltaic Lightning Energy")(energy)
+        for energy in ctx.attached_energies(ctx.attacker))
+    if has_voltaic:
+        await ctx.deal_damage()
+
 
 card = PokemonCardDef(
     guid="eed6092d-261f-59a5-8818-746df72cd225",
@@ -31,7 +42,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has no Voltaic Lightning Energy attached, this attack does nothing.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=260,
-            effect=unimplemented,
+            effect=giga_railgun,
         ),
     ],
 )

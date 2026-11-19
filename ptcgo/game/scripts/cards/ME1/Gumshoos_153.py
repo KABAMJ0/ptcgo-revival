@@ -1,5 +1,24 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def evidence_gathering(ctx):
+    """Switch a card from your hand with the top card of your deck."""
+    hand = ctx.hand()
+    if not hand or not ctx.deck():
+        return
+    picked = await ctx.choose_cards(
+        hand, 1, minimum=1,
+        prompt="Choose a card from your hand to put on top of your deck",
+    )
+    if not picked:
+        return
+    top = ctx.deck_top(1)
+    if not top:
+        return
+    await ctx.put_on_top_of_deck(picked[0])
+    await ctx.put_in_hand(top, reveal=False)
+
 
 card = PokemonCardDef(
     guid="0da3f91a-4465-5947-8e95-929e3e9a3d11",
@@ -22,7 +41,8 @@ card = PokemonCardDef(
         Ability(
             title="Evidence Gathering",
             game_text="Once during your turn, you may use this Ability. Switch a card from your hand with the top card of your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=evidence_gathering,
         ),
         Attack(
             title="Bite",

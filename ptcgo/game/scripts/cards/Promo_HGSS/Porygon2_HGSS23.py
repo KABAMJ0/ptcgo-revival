@@ -1,4 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for, unimplemented
+from ptcgo.game.card_effects.passives_common import retreat_cost_modifier
+
+PORYGON_NAMES = ("Porygon", "Porygon2", "Porygon-Z")
+
+
+def _porygon_line(pokemon, board) -> bool:
+    definition = def_for(pokemon.archetype_id)
+    return getattr(definition, "display_name", "") in PORYGON_NAMES
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 
@@ -23,7 +31,7 @@ card = PokemonCardDef(
         Ability(
             title="Shortcut",
             game_text="The Retreat Cost for each Porygon, Porygon2, and Porygon-Z you have in play is Colorless less.",
-            effect=unimplemented,
+            passive=retreat_cost_modifier(-1, pred=_porygon_line),
         ),
         Attack(
             title="Reckless Charge",

@@ -1,6 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+
+
+async def bring_down(ctx):
+    """Knock Out the Pokemon in play with the least HP remaining, other than
+    this one (either side)."""
+    pool = [mon for mon in (ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play())
+            if mon is not ctx.attacker]
+    if not pool:
+        return
+    lowest = min(mon.get_attribute(AttrID.HP, 0) for mon in pool)
+    candidates = [mon for mon in pool
+                  if mon.get_attribute(AttrID.HP, 0) == lowest]
+    chosen = candidates[0] if len(candidates) == 1 else await ctx.choose_pokemon(
+        candidates, "Choose the Pokémon with the least HP remaining")
+    if chosen is not None:
+        await ctx.knock_out(chosen)
+
 
 card = PokemonCardDef(
     guid="bed4b5e4-6899-5a1b-99b8-f1051d76f175",
@@ -24,7 +41,7 @@ card = PokemonCardDef(
             title="Bring Down",
             game_text="Choose a Pok\u00e9mon in play (yours or your opponent's) that has the least HP remaining, except for this Pok\u00e9mon, and it is Knocked Out.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=bring_down,
         ),
         Attack(
             title="Water Shot",

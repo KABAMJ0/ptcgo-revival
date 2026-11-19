@@ -1,6 +1,20 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    Activations, PokemonCardDef, Attack, Ability, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import empty_hand
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_supporter_card
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+
+
+def _call_a_buddy_condition(board, player_id, pokemon) -> bool:
+    """No cards in hand, and a Supporter left in the deck to find."""
+    if not empty_hand(board, player_id, pokemon):
+        return False
+    deck = board.find_player_area(player_id, "deck")
+    return any(is_supporter_card(card) for card in (deck.children if deck else []))
+
 
 card = PokemonCardDef(
     guid="ec9d53ff-67d6-52d6-be88-4dd2e9b2f141",
@@ -23,7 +37,10 @@ card = PokemonCardDef(
         Ability(
             title="Call a Buddy",
             game_text="Once during your turn, if you have no cards in your hand, you may use this Ability. Search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_call_a_buddy_condition,
+            effect=search_to_hand(is_supporter_card, count=1, minimum=1,
+                                    reveal=True),
         ),
         Attack(
             title="Air Slash",
