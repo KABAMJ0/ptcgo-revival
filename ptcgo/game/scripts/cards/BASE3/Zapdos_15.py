@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _thunderstorm(ctx):
+    """Coin for each of the opponent's Benched Pokemon: heads deals 20 to that
+    one (no W/R on the Bench); then 10 damage per tails to this Pokemon."""
+    await ctx.deal_damage()
+    tails = 0
+    for target in ctx.opponent_bench():
+        heads = await ctx.flip_coins(1, "Thunderstorm")
+        if heads and heads[0]:
+            await ctx.deal_damage(20, target=target, apply_modifiers=False)
+        else:
+            tails += 1
+    if tails and ctx.attacker is not None:
+        await ctx.deal_damage(10 * tails, target=ctx.attacker,
+                              apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="ec727fc5-e150-5f20-8df5-8026ef51e3fe",
     key="BASE3",
@@ -23,7 +39,7 @@ card = PokemonCardDef(
             game_text="For each of your opponent's Benched Pok\u00e9mon, flip a coin. If heads, this attack does 20 damage to that Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Then, Zapdos does 10 damage times the number of tails to itself.",
             cost={PokemonTypes.LIGHTNING: 4},
             damage=40,
-            effect=unimplemented,
+            effect=_thunderstorm,
         ),
     ],
 )

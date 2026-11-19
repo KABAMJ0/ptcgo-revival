@@ -3,6 +3,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
 
 card = PokemonCardDef(
     guid="9374bc81-f23f-58d6-a0cd-249ff5d3d5f0",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(per_energy=10, energy_type=PokemonTypes.WATER, cap=20, base=10),
         ),
         Attack(
             title="Confuse Ray",

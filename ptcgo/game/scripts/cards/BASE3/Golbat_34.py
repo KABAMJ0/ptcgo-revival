@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
 
 card = PokemonCardDef(
     guid="3698c10b-fe77-5951-800e-dbb63c25cb61",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Remove a number of damage counters from Golbat equal to the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance). If Golbat has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=heal_self_damage_dealt(),
         ),
     ],
 )

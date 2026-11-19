@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _absorb(ctx):
+    """Printed damage, then remove counters equal to half of it, rounded up to
+    the nearest 10 ("If <name> has fewer damage counters than that, remove all
+    of them" is what ctx.heal already clamps to)."""
+    dealt = await ctx.deal_damage()
+    if dealt <= 0 or ctx.attacker is None:
+        return
+    await ctx.heal(((dealt // 2 + 9) // 10) * 10, ctx.attacker)
+
 card = PokemonCardDef(
     guid="a6ee0858-3fe3-5ac0-8308-8e6c73f60f22",
     key="BASE3",
@@ -29,7 +39,7 @@ card = PokemonCardDef(
             game_text="Remove a number of damage counters from Kabutops equal to half the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance) (rounded up to the nearest 10). If Kabutops has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.FIGHTING: 4},
             damage=40,
-            effect=unimplemented,
+            effect=_absorb,
         ),
     ],
 )
