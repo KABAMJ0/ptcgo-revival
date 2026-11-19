@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Rock Body",
             game_text="All damage done by attacks to Golem is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(10),
         ),
         Attack(
             title="Rock Tumble",
