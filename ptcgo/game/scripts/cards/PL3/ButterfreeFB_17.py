@@ -1,3 +1,23 @@
+from ptcgo.game.attributes import AbilityTypes
+from ptcgo.game.data_utils import def_for
+
+
+def _has_kind(pokemon, *kinds):
+    """Whether this Pokemon carries a printed ability of one of `kinds`
+    (POKE_POWER / POKE_BODY), read off the definition's restored kinds."""
+    if pokemon is None:
+        return False
+    definition = def_for(pokemon.archetype_id)
+    for ability in getattr(definition, "abilities", []) or []:
+        if getattr(ability, "ability_type", None) in kinds:
+            return True
+    return False
+
+from ptcgo.game.card_effects.passives_common import typed_damage_boost_tool
+
+
+def _defender_has_body(target) -> bool:
+    return _has_kind(target, AbilityTypes.POKE_BODY)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +42,7 @@ card = PokemonCardDef(
         Ability(
             title="Compound Eyes",
             game_text="If your opponent's Active Pok\u00e9mon has any Pok\u00e9-Bodies, each of Butterfree FB's attacks does 30 more damage to the Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=typed_damage_boost_tool(_defender_has_body, 30),
         ),
         Attack(
             title="Select Powder",

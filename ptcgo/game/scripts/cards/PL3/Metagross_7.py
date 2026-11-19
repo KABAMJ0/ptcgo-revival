@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import team_hp_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Gravitation",
             game_text="Each Pok\u00e9mon in play (both yours and your opponent's) gets -20 HP. No more than 20 HP can be reduced by all Gravitation Pok\u00e9-Bodies.",
-            effect=unimplemented,
+            passive=team_hp_bonus(-20, protects="each",
+                                  stacking_key="Gravitation"),
         ),
         Attack(
             title="Geo Impact",

@@ -1,5 +1,27 @@
+from ptcgo.game.attributes import AbilityTypes
+from ptcgo.game.data_utils import def_for
+
+
+def _has_kind(pokemon, *kinds):
+    """Whether this Pokemon carries a printed ability of one of `kinds`
+    (POKE_POWER / POKE_BODY), read off the definition's restored kinds."""
+    if pokemon is None:
+        return False
+    definition = def_for(pokemon.archetype_id)
+    for ability in getattr(definition, "abilities", []) or []:
+        if getattr(ability, "ability_type", None) in kinds:
+            return True
+    return False
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def power_wave(ctx):
+    """30 to every Pokemon in play that has any Poke-Powers."""
+    for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
+        if _has_kind(pokemon, AbilityTypes.POKE_POWER):
+            await ctx.deal_damage(30, target=pokemon)
 
 card = PokemonCardDef(
     guid="04fb52a9-67d3-56e6-8011-5c0e0628c567",
@@ -29,7 +51,7 @@ card = PokemonCardDef(
             title="Power Wave",
             game_text="This attack does 30 damage to each Pok\u00e9mon that has any Pok\u00e9-Powers (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=power_wave,
         ),
         Attack(
             title="Attract Current",
