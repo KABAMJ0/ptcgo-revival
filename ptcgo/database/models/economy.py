@@ -85,6 +85,18 @@ class DynamicPage(Base):
     enabled: Mapped[bool] = mapped_column(default=True)
 
 
+class ProductClaim(Base):
+    """One row per (account, product) for products limited to one per account. The unique
+    constraint is what makes the limit hold when two purchases race."""
+    __tablename__ = 'product_claims'
+    __table_args__ = (UniqueConstraint('account_id', 'product_guid', name='uq_product_claim'),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    account_id: Mapped[str] = mapped_column(nullable=False, index=True)
+    product_guid: Mapped[str] = mapped_column(nullable=False)
+    claimed_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
+
+
 class DailyLoginProgress(Base):
     __tablename__ = 'daily_login_progress'
 

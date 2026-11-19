@@ -31,10 +31,14 @@ DEFAULT_OFFERS = (
         "sort_order": 20,
     },
     {
-        # Charizard ex + a Fusion Strike pack + 1000 tokens back: 500 net for card and pack.
+        # Charizard ex + Fusion Strike pack + gold Charizard coin + 1000 tokens back. Pays
+        # out more tokens than it costs, so the bundle is one per account.
         "guid": str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:bundle:charizard-ex-collection")),
         "name": "Charizard ex Collection",
-        "price": 1500,
+        "price": 500,
+        # Rows still at a price we shipped earlier move to the new price; a price an admin
+        # chose is left alone.
+        "previous_prices": (1500,),
         "sort_order": 5,
     },
 )
@@ -45,13 +49,20 @@ def ensure_default_shop_items():
     from ptcgo.database.economy_data import list_shop_items
 
     try:
-        existing = {row["product_guid"].lower() for row in list_shop_items()}
+        existing = {row["product_guid"].lower(): row for row in list_shop_items()}
     except Exception as e:  # a missing table on a fresh database is not fatal here
         logging.warning(f"[Shop] Could not read shop items to seed defaults: {e}")
         return
 
     for offer in DEFAULT_OFFERS:
         if offer["guid"].lower() in existing:
+            row = existing[offer["guid"].lower()]
+            if row["price"] in offer.get("previous_prices", ()):
+                try:
+                    upsert_shop_item(offer["guid"], price=offer["price"], item_id=row["id"])
+                    logging.info(f"[Shop] Repriced {offer['name']} from {row['price']} to {offer['price']} tokens")
+                except Exception as e:
+                    logging.warning(f"[Shop] Could not reprice {offer['name']}: {e}")
             continue
         try:
             upsert_shop_item(

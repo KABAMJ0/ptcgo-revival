@@ -186,7 +186,8 @@ class ProductLoader:
                 ptype = attrs.get(str(AttrID.PRODUCT_TYPE.value), {}).get("value", ProductType.UNSET.value)
                 
                 if isinstance(prod_def, BundleDef):
-                    prod_obj = Bundle(guid, key, attrs, grants=prod_def.contents, tokens=prod_def.tokens)
+                    prod_obj = Bundle(guid, key, attrs, grants=prod_def.contents, tokens=prod_def.tokens,
+                                      once_per_account=prod_def.once_per_account)
                 elif ptype == ProductType.PACKS:
                     prod_obj = BoosterPack(guid, key, attrs)
                 elif ptype == ProductType.DECKS:

@@ -4,7 +4,8 @@ from ptcgo.database.models.inventory import Wallet, Deck, Collection, ArchetypeF
 from ptcgo.database.models.social import Friendship
 from ptcgo.database.models.quests import QuestAccount, DailyQuest, QuestMatchCredit
 from ptcgo.database.models.economy import (
-    RedemptionCode, CodeRedemptionEntry, ShopItem, TradeOffer, DynamicPage, VersusProgress, DailyLoginProgress
+    RedemptionCode, CodeRedemptionEntry, ShopItem, TradeOffer, DynamicPage, VersusProgress, DailyLoginProgress,
+    ProductClaim,
 )
 from ptcgo.database.models.tournaments import (
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim
@@ -21,7 +22,7 @@ for table in Base.metadata.tables.values():
 __all__ = [
     "Base", "Account", "Wallet", "Deck", "Collection", "ArchetypeFlag", "Friendship",
     "RedemptionCode", "CodeRedemptionEntry", "ShopItem", "TradeOffer", "DynamicPage",
-    "VersusProgress", "DailyLoginProgress",
+    "VersusProgress", "DailyLoginProgress", "ProductClaim",
     "QuestAccount", "DailyQuest", "QuestMatchCredit",
     "AsyncTournament", "TournamentEntry", "TournamentLeaderboardClaim",
     "TrainerChallengeProgress", "LEAGUE_ROW", "TutorialProgress",

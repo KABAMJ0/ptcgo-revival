@@ -10,10 +10,10 @@ from .base import BaseHandler, handle
 from ptcgo.shop import shop_manager
 from ptcgo.game.scripts.products import loader as product_loader
 from ptcgo.game.attributes import AttrID
-from ptcgo.game.models.product import BoosterPack, Bundle, Deck, expand_bundles
+from ptcgo.game.models.product import BoosterPack, Bundle, Deck, expand_bundles, find_bundle
 from ptcgo.database.deck_products import open_products
 from ptcgo.database.async_utils import run_db
-from ptcgo.database.player_data import add_to_collection, get_decks_by_account_id, grant_coins
+from ptcgo.database.player_data import add_to_collection, get_decks_by_account_id
 from ptcgo.database.economy_data import purchase_products
 from ptcgo.server import activity
 
@@ -156,6 +156,15 @@ class ShopHandler(BaseHandler):
         product_ids = [guid for guid in message.get("products", [])
                        if guid in shop.available_products]
 
+        if any(find_bundle(shop.resolve_product_guid(p_id)) for p_id in product_ids):
+            async def opened(items):
+                await self._send_notification(OutboundMsg.PRODUCTS_OPENED.value, {
+                    "accountID": self._owner_id(), "items": items, "products": [], "additionalData": {}})
+            await self._buy_bundles_instead(
+                request_id, shop, [shop.available_products[p_id] for p_id in product_ids],
+                OutboundMsg.PRODUCTS_OPENED_FAILURE.value, opened)
+            return
+
         basket = [(shop.available_products.get(p_id), 1)
                   for p_id in product_ids if p_id in shop.available_products]
         if not await self._charge_for(basket, "PurchaseAndOpen"):
@@ -182,6 +191,16 @@ class ShopHandler(BaseHandler):
         shop = shop_manager.get_shop()
         archetypes = {guid: qty for guid, qty in message.get("archetypes", {}).items()
                       if guid in shop.available_products and type(qty) is int and qty > 0}
+        if any(find_bundle(shop.resolve_product_guid(arch_id)) for arch_id in archetypes):
+            async def purchased(items):
+                await self.send({"messageName": OutboundMsg.ARCHETYPES_PURCHASED.value, "items": items,
+                                 "transactionID": str(uuid.uuid4())}, request_id)
+            await self._buy_bundles_instead(
+                request_id, shop,
+                [shop.available_products[a] for a, qty in archetypes.items() for _ in range(qty)],
+                "ArchetypesPurchaseFailure", purchased)
+            return
+
         basket = [(shop.available_products.get(arch_id), qty)
                   for arch_id, qty in archetypes.items()]
         if not await self._charge_for(basket, "PurchaseArchetypes"):
@@ -190,15 +209,11 @@ class ShopHandler(BaseHandler):
         def _persist_sync():
             purchased = []
             for arch_id, qty in archetypes.items():
-                granted, tokens = expand_bundles([shop.resolve_product_guid(arch_id)])
-                for guid in granted:
-                    for _ in range(qty):
-                        purchased.append(build_item(self._owner_id(), guid, is_tradable=True))
-                    if self.client.player:
-                        add_to_collection(self.client.player.account_id, guid, count=qty, is_tradable=True)
-                if tokens and self.client.player:
-                    grant_coins(self.client.player.account_id, tokens * qty)
-                    self.client.player.wallet.refresh_wallet()
+                pack_guid = shop.resolve_product_guid(arch_id)
+                for _ in range(qty):
+                    purchased.append(build_item(self._owner_id(), pack_guid, is_tradable=True))
+                if self.client.player:
+                    add_to_collection(self.client.player.account_id, pack_guid, count=qty, is_tradable=True)
             return purchased
 
         purchased_items = await run_db(_persist_sync)
@@ -233,6 +248,56 @@ class ShopHandler(BaseHandler):
             listings.append(listing)
         return listings or None
 
+    @staticmethod
+    def _charges_of(listings):
+        charges = Counter()
+        for listing in listings:
+            for price in listing.prices[:1]:
+                charges[price.get("name")] += max(0, int(price.get("value") or 0))
+        return charges
+
+    async def _buy_atomically(self, shop, listings):
+        """Charges, grants and records limits for the listings in ONE transaction; returns
+        (error or None, granted items). A bundle is fulfilled here: its contents are granted
+        and its tokens credited, so nothing has to be opened afterwards."""
+        player = self.client.player
+        charges = self._charges_of(listings)
+        product_guids, bundle_tokens, claims = expand_bundles(
+            [shop.resolve_product_guid(listing.guid) for listing in listings])
+        credit = {AttrID.TRAINER_TOKENS.value: bundle_tokens} if bundle_tokens else None
+
+        def _purchase_sync():
+            error = purchase_products(player.account_id, charges, Counter(product_guids),
+                                      credit=credit, claims=claims)
+            if error is None:
+                player.wallet.refresh_wallet()
+            return error
+
+        try:
+            error = await run_db(_purchase_sync)
+        except Exception:
+            logging.exception(f"[Shop] Purchase failed for {player.username}")
+            error = PURCHASE_ERROR_GENERIC
+        if error:
+            logging.warning(f"[Shop] Purchase rejected for {player.username}: {error}")
+            return error, []
+        return None, [build_item(player.account_id, guid, is_tradable=True) for guid in product_guids]
+
+    async def _buy_bundles_instead(self, request_id, shop, listings, failure_message, success):
+        """A bundle bought through the open-on-purchase or legacy archetype paths goes
+        through the same atomic purchase as the catalog path, so its one-per-account limit
+        and its token credit cannot be skipped by choosing another path."""
+        if not self.client.player:
+            await self.send({"messageName": failure_message, "error": {"id": PURCHASE_ERROR_SIGN_IN}}, request_id)
+            return
+        error, items = await self._buy_atomically(shop, listings)
+        if error:
+            await self.send({"messageName": failure_message, "error": {"id": error}}, request_id)
+        else:
+            await success(items)
+        await self.push_wallet()
+        await self.push_collection()
+
     async def _purchase_failed(self, request_id, reason: str):
         """Fails a pending purchase: closes the client's wait dialog with the reason."""
         await self.send({
@@ -256,37 +321,15 @@ class ShopHandler(BaseHandler):
             await self._purchase_failed(request_id, PURCHASE_ERROR_UNAVAILABLE)
             return
 
-        charges = Counter()
-        for listing in listings:
-            for price in listing.prices[:1]:
-                charges[price.get("name")] += max(0, int(price.get("value") or 0))
+        charges = self._charges_of(listings)
         purchase_type = message.get("purchaseType")
         if purchase_type is not None and any(charges.values()) and purchase_type not in charges:
             logging.warning(f"[Shop] purchaseType {purchase_type} differs from listed currencies {list(charges)}")
-        # A bundle is fulfilled at purchase: its contents are granted and its tokens
-        # credited in the same transaction, so nothing has to be opened afterwards.
-        product_guids, bundle_tokens = expand_bundles(
-            [shop.resolve_product_guid(listing.guid) for listing in listings])
-        credit = {AttrID.TRAINER_TOKENS.value: bundle_tokens} if bundle_tokens else None
-
-        def _purchase_sync():
-            error = purchase_products(player.account_id, charges, Counter(product_guids), credit=credit)
-            if error is None:
-                player.wallet.refresh_wallet()
-            return error
-
-        try:
-            error = await run_db(_purchase_sync)
-        except Exception:
-            logging.exception(f"[Shop] Purchase failed for {player.username}")
-            error = PURCHASE_ERROR_GENERIC
+        error, purchased_items = await self._buy_atomically(shop, listings)
         if error:
-            logging.warning(f"[Shop] Purchase rejected for {player.username}: {error}")
             await self._purchase_failed(request_id, error)
             return
 
-        purchased_items = [build_item(player.account_id, guid, is_tradable=True)
-                           for guid in product_guids]
         await self.send({
             "messageName": OutboundMsg.PRODUCTS_PURCHASED.value,
             "invoiceID": str(uuid.uuid4()),
