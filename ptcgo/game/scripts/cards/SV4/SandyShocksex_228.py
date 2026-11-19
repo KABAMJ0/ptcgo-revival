@@ -1,6 +1,30 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.trainers import basic_energy_of
+
+def _opponent_prizes_left(board, player_id):
+    opponents = [pid for pid in board.player_ids if pid != player_id]
+    if not opponents:
+        return 6
+    area = board.find_player_area(opponents[0], "prizePile")
+    return len(area.children) if area else 6
+
+
+def _four_or_fewer_left(board, player_id, pokemon):
+    return _opponent_prizes_left(board, player_id) <= 4
+
+
+async def _magnetic_absorption(ctx):
+    """Attach a Basic Fighting Energy from the discard pile to this Pokemon."""
+    pool = [card for card in ctx.discard_pile() if basic_energy_of("fighting")(card)]
+    if not pool:
+        return
+    picks = await ctx.choose_cards(
+        pool, 1, minimum=1,
+        prompt="Choose a Basic Fighting Energy to attach")
+    if picks:
+        await ctx.attach_energy(picks[0], ctx.source)
 
 card = PokemonCardDef(
     guid="88623693-8d92-5249-9766-14a66f93a20b",
@@ -22,7 +46,9 @@ card = PokemonCardDef(
         Ability(
             title="Magnetic Absorption",
             game_text="Once during your turn, if your opponent has 4 or fewer Prize cards remaining, you may attach a Basic Fighting Energy card from your discard pile to this Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_four_or_fewer_left,
+            effect=_magnetic_absorption,
         ),
         Attack(
             title="Earthen Spike",
