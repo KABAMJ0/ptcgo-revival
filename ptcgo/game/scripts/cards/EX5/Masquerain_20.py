@@ -1,7 +1,17 @@
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
+
+async def silver_wind(ctx):
+    """Printed damage, then during your next turn attacks that damage the
+    Defending Pokemon do 10 more (after Weakness and Resistance)."""
+    await ctx.deal_damage()
+    ctx.add_damage_taken_modifier(10, ctx.defender, through="your_next_turn")
+
+
+silver_wind_effect = silver_wind
 
 card = PokemonCardDef(
     guid="f425dc72-6f19-52e4-abab-48efdc807fc7",
@@ -34,7 +44,7 @@ card = PokemonCardDef(
             game_text="During your next turn, if an attack does damage to the Defending Pok\u00e9mon (after applying Weakness and Resistance), that attack does 30 more damage.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=silver_wind,
         ),
     ],
 )
