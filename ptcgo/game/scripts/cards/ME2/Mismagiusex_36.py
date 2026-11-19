@@ -1,7 +1,28 @@
 from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.card_effects.support_common import draw_until_effect
+
+
+class SwirlingProsePassive(Passive):
+    """While this Pokemon is Active, the opponent's new Active after a
+    switch during their own turn becomes Confused."""
+
+    async def on_active_switched(self, ctx, player_id, outgoing, incoming,
+                                 outgoing_conditions, via_trainer, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or not is_in_active_spot(holder):
+            return
+        if player_id == holder.owning_player_id:
+            return
+        if ctx.session.turn_state.active_player_id != player_id:
+            return
+        await ctx.apply_special_condition(incoming, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="ff3166c0-bd6e-5559-a9a6-33e05c2bf5bf",
@@ -25,7 +46,7 @@ card = PokemonCardDef(
         Ability(
             title="Swirling Prose",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, whenever your opponent's Active Pok\u00e9mon moves to the Bench during their turn, their new Active Pok\u00e9mon is now Confused.",
-            effect=unimplemented,
+            passive=SwirlingProsePassive(),
         ),
         Attack(
             title="Hexa-Magic",

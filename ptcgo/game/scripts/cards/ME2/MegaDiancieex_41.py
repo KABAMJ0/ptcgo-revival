@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
@@ -30,7 +31,9 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=120,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(
+                source="self-energy", max_count=2, per=120, base=0, optional=True,
+                prompt="Discard up to 2 Energy cards from this Pokémon"),
         ),
     ],
 )
