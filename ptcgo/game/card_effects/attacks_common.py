@@ -28,6 +28,7 @@ from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.passives import is_basic_energy
 from ptcgo.game.session.legal_actions import energy_provided_count
+from ptcgo.game.models.board import PokemonEntity
 
 _TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
 _ENERGY_SCOPES = ("self", "attacker", "defender", "opponent_active", "my_active",
