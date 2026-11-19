@@ -1,6 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def magma_eruption(ctx):
+    """You may discard the top 3 cards of each player's deck; printed 120 plus
+    40 for each Energy card discarded that way."""
+    if not await ctx.ask_yes_no("Discard the top 3 cards of each player's deck?"):
+        await ctx.deal_damage()
+        return
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+    discarded = []
+    for pid in (ctx.player_id, ctx.opponent_id):
+        top = ctx.deck_top(3, player_id=pid)
+        if top:
+            await ctx.discard_cards(top)
+            discarded.extend(top)
+    energies = sum(1 for c in discarded if is_energy_card(c))
+    await ctx.deal_damage(120 + 40 * energies)
+
+
 card = PokemonCardDef(
     guid="bbb57090-6591-5e20-bacc-3596a63e45df",
     key="Promo_XY",
@@ -25,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
             damage_operator="+",
-            effect=unimplemented,
+            effect=magma_eruption,
         ),
     ],
 )
