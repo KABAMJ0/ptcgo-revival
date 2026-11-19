@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+async def _blindside(ctx):
+    """50 to 1 of the opponent's Pokemon that already has damage counters."""
+    targets = [p for p in ctx.opponent_pokemon_in_play()
+               if p.get_attribute(AttrID.HP, 0) < ctx.max_hp(p)]
+    if not targets:
+        return
+    target = targets[0] if len(targets) == 1 else await ctx.choose_pokemon(
+        targets, "Choose a Pok\u00e9mon that has any damage counters on it")
+    if target is not None:
+        await ctx.deal_damage(50, target=target)
+
 
 card = PokemonCardDef(
     guid="0c5d265d-7eb2-5a0c-8ea7-9c1a916f762b",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             title="Blindside",
             game_text="Does 50 damage to 1 of your opponent's Pok\u00e9mon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=_blindside,
         ),
         Attack(
             title="Punishment",

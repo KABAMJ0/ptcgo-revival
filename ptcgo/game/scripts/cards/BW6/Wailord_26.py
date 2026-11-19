@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per, flip_gate
 
 card = PokemonCardDef(
     guid="ef191cce-68f1-520c-9164-5f48e2ede195",
@@ -25,7 +26,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_gate(then=damage_per(
+                count_energy("self", PokemonTypes.WATER), 30)),
         ),
         Attack(
             title="Giant Wave",

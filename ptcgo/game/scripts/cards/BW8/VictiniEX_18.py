@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import is_energy_card
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +25,9 @@ card = PokemonCardDef(
             title="Turbo Energize",
             game_text="Search your deck for 2 basic Energy cards and attach them to your Benched Pok\u00e9mon in any way you like. Shuffle your deck afterward.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(is_energy_card, count=2,
+                                        target_pred=lambda p: not is_in_active_spot(p),
+                                        distribute=True),
         ),
         Attack(
             title="Intensifying Burn",

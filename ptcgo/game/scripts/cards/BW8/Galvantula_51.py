@@ -1,8 +1,22 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _discharge(ctx):
+    """Discard every Lightning Energy on itself, 30 damage per card."""
+    attacker = ctx.attacker
+    if attacker is None:
+        return
+    energies = [e for e in ctx.attached_energies(attacker)
+                if energy_provides_type(e, PokemonTypes.LIGHTNING.value)]
+    if not energies:
+        return
+    await ctx.discard_cards(energies)
+    await ctx.deal_damage(30 * len(energies))
+
 
 card = PokemonCardDef(
     guid="a3a38847-cfd5-5057-bf85-737a8cd09f43",
@@ -28,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_discharge,
         ),
         Attack(
             title="Signal Beam",

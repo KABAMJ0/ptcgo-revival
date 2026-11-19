@@ -1,7 +1,15 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.data_utils import def_for
+from ptcgo.game.card_effects.attacks_common import conditions_if
+from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+
+def _has_plasma_energy(ctx):
+    return any((getattr(def_for(e.archetype_id), "display_name", "") or "")
+               == "Plasma Energy" for e in ctx.attached_energies(ctx.attacker))
+
 
 card = PokemonCardDef(
     guid="4777e539-6f96-5cab-ab7d-9d4a72a90997",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has any Plasma Energy attached to it, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=conditions_if(_has_plasma_energy, SpecialConditions.PARALYZED),
         ),
     ],
 )

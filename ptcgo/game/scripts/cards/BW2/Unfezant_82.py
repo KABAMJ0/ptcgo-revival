@@ -1,6 +1,19 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import attach_from_hand
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _heads_bonus(ctx):
+    await ctx.deal_damage(80)
+
+
+async def _tails_discard(ctx):
+    await ctx.deal_damage(40)
+    defender = ctx.defender
+    if defender is not None and not ctx.effects_blocked(defender):
+        await ctx.discard_energy_from(defender, 1)
+
 
 card = PokemonCardDef(
     guid="c7ca7565-d40e-50d6-bd3e-0510dbfeb0a4",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(_heads_bonus, tails=_tails_discard),
         ),
     ],
 )

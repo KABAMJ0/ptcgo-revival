@@ -1,5 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _royal_heal(ctx):
+    """Every Pokemon Checkup, heal 10 from each of your Pokemon."""
+    for pokemon in ctx.my_pokemon_in_play():
+        await ctx.heal(10, pokemon)
+
 
 card = PokemonCardDef(
     guid="29f0368e-9b76-5191-9be8-eb676410bcf6",
@@ -23,7 +30,8 @@ card = PokemonCardDef(
         Ability(
             title="Royal Heal",
             game_text="At any times between turns, heal 10 damage from each of your Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=_royal_heal,
         ),
         Attack(
             title="Leaf Tornado",

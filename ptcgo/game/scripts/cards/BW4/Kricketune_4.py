@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _draining_cut(ctx):
+    """40 per head out of two coins, then heal back exactly what it dealt."""
+    results = await ctx.flip_coins(2, "Draining Cut")
+    amount = 40 * sum(1 for r in results if r)
+    if amount <= 0:
+        return
+    defender = ctx.defender
+    before = defender.get_attribute(AttrID.HP, 0) if defender is not None else 0
+    await ctx.deal_damage(amount)
+    if defender is not None:
+        dealt = before - defender.get_attribute(AttrID.HP, 0)
+        if dealt > 0:
+            await ctx.heal(dealt, ctx.attacker)
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
@@ -33,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_draining_cut,
         ),
     ],
 )

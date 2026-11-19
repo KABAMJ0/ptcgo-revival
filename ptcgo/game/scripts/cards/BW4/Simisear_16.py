@@ -1,5 +1,15 @@
+from ptcgo.game.card_effects.attacks_common import stadium_in_play_cond
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _simisear_16(ctx):
+    """Printed 30, +30 and the defender burned while a Stadium is in play."""
+    has_stadium = stadium_in_play_cond(ctx)
+    await ctx.deal_damage(30 + (30 if has_stadium else 0))
+    defender = ctx.defender
+    if has_stadium and defender is not None and not ctx.effects_blocked(defender):
+        await ctx.apply_special_condition(defender, SpecialConditions.BURNED)
 from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
@@ -32,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_simisear_16,
         ),
     ],
 )

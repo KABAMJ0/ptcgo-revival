@@ -1,7 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
+from ptcgo.game.card_effects.attacks_common import flip_damage_table, heal_self_damage_dealt
 
 card = PokemonCardDef(
     guid="3594d136-d42c-58ab-b9a3-e9f4900000a2",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Constant Rattle",
             game_text="Flip 3 coins. If 1 of them is heads, this attack does 10 damage. If 2 of them are heads, this attack does 30 damage. If all of them are heads, this attack does 60 damage.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=flip_damage_table({1: 10, 2: 30, 3: 60}, coins=3, base=0),
         ),
         Attack(
             title="Giga Drain",

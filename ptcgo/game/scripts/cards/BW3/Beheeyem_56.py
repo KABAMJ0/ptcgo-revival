@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+
+
+async def _synchronoise(ctx):
+    """Printed 20 to the Active, then 20 to each Benched Pokemon that shares
+    a type with the Defending Pokemon (no Weakness/Resistance on the Bench)."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None:
+        return
+    types = set(defender.get_attribute(AttrID.POKEMON_TYPES) or [])
+    if not types:
+        return
+    for pokemon in ctx.opponent_bench():
+        if types & set(pokemon.get_attribute(AttrID.POKEMON_TYPES) or []):
+            await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="952c7a5b-60a9-5e69-a56d-1531500b8153",
@@ -24,7 +40,7 @@ card = PokemonCardDef(
             game_text="Does 20 damage to each of your opponent's Benched Pok\u00e9mon that shares a type with the Defending Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_synchronoise,
         ),
         Attack(
             title="Psyshot",

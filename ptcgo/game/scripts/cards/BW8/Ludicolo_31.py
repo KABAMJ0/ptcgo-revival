@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import heal_targets
+from ptcgo.game.content.definitions import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Rain Dish",
             game_text="At any times between turns, heal 20 damage from this Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.BETWEEN_TURNS,
+            effect=heal_targets(20, scope="active"),
         ),
         Attack(
             title="Groovy Dance",

@@ -1,6 +1,13 @@
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import no_retreat_passive, opposing_active, is_in_active_spot
+
+def _team_plasma_in_play(ctx):
+    return sum(1 for p in ctx.my_pokemon_in_play()
+               if has_pokemon_subtype(p, "Team Plasma"))
+
 
 card = PokemonCardDef(
     guid="9391f1fb-f06e-593c-a694-559cbcbe2734",
@@ -30,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 5},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_team_plasma_in_play, 30, base=0),
         ),
     ],
 )

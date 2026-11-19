@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.trainers import all_of, is_item_card, named
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="aafd4ab5-ea68-50dc-a998-9ba88b0fee1f",
@@ -22,7 +25,8 @@ card = PokemonCardDef(
             title="Fossil Hunt",
             game_text="Put 2 Item cards that have Fossil in their names from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(all_of(is_item_card, named("fossil")),
+                                        count=2, minimum=None),
         ),
         Attack(
             title="Water Gun",

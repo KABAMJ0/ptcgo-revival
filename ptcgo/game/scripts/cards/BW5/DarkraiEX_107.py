@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.models.board import BoardState
+
+
+def _dark_cloak_target(pokemon, carrier):
+    return (pokemon.owning_player_id == carrier.owning_player_id
+            and any(energy_provides_type(e, PokemonTypes.DARKNESS.value)
+                    for e in BoardState.attached_energies(pokemon)))
 
 card = PokemonCardDef(
     guid="f19afb86-1902-5c87-a8aa-982c26240702",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Cloak",
             game_text="Each of your Pok\u00e9mon that has any Darkness Energy attached to it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_dark_cloak_target),
         ),
         Attack(
             title="Night Spear",

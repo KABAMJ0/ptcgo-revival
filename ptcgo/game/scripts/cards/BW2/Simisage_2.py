@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import conditions_if, self_has_energy_of_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="da050c61-ae6a-568a-b7b6-6c02f99add87",
@@ -25,7 +26,8 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has any Fire Energy attached to it, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=conditions_if(self_has_energy_of_type(PokemonTypes.FIRE),
+                                 SpecialConditions.BURNED),
         ),
         Attack(
             title="Seed Bomb",

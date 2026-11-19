@@ -1,6 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import distribute_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def _pump_up_smash(ctx):
+    """Printed damage, then attach up to 2 basic Energy from hand to your
+    Benched Pokemon, one holder per card."""
+    await ctx.deal_damage()
+    hand = [card for card in ctx.hand() if is_basic_energy_card(card)]
+    bench = ctx.my_bench()
+    if not hand or not bench:
+        return
+    picks = await ctx.choose_cards(
+        hand, 2, minimum=0,
+        prompt="Choose up to 2 basic Energy cards to attach to your Benched Pok\u00e9mon")
+    if picks:
+        await distribute_energy(ctx, picks, bench)
+
 
 card = PokemonCardDef(
     guid="4a60b9bd-115a-506b-82c2-11cfedc54886",
@@ -31,7 +49,7 @@ card = PokemonCardDef(
             game_text="Attach 2 basic Energy cards from your hand to your Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=_pump_up_smash,
         ),
     ],
 )

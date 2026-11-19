@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
+from ptcgo.game.card_effects.support_common import recover_from_discard
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Trans Tail",
             game_text="Search your discard pile for a Lightning Energy card, show it to your opponent, and put it into your hand.",
             cost={},
-            effect=unimplemented,
+            effect=recover_from_discard(is_lightning_energy, count=1, to="hand"),
         ),
         Attack(
             title="Thundershock",

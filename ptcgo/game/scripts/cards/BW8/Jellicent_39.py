@@ -1,6 +1,18 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.content.definitions import Triggers
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+async def _spiteful_spirit(ctx):
+    """When Knocked Out by an opposing attack, that attacker is Confused and
+    Poisoned."""
+    attacker = getattr(ctx, "ko_attacker", None)
+    if attacker is None:
+        return
+    await ctx.apply_special_condition(attacker, SpecialConditions.CONFUSED)
+    await ctx.apply_special_condition(attacker, SpecialConditions.POISONED)
+
 
 card = PokemonCardDef(
     guid="4bd3813d-9098-5333-97c4-ede9a2f334f5",
@@ -23,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Spiteful Spirit",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, the Attacking Pok\u00e9mon is now Confused and Poisoned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=_spiteful_spirit,
         ),
         Attack(
             title="Aqua Bullet",

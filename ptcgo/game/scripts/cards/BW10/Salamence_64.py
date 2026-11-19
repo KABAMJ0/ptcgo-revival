@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack, \
+    on_evolve
+from ptcgo.game.data_utils import Triggers
+
+
+async def _breakwing_discard(ctx) -> None:
+    tools = [tool for tool, holder in ctx.tools_in_play()
+             if holder.owning_player_id != ctx.player_id
+             and not ctx.effects_blocked(holder)]
+    if tools:
+        await ctx.discard_cards(tools)
+
 
 card = PokemonCardDef(
     guid="7439e91f-6929-55ff-888c-3b255d54f126",
@@ -23,7 +34,8 @@ card = PokemonCardDef(
         Ability(
             title="Breakwing",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may discard all Pok\u00e9mon Tool cards attached to each of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(_breakwing_discard),
         ),
         Attack(
             title="Gaia Crush",

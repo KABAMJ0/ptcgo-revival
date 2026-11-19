@@ -1,6 +1,19 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class LeafTailorPassive(Passive):
+    """Each of your Pokemon that has any Energy attached to it has no Weakness."""
+
+    def modify_weakness(self, calc, carrier):
+        target = calc.target
+        if target is None or target.owning_player_id != carrier.owning_player_id:
+            return
+        if calc.board.attached_energies(target):
+            calc.weakness_applies = False
+
 
 card = PokemonCardDef(
     guid="03377842-e098-5e17-afe3-f67cdee6496d",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Leaf Tailor",
             game_text="Each of your Pok\u00e9mon that has any Energy attached to it has no Weakness.",
-            effect=unimplemented,
+            passive=LeafTailorPassive(),
         ),
         Attack(
             title="Cutting Arm",

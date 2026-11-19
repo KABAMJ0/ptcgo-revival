@@ -2,6 +2,15 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import damage_per
+
+
+def _damaged_bench(ctx):
+    """Benched Pokemon of yours carrying damage counters (Seismitoad shape)."""
+    return sum(1 for pokemon in ctx.my_bench()
+               if (pokemon.get_attribute(AttrID.HP) or 0) < ctx.max_hp(pokemon))
+
 
 card = PokemonCardDef(
     guid="695d73f7-1457-5965-b821-a8409ebe8bdc",
@@ -34,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_damaged_bench, 20, base=60),
         ),
     ],
 )

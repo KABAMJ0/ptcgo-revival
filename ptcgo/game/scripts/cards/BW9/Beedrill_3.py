@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, \
+    SpecialConditions
+
+
+async def swift_sting(ctx):
+    """20 damage; at full HP it is 60 and the Defending Pokemon is Confused
+    and Poisoned."""
+    source = ctx.source
+    full_hp = source is not None and \
+        source.get_attribute(AttrID.HP, 0) >= ctx.max_hp(source)
+    await ctx.deal_damage(20 + (40 if full_hp else 0))
+    if full_hp:
+        for condition in (SpecialConditions.CONFUSED, SpecialConditions.POISONED):
+            await ctx.apply_special_condition(ctx.defender, condition)
 
 card = PokemonCardDef(
     guid="2b6898e5-038f-589c-8ddc-0e0868d6678a",
@@ -25,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=swift_sting,
         ),
         Attack(
             title="Pierce",

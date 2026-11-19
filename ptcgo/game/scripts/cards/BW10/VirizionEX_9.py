@@ -3,6 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.support_common import on_bench, search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.models.board import BoardState
 
 
@@ -54,7 +56,8 @@ card = PokemonCardDef(
             game_text="You may search your deck for 2 Grass Energy cards and attach them to 1 of your Benched Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("Grass"), count=2,
+                                        target_pred=on_bench, distribute=False),
         ),
     ],
 )

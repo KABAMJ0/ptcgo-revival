@@ -1,7 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import look_at_top
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for, \
+    unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
+
+
+def _team_plasma_card(card) -> bool:
+    return "Team Plasma" in (subtypes_for(card.archetype_id) or [])
+
 
 card = PokemonCardDef(
     guid="d1e23c5e-d043-5eda-9f00-d5e9fb434c7f",
@@ -25,7 +31,8 @@ card = PokemonCardDef(
             title="Solar Transporter",
             game_text="Reveal the top 5 cards of your deck and put all Team Plasma cards you find there into your hand. Discard the other cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=look_at_top(5, take=5, predicate=_team_plasma_card,
+                               rest="discard"),
         ),
         Attack(
             title="Leech Life",

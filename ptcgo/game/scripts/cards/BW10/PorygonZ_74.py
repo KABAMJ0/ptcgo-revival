@@ -1,6 +1,15 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import can_move_energy, \
+    move_energy_between
+from ptcgo.game.card_effects.trainers import named_exactly
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Activations, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+_PLASMA_ENERGY = named_exactly("Plasma Energy")
+
 
 card = PokemonCardDef(
     guid="eda663c5-b213-53b8-8953-cf5e9a33ff7d",
@@ -23,7 +32,10 @@ card = PokemonCardDef(
         Ability(
             title="Plasma Transfer",
             game_text="As often as you like during your turn (before your attack), you may move a Plasma Energy attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(_PLASMA_ENERGY),
+            effect=move_energy_between(_PLASMA_ENERGY, count=1,
+                                       prompt="Choose a Plasma Energy to move"),
         ),
         Attack(
             title="Tri Attack",

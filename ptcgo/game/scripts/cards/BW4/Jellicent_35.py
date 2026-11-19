@@ -1,5 +1,23 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+
+
+async def _vengeful_wish(ctx):
+    """If this Pokemon was damaged by an attack on the opponent's last turn,
+    this attack does that much damage to the Defending Pokemon."""
+    attacker = ctx.attacker
+    taken = ctx.damaged_by_attack_last_turn(attacker) if attacker is not None else 0
+    if taken > 0:
+        await ctx.deal_damage(taken)
+
+
+async def _vengeful_wish(ctx):
+    """If this Pokemon was damaged by an attack on the opponent's last turn,
+    this attack does that much damage to the Defending Pokemon."""
+    attacker = ctx.attacker
+    taken = ctx.damaged_by_attack_last_turn(attacker) if attacker is not None else 0
+    if taken > 0:
+        await ctx.deal_damage(taken)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
 
@@ -25,7 +43,7 @@ card = PokemonCardDef(
             title="Vengeful Wish",
             game_text="If this Pok\u00e9mon was damaged by an attack during your opponent's last turn, this attack does the same amount of damage done to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_vengeful_wish,
         ),
         Attack(
             title="Absorb Life",

@@ -1,6 +1,23 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.passives_common import no_weakness_passive
+from ptcgo.game.models.board import EnergyEntity
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _holds_energy(pokemon):
+    stack = list(pokemon.children or [])
+    while stack:
+        entity = stack.pop()
+        if isinstance(entity, EnergyEntity):
+            return True
+        stack.extend(getattr(entity, "children", None) or [])
+    return False
+
+
+def _energised_ally(target, carrier):
+    return (target.owning_player_id == carrier.owning_player_id
+            and _holds_energy(target))
+
 
 card = PokemonCardDef(
     guid="62b16c8a-312e-536a-b551-b3478d04b37b",
@@ -23,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Leaf Tailor",
             game_text="Each of your Pok\u00e9mon that has any Energy attached to it has no Weakness.",
-            effect=unimplemented,
+            passive=no_weakness_passive(protects=_energised_ally),
         ),
         Attack(
             title="Cutting Arm",

@@ -3,6 +3,15 @@ from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
+
+
+async def _zap_cannon(ctx):
+    """80 damage; on tails this Pokemon cannot use Zap Cannon on my next turn."""
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(1, "Zap Cannon")
+    if ctx.attacker is not None and not (results and all(results)):
+        ctx.session.turn_state.lock_attack(
+            ctx.attacker.entity_id, ctx.ability.ability_id)
 from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
@@ -36,7 +45,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this Pok\u00e9mon can't use Zap Cannon during your next turn.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=_zap_cannon,
         ),
     ],
 )

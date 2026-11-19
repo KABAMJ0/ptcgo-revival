@@ -1,5 +1,11 @@
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _dual_brains(ctx):
+    """One more Supporter this turn."""
+    ctx.allow_extra_supporter(1)
+
 
 card = PokemonCardDef(
     guid="c3a92e1d-6901-515b-b5a1-2fdf3e761303",
@@ -22,7 +28,8 @@ card = PokemonCardDef(
         Ability(
             title="Dual Brains",
             game_text="During your turn, you may play 2 Supporter cards.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=_dual_brains,
         ),
         Attack(
             title="Gyro Ball",

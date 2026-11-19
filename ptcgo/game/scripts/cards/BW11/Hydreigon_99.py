@@ -1,6 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.content.definitions import Activations
+
+_DARKNESS_ENERGY = basic_energy_of("darkness")
+
 
 card = PokemonCardDef(
     guid="d733bc85-8881-5043-ad3a-da3d3dee2ec8",
@@ -23,7 +29,9 @@ card = PokemonCardDef(
         Ability(
             title="Dark Trance",
             game_text="As often as you like during your turn (before your attack), you may move a Darkness Energy attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(_DARKNESS_ENERGY),
+            effect=move_energy_between(_DARKNESS_ENERGY, count=1),
         ),
         Attack(
             title="Dragonblast",

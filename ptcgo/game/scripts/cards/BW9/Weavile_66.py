@@ -1,4 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, spread_damage
+from ptcgo.game.session.effects import is_pokemon_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -33,7 +34,8 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="hand", predicate=is_pokemon_card,
+                                     max_count=99, per=30, base=0),
         ),
     ],
 )

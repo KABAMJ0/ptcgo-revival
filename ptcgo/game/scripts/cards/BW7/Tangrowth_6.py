@@ -1,7 +1,19 @@
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+
+async def _hundred_furious_lashes(ctx):
+    """30 per Grass Energy attached to itself, then it cannot use this attack
+    again next turn."""
+    amount = 30 * count_energy("self", PokemonTypes.GRASS)(ctx)
+    if amount > 0:
+        await ctx.deal_damage(amount)
+    if ctx.attacker is not None:
+        ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                           ctx.ability.ability_id)
+
 
 card = PokemonCardDef(
     guid="1d9e3268-afee-500e-b558-d352b7dce346",
@@ -28,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_hundred_furious_lashes,
         ),
         Attack(
             title="Mega Drain",

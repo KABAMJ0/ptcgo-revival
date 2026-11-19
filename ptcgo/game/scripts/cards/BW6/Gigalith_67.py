@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, recoil_attack
+
+
+def _benched_damage_counters(ctx):
+    """Damage counters on each of your Benched Pokemon, summed."""
+    total = 0
+    for pokemon in ctx.my_bench():
+        total += max(0, (ctx.max_hp(pokemon)
+                         - pokemon.get_attribute(AttrID.HP, 0)) // 10)
+    return total
+
 
 card = PokemonCardDef(
     guid="f7f91df0-101e-51ab-81bd-7122c3247cc9",
@@ -26,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(_benched_damage_counters, per=10, base=10),
         ),
         Attack(
             title="Reckless Charge",

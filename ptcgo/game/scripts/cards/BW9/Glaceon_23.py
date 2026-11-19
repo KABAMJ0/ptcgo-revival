@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import retreat_discount
+from ptcgo.game.card_effects.pokemon import has_pokemon_subtype
 
 card = PokemonCardDef(
     guid="f3e6c08c-70e9-5fa6-afbd-2fc8891daa6d",
@@ -23,7 +25,9 @@ card = PokemonCardDef(
         Ability(
             title="Freeze Zone",
             game_text="The Retreat Cost of each of your Team Plasma Pok\u00e9mon in play is ColorlessColorless less.",
-            effect=unimplemented,
+            passive=retreat_discount(2, lambda pokemon, carrier: (
+                pokemon.owning_player_id == carrier.owning_player_id
+                and has_pokemon_subtype(pokemon, "Team Plasma"))),
         ),
         Attack(
             title="Icy Wind",

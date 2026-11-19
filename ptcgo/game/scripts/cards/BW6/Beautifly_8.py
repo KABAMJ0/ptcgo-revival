@@ -1,5 +1,38 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import distribute_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.session.passives import energy_provided_options
+
+
+def _energy_types(ctx, card):
+    """Every type an Energy card provides, after suppression/rewrite hooks."""
+    return {type_value for option in energy_provided_options(ctx.board, card)
+            for type_value in option}
+
+
+async def _triple_energy(ctx):
+    """Search the deck for 3 basic Energy cards of different types and attach
+    each wherever its owner likes."""
+    used = set()
+    picks = []
+    for _ in range(3):
+        pool = [card for card in ctx.deck()
+                if is_basic_energy_card(card)
+                and not (_energy_types(ctx, card) & used)]
+        if not pool:
+            break
+        found = await ctx.choose_cards(
+            pool, 1, minimum=0, display_cards=ctx.deck(),
+            prompt="Choose a basic Energy card of a different type.")
+        if not found:
+            break
+        picks.append(found[0])
+        used |= _energy_types(ctx, found[0])
+    if picks:
+        await distribute_energy(ctx, picks, ctx.my_pokemon_in_play())
+    await ctx.shuffle_deck()
+
 
 async def _heal_own_bench(ctx):
     await ctx.deal_damage()
@@ -29,7 +62,7 @@ card = PokemonCardDef(
             title="Triple Energy",
             game_text="Search your deck for 3 different types of basic Energy cards and attach them to your Pok\u00e9mon in any way you like. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=_triple_energy,
         ),
         Attack(
             title="Drainpour",

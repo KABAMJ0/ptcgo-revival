@@ -2,6 +2,28 @@ from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.support_common import bare_mill
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def _attach_milled_basic_energy(ctx, energies):
+    """Second half of Dig Out: the basic Energy the discard turned up goes onto
+    1 of your Pokemon of your choice."""
+    if not energies:
+        return
+    target = await ctx.choose_pokemon(
+        ctx.my_pokemon_in_play(), "Choose a Pokémon to attach the Energy to")
+    if target is not None:
+        await ctx.attach_energy(energies[0], target)
+
+
+async def dig_out(ctx):
+    """Printed damage, then discard the top card of your deck: a basic Energy
+    among it is attached to 1 of your Pokemon."""
+    await ctx.deal_damage()
+    await bare_mill(1, opponent=False, predicate=is_basic_energy_card,
+                    then=_attach_milled_basic_energy)(ctx)
+
 
 card = PokemonCardDef(
     guid="e155c05a-7912-5014-8a62-4b63cd4c3029",
@@ -26,7 +48,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your deck. If that card is a basic Energy card, attach it to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=dig_out,
         ),
         Attack(
             title="Break Ground",

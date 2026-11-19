@@ -1,5 +1,20 @@
+from ptcgo.game.card_effects.passives_common import Passive
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.session.passives import carrier_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+class _DualArmorPassive(Passive):
+    """With any Metal Energy attached, this Pokemon is Fighting AND Metal."""
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        if carrier_pokemon(carrier) is not pokemon:
+            return types
+        if any(energy_provides_type(e, PokemonTypes.METAL.value)
+               for e in (pokemon.children or [])):
+            return [PokemonTypes.FIGHTING.value, PokemonTypes.METAL.value]
+        return types
+
 
 card = PokemonCardDef(
     guid="0c4c6021-054d-5264-8202-8d4cb6872604",
@@ -22,7 +37,7 @@ card = PokemonCardDef(
         Ability(
             title="Dual Armor",
             game_text="If this Pok\u00e9mon has any Metal Energy attached to it, this Pok\u00e9mon's type is both Fighting and Metal.",
-            effect=unimplemented,
+            passive=_DualArmorPassive(),
         ),
         Attack(
             title="Hurricane Kick",

@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.session.effects import is_pokemon_card
+
+
+def _has_fighting_resistance(card):
+    return (
+        is_pokemon_card(card)
+        and card.get_attribute(AttrID.RESISTANCE_TYPES) == PokemonTypes.FIGHTING.value
+    )
+
 
 card = PokemonCardDef(
     guid="f29c2963-d87c-5463-aaa0-50b66b1797f2",
@@ -25,7 +34,9 @@ card = PokemonCardDef(
             title="Chirp",
             game_text="Search your deck for 2 Pok\u00e9mon with Fighting Resistance, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(_has_fighting_resistance, count=2, minimum=2,
+                                  reveal=True,
+                                  prompt="Choose 2 Pok\u00e9mon with Fighting Resistance."),
         ),
         Attack(
             title="Sharp Beak",

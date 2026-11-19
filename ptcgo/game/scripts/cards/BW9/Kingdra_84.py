@@ -1,5 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+def _vortex_fuel(ctx):
+    return [card for card in ctx.discard_pile()
+            if is_energy_card(card)
+            and (energy_provides_type(card, PokemonTypes.WATER.value)
+                 or energy_provides_type(card, PokemonTypes.LIGHTNING.value))]
+
+
+async def dragon_vortex(ctx):
+    """20 damage per Water/Lightning Energy card in the discard pile, then
+    those same cards shuffle back into the deck."""
+    fuel = _vortex_fuel(ctx)
+    if fuel:
+        await ctx.deal_damage(20 * len(fuel))
+    if fuel:
+        await ctx.shuffle_into_deck(fuel, ctx.player_id)
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
@@ -26,7 +44,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=dragon_vortex,
         ),
         Attack(
             title="Tri Bullet",
