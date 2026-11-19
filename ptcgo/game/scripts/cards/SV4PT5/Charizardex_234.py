@@ -1,3 +1,6 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, Triggers, unimplemented
+from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=180,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken("opponent"), per=30, base=180),
         ),
     ],
 )

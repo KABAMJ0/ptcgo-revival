@@ -7,6 +7,10 @@ async def _spread(ctx):
     await ctx.place_damage_counters(3)
 
 
+async def _spread_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(4)
+
 card = PokemonCardDef(
     guid="15df4802-2249-55b8-9ffa-6a386fdac3cb",
     key="SV3PT5",
@@ -34,7 +38,7 @@ card = PokemonCardDef(
             title="Psypower",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_spread_counters,
         ),
     ],
 )

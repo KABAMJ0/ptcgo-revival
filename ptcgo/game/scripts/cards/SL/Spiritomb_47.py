@@ -1,3 +1,7 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, no_retreat_passive, opposing_active
+from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import no_retreat_passive, opposing_active, is_in_active_spot
@@ -27,7 +31,7 @@ card = PokemonCardDef(
             title="Cursed Drop",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
     ],
 )
