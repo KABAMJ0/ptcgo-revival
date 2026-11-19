@@ -555,6 +555,17 @@ class Passive:
         no opinion, the smallest override wins."""
         return None
 
+    def bench_trim_area(self, player_id: str, carrier: BoardEntity) -> Optional[str]:
+        """Where a stack removed by the bench-shrink ruling goes ("hand" for
+        Narrow Gym); None keeps the default discard."""
+        return None
+
+    def sleep_recovery_coins(self, pokemon: PokemonEntity,
+                             carrier: BoardEntity) -> Optional[int]:
+        """Coins an Asleep `pokemon` flips to wake at Checkup (Slumbering
+        Forest: 2, and one tails keeps it Asleep); None = no opinion."""
+        return None
+
     def attack_keeps_turn(self, attacker: PokemonEntity, ability: Any,
                           ctx: Any, carrier: BoardEntity) -> bool:
         """True to keep the turn going after `attacker`'s attack resolved
@@ -1382,6 +1393,31 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     for rewrite in (getattr(board, "energy_type_overrides", None) or []):
         options = rewrite.apply(options, energy, holder, board)
     return options
+
+
+def bench_trim_area(board: BoardState, player_id: str) -> str:
+    """Where an over-capacity bench stack goes: "hand" when the capacity
+    passive in force asks for it (Narrow Gym), else "discard" (Collapsed
+    Stadium's ruling)."""
+    for passive, carrier in active_passives(board):
+        if passive.bench_capacity(player_id, carrier) is None:
+            continue
+        area = passive.bench_trim_area(player_id, carrier)
+        if area:
+            return area
+    return "discard"
+
+
+def sleep_recovery_coins(board: BoardState, pokemon: PokemonEntity,
+                         default: int = 1) -> int:
+    """Coins `pokemon` flips to wake from Asleep; the highest passive wins, so
+    a Thumping Snore rider (already in `default`) is never lowered."""
+    coins = default
+    for passive, carrier in active_passives(board):
+        value = passive.sleep_recovery_coins(pokemon, carrier)
+        if value is not None:
+            coins = max(coins, value)
+    return coins
 
 
 def effective_bench_capacity(board: BoardState, player_id: str) -> int:
