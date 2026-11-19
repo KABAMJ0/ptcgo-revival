@@ -333,12 +333,12 @@ def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
 def pokemon_named(*names) -> Callable[[Any], bool]:
     """Predicate: a Pokemon (or card) whose PRINTED NAME contains one of
     `names` (case-insensitive) -- "your Basic Team Rocket's Pokemon"."""
-    wanted = tuple(name.lower() for name in names)
+    from ptcgo.game.card_effects.pokemon import name_contains
 
     def pred(any_card, *_rest) -> bool:
         definition = def_for(getattr(any_card, "archetype_id", "") or "")
-        label = (getattr(definition, "display_name", "") or "").lower()
-        return any(name in label for name in wanted)
+        label = getattr(definition, "display_name", "") or ""
+        return any(name_contains(label, name) for name in names)
 
     return pred
 

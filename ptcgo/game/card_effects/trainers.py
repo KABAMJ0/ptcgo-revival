@@ -4316,13 +4316,16 @@ def has_energy_of(*type_names):
 
 
 def pokemon_named(word: str):
-    """Pokemon predicate: the printed name contains `word` ("Psyduck")."""
-    wanted = word.lower()
+    """Pokemon predicate: the printed name contains `word` ("Psyduck").
+
+    Both spellings resolve: the corpus stores "Regirock ex" as a display name and
+    "Regirockex" as a logic name, and a lane quotes whichever it read."""
+    from ptcgo.game.card_effects.pokemon import name_contains
 
     def predicate(card):
         definition = def_for(card.archetype_id)
-        return is_pokemon_card(card) and wanted in (
-            getattr(definition, "display_name", "") or "").lower()
+        return is_pokemon_card(card) and name_contains(
+            getattr(definition, "display_name", ""), word)
     return predicate
 
 
@@ -8600,12 +8603,13 @@ def team_magma_target(pokemon) -> bool:
 # --- Benching an Evolution as a Basic; Burn overrides -----------------------
 
 def card_named_any(names):
-    """Predicate: a card whose printed name contains one of `names`."""
-    lowered = [name.lower() for name in names]
+    """Predicate: a card whose printed name contains one of `names`, in either
+    spelling the corpus stores."""
+    from ptcgo.game.card_effects.pokemon import name_contains
 
     def predicate(card):
-        label = (getattr(def_for(card.archetype_id), "display_name", "") or "").lower()
-        return any(name in label for name in lowered)
+        label = getattr(def_for(card.archetype_id), "display_name", "") or ""
+        return any(name_contains(label, name) for name in names)
     return predicate
 
 

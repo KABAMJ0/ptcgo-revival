@@ -1,5 +1,7 @@
 """Behaviors for the Pokemon of the Lugia VSTAR and Mew VMAX archetype decks."""
 
+import re
+
 from ptcgo.game.attributes import (
     AttrID,
     CardType,
@@ -516,6 +518,42 @@ async def more_poison(ctx):
 
 def is_energy_card(card) -> bool:
     return card.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value
+
+
+_NAME_SEPARATORS = re.compile(r"[\s\-_.\u2019']+")
+
+
+def name_key(text) -> str:
+    """One key for a card name, whatever spelling it arrives in.
+
+    The corpus stores a DISPLAY name with separators ("Regirock ex",
+    "Dialga-EX", "Team Rocket's Articuno") and a LOGIC name without them
+    ("Regirockex", "DialgaEX"), and a lane reading the card writes whichever it
+    saw. Folding both sides to the same key means a printed name matches by
+    construction instead of by a lane remembering which field to quote.
+
+    Only separators are dropped: a symbol that carries meaning stays, so
+    "Regirock" and "Regirock ★" do not collide.
+    """
+    folded = (text or "")
+    # Symbols that distinguish one card from another survive the ascii fold by
+    # being spelled out; "Regirock" and "Regirock star" must not collide.
+    folded = (folded.replace("\u2605", "star").replace("\u25c7", "prism")
+              .replace("\u2605", "star"))
+    folded = (folded.replace("\u00e9", "e").replace("\u00c9", "E"))
+    folded = folded.encode("ascii", "ignore").decode().lower()
+    return _NAME_SEPARATORS.sub("", folded)
+
+
+def name_matches(candidate, wanted) -> bool:
+    """Whether `candidate` (a printed or logic name) IS `wanted`, either spelling."""
+    return name_key(candidate) == name_key(wanted)
+
+
+def name_contains(candidate, wanted) -> bool:
+    """Whether `candidate` CONTAINS `wanted`, either spelling."""
+    key = name_key(wanted)
+    return bool(key) and key in name_key(candidate)
 
 
 def is_level_up_subtype(subtype) -> bool:
