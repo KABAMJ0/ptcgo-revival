@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+
+
+async def raging_headbutt(ctx):
+    """Printed 10; on heads 10 more per damage counter on Snubbull."""
+    heads = await ctx.flip_coins(1, "Raging Headbutt")
+    if heads and heads[0]:
+        await ctx.deal_damage(10 + 10 * damage_counters_on("self")(ctx))
+    else:
+        await ctx.deal_damage(10)
+
 card = PokemonCardDef(
     guid="d88e0f67-c5ca-5bef-8284-426d3e9956c1",
     key="NEO3",
@@ -30,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=raging_headbutt,
         ),
     ],
 )

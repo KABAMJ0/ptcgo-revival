@@ -3,6 +3,16 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+
+async def stoke(ctx):
+    """Search the deck for a Fire Energy and attach it to Ho-Oh."""
+    await search_attach_energy(lambda card: energy_provides_type(card, PokemonTypes.FIRE.value),
+                               count=1, to_self=True, shuffle=True,
+                               prompt="Choose a Fire Energy to attach")(ctx)
+
 card = PokemonCardDef(
     guid="25ff4c77-b907-5811-912a-4281811ea431",
     key="NEO3",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             title="Stoke",
             game_text="You may search your deck for a Fire Energy card and attach it to Ho-Oh. Shuffle your deck afterward.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=stoke,
         ),
         Attack(
             title="Sacred Fire",

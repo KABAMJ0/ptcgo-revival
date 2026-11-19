@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def horn_swipe(ctx):
+    """Two coins: both heads pays 60, anything else the printed 20."""
+    flips = await ctx.flip_coins(2, "Horn Swipe")
+    if all(flips):
+        await ctx.deal_damage(60)
+    else:
+        await ctx.deal_damage(20)
+
 card = PokemonCardDef(
     guid="ab440bce-535c-5dad-a815-c1ba5fa2644d",
     key="NEO3",
@@ -34,7 +42,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=horn_swipe,
         ),
     ],
 )

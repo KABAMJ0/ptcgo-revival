@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def cross_attack(ctx):
+    """Four coins: 20 per heads, and Confused at 2 or more."""
+    flips = await ctx.flip_coins(4, "Cross Attack")
+    heads = sum(1 for flip in flips if flip)
+    if heads:
+        await ctx.deal_damage(20 * heads)
+    if heads >= 2:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+
 card = PokemonCardDef(
     guid="619a95eb-659d-5477-a8e4-fec142f22374",
     key="NEO3",
@@ -33,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=cross_attack,
         ),
     ],
 )

@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def rainbow_burn(ctx):
+    """Printed 30 plus 10 for each TYPE of basic Energy attached to Ho-Oh."""
+    types = set()
+    for energy in ctx.attached_energies(ctx.attacker):
+        if is_basic_energy_card(energy):
+            types.update(energy.get_attribute(AttrID.POKEMON_TYPES) or [])
+    await ctx.deal_damage(30 + 10 * len(types))
+
 card = PokemonCardDef(
     guid="2deff919-9ea6-5755-b211-f13c53158418",
     key="NEO3",
@@ -25,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=rainbow_burn,
         ),
     ],
 )

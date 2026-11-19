@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def toxic_saliva(ctx):
+    """On heads the Defending Pokemon is Poisoned for 20 a turn."""
+    heads = await ctx.flip_coins(1, "Toxic Saliva")
+    if heads and heads[0]:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED,
+                                          poison_counters=2)
+
 card = PokemonCardDef(
     guid="474a45d9-8c09-5324-a023-77bb0a9ca25d",
     key="NEO3",
@@ -27,7 +37,7 @@ card = PokemonCardDef(
             title="Toxic Saliva",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned. It now takes 20 Poison damage instead of 10 after each player's turn (even if it was already Poisoned).",
             cost={PokemonTypes.GRASS: 2},
-            effect=unimplemented,
+            effect=toxic_saliva,
         ),
     ],
 )

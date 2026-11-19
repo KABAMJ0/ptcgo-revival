@@ -2,6 +2,18 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def strange_dance(ctx):
+    """Printed 20; on heads 40 total and the Defending Pokemon Confused."""
+    heads = await ctx.flip_coins(1, "Strange Dance")
+    if heads and heads[0]:
+        await ctx.deal_damage(40)
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+    else:
+        await ctx.deal_damage(20)
+
 card = PokemonCardDef(
     guid="98b3da25-02eb-5f82-8ae1-e5ba3efeebac",
     key="NEO3",
@@ -31,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=strange_dance,
         ),
     ],
 )

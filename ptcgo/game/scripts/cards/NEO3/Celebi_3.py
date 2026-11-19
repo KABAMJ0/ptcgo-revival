@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def psychic_damage(ctx):
+    """Three coins: one damage counter on the Defending Pokemon per heads."""
+    flips = await ctx.flip_coins(3, "Psychic Damage")
+    heads = sum(1 for flip in flips if flip)
+    if heads:
+        await ctx.deal_damage(10 * heads)
+
 card = PokemonCardDef(
     guid="6b295de6-1d13-5c80-8bf5-c51d231e64f9",
     key="NEO3",
@@ -27,7 +34,7 @@ card = PokemonCardDef(
             title="Psychic Damage",
             game_text="Flip 3 coins. For each heads, put 1 damage counter on the Defending Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=psychic_damage,
         ),
     ],
 )

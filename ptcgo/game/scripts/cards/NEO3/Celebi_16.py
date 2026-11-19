@@ -1,6 +1,23 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+import math
+
+
+async def psychic_leaf(ctx):
+    """10 plus 10 per heads on one coin per Energy on the Defending Pokemon,
+    then heal half of the damage dealt (rounded up to a counter)."""
+    defender = ctx.defender
+    coins = len(ctx.attached_energies(defender)) if defender is not None else 0
+    heads = 0
+    if coins:
+        flips = await ctx.flip_coins(coins, "Psychic Leaf")
+        heads = sum(1 for flip in flips if flip)
+    dealt = await ctx.deal_damage(10 + 10 * heads)
+    if dealt > 0 and ctx.attacker is not None:
+        counters = math.ceil(math.ceil(dealt / 2) / 10)
+        await ctx.heal(10 * counters, ctx.attacker)
+
 card = PokemonCardDef(
     guid="7fa13428-a5f2-5cbd-8083-80a0f35d7b01",
     key="NEO3",
@@ -24,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=psychic_leaf,
         ),
     ],
 )

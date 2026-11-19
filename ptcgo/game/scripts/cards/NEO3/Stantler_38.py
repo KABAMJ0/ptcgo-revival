@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def overhead_toss(ctx):
+    """Printed 30; on tails 10 goes to one of your own Benched Pokemon."""
+    await ctx.deal_damage()
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    heads = await ctx.flip_coins(1, "Overhead Toss")
+    if heads and heads[0]:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose one of your Benched Pokemon")
+    if target is not None:
+        await ctx.deal_damage(10, target=target, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="4e86aa17-5532-5efe-b236-884817333c24",
     key="NEO3",
@@ -30,7 +43,7 @@ card = PokemonCardDef(
             game_text="If you have any Benched Pok\u00e9mon, flip a coin. If tails, this attack does 10 damage to 1 of them. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
-            effect=unimplemented,
+            effect=overhead_toss,
         ),
     ],
 )
