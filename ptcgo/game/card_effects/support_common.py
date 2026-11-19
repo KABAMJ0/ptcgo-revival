@@ -155,6 +155,27 @@ def search_attach_energy(predicate=is_energy, count=1, to_self=False,
     return effect
 
 
+def bare_mill(count: int = 3, opponent: bool = True, then=None, predicate=None):
+    """"Discard the top N cards of your opponent's deck" with no damage step,
+    for the ability and Trainer printings of the same wording (mill_attack is
+    the attack-side twin, which deals the printed damage first).
+
+    `then` runs after the discard and receives the milled cards; `predicate`
+    narrows what `then` sees (Energy among them) without changing what is
+    discarded."""
+    async def effect(ctx):
+        pid = ctx.opponent_id if opponent else ctx.player_id
+        milled = ctx.deck_top(count, player_id=pid)
+        if not milled:
+            return []
+        await ctx.discard_cards(milled)
+        if then is not None:
+            matches = [c for c in milled if predicate is None or predicate(c)]
+            await then(ctx, matches)
+        return milled
+    return effect
+
+
 def look_top_attach_energy(n, predicate=is_energy, rest="shuffle",
                            target_pred=None, distribute=True, minimum=0):
     """Look at the top `n` deck cards and attach the Energy you find there;
