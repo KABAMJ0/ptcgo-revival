@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="82fcf1da-1c63-56dc-8673-6b4d6e0a25ce",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Discard any Stadium card in play.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Dragon Trail",

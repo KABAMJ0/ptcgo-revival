@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="e45a4374-b08b-5bf7-aac3-f0193dc09c9f",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard any Stadium card in play.",
             cost={PokemonTypes.FIRE: 1},
             damage=60,
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Power Howl",
