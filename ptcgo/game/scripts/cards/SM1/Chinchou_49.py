@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _searching_light(ctx):
+    prizes = ctx.face_down_prize_cards()
+    if not prizes:
+        return
+    picks = await ctx.choose_cards(
+        prizes, 1, minimum=1,
+        prompt="Choose 1 of your face-down Prize cards to look at")
+    if picks:
+        await ctx.reveal_cards(picks, to_player=ctx.player_id)
+
+
 card = PokemonCardDef(
     guid="eadfb806-7ec6-564a-aaef-586e5c14d6ad",
     key="SM1",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             title="Searching Light",
             game_text="Look at 1 of your face-down Prize cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_searching_light,
         ),
         Attack(
             title="Electro Ball",

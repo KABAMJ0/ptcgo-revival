@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.passives_common import RetaliateCountersPassive, is_in_active_spot
+from ptcgo.game.card_effects.trainers import is_tool_card
+from ptcgo.game.session.passives import carrier_pokemon
+
+
+class CustomTrapPassive(RetaliateCountersPassive):
+    """Active, Tooled, and damaged by an opposing attack: 5 counters on the attacker."""
+
+    async def damage_interceptor(self, ctx, calc, target, carrier):
+        holder = carrier_pokemon(carrier) or carrier
+        if not is_in_active_spot(holder):
+            return None
+        if not any(is_tool_card(child) for child in holder.children):
+            return None
+        return await super().damage_interceptor(ctx, calc, target, carrier)
+
 
 card = PokemonCardDef(
     guid="6655fa33-9376-5519-98c1-af2f7f5b6dc4",
@@ -22,7 +38,7 @@ card = PokemonCardDef(
         Ability(
             title="Custom Trap",
             game_text="If this Pok\u00e9mon is in the Active Spot, has a Pok\u00e9mon Tool attached, and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), put 5 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=CustomTrapPassive(5),
         ),
         Attack(
             title="Rumble",

@@ -1,6 +1,12 @@
-from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+
+async def _search_the_premises(ctx):
+    await ctx.reveal_hand(ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="c364b179-6161-5260-b515-1f0ec606493e",
@@ -23,7 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Search the Premises",
             game_text="Once during your turn (before your attack), you may have your opponent reveal their hand.",
-            effect=unimplemented,
+            effect=_search_the_premises,
+            activation=Activations.ONCE_PER_TURN,
         ),
         Attack(
             title="Headbutt Bounce",

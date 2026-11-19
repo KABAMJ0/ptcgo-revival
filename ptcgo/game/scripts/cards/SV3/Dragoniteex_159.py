@@ -1,5 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate, lock_self_attack
+
+
+async def _meteor_heads(ctx):
+    await ctx.deal_damage((getattr(ctx.ability, "damage", 0) or 0) + 140)
+
+
+mighty_meteor = flip_gate(_meteor_heads, tails=lock_self_attack())
+
 
 card = PokemonCardDef(
     guid="2675c513-8b7e-5e42-902e-dbe98167690e",
@@ -29,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.LIGHTNING: 1},
             damage=140,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mighty_meteor,
         ),
     ],
 )
