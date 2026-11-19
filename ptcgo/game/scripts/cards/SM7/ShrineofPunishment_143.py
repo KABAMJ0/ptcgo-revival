@@ -14,7 +14,7 @@ card = StadiumCardDef(
     set_code="SM7",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="ShrineofPunishment_143",
+        title="Shrine of Punishment",
         trigger=Triggers.BETWEEN_TURNS,
         effect=counters_each_in_play(1, lambda p: has_pokemon_subtype(p, "GX", "EX", "ex")),
     )

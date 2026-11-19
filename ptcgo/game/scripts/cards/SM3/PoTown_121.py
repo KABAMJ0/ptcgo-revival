@@ -13,7 +13,7 @@ card = StadiumCardDef(
     set_code="SM3",
     rarity=Rarities.Uncommon,
     ability=Ability(
-        title="PoTown_121",
+        title="Po Town",
         trigger=Triggers.ON_EVOLVE,
         effect=trigger_counters(3),
     )

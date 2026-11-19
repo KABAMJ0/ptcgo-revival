@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, spread_damage
 
 card = PokemonCardDef(
     guid="40f27a35-fe70-5b44-b2d9-944ff93b240b",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Electriwave",
             game_text="This attack does 30 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=spread_damage(30, side="opponent"),
         ),
         Attack(
             title="Shock Wave",
