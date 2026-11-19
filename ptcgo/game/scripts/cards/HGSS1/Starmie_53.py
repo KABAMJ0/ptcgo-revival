@@ -1,20 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-async def _cosmic_cyclone(ctx):
-    waters = [energy for pokemon in ctx.my_pokemon_in_play()
-              for energy in ctx.attached_energies(pokemon)
-              if energy_provides_type(energy, PokemonTypes.WATER.value)]
-    picks = []
-    if waters:
-        picks = await ctx.choose_cards(
-            waters, len(waters), minimum=0,
-            prompt="Choose as many Water Energy attached to your Pokémon as you like")
-    if picks:
-        await ctx.shuffle_into_deck(picks)
-        await ctx.deal_damage(20 * len(picks))
-
-
 card = PokemonCardDef(
     guid="507a591a-042f-5de3-960a-03c3ff043ad0",
     key="HGSS1",

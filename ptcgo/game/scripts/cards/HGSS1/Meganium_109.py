@@ -1,5 +1,5 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 
 from ptcgo.game.card_effects.passives_common import unafflicted
 from ptcgo.game.card_effects.pokemon import energy_provides_type
