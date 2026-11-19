@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, smokescreen_attack
 
 card = PokemonCardDef(
     guid="7f1ce675-32a5-52a6-8113-0d91cac7ba87",
@@ -25,7 +26,8 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Poisoned. If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=smokescreen_attack(
+                also=condition_attack(SpecialConditions.POISONED, damage=0)),
         ),
         Attack(
             title="Hammer In",
