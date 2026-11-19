@@ -18,6 +18,7 @@ from ptcgo.game.attributes import (
     AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
     TrainerType,
 )
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
@@ -1565,6 +1566,24 @@ def bench_capacity_passive(limit: int = 4, protects="each",
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
     return BenchCapacityPassive(limit, protects, trim_to, mode)
+
+
+class TrainerPlayCostPassive(Passive):
+    """No Removal Gym: playing one of `names` costs `cost` OTHER hand cards."""
+
+    def __init__(self, cost=2, names=()):
+        self.cost = cost
+        self.names = tuple(n.strip().lower() for n in names)
+
+    def trainer_play_cost(self, card, player_id, carrier):
+        definition = def_for(getattr(card, "archetype_id", "") or "")
+        name = (getattr(definition, "display_name", "") or "").strip().lower()
+        return self.cost if name in self.names else 0
+
+
+def trainer_play_cost_passive(cost: int = 2, *names: str) -> Passive:
+    """`cost` other hand cards to play a card named in `names`."""
+    return TrainerPlayCostPassive(cost, names)
 
 
 class VoidsStadiumPlayPassive(Passive):

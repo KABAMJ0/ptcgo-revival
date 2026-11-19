@@ -130,7 +130,7 @@ from .passives import (
     burn_checkup_counters, burn_recovery_blocked, burn_recovery_suppressed,
     carrier_pokemon,
     stadium_face, stadium_play_voided,
-    bench_trim_area, sleep_recovery_coins,
+    bench_trim_area, sleep_recovery_coins, trainer_play_cost,
     effective_bench_capacity, effective_max_hp,
     conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
     retreat_flips,
@@ -5236,6 +5236,11 @@ class GameSession:
         discard_area = self.board_state.find_player_area(player_id, "discard")
         if not trainer_area or not discard_area:
             return False
+        # "Discard 2 of the other cards in your hand in order to play this
+        # card" is paid BEFORE the card leaves the hand, so a declined or
+        # impossible cost cancels the play and leaves the card in hand.
+        if not await self._pay_trainer_play_cost(player_id, card):
+            return False
         if not self.board_state.move_card(card.entity_id, trainer_area.entity_id):
             return False
         card.owning_player_id = player_id  # global area move clears the owner
@@ -5468,6 +5473,34 @@ class GameSession:
         await self.fire_move_to_active_triggers(new_active)
         # An Active-spot change can flip suppression passives (Tool Jammer).
         await self.resync_effective_max_hp()
+
+    async def _pay_trainer_play_cost(self, player_id, card) -> bool:
+        """Discards the trainer's play cost (its printed `play_cost` plus any a
+        passive charges) from the hand; False cancels the play."""
+        cost = trainer_play_cost(self.board_state, card, player_id)
+        if not cost:
+            return True
+        hand = self.board_state.find_player_area(player_id, "hand")
+        others = [c for c in (hand.children if hand else []) if c is not card]
+        if len(others) < cost:
+            logging.info(
+                f"[Session {self.game_id}] {card.entity_id} not played: "
+                f"{cost} other hand cards are required."
+            )
+            return False
+        ctx = EffectContext(self, player_id, card, None)
+        picks = await ctx.choose_cards(
+            others, cost, minimum=cost,
+            prompt="Choose cards to discard as this card's play cost")
+        if len(picks) < cost:
+            logging.info(
+                f"[Session {self.game_id}] {card.entity_id} not played: "
+                f"the play cost was declined."
+            )
+            return False
+        await ctx.discard_cards(picks)
+        await self._flush_effect_runs(ctx)
+        return True
 
     async def _void_stadium_play(self, player_id, card, existing):
         """Chaotic Swell: the Stadium being played and the one in play are both

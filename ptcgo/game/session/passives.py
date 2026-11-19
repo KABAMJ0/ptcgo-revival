@@ -511,6 +511,12 @@ class Passive:
         its owner's hand (Pokemon Tower)."""
         return False
 
+    def trainer_play_cost(self, card: BoardEntity, player_id: str,
+                          carrier: BoardEntity) -> int:
+        """Extra OTHER hand cards `player_id` must discard to play `card`
+        (No Removal Gym charges 2 for an Energy Removal); 0 = no opinion."""
+        return 0
+
     def voids_stadium_play(self, carrier: BoardEntity) -> bool:
         """True to discard any Stadium played while this one is in play, and
         this one with it ("the new Stadium card has no effect", Chaotic Swell)."""
@@ -1412,6 +1418,17 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     for rewrite in (getattr(board, "energy_type_overrides", None) or []):
         options = rewrite.apply(options, energy, holder, board)
     return options
+
+
+def trainer_play_cost(board: BoardState, card: BoardEntity, player_id: str) -> int:
+    """Total other-hand-cards cost of playing `card`: its printed `play_cost`
+    plus whatever a passive in play charges (No Removal Gym)."""
+    printed = int(getattr(def_for(getattr(card, "archetype_id", "") or ""),
+                          "play_cost", 0) or 0)
+    extra = 0
+    for passive, carrier in active_passives(board):
+        extra += passive.trainer_play_cost(card, player_id, carrier)
+    return printed + extra
 
 
 def stadium_play_voided(board: BoardState) -> bool:

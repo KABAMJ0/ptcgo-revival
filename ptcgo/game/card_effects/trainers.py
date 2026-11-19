@@ -2289,6 +2289,24 @@ def heal_all_own_discard_energy():
     return effect
 
 
+def temp_attack_boost_for_named(name: str, amount: int, damage=None):
+    """"If this turn's attack does damage to the Defending Pokemon and the
+    attacking Pokemon has <name> in its name, that attack does N more damage"
+    (Misty, Blaine, Lt. Surge supporters): a turn-scoped boost gated on the
+    attacker's printed name, applied before Weakness and Resistance."""
+    wanted = name.strip().lower()
+
+    def _is_named(attacker) -> bool:
+        definition = def_for(getattr(attacker, "archetype_id", "") or "")
+        return wanted in (getattr(definition, "display_name", "") or "").lower()
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        ctx.add_turn_damage_modifier(
+            TurnDamageModifier(amount, ctx.player_id, source_predicate=_is_named))
+    return effect
+
+
 def discard_tools(count: int = 1, sides: str = "any"):
     """Discard up to `count` Pokemon Tools attached to Pokemon in play."""
     async def effect(ctx):

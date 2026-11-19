@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    trainer_play_cost,
     attacks_blocked,
     plays_blocked,
     trainer_play_blocked,
@@ -642,6 +643,14 @@ def _active_immobilized(board: BoardState, player_id: str) -> bool:
     return any(c in _IMMOBILIZING_CONDITIONS for c in (conditions or []))
 
 
+def _other_hand_cards(board, player_id: str, card) -> int:
+    """Hand cards other than `card` itself -- what a play cost may discard."""
+    hand = board.find_player_area(player_id, "hand")
+    if hand is None:
+        return 0
+    return sum(1 for child in hand.children if child is not card)
+
+
 def trainer_play_target_ids(board: BoardState, player_id: str, card) -> Optional[List[str]]:
     """Returns declared play targets, or None for a trainer without targeting."""
     selector = getattr(def_for(card.archetype_id), "play_targets", None)
@@ -760,6 +769,12 @@ def compute_legal_actions(
             condition = getattr(definition, "condition", None)
             if condition is not None \
                     and not trainer_condition_met(condition, board, player_id, card):
+                continue
+            # "Discard 2 of the other cards in your hand in order to play this
+            # card" (Misty), and No Removal Gym's charge: the cost is a
+            # playability rule, so it must gate the offer, not fail later.
+            cost = trainer_play_cost(board, card, player_id)
+            if cost and _other_hand_cards(board, player_id, card) < cost:
                 continue
             target_infos = []
             if trainer_type in (TrainerType.ITEM.value, TrainerType.SUPPORTER.value):
