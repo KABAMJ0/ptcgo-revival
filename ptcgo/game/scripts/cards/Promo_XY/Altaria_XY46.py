@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_weakness_passive, team_of_types
 
 card = PokemonCardDef(
     guid="903b9ed1-c952-50cd-bd58-6f4ba05ea94e",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Clear Humming",
             game_text="Each of your Colorless Pok\u00e9mon has no Weakness.",
-            effect=unimplemented,
+            passive=no_weakness_passive(team_of_types(PokemonTypes.COLORLESS)),
         ),
         Attack(
             title="Wing Attack",

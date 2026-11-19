@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+
+class NervousSeedPassive(Passive):
+    """While the carrier is Active, the opponent's Basic Pokemon pay [C] more."""
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        if not is_in_active_spot(carrier_pokemon(carrier)):
+            return cost
+        if PokemonStage.BASIC.value != pokemon.get_attribute(AttrID.STAGE):
+            return cost
+        cost["Colorless"] = cost.get("Colorless", 0) + 1
+        return cost
+
 
 card = PokemonCardDef(
     guid="baf35887-60cc-54de-a627-a4518ab295a1",
@@ -24,7 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Nervous Seed",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, the attacks of your opponent's Basic Pok\u00e9mon cost Colorless more.",
-            effect=unimplemented,
+            passive=NervousSeedPassive(),
         ),
         Attack(
             title="Energy Press",

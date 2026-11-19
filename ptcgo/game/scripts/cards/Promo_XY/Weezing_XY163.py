@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import smokescreen_attack
+from ptcgo.game.card_effects.passives_common import retreat_free_when
+
+def _has_any_energy(pokemon, carrier=None):
+    return bool(getattr(pokemon, "children", None))
+
 
 card = PokemonCardDef(
     guid="ba7a314d-c204-56b4-813b-ceb8dd24e5aa",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Levitate",
             game_text="If this Pok\u00e9mon has any Energy attached to it, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=retreat_free_when(_has_any_energy),
         ),
         Attack(
             title="Smokescreen",

@@ -1,6 +1,15 @@
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+def _basic_energy_card(card):
+    """Basic Energy as printed on a DECK card (IS_SPECIAL_ENERGY is only set on
+    attached cards, so `passives.is_basic_energy` matches every deck card)."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+    return is_energy_card(card) and not bool(card.get_attribute(AttrID.IS_SPECIAL_ENERGY))
+
 
 card = PokemonCardDef(
     guid="fbddc2d6-c841-51ff-8dec-0ad754620a9a",
@@ -23,7 +32,7 @@ card = PokemonCardDef(
             title="Stoke",
             game_text="Flip a coin. If heads, search your deck for up to 3 basic Energy cards and attach them to this Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=search_attach_energy(_basic_energy_card, 3, to_self=True)),
         ),
         Attack(
             title="Fire Blast",

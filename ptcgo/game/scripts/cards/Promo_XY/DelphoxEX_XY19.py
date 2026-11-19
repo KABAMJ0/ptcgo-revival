@@ -2,6 +2,14 @@ from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
+async def wonder_flare(ctx):
+    """Reveal the opponent's hand; 10 plus 40 for each Energy card in it."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+    cards = await ctx.reveal_hand(ctx.opponent_id)
+    energies = sum(1 for c in (cards or []) if is_energy_card(c))
+    await ctx.deal_damage(10 + 40 * energies)
+
+
 card = PokemonCardDef(
     guid="cd1814d1-80df-579c-bdb8-ec6a06e6649a",
     key="Promo_XY",
@@ -32,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 3},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=wonder_flare,
         ),
     ],
 )

@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
+from ptcgo.game.card_effects.attacks_common import bonus_if, named_in_play
 
 card = PokemonCardDef(
     guid="b6757a74-b697-5942-97b3-2a8332d6e9b8",
@@ -34,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(named_in_play("Yveltal", "Yveltal-EX", side="opponent"), 40),
         ),
     ],
 )

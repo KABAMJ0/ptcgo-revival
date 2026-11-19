@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
+from ptcgo.game.attributes import AttrID
+
+def _is_supporter(card):
+    from ptcgo.game.attributes import TrainerType
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.SUPPORTER.value
+
 
 card = PokemonCardDef(
     guid="dc3b0497-ca9f-5024-bde8-22cb8261f109",
@@ -31,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 5},
             damage=150,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_scaled_damage(2, 50, pred=_is_supporter, base=150),
         ),
     ],
 )

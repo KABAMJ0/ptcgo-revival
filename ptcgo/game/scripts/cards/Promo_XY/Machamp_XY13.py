@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+
+def _is_fighting(pokemon):
+    return PokemonTypes.FIGHTING.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
 
 card = PokemonCardDef(
     guid="41d95f3a-d491-5287-b9f7-e2464dcbc0eb",
@@ -23,7 +28,7 @@ card = PokemonCardDef(
         Ability(
             title="Fighting Fury",
             game_text="Each of your Fighting Pok\u00e9mon's attacks do 20 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(20, attacker_pred=_is_fighting),
         ),
         Attack(
             title="Machamp Crush",
