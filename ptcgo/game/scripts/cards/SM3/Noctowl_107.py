@@ -1,6 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.session.effects import is_pokemon_card
+
+
+async def night_raid(ctx):
+    """Printed 70; the opponent reveals their hand and you discard a Pokemon
+    from it."""
+    await ctx.deal_damage()
+    await ctx.reveal_hand(ctx.opponent_id)
+    candidates = [card for card in ctx.hand(ctx.opponent_id)
+                  if is_pokemon_card(card)]
+    if not candidates:
+        return
+    picked = await ctx.choose_cards(
+        candidates, 1,
+        prompt="Choose a Pokémon to discard from your opponent's hand")
+    if picked:
+        await ctx.discard_cards(picked)
+
 
 card = PokemonCardDef(
     guid="6199f889-ea93-5a60-99e3-7fac205e3a87",
@@ -33,7 +51,7 @@ card = PokemonCardDef(
             game_text="Your opponent reveals their hand. Discard a Pok\u00e9mon from it.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
-            effect=unimplemented,
+            effect=night_raid,
         ),
     ],
 )

@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def small_appetite(ctx):
+    """Printed 50, but nothing at all once the Defending Pokemon's maximum HP
+    is 100 or more."""
+    defender = ctx.defender
+    if defender is None or ctx.max_hp(defender) >= 100:
+        return
+    await ctx.deal_damage()
+
+
 card = PokemonCardDef(
     guid="71a8385f-185a-50c2-a839-514416507464",
     key="SM3",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon's maximum HP is 100 or more, this attack does nothing.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=small_appetite,
         ),
     ],
 )

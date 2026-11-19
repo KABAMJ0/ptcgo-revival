@@ -1,6 +1,27 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Activations, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.session.effects import is_basic_pokemon
+
+
+async def dark_invitation(ctx):
+    """Reveal the opponent's hand; put a Basic Pokemon found there onto their
+    Bench and put 3 damage counters on it."""
+    await ctx.reveal_hand(ctx.opponent_id)
+    candidates = [card for card in ctx.hand(ctx.opponent_id)
+                  if is_basic_pokemon(card)]
+    if not candidates:
+        return
+    picked = await ctx.choose_cards(
+        candidates, 1,
+        prompt="Choose a Basic Pokémon to put onto your opponent's Bench")
+    if not picked:
+        return
+    if await ctx.bench_pokemon(picked[0]):
+        await ctx.deal_damage(30, target=picked[0], as_counters=True)
+
 
 card = PokemonCardDef(
     guid="8b6e244b-ee14-5836-9485-12ab40973510",
@@ -24,7 +45,8 @@ card = PokemonCardDef(
         Ability(
             title="Dark Invitation",
             game_text="Once during your turn (before your attack), you may have your opponent reveal their hand. Put a Basic Pok\u00e9mon you find there onto your opponent's Bench, and put 3 damage counters on that Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=dark_invitation,
         ),
         Attack(
             title="Mind Jack",

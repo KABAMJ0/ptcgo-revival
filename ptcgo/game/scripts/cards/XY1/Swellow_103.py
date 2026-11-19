@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Drive Off",
             game_text="Once during your turn (before your attack), you may have your opponent switch his or her Active Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=gust_attack(damage_before=0, opponent_chooses=True),
         ),
         Attack(
             title="Wing Attack",

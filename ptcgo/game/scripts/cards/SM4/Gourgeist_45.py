@@ -2,6 +2,22 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+async def pumpkin_bomb(ctx):
+    """Before damage, discard any number of your Pokemon Tools; +40 damage
+    for each card discarded in this way."""
+    my_tools = [tool for tool, pokemon in ctx.tools_in_play()
+                if pokemon.owning_player_id == ctx.player_id]
+    picks = []
+    if my_tools:
+        picks = await ctx.choose_cards(
+            my_tools, len(my_tools), minimum=0,
+            prompt="Discard any number of Pokémon Tool cards from your Pokémon.")
+    if picks:
+        await ctx.discard_cards(picks)
+    await ctx.deal_damage(10 + 40 * len(picks))
+
+
 card = PokemonCardDef(
     guid="e58868fc-d6e2-54a5-9400-f9cfc65352c3",
     key="SM4",
@@ -33,7 +49,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=pumpkin_bomb,
         ),
     ],
 )

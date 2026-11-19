@@ -1,6 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class SurgeSurferPassive(Passive):
+    """No Retreat Cost while any Stadium card is in play."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier_pokemon(carrier):
+            return cost
+        slot = board.find_global_area("activeStadium") if board is not None else None
+        return 0 if (slot is not None and slot.children) else cost
+
 
 card = PokemonCardDef(
     guid="74e1deec-4fcc-5b78-8eee-005592c591a2",
@@ -24,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Surge Surfer",
             game_text="If there is any Stadium card in play, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=SurgeSurferPassive(),
         ),
         Attack(
             title="Psychic",

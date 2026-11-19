@@ -1,6 +1,33 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage_condition
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+async def dance_of_flames(ctx):
+    """Attach one Fire Energy from your discard pile to your Pokemon for each
+    Energy attached to the opponent's Pokemon, placed as you like."""
+    count = sum(len(ctx.attached_energies(p))
+                for p in ctx.opponent_pokemon_in_play())
+    fire = [card for card in ctx.discard_pile()
+            if is_energy_card(card)
+            and energy_provides_type(card, PokemonTypes.FIRE.value)]
+    for _ in range(min(count, len(fire))):
+        picks = await ctx.choose_cards(
+            fire, 1, prompt="Choose a Fire Energy card to attach")
+        if not picks:
+            return
+        card = picks[0]
+        fire.remove(card)
+        targets = ctx.my_pokemon_in_play()
+        if not targets:
+            return
+        target = targets[0] if len(targets) == 1 else await ctx.choose_pokemon(
+            targets, "Choose a Pokémon to attach the Energy to")
+        if target is None:
+            return
+        await ctx.attach_energy(card, target)
+
 
 card = PokemonCardDef(
     guid="94a6977f-b587-570d-9014-692268f1958a",
@@ -24,7 +51,7 @@ card = PokemonCardDef(
             title="Dance of Flames",
             game_text="For each Energy attached to your opponent's Pok\u00e9mon, attach a Fire Energy card from your discard pile to your Pok\u00e9mon in any way you like.",
             cost={},
-            effect=unimplemented,
+            effect=dance_of_flames,
         ),
         Attack(
             title="Burning Bonemerang",

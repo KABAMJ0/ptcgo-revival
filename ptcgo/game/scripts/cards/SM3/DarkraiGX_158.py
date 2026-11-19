@@ -1,6 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Activations, unimplemented,
+)
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import (
+    attach_from_discard, requires_bench_space,
+)
+
+
+def _darkness_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.DARKNESS.value)
+
+
+async def restoration(ctx):
+    """From the discard pile onto your Bench, then attach a Darkness Energy
+    card from the discard pile to it."""
+    if not await ctx.ask_yes_no("Put this Pokémon onto your Bench?"):
+        return
+    if not await ctx.bench_pokemon(ctx.source):
+        return
+    await attach_from_discard(_darkness_energy, count=1, target="self",
+                              minimum=0)(ctx)
+
 
 card = PokemonCardDef(
     guid="693b1852-448e-5261-b632-de7838bde5b0",
@@ -23,7 +45,10 @@ card = PokemonCardDef(
         Ability(
             title="Restoration",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is in your discard pile, you may put it onto your Bench. Then, attach a Darkness Energy card from your discard pile to this Pok\u00e9mon.",
-            effect=unimplemented,
+            usable_from="discard",
+            activation=Activations.ONCE_PER_TURN,
+            condition=requires_bench_space(1),
+            effect=restoration,
         ),
         Attack(
             title="Dark Cleave",

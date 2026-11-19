@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import (
+    no_retreat_attack, optional_bonus_self_damage,
+)
+
 
 card = PokemonCardDef(
     guid="777a997d-8d32-5836-a93c-411be07adeb9",
@@ -34,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=optional_bonus_self_damage(80, 80, base=80),
         ),
     ],
 )

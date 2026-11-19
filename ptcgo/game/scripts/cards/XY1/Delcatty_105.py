@@ -1,6 +1,30 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+async def _energy_salon(ctx):
+    """Search the deck for 3 basic Energy of different types."""
+    chosen = []
+    types_taken = set()
+    for _ in range(3):
+        def _pick(card):
+            if not is_basic_energy_card(card):
+                return False
+            types = set(card.get_attribute(AttrID.POKEMON_TYPES) or [])
+            return not (types & types_taken)
+        picks = await ctx.search_deck(_pick, count=1, minimum=0,
+                                      prompt="Choose a basic Energy of a new type")
+        if not picks:
+            break
+        card = picks[0]
+        types_taken |= set(card.get_attribute(AttrID.POKEMON_TYPES) or [])
+        chosen.append(card)
+    if chosen:
+        await ctx.put_in_hand(chosen, reveal=True)
+    await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="29471471-558b-59b3-a8f0-ddca55de7496",
@@ -24,7 +48,7 @@ card = PokemonCardDef(
             title="Energy Salon",
             game_text="Search your deck for 3 different types of basic Energy cards, reveal them, and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_energy_salon,
         ),
         Attack(
             title="Fake Out",

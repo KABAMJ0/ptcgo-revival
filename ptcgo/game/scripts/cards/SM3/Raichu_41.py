@@ -1,6 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.data_utils import (
+    PokemonCardDef, Attack, Ability, Triggers, unimplemented,
+)
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.card_effects.attacks_common import on_evolve, recoil_attack
+
+
+async def evoshock(ctx):
+    """Paralyze the opponent's Active when this Pokemon is played to evolve."""
+    if ctx.defender is not None:
+        await ctx.apply_special_condition(ctx.defender,
+                                          SpecialConditions.PARALYZED)
+
 
 card = PokemonCardDef(
     guid="e6b4a56f-3b6d-5226-a429-5103760b5a68",
@@ -24,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Evoshock",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may leave your opponent's Active Pok\u00e9mon Paralyzed.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(evoshock),
         ),
         Attack(
             title="Volt Tackle",

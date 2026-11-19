@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import full_stack
+
+
+async def tlc(ctx):
+    """Shuffle 1 of the opponent's damaged Benched Pokemon, with everything
+    attached to it, into their deck."""
+    damaged = [p for p in ctx.opponent_bench()
+               if ctx.max_hp(p) - p.get_attribute(AttrID.HP, 0) > 0]
+    if not damaged:
+        return
+    target = damaged[0] if len(damaged) == 1 else await ctx.choose_pokemon(
+        damaged, "Choose a Benched Pokémon to shuffle into their deck")
+    if target is not None:
+        await ctx.shuffle_into_deck(full_stack(target), ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="9994afde-cdf6-578a-960c-72acaefd928e",
@@ -24,7 +39,7 @@ card = PokemonCardDef(
             title="TLC",
             game_text="Shuffle 1 of your opponent's Benched Pok\u00e9mon that has any damage counters on it and all cards attached to it into their deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=tlc,
         ),
         Attack(
             title="Ocean Cyclone",

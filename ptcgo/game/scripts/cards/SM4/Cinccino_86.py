@@ -1,6 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def amazing_plea(ctx):
+    """Choose 2 cards from your discard pile; the opponent may allow them into
+    your hand, and if they refuse the attack does 80 to their Active."""
+    pile = list(ctx.discard_pile())
+    picks = []
+    if pile:
+        picks = await ctx.choose_cards(
+            pile, min(2, len(pile)),
+            prompt="Choose 2 cards from your discard pile")
+    allowed = picks and await ctx.ask_opponent(
+        "May your opponent put those cards into their hand?", ["Yes", "No"]) == 0
+    if allowed:
+        await ctx.put_in_hand(picks)
+    else:
+        await ctx.deal_damage(80)
+
+
 card = PokemonCardDef(
     guid="4c0be209-e950-5f34-bbbd-59ee46dda1eb",
     key="SM4",
@@ -23,7 +41,7 @@ card = PokemonCardDef(
             title="Amazing Plea",
             game_text="Choose 2 cards from your discard pile. Then, ask your opponent if you may put them into your hand. If yes, put those cards into your hand. If no, this attack does 80 damage to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=amazing_plea,
         ),
     ],
 )

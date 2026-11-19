@@ -2,8 +2,16 @@ from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.passives_common import pokemon_named
+
+
+async def iron_hand(ctx):
+    """Printed damage; heal 30 from this Pokemon if Regice is on your Bench."""
+    await ctx.deal_damage()
+    is_regice = pokemon_named("Regice")
+    if any(is_regice(p) for p in ctx.my_bench()):
+        await ctx.heal(30, target=ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="770305d0-f68a-5b31-b8f8-225758034d84",
@@ -35,7 +43,7 @@ card = PokemonCardDef(
             game_text="If Regice is on your Bench, heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=iron_hand,
         ),
     ],
 )

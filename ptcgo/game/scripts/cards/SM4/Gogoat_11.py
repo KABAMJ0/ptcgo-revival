@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import pokemon_of_types, typed_damage_boost_tool
 
 card = PokemonCardDef(
     guid="3e940188-dae2-5a82-9e4a-ddb4baea2efb",
@@ -23,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Sap Sipper",
             game_text="This Pok\u00e9mon's attacks do 80 more damage to your opponent's Grass Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=typed_damage_boost_tool(
+                pokemon_of_types(PokemonTypes.GRASS.value), 80,
+                to_active_only=False),
         ),
         Attack(
             title="Horn Leech",

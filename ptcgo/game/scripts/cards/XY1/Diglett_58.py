@@ -1,6 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _mine(ctx):
+    """Look at the top card of their deck, then they may shuffle."""
+    await ctx.reveal_top(1)
+
+
 card = PokemonCardDef(
     guid="69167ea7-b5cc-5c28-8809-c8b1e50242f5",
     key="XY1",
@@ -22,7 +27,7 @@ card = PokemonCardDef(
             title="Mine",
             game_text="Look at the top card of your opponent's deck. Then, you may have your opponent shuffle his or her deck.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=_mine,
         ),
         Attack(
             title="Mud-Slap",

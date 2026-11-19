@@ -1,5 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class _WimpOutPassive(Passive):
+    """"During your first turn, this Pokemon has no Retreat Cost."
+
+    Turn 1 and turn 2 of `turn_number` ARE each player's first turn (the
+    counter advances once per player turn), so the pair covers the owner's."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        state = getattr(board, "turn_state", None)
+        if carrier_pokemon(carrier) is not pokemon or state is None \
+                or state.turn_number > 2:
+            return cost
+        return 0
+
+
 
 card = PokemonCardDef(
     guid="1fbf863b-a548-5f10-8842-9db1e4b33afc",
@@ -21,7 +38,7 @@ card = PokemonCardDef(
         Ability(
             title="Wimp Out",
             game_text="During your first turn, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=_WimpOutPassive(),
         ),
         Attack(
             title="Gnaw",

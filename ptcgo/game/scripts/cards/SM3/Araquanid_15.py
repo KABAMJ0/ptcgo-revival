@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def bubble_net(ctx):
+    """Printed 30; Energy can't be attached to the Defending Pokemon from the
+    opponent's hand during their next turn."""
+    await ctx.deal_damage()
+    if ctx.defender is not None:
+        ctx.restrict_attachments(ctx.defender)
+
+
+
 card = PokemonCardDef(
     guid="30ac4bdd-8d63-5f9b-9ce9-69d818a76a10",
     key="SM3",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             game_text="Energy can't be attached to the Defending Pok\u00e9mon from your opponent's hand during their next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=bubble_net,
         ),
         Attack(
             title="Sharp Fang",

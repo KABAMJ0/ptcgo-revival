@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import (
+    apply_protection, attacker_is_basic,
+)
+
+
+async def quick_guard(ctx):
+    """Prevent all damage from Basic attackers through the opponent's next
+    turn; Quick Guard itself is locked for its user's next turn."""
+    await apply_protection(ctx, prevent=True, attacker_pred=attacker_is_basic())
+    attacker = ctx.attacker
+    ability_id = getattr(ctx.ability, "ability_id", None)
+    if attacker is not None and ability_id:
+        ctx.session.turn_state.lock_attack(attacker.entity_id, ability_id)
+
 
 card = PokemonCardDef(
     guid="1834d977-16a9-5458-aaa4-cbdafeb1cd89",
@@ -23,7 +37,7 @@ card = PokemonCardDef(
             title="Quick Guard",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from Basic Pok\u00e9mon during your opponent's next turn. This Pok\u00e9mon can't use Quick Guard during your next turn.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=quick_guard,
         ),
         Attack(
             title="Brick Break",

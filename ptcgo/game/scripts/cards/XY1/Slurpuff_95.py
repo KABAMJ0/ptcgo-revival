@@ -1,7 +1,17 @@
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.models.board import BoardState
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+
+def _fairy_fed(target, carrier):
+    if target is None or target.owning_player_id != carrier.owning_player_id:
+        return False
+    return any(energy_provides_type(e, PokemonTypes.FAIRY.value)
+               for e in BoardState.attached_energies(target))
+
 
 card = PokemonCardDef(
     guid="f891eabf-094e-5418-9f15-16735bcc9c9c",
@@ -24,6 +34,7 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Sweet Veil",
+            passive=condition_immunity_passive(None, protects=_fairy_fed),
             game_text="Each of your Pok\u00e9mon that has any Fairy Energy attached to it can't be affected by any Special Conditions. (Remove any Special Conditions affecting those Pok\u00e9mon.)",
             effect=unimplemented,
         ),

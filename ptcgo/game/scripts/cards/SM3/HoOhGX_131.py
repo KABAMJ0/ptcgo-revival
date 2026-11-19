@@ -1,6 +1,31 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.pokemon import is_pokemon_EX, is_pokemon_gx
+
+
+def _fire_gx_or_ex(card) -> bool:
+    """A Fire Pokemon-GX or Pokemon-EX (the BW/XY spelling) in the discard."""
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return PokemonTypes.FIRE.value in types \
+        and (is_pokemon_gx(card) or is_pokemon_EX(card))
+
+
+async def eternal_flame_gx(ctx):
+    """Put up to 3 Fire Pokemon-GX/EX from the discard pile onto your Bench,
+    in any combination."""
+    pool = [card for card in ctx.discard_pile(ctx.player_id)
+            if _fire_gx_or_ex(card)]
+    free = ctx.bench_limit() - len(ctx.my_bench())
+    if not pool or free <= 0:
+        return
+    picks = await ctx.choose_cards(
+        pool, min(3, free), minimum=0,
+        prompt="Choose Fire Pokémon-GX or Pokémon-EX to put onto your Bench")
+    for card in picks:
+        await ctx.bench_pokemon(card)
+
 
 card = PokemonCardDef(
     guid="d192839d-843c-5e19-885c-c1ade1dc4e4a",
@@ -37,7 +62,7 @@ card = PokemonCardDef(
             title="Eternal Flame-GX",
             game_text="Put 3 in any combination of Fire Pok\u00e9mon-GX or Fire Pok\u00e9mon-EX from your discard pile onto your Bench. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=eternal_flame_gx,
         ),
     ],
 )

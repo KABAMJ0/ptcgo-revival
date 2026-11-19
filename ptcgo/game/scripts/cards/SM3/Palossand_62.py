@@ -1,6 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.session.effects import full_stack
+
+
+async def dust_storm(ctx):
+    """Printed 100; then both Active Pokemon and everything attached to them
+    are discarded (not a Knock Out, so no Prizes)."""
+    await ctx.deal_damage()
+    for active in (ctx.opponent_active(), ctx.my_active()):
+        if active is not None:
+            await ctx.discard_cards(full_stack(active))
+
 
 card = PokemonCardDef(
     guid="c5910b01-23f0-5b6b-bce6-689daac40dba",
@@ -33,7 +44,7 @@ card = PokemonCardDef(
             game_text="Discard all cards from both Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=100,
-            effect=unimplemented,
+            effect=dust_storm,
         ),
     ],
 )

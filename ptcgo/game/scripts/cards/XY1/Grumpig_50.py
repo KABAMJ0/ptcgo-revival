@@ -1,6 +1,27 @@
+from ptcgo.game.card_effects.support_common import move_energy_between
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+async def _tricky_steps(ctx):
+    """Printed 30; you may move an Energy off their Active onto their Bench."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    bench = ctx.opponent_bench()
+    if defender is None or not bench or ctx.effects_blocked(defender):
+        return
+    energies = list(ctx.attached_energies(defender))
+    if not energies:
+        return
+    picked = await ctx.choose_cards(energies, 1, minimum=0,
+                                    prompt="Move an Energy to their Bench?")
+    if not picked:
+        return
+    target = bench[0] if len(bench) == 1 else await ctx.choose_pokemon(
+        bench, "Choose one of their Benched Pok\u00e9mon")
+    if target is not None:
+        await ctx.move_energy(picked[0], target)
+
 
 card = PokemonCardDef(
     guid="6e03e962-4370-56e9-b557-4962cddaeadc",
@@ -25,7 +46,7 @@ card = PokemonCardDef(
             game_text="You may move an Energy attached to your opponent's Active Pok\u00e9mon to 1 of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=_tricky_steps,
         ),
         Attack(
             title="Psybeam",

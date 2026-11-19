@@ -1,5 +1,12 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _fairy_energy(energy):
+    return energy_provides_type(energy, PokemonTypes.FAIRY.value)
+
 
 card = PokemonCardDef(
     guid="7bb23cd9-d13c-5697-ab1a-cc339c572665",
@@ -23,7 +30,9 @@ card = PokemonCardDef(
         Ability(
             title="Fairy Transfer",
             game_text="As often as you like during your turn (before your attack), you may move a Fairy Energy attached to 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=can_move_energy(_fairy_energy),
+            effect=move_energy_between(_fairy_energy, count=1),
         ),
         Attack(
             title="Fairy Wind",
