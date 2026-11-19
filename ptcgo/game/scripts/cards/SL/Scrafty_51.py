@@ -1,3 +1,5 @@
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(is_basic_pokemon), 50),
         ),
         Attack(
             title="Hammer In",

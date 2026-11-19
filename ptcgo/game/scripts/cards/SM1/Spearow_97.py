@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+def _spearow_is_type(pokemon):
+    return PokemonTypes.GRASS.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="c0658fc3-69be-51a6-a258-bcc4eb2b4e53",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(_spearow_is_type), 30),
         ),
     ],
 )

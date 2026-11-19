@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import active_is, bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+def _meltan_is_type(pokemon):
+    return PokemonTypes.METAL.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
 
 card = PokemonCardDef(
     guid="358eedf0-3098-564b-97df-18cea3744e66",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(active_is(_meltan_is_type), 40),
         ),
     ],
 )

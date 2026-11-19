@@ -10,6 +10,12 @@ async def _innards_out(ctx):
         await ctx.deal_damage(60, target=attacker, apply_modifiers=False,
                               as_counters=True)
 
+async def _innards_out_counters(ctx):
+    attacker = ctx.ko_attacker
+    if attacker is not None:
+        await ctx.place_damage_counters(6, [attacker])
+
+
 card = PokemonCardDef(
     guid="58d01e93-4c99-57a6-981c-7b40618d2cbe",
     key="SM1",
@@ -31,7 +37,7 @@ card = PokemonCardDef(
             title="Innards Out",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, put 6 damage counters on the Attacking Pok\u00e9mon.",
             trigger=Triggers.ON_KNOCKED_OUT,
-            effect=on_ko_from_attack(_innards_out),
+            effect=on_ko_from_attack(_innards_out_counters),
         ),
         Attack(
             title="Continuous Tumble",
