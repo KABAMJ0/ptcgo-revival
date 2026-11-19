@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import discard_random_hand_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="840550b0-0ce3-5696-96f4-cd552bc182d7",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=160,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(count=1),
         ),
     ],
 )

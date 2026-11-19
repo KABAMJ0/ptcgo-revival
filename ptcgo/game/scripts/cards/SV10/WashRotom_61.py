@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="3093cf24-86c2-5444-a8c9-a4196cce7ac4",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Heal 10 damage from each of your Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=unimplemented,
+            effect=heal_targets(10, scope="each_own"),
         ),
         Attack(
             title="Gadget Show",

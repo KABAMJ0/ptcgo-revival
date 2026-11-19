@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="8fc44db9-b7b4-5c0c-8902-118f27361665",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), per=10, base=30),
         ),
         Attack(
             title="Bright Flame",

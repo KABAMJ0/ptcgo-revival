@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import Ability, Activations, Attack, PokemonCardDef
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import look_at_top
 
@@ -22,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Recon Directive",
             game_text="Once during your turn, you may look at the top 2 cards of your deck and put 1 of them into your hand. Put the other card on the bottom of your deck.",
-            effect=look_at_top(2, take=1, rest="bottom", minimum=0),
+            activation=Activations.ONCE_PER_TURN,
+            effect=look_at_top(2, take=1, rest="bottom"),
         ),
         Attack(
             title="Dragon Headbutt",

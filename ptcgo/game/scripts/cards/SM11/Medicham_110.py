@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="b98d8774-25a8-5d8e-ba8b-764df056420a",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Pure Power",
             game_text="Put 4 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
         Attack(
             title="Master Strike",

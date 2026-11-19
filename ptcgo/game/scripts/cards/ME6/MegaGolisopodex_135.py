@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on, no_retreat_attack
 
 card = PokemonCardDef(
     guid="a70822a8-f01a-547c-a460-95d8eea846e0",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 160),
         ),
         Attack(
             title="Quadruple Hold",

@@ -1,16 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.data_utils import Ability, Activations, Attack, PokemonCardDef
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.trainers import draw_n, knocked_out_last_turn
 
-def flip_the_script_available(board, player_id, pokemon) -> bool:
-    """Offered only when one of your Pokemon was Knocked Out during your
-    opponent's last turn."""
-    turn_state = getattr(board, "turn_state", None)
-    ledger = getattr(turn_state, "pokemon_left_play_last_turn", None) or []
-    return any(record.get("owner_id") == player_id for record in ledger)
-
-
-from ptcgo.game.card_effects.trainers import draw_n
+def _flip_the_script_condition(board, player_id, pokemon):
+    """Ability conditions take (board, player_id, pokemon); the trainer play
+    condition behind this one takes (board, player_id)."""
+    return knocked_out_last_turn()(board, player_id)
 
 card = PokemonCardDef(
     guid="63c0d524-7418-5ddd-a050-e1ccdcad6a04",
@@ -33,7 +29,8 @@ card = PokemonCardDef(
             title="Flip the Script",
             game_text="Once during your turn, if any of your Pok\u00e9mon were Knocked Out during your opponent's last turn, you may draw 3 cards. You can't use more than 1 Flip the Script Ability each turn.",
             activation=Activations.ONCE_PER_TURN,
-            condition=flip_the_script_available,
+            shared_once_per_turn="Flip the Script",
+            condition=_flip_the_script_condition,
             effect=draw_n(3),
         ),
         Attack(

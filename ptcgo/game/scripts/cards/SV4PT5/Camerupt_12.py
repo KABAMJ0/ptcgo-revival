@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-from ptcgo.game.card_effects.attacks_common import discard_for_bonus
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack, discard_for_bonus
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 _provides = lambda type_value: (
     lambda card: energy_provides_type(card, type_value.value)
@@ -30,7 +30,7 @@ card = PokemonCardDef(
             title="Super Singe",
             game_text="Your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Cinder Cannon",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="d6bd3247-dced-5f58-8540-d46abcc6aa8e",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Glistening Droplets",
             game_text="Put 5 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=place_counters(5, target="choose_any_opponent"),
         ),
     ],
 )

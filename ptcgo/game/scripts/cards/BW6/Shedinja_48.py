@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="da216ba6-34ab-58c4-b490-858c74ba2605",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Cursed Drop",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=place_counters(3, target="choose_any_opponent"),
         ),
     ],
 )

@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.card_effects.passives_common import heal_activation
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, AttrID
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 _heal, _heal_condition = heal_activation(30, flip=True)
 
@@ -35,7 +36,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon does 60 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=unimplemented,
+            effect=recoil_attack(60),
         ),
     ],
 )

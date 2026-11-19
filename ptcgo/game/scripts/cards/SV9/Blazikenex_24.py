@@ -1,8 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import Ability, Activations, Attack, PokemonCardDef
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.trainers import has_basic_energy_in_discard, is_basic_energy_card
+
+def _seething_spirit_condition(board, player_id, pokemon):
+    """Ability conditions take (board, player_id, pokemon)."""
+    return has_basic_energy_in_discard(board, player_id)
 
 card = PokemonCardDef(
     guid="4d0771bd-0d12-5569-ad70-89b54168b209",
@@ -25,6 +29,8 @@ card = PokemonCardDef(
         Ability(
             title="Seething Spirit",
             game_text="Once during your turn, you may attach a Basic Energy card from your discard pile to 1 of your Pok\u00e9mon.",
+            activation=Activations.ONCE_PER_TURN,
+            condition=_seething_spirit_condition,
             effect=attach_from_discard(is_basic_energy_card, count=1, target="choice"),
         ),
         Attack(

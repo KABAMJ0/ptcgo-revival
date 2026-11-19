@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={},
             damage=10,
-            effect=lock_opponent_plays("item"),
+            effect=lock_opponent_plays("item", damage=10),
         ),
     ],
 )

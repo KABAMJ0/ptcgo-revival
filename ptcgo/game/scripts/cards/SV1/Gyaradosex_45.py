@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 
 card = PokemonCardDef(
     guid="fe5f5b67-d9e8-54c0-93bc-8890de14a6ff",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 2},
             damage=180,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 180),
         ),
     ],
 )
