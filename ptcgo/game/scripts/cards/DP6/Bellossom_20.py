@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, count_in_play, damage_per
+from ptcgo.game.card_effects.support_common import entity_name, heal_targets
+
+
+def _is_pollen_family(pokemon):
+    return entity_name(pokemon) in ("Vileplume", "Bellossom")
+
 
 card = PokemonCardDef(
     guid="af8a2d70-7798-5c2a-b9cf-dc5825c4508d",
@@ -25,7 +33,7 @@ card = PokemonCardDef(
             game_text="Remove 1 damage counter from each of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=heal_targets(10, scope="each_own"),
         ),
         Attack(
             title="Blend Pollen",
@@ -33,7 +41,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", pred=_is_pollen_family), 20, base=40, also=condition_attack(SpecialConditions.BURNED, flip=True, damage=0)),
         ),
     ],
 )

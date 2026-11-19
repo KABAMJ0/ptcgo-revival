@@ -1,5 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import Passive, is_in_active_spot
+from ptcgo.game.session.passives import carrier_pokemon
+from ptcgo.game.models.board import EnergyEntity
+
+
+class _EmergencyExit(Passive):
+    """Emergency Exit: no Retreat Cost while this Pokemon holds 2 Energy or less."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if pokemon is not holder:
+            return cost
+        attached = [c for c in getattr(holder, "children", []) or []
+                    if isinstance(c, EnergyEntity)]
+        return 0 if len(attached) <= 2 else cost
 
 card = PokemonCardDef(
     guid="bdc28478-cc70-5ac2-9dca-0dc2b9e2de0f",
@@ -22,7 +37,7 @@ card = PokemonCardDef(
         Ability(
             title="Emergency Exit",
             game_text="If this Pok\u00e9mon has 2 or fewer Energy attached to it, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=_EmergencyExit(),
         ),
         Attack(
             title="First Impression",

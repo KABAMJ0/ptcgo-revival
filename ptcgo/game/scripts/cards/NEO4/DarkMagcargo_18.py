@@ -1,5 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+async def _ball_of_flame(ctx):
+    """Ball of Flame: printed damage, or 20 on a Benched Pokemon for a Fire."""
+    fire = [e for e in ctx.attached_energies(ctx.attacker)
+            if energy_provides_type(e, PokemonTypes.FIRE.value)]
+    bench = ctx.opponent_bench()
+    if not fire or not bench or not await ctx.ask_yes_no(
+            "Discard a Fire Energy to do 20 damage to a Benched Pokemon?"):
+        await ctx.deal_damage()
+        return
+    await ctx.discard_cards(fire[:1])
+    target = await ctx.choose_pokemon(bench, "Choose a Benched Pokemon")
+    if target is not None:
+        await ctx.deal_damage(20, target=target, apply_modifiers=False)
+    await ctx.deal_damage()
 
 card = PokemonCardDef(
     guid="d98f82a6-1051-5e84-ab42-3507c800e4b6",
@@ -29,7 +46,7 @@ card = PokemonCardDef(
             game_text="You may discard a Fire Energy card attached to Dark Magcargo when you use this attack. If you do and if your opponent has any Benched Pok\u00e9mon, choose 1 of them and this attack does 20 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIRE: 2},
             damage=20,
-            effect=unimplemented,
+            effect=_ball_of_flame,
         ),
     ],
 )

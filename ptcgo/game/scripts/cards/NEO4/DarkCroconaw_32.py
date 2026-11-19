@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _clamping_jaw(ctx):
+    """Clamping Jaw: no retreat, and their attack may simply fail."""
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    ctx.lock_retreat(defender)
+    ctx.require_attack_flip(defender)
+
 card = PokemonCardDef(
     guid="05744dbb-2c02-5473-a601-348f869df2b3",
     key="NEO4",
@@ -24,7 +34,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn. If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing. (Benching either Pok\u00e9mon ends this effect.)",
             cost={PokemonTypes.WATER: 2},
             damage=20,
-            effect=unimplemented,
+            effect=_clamping_jaw,
         ),
     ],
 )

@@ -1,6 +1,44 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.attributes import AttrID
+
+
+async def _drain_down(ctx):
+    defender = ctx.defender
+    if ctx.opponent_bench() and defender is not None and not ctx.effects_blocked(defender):
+        if await ctx.ask_yes_no(
+                "Switch the Defending Pok\u00e9mon with 1 of your opponent's "
+                "Benched Pok\u00e9mon?"):
+            bench = ctx.opponent_bench()
+            pick = await ctx.choose_pokemon(
+                bench, "Choose your opponent's new Active Pok\u00e9mon") or bench[0]
+            await ctx.switch_active(ctx.opponent_id, pick)
+    await ctx.deal_damage(30)
+    defender = ctx.defender
+    if (defender is not None and ctx.attacker is not None
+            and defender.get_attribute(AttrID.HP, 0) <= 0):
+        if await ctx.ask_yes_no("Remove all damage counters from Cradily?"):
+            await ctx.heal(ctx.max_hp(ctx.attacker), ctx.attacker)
+
+
+async def _drain_down(ctx):
+    defender = ctx.defender
+    if ctx.opponent_bench() and defender is not None and not ctx.effects_blocked(defender):
+        if await ctx.ask_yes_no(
+                "Switch the Defending Pok\u00e9mon with 1 of your opponent's "
+                "Benched Pok\u00e9mon?"):
+            bench = ctx.opponent_bench()
+            pick = await ctx.choose_pokemon(
+                bench, "Choose your opponent's new Active Pok\u00e9mon") or bench[0]
+            await ctx.switch_active(ctx.opponent_id, pick)
+    await ctx.deal_damage(30)
+    defender = ctx.defender
+    if (defender is not None and ctx.attacker is not None
+            and defender.get_attribute(AttrID.HP, 0) <= 0):
+        if await ctx.ask_yes_no("Remove all damage counters from Cradily?"):
+            await ctx.heal(ctx.max_hp(ctx.attacker), ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="31384d96-a4ef-5d3f-99bd-b23f353ba5c0",
@@ -25,7 +63,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, you may switch 1 of the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon. If you do, this attack does 30 damage to the new Defending Pok\u00e9mon. If the Defending Pok\u00e9mon would be Knocked Out by this attack, you may remove all damage counters from Cradily.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=_drain_down,
         ),
         Attack(
             title="Acid",

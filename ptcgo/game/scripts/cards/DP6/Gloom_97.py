@@ -1,6 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def _space_out(ctx):
+    if ctx.attacker is None:
+        return
+    await ctx.heal(20, ctx.attacker)
+    await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
+
+
+async def _space_out(ctx):
+    if ctx.attacker is None:
+        return
+    await ctx.heal(20, ctx.attacker)
+    await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
+
 
 card = PokemonCardDef(
     guid="f28638cd-3b82-5548-99f2-ca7799494a6b",
@@ -24,7 +40,7 @@ card = PokemonCardDef(
             title="Space Out",
             game_text="Remove 2 damage counters from Gloom. Gloom is now Asleep.",
             cost={},
-            effect=unimplemented,
+            effect=_space_out,
         ),
         Attack(
             title="Stinky Nectar",

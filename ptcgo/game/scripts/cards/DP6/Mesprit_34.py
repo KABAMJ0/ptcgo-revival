@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.attacks_common import on_bench_play
+
+
+async def _psychic_bind(ctx):
+    """Psychic Bind: no Poke-Powers for the opponent on their next turn."""
+    ctx.lock_poke_powers()
 
 card = PokemonCardDef(
     guid="92488a8c-58a6-5fd1-8312-7417b2175424",
@@ -21,7 +28,8 @@ card = PokemonCardDef(
         Ability(
             title="Psychic Bind",
             game_text="Once during your turn, when you put Mesprit from your hand onto your Bench, you may use this power. Your opponent can't use any Pok\u00e9-Powers on his or her Pok\u00e9mon during your opponent's next turn.",
-            effect=unimplemented,
+                        trigger=Triggers.ON_PLAY,
+            effect=on_bench_play(_psychic_bind),
         ),
         Attack(
             title="Extrasensory",

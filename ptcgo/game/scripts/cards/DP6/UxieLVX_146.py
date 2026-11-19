@@ -2,6 +2,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, 
 from ptcgo.game.card_effects.support_common import look_at_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
+
+async def _zen_blade(ctx):
+    """Zen Blade: this attack is locked for the user's next turn."""
+    await ctx.deal_damage()
+    ctx.session.turn_state.lock_attack(ctx.attacker.entity_id,
+                                       ctx.ability.ability_id)
+
 card = PokemonCardDef(
     guid="43a80b44-06c4-5852-9e6d-54a88b03d0cf",
     key="DP6",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             game_text="Uxie can't use Zen Blade during your next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=_zen_blade,
         ),
     ],
 )

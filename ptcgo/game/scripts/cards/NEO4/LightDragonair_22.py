@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.attributes import AttrID
+
+
+async def _healing_light(ctx):
+    """Healing Light: 1 counter off each of your damaged Pokemon."""
+    for pokemon in ctx.my_pokemon_in_play():
+        if pokemon.get_attribute(AttrID.HP, 0) < ctx.max_hp(pokemon):
+            await ctx.heal(10, target=pokemon)
 
 card = PokemonCardDef(
     guid="13cf8ce0-7176-558d-8019-b03f1b926ce6",
@@ -24,7 +32,7 @@ card = PokemonCardDef(
             title="Healing Light",
             game_text="Remove 1 damage counter from each of your Pok\u00e9mon that has any damage counters on it.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=_healing_light,
         ),
         Attack(
             title="Protective Wave",

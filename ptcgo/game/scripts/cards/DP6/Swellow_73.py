@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _was_on_bench_this_turn(ctx) -> bool:
+    return ctx.attacker is not None and ctx.entered_active_this_turn(ctx.attacker)
 
 card = PokemonCardDef(
     guid="5aee8201-302c-50e1-bd14-c429399d2464",
@@ -23,14 +29,14 @@ card = PokemonCardDef(
         Ability(
             title="Big Wing",
             game_text="If Swellow has no Energy attached to it, Swellow's Retreat Cost is 0.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(),
         ),
         Attack(
             title="Mach Descent",
             game_text="If Swellow was on your Bench this turn, this attack's base damage is 60 instead of 30.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=bonus_if(_was_on_bench_this_turn, 30, base=30),
         ),
     ],
 )

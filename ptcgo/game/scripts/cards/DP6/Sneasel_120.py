@@ -1,5 +1,20 @@
+from ptcgo.game.card_effects.attacks_common import discard_random_from_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, TrainerType
+
+
+async def _look_then_bin_tools(ctx):
+    await ctx.reveal_hand(of_player=ctx.opponent_id)
+    tools = [card for card in ctx.hand(ctx.opponent_id)
+             if card.get_attribute(AttrID.TRAINER_TYPE) in (
+                 TrainerType.POKEMON_TOOL.value,
+                 TrainerType.POKEMON_TOOL_F.value,
+                 TrainerType.TECHNICAL_MACHINE.value)]
+    if not tools:
+        return
+    for card in tools:
+        await ctx.put_on_top_of_deck(card)
+    await ctx.shuffle_deck(ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="86e54be5-e3e3-5852-b6da-deb359bff2ee",
@@ -23,7 +38,7 @@ card = PokemonCardDef(
             title="Rob",
             game_text="Look at your opponent's hand. If your opponent has any Pok\u00e9mon Tool or Technical Machine cards in his or her hand, put those cards on top of his or her deck. Your opponent shuffles his or her deck afterward.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=_look_then_bin_tools,
         ),
         Attack(
             title="Slash",

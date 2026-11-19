@@ -1,6 +1,33 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _psychic_strategy(ctx):
+    mine = ctx.hand_size(ctx.player_id)
+    theirs = ctx.hand_size(ctx.opponent_id)
+    await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+    await ctx.draw_cards(theirs)
+    await ctx.shuffle_into_deck(ctx.hand(ctx.opponent_id), ctx.opponent_id)
+    await ctx.draw_cards(mine, ctx.opponent_id)
+
+
+async def _super_eggsplosion(ctx):
+    pool = [energy for pokemon in ctx.my_pokemon_in_play()
+            for energy in ctx.attached_energies(pokemon)]
+    picks = await ctx.choose_cards(
+        pool, len(pool), minimum=0,
+        prompt="Choose any number of Energy cards to discard") if pool else []
+    if picks:
+        await ctx.discard_cards(picks)
+    heads = 0
+    for _ in picks:
+        results = await ctx.flip_coins(1, "Super Eggsplosion")
+        if results and results[0]:
+            heads += 1
+    if heads:
+        await ctx.deal_damage(50 * heads)
+
+
 card = PokemonCardDef(
     guid="2328993a-c00a-5bcd-81d5-d6b85b456f33",
     key="DP6",
@@ -23,7 +50,7 @@ card = PokemonCardDef(
             title="Psychic Strategy",
             game_text="Each player counts the number of cards in his or her opponent's hand. Each player shuffles his or her hand into his or her deck. Then, each player draws a number of cards up to the number of cards his or her opponent had. (You draw your cards first.)",
             cost={},
-            effect=unimplemented,
+            effect=_psychic_strategy,
         ),
         Attack(
             title="Super Eggsplosion",
@@ -31,7 +58,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_super_eggsplosion,
         ),
     ],
 )

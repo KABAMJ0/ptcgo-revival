@@ -1,8 +1,15 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.attributes import SpecialConditions
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+def _defender_below_own_hp(ctx) -> bool:
+    defender, attacker = ctx.defender, ctx.attacker
+    return (defender is not None and attacker is not None
+            and defender.get_attribute(AttrID.HP, 0)
+            < attacker.get_attribute(AttrID.HP, 0))
 
 card = PokemonCardDef(
     guid="8652a85b-ca6c-5628-baca-1f7cf47f0f13",
@@ -27,7 +34,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, count the remaining HP of the Defending Pok\u00e9mon and Swalot. If the Defending Pok\u00e9mon has fewer remaining HP than Swalot's, this attack does 80 damage instead.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=bonus_if(_defender_below_own_hp, 50, base=30),
         ),
         Attack(
             title="Gunk Shot",

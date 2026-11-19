@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon already has any damage counters on it, this attack's base damage is 40 instead of 120.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=bonus_if(has_damage(), -80, base=120),
         ),
     ],
 )

@@ -3,6 +3,9 @@ from ptcgo.game.data_utils import (PokemonCardDef, Attack, Ability,
 from ptcgo.game.attributes import (PokemonTypes, PokemonStage, Rarities,
                                    SpecialConditions)
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
+
 
 card = PokemonCardDef(
     guid="4bd62747-2043-502e-a5b7-8e081e3046c6",
@@ -35,7 +38,7 @@ card = PokemonCardDef(
             game_text="You may switch Gliscor with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=switch_self_attack(optional=True),
         ),
     ],
 )

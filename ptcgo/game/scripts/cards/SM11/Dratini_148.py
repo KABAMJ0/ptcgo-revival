@@ -1,6 +1,25 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import Passive
+from ptcgo.game.models.board import EnergyEntity
+from ptcgo.game.session.passives import carrier_pokemon
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+class _AquaLift(Passive):
+    """Aqua Lift: no Retreat Cost while any Water Energy is attached."""
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        holder = carrier_pokemon(carrier)
+        if pokemon is not holder:
+            return cost
+        if any(energy_provides_type(child, PokemonTypes.WATER.value)
+               for child in getattr(holder, "children", []) or []
+               if isinstance(child, EnergyEntity)):
+            return 0
+        return cost
+
 
 card = PokemonCardDef(
     guid="8b688ec6-3127-5551-86d8-1d4e87f02990",
@@ -22,7 +41,7 @@ card = PokemonCardDef(
         Ability(
             title="Aqua Lift",
             game_text="If this Pok\u00e9mon has any Water Energy attached to it, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=_AquaLift(),
         ),
         Attack(
             title="Jump On",

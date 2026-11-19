@@ -1,5 +1,36 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import opponent_switches
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
+
+async def _sonic_wave(ctx):
+    """Sonic Wave: printed damage, 10 to each of their Bench, then they switch."""
+    await ctx.deal_damage()
+    for target in ctx.opponent_bench():
+        await ctx.deal_damage(10, target=target, apply_modifiers=False)
+    await opponent_switches(ctx)
+
+
+async def _pursue_and_turn(ctx):
+    """Pursue and Turn: 60, or 80 plus a turn out when the defender is marked."""
+    defender = ctx.defender
+    marked = (defender is not None
+              and defender.get_attribute(AttrID.HP, 0) <= ctx.max_hp(defender) - 20)
+    await ctx.deal_damage(80 if marked else 60)
+    if marked:
+        await switch_self_attack(damage=0, optional=False)(ctx)
+
+
+async def _pursue_and_turn(ctx):
+    """Pursue and Turn: 60, or 80 plus a turn out when the defender is marked."""
+    defender = ctx.defender
+    marked = (defender is not None
+              and defender.get_attribute(AttrID.HP, 0) <= ctx.max_hp(defender) - 20)
+    await ctx.deal_damage(80 if marked else 60)
+    if marked:
+        await switch_self_attack(damage=0, optional=False)(ctx)
 
 card = PokemonCardDef(
     guid="6a1fda79-6eb1-5329-a695-a31377a71cdc",
@@ -25,7 +56,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={},
             damage=10,
-            effect=unimplemented,
+            effect=_sonic_wave,
         ),
         Attack(
             title="Pursue and Turn",
@@ -33,7 +64,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_pursue_and_turn,
         ),
     ],
 )

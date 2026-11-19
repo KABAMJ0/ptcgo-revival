@@ -2,6 +2,17 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_trainer_card
+
+
+async def _incinerate(ctx):
+    """Incinerate: the top of their deck is revealed, and a Trainer is binned."""
+    top = ctx.deck_top(1, player_id=ctx.opponent_id)
+    if not top:
+        return
+    await ctx.reveal_cards(top)
+    if is_trainer_card(top[0]):
+        await ctx.discard_cards(top)
 
 card = PokemonCardDef(
     guid="d20fe9cc-8874-55b9-9510-6a8c23366822",
@@ -25,7 +36,7 @@ card = PokemonCardDef(
             title="Incinerate",
             game_text="Show the top card of your opponent's deck to all players. If it's a Trainer card, discard it.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=_incinerate,
         ),
         Attack(
             title="Rushing Magma",

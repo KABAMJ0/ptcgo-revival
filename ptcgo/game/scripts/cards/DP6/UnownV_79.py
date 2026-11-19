@@ -1,7 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.data_utils import Activations
+
+
+async def _vacation(ctx):
+    """VACATION: 2 counters off every Pokemon, and the turn ends."""
+    healed = 0
+    for pokemon in ctx.my_pokemon_in_play():
+        healed += await ctx.heal(20, target=pokemon)
+    if healed:
+        ctx.ends_turn = True
 
 card = PokemonCardDef(
     guid="61039d44-3ae7-591d-a294-715f4f711a92",
@@ -23,7 +34,9 @@ card = PokemonCardDef(
         Ability(
             title="VACATION",
             game_text="Once during your turn (before your attack), you may remove 2 damage counters from each of your Pok\u00e9mon. If you do, your turn ends. This power can't be used if Unown V is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=lambda board, player_id, pokemon: not pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS),
+            effect=_vacation,
         ),
         Attack(
             title="Hidden Power",

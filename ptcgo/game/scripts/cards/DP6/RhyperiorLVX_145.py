@@ -1,5 +1,13 @@
+from ptcgo.game.card_effects.attacks_common import mill_scaled_damage
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+def _fighting_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIGHTING.value)
 
 card = PokemonCardDef(
     guid="9ed5586f-91b4-54c9-8090-85479d367a85",
@@ -26,14 +34,15 @@ card = PokemonCardDef(
             cost={},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mill_scaled_damage(5, 50, pred=is_energy_card),
         ),
         Attack(
             title="Upthrow",
             game_text="Search your discard pile for all Fighting Energy cards, show them to your opponent, and shuffle them into your deck.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=recover_from_discard(_fighting_energy, count=99, minimum=0,
+                                        to="deck_shuffle"),
         ),
     ],
 )

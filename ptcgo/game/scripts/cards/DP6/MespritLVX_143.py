@@ -1,5 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import def_for
+
+
+async def _supreme_blast(ctx):
+    """Supreme Blast: nothing without both LV.X partners in play."""
+    names = {_display_name(p) for p in ctx.my_pokemon_in_play()}
+    if not {"Uxie LV.X", "Azelf LV.X"} <= names:
+        return
+    await ctx.deal_damage()
+    if ctx.attacker is not None:
+        energies = list(ctx.attached_energies(ctx.attacker))
+        if energies:
+            await ctx.discard_cards(energies)
+
+
+def _display_name(entity) -> str:
+    """The printed name of a card on the board (empty when unknown)."""
+    return getattr(def_for(getattr(entity, "archetype_id", "") or ""),
+                   "display_name", "") or ""
 
 card = PokemonCardDef(
     guid="26eedc2b-7976-56d3-98b5-3359c8913236",
@@ -30,7 +49,7 @@ card = PokemonCardDef(
             game_text="If don't have Uxie LV.X and Azelf LV.X in play, this attack does nothing. Discard all Energy attached to Mesprit.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=200,
-            effect=unimplemented,
+            effect=_supreme_blast,
         ),
     ],
 )

@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations
+
+
+async def _search_prize(ctx):
+    prizes = ctx.face_down_prize_cards(ctx.player_id)
+    if not prizes:
+        return
+    picks = await ctx.choose_cards(
+        prizes, 1, minimum=0, prompt="Choose a Prize card to look at")
+    if picks:
+        await ctx.reveal_cards(picks, to_player=ctx.player_id)
+
 
 card = PokemonCardDef(
     guid="e0e5afcf-ef68-5d86-85c6-46bba2f2c9ca",
@@ -20,8 +32,9 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="[Search]",
+            activation=Activations.ONCE_PER_TURN,
             game_text="Once during your turn (before your attack), you may look at 1 of your Prize cards. Return that Prize card face down. This power can be used even if Unown [S] is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            effect=_search_prize,
         ),
         Attack(
             title="Hidden Power",
