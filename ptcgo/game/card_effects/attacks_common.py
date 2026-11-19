@@ -474,6 +474,27 @@ def damage_all_opponents(amount: int, also=None):
     return spread_damage(amount, side="opponent", include_active=True, also=also)
 
 
+def ignore_resistance_attack(damage: Optional[int] = None, also=None):
+    """Printed (or damage) damage; this attack's damage is not affected by
+    Resistance."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage, ignore_resistance=True)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
+def swift_attack(damage: Optional[int] = None, also=None):
+    """This attack's damage isn't affected by Weakness, Resistance, Poké-Powers,
+    Poké-Bodies, or any other effects on the Defending Pokémon."""
+    async def effect(ctx):
+        await ctx.deal_damage(
+            damage, apply_modifiers=False, ignore_target_effects=True)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
 # ----------------------------------------------------------------------
 # Conditional bonus + predicates
 # ----------------------------------------------------------------------
@@ -489,6 +510,20 @@ def bonus_if(cond_fn, bonus: int, base: Optional[int] = None,
         if amount > 0:
             await ctx.deal_damage(amount)
         await _finish(ctx, self_damage, also)
+    return effect
+
+
+def conditions_if(cond_fn, *conditions, also=None):
+    """Printed damage; apply `conditions` to the Defending Pokémon when
+    cond_fn(ctx) holds (Extra Poison)."""
+    async def effect(ctx):
+        if _printed(ctx) > 0:
+            await ctx.deal_damage()
+        if cond_fn(ctx):
+            for condition in conditions:
+                await ctx.apply_special_condition(ctx.defender, condition)
+        if also is not None:
+            await also(ctx)
     return effect
 
 
@@ -597,9 +632,11 @@ def self_energy_discard_attack(count: Optional[int] = None,
 
 def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
                                    after_damage: bool = True,
-                                   damage: Optional[int] = None, also=None):
+                                   damage: Optional[int] = None, also=None,
+                                   flip: bool = False):
     """Printed (or damage) damage + discard Energy from the opponent's Active;
-    the discard no-ops when the target is shielded from attack effects."""
+    the discard no-ops when the target is shielded from attack effects.
+    flip=True discards only on heads (Removal Beam)."""
     pred = is_special_energy if special_only else None
 
     async def _discard(ctx):
@@ -613,9 +650,13 @@ def discard_opponent_energy_attack(count: int = 1, special_only: bool = False,
     async def effect(ctx):
         if after_damage:
             await ctx.deal_damage(damage)
+        do_discard = True
+        if flip:
+            results = await ctx.flip_coins(1, _title(ctx))
+            do_discard = bool(results) and results[0]
+        if do_discard:
             await _discard(ctx)
-        else:
-            await _discard(ctx)
+        if not after_damage:
             await ctx.deal_damage(damage)
         if also is not None:
             await also(ctx)
@@ -1419,7 +1460,9 @@ def flip_discard_opponent_energy(damage: Optional[int] = None, count: int = 1,
     Pokemon" — printed (or `damage`) damage, one coin, then the discard.
 
     The body is `trainers.discard_energy_opponent`, shared with the Trainer
-    cards of the same wording."""
+    cards of the same wording. The Trainer cards ("Energy Removal 2") use
+    `trainers.flip_discard_opponent_energy(title)` instead: this one is the
+    attack-side shape and takes no title."""
     from ptcgo.game.card_effects.trainers import discard_energy_opponent
 
     async def effect(ctx):
