@@ -59,7 +59,10 @@ def subtypes_for(archetype_id: Optional[str]) -> List[str]:
 # The Scarlet & Violet era prints "ex" in lower case; older EX and GX are upper.
 # Missing the lower-case form made every Pokemon ex in the pool give up 1 prize
 # instead of 2 (939 cards).
-_MULTI_PRIZE_SUBTYPES = {"V": 2, "VSTAR": 2, "V-UNION": 3, "VMAX": 3, "GX": 2, "EX": 2, "ex": 2}
+_MULTI_PRIZE_SUBTYPES = {"V": 2, "VSTAR": 2, "V-UNION": 3, "VMAX": 3, "GX": 2, "EX": 2, "ex": 2,
+                          # A TAG TEAM Pokemon-GX also carries "GX", so without this entry
+                          # the GX rule wins and 120 cards pay 2 prizes instead of 3.
+                          "TAG TEAM": 3}
 _RULE_BOX_SUBTYPES = set(_MULTI_PRIZE_SUBTYPES) | {"Radiant"}
 
 
@@ -77,6 +80,13 @@ def prize_value(archetype_id: Optional[str]) -> int:
     definition = def_for(archetype_id)
     if getattr(definition, "prize_count", None) is not None:
         return definition.prize_count
+    if definition is not None:
+        # Only a Pokemon is knocked out, so only a Pokemon pays prizes. A Tag Team
+        # Supporter carries the TAG TEAM subtype too and would otherwise read as 3.
+        card_type = definition.extra_attributes.get(str(AttrID.CARD_TYPE.value), {})
+        if isinstance(card_type, dict) and card_type.get("value") is not None \
+                and int(card_type["value"]) != CardType.POKEMON.value:
+            return 1
     return max(
         [_MULTI_PRIZE_SUBTYPES[s] for s in subtypes_for(archetype_id)
          if s in _MULTI_PRIZE_SUBTYPES],

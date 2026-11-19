@@ -10,6 +10,17 @@ from ptcgo.game.decks.theme_decks import theme_decks
 DECK_SIZE = 60
 MAX_COPIES = 4
 
+# Printed rule-box limits. The client draws these rule boxes but refuses nothing
+# itself -- deck legality is server-validated -- so a deck with two Radiant Pokemon
+# or four copies of one ACE SPEC is accepted unless it is checked here.
+ONE_PER_DECK_SUBTYPES = (
+    ("ACE SPEC", "A deck can't contain more than 1 ACE SPEC card."),
+    ("Radiant", "A deck can't contain more than 1 Radiant Pokémon."),
+)
+ONE_PER_NAME_SUBTYPES = (
+    ("Prism Star", "A deck can't contain more than 1 Prism Star card with the same name."),
+)
+
 
 def _detail(failure_type: str, text: str, offenders: Optional[List[str]] = None) -> Dict[str, Any]:
     # failureType coerces by enum member name; explanation renders verbatim for unknown loc keys
@@ -46,6 +57,12 @@ def _is_basic_pokemon_card(card) -> bool:
         card.get_attribute_value(AttrID.CARD_TYPE) == CardType.POKEMON.value
         and card.get_attribute_value(AttrID.STAGE, PokemonStage.BASIC.value) == PokemonStage.BASIC.value
     )
+
+
+def _has_subtype(card, subtype: str) -> bool:
+    """Subtype match, case-insensitive: the corpus prints "ACE SPEC" but reprints of the
+    same card can carry "Ace Spec", and one spelling silently matches nothing."""
+    return any(str(s).lower() == subtype.lower() for s in (getattr(card, "subtypes", None) or []))
 
 
 class DeckValidator:
@@ -103,6 +120,26 @@ class DeckValidator:
                 "MaxDuplicates",
                 f"A deck can't contain more than {MAX_COPIES} cards with the same name: {names}.",
                 offenders))
+
+        for subtype, message in ONE_PER_DECK_SUBTYPES:
+            holders = [c for c in self.cards if _has_subtype(c, subtype)]
+            if len(holders) > 1:
+                details.append(_detail(
+                    "MaxMatches",
+                    f"{message} This deck has {len(holders)}.",
+                    sorted({c.guid.lower() for c in holders})))
+
+        for subtype, message in ONE_PER_NAME_SUBTYPES:
+            prism: Dict[str, List[str]] = {}
+            for card in self.cards:
+                if _has_subtype(card, subtype):
+                    prism.setdefault(_copy_limit_key(card), []).append(card.guid.lower())
+            repeated = {name: guids for name, guids in prism.items() if len(guids) > 1}
+            if repeated:
+                details.append(_detail(
+                    "MaxMatches",
+                    f"{message} Repeated: {', '.join(sorted(repeated))}.",
+                    sorted({g for guids in repeated.values() for g in guids})))
 
         if not any(_is_basic_pokemon_card(c) for c in self.cards):
             details.append(_detail(
