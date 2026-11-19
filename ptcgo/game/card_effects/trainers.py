@@ -9716,3 +9716,29 @@ def switch_then_heal(amount: int, active_pred=None):
             return
         await ctx.heal(amount, old_active)
     return effect
+
+
+def confuse_own_active():
+    """Your Active Pokemon is now Confused (Imakuni?)."""
+    async def effect(ctx):
+        active = ctx.my_active()
+        if active is not None:
+            await ctx.apply_special_condition(active, SpecialConditions.CONFUSED)
+    return effect
+
+
+def discard_opponent_special_energy_to_lost_zone(count: int = 1):
+    """Put `count` Special Energy cards attached to your opponent's Pokemon in
+    the Lost Zone (Lost Remover)."""
+    async def effect(ctx):
+        attached = [energy for pokemon in ctx.opponent_pokemon_in_play()
+                    for energy in ctx.attached_energies(pokemon)
+                    if is_energy_card(energy) and not is_basic_energy_card(energy)]
+        if not attached:
+            return
+        picks = await ctx.choose_cards(
+            attached, count, minimum=0,
+            prompt="Choose a Special Energy card to put in the Lost Zone")
+        if picks:
+            await ctx.move_to_lost_zone(picks)
+    return effect
