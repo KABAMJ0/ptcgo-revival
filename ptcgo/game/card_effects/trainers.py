@@ -45,6 +45,7 @@ from ptcgo.game.card_effects.passives_common import (
     condition_immunity_passive,
     is_in_active_spot,
     TempShieldPassive,
+    AttackShieldPassive,
     hp_bonus_tool,
     no_resistance_passive,
     retreat_free_when,
@@ -788,7 +789,7 @@ class BigParasolPassive(Passive):
     """While the holder is in the Active Spot, shields the owner's whole
     side from the opponent's attack EFFECTS (not damage)."""
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None):
         holder = carrier_pokemon(carrier)
         if holder is None or target.owning_player_id != holder.owning_player_id:
             return False
@@ -2378,8 +2379,8 @@ class CombinedPassive(Passive):
     def blocks_attack(self, pokemon, carrier):
         return any(part.blocks_attack(pokemon, carrier) for part in self.parts)
 
-    def blocks_attack_effects(self, target, carrier):
-        return any(part.blocks_attack_effects(target, carrier)
+    def blocks_attack_effects(self, target, carrier, attacker=None):
+        return any(part.blocks_attack_effects(target, carrier, attacker)
                    for part in self.parts)
 
     def blocks_bench_damage(self, calc, carrier):
@@ -4240,39 +4241,36 @@ def attacker_has_subtypes(*subtypes, exclude=()):
     return predicate
 
 
-class AttackerGatedPassive(Passive):
+class AttackerGatedPassive(AttackShieldPassive):
     """The holder takes `amount` less damage (or none at all) from attacks by
     attackers matching `attacker`; `holder` gates which Pokemon it protects
-    and `effects_too` also shields it from the attack's effects."""
+    and `effects_too` also shields it from the attack's effects.
+
+    Both halves gate on the same attacker: the effect half used to ignore
+    `attacker` entirely, so a Tool that says "from Pokemon with an Ability"
+    cut the damage but let every Ability-holder's attack effects through."""
 
     def __init__(self, amount, holder=None, attacker=None, prevent=False,
                  effects_too=False):
         self.amount = amount
         self.holder = holder
-        self.attacker = attacker
         self.prevent = prevent
-        self.effects_too = effects_too
+        protects = None if holder is None else (
+            lambda target, carrier: carrier_pokemon(carrier) is target
+            and bool(holder(target)))
+        super().__init__(attacker, protects, damage=True,
+                         effects_too=effects_too)
 
-    def _applies(self, calc, carrier):
-        if not (calc.is_attack and calc.is_opposing):
-            return False
-        if carrier_pokemon(carrier) is not calc.target:
-            return False
-        if self.holder is not None and not self.holder(calc.target):
-            return False
-        if self.attacker is None:
-            return calc.attacker is not None
-        return calc.attacker is not None and self.attacker(calc.attacker)
+    def _answers(self, calc, carrier) -> bool:
+        return bool(calc.is_attack and calc.is_opposing
+                    and self._covers(calc.target, carrier, calc.attacker))
 
     def modify_damage_taken(self, calc, carrier):
-        if self.amount and self._applies(calc, carrier):
+        if self.amount and self._answers(calc, carrier):
             calc.amount = max(0, calc.amount - self.amount)
 
     def prevents_damage(self, calc, carrier):
-        return bool(self.prevent and self._applies(calc, carrier))
-
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+        return bool(self.prevent and self._answers(calc, carrier))
 
 
 def takes_less_from(amount: int, holder=None, attacker=None):

@@ -14491,30 +14491,18 @@ def _t66_bonus_per_named_energy(m, ability):
 
 
 def _t66_prevent_effects_from_ex(m, ability):
-    from ptcgo.game.card_effects.passives_common import (
-        PredicatePreventionPassive)
-    from ptcgo.game.data_utils import subtypes_for
-
-    def is_ex(calc) -> bool:
-        attacker = getattr(calc, "attacker", None)
-        if attacker is None:
-            return False
-        return any(sub.lower() == "ex" for sub in subtypes_for(attacker.archetype_id))
-    return PredicatePreventionPassive(lambda calc, c: is_ex(calc))
+    """Wording: "...by Pokemon-EX". Both halves: the damage path and the
+    effects path, gated on the same attacker. The body that stood here was
+    `PredicatePreventionPassive`, which implements only `prevents_damage` --
+    the printed "including damage" clause also promises the EFFECT half, so
+    every EX's attack still applied its effects through this shield."""
+    return _shield_from(_attacker_is_ex_or_ex_caps(), effects_too=True)
 
 
 def _t66_prevent_effects_from_gx_ex(m, ability):
-    from ptcgo.game.card_effects.passives_common import (
-        PredicatePreventionPassive)
-    from ptcgo.game.data_utils import subtypes_for
-
-    def is_gx_or_ex(calc) -> bool:
-        attacker = getattr(calc, "attacker", None)
-        if attacker is None:
-            return False
-        subtypes = [sub.lower() for sub in subtypes_for(attacker.archetype_id)]
-        return "gx" in subtypes or "ex" in subtypes
-    return PredicatePreventionPassive(lambda calc, c: is_gx_or_ex(calc))
+    """"...by Pokemon-GX or Pokemon-EX": both halves, same reason."""
+    from ptcgo.game.card_effects.passives_common import attacker_is_gx_or_ex
+    return _shield_from(attacker_is_gx_or_ex(), effects_too=True)
 
 
 def _t68_bonus_per_self_counters_then_heal(m, ability):
@@ -15095,6 +15083,93 @@ def _extra_energy_tail(m, ability, deal_damage: bool = True):
         return opponent_shuffles_hand
 
     return None
+
+
+# ----------------------------------------------------------------------
+# Continuous attack shields scoped by their ATTACKER
+# ----------------------------------------------------------------------
+# "Prevent all [effects of] attacks[, including damage], done to this Pokemon
+# by attacks from <scope>". The scope lives on the attacker, which the damage
+# path has always seen and the effect path could not: `blocks_attack_effects`
+# took only (target, carrier), so every "including damage" body written before
+# this halved itself -- the damage stopped and the attack's effects landed.
+
+def _shield_from(attacker_pred, *, damage=True, effects_too=False, protects=None):
+    from ptcgo.game.card_effects.passives_common import attack_shield_from
+    return attack_shield_from(attacker_pred, protects=protects, damage=damage,
+                              effects_too=effects_too)
+
+
+def _attacker_is_ex_or_ex_caps():
+    from ptcgo.game.card_effects.pokemon import is_pokemon_ex, is_pokemon_EX
+    return lambda attacker: bool(is_pokemon_ex(attacker) or is_pokemon_EX(attacker))
+
+
+_SCOPE_WORD = (r"(?P<attacker>pokemon-ex|pokemon-gx (?:and|or) pokemon-ex|"
+               r"pokemon lv\.x|evolution pokemon|"
+               r"pokemon that (?:has|have) (?:any )?special energy attached to "
+               r"(?:it|them))")
+
+
+def _attacker_pred(word):
+    from ptcgo.game.card_effects.passives_common import (
+        attacker_is_evolution, attacker_is_gx_or_ex,
+    )
+    from ptcgo.game.card_effects.trainers import (
+        attacker_has_special_energy, pokemon_lv_x,
+    )
+    if word == "pokemon-ex":
+        return _attacker_is_ex_or_ex_caps()
+    if word.startswith("pokemon-gx"):
+        return attacker_is_gx_or_ex()
+    if word == "pokemon lv.x":
+        return pokemon_lv_x()
+    if word == "evolution pokemon":
+        return attacker_is_evolution()
+    return attacker_has_special_energy()
+
+
+def _shield_damage_only(m, ability):
+    """"Prevent all damage done to this Pokemon by attacks from <scope>"."""
+    return _shield_from(_attacker_pred(m.group("attacker")))
+
+
+def _shield_effects_and_damage(m, ability):
+    """"Prevent all effects of attacks, including damage, done to this Pokemon
+    by <scope>" -- both halves, gated on the same attacker."""
+    return _shield_from(_attacker_pred(m.group("attacker")), effects_too=True)
+
+
+def _shield_attack_effects_only(m, ability):
+    """"Prevent all effects of attacks used by your opponent's Pokemon done to
+    this Pokemon. (Damage is not an effect.)" -- no attacker scope to carry."""
+    from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+    return attack_effect_shield_passive()
+
+
+def _shield_attacks_and_abilities(m, ability):
+    """"Prevent all effects of your opponent's Pokemon's attacks and Abilities
+    done to this Pokemon. (Damage is not an effect.)" -- one of each hook."""
+    from ptcgo.game.card_effects.passives_common import AttackEffectShieldPassive
+    from ptcgo.game.card_effects.trainers import CombinedPassive
+    return CombinedPassive(AttackEffectShieldPassive(),
+                           AbilityEffectShieldPassive())
+
+
+class AbilityEffectShieldPassive(Passive):
+    """The carrier is shielded from opposing Ability effects."""
+
+    def blocks_ability_effects(self, target, carrier):
+        return target is carrier_pokemon(carrier)
+
+
+def _shield_benched_metal_from_special_energy(m, ability):
+    """"Prevent all damage done to your Metal Pokemon by attacks from your
+    opponent's Pokemon that have any Special Energy attached to them"."""
+    from ptcgo.game.card_effects.passives_common import team_of_types
+    from ptcgo.game.card_effects.trainers import attacker_has_special_energy
+    return _shield_from(attacker_has_special_energy(),
+                        protects=team_of_types("metal"))
 
 
 _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
@@ -19831,6 +19906,28 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"damage from an attack, it is not knocked out, and its "
                 r"remaining hp becomes (\d+)\."),
      _passive_survive_full_hp),
+    # -- attack shields whose printed scope is the ATTACKER -------------
+    ("shield.damage-from-attacker",
+     re.compile(r"prevent all damage done to this pokemon by attacks from "
+                r"(?:your opponent's |each of your opponent's )?" + _SCOPE_WORD
+                + r"\."), _shield_damage_only),
+    ("shield.effects-and-damage-from-attacker",
+     re.compile(r"prevent all effects of attacks, including damage, done to "
+                r"this pokemon by (?:your opponent's )?" + _SCOPE_WORD + r"\."),
+     _shield_effects_and_damage),
+    ("shield.attack-effects-from-opponent",
+     re.compile(r"prevent all effects of attacks used by your opponent's "
+                r"pokemon done to this pokemon\. \(damage is not an effect\.\)"),
+     _shield_attack_effects_only),
+    ("shield.attacks-and-abilities-from-opponent",
+     re.compile(r"prevent all effects of your opponent's pokemon's attacks and "
+                r"abilities done to this pokemon\. "
+                r"\(damage is not an effect\.\)"),
+     _shield_attacks_and_abilities),
+    ("shield.team-type-from-special-energy",
+     re.compile(r"prevent all damage done to your metal pokemon by attacks from "
+                r"your opponent's pokemon that have any special energy attached "
+                r"to them\."), _shield_benched_metal_from_special_energy),
 ]
 
 

@@ -21,7 +21,7 @@ class MetalGogglesPassive(TakesLessPassive):
     blocks_ability_effects, so the shield has to ride the same object as the
     damage reduction rather than sit beside it."""
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None):
         return bool(self.protects(target, carrier))
 
     def blocks_ability_effects(self, target, carrier):

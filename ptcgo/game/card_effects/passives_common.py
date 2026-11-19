@@ -330,20 +330,58 @@ def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
+class AttackShieldPassive(Passive):
+    """A continuous shield against opposing attacks, spoken in two halves.
+
+    "Prevent all damage done to this Pokemon by attacks from <X>" is the
+    DAMAGE half; "prevent all effects of attacks ... done to this Pokemon" is
+    the EFFECT half. A card prints one or both: "including damage" is both,
+    "(damage is not an effect)" is the effect half alone, and a bare "prevent
+    all damage" is the damage half alone.
+
+    `attacker_pred(attacker)` is the printed scope, and it gates BOTH halves so
+    the shield answers the same attackers in each ("by attacks from
+    Pokemon-EX", "from a Pokemon that has any Special Energy attached").
+    None means every opposing attacker, which is the plain wording.
+    """
+
+    def __init__(self, attacker_pred=None, protects="carrier", damage=True,
+                 effects_too=False):
+        self.attacker_pred = attacker_pred
+        self.protects = _protects_pred(protects)
+        self.damage = damage
+        self.effects_too = effects_too
+
+    def _covers(self, target, carrier, attacker) -> bool:
+        if not self.protects(target, carrier):
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
+
+    def prevents_damage(self, calc, carrier):
+        return bool(self.damage and calc.is_attack and calc.is_opposing
+                    and self._covers(calc.target, carrier, calc.attacker))
+
+    def blocks_attack_effects(self, target, carrier, attacker=None):
+        return bool(self.effects_too and self._covers(target, carrier, attacker))
+
+
+def attack_shield_from(attacker_pred=None, protects="carrier", damage=True,
+                       effects_too=False) -> Passive:
+    """"Prevent all [effects of] attacks[, including damage], done to <protects>
+    by attacks from <attacker_pred>". `damage=False` is the effects-only
+    wording; `effects_too=True` adds the effect half, which the damage path
+    can never express on its own."""
+    return AttackShieldPassive(attacker_pred, protects, damage, effects_too)
+
+
 def damage_shield_from(pred, protects="carrier") -> Passive:
     """"Prevent all damage done to this Pokemon by attacks from <X>": full
     prevention gated on the ATTACKER, not the target. `pred` takes the
     attacking Pokemon -- `attacker_is_gx_or_ex()`, `attacker_of_types("Darkness")`,
     `attacker_has_ability()`, or any callable of your own."""
-    protects_match = _protects_pred(protects)
-
-    def shield(calc, carrier) -> bool:
-        attacker = calc.attacker
-        if attacker is None or not protects_match(calc.target, carrier):
-            return False
-        return bool(pred(attacker))
-
-    return prevent_damage_when(shield)
+    return attack_shield_from(pred, protects)
 
 
 class TypedDamageBoostPassive(Passive):
@@ -598,7 +636,7 @@ class BenchedFullShieldPassive(Passive):
         return bool(calc.is_attack and calc.is_opposing
                     and self._benched(calc.target, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None):
         return self._benched(target, carrier)
 
 
@@ -954,19 +992,27 @@ def healing_block_passive(target_pred) -> Passive:
 
 
 class AttackEffectShieldPassive(Passive):
-    """Protected Pokemon are shielded from opposing attack EFFECTS."""
+    """Protected Pokemon are shielded from opposing attack EFFECTS.
 
-    def __init__(self, protects="carrier"):
+    `attacker_pred(attacker)` is the printed scope ("effects of attacks used by
+    your opponent's Pokemon-EX"); None is every opposing attacker."""
+
+    def __init__(self, protects="carrier", attacker_pred=None):
         self.protects = _protects_pred(protects)
+        self.attacker_pred = attacker_pred
 
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.protects(target, carrier))
+    def blocks_attack_effects(self, target, carrier, attacker=None):
+        if not self.protects(target, carrier):
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
 
 
-def attack_effect_shield_passive(protects="carrier") -> Passive:
+def attack_effect_shield_passive(protects="carrier", attacker_pred=None) -> Passive:
     """Unfazed Fat generalized: shields from attack effects, not damage
     (the engine already scopes the check to opposing attacks)."""
-    return AttackEffectShieldPassive(protects)
+    return AttackEffectShieldPassive(protects, attacker_pred)
 
 
 class FlipPreventDamagePassive(Passive):
@@ -1189,8 +1235,12 @@ class TempShieldPassive(Passive):
     def prevents_damage(self, calc, carrier):
         return bool(self.prevent and self._answers(calc, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+    def blocks_attack_effects(self, target, carrier, attacker=None):
+        if not self.effects_too or carrier_pokemon(carrier) is not target:
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
 
 
 async def apply_protection(ctx, target=None, reduce=None, prevent=False,
@@ -1480,7 +1530,7 @@ class BenchDamageShieldPassive(Passive):
     def blocks_bench_damage(self, calc, carrier):
         return True
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None):
         if not self.effects_too:
             return False
         parent = getattr(target, "parent", None)
