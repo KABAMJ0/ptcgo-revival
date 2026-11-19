@@ -8757,13 +8757,6 @@ def choose_condition_attack(damage: int = 0):
     return effect
 
 
-def opponent_one_prize_left():
-    """Attack condition: the opponent has exactly 1 Prize card remaining."""
-    def condition(ctx):
-        return len(ctx.board.find_player_area(ctx.opponent_id, "prizePile").children) == 1
-    return condition
-
-
 # --- Turn-scoped damage reduction and prize bargaining ----------------------
 
 def type_takes_less(amount: int, type_names, basic_only: bool = False):
