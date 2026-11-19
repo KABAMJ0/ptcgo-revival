@@ -1,6 +1,19 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.models.board import PokemonEntity
+
+
+async def _time_spiral(ctx):
+    """Time Spiral: strip the highest Evolution off one of their Pokemon."""
+    evolved = [p for p in ctx.opponent_pokemon_in_play()
+               if any(isinstance(c, PokemonEntity) for c in
+                      (getattr(p, "children", []) or []))]
+    if not evolved:
+        return
+    target = await ctx.choose_pokemon(evolved, "Choose one of their Pokemon")
+    if target is not None:
+        await ctx.devolve_pokemon(target, steps=1, destination="deck")
 
 card = PokemonCardDef(
     guid="b59c8b79-1069-5a8c-85d2-e1ef64fe95d9",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
             title="Time Spiral",
             game_text="Devolve 1 of your opponent's evolved Pok\u00e9mon by removing the highest Stage Evolution card from it. Your opponent shuffles that card into their deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=_time_spiral,
         ),
         Attack(
             title="Mind Bend",
