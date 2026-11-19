@@ -2,14 +2,11 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_fighting_energy(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIGHTING.value)
+from ptcgo.game.card_effects.pokemon import is_fighting_energy
 
 
 laser_focus = search_attach_energy(
-    predicate=_is_fighting_energy, count=2, to_self=True,
+    predicate=is_fighting_energy, count=2, to_self=True,
     prompt="Choose up to 2 Fighting Energy cards to attach.",
 )
 

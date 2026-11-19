@@ -3,10 +3,7 @@ from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_fire_energy(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 def _is_benched(pokemon):
@@ -15,7 +12,7 @@ def _is_benched(pokemon):
 
 
 grand_flame = attach_from_discard(
-    predicate=_is_fire_energy, count=2, target=_is_benched,
+    predicate=is_fire_energy, count=2, target=_is_benched,
     prompt="Choose up to 2 Fire Energy cards to attach.",
 )
 

@@ -2,10 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-
-
-def _is_fire_energy(card):
-    return energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 card = PokemonCardDef(
@@ -31,7 +28,7 @@ card = PokemonCardDef(
             game_text="Attach a Fire Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=30,
-            effect=attach_from_discard(predicate=_is_fire_energy),
+            effect=attach_from_discard(predicate=is_fire_energy),
         ),
         Attack(
             title="Fire Mane",

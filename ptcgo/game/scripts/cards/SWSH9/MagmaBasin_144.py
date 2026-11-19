@@ -1,10 +1,7 @@
 from ptcgo.game.data_utils import StadiumCardDef, Ability, Activations
 from ptcgo.game.attributes import Rarities, AttrID, PokemonTypes
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-
-
-def _is_fire_energy(card):
-    return energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 def _is_fire_pokemon(pokemon):
@@ -14,7 +11,7 @@ def _is_fire_pokemon(pokemon):
 
 def _magma_basin_condition(board, player_id, stadium):
     discard = board.find_player_area(player_id, "discard")
-    has_energy = bool(discard) and any(_is_fire_energy(c) for c in discard.children)
+    has_energy = bool(discard) and any(is_fire_energy(c) for c in discard.children)
     bench = board.find_player_area(player_id, "bench")
     has_bench = bool(bench) and any(_is_fire_pokemon(p) for p in bench.children)
     return has_energy and has_bench
@@ -24,7 +21,7 @@ async def _magma_basin_effect(ctx):
     """Once during each player's turn, that player may attach a Fire Energy from
     their discard pile to 1 of their Benched Fire Pokemon and put 2 damage
     counters on it."""
-    energy = [c for c in ctx.discard_pile() if _is_fire_energy(c)]
+    energy = [c for c in ctx.discard_pile() if is_fire_energy(c)]
     bench = [p for p in ctx.my_bench() if _is_fire_pokemon(p)]
     if not energy or not bench:
         return

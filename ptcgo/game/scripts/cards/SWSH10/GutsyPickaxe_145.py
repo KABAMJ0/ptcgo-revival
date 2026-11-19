@@ -1,10 +1,7 @@
 from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import PokemonTypes, Rarities
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
-
-
-def _is_fighting_energy_card(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIGHTING.value)
+from ptcgo.game.card_effects.pokemon import is_fighting_energy
 
 
 async def gutsy_pickaxe(ctx):
@@ -16,7 +13,7 @@ async def gutsy_pickaxe(ctx):
         return
     card = top[0]
     await ctx.reveal_cards([card])
-    if _is_fighting_energy_card(card):
+    if is_fighting_energy(card):
         bench = ctx.my_bench()
         if not bench:
             return

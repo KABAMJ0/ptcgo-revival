@@ -3,10 +3,8 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, opponent_prizes_taken_at_least
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.pokemon import is_psychic_energy
 
-
-def _is_psychic_energy(card):
-    return energy_provides_type(card, PokemonTypes.PSYCHIC.value)
 
 card = PokemonCardDef(
     guid="2577cc87-9e1b-5938-89f6-4dc23574caf9",
@@ -31,7 +29,7 @@ card = PokemonCardDef(
             game_text="Attach up to 2 Psychic Energy cards from your discard pile to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             effect=attach_from_discard(
-                predicate=_is_psychic_energy, count=2, target="choice", minimum=0,
+                predicate=is_psychic_energy, count=2, target="choice", minimum=0,
                 prompt="Choose up to 2 Psychic Energy cards from your discard pile to attach.",
             ),
         ),

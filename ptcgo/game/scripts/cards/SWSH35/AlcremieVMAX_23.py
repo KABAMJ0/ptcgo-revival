@@ -2,11 +2,7 @@ from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-
-
-def _is_psychic_energy(card):
-    return is_basic_energy_card(card) and \
-        energy_provides_type(card, PokemonTypes.PSYCHIC.value)
+from ptcgo.game.card_effects.pokemon import is_basic_psychic_energy
 
 
 async def adornment(ctx):
@@ -15,7 +11,7 @@ async def adornment(ctx):
         definition = def_for(pokemon.archetype_id)
         name = getattr(definition, "display_name", None) or "your Benched Pokémon"
         picks = await ctx.search_deck(
-            _is_psychic_energy, count=1, minimum=0,
+            is_basic_psychic_energy, count=1, minimum=0,
             prompt=f"Choose a Psychic Energy card to attach to {name}.",
         )
         if picks:

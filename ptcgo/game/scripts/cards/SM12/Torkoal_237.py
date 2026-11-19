@@ -2,10 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.card_effects.support_common import recover_from_discard
-
-
-def _is_fire_energy(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 async def axe_slash(ctx):
@@ -41,7 +38,7 @@ card = PokemonCardDef(
             title="Fire Fling",
             game_text="Put 4 Fire Energy cards from your discard pile into your hand.",
             cost={PokemonTypes.FIRE: 1},
-            effect=recover_from_discard(_is_fire_energy, count=4, minimum=0),
+            effect=recover_from_discard(is_fire_energy, count=4, minimum=0),
         ),
         Attack(
             title="Kindle",

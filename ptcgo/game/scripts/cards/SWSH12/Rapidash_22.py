@@ -3,17 +3,14 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.support_common import requires_hand
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
 from ptcgo.game.session.passives import TurnDamageModifier
-
-
-def is_fire_energy_card(card) -> bool:
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.FIRE.value)
+from ptcgo.game.card_effects.pokemon import is_fire_energy
 
 
 async def heat_boost(ctx):
     """Discard a Fire Energy from hand: your Fire Pokémon's attacks do +30
     to the opponent's Active this turn (before applying W/R)."""
     discarded = await ctx.discard_from_hand(
-        1, predicate=is_fire_energy_card,
+        1, predicate=is_fire_energy,
         prompt="Discard a Fire Energy card for Heat Boost",
     )
     if not discarded:
@@ -47,7 +44,7 @@ card = PokemonCardDef(
             title="Heat Boost",
             game_text="Once during your turn, you may discard a Fire Energy card from your hand in order to use this Ability. During this turn, your Fire Pok\u00e9mon's attacks do 30 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
             activation=Activations.ONCE_PER_TURN,
-            condition=requires_hand(is_fire_energy_card),
+            condition=requires_hand(is_fire_energy),
             effect=heat_boost,
         ),
         Attack(
