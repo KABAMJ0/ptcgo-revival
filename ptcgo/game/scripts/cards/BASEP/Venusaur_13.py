@@ -1,6 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+import math
+
+
+async def solar_power(ctx):
+    """Cure every Special Condition on both Active Pokemon."""
+    for pokemon in (ctx.my_active(), ctx.opponent_active()):
+        if pokemon is not None:
+            await ctx.cure_all_conditions(pokemon)
+
+
+async def mega_drain(ctx):
+    """Printed 40, then heal a counter per 20 damage dealt (half, rounded up to
+    the nearest 10)."""
+    dealt = await ctx.deal_damage()
+    if dealt <= 0 or ctx.attacker is None:
+        return
+    counters = math.ceil(math.ceil(dealt / 2) / 10)
+    await ctx.heal(10 * counters, target=ctx.attacker)
+
 card = PokemonCardDef(
     guid="9386e6db-eb51-5694-8d3c-26100199587d",
     key="BASEP",
@@ -22,14 +41,14 @@ card = PokemonCardDef(
         Ability(
             title="Solar Power",
             game_text="Once during your turn (before your attack), you may use this power. Your Active Pok\u00e9mon and the Defending Pok\u00e9mon are no longer Asleep, Confused, Paralyzed, or Poisoned. This power can't be used if Venusaur is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            effect=solar_power,
         ),
         Attack(
             title="Mega Drain",
             game_text="Remove a number of damage counters from Venusaur equal to half the damage done to the Defending Pok\u00e9mon (after applying Weakness and Resistance) (rounded up to the nearest 10). If Venusaur has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.GRASS: 4},
             damage=40,
-            effect=unimplemented,
+            effect=mega_drain,
         ),
     ],
 )
