@@ -1,8 +1,12 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def _precognitive_dream(ctx):
+    await ctx.draw_cards(3)
+    await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
 
 
 card = PokemonCardDef(
@@ -27,7 +31,7 @@ card = PokemonCardDef(
             title="Precognitive Dream",
             game_text="Draw 3 cards. This Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.METAL: 1},
-            effect=condition_attack(SpecialConditions.CONFUSED),
+            effect=_precognitive_dream,
         ),
         Attack(
             title="Iron Head",
