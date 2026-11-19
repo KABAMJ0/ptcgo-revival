@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.trainers import clear_attack_effects
 from ptcgo.game.data_utils import SupporterCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
 
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=190,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=clear_attack_effects()
 )

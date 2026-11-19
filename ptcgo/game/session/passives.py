@@ -219,6 +219,7 @@ class TempPassive:
     passive: "Passive"
     carrier_entity_id: str
     expires_after_turn: Optional[int] = None
+    from_attack: bool = False
 
 
 class DamageCalc:

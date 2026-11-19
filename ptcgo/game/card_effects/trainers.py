@@ -2698,6 +2698,14 @@ def opponent_switch_then_self_switch():
     return effect
 
 
+def clear_attack_effects():
+    """Remove all effects of attacks on you and each of your Pokemon
+    (Channeler)."""
+    async def effect(ctx):
+        return await ctx.clear_attack_effects()
+    return effect
+
+
 def stop_poke_powers():
     """Every Poke-Power stops working until the end of the opponent's next
     turn (Goop Gas Attack)."""

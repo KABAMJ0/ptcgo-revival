@@ -662,6 +662,36 @@ class EffectContext:
         )
         return True
 
+    async def clear_attack_effects(self, player_id: Optional[str] = None) -> int:
+        """Removes the effects attacks have left on a player's side (Channeler):
+        every Special Condition, the attack-granted passives, and the attack
+        and player attack locks. Returns how many carriers were cleared.
+
+        Provenance is what makes this safe: only passives stamped
+        `from_attack` are removed, so a shield or bonus a Trainer or Ability
+        granted survives, as the card's wording requires."""
+        pid = player_id or self.player_id
+        state = self.session.turn_state
+        cleared = 0
+        for pokemon in self.board.pokemon_in_play(pid):
+            if await self.cure_all_conditions(pokemon):
+                cleared += 1
+        keep = []
+        for temp in self.board.temporary_passives:
+            if temp.from_attack and temp.carrier_entity_id in {
+                    p.entity_id for p in self.board.pokemon_in_play(pid)}:
+                cleared += 1
+                continue
+            keep.append(temp)
+        self.board.temporary_passives = keep
+        ids = {p.entity_id for p in self.board.pokemon_in_play(pid)}
+        for key in [k for k in state.attack_locks if k[0] in ids]:
+            state.attack_locks.pop(key, None)
+            cleared += 1
+        if state.player_attack_locks.pop(pid, None) is not None:
+            cleared += 1
+        return cleared
+
     async def cure_all_conditions(self, target: Optional[PokemonEntity]) -> bool:
         """Removes every Special Condition from `target` ("...it recovers from
         all Special Conditions"); returns True if any were removed."""
@@ -719,7 +749,8 @@ class EffectContext:
         """Attaches an effect-granted passive to `target` (expires_after_turn
         None = until it leaves the Active spot / play)."""
         self.board.temporary_passives.append(
-            TempPassive(passive, target.entity_id, expires_after_turn)
+            TempPassive(passive, target.entity_id, expires_after_turn,
+                        from_attack=self.is_attack_effect())
         )
 
     def add_passive_through_opponents_turn(self, target, passive) -> None:
