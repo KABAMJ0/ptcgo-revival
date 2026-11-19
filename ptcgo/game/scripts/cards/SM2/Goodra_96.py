@@ -2,6 +2,19 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
 
+async def _goodra_scaled_snipe(ctx):
+    attacker = ctx.attacker or ctx.source
+    amount = 20 * len(ctx.attached_energies(attacker))
+    pool = [p for p in ctx.opponent_bench() if p is not None]
+    if ctx.opponent_active() is not None:
+        pool.append(ctx.opponent_active())
+    if not pool:
+        return
+    target = await ctx.choose_pokemon(pool, "Choose a Pokémon")
+    if target is not None:
+        await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="a57cb90f-cee9-5967-ad18-3615c866465d",
     key="SM2",
@@ -24,7 +37,7 @@ card = PokemonCardDef(
             title="Power Whip",
             game_text="This attack does 20 damage times the amount of Energy attached to this Pok\u00e9mon to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_goodra_scaled_snipe,
         ),
         Attack(
             title="Beat Slider",
