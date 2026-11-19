@@ -4,6 +4,25 @@ from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
 
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import def_for
+
+
+def _is_koffing_weezing(pokemon) -> bool:
+    definition = def_for(pokemon.archetype_id)
+    name = getattr(definition, "display_name", "") or ""
+    return name in ("Koffing", "Weezing", "Dark Weezing")
+
+
+async def mass_explosion(ctx):
+    """20 times the number of Koffings, Weezings and Dark Weezings in play, then
+    20 to each of them."""
+    everyone = ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play()
+    family = [p for p in everyone if _is_koffing_weezing(p)]
+    await ctx.deal_damage(20 * len(family))
+    for pokemon in family:
+        await ctx.deal_damage(20, target=pokemon, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="6472068c-0a36-5a6e-b3c9-d66856fcca93",
     key="BASE5",
@@ -28,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=mass_explosion,
         ),
         Attack(
             title="Stun Gas",

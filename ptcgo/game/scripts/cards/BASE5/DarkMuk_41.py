@@ -4,6 +4,10 @@ from ptcgo.game.attributes import SpecialConditions
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.passives_common import opponent_retreat_tax_passive
+
+_sticky_goo = opponent_retreat_tax_passive(2, active_only=True)
+
 card = PokemonCardDef(
     guid="d9e1997e-aed6-5bb6-aa35-160d66b81cd0",
     key="BASE5",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
         Ability(
             title="Sticky Goo",
             game_text="As long as Dark Muk is your Active Pok\u00e9mon, your opponent pays ColorlessColorless more to retreat his or her Active Pok\u00e9mon. This power stops working while Dark Muk is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            passive=_sticky_goo,
         ),
         Attack(
             title="Sludge Punch",

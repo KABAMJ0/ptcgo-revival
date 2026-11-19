@@ -1,6 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def surprise_thunder(ctx):
+    """Printed 30; on heads a second coin picks 20 or 10 to each of their
+    Benched Pokemon."""
+    await ctx.deal_damage()
+    first = await ctx.flip_coins(1, "Surprise Thunder")
+    if not (first and first[0]):
+        return
+    second = await ctx.flip_coins(1, "Surprise Thunder")
+    each = 20 if (second and second[0]) else 10
+    for benched in ctx.opponent_bench():
+        await ctx.deal_damage(each, target=benched, apply_modifiers=False)
+
 card = PokemonCardDef(
     guid="c013607b-3719-5aee-b429-7d721878bed0",
     key="BASE5",
@@ -24,7 +36,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, flip another coin. If the second coin is heads, this attack does 20 damage to each of your opponent's Benched Pok\u00e9mon. If the second coin is tails, this attack does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 3},
             damage=30,
-            effect=unimplemented,
+            effect=surprise_thunder,
         ),
     ],
 )

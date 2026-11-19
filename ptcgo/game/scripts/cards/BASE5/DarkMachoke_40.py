@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, choose 1 of your opponent's Benched Pok\u00e9mon and switch it with the Defending Pok\u00e9mon. Do the damage to the new Defending Pok\u00e9mon. This attack can't be used if your opponent has no Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=20, damage_before=0),
         ),
         Attack(
             title="Knock Back",
