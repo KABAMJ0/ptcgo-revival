@@ -555,6 +555,16 @@ async def opponent_switches(ctx):
     return target
 
 
+def flip_opponent_switches(title=""):
+    """Flip a coin. If heads, the opponent switches their Active with a
+    Benched Pokémon of their choice (Pokémon Reversal)."""
+    async def effect(ctx):
+        results = await ctx.flip_coins(1, title or "Pokémon Reversal")
+        if results and results[0]:
+            await opponent_switches(ctx)
+    return effect
+
+
 def switch_self_attack(damage=None, optional=False, bench_predicate=None,
                        then=None):
     """Damage first (text order), then switch this Pokémon with a Benched one
@@ -616,6 +626,16 @@ def gust_attack(damage_to_new_active=0, damage_before=None, opponent_chooses=Fal
         if new_active is not None and damage_to_new_active > 0:
             await ctx.deal_damage(damage_to_new_active, target=new_active)
     return effect
+
+
+def gust_then_damage(amount: int, opponent_chooses: bool = False):
+    """"Switch in 1 of your opponent's Benched Pokemon to the Active Spot. This
+    attack does N damage to the new Active Pokemon." A thin name for
+    `gust_attack(damage_to_new_active=amount, damage_before=0)`, which already
+    chains the switched-in Active as the target; both attack and ability bodies
+    can use it."""
+    return gust_attack(damage_to_new_active=amount, damage_before=0,
+                       opponent_chooses=opponent_chooses)
 
 
 def gust_then(then, opponent_chooses=False):

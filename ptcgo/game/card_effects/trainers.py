@@ -1618,15 +1618,16 @@ def each_player_shuffle_draw(n: int):
 
 def discard_energy_opponent(count: int = 1, flip: bool = False,
                             scope: str = "any", energy_pred=None,
-                            damage=None):
+                            damage=None, title: str = "Discard an Energy"):
     """Discard up to `count` Energy from the opponent's Pokemon; `scope` is
     'any' (choose the holder) or 'active'. flip=True pays a coin first
-    ("Flip a coin. If heads, discard an Energy..."). `damage` deals the attack's
-    damage before the rider; leave it None for a Trainer."""
+    ("Flip a coin. If heads, discard an Energy..."), shown under `title`.
+    `damage` deals the attack's damage before the rider; leave it None for a
+    Trainer."""
     async def effect(ctx):
         if damage is not None:
             await ctx.deal_damage(damage)
-        if flip and not (await ctx.flip_coins(1, title="Discard an Energy"))[0]:
+        if flip and not (await ctx.flip_coins(1, title=title))[0]:
             return
         if scope == "active":
             pool = [ctx.opponent_active()]
@@ -1648,6 +1649,13 @@ def discard_energy_opponent(count: int = 1, flip: bool = False,
                 holder, count, predicate=energy_pred,
                 prompt="Choose an Energy to discard")
     return effect
+
+
+def flip_discard_opponent_energy(title: str = "Energy Removal"):
+    """Flip a coin. If heads, discard 1 Energy from 1 of the opponent's Pokémon
+    (Energy Removal 2 / Crushing Hammer). A name over the Trainer body
+    `discard_energy_opponent`, which is where the behaviour lives."""
+    return discard_energy_opponent(count=1, flip=True, title=title)
 
 
 def discard_energy_each_opponent(predicate=None):
