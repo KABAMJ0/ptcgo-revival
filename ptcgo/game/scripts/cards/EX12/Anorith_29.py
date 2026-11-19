@@ -1,6 +1,26 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.card_effects.attacks_common import search_bench_as_basic
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _has_react_energy(ctx):
+    from ptcgo.game.content.definitions import def_for
+    for energy in ctx.attached_energies(ctx.attacker):
+        definition = def_for(energy.archetype_id)
+        if definition is not None and "react" in (definition.display_name or "").lower():
+            return True
+    return False
+
+
+async def stretch_claws(ctx):
+    """Printed 20, plus 20 to 1 of the opponent's Benched Pokemon when a React
+    Energy is attached."""
+    if _has_react_energy(ctx):
+        await snipe_attack(20, pool="bench", count=1, also_base=True,
+                           apply_modifiers=False)(ctx)
+    else:
+        await ctx.deal_damage()
 
 card = PokemonCardDef(
     guid="e496735b-4e1e-51c7-8a36-9d1d2b728fb1",
@@ -31,7 +51,7 @@ card = PokemonCardDef(
             game_text="If Anorith has any React Energy cards attached to it, this attack does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=stretch_claws,
         ),
     ],
 )
