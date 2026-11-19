@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="c9b90dbe-7c48-539d-af0b-48f49a67956d",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=270,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
         ),
     ],
 )

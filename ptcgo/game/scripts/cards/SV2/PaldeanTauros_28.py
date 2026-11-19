@@ -1,6 +1,9 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, self_energy_discard_attack
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="a0a25ffb-7557-52fb-b677-6de480ebe72d",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Blaze Dash",

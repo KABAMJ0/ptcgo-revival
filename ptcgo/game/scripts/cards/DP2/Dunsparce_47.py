@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="0aac05b6-ba05-5b9d-9786-09e59fb2aab3",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Snake Hook",
             game_text="Draw a card.",
             cost={},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Bite and Run",

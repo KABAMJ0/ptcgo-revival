@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="580b4c35-d908-5000-9e95-eac8e390bfd5",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Linear Attack",
             game_text="This attack does 30 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any", count=1, apply_modifiers=False),
         ),
         Attack(
             title="Destructor Beam",

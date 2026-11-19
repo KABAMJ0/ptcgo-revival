@@ -1,5 +1,8 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="8c430563-cd64-55f8-9e13-e8af2c5fb7dc",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Top Burner",
             game_text="For each Fire Energy attached to Magmortar, discard the top card from your opponent's deck. Then, flip a coin. If tail, discard all Fire Energy attached to Magmortar.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Burst Punch",
             game_text="The Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
     ],
 )

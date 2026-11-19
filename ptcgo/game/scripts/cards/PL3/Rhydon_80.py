@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=20),
         ),
         Attack(
             title="Rock Tumble",
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

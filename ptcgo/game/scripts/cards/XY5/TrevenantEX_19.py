@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per, no_retreat_attack
 
 card = PokemonCardDef(
     guid="cb644f4c-9f1b-5031-ab93-fbc85bc5767c",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.GRASS), per=20, base=50),
         ),
     ],
 )

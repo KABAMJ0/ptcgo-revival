@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="038dabeb-2156-5c96-8eb0-b0cf60865be5",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Super Speed",
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Doduo.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
         Attack(
             title="Rear Kick",

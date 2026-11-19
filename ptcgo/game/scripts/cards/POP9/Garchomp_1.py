@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 card = PokemonCardDef(
     guid="d8043f0f-b94b-561d-a11f-1a10b8192656",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip 2 coins. If either of them is tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=flip_or_nothing(coins=2),
         ),
         Attack(
             title="Jet Sword",

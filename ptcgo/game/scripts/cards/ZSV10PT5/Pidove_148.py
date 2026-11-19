@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 
 card = PokemonCardDef(
     guid="82f495f0-255a-594a-be5c-15e946327b28",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Scout",
             game_text="Your opponent reveals their hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Stampede",

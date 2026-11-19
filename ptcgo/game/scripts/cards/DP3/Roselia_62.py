@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="816b1eb4-7e6a-51e7-b68b-6173eb9b82ce",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Sleep Powder",
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Razor Leaf",

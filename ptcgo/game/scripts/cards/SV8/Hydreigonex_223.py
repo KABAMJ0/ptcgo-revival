@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import mill_attack, snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Discard the top 3 cards of your opponent's deck.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=mill_attack(count=3),
         ),
         Attack(
             title="Obsidian",
             game_text="This attack also does 130 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.DARKNESS: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=snipe_attack(130, pool="bench", count=2, apply_modifiers=False, also_base=True),
         ),
     ],
 )

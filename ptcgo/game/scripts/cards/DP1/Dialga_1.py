@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="6d4b6afc-4d19-5203-a385-664cd87bfd84",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Draw a card.",
             cost={PokemonTypes.METAL: 1},
             damage=10,
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Flash Cannon",

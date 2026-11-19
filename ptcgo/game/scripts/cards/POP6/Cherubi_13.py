@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="86189593-002d-5d8c-af32-8aaf9f8d4cdc",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sleep Powder",
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Leech Seed",

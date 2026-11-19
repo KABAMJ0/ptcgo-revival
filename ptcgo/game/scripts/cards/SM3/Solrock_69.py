@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="967a4a46-7c96-53be-bb75-11af5d3a1c02",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Double Draw",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Solar Heat",

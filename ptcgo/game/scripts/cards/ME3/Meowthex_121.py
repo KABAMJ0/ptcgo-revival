@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.support_common import remove_self_from_play, search_to_hand
 from ptcgo.game.session.effects import is_supporter_card
 
 card = PokemonCardDef(
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=remove_self_from_play(destination="hand", with_attachments="same"),
         ),
     ],
 )

@@ -1,5 +1,21 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
+import random
+
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def _astonish(ctx):
+    """Printed damage, then a random card from the opponent's hand is
+    revealed and shuffled into their deck."""
+    await ctx.deal_damage()
+    hand = ctx.hand(ctx.opponent_id)
+    if not hand:
+        return
+    card = random.choice(hand)
+    await ctx.reveal_cards([card])
+    await ctx.shuffle_into_deck([card], ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="505dc3a7-af6f-585a-9439-c50342baeb2e",
@@ -24,14 +40,14 @@ card = PokemonCardDef(
             game_text="Choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into his or her deck.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=_astonish,
         ),
         Attack(
             title="Splash Dance",
             game_text="During your next turn, this Pok\u00e9mon's Splash Dance attack does 60 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=boost_own_next_turn(60, attack_title="Splash Dance"),
         ),
     ],
 )

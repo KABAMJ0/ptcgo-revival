@@ -1,5 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
+
+
+async def _snarl_after_modifiers(ctx):
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+
+    def _from_defender(attacker):
+        return attacker.entity_id == defender.entity_id
+
+    for pokemon in ctx.my_pokemon_in_play():
+        ctx.add_passive_through_opponents_turn(
+            pokemon, takes_less_passive(20, attacker_pred=_from_defender))
+
 
 card = PokemonCardDef(
     guid="25d00913-a8ce-5666-a281-1c85d292e7e5",
@@ -30,7 +46,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 20 (after applying Weakness and Resistance).",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
-            effect=unimplemented,
+            effect=_snarl_after_modifiers,
         ),
     ],
 )

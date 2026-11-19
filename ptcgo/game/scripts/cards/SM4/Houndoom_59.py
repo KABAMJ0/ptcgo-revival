@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="06d422c7-51b4-5684-97b1-244bb4e07a48",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Puncturing Fangs",

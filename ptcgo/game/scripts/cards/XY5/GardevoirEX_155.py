@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
 
 card = PokemonCardDef(
     guid="7b3af7c7-ae04-57b2-8ec4-45f462a4b9d4",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1},
             damage=20,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
         Attack(
             title="Shining Wind",

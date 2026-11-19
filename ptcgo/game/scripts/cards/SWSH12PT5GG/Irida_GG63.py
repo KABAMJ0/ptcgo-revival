@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import irida
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 
 card = SupporterCardDef(
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=63,
     set_code="SWSH12PT5GG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=irida
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="dd192e92-9eb6-569b-b2bd-57e39d7bb466",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for Nidoran \u2642 or Nidoran \u2640 and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("nidoran"), count=1),
         ),
         Attack(
             title="Poison Sting",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
     ],
 )

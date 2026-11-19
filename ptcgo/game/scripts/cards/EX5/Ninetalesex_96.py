@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.support_common import gust_then
+
+async def burn_and_confuse_new_defender(ctx, pokemon):
+    await ctx.apply_special_condition(pokemon, SpecialConditions.BURNED)
+    await ctx.apply_special_condition(pokemon, SpecialConditions.CONFUSED)
+
 
 card = PokemonCardDef(
     guid="e7b30d72-d3d4-58aa-97db-b0aa73e59093",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             title="Intense Glare",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with 1 of the Defending Pok\u00e9mon. Your opponent chooses the Defending Pok\u00e9mon to switch. The new Defending Pok\u00e9mon is now Burned and Confused.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_then(burn_and_confuse_new_defender, opponent_chooses=True),
         ),
         Attack(
             title="Fire Blast",

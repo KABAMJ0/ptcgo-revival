@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 2 basic Energy cards and attach them to 1 of your Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=2, distribute=False),
         ),
         Attack(
             title="Thunder",

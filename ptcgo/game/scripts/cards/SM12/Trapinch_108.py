@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="f81001e1-87fb-57a9-ab09-3cfbcdc7e523",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
     ],
 )

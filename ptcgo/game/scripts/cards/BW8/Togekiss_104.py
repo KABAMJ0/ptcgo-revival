@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="3e41a8a1-1ef1-50f3-8e4a-23d4f056cd95",
@@ -23,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Bright Veil",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever your opponent plays an Item card from his or her hand, prevent all effects of that card done to your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Return",
             game_text="Draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
     ],
 )

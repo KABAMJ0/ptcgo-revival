@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="b8d044a1-1a9c-5e56-bd18-98f4f336453a",
@@ -24,14 +26,14 @@ card = PokemonCardDef(
             title="Helping Hand",
             game_text="Search your deck for a basic Energy card and attach it to 1 of your Benched Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
         Attack(
             title="Cotton Guard",
             game_text="During your opponent's next turn, any damage done to this Pok\u00e9mon by attacks is reduced by 30 (after applying Weakness and Resistance).",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
     ],
 )

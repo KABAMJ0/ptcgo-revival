@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="b0aaae04-4482-5e62-9ff0-a9478a2593fa",
@@ -26,13 +27,13 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, prevent all damage done by attacks to Dugtrio during your opponent's next turn. (Any other effects of attacks still happen.)",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_protection(prevent=True),
         ),
         Attack(
             title="Dig Under",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 30 damage to that Pok\u00e9mon. Don't apply Weakness or Resistance. (Any other effects that would happen after applying Weakness and Resistance still happen.)",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=snipe_attack(30, pool="any", count=1, apply_modifiers=False),
+            effect=snipe_attack(30, pool="any"),
         ),
     ],
 )

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="de9f0732-5f90-5058-bb7e-996bbc7230da",
@@ -24,14 +26,14 @@ card = PokemonCardDef(
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=100,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Draconic Buster",
             game_text="Discard all Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=260,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
     ],
 )

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Nosh",
             game_text="Heal 40 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_attack(40),
         ),
         Attack(
             title="Loom Over",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=130,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
         ),
     ],
 )

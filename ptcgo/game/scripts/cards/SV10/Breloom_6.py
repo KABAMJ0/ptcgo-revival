@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="875246e0-c765-58b9-a26c-eac44b6e3f96",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(until_tails=True, per_heads=50, base=30),
         ),
         Attack(
             title="Mega Drain",
             game_text="Heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=unimplemented,
+            effect=heal_attack(30),
         ),
     ],
 )

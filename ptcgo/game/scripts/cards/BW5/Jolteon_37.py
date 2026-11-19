@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.pokemon import energy_provides_type
-from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus, flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 _provides = lambda type_value: (
@@ -45,7 +45,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=40),
         ),
     ],
 )

@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="945ea286-0679-5eb1-8b8b-5c6b83457cc0",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=flip_damage(until_tails=True, per_heads=10),
+            effect=flip_damage(per_heads=10, until_tails=True),
         ),
         Attack(
             title="Energy Support",

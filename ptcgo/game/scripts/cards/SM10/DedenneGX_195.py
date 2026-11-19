@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import discard_then_draw
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Dedechange",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may discard your hand and draw 6 cards. You can't use more than 1 Dedechange Ability each turn.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=discard_then_draw(discard_count=99, draw_count=6, whole_hand=True),
         ),
         Attack(
             title="Static Shock",

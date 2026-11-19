@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
+from ptcgo.game.card_effects.trainers import personality_test
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=102,
     set_code="NEO4",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=personality_test
 )

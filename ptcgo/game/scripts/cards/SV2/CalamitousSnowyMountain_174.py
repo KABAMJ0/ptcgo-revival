@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef, unimplemented, Ability, Triggers
+from ptcgo.game.card_effects.support_common import trigger_counters
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,9 @@ card = StadiumCardDef(
     collector_number=174,
     set_code="SV2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    ability=Ability(
+        title="Calamitous Snowy Mountain",
+        trigger=Triggers.ON_ENERGY_ATTACHED,
+        effect=trigger_counters(2, lambda p, c: has_pokemon_subtype(p, "Basic") or True),
+    )
 )

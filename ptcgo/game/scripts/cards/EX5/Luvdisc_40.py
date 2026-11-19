@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="34a95748-c3d1-5693-bf3b-44cd706b684c",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Sweet Temptation",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with 1 of the Defending Pok\u00e9mon. Your opponent chooses the Defending Pok\u00e9mon to switch. This attack does 10 damage to the new Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=10, damage_before=0, opponent_chooses=True),
         ),
     ],
 )

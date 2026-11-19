@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="8ffdd970-f2d4-5a1c-b80c-6d0eda9f97cf",
@@ -23,14 +26,14 @@ card = PokemonCardDef(
             title="Find Wildfire",
             game_text="Search your deck for up to 3 Fire Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("fire"), count=3, minimum=0, reveal=True),
         ),
         Attack(
             title="Flare Blitz",
             game_text="Discard all Fire Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2},
             damage=110,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, energy_type=PokemonTypes.FIRE),
         ),
     ],
 )

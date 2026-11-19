@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_until_tails_draw
 
 card = SupporterCardDef(
     guid="91e720d8-9311-56cb-ae4e-b30e4218c729",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=142,
     set_code="ECARD1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=flip_until_tails_draw(2)
 )

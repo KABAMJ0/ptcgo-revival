@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import bubble_coat_tool
 
 card = PokemonToolCardDef(
     guid="44f3496a-7286-530d-b131-a494f9bc8393",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=129,
     set_code="DP6",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=bubble_coat_tool(),
 )

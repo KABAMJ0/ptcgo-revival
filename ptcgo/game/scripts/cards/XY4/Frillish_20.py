@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="9d90c9c3-5cc1-55d5-9531-3a2fe1160515",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Confuse Ray",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
     ],
 )

@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="e306e820-df8e-5b93-b1e1-9aa109130c17",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=10,
             damage_operator="+",
-            effect=flip_damage(base=10, bonus=10),
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
         ),
     ],
 )

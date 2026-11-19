@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import baby_evolution, draw_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_baby_effect, _baby_in_hand = baby_evolution("Pikachu")
 
 card = PokemonCardDef(
     guid="ff690509-e124-5748-94b3-92958df977d8",
@@ -21,13 +24,15 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Pikachu from your hand onto Pichu (this counts as evolving Pichu) and remove all damage counters from Pichu.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Collect",
             game_text="Draw a card.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
     ],
 )

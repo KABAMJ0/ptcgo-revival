@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="56d0fb91-130d-52a5-b80a-c49a59cd699e",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Tail Trickery",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Fury Swipes",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=10),
         ),
     ],
 )

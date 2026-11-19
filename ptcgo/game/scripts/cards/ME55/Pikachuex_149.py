@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="4a538f15-6c14-5f18-99c8-a2c5eff1675b",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
             title="Pika-Pika Parade",
             game_text="Search your deck for any number of Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Thunderbolt",
             game_text="Discard all Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
     ],
 )

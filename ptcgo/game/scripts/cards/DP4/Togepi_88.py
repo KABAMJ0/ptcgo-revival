@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.session.effects import is_pokemon_card
 from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.card_effects.attacks_common import flip_gate
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_gate
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="23fa92c7-51c2-51ec-95a0-b0714222c983",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Yawn",
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Find a Friend",

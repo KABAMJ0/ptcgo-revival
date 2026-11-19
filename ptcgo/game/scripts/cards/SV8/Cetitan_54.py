@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import takes_less_passive
 
 card = PokemonCardDef(
     guid="28d77eef-611a-5270-bfe2-e628c52fd93e",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Solid Body",
             game_text="This Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30),
         ),
         Attack(
             title="Dangerous Mouth",

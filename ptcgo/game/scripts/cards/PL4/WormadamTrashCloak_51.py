@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="b52f9267-fb90-588a-9ac4-8f1b652d169b",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Cloak Shard",
             game_text="Choose 1 of your opponent's Pok\u00e9mon. This attack does 10 damage to that Pok\u00e9mon. If you have Wormadam Plant Cloak in play, this attack does 40 damage to that Pok\u00e9mon instead. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1},
-            effect=snipe_attack(10, pool="any", count=1, apply_modifiers=False),
+            effect=snipe_attack(10, pool="any"),
         ),
         Attack(
             title="Serve Trash",

@@ -1,5 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import bonus_if, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=bonus_if(lambda ctx: damage_counters_on("defender")(ctx) > 0, 50),
+            effect=bonus_if(has_damage("defender"), 50),
         ),
     ],
 )

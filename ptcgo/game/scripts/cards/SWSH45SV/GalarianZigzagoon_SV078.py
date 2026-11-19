@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, place_counters
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,14 +22,15 @@ card = PokemonCardDef(
         Ability(
             title="Headbutt Tantrum",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may put 1 damage counter on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=place_counters(1, target="choose_any_opponent"),
         ),
         Attack(
             title="Surprise Attack",
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )

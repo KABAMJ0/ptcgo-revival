@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
 
 card = PokemonCardDef(
     guid="0042affd-7efc-50ba-8471-63c21e797477",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
     ],
 )

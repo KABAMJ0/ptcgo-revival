@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="20f46655-742d-5d48-9670-52e27befe031",
@@ -29,14 +30,14 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
         Attack(
             title="Sky Uppercut",
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

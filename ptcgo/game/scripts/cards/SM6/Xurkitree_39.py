@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="f3caa54e-19b9-523a-a089-daad68015528",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Cablegram",

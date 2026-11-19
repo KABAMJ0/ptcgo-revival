@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="cbd96e7c-c802-5d0f-ab7c-ecb1db252a77",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Harden",
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks if that damage is 40 or less.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, max_damage=40),
         ),
         Attack(
             title="Rolling Rocks",

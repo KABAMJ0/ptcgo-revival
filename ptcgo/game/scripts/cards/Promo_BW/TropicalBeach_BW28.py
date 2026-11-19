@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
+from ptcgo.game.card_effects.trainers import draw_until_then_turn_ends, stadium_ability
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=28,
     set_code="Promo_BW",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    ability=stadium_ability('Tropical Beach', draw_until_then_turn_ends(7))
 )

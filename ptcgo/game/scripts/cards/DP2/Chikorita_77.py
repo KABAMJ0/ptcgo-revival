@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="baeb16f1-2305-5856-87b9-c9cbc0114529",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sleep Scent",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Asleep.",
             cost={},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, flip=True),
         ),
         Attack(
             title="Jump On",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
         ),
     ],
 )

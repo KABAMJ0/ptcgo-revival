@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tropical_wind
 
 card = ItemCardDef(
     guid="8420000c-d47f-5caf-a3f1-73fd7547a6c9",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=25,
     set_code="DPP",
     rarity=Rarities.RarePromo,
-    effect=unimplemented
+    effect=tropical_wind(2, 1)
 )

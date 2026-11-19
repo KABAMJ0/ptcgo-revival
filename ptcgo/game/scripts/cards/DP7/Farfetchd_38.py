@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage_table
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_trainer_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="4fb6f6a9-7ed6-528b-ba16-98cda62dee1e",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Go and Collect",
             game_text="Search your deck for a Trainer, Supporter, or Stadium card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_trainer_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Fury Cutter",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage_table({1: 10, 2: 20, 3: 40}, base=10),
         ),
     ],
 )

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Impound",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Double Scratch",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=20),
         ),
     ],
 )

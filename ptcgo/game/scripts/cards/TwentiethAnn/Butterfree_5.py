@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Quiver Dance",
             game_text="Search your deck for a basic Energy card and attach it to this Pok\u00e9mon. Shuffle your deck afterward. If you attached Energy in this way, heal 40 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_basic_energy_card, count=1, to_self=True),
         ),
         Attack(
             title="Gust",

@@ -1,7 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.patterns import is_pokemon_of_type
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="7c23401d-1ab9-568d-ba28-2ffa24535624",
@@ -37,7 +38,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
     ],
 )

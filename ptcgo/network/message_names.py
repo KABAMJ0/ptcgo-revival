@@ -320,6 +320,11 @@ class OutboundMsg(str, Enum):
     # Source: AllScenarios
     ALL_SCENARIOS = "AllScenarios"
 
+    # Source: HasAvailableTutorialMatches ({hasAvailableMatches: bool}) — the
+    # tutorial funnel's "is there another scripted match" flag; the scene jumps
+    # straight to the booster step when this reads false.
+    HAS_AVAILABLE_TUTORIAL_MATCHES = "HasAvailableTutorialMatches"
+
     # Source: dwd.core.notifications.messages.incoming.NotificationsRequested
     NOTIFICATIONS_REQUESTED = "NotificationsRequested"
 

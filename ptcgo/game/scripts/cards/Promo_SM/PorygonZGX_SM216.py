@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="5cc94745-1e52-5413-a42b-0fcb2d451bdf",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=160,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, self_conditions=(SpecialConditions.BURNED,)),
         ),
         Attack(
             title="Critical Error-GX",

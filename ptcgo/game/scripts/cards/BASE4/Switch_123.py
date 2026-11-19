@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import switch
 
 card = ItemCardDef(
     guid="171a5793-fc7f-5c22-8cc8-07ecb1ab02ba",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=123,
     set_code="BASE4",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=switch
 )

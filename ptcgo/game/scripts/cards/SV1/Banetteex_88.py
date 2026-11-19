@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 
 card = PokemonCardDef(
     guid="090314e7-2206-5e08-a48f-36df9496e940",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=lock_opponent_plays("item"),
         ),
         Attack(
             title="Poltergeist",

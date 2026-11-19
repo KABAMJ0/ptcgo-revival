@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import flip_both_recover, is_pokemon_card, is_trainer_card
 
 card = ItemCardDef(
     guid="1d88c3b4-8160-5e7b-9a57-21c661c71984",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=64,
     set_code="NEO3",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=flip_both_recover(is_pokemon_card, is_trainer_card)
 )

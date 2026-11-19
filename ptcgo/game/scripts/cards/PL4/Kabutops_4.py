@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
+from ptcgo.game.card_effects.trainers import any_of, named
 
 card = PokemonCardDef(
     guid="3d15fa26-fe1b-5c29-811c-6384b9402eb3",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_for_bonus(predicate=any_of(named("helix fossil"), named("dome fossil"), named("old amber")), max_count=1, flat=50),
         ),
         Attack(
             title="Rock Slide",

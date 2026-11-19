@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Water Shuriken",
             game_text="Once during your turn (before your attack), you may discard a Water Energy card from your hand. If you do, put 3 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
         Attack(
             title="Mist Slash",
             game_text="This attack's damage isn't affected by Weakness, Resistance, or any other effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=50,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True, ignore_target_effects=True),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="6b81b240-71bd-5f97-8dc9-8ed63fcd6331",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Smashing Headbutt",
             game_text="Discard 2 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2),
         ),
     ],
 )

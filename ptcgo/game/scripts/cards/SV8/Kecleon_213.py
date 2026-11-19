@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Lick Whip",
             game_text="This attack does 30 damage to 1 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=snipe_attack(30, pool="any"),
         ),
     ],
 )

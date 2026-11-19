@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done to Steelix by attacks is reduced by 20 (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Steel Swing",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 2},
             damage=80,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=80),
         ),
     ],
 )

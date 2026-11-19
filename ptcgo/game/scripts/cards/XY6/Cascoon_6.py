@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="844e4399-aacc-59b5-8f83-147c5bdfad92",
@@ -23,13 +25,13 @@ card = PokemonCardDef(
             title="Poison Sting",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Iron Defense",
             game_text="Flip a coin. If heads, prevent all damage done to this Pok\u00e9mon by attacks during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=flip_protection(prevent=True),
         ),
     ],
 )

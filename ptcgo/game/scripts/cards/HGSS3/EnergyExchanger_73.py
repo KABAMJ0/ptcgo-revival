@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import energy_exchange
 
 card = ItemCardDef(
     guid="e1d35f01-14f2-5c86-9c1b-5e95f19ac948",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=73,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=energy_exchange()
 )

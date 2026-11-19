@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="c6c9d67c-848a-5637-97da-8f8878c1e741",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Melting Horn",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Grand Flame",

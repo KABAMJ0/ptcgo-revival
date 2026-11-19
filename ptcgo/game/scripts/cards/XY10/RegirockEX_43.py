@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 
 card = PokemonCardDef(
     guid="987c3c8f-41ee-55b1-b887-1f5817c04335",
@@ -21,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Regi Power",
             game_text="The attacks of your Fighting Pok\u00e9mon (excluding Regirock-EX) do 10 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Bedrock Press",
             game_text="During your opponent's next turn, any damage done to this Pok\u00e9mon by attacks is reduced by 20 (after applying Weakness and Resistance).",
             cost={PokemonTypes.FIGHTING: 3},
             damage=100,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
     ],
 )

@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack, no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="e43cf7c3-dfb6-51e9-9be0-1d44c1aaf439",
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             title="Paralyzing Gaze",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
         Attack(
             title="Shadow Bind",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
     ],
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="f726b998-c9e7-59b1-935e-094cc7a4d32c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Me First",
             game_text="Draw a card.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Peck",

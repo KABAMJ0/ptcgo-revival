@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,14 +28,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=5, per_heads=10),
         ),
         Attack(
             title="Clutch",
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
     ],
 )

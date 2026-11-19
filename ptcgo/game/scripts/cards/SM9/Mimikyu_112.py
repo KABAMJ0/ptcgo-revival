@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="ac6573fa-7d65-5f9c-97a4-47282f97c1ca",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
             title="Filch",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Copycat",

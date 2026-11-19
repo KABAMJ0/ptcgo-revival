@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, place_counters
 
 card = PokemonCardDef(
     guid="207c105a-0e42-51b7-855f-0b15a633ab7d",
@@ -23,14 +24,15 @@ card = PokemonCardDef(
         Ability(
             title="Sneaky Bite",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(
             title="Confuse Ray",
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
     ],
 )

@@ -78,6 +78,10 @@ class TargetDamageModifier:
     target_entity_id: Optional[str] = None
     owner_player_id: Optional[str] = None
     attacks_only: bool = True
+    # Narrows a player-wide modifier to some of that player's Pokemon
+    # ("your Metal Pokemon take 30 less this turn", Iron Defender): takes the
+    # candidate Pokemon and returns whether the modifier applies to it.
+    target_predicate: Optional[Callable[[Any], bool]] = None
     opposing_only: bool = True
     # The effect that created it, for clear_pokemon_effects bookkeeping.
     source_entity_id: Optional[str] = None
@@ -97,6 +101,9 @@ class TargetDamageModifier:
             if calc.target.entity_id != self.target_entity_id:
                 return False
         elif calc.target.owning_player_id != self.owner_player_id:
+            return False
+        if self.target_predicate is not None \
+                and not self.target_predicate(calc.target):
             return False
         turn_state = getattr(calc.board, "turn_state", None)
         turn = getattr(turn_state, "turn_number", self.from_turn)
@@ -511,6 +518,12 @@ class Passive:
         its owner's hand (Pokemon Tower)."""
         return False
 
+    def trainer_play_cost(self, card: BoardEntity, player_id: str,
+                          carrier: BoardEntity) -> int:
+        """Extra OTHER hand cards `player_id` must discard to play `card`
+        (No Removal Gym charges 2 for an Energy Removal); 0 = no opinion."""
+        return 0
+
     def voids_stadium_play(self, carrier: BoardEntity) -> bool:
         """True to discard any Stadium played while this one is in play, and
         this one with it ("the new Stadium card has no effect", Chaotic Swell)."""
@@ -565,7 +578,8 @@ class Passive:
         no opinion, the smallest override wins."""
         return None
 
-    def bench_capacity_raise(self, player_id: str, carrier: BoardEntity) -> Optional[int]:
+    def bench_capacity_raise(self, player_id: str, carrier: BoardEntity,
+                             board: Optional[BoardState] = None) -> Optional[int]:
         """Bench size this passive RAISES `player_id` to (Sky Field: 8); None =
         no opinion. Caps still win: the tighter of the two applies."""
         return None
@@ -595,6 +609,14 @@ class Passive:
     def blocks_discard(self, card: BoardEntity, carrier: BoardEntity) -> bool:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
+
+    async def on_attack_resolved(self, ctx, attacker, defender, carrier) -> None:
+        """After an attack resolved, for a Stadium rider keyed on the attacker
+        (Vermilion City Gym: "whenever a player attacks with a Pokemon with
+        Lt. Surge in its name, he or she may flip a coin"). Extra damage lands
+        as its own step, which is what "after applying Weakness and Resistance"
+        means for the +10 half."""
+        return None
 
     async def on_active_switched(self, ctx, player_id: str,
                                  outgoing: PokemonEntity,
@@ -1414,6 +1436,17 @@ def energy_provided_options(board: Optional[BoardState], energy: BoardEntity) ->
     return options
 
 
+def trainer_play_cost(board: BoardState, card: BoardEntity, player_id: str) -> int:
+    """Total other-hand-cards cost of playing `card`: its printed `play_cost`
+    plus whatever a passive in play charges (No Removal Gym)."""
+    printed = int(getattr(def_for(getattr(card, "archetype_id", "") or ""),
+                          "play_cost", 0) or 0)
+    extra = 0
+    for passive, carrier in active_passives(board):
+        extra += passive.trainer_play_cost(card, player_id, carrier)
+    return printed + extra
+
+
 def stadium_play_voided(board: BoardState) -> bool:
     """True when a Stadium played from hand is discarded on arrival instead of
     replacing the one in play (Chaotic Swell)."""
@@ -1456,7 +1489,8 @@ def effective_bench_capacity(board: BoardState, player_id: str) -> int:
     base = overrides.get(player_id, BENCH_SLOT_COUNT)
     raises = [
         v for passive, carrier in active_passives(board)
-        for v in [passive.bench_capacity_raise(player_id, carrier)] if v is not None
+        for v in [passive.bench_capacity_raise(player_id, carrier, board)]
+        if v is not None
     ]
     if raises:
         base = max(base, max(raises))

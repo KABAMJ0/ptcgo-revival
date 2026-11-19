@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import reduce_defender_attacks
 
 card = PokemonCardDef(
     guid="51a83341-7607-5e02-a526-ae40f0cc26f3",

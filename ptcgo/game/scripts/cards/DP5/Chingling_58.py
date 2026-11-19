@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_baby_effect, _baby_in_hand = baby_evolution("Chimecho")
 
 card = PokemonCardDef(
     guid="e14b3ee2-3c62-5cfc-b6ed-663d292fb30f",
@@ -21,7 +24,9 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Chimecho from your hand onto Chingling (this counts as evolving Chingling) and remove all damage counters from Chingling.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Uproar",

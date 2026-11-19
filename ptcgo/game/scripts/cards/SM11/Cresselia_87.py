@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             game_text="Heal 30 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=heal_attack(30),
         ),
         Attack(
             title="Luminous Blade",
             game_text="Discard a Psychic Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1, energy_type=PokemonTypes.PSYCHIC),
         ),
     ],
 )

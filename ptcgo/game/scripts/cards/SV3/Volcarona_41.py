@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="691bfab2-289f-5529-8e31-ad863c44e23d",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Attach a Basic Fire Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("fire"), count=1, target="self"),
         ),
         Attack(
             title="Heat Blast",

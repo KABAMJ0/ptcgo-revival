@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, condition_attack, SpecialConditions
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="58b38e1d-5fdd-5e6c-ac35-116176b26d48",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Confused. During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={PokemonTypes.GRASS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, also=lock_opponent_plays("item", damage=0)),
         ),
         Attack(
             title="Speed Wing",

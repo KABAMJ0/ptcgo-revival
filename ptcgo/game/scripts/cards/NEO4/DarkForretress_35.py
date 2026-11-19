@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_endure_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Armor Up",
             game_text="Until the end of your next turn, if Dark Forretress would be Knocked Out by damage from an attack, flip a coin. If heads, Dark Forretress is not Knocked Out and its remaining HP become 10 instead.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_endure_attack(through="own"),
         ),
         Attack(
             title="Explosion",

@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.attributes import PokemonTypes
+from ptcgo.game.card_effects.passives_common import no_resistance_passive, pokemon_of_types
+from ptcgo.game.attributes import AttrID, PokemonTypes
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +14,5 @@ card = StadiumCardDef(
     collector_number=91,
     set_code="EX5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=no_resistance_passive(when=lambda calc, c: calc.attacker is not None and pokemon_of_types(PokemonTypes.PSYCHIC.value, PokemonTypes.FIGHTING.value)(calc.attacker))
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tool_search_deck_on_ko
 
 card = PokemonToolCardDef(
     guid="cc4158ec-3ea7-5f85-b528-b1b001380760",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=86,
     set_code="BW10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    on_carrier_knocked_out=tool_search_deck_on_ko(1, "Team Plasma"),
 )

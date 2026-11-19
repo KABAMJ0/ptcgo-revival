@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 
 card = PokemonCardDef(
     guid="0a70b62e-2d2e-5903-8e07-025ef1f46eb8",

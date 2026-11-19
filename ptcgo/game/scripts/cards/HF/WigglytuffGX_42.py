@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="99b4c70e-f439-56cb-bb8d-6b371d5bec05",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FAIRY: 2, PokemonTypes.COLORLESS: 1},
             damage=100,
             damage_operator="+",
-            effect=flip_damage(until_tails=True, per_heads=30, base=100),
+            effect=flip_damage(until_tails=True, bonus_per_heads=30),
         ),
         Attack(
             title="Lovely Star-GX",

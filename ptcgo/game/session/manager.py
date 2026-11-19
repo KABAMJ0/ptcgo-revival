@@ -198,8 +198,23 @@ class GameSessionManager:
             self._schedule_bot_fallback(client, queue_name, deck_data,
                                         client_options, tournament_context)
 
-    async def start_solo_match(self, client, deck_data: dict, solitaire_id: str, match_options: dict, request_id: int = 0):
-        """Starts a local/offline single player practice match against an AI opponent."""
+    async def start_solo_match(self, client, deck_data: dict, solitaire_id: str, match_options: dict,
+                               request_id: int = 0, opponent_deck: Optional[dict] = None,
+                               solo_context: Optional[dict] = None, auto_ready: bool = False):
+        """Starts a local/offline single player practice match against an AI opponent.
+
+        `opponent_deck` fields the AI's own deck (a league opponent plays theirs);
+        `solo_context` rides with the pairing so the finished match can be scored
+        against whoever it was played for.
+
+        `auto_ready` starts the match without the ready handshake. It is for Play
+        paths the client did not open a matchmaking request for (the tutorial):
+        `WargMatchmakingSource.handleConfirmReadyForMatch` throws on "An existing
+        request does not exist", so the client neither plays the confirmation nor
+        sends one back, and the pairing would sit there forever. Confirming on its
+        behalf sends `MatchFound`, which is what moves the client's matchmaking
+        state into the game.
+        """
         await self.remove_from_queue(client, send_left_packet=False)
         self.remove_session_by_player_id(client.player.account_id)
 
@@ -215,7 +230,7 @@ class GameSessionManager:
                 },
                 BOT_ACCOUNT_ID: {
                     "client": None, # No TCP client connection
-                    "deck": self._bot_deck(),  # the AI needs real cards to play
+                    "deck": opponent_deck or self._bot_deck(),  # the AI needs real cards to play
                     "ready": True  # AI is instantly ready
                 }
             },
@@ -224,6 +239,12 @@ class GameSessionManager:
             "options": match_options,
             "queue_name": "SinglePlayer"
         }
+        if solo_context:
+            self.pending_pairings[game_id]["solo_context"] = dict(solo_context)
+
+        if auto_ready:
+            await self.confirm_ready(client, game_id)
+            return
 
         # Send ConfirmReadyForMatch to the client
         confirm_packet = {

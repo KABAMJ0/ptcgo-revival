@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonToolCardDef, unimplemented
+from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers, Activations
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import heavy_boots_tool
 
 card = PokemonToolCardDef(
     guid="45cfde93-0bea-5428-b2b2-cc8af213e333",
@@ -11,5 +12,5 @@ card = PokemonToolCardDef(
     collector_number=141,
     set_code="XY8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=heavy_boots_tool(20, 3),
 )

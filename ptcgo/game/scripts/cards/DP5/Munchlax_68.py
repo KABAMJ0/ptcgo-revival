@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import baby_evolution
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+_baby_effect, _baby_in_hand = baby_evolution("Snorlax")
 
 card = PokemonCardDef(
     guid="6db66ea1-2f81-5d81-aa2f-1662a6eca66e",
@@ -21,14 +25,16 @@ card = PokemonCardDef(
         Ability(
             title="Baby Evolution",
             game_text="Once during your turn (before your attack), you may put Snorlax from your hand onto Munchlax (this counts as evolving Munchlax) and remove all damage counters from Munchlax.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_baby_in_hand,
+            effect=_baby_effect,
         ),
         Attack(
             title="Lick",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
     ],
 )

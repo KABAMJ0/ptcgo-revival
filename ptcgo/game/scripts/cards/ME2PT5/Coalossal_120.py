@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="f803a679-172a-5d60-8835-e2dc7ccdb50d",
@@ -23,14 +24,14 @@ card = PokemonCardDef(
             title="Tar Cannon",
             game_text="This attack does 140 damage to 1 of your opponent's Pok\u00e9mon. If you don't have 10 or more Basic Fighting Energy cards in your discard pile, this attack does nothing. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=snipe_attack(140, pool="any"),
         ),
         Attack(
             title="Bulky Bump",
             game_text="Discard 3 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=220,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=3),
         ),
     ],
 )

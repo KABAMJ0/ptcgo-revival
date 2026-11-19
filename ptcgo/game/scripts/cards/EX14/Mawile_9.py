@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_trainer_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.trainers import is_pokemon_EX

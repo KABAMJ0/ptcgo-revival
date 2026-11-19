@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_bonus, mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_bonus(20),
         ),
         Attack(
             title="Hammer Arm",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
     ],
 )

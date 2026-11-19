@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="ae58c071-f371-5d56-8258-bcfa757d06b9",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
             title="Siphon Off",
             game_text="Attach 3 Energy cards from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=3, minimum=0, target="self"),
         ),
         Attack(
             title="Shaky Fall",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="da920ce6-4f2f-531b-ab6e-ca41e2f462ad",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
     ],
 )

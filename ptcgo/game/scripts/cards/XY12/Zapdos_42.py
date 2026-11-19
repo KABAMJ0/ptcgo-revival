@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack, self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="8ffd306d-1f98-5e81-9702-eca49e9aa6f3",
@@ -23,14 +24,14 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon does 30 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=unimplemented,
+            effect=recoil_attack(30),
         ),
         Attack(
             title="Thunderbolt",
             game_text="Discard all Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 4},
             damage=170,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
     ],
 )

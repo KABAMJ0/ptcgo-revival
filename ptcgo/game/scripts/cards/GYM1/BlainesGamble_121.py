@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_any_flip_double_draw
 
 card = ItemCardDef(
     guid="6323b3d5-1cea-545a-bf23-cd0b376a5082",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=121,
     set_code="GYM1",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=discard_any_flip_double_draw()
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="bf5bbefd-51d4-566a-8591-8531662c3ea2",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Drawup Power",
             game_text="Search your deck for an Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_energy_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Continuous Tumble",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=10, until_tails=True),
         ),
     ],
 )

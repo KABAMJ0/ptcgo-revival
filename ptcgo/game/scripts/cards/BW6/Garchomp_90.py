@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="3d88d26b-7ad1-5feb-b69a-89f0ab4958e6",
@@ -24,14 +26,14 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=False),
         ),
         Attack(
             title="Dragonblade",
             game_text="Discard the top 2 cards of your deck.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.FIGHTING: 1},
             damage=100,
-            effect=unimplemented,
+            effect=mill_attack(count=2, opponent=False),
         ),
     ],
 )

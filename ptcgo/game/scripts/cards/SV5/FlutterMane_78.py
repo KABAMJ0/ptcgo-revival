@@ -4,9 +4,10 @@ from ptcgo.game.card_effects.passives_common import (
 )
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-async def _place_bench_counters(ctx):
+async def _spread_bench(ctx):
+    """Printed damage, then 2 damage counters across the opponent's Bench, any way they like."""
     await ctx.deal_damage()
-    await ctx.place_damage_counters(2, ctx.opponent_bench())
+    await ctx.place_damage_counters(2, candidates=ctx.opponent_bench())
 
 
 card = PokemonCardDef(
@@ -38,7 +39,7 @@ card = PokemonCardDef(
             game_text="Put 2 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=90,
-            effect=_place_bench_counters,
+            effect=_spread_bench,
         ),
     ],
 )

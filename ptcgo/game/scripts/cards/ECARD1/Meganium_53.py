@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="72e8aeae-5f53-54b8-b793-5705bfd968c0",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Solarbeam",

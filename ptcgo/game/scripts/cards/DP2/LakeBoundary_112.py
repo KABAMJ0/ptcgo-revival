@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import stadium_weakness_multiplier
 
 card = StadiumCardDef(
     guid="e58275a2-d98b-5056-acea-4a4170041551",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=112,
     set_code="DP2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=stadium_weakness_multiplier(2)
 )

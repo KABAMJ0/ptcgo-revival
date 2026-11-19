@@ -18,6 +18,7 @@ from ptcgo.game.attributes import (
     AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
     TrainerType,
 )
+from ptcgo.game.data_utils import def_for
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.passives import (
     EnergyTypeOverride,
@@ -224,7 +225,8 @@ def pokemon_of_types(*types) -> Callable[[Any], bool]:
     """Predicate: a Pokemon (or card) has at least one of `types`."""
     wanted = set(types)
 
-    def pred(any_card) -> bool:
+    def pred(any_card, *_rest) -> bool:
+        # Tolerant of the (pokemon, board) call shape some hooks use.
         current = set(any_card.get_attribute(AttrID.POKEMON_TYPES) or [])
         return bool(current & wanted)
 
@@ -262,6 +264,12 @@ class TeamDamageBoostPassive(Passive):
             return
         if self.attacker_pred is not None and not self.attacker_pred(attacker):
             return
+        # A callable amount is the wording whose number depends on the board at
+        # resolution ("40 instead of 10 if the attacking player has more Prize
+        # cards remaining" -- Martial Arts Dojo).
+        amount = self.amount(calc, carrier) if callable(self.amount) else self.amount
+        if not amount:
+            return
         if self.to_active_only and not calc.to_active:
             return
         if self.target_pred is not None and not self.target_pred(calc.target):
@@ -270,7 +278,7 @@ class TeamDamageBoostPassive(Passive):
             if self.once_key in calc.applied_once:
                 return
             calc.applied_once.add(self.once_key)
-        calc.amount += self.amount
+        calc.amount += amount
 
 
 class ReducesOwnAttacksPassive(Passive):
@@ -719,7 +727,12 @@ class PreviousEvolutionAttacksPassive(Passive):
         self.extra_sources = extra_sources
 
     def granted_attacks(self, board, pokemon, carrier):
-        if carrier_pokemon(carrier) is not pokemon:
+        holder = carrier_pokemon(carrier)
+        # A Stadium (or any global carrier) has no carrier_pokemon, and its
+        # wording is board-wide: "each player's evolved Pokemon can use any
+        # attack from its previous Evolutions" (Shrine of Memories, Meteor
+        # Falls). A Pokemon/Tool carrier still grants only to itself.
+        if holder is not None and holder is not pokemon:
             return []
         out = previous_evolution_attacks(pokemon)
         for source in (self.extra_sources(board, pokemon, carrier) or []
@@ -1530,7 +1543,9 @@ class BenchCapacityPassive(Passive):
     """Bench cap for both players (Collapsed Stadium 4, Narrow Gym 4) or for
     the carrier's own side alone (Parallel City's down-arrow face: 3)."""
 
-    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap"):
+    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap",
+                 raise_pred=None):
+        self.raise_pred = raise_pred
         self.limit = limit
         self.mode = mode
         if mode not in ("cap", "raise"):
@@ -1549,22 +1564,111 @@ class BenchCapacityPassive(Passive):
             return None
         return self.limit if self._covers(player_id, carrier) else None
 
-    def bench_capacity_raise(self, player_id, carrier):
+    def bench_capacity_raise(self, player_id, carrier, board=None):
         if self.mode != "raise":
             return None
-        return self.limit if self._covers(player_id, carrier) else None
+        if not self._covers(player_id, carrier):
+            return None
+        if self.raise_pred is not None and not self.raise_pred(player_id, board):
+            return None
+        return self.limit
 
     def bench_trim_area(self, player_id, carrier):
         return "hand" if self.trim_to == "hand" and self._covers(player_id, carrier) else None
 
 
 def bench_capacity_passive(limit: int = 4, protects="each",
-                           trim_to: str = "discard", mode: str = "cap") -> Passive:
+                           trim_to: str = "discard", mode: str = "cap",
+                           raise_pred=None) -> Passive:
     """`protects='each'` caps both players (Narrow Gym, Collapsed Stadium);
     `'team'` caps only the Stadium holder's side (Parallel City's face).
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
-    return BenchCapacityPassive(limit, protects, trim_to, mode)
+    """`raise_pred(player_id, board)` gates a raise on board state (Area Zero
+    Underdepths: only while the player has a Tera Pokemon in play)."""
+    return BenchCapacityPassive(limit, protects, trim_to, mode, raise_pred)
+
+
+class SuppressAllToolsPassive(Passive):
+    """Jamming Tower: every attached Pokemon Tool has no effect."""
+
+    def suppresses_tool(self, tool, carrier):
+        return True
+
+
+def suppress_all_tools() -> Passive:
+    return SuppressAllToolsPassive()
+
+
+def holder_has_energy_of(*types, holder_pred=None) -> Callable[[Any, Any], bool]:
+    """(pokemon, carrier) pred: the Pokemon has an attached Energy of one of
+    `types` (Shadow Circle, Plasma Frigate: "has any Darkness Energy attached
+    to it"). Accepts basic and special Energy alike."""
+    wanted = set(types)
+
+    def pred(pokemon, carrier) -> bool:
+        if holder_pred is not None and not holder_pred(pokemon):
+            return False
+        for child in getattr(pokemon, "children", []) or []:
+            options = child.get_attribute(AttrID.ENERGY_INFO) or {}
+            provided = set()
+            for option in (options.get("options") or []):
+                provided.update(option if isinstance(option, (list, tuple)) else [option])
+            if provided & wanted:
+                return True
+        return False
+
+    return pred
+
+
+class NamedAttackerFlipRiderPassive(Passive):
+    """Vermilion City Gym: after an attack by a Pokemon whose printed name
+    contains `name`, flip a coin -- heads adds `heads_damage` to the Defending
+    Pokemon, tails puts `tails_self_damage` on the attacker."""
+
+    def __init__(self, name, heads_damage=10, tails_self_damage=10):
+        self.name = (name or "").strip().lower()
+        self.heads_damage = heads_damage
+        self.tails_self_damage = tails_self_damage
+
+    async def on_attack_resolved(self, ctx, attacker, defender, carrier):
+        if attacker is None:
+            return
+        definition = def_for(getattr(attacker, "archetype_id", "") or "")
+        if self.name not in (getattr(definition, "display_name", "") or "").lower():
+            return
+        results = await ctx.flip_coins(1, f"{self.name.title()} attack")
+        heads = bool(results) and all(results)
+        if heads and defender is not None and self.heads_damage:
+            await ctx.deal_damage(self.heads_damage, target=defender,
+                                  apply_modifiers=False)
+        elif not heads and self.tails_self_damage:
+            await ctx.deal_damage(self.tails_self_damage, target=attacker,
+                                  apply_modifiers=False)
+
+
+def named_attacker_flip_rider(name: str, heads_damage: int = 10,
+                              tails_self_damage: int = 10) -> Passive:
+    """`name` is matched against the attacker's printed name (Lt. Surge)."""
+    return NamedAttackerFlipRiderPassive(name, heads_damage, tails_self_damage)
+
+
+class TrainerPlayCostPassive(Passive):
+    """No Removal Gym: playing one of `names` costs `cost` OTHER hand cards."""
+
+    def __init__(self, cost=2, names=()):
+        self.cost = cost
+        self.names = tuple(n.strip().lower() for n in names)
+
+    def trainer_play_cost(self, card, player_id, carrier):
+        definition = def_for(getattr(card, "archetype_id", "") or "")
+        name = (getattr(definition, "display_name", "") or "").strip().lower()
+        return self.cost if name in self.names else 0
+
+
+def trainer_play_cost_passive(cost: int = 2, *names: str) -> Passive:
+    """`cost` other hand cards to play a card named in `names`."""
+    return TrainerPlayCostPassive(cost, names)
 
 
 class VoidsStadiumPlayPassive(Passive):

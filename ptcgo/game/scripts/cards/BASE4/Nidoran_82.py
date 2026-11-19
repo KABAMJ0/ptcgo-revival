@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.card_effects.trainers import all_of, named_exactly
 
 card = PokemonCardDef(
     guid="efb221e7-bb57-5296-946d-edb1ad1b5033",
@@ -24,13 +28,13 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=10),
         ),
         Attack(
             title="Call for Family",
             game_text="Search your deck for a Basic Pok\u00e9mon named Nidoran \u2642 or Nidoran \u2640 and put it onto your Bench. Shuffle your deck afterward. (You can't use this attack if your Bench is full.)",
             cost={PokemonTypes.GRASS: 2},
-            effect=unimplemented,
+            effect=search_to_bench(all_of(is_basic_pokemon, named_exactly("nidoran")), count=1),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import bench_counter_picks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,14 +22,14 @@ card = PokemonCardDef(
         Ability(
             title="Cursed Land",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent's Pok\u00e9mon in play that have any damage counters on them have no Abilities, except for Pok\u00e9mon ex.",
-            effect=unimplemented,
+            effect=bench_counter_picks(1, 2),
         ),
         Attack(
             title="Land Scoop",
             game_text="Put 2 damage counters on 1 of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 3},
             damage=150,
-            effect=unimplemented,
+            effect=bench_counter_picks(1, 2),
         ),
     ],
 )

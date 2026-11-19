@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="b8ad65cb-9667-5bea-a7ac-fc55f65041d3",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Draw 2 cards.",
             cost={PokemonTypes.METAL: 1},
             damage=20,
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Crunch-Time Rush",

@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.card_effects.trainers import is_stadium_card
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_stadium_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="f53baafb-6d2e-5dd4-a657-ac644cb13552",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Find a Home",
             game_text="Search your deck for a Stadium card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_hand(is_stadium_card, count=1, reveal=True),
+            effect=search_to_hand(is_stadium_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Ram",

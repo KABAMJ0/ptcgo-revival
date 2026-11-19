@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.card_effects.trainers import is_pokemon_ex

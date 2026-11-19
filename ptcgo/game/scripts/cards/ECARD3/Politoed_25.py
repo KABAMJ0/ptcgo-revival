@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="1cb48aad-761f-57dd-9811-73641245636e",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=flip_damage(base=30, bonus=20),
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(50)),
         ),
         Attack(
             title="Energy Splash",

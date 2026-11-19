@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_or_nothing
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="5f08380a-ec4e-51e9-9aac-e7b33b821bf0",
@@ -23,14 +24,14 @@ card = PokemonCardDef(
             title="Confuse Ray",
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Hyper Fang",
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )

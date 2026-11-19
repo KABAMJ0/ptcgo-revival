@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="Attach 2 basic Energy cards from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_hand(is_basic_energy_card, count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Blizzard",

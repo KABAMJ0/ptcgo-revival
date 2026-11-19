@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_damage, lock_self_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=50),
         ),
         Attack(
             title="Giga Impact",
             game_text="This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

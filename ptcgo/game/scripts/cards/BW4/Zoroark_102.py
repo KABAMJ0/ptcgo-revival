@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for a card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=search_to_hand(None, count=1, reveal=False),
+            effect=search_to_hand(None, count=1, minimum=1, reveal=False),
         ),
         Attack(
             title="Foul Play",

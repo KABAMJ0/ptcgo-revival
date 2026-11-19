@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="b2202fe0-e262-516d-baf0-6aa11b2e7a29",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
         Attack(
             title="Quintuple Headbutt",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=5, per_heads=40),
         ),
     ],
 )

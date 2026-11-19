@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent can't play any Trainer cards or Supporter cards from his or her hand during your opponent's next turn.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=lock_opponent_plays("trainer", "supporter", flip=True),
         ),
     ],
 )

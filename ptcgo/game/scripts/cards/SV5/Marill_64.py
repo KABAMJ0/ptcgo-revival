@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="a99e266b-95f8-5557-b9e7-ed83455b3cf3",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=flip_damage(until_tails=True, per_heads=10),
+            effect=flip_damage(per_heads=10, until_tails=True),
         ),
         Attack(
             title="Magical Shot",

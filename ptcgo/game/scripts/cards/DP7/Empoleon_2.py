@@ -1,3 +1,7 @@
+from ptcgo.game.card_effects.passives_common import composed, protect_next_turn
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,21 +26,21 @@ card = PokemonCardDef(
         Ability(
             title="Emperor Aura",
             game_text="Once during your turn (before your attack), when you play Empoleon from your hand to evolve 1 of your Active Pok\u00e9mon, you may use this power. Your opponent can't attach any Energy cards from his or her hand to his or her Pok\u00e9mon during your opponent's next turn.",
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Steel Wing",
             game_text="During your opponent's next turn, any damage done to Empoleon by attacks is reduced by 20 (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Whirlpool",
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(then=discard_opponent_energy_attack(1, damage=0))),
         ),
     ],
 )

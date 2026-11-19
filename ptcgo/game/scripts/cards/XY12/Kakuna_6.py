@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             title="Stiffen",
             game_text="During your opponent's next turn, any damage done to this Pok\u00e9mon by attacks is reduced by 40 (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
         Attack(
             title="Poison Powder",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.GRASS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
     ],
 )

@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="1be74c7b-fb11-524e-99ec-6e355d838ff3",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic_pokemon, count=2),
         ),
         Attack(
             title="Headbutt",

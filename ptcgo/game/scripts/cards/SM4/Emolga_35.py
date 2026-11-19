@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Energy Catch",
             game_text="Put 3 basic Energy cards from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
         Attack(
             title="Volt Switch",

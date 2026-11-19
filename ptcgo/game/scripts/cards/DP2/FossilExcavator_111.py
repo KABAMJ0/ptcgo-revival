@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import search_fossil_or_fossil_evolution
 
 card = SupporterCardDef(
     guid="d92deda5-9a00-588a-9e6e-0e67cc1fca1d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=111,
     set_code="DP2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_fossil_or_fossil_evolution()
 )

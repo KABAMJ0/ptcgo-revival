@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import ItemCardDef, unimplemented
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import guess_card_name
 
 card = ItemCardDef(
     guid="d3fd7ce7-6607-59d5-bc72-de33ee0ef2e4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=112,
     set_code="GYM2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=guess_card_name(3, attack_hint=True)
 )

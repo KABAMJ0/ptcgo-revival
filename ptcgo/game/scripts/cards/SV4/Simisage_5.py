@@ -1,5 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, def_for
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.support_common import entity_name
+
+
+def _has_ability_except_simisage(attacker):
+    return (_attacker_has_ability(attacker)
+            and entity_name(attacker) != "Simisage")
+
+
+def _attacker_has_ability(attacker):
+    """Prints an Ability -- not merely one of its attacks."""
+    if attacker is None:
+        return False
+    printed = getattr(def_for(attacker.archetype_id), "abilities", None) or []
+    return any(isinstance(a, Ability) and not isinstance(a, Attack)
+               for a in printed)
+
 
 card = PokemonCardDef(
     guid="0abf85ea-2bea-5bd6-b8d4-6fa2c7915c90",
@@ -29,7 +46,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Pok\u00e9mon that have an Ability, except any Simisage.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=100,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=_has_ability_except_simisage),
         ),
     ],
 )

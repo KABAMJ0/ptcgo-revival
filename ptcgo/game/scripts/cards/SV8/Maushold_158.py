@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named
 
 card = PokemonCardDef(
     guid="e43b03b3-9a24-5bea-a453-6919336800c8",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Familial March",
             game_text="Search your deck for up to 2 in any combination of Maushold and Maushold ex and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(named("maushold"), count=2),
         ),
         Attack(
             title="Incessant Incisors",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=30),
         ),
     ],
 )

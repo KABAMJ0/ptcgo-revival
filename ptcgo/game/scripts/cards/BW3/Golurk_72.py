@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Hurricane Punch",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=50),
         ),
     ],
 )

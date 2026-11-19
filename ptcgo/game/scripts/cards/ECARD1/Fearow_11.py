@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, no_retreat_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon can't retreat during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Supersonic Flight",
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )

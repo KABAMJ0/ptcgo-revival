@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
 
 card = PokemonCardDef(
     guid="0ed3a733-550e-5056-807f-92140a85ac98",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, they can't play any Pok\u00e9mon from their hand to evolve their Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=lock_opponent_evolutions(),
         ),
         Attack(
             title="Super Psy Bolt",

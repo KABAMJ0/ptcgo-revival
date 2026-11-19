@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="27055d43-ed50-5292-94ad-42de3fe70358",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=flip_damage(base=10, bonus=20),
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(30)),
         ),
         Attack(
             title="Lonely Fang",

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="3100c5ac-7e89-5f7f-bc85-0a945da7ba6c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy from your opponent's Active Pok\u00e9mon. If tails, this attack does nothing.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(),
         ),
     ],
 )

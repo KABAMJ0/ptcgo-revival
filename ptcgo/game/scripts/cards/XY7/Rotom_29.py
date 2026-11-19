@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import random_card_to_deck
 
 card = PokemonCardDef(
     guid="ec32a305-da81-5962-9ccf-88cee9a4be19",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Electric Mischief",
             game_text="Flip 3 coins. For each heads, choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into his or her deck.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=random_card_to_deck(),
         ),
     ],
 )

@@ -1,6 +1,8 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
 
 card = PokemonCardDef(
     guid="0cef9e0f-55fd-5e66-abf8-d96c63f01207",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Golden Flame",
             game_text="Once during your turn, you may attach up to 2 Basic Fire Energy cards from your hand to 1 of your Benched Ethan's Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_targets(50, scope="each_own"),
         ),
         Attack(
             title="Shining Feathers",

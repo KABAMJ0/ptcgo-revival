@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="700e634c-3d24-5ec6-b7e3-713539d0bc5e",
@@ -23,14 +25,14 @@ card = PokemonCardDef(
             title="Stiffen",
             game_text="During your opponent's next turn, any damage done to this Pok\u00e9mon by attacks is reduced by 40 (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=40),
         ),
         Attack(
             title="Stun Spore",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.GRASS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
     ],
 )

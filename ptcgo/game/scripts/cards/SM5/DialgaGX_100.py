@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import draw_until_effect
 
 card = PokemonCardDef(
     guid="1f91bc44-b818-55f3-a8b6-873dd7ed75a8",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
             title="Overclock",
             game_text="Draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=draw_until_effect(6),
         ),
         Attack(
             title="Shred",
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
         Attack(
             title="Timeless-GX",

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="b426e269-305a-5ce2-a51e-3f01d56b2bdd",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Mighty Shield",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from each of your opponent's Pok\u00e9mon that has any Special Energy attached to it.",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "metal"), 20),
         ),
         Attack(
             title="Slash Blast",
             game_text="This attack does 20 more damage for each Metal Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.METAL), per=20, base=40),
         ),
     ],
 )

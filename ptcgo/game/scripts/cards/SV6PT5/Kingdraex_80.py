@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="985645ea-70fd-57f9-8835-99fb16266b67",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="King's Order",
             game_text="Put up to 3 Water Pok\u00e9mon from your discard pile onto your Bench.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "water"), 50),
         ),
         Attack(
             title="Hydro Pump",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.WATER), per=50, base=50),
         ),
     ],
 )

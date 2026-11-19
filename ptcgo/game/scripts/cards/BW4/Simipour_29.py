@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="d062871a-5423-5c07-8071-e4cf5adf2784",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw 3 cards.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Stadium Wave",

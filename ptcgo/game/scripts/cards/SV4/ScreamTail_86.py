@@ -1,5 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_counters_on, snipe_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -29,10 +29,7 @@ card = PokemonCardDef(
             title="Roaring Scream",
             game_text="This attack does 20 damage to 1 of your opponent's Pok\u00e9mon for each damage counter on this Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=snipe_attack(
-                lambda ctx: 20 * damage_counters_on("self")(ctx),
-                pool="any", count=1, apply_modifiers=False,
-            ),
+            effect=snipe_attack(20, pool="any"),
         ),
     ],
 )

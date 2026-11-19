@@ -1,5 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.passives_common import move_counters_ability
+
+
+_move_counters, _can_move = move_counters_ability(1, "theirs")
+
+
+def _curse_ready(board, player_id, pokemon) -> bool:
+    return _can_move(board, player_id, pokemon) and \
+        not pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS)
 
 card = PokemonCardDef(
     guid="0d16fcb9-b210-5456-bb90-07138dd64598",
@@ -23,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Curse",
             game_text="Once during your turn (before your attack), you may move 1 damage counter from 1 of your opponent's Pok\u00e9mon to another of your opponent's Pok\u00e9mon. This power can't be used if Gengar is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_curse_ready,
+            effect=_move_counters,
         ),
         Attack(
             title="Shadow Skip",

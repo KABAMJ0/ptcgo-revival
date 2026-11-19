@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import discard_up_to_draw_pair, is_basic_energy_card
 
 card = SupporterCardDef(
     guid="7c18debc-aa03-5c09-bcbc-d2590b55bd96",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=126,
     set_code="ECARD2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=discard_up_to_draw_pair(2, is_basic_energy_card, 3, 5)
 )

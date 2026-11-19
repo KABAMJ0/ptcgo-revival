@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="62a2c8f0-19de-5a67-9d4b-b53ac677d13a",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Singe",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Quick Attack",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(30)),
         ),
     ],
 )

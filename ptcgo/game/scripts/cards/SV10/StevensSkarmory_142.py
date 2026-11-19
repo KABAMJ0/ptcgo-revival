@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="dc49b927-f01f-5a24-966f-24b37ca13c1f",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Sonic Double",
             game_text="This attack does 50 damage to 2 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=snipe_attack(50, pool="any", count=2, apply_modifiers=False),
         ),
     ],
 )

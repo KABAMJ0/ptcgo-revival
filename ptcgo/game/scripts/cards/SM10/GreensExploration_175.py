@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.trainers import is_trainer_card, no_pokemon_with_abilities
 
 card = SupporterCardDef(
     guid="227a00bb-895e-553a-91d4-f11b64bfc756",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=175,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(is_trainer_card, count=2), condition=no_pokemon_with_abilities()
 )

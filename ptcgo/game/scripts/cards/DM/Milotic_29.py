@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, snipe_attack
 
 card = PokemonCardDef(
     guid="a9845090-6e83-5169-8c61-c542bec28113",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Aqua Split",
             game_text="This attack does 40 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 3},
             damage=40,
-            effect=unimplemented,
+            effect=snipe_attack(40, pool="bench", count=2),
         ),
     ],
 )

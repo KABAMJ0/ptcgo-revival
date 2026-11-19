@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import is_basic_energy_card, knocked_out_last_turn, pokemon_of
 
 card = SupporterCardDef(
     guid="1fc05985-a25a-5825-a3eb-e83c8ae36363",
@@ -11,5 +13,6 @@ card = SupporterCardDef(
     collector_number=64,
     set_code="DM",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=attach_from_hand(is_basic_energy_card, count=2, target="choice", target_pred=pokemon_of("Dragon")),
+    condition=knocked_out_last_turn()
 )

@@ -1,5 +1,8 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_evolution_pokemon
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="4ac83ce2-c11b-5521-8c11-64efb8453f1f",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             title="Evolution Impulse",
             game_text="Search your deck for an Evolution card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_evolution_pokemon, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Leaf Boomerang",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=30),
         ),
     ],
 )

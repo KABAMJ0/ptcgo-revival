@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 
 card = PokemonCardDef(
     guid="3aac49cc-cc32-5933-84bf-25bb20be20b4",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Curiosity",
             game_text="Your opponent reveals their hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Spin Tackle",

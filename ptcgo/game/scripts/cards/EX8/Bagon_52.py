@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="065e385d-3cfc-57e3-97dc-086e888007b0",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Singe",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Doubleslap",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=10),
         ),
     ],
 )

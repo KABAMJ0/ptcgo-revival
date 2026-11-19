@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Fragrant Flower Garden",
             game_text="Once during your turn (before your attack), you may heal 30 damage from each of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_targets(30, scope="each_own"),
         ),
         Attack(
             title="Massive Bloom",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=180,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=10, count_fn=damage_counters_on("self")),
         ),
         Attack(
             title="Allergic Explosion-GX",

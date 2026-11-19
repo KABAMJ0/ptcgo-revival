@@ -1,5 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import move_counters_ability
+
+
+_move_counters, _can_move = move_counters_ability(1, "mine")
 
 card = PokemonCardDef(
     guid="2d173d0c-3394-5c28-b833-b743100a2301",
@@ -22,7 +26,9 @@ card = PokemonCardDef(
         Ability(
             title="Damage Swap",
             game_text="As often as you like during your turn (before your attack), you may move 1 damage counter from 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=unimplemented,
+            activation=Activations.UNLIMITED,
+            condition=_can_move,
+            effect=_move_counters,
         ),
         Attack(
             title="Psywave",

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="603c9453-692e-5431-8d1b-33773898c8e1",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Drawup Power",
             game_text="Search your deck for an Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_energy_card, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Front Spark",

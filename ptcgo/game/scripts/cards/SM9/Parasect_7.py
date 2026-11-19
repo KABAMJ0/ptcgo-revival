@@ -1,5 +1,8 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="4e3ba3f3-f282-5516-a7ef-103d3c3f1644",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Panic Spores",
             game_text="Put 2 damage counters on your opponent's Confused Pok\u00e9mon between turns.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Mysterious Powder",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
     ],
 )

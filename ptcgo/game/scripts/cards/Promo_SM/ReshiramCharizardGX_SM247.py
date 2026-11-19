@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, ignore_modifier_attack
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="ce9b5efc-5417-53c3-952a-333fb8b37d24",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 10, base=30),
         ),
         Attack(
             title="Flare Strike",

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.data_utils import StadiumCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.passives_common import no_attack_at_hp
 
 card = StadiumCardDef(
     guid="ffa144f0-2019-5f28-aae1-162235036ea5",
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=187,
     set_code="SM11",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    passive=no_attack_at_hp(40)
 )

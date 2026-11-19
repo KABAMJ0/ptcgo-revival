@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="18522fa6-a1e0-5222-b6c9-ad4ad7d421dd",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED),
         ),
         Attack(
             title="Exact Revenge",

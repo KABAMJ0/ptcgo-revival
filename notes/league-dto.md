@@ -98,6 +98,14 @@ Empty state:
 { "messageName": "LeagueAndGymModeRewards", "totalRewardSchedule": {} }
 ```
 
+**Confirmed on the wire, 2026-11-18.** The map is indexed 0..Count-1: the client's
+`PvEModeRewardsData.UpdateRewards` copies it into its own array with
+`for (i = 0; i < map.Count; i++) array[i] = map[i]`, so a schedule keyed from 1
+throws `KeyNotFoundException` ("The given key was not present in the dictionary")
+the moment rewards arrive, and the trainer challenge scene dies. Keys must be
+`"0"`, `"1"`, `"2"`… contiguous from zero. The `A` wrapper key is accepted as
+written.
+
 A populated schedule would therefore be (caveat below):
 
 ```json

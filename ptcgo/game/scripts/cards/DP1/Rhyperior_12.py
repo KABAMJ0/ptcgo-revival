@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, lock_self_attack
 
 card = PokemonCardDef(
     guid="369f20bd-c165-5612-b3ce-d1e361b7d809",
@@ -30,7 +32,10 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness or Resistance. Rhyperior can't attack during your next turn.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=composed(
+                ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
+                then=lock_self_attack(0),
+            ),
         ),
     ],
 )

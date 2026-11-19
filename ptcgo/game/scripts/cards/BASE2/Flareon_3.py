@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_choice
 
 card = PokemonCardDef(
     guid="edd9de21-e840-58c7-bae7-1e7097671c19",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=flip_damage(base=10, bonus=20),
+            effect=flip_choice(heads=30, tails=10),
         ),
         Attack(
             title="Flamethrower",

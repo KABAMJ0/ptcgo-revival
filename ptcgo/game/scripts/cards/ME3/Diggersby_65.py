@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
 
 card = PokemonCardDef(
     guid="03fc01b0-c424-55bb-8713-52ad95a52c91",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack also does 30 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
             damage=140,
-            effect=unimplemented,
+            effect=spread_damage(30, side="mine"),
         ),
         Attack(
             title="Whap Down",

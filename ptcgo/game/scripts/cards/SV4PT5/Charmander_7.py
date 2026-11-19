@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="5a8890cd-83b9-51d9-8447-324be26afa67",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Blazing Destruction",
             game_text="Discard a Stadium in play.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Steady Firebreathing",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import switch_self_attack
 
 card = PokemonCardDef(
     guid="f78dd85d-d26a-54cb-abc1-4e7df17e661a",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=switch_self_attack(),
         ),
         Attack(
             title="Rollout",

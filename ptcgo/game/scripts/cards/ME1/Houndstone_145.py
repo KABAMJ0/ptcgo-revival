@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate, random_card_to_deck
 
 card = PokemonCardDef(
     guid="91bf69d3-d712-51fc-8018-664616bd2685",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             game_text="Flip a coin until you get tails. For each heads, choose a random card from your opponent's hand. Your opponent reveals those cards and shuffles them into their deck.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_gate(then=random_card_to_deck()),
         ),
         Attack(
             title="Hammer In",

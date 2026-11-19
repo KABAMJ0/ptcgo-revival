@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_damage
 
 card = PokemonCardDef(
     guid="de23ef8b-9165-5340-87f7-3837ce1bc02f",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Chilling Sigh",
             game_text="Your opponent's Active Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP),
         ),
         Attack(
             title="Tri Edge",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(coins=3, bonus_per_heads=40, base=20),
         ),
     ],
 )

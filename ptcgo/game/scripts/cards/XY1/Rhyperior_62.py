@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage, ignore_modifier_attack, lock_self_attack
+from ptcgo.game.card_effects.passives_common import composed
 
 card = PokemonCardDef(
     guid="c7853afb-a3e6-53c2-af16-bb2024f69964",
@@ -25,14 +27,17 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins_from=count_energy("self", PokemonTypes.FIGHTING), per_heads=50),
         ),
         Attack(
             title="Rock Wrecker",
             game_text="This attack's damage isn't affected by Weakness or Resistance. This Pok\u00e9mon can't attack during your next turn.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=composed(
+                ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
+                then=lock_self_attack(0),
+            ),
         ),
     ],
 )

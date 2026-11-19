@@ -1,5 +1,8 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="cd7856f3-11a6-5f2e-b3e2-110044b5379d",
@@ -22,14 +25,14 @@ card = PokemonCardDef(
         Ability(
             title="Fragrance Trap",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Corrosive Acid",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
     ],
 )

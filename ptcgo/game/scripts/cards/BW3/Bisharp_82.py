@@ -1,5 +1,9 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="28260b7b-9560-58ee-8ec6-bd61479ddd03",
@@ -25,7 +29,7 @@ card = PokemonCardDef(
             game_text="Attach a Metal Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of("metal"), count=1, target="self"),
         ),
         Attack(
             title="Metal Scissors",

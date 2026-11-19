@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import evolve_each_from_deck
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="e442bdc5-86c9-5f20-b4cf-00388aec014a",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             title="Grand Bloom-GX",
             game_text="For each of your Benched Basic Pok\u00e9mon, search your deck for a card that evolves from that Pok\u00e9mon and put it onto that Pok\u00e9mon to evolve it. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=evolve_each_from_deck(target_pred=is_basic_pokemon),
         ),
     ],
 )

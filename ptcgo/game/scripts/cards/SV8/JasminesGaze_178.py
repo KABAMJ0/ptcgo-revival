@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import jasmine_gaze
 
 card = SupporterCardDef(
     guid="1ff40e39-6d3a-5316-83ff-814875b5e872",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=178,
     set_code="SV8",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=jasmine_gaze()
 )

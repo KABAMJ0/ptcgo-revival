@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Wish",
             game_text="Search your deck for a card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=search_to_hand(None, count=1, reveal=False),
+            effect=search_to_hand(None, count=1, minimum=1, reveal=False),
         ),
         Attack(
             title="Heart Sign",

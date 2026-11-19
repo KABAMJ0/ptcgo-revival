@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import evolution_lock_passive
 
 card = PokemonCardDef(
     guid="fc1fe761-8b30-5ea5-8cdc-b77f31db8197",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Primal Law",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent can't play any Pok\u00e9mon from their hand to evolve their Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=evolution_lock_passive(),
         ),
         Attack(
             title="Hammer In",

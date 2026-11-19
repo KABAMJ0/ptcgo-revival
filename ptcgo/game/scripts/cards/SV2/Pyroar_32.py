@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="fe370f81-2cf0-5ef8-bcb6-11519cc8ef8c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Singe",
             game_text="Your opponent's Active Pok\u00e9mon is now Burned.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Overrun",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="4e2c97dc-8c84-5cc0-bb82-404481d01632",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Discard 2 Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=180,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=2),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
         Attack(
             title="Double Spin",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=50),
         ),
     ],
 )

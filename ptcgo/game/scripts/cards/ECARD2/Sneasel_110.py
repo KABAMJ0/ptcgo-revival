@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Rob",
             game_text="Look at your opponent's hand. Choose all Technical Machine and Pok\u00e9mon Tool cards there and put them into his or her deck. Your opponent shuffles the deck afterward.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
         Attack(
             title="Claw",

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done to Lairon by attacks is reduced by 10 (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=10),
         ),
         Attack(
             title="Stomp",
@@ -33,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(50)),
         ),
     ],
 )

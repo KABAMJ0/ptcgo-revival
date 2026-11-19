@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.card_effects.trainers import named_exactly
 
 card = PokemonCardDef(
     guid="8c4b1f7d-ec5b-57cb-b8a5-889b665f62c4",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
             game_text="Search your deck for up to 2 Ninjask and put them onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=search_to_bench(named_exactly("ninjask"), count=2),
         ),
     ],
 )

@@ -1,5 +1,17 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
+
+
+async def selfdestruct(ctx):
+    """10 damage to each Benched Pokemon (both sides, no Weakness or
+    Resistance for Benched Pokemon), then 80 damage to this Pokemon on a tails."""
+    await spread_damage(10, side="both")(ctx)
+    results = await ctx.flip_coins(1, "Bomb Risk")
+    if results and not results[0] and ctx.attacker is not None:
+        await ctx.deal_damage(80, target=ctx.attacker,
+                              apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="27abd9ef-ad53-5355-9b32-403fd9c00f4c",
@@ -30,7 +42,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each Benched Pok\u00e9mon (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) Flip a coin. If tails, Forretress G does 80 damage to itself.",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=selfdestruct,
         ),
     ],
 )

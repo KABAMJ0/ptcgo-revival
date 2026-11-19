@@ -1,5 +1,11 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
+def _is_stage2_attacker(attacker) -> bool:
+    """Only attacks from the opponent's Stage 2 Evolved Pokemon."""
+    return attacker is not None and attacker.get_attribute(
+        AttrID.STAGE) == PokemonStage.STAGE2.value
 
 card = PokemonCardDef(
     guid="f6924df9-3e53-5e83-b057-3b944f0afd9a",
@@ -29,7 +35,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done to Alakazam by attacks from your opponent's Stage 2 Evolved Pok\u00e9mon is reduced by 30 (after applying Weakness and Resistance).",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30, attacker_pred=_is_stage2_attacker),
         ),
     ],
 )

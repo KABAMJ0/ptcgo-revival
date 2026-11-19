@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="8a9083b2-4dc6-5495-80f1-6fecde736c4f",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.METAL: 1},
             damage=30,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
         Attack(
             title="Sky Hurricane",

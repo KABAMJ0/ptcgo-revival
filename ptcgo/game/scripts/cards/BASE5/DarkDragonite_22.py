@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="ef516fea-f80a-5a17-ba91-d112c8b03549",
@@ -22,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Summon Minions",
             game_text="When you play Dark Dragonite from your hand, search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. Shuffle your deck afterward.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_to_bench(is_basic_pokemon, count=2),
         ),
         Attack(
             title="Giant Tail",

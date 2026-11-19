@@ -1,4 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import is_supporter_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -20,7 +23,8 @@ card = PokemonCardDef(
         Ability(
             title="Wonder Tag",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may search your deck for a Supporter card, reveal it, and put it into your hand. Then, shuffle your deck.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=search_to_hand(predicate=is_supporter_card, count=1),
         ),
         Attack(
             title="Energy Drive",
@@ -28,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
         Attack(
             title="Tapu Cure-GX",

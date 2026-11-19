@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import temp_attack_boost_for_named
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,6 @@ card = ItemCardDef(
     collector_number=18,
     set_code="ME55C",
     rarity=Rarities.RareHolo,
-    effect=unimplemented
+    play_cost=2,
+    effect=temp_attack_boost_for_named("Misty", 20)
 )

@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import pokemon_of, switch_then_heal
 
 card = ItemCardDef(
     guid="2ed35178-8ed0-5430-a25a-0248454daed4",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=77,
     set_code="DM",
     rarity=Rarities.RareSecret,
-    effect=unimplemented
+    effect=switch_then_heal(30, active_pred=pokemon_of("Water"))
 )

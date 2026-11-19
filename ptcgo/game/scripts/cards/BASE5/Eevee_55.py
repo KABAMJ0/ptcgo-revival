@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 card = PokemonCardDef(
     guid="30846e06-34a7-59f7-8ad6-a5327c1ef407",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
     ],
 )

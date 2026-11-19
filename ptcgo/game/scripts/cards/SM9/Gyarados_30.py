@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 
 card = PokemonCardDef(
     guid="be02dc4d-b413-58ae-a6be-8a468d5d093a",
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Hyper Beam",
             game_text="Discard an Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 3},
             damage=100,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
     ],
 )

@@ -1,4 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.passives_common import shield_source_next_turn
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,14 +25,15 @@ card = PokemonCardDef(
         Ability(
             title="Mist Concealment",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon, you may prevent all effects of attacks, including damage, done to this Pok\u00e9mon by your opponent's Pok\u00e9mon during your opponent's next turn.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=shield_source_next_turn(prevent=True, effects_too=True),
         ),
         Attack(
             title="Shadow Bullet",
             game_text="This attack does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness or Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=unimplemented,
+            effect=snipe_attack(20, pool="bench", count=1),
         ),
     ],
 )

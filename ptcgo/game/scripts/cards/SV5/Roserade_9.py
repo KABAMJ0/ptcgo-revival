@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="9296b25f-8b78-5a29-9fca-7d07fd898806",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=no_retreat_attack(),
         ),
     ],
 )

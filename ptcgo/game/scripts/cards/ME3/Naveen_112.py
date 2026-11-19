@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
+async def _naveen(ctx):
+    hand = ctx.hand()
+    if hand:
+        picks = await ctx.choose_cards(
+            hand, len(hand), minimum=0,
+            prompt="Choose any number of cards to discard")
+        if picks:
+            await ctx.discard_cards(picks)
+    await ctx.draw_until(5)
+
 
 card = SupporterCardDef(
     guid="e35be0f5-68b6-5514-a4a3-b07de2cd0c06",
@@ -11,5 +22,5 @@ card = SupporterCardDef(
     collector_number=112,
     set_code="ME3",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=_naveen
 )

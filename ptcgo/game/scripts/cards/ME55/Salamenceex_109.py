@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="38cbe18f-9c1d-5826-a724-0b2c593e6508",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
             title="Booming Call",
             game_text="Put up to 3 Dragon Pok\u00e9mon from your discard pile onto your Bench.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=False),
         ),
         Attack(
             title="Dragon Pulse",
             game_text="Discard the top 2 cards of your deck.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1},
             damage=240,
-            effect=unimplemented,
+            effect=mill_attack(count=2, opponent=False),
         ),
     ],
 )

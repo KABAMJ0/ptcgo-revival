@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="da327555-9272-5eb2-9c62-4d39a509d725",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw a card.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Magnum Punch",

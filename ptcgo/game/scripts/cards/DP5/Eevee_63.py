@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 
 card = PokemonCardDef(
     guid="d0a199ca-522d-5a46-b58a-e340fe9ce072",
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             title="Sand Attack",
             game_text="If the Defending Pok\u00e9mon tries to attack during your opponent's next turn, your opponent flips a coin. If tails, that attack does nothing.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
     ],
 )

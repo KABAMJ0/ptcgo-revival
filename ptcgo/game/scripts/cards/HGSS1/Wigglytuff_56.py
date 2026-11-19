@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,14 +27,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=flip_damage(coins=2, per_heads=40),
         ),
         Attack(
             title="Expand",
             game_text="During your opponent's next turn, any damage done to Wigglytuff by attacks is reduced by 10 (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=10),
         ),
     ],
 )

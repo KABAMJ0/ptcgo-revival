@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="b8d78a4f-ffd7-5c96-b28a-d78546a83d2c",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw 3 cards.",
             cost={},
-            effect=unimplemented,
+            effect=draw_attack(3),
         ),
         Attack(
             title="Cross-Cut",

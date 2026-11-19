@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="da686dd2-c149-5c5f-aee6-7b2ffb7580d2",
@@ -22,7 +25,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw a card.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(1),
         ),
         Attack(
             title="Quick Attack",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
         ),
     ],
 )

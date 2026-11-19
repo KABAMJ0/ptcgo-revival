@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="715e6d95-7aef-565b-923c-7ca3979c47fa",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. if heads, the Defending Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
     ],
 )

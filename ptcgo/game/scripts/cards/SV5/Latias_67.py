@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="7b2f80be-2be0-523e-8b7c-9b264b3b84a5",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Allure",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Lagoon Flight",

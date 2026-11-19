@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.support_common import look_at_top
 
 card = SupporterCardDef(
     guid="af452ef5-816d-5fb1-b824-375a7e1ddbd1",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=77,
     set_code="HGSS3",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=look_at_top(5, take=2, rest="discard")
 )

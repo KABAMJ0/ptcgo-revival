@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import cure_on_energy_attach
 
 card = PokemonCardDef(
     guid="86db8a10-3e5d-5873-97db-465b0be552f1",
@@ -21,7 +22,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Cure",
             game_text="When you attach an Energy card from your hand to Roserade C, remove all Special Conditions from Roserade C.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=cure_on_energy_attach(),
         ),
         Attack(
             title="Magical Leaf",

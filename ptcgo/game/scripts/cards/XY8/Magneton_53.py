@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack, self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="59b0b518-b99c-5f14-ba54-6fc02800febf",
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             title="Static Shock",
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True),
         ),
         Attack(
             title="Electro Ball",
             game_text="Discard an Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(count=1),
         ),
     ],
 )

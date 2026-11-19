@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,14 +25,14 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
         Attack(
             title="Megahorn",
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.FIGHTING: 3, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
     ],
 )

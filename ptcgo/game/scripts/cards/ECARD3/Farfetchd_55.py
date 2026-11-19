@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="f237f650-4e33-50d6-b903-f716d94e1c17",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Whirlwind",
             game_text="Your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Leek Rush",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=flip_damage(until_tails=True, per_heads=10),
+            effect=flip_damage(per_heads=10, until_tails=True),
         ),
     ],
 )

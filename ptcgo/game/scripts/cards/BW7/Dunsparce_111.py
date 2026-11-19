@@ -1,5 +1,7 @@
+from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="735ada43-0b86-50cc-bcfb-c8929433fbb0",
@@ -22,14 +24,14 @@ card = PokemonCardDef(
             title="Double Draw",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Dig",
             game_text="Flip a coin. If heads, prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=flip_protection(effects_too=True),
         ),
     ],
 )

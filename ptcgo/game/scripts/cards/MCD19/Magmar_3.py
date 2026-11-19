@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, mill_attack
 
 card = PokemonCardDef(
     guid="f633be29-9e59-5a87-a866-ee5fdf5dd272",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Controlled Burn",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=mill_attack(1),
         ),
         Attack(
             title="Flamethrower",

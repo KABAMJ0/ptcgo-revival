@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="5521fc30-86ae-53f4-9e7b-7c0467cd2df4",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Collect",
             game_text="Draw 2 cards.",
             cost={},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
         Attack(
             title="Sludge Bomb",

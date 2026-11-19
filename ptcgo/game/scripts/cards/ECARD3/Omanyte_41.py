@@ -1,6 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def drag_off(ctx):
+    target = None
+    bench = ctx.opponent_bench()
+    if bench and await ctx.ask_yes_no(
+            "Switch 1 of your opponent's Benched Pokémon with the Defending Pokémon?"):
+        target = await ctx.choose_pokemon(bench, "Choose the new Defending Pokémon") or bench[0]
+        await ctx.switch_active(ctx.opponent_id, target)
+    await ctx.deal_damage(target=target)
+
+
 card = PokemonCardDef(
     guid="96a7c55e-b512-58d1-8a79-e64545a6b77a",
     key="ECARD3",
@@ -30,7 +40,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, you may choose 1 of your opponent's Benched Pok\u00e9mon and switch it with the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=drag_off,
         ),
     ],
 )

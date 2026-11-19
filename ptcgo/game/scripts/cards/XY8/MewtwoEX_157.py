@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
 
 card = PokemonCardDef(
     guid="0e4c46a0-9234-5022-b099-bde6d7c56af9",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 30 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=debuff_defender_attacks(30),
         ),
         Attack(
             title="Psyburn",

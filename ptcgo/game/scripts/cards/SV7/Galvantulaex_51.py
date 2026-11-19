@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_opponent_plays, self_energy_discard_attack, bonus_if, defender_is_ex_or_v
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 1},
             damage=110,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_is_ex_or_v, 110),
         ),
         Attack(
             title="Fulgurite",
             game_text="Discard all Energy from this Pok\u00e9mon. During your opponent's next turn, they can't play any Item cards from their hand.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1, PokemonTypes.FIGHTING: 1},
             damage=180,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True, also=lock_opponent_plays("item", damage=0)),
         ),
     ],
 )

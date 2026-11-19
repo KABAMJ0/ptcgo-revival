@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_damage
 
 card = PokemonCardDef(
     guid="0a57343f-48a0-58bf-a049-ba60158b7c83",
@@ -25,14 +26,14 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=20,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Wood Hammer",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.PSYCHIC: 2, PokemonTypes.COLORLESS: 1},
             damage=90,
-            effect=unimplemented,
+            effect=flip_damage(coins=1, base=90, tails_self_damage=20),
         ),
     ],
 )

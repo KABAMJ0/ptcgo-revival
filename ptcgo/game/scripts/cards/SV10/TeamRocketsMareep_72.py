@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_item_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Procurement",
             game_text="Search your deck for an Item card, reveal it, and put it into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(predicate=is_item_card, count=1, minimum=1),
         ),
         Attack(
             title="Tiny Bolt",

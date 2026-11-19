@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import draw_then_opponent_may_draw
 
 card = SupporterCardDef(
     guid="067e31c9-9eb8-5607-ba73-8bc908299d5d",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=76,
     set_code="COL",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=draw_then_opponent_may_draw(3, 1)
 )

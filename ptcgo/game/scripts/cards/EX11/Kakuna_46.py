@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_evolution_pokemon
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="fd2bc85c-51f6-5dea-9edc-71384f4a1bd1",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Fast Evolution",
             game_text="Search your deck for an Evolution card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_evolution_pokemon, count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Rollout",
