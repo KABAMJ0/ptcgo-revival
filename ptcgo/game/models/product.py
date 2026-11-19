@@ -18,7 +18,7 @@ def make_shop_sku(product: "Product") -> "Product":
     eviction on shop exit (ClearDynamicArchetypes) never touches the owned collection GUID."""
     sku_guid = str(uuid.uuid5(SHOP_SKU_NAMESPACE, product.guid))
     attrs = copy.deepcopy(product.attributes)
-    attrs[str(AttrID.ARCHETYPE_ID.value)] = {"type": "string", "value": sku_guid}
+    attrs[str(AttrID.ARCHETYPE_ID.value)] = {"type": "uuid", "value": sku_guid}
     attrs[str(AttrID.CATALOG_ID.value)] = {"type": "string", "value": sku_guid}
     return Product(sku_guid, product.key, attrs, [dict(p) for p in product.prices])
 
