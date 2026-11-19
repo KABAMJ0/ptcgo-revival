@@ -893,6 +893,30 @@ def recoil_attack(self_damage: int, damage: Optional[int] = None, also=None):
     return effect
 
 
+def optional_bonus_self_damage(bonus: int, self_damage: int,
+                              base: Optional[int] = None, also=None):
+    """"You may do N more damage. If you do, this Pokemon does M damage to
+    itself": printed (or `base`) damage, then the optional half as ONE yes/no
+    -- the extra damage and the recoil are a single bargain, so a player who
+    declines takes neither. The recoil is unmodified (no W/R), like
+    `recoil_attack`'s."""
+    async def effect(ctx):
+        await ctx.deal_damage(base)
+        if not await ctx.ask_yes_no(
+                f"Do {bonus} more damage? If you do, this Pokémon does "
+                f"{self_damage} damage to itself."):
+            if also is not None:
+                await also(ctx)
+            return
+        await ctx.deal_damage(bonus, target=ctx.defender)
+        if ctx.attacker is not None:
+            await ctx.deal_damage(self_damage, target=ctx.attacker,
+                                  apply_modifiers=False)
+        if also is not None:
+            await also(ctx)
+    return effect
+
+
 def mill_attack(count: int, opponent: bool = True,
                 then_damage: Optional[int] = None, also=None):
     """Printed (or then_damage) damage, then discard the top `count` cards of
