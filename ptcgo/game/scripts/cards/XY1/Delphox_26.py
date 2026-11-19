@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.support_common import draw_until_effect
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="c4bd9366-b4d4-5a31-b53f-287bac195dfd",
@@ -23,6 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Mystical Fire",
             game_text="Once during your turn (before your attack), you may draw cards until you have 6 cards in your hand.",
+            activation=Activations.ONCE_PER_TURN,
             effect=draw_until_effect(6),
         ),
         Attack(
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", PokemonTypes.FIRE), per=20, base=50),
         ),
     ],
 )

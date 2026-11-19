@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, lock_chosen_defender_attack
 
 card = PokemonCardDef(
     guid="b1c32416-f4d2-502b-8bfc-de5c6b969def",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Psychic Erase",
             game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=lock_chosen_defender_attack(),
         ),
         Attack(
             title="Swift",

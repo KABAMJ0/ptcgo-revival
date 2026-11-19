@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import draw_attack
 
 card = PokemonCardDef(
     guid="762bf1c7-7763-5bb5-8e81-513bafe088ee",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Doduo Delivery",
             game_text="Draw 2 cards.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=draw_attack(2),
         ),
     ],
 )

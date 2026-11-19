@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="22b2fca0-2f14-522c-a797-6652617d4056",
@@ -33,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(defender_retreat_cost, 20, base=40),
         ),
     ],
 )

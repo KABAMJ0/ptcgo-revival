@@ -1,7 +1,6 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="6fcccba5-6c74-5a8d-ad30-b61ebd49e33b",
@@ -27,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="x",
-            effect=flip_damage(per_heads=20, until_tails=True),
+            effect=flip_damage(until_tails=True, per_heads=20),
         ),
         Attack(
             title="Thunder",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=flip_damage(coins=1, base=80, tails_self_damage=20),
         ),
     ],
 )

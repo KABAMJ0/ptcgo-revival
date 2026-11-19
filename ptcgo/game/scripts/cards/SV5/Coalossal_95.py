@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import mill_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per, mill_attack
 
 card = PokemonCardDef(
     guid="67521c4f-276c-5d9a-8562-dc9d6dc22eb9",
@@ -26,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=40,
             damage_operator="+",
-            effect=mill_attack(2, opponent=True),
+            effect=damage_per(count_energy("self", PokemonTypes.FIRE), per=80, base=40),
         ),
         Attack(
             title="Cragalanche",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 3},
             damage=150,
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
     ],
 )

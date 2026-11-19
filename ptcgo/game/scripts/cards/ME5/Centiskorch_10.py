@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import mill_attack, recoil_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Controlled Burn",
             game_text="Discard the top 2 cards of your opponent's deck.",
             cost={PokemonTypes.FIRE: 1},
-            effect=unimplemented,
+            effect=mill_attack(count=2),
         ),
         Attack(
             title="Heat Tackle",

@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 
 card = PokemonCardDef(
     guid="545941ed-7830-54c4-bfc1-f4e91e5a15d0",

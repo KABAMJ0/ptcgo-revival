@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import damage_per, defender_retreat_cost
 
 card = PokemonCardDef(
     guid="edfaf1aa-a2f4-5b19-b89d-f58eea1474d1",
@@ -27,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
+            effect=damage_per(defender_retreat_cost, 30, base=30),
         ),
         Attack(
             title="Moon Press",

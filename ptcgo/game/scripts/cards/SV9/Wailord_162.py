@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import count_energy
-from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 card = PokemonCardDef(
     guid="22410283-d42c-5f64-b9e0-e6cc03d1e562",
@@ -27,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 4},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_energy("self", "water"), 50),
+            effect=damage_per(count_energy("self", PokemonTypes.WATER), per=50, base=10),
         ),
     ],
 )
