@@ -5193,6 +5193,8 @@ def _recover_energy_reveal(m, ability):
 
 
 def _draw_from_bottom(m, ability):
+    """Draw from the BOTTOM of the deck. The top is the deck's last child
+    (`board.deal_from_deck` deals `children[-1]`), so the bottom is the head."""
     count = int(m.group(1))
 
     async def effect(ctx):
@@ -5200,7 +5202,7 @@ def _draw_from_bottom(m, ability):
         deck = ctx.deck()
         if not deck:
             return
-        picks = deck[-count:]
+        picks = deck[:count]
         await ctx.put_in_hand(picks, reveal=False)
     return effect
 
