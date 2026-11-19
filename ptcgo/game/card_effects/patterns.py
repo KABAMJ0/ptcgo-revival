@@ -14794,6 +14794,158 @@ def _bonus_from_phrase(m, ability):
 # Pattern table: (name, compiled regex, builder). First full match wins.
 # ----------------------------------------------------------------------
 
+def _extra_energy_tail(m, ability):
+    """The gate, then a payload that is not a flat damage bonus: "if this Pokemon
+    has at least N extra <type> Energy attached (in addition to this attack's
+    cost), <tail>". Declines an unknown tail so the card stays a stub rather than
+    silently losing its clause."""
+    required = int(m.group(1))
+    type_word = m.group("type")
+    cond = _extra_energy_attached(required, type_word)
+    tail = m.group("tail").strip().rstrip(".").lower()
+
+    mo = re.fullmatch(r"take (\d+) (?:more )?prize cards?(?: instead)?", tail)
+    if mo:
+        count = int(mo.group(1))
+
+        async def take_prizes(ctx):
+            await ctx.deal_damage()
+            if cond(ctx):
+                await ctx.take_prizes(count)
+        return take_prizes
+
+    if re.fullmatch(r"discard all energy from your opponent's active pokemon", tail):
+        async def discard_all_energy(ctx):
+            await ctx.deal_damage()
+            if cond(ctx) and ctx.defender is not None:
+                await ctx.discard_energy_from(ctx.defender, 99)
+        return discard_all_energy
+
+    if re.fullmatch(r"heal all damage from all of your pokemon", tail):
+        async def heal_everything(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            for pokemon in ctx.my_pokemon_in_play():
+                missing = ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0)
+                if missing > 0:
+                    await ctx.heal(missing, pokemon)
+        return heal_everything
+
+    mo = re.fullmatch(r"draw cards until you have (\d+) cards in your hand", tail)
+    if mo:
+        target = int(mo.group(1))
+
+        async def draw_until_then(ctx):
+            await ctx.deal_damage()
+            if cond(ctx):
+                await ctx.draw_until(target)
+        return draw_until_then
+
+    mo = re.fullmatch(r"discard the top (\d+) cards of your opponent's deck", tail)
+    if mo:
+        count = int(mo.group(1))
+
+        async def mill_top(ctx):
+            await ctx.deal_damage()
+            if cond(ctx):
+                milled = ctx.deck_top(count, player_id=ctx.opponent_id)
+                if milled:
+                    await ctx.discard_cards(milled)
+        return mill_top
+
+    if re.fullmatch(r"shuffle all cards from your discard pile into your deck", tail):
+        async def refill_deck(ctx):
+            await ctx.deal_damage()
+            if cond(ctx):
+                pile = list(ctx.discard_pile())
+                if pile:
+                    await ctx.shuffle_into_deck(pile, ctx.player_id)
+        return refill_deck
+
+    if re.fullmatch(r"your opponent shuffles all energy from all of their pokemon "
+                    r"into their deck", tail):
+        async def opponent_shuffles_energies(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            pool = [energy for pokemon in ctx.opponent_pokemon_in_play()
+                    for energy in ctx.attached_energies(pokemon)]
+            if pool:
+                await ctx.shuffle_into_deck(pool, ctx.opponent_id)
+        return opponent_shuffles_energies
+
+    if re.fullmatch(r"your opponent shuffles all of their benched pokemon and all "
+                    r"cards attached to them into their deck", tail):
+        async def opponent_shuffles_bench(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            bench = list(ctx.opponent_bench())
+            cards = []
+            for pokemon in bench:
+                cards.append(pokemon)
+                cards.extend(list(pokemon.children))
+            if cards:
+                await ctx.shuffle_into_deck(cards, ctx.opponent_id)
+        return opponent_shuffles_bench
+
+    mo = re.fullmatch(r"each player draws cards until they have (\d+) cards in "
+                      r"their hand", tail)
+    if mo:
+        target = int(mo.group(1))
+
+        async def both_draw_until(ctx):
+            await ctx.deal_damage()
+            if cond(ctx):
+                await ctx.draw_until(target)
+                await ctx.draw_until(target, ctx.opponent_id)
+        return both_draw_until
+
+    mo = re.fullmatch(r"this attack does (\d+) damage to each of your opponent's "
+                      r"benched pokemon", tail)
+    if mo:
+        amount = int(mo.group(1))
+
+        async def spread_bench(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            for pokemon in ctx.opponent_bench():
+                await ctx.deal_damage(amount, target=pokemon, apply_modifiers=False)
+        return spread_bench
+
+    mo = re.fullmatch(r"this attack does (\d+) damage to 1 of your opponent's "
+                      r"benched pokemon", tail)
+    if mo:
+        amount = int(mo.group(1))
+
+        async def snipe_bench(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            bench = list(ctx.opponent_bench())
+            if not bench:
+                return
+            pick = bench[0] if len(bench) == 1 else await ctx.choose_cards(
+                bench, 1, prompt=f"Choose a Pokemon to take {amount} damage")
+            for target in (pick if isinstance(pick, list) else [pick]):
+                await ctx.deal_damage(amount, target=target, apply_modifiers=False)
+        return snipe_bench
+
+    if re.fullmatch(r"your opponent shuffles their hand into their deck", tail):
+        async def opponent_shuffles_hand(ctx):
+            await ctx.deal_damage()
+            if not cond(ctx):
+                return
+            hand = list(ctx.hand(ctx.opponent_id))
+            if hand:
+                await ctx.shuffle_into_deck(hand, ctx.opponent_id)
+        return opponent_shuffles_hand
+
+    return None
+
+
 _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     # -- coin flips ----------------------------------------------------
     ("flip.damage-times-heads",
@@ -15433,6 +15585,12 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
                 r"remaining than your opponent, this attack does (\d+) more "
                 r"damage\."), _bonus_prize_comparison),
     # -- batch 8: remaining generic riders ---------------------------------
+    ("bonus.extra-energy-tail",
+     re.compile(r"if this pokemon has at least (\d+) extra (?:(?P<type>"
+                + _TYPE_WORDS + r") )?energy attached(?: to it)?"
+                r"(?: \(in addition to this attack's cost\))?, (?P<tail>.+)",
+                re.IGNORECASE),
+     _extra_energy_tail),
     ("copy.defender-attack-short",
      re.compile(r"choose (an?|\d+) of the defending pokemon's attacks and use "
                 r"it as this attack\."), _copy_defender_attack),
@@ -19642,7 +19800,32 @@ def bind(ability, own_name: Optional[str] = None) -> Optional[str]:
     return None
 
 
+_TRAILERS = (
+    r"\s*\(you can't use more than 1 gx attack in a game\.\)",
+    r"\s*\(don't apply weakness and resistance for benched pokemon\.\)",
+)
+
+
+def _strip_trailers(text: str) -> str:
+    """Rule-box reminders are not part of the effect. The GX ledger and the
+    bench-W/R rule are engine behaviour, but a trailing "(You can't use more than
+    1 GX attack in a game.)" made the whole sentence fail `fullmatch`, which is
+    why 95 extra-Energy blocks printed a body and bound nothing."""
+    out = text
+    for trailer in _TRAILERS:
+        out = re.sub(trailer, "", out, flags=re.IGNORECASE)
+    return out.strip()
+
+
 def _bind_text(ability, text: str, binder) -> Optional[str]:
+    for candidate in dict.fromkeys((text, _strip_trailers(text))):
+        bound = _bind_single_text(ability, candidate, binder)
+        if bound is not None:
+            return bound
+    return None
+
+
+def _bind_single_text(ability, text: str, binder) -> Optional[str]:
     for name, pattern, build in _PATTERNS:
         match = pattern.fullmatch(text)
         if match is None:
