@@ -1,0 +1,169 @@
+[
+ {
+  "id": "sm75-58",
+  "name": "Blaine's Last Stand",
+  "number": "58",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only when it is the last card in your hand.",
+   "Draw 2 cards for each Fire Pokémon you have in play.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-69",
+  "name": "Blaine's Last Stand",
+  "number": "69",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only when it is the last card in your hand.",
+   "Draw 2 cards for each Fire Pokémon you have in play.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-59",
+  "name": "Dragon Talon",
+  "number": "59",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Pokémon Tool"
+  ],
+  "rules": [
+   "Attach a Pokémon Tool to 1 of your Pokémon that doesn't already have a Pokémon Tool attached to it.",
+   "If the Dragon Pokémon this card is attached to is your Active Pokémon and is damaged by an opponent's attack (even if that Pokémon is Knocked Out), put 3 damage counters on the Attacking Pokémon.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-75",
+  "name": "Dragon Talon",
+  "number": "75",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Pokémon Tool"
+  ],
+  "rules": [
+   "Attach a Pokémon Tool to 1 of your Pokémon that doesn't already have a Pokémon Tool attached to it.",
+   "If the Dragon Pokémon this card is attached to is your Active Pokémon and is damaged by an opponent's attack (even if that Pokémon is Knocked Out), put 3 damage counters on the Attacking Pokémon.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-60",
+  "name": "Fiery Flint",
+  "number": "60",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "You can play this card only if you discard 2 other cards from your hand.",
+   "Search your deck for up to 4 Fire Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-76",
+  "name": "Fiery Flint",
+  "number": "76",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "You can play this card only if you discard 2 other cards from your hand.",
+   "Search your deck for up to 4 Fire Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-61",
+  "name": "Lance ◇",
+  "number": "61",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter",
+   "Prism Star"
+  ],
+  "rules": [
+   "You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.",
+   "Search your deck for up to 2 Dragon Pokémon and put them onto your Bench. Then, shuffle your deck.",
+   "You may play only 1 Supporter card during your turn (before your attack).",
+   "◇ (Prism Star) Rule: You can't have more than 1 ◇ card with the same name in your deck. If a ◇ card would go to the discard pile, put it in the Lost Zone instead."
+  ]
+ },
+ {
+  "id": "sm75-62",
+  "name": "Switch Raft",
+  "number": "62",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "Switch your Active Water Pokémon with 1 of your Benched Pokémon. If you do, heal 30 damage from the Pokémon you moved to your Bench.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-77",
+  "name": "Switch Raft",
+  "number": "77",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Item"
+  ],
+  "rules": [
+   "Switch your Active Water Pokémon with 1 of your Benched Pokémon. If you do, heal 30 damage from the Pokémon you moved to your Bench.",
+   "You may play as many Item cards as you like during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-63",
+  "name": "Wela Volcano Park",
+  "number": "63",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Stadium"
+  ],
+  "rules": [
+   "Whenever a player flips a coin for the Special Condition Burned between turns, that Special Condition isn't removed even if the result is heads.",
+   "This card stays in play when you play it. Discard this card if another Stadium card comes into play. If another card with the same name is in play, you can't play this card."
+  ]
+ },
+ {
+  "id": "sm75-64",
+  "name": "Zinnia",
+  "number": "64",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.",
+   "Attach up to 2 basic Energy cards from your hand to 1 of your Dragon Pokémon.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ },
+ {
+  "id": "sm75-70",
+  "name": "Zinnia",
+  "number": "70",
+  "supertype": "Trainer",
+  "subtypes": [
+   "Supporter"
+  ],
+  "rules": [
+   "You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.",
+   "Attach up to 2 basic Energy cards from your hand to 1 of your Dragon Pokémon.",
+   "You may play only 1 Supporter card during your turn (before your attack)."
+  ]
+ }
+]
