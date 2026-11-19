@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import discard_hand_draw
 
 card = PokemonCardDef(
     guid="7cf78576-a1d1-51ac-8550-225baf81c5ba",
@@ -20,7 +21,7 @@ card = PokemonCardDef(
             title="Burst Roar",
             game_text="Discard your hand and draw 6 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_hand_draw(6),
         ),
         Attack(
             title="Bellowing Thunder",
