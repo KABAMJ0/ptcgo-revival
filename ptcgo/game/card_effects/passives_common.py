@@ -721,7 +721,12 @@ class PreviousEvolutionAttacksPassive(Passive):
         self.extra_sources = extra_sources
 
     def granted_attacks(self, board, pokemon, carrier):
-        if carrier_pokemon(carrier) is not pokemon:
+        holder = carrier_pokemon(carrier)
+        # A Stadium (or any global carrier) has no carrier_pokemon, and its
+        # wording is board-wide: "each player's evolved Pokemon can use any
+        # attack from its previous Evolutions" (Shrine of Memories, Meteor
+        # Falls). A Pokemon/Tool carrier still grants only to itself.
+        if holder is not None and holder is not pokemon:
             return []
         out = previous_evolution_attacks(pokemon)
         for source in (self.extra_sources(board, pokemon, carrier) or []
