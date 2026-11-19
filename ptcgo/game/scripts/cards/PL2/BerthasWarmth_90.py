@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import heal_where, pokemon_of_subtype
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
 
 card = SupporterCardDef(
     guid="04266a81-e0a0-5a2d-9341-77744faca3de",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=90,
     set_code="PL2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=heal_where(50, "choice", predicate=pokemon_of_subtype("SP"))
 )

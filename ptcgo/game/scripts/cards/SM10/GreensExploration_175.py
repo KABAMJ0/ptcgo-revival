@@ -1,5 +1,19 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import is_trainer_card
+from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.data_utils import Attack, SupporterCardDef, def_for
 from ptcgo.game.attributes import Rarities
+
+
+def _no_ability_in_play(board, player_id):
+    """`PokemonCardDef.abilities` carries Attacks too, so an Ability here means
+    any printed entry that is not an Attack."""
+    for pokemon in board.pokemon_in_play(player_id):
+        definition = def_for(pokemon.archetype_id)
+        if any(not isinstance(entry, Attack)
+               for entry in getattr(definition, "abilities", None) or []):
+            return False
+    return True
+
 
 card = SupporterCardDef(
     guid="227a00bb-895e-553a-91d4-f11b64bfc756",
@@ -11,5 +25,6 @@ card = SupporterCardDef(
     collector_number=175,
     set_code="SM10",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=search_to_hand(is_trainer_card, count=2, minimum=0, reveal=True),
+    condition=_no_ability_in_play
 )

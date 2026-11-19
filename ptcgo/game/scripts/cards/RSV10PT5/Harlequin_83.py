@@ -1,5 +1,16 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
+
+async def harlequin(ctx):
+    """Each player shuffles their hand into their deck, then one coin decides
+    who draws 5 and who draws 3."""
+    for player_id in (ctx.player_id, ctx.opponent_id):
+        await ctx.shuffle_into_deck(ctx.hand(player_id), player_id)
+    heads = (await ctx.flip_coins(1, title="Harlequin"))[0]
+    await ctx.draw_cards(5 if heads else 3)
+    await ctx.draw_cards(3 if heads else 5, ctx.opponent_id)
+
 
 card = SupporterCardDef(
     guid="cfd6cc68-b88a-5c53-be51-296535cb92b7",
@@ -11,5 +22,5 @@ card = SupporterCardDef(
     collector_number=83,
     set_code="RSV10PT5",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=harlequin
 )

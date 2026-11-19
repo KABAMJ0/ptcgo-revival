@@ -1,5 +1,7 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import copycat_draw
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+
 
 card = SupporterCardDef(
     guid="7ba71e38-118d-5a54-b9f5-7c81dff6dcc5",
@@ -11,5 +13,5 @@ card = SupporterCardDef(
     collector_number=127,
     set_code="SM7",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=copycat_draw()
 )
