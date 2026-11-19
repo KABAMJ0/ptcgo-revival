@@ -3,6 +3,11 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
+async def _energy_healing(ctx):
+    energy = len(ctx.attached_energies(ctx.attacker))
+    if energy:
+        await ctx.heal(20 * energy, ctx.attacker)
+
 card = PokemonCardDef(
     guid="3f279376-b148-5b66-82b5-f290e9498540",
     key="ECARD3",
@@ -24,7 +29,7 @@ card = PokemonCardDef(
             title="Energy Healing",
             game_text="Remove 2 damage counters from Staryu for each Energy attached to it. If it has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_energy_healing,
         ),
         Attack(
             title="Doubleslap",

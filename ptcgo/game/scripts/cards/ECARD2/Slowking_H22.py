@@ -1,4 +1,28 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.passives_common import composed
+
+
+async def _peek_opponent_hand(ctx):
+    await ctx.reveal_hand(of_player=ctx.opponent_id)
+
+
+def _energy_in_opponent_hand(ctx):
+    return sum(1 for card in ctx.hand(ctx.opponent_id) if is_energy_card(card))
+
+
+async def _shuffle_attack(ctx):
+    await ctx.deal_damage(40)
+    defender = ctx.defender
+    if defender is None:
+        return
+    count = len(ctx.attached_energies(defender))
+    if count <= 0:
+        return
+    await ctx.reorder_deck_top(count, ctx.opponent_id,
+                               "Put those cards back on top in any order")
+
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -25,14 +49,15 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=composed(_peek_opponent_hand,
+                            damage_per(_energy_in_opponent_hand, 10)),
         ),
         Attack(
             title="Shuffle Attack",
             game_text="Look at a number of cards on top of your opponent's deck equal to the number of Energy cards attached to the Defending Pok\u00e9mon. Put those cards in any order, and then put them back on top of your opponent's deck.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_shuffle_attack,
         ),
     ],
 )

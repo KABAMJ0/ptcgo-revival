@@ -1,6 +1,30 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.support_common import switch_self_attack
+
+
+async def _spinning_blow(ctx):
+    results = await ctx.flip_coins(2, "Spinning Blow")
+    heads = sum(1 for result in results if result)
+    if heads:
+        await ctx.deal_damage(20 * heads)
+    if heads == 2:
+        await switch_self_attack(damage=0)(ctx)
+
+
+async def _scatterbomb(ctx):
+    results = await ctx.flip_coins(2, "Scatterbomb")
+    heads = sum(1 for result in results if result)
+    tails = len(results) - heads
+    if heads:
+        for pokemon in ctx.opponent_bench():
+            await ctx.deal_damage(10 * heads, target=pokemon, apply_modifiers=False)
+    if tails:
+        for pokemon in ctx.my_bench():
+            await ctx.deal_damage(10 * tails, target=pokemon, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="7ea7d5f4-2299-52c0-9320-a4ef7095471b",
     key="ECARD3",
@@ -26,14 +50,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=unimplemented,
+            effect=_spinning_blow,
         ),
         Attack(
             title="Scatterbomb",
             game_text="Flip 2 coins. For each heads, do 10 damage to each of your opponent's Benched Pok\u00e9mon. For each tails, do 10 damage to each of your own Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=_scatterbomb,
         ),
     ],
 )

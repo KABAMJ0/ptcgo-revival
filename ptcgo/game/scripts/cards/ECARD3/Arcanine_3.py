@@ -1,7 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.card_effects.support_common import gust_attack
+
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
+
+async def _energy_recharge(ctx):
+    results = await ctx.flip_coins(3, "Energy Recharge")
+    heads = sum(1 for result in results if result)
+    if not heads:
+        return
+    await attach_from_discard(
+        is_basic_energy_card, count=heads, target="self", minimum=0,
+        prompt="Choose basic Energy cards from your discard pile")(ctx)
+
 
 card = PokemonCardDef(
     guid="609ca60a-cab2-5320-8c32-b59a3b65edbf",
@@ -24,7 +38,8 @@ card = PokemonCardDef(
         Ability(
             title="Energy Recharge",
             game_text="When you play Arcanine from your hand to evolve your Active Pok\u00e9mon, you may flip 3 coins. For each heads, choose a basic Energy card from your discard pile and attach it to Arcanine.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=_energy_recharge,
         ),
         Attack(
             title="Shake",

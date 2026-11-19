@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.attacks_common import lock_opponent_plays
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 card = PokemonCardDef(
     guid="cb87f0e0-5bcc-58a6-9305-f0e6c3891c92",
@@ -24,7 +25,10 @@ card = PokemonCardDef(
             title="Poison Scent",
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon is now Poisoned and Confused. If tails, the Defending Pok\u00e9mon is now Poisoned and Asleep.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, SpecialConditions.CONFUSED,
+                                    flip=True,
+                                    tails_conditions=(SpecialConditions.POISONED,
+                                                      SpecialConditions.ASLEEP)),
         ),
         Attack(
             title="Addictive Pollen",

@@ -1,6 +1,24 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, retreat_free_when
+from ptcgo.game.attributes import AttrID
+
+
+def _tailwind_available(board, player_id, pokemon):
+    return not is_in_active_spot(pokemon) and not pokemon.get_attribute(
+        AttrID.SPECIAL_CONDITIONS) and board.active_pokemon(player_id) is not None
+
+
+async def _tailwind(ctx):
+    active = ctx.my_active()
+    if active is None:
+        return
+    ctx.add_temporary_passive(
+        active, retreat_free_when(lambda pokemon, carrier: pokemon is active),
+        expires_after_turn=ctx.session.turn_state.turn_number)
+
 
 card = PokemonCardDef(
     guid="14edd5ff-b262-59d1-ad22-004f2f58eba5",
@@ -22,7 +40,9 @@ card = PokemonCardDef(
         Ability(
             title="Tailwind",
             game_text="Once during your turn (before your attack), if Dragonite is on your Bench, you may reduce your Active Pok\u00e9mon's Retreat Cost to 0.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_tailwind_available,
+            effect=_tailwind,
         ),
         Attack(
             title="Dragon Tail",

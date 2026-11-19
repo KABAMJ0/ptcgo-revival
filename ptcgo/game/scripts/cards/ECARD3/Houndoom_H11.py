@@ -2,6 +2,19 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import count_bench
+
+
+def _bench_difference(ctx):
+    return len(ctx.opponent_bench()) - len(ctx.my_bench())
+
+
+async def _lonely_fang(ctx):
+    amount = 30 + 20 * _bench_difference(ctx)
+    if amount > 0:
+        await ctx.deal_damage(amount)
+
+
 card = PokemonCardDef(
     guid="27055d43-ed50-5292-94ad-42de3fe70358",
     key="ECARD3",
@@ -35,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_lonely_fang,
         ),
     ],
 )

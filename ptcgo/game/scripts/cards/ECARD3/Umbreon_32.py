@@ -2,6 +2,15 @@ from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import ability_lock_passive, is_in_active_spot
+
+
+
+
+def _benched_power_lock(pokemon, carrier):
+    """Dark Gaze: while Umbreon holds the Active spot, no Benched Pokemon --
+    either side -- may use a Poke-Power."""
+    return is_in_active_spot(carrier) and not is_in_active_spot(pokemon)
 card = PokemonCardDef(
     guid="eb52189a-0283-5bda-af5c-a9a6f4cded7e",
     key="ECARD3",
@@ -24,7 +33,7 @@ card = PokemonCardDef(
         Ability(
             title="Dark Gaze",
             game_text="As long as Umbreon is your Active Pok\u00e9mon, Benched Pok\u00e9mon (yours and your opponent's) can't use Pok\u00e9-Powers.",
-            effect=unimplemented,
+            passive=ability_lock_passive(_benched_power_lock),
         ),
         Attack(
             title="Sharp Claws",

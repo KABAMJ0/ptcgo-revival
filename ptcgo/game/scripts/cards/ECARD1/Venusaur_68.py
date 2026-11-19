@@ -1,7 +1,17 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def _harvest_bounty(ctx):
+    if ctx.source is not None and ctx.source.get_attribute(AttrID.SPECIAL_CONDITIONS):
+        return
+    active = ctx.my_active()
+    if active is None or ctx.energy_receiver is not active:
+        return
+    if ctx.attaching_player_id != ctx.player_id:
+        return
+    ctx.allow_extra_attachment(1)
 
 card = PokemonCardDef(
     guid="fa7a59c8-7cea-5a2b-9b21-10d9292e855b",
@@ -24,7 +34,8 @@ card = PokemonCardDef(
         Ability(
             title="Harvest Bounty",
             game_text="Once during your turn (before your attack), if you attach an Energy card to your Active Pok\u00e9mon as part of your turn, you may attach an additional Energy card to that Pok\u00e9mon at the same time. This power can't be used if Venusaur is affected by a Special Condition.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            effect=_harvest_bounty,
         ),
         Attack(
             title="Body Slam",

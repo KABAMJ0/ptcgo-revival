@@ -4,6 +4,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+from ptcgo.game.data_utils import def_for
+
+
+def _is_zubat_family(pokemon):
+    name = (getattr(def_for(pokemon.archetype_id), "display_name", "") or "").lower()
+    return name.startswith("zubat") or name.startswith("golbat") or name.startswith("crobat")
+
+
 card = PokemonCardDef(
     guid="ab117a9d-8044-5753-83a9-711b8aa61897",
     key="ECARD3",
@@ -34,7 +43,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("mine", _is_zubat_family), 10, base=30),
         ),
     ],
 )

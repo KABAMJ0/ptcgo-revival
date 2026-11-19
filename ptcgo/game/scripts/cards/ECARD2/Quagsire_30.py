@@ -1,5 +1,6 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per_extra_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
 
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per_extra_energy(10, energy_type=PokemonTypes.WATER, cap=20),
         ),
         Attack(
             title="Slam",

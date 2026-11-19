@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_lightning(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
+
+
+async def _max_voltage(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 99, predicate=_is_lightning,
+        prompt="Choose Lightning Energy to discard from Pikachu")
+    await ctx.deal_damage(20 + 10 * len(discarded))
 
 card = PokemonCardDef(
     guid="3f2853b5-288a-5214-8426-950666daaf40",
@@ -24,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_max_voltage,
         ),
     ],
 )

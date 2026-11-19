@@ -1,5 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+from ptcgo.game.attributes import SpecialConditions
+
+
+async def _venom_spray(ctx):
+    defender = ctx.defender
+    if defender is None:
+        return
+    await ctx.apply_special_condition(defender, SpecialConditions.PARALYZED)
+    await ctx.apply_special_condition(defender, SpecialConditions.POISONED)
+
+
+async def _needle_rush(ctx):
+    results = await ctx.flip_coins(4, "Needle Rush")
+    heads = sum(1 for result in results if result)
+    await ctx.deal_damage(10 + {0: 0, 1: 10, 2: 20, 3: 50, 4: 90}[heads])
+
 
 card = PokemonCardDef(
     guid="b415b33c-f274-5f18-b9e3-eb9d3c442bc2",
@@ -22,7 +39,8 @@ card = PokemonCardDef(
         Ability(
             title="Venom Spray",
             game_text="When you play Beedrill from your hand to evolve your Active Pok\u00e9mon, the Defending Pok\u00e9mon is now Paralyzed and Poisoned.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=_venom_spray,
         ),
         Attack(
             title="Needle Rush",
@@ -30,7 +48,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_needle_rush,
         ),
     ],
 )

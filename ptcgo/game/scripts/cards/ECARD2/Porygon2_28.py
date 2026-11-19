@@ -1,6 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.passives_common import unafflicted
+from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+def _backup_ready(board, player_id, pokemon) -> bool:
+    hand = board.find_player_area(player_id, "hand")
+    return unafflicted(board, player_id, pokemon) and len(hand.children) <= 2
 
 card = PokemonCardDef(
     guid="8960e466-360e-510a-bc73-6221cf8d79b2",
@@ -23,7 +30,9 @@ card = PokemonCardDef(
         Ability(
             title="Backup",
             game_text="Once during each of your turns (before your attack), if you have 2 or fewer cards in your hand, you may draw cards from your deck until you have 3 cards in your hand. This power can't be used if Porygon2 is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_backup_ready,
+            effect=draw_until_effect(3, optional=True),
         ),
         Attack(
             title="Hypnotic Ray",

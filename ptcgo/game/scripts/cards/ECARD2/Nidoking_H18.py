@@ -1,6 +1,14 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate, spread_damage
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, unafflicted
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+_DAMAGE_COUNTER = 10  # one damage counter, the unit the card prints
+
+
+def _earth_rage_ready(board, player_id, pokemon) -> bool:
+    return is_in_active_spot(pokemon) and unafflicted(board, player_id, pokemon)
 
 card = PokemonCardDef(
     guid="18fede1e-28eb-5344-8bb9-d4853dcab8cf",
@@ -24,7 +32,9 @@ card = PokemonCardDef(
         Ability(
             title="Earth Rage",
             game_text="Once during your turn (before your attack), if Nidoking is your Active Pok\u00e9mon, you may flip a coin. If heads, put a damage counter on each of your opponent's Benched Pok\u00e9mon. This power can't be used if Nidoking is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=_earth_rage_ready,
+            effect=flip_gate(then=spread_damage(_DAMAGE_COUNTER, side="opponent")),
         ),
         Attack(
             title="Giant Horn",

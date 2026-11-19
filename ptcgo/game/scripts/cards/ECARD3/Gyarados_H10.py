@@ -1,5 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _flame_vapor(ctx):
+    results = await ctx.flip_coins(2, "Flame Vapor")
+    heads = sum(1 for result in results if result)
+    defender = ctx.defender
+    if not heads or defender is None:
+        return
+    for _ in range(heads):
+        if not ctx.attached_energies(defender):
+            break
+        await ctx.discard_energy_from(
+            defender, 1, prompt="Discard an Energy card attached to the Defending Pokémon")
+
 
 card = PokemonCardDef(
     guid="484f9f61-275c-5f0e-b0e9-4b25f6f3198a",
@@ -22,7 +35,8 @@ card = PokemonCardDef(
         Ability(
             title="Flame Vapor",
             game_text="When you play Gyarados from your hand to evolve your Active Pok\u00e9mon, you may flip 2 coins. For each heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=_flame_vapor,
         ),
         Attack(
             title="Dragon's Vengeance",

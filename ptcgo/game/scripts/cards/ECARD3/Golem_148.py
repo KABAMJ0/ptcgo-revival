@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _earth_bomb(ctx):
+    await ctx.deal_damage()
+    for pokemon in ctx.my_bench() + ctx.opponent_bench():
+        await ctx.deal_damage(10, target=pokemon, apply_modifiers=False)
+    await ctx.deal_damage(20, target=ctx.attacker, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="2e20bd34-7668-5458-b9a4-613185ea75d6",
     key="ECARD3",
@@ -34,7 +41,7 @@ card = PokemonCardDef(
             game_text="Golem does 20 damage to itself. This attack also does 10 damage to each Benched Pok\u00e9mon (yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.FIRE: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=_earth_bomb,
         ),
     ],
 )

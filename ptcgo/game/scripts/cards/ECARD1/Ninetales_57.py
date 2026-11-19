@@ -1,6 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+def _is_fire_energy(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.FIRE.value)
+
+
+async def _ethereal_flame(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 99, predicate=_is_fire_energy,
+        prompt="Choose Fire Energy to discard from Ninetales")
+    await ctx.deal_damage(30 + 20 * len(discarded))
 
 card = PokemonCardDef(
     guid="a050a0a0-b781-5449-97b5-500576c8aa38",
@@ -30,7 +42,9 @@ card = PokemonCardDef(
             title="Ethereal Flame",
             game_text="Discard all Fire Energy cards attached to Ninetales. This attack does 30 damage plus 20 more damage for each card discarded this way.",
             cost={PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            damage=30,
+            damage_operator="+",
+            effect=_ethereal_flame,
         ),
     ],
 )

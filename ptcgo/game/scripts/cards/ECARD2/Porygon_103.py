@@ -1,4 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.trainers import is_trainer_card
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +25,8 @@ card = PokemonCardDef(
             title="Data Sort",
             game_text="Flip a coin. If heads, choose a Trainer card from your discard pile, show it to your opponent, and then shuffle it into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=recover_from_discard(
+                is_trainer_card, count=1, to="deck_shuffle", reveal=True)),
         ),
         Attack(
             title="Peck",

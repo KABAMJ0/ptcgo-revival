@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate, spread_damage
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -31,7 +33,11 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 4},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(
+                then=composed(lambda ctx: ctx.deal_damage(60),
+                              spread_damage(10, side="opponent")),
+                tails=lambda ctx: ctx.deal_damage(50),
+            ),
         ),
     ],
 )

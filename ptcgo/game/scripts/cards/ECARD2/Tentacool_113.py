@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard 1 Water Energy card attached to Tentacool in order to use this attack. Remove all damage counters from Tentacool.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=heal_attack(all_damage=True, discard_energy=1),
         ),
     ],
 )

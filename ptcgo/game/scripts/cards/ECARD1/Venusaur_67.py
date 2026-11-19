@@ -2,6 +2,12 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+async def _leech_seed(ctx):
+    dealt = await ctx.deal_damage(20)
+    if dealt > 0 and ctx.attacker is not None:
+        await ctx.heal(10, ctx.attacker)
+
 card = PokemonCardDef(
     guid="018909e5-0435-50fa-addd-5419c3c0108d",
     key="ECARD1",
@@ -25,7 +31,7 @@ card = PokemonCardDef(
             game_text="If this attack damages the Defending Pok\u00e9mon (after applying Weakness and Resistance), remove 1 damage counter from Venusaur, if it has any.",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_leech_seed,
         ),
         Attack(
             title="Fury Strikes",

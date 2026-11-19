@@ -2,6 +2,20 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
+
+def _is_psychic_energy(card):
+    return energy_provides_type(card, PokemonTypes.PSYCHIC.value)
+
+
+def _benched_only(pokemon):
+    return not is_in_active_spot(pokemon)
+
+
 card = PokemonCardDef(
     guid="945ea286-0679-5eb1-8b8b-5c6b83457cc0",
     key="ECARD2",

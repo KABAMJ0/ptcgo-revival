@@ -1,5 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+def _is_lightning(card) -> bool:
+    return energy_provides_type(card, PokemonTypes.LIGHTNING.value)
+
+
+async def _lightning_sphere(ctx):
+    await ctx.deal_damage()
+    heads = await ctx.flip_coins(1, "Lightning Sphere")
+    if not (heads and heads[0]):
+        return
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 99, predicate=_is_lightning,
+        prompt="Choose Lightning Energy to discard from Raikou")
+    if discarded:
+        await ctx.deal_damage(20 * len(discarded))
 
 card = PokemonCardDef(
     guid="16f3a4c2-9e63-5bca-918a-11dbb4ed72f8",
@@ -29,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=_lightning_sphere,
         ),
     ],
 )
