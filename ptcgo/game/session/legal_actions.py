@@ -720,11 +720,28 @@ def compute_legal_actions(
             continue
         if isinstance(card, PokemonEntity):
             stage = card.get_attribute(AttrID.STAGE)
+            if is_level_up_card(card):
+                # Level-up: the LV.X goes onto the matching Pokemon in play and
+                # keeps its damage and Energy, so it rides the evolve action.
+                # It ignores the "in play since a previous turn" gates (a LV.X
+                # may go onto a Pokemon played this turn) and takes the place of
+                # the lower card rather than adding a Bench slot.
+                evolves_from = card.get_attribute(AttrID.EVOLUTION_LOGIC_FROM)
+                level_targets = [
+                    p.entity_id for p in in_play
+                    if not isinstance(p, CompositePokemonEntity)
+                    and not is_level_up_card(p)
+                    and p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == evolves_from
+                    and not evolution_blocked(board, player_id, p)
+                ]
+                if evolves_from and level_targets:
+                    entries.append(_target_map_entry(
+                        game_id, card.entity_id,
+                        action_id_for(card.entity_id, "evolve"), ACTION_EVOLVE,
+                        [entity_list_target_info(level_targets)],
+                    ))
+                continue
             if stage == PokemonStage.BASIC.value:
-                # A LV.X levels up onto a Pokemon already in play; its stage is
-                # the lower card's, so without this gate it plays to the bench.
-                if is_level_up_card(card):
-                    continue
                 if getattr(def_for(card.archetype_id), "unplayable_from_hand", False):
                     continue  # Shedinja: enters play only via an effect
                 # Fossils stay Item cards in hand: Item locks gate the bench play.
