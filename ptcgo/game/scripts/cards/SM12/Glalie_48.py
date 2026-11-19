@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
+
+async def _ice_fang(ctx):
+    await ctx.deal_damage()
+    results = await ctx.flip_coins(1, "Ice Fang")
+    if results and results[0]:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.PARALYZED)
+        await ctx.discard_energy_from(ctx.defender, 1)
+
 
 card = PokemonCardDef(
     guid="47beaee1-765e-5f0f-bc44-8422dc2c5371",
@@ -25,7 +33,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Paralyzed, and discard an Energy from that Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
             damage=30,
-            effect=flip_discard_opponent_energy(),
+            effect=_ice_fang,
         ),
         Attack(
             title="Frosty Typhoon",
