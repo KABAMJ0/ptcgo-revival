@@ -15,8 +15,8 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import (
-    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
-    TrainerType,
+    AttrID, CardType, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage,
+    PokemonTypes, TrainerType,
 )
 from ptcgo.game.data_utils import def_for
 from ptcgo.game.card_effects.pokemon import energy_provides_type
@@ -330,6 +330,40 @@ def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
+def pokemon_named(*names) -> Callable[[Any], bool]:
+    """Predicate: a Pokemon (or card) whose PRINTED NAME contains one of
+    `names` (case-insensitive) -- "your Basic Team Rocket's Pokemon"."""
+    wanted = tuple(name.lower() for name in names)
+
+    def pred(any_card, *_rest) -> bool:
+        definition = def_for(getattr(any_card, "archetype_id", "") or "")
+        label = (getattr(definition, "display_name", "") or "").lower()
+        return any(name in label for name in wanted)
+
+    return pred
+
+
+def team_of_names(*names) -> Callable[[Any, Any], bool]:
+    """(target, carrier) pred for `protects`: the target is on the passive's
+    own side AND is one of `names` ("any of your Lunatone or Solrock")."""
+    named = pokemon_named(*names)
+
+    def pred(target, carrier) -> bool:
+        return (target.owning_player_id == carrier.owning_player_id
+                and named(target))
+
+    return pred
+
+
+def side_has_named(board, player_id: str, *names) -> bool:
+    """Whether one of `names` is in play on `player_id`'s side ("if you have
+    Solrock in play")."""
+    if board is None:
+        return False
+    named = pokemon_named(*names)
+    return any(named(pokemon) for pokemon in board.pokemon_in_play(player_id))
+
+
 class AttackShieldPassive(Passive):
     """A continuous shield against opposing attacks, spoken in two halves.
 
@@ -346,14 +380,19 @@ class AttackShieldPassive(Passive):
     """
 
     def __init__(self, attacker_pred=None, protects="carrier", damage=True,
-                 effects_too=False):
+                 effects_too=False, when=None):
         self.attacker_pred = attacker_pred
         self.protects = _protects_pred(protects)
         self.damage = damage
         self.effects_too = effects_too
+        # when(board, carrier): a printed condition on the board ("if you have
+        # Solrock in play"), which neither half could see before.
+        self.when = when
 
-    def _covers(self, target, carrier, attacker) -> bool:
+    def _covers(self, target, carrier, attacker, board=None) -> bool:
         if not self.protects(target, carrier):
+            return False
+        if self.when is not None and not self.when(board, carrier):
             return False
         if self.attacker_pred is None:
             return True
@@ -361,19 +400,24 @@ class AttackShieldPassive(Passive):
 
     def prevents_damage(self, calc, carrier):
         return bool(self.damage and calc.is_attack and calc.is_opposing
-                    and self._covers(calc.target, carrier, calc.attacker))
+                    and self._covers(calc.target, carrier, calc.attacker,
+                                     getattr(calc, "board", None)))
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
-        return bool(self.effects_too and self._covers(target, carrier, attacker))
+    def blocks_attack_effects(self, target, carrier, attacker=None,
+                              board=None):
+        return bool(self.effects_too
+                    and self._covers(target, carrier, attacker, board))
 
 
 def attack_shield_from(attacker_pred=None, protects="carrier", damage=True,
-                       effects_too=False) -> Passive:
+                       effects_too=False, when=None) -> Passive:
     """"Prevent all [effects of] attacks[, including damage], done to <protects>
     by attacks from <attacker_pred>". `damage=False` is the effects-only
     wording; `effects_too=True` adds the effect half, which the damage path
-    can never express on its own."""
-    return AttackShieldPassive(attacker_pred, protects, damage, effects_too)
+    can never express on its own. `when(board, carrier)` is the printed board
+    condition ("if you have Solrock in play")."""
+    return AttackShieldPassive(attacker_pred, protects, damage, effects_too,
+                               when)
 
 
 def damage_shield_from(pred, protects="carrier") -> Passive:
@@ -633,7 +677,7 @@ class BenchedFullShieldPassive(Passive):
         return bool(calc.is_attack and calc.is_opposing
                     and self._benched(calc.target, carrier))
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return self._benched(target, carrier)
 
 
@@ -998,7 +1042,7 @@ class AttackEffectShieldPassive(Passive):
         self.protects = _protects_pred(protects)
         self.attacker_pred = attacker_pred
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         if not self.protects(target, carrier):
             return False
         if self.attacker_pred is None:
@@ -1264,7 +1308,7 @@ class TempShieldPassive(Passive):
     def prevents_damage(self, calc, carrier):
         return bool(self.prevent and self._answers(calc, carrier))
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         if not self.effects_too or carrier_pokemon(carrier) is not target:
             return False
         if self.attacker_pred is None:
@@ -1559,7 +1603,7 @@ class BenchDamageShieldPassive(Passive):
     def blocks_bench_damage(self, calc, carrier):
         return True
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         if not self.effects_too:
             return False
         parent = getattr(target, "parent", None)
@@ -1993,6 +2037,19 @@ def attacker_is_gx_or_ex():
     def pred(attacker) -> bool:
         return is_pokemon_gx(attacker) or is_pokemon_ex(attacker) \
             or is_pokemon_EX(attacker)
+
+    return pred
+
+
+def attacker_has_energy_at_most(count: int):
+    """"attacks from your opponent's Pokemon that have N or less Energy
+    attached" -- the attacker's own attached Energy, counted on the entity."""
+    def pred(attacker) -> bool:
+        if attacker is None:
+            return False
+        attached = [child for child in (attacker.children or [])
+                    if child.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value]
+        return 0 <= len(attached) <= count
 
     return pred
 

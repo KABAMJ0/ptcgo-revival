@@ -363,7 +363,7 @@ class EffectShieldPassive(Passive):
     def __init__(self, pokemon_type=None):
         self.pokemon_type = pokemon_type
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         holder = carrier_pokemon(carrier)
         if holder is None or holder is not target:
             return False
@@ -580,7 +580,7 @@ class HolonEnergyPassive(Passive):
         if archetype_id is not None and "ex" in [s.lower() for s in subtypes_for(archetype_id)]:
             calc.amount = max(0, calc.amount - 10)
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         holder = carrier_pokemon(carrier)
         return holder is target and self._active("effect_shield", None, holder)
 
@@ -726,7 +726,7 @@ class HolonEnergyWPPassive(Passive):
     """With basic Water: prevent attack effects (not damage).
     With basic Psychic: retreat cost 0. Ignored on Pokémon-ex."""
 
-    def blocks_attack_effects(self, target, carrier, attacker=None) -> bool:
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None) -> bool:
         holder = carrier_pokemon(carrier)
         if holder is not target or _holder_is_ex(target):
             return False

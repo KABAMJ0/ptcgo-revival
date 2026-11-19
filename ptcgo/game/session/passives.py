@@ -366,7 +366,8 @@ class Passive:
         return False
 
     def blocks_attack_effects(self, target: PokemonEntity, carrier: BoardEntity,
-                              attacker: Optional[PokemonEntity] = None) -> bool:
+                              attacker: Optional[PokemonEntity] = None,
+                              board: Optional[BoardState] = None) -> bool:
         """True to shield `target` from opponents' attack EFFECTS (not damage).
         `attacker` is the Pokemon whose attack is resolving, so a shield whose
         printed scope names its attackers ("by attacks from Pokemon-EX") can
@@ -1094,7 +1095,7 @@ def attack_effects_blocked(board: BoardState, target: PokemonEntity,
     """Whether a passive shields `target` from opposing attack effects.
     `attacker` scopes the answer for a shield that only answers some attackers."""
     return any(
-        passive.blocks_attack_effects(target, carrier, attacker)
+        passive.blocks_attack_effects(target, carrier, attacker, board)
         for passive, carrier in active_passives(board)
     )
 

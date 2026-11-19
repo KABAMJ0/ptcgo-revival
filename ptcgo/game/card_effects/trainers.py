@@ -789,7 +789,7 @@ class BigParasolPassive(Passive):
     """While the holder is in the Active Spot, shields the owner's whole
     side from the opponent's attack EFFECTS (not damage)."""
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         holder = carrier_pokemon(carrier)
         if holder is None or target.owning_player_id != holder.owning_player_id:
             return False
@@ -2371,8 +2371,8 @@ class CombinedPassive(Passive):
     def blocks_attack(self, pokemon, carrier):
         return any(part.blocks_attack(pokemon, carrier) for part in self.parts)
 
-    def blocks_attack_effects(self, target, carrier, attacker=None):
-        return any(part.blocks_attack_effects(target, carrier, attacker)
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
+        return any(part.blocks_attack_effects(target, carrier, attacker, board)
                    for part in self.parts)
 
     def blocks_bench_damage(self, calc, carrier):

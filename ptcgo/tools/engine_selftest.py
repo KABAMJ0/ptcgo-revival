@@ -90,7 +90,7 @@ class Shield(Passive):
 
 
 class EffShield(Passive):
-    def blocks_attack_effects(self, target, carrier, attacker=None):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return carrier_pokemon(carrier) is target
 
 
@@ -892,7 +892,7 @@ async def test_move_damage_counters():
     assert tgt.get_attribute(AttrID.HP) == tgt_hp - 30
 
     class EffShield(Passive):
-        def blocks_attack_effects(self, target, carrier, attacker=None):
+        def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
             return carrier_pokemon(carrier) is target
 
     src.set_attribute(AttrID.HP, max_hp - 20)
