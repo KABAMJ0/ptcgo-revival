@@ -13,6 +13,12 @@ async def _gold_coffin(ctx):
     await ctx.put_in_hand(picks, reveal=False)
     await ctx.shuffle_deck()
 
+async def _spread_bench(ctx):
+    """Printed damage, then 5 damage counters across the opponent's Bench, any way they like."""
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(5, candidates=ctx.opponent_bench())
+
+
 card = PokemonCardDef(
     guid="fe326323-ac98-5c09-a6e0-c4bf4951f791",
     key="SV4",
@@ -43,7 +49,7 @@ card = PokemonCardDef(
             game_text="Put 5 damage counters on your opponent's Benched Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=110,
-            effect=unimplemented,
+            effect=_spread_bench,
         ),
     ],
 )
