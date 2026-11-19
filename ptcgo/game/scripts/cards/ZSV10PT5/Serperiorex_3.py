@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+
+
 
 card = PokemonCardDef(
     guid="a1ab2049-13df-56e1-8cfe-acf0d7b229ce",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Regal Cheer",
             game_text="Attacks used by your Pok\u00e9mon do 20 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(20),
         ),
         Attack(
             title="Command the Grass",
