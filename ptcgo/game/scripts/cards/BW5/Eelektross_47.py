@@ -1,4 +1,5 @@
 from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
+from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             title="Slurp Shakedown",
             game_text="Switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon. This attack does 60 damage to the new Defending Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=60),
         ),
     ],
 )

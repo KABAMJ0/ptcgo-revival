@@ -1,6 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
+from ptcgo.game.card_effects.support_common import entity_name
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def _tag_draw(ctx):
+    """Shuffle the hand in, draw 4, and 4 more with Minun on the Bench."""
+    await ctx.shuffle_into_deck(ctx.hand(ctx.player_id), ctx.player_id)
+    count = 8 if _minun_on_bench(ctx) else 4
+    await ctx.draw_cards(count, ctx.player_id)
+
+
+def _minun_on_bench(ctx):
+    return any(entity_name(p) == "Minun" for p in ctx.my_bench())
+
 
 card = PokemonCardDef(
     guid="804fc7e2-20f9-5dc1-a541-cc74c68c48ec",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             title="Tag Draw",
             game_text="Shuffle your hand into your deck. Then, draw 4 cards. If Minun is on your Bench, draw 4 more cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=_tag_draw,
         ),
         Attack(
             title="Positive Ion",
