@@ -15,8 +15,8 @@ preds (no_retreat / ability_lock / healing_block / retreat_free) take
 from typing import Any, Callable, Optional
 
 from ptcgo.game.attributes import (
-    AttrID, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage, PokemonTypes,
-    TrainerType,
+    AttrID, CardType, CLIENT_SPECIAL_CONDITION_NAMES, PokemonStage,
+    PokemonTypes, TrainerType,
 )
 from ptcgo.game.data_utils import def_for
 from ptcgo.game.card_effects.pokemon import energy_provides_type
@@ -330,26 +330,113 @@ def prevent_damage_when(pred, attacks_only=True, any_side=False) -> Passive:
     return PredicatePreventionPassive(pred, attacks_only, any_side)
 
 
+def pokemon_named(*names) -> Callable[[Any], bool]:
+    """Predicate: a Pokemon (or card) whose PRINTED NAME contains one of
+    `names` (case-insensitive) -- "your Basic Team Rocket's Pokemon"."""
+    from ptcgo.game.card_effects.pokemon import name_contains
+
+    def pred(any_card, *_rest) -> bool:
+        definition = def_for(getattr(any_card, "archetype_id", "") or "")
+        label = getattr(definition, "display_name", "") or ""
+        return any(name_contains(label, name) for name in names)
+
+    return pred
+
+
+def team_of_names(*names) -> Callable[[Any, Any], bool]:
+    """(target, carrier) pred for `protects`: the target is on the passive's
+    own side AND is one of `names` ("any of your Lunatone or Solrock")."""
+    named = pokemon_named(*names)
+
+    def pred(target, carrier) -> bool:
+        return (target.owning_player_id == carrier.owning_player_id
+                and named(target))
+
+    return pred
+
+
+def side_has_named(board, player_id: str, *names) -> bool:
+    """Whether one of `names` is in play on `player_id`'s side ("if you have
+    Solrock in play")."""
+    if board is None:
+        return False
+    named = pokemon_named(*names)
+    return any(named(pokemon) for pokemon in board.pokemon_in_play(player_id))
+
+
+class AttackShieldPassive(Passive):
+    """A continuous shield against opposing attacks, spoken in two halves.
+
+    "Prevent all damage done to this Pokemon by attacks from <X>" is the
+    DAMAGE half; "prevent all effects of attacks ... done to this Pokemon" is
+    the EFFECT half. A card prints one or both: "including damage" is both,
+    "(damage is not an effect)" is the effect half alone, and a bare "prevent
+    all damage" is the damage half alone.
+
+    `attacker_pred(attacker)` is the printed scope, and it gates BOTH halves so
+    the shield answers the same attackers in each ("by attacks from
+    Pokemon-EX", "from a Pokemon that has any Special Energy attached").
+    None means every opposing attacker, which is the plain wording.
+    """
+
+    def __init__(self, attacker_pred=None, protects="carrier", damage=True,
+                 effects_too=False, when=None):
+        self.attacker_pred = attacker_pred
+        self.protects = _protects_pred(protects)
+        self.damage = damage
+        self.effects_too = effects_too
+        # when(board, carrier): a printed condition on the board ("if you have
+        # Solrock in play"), which neither half could see before.
+        self.when = when
+
+    def _covers(self, target, carrier, attacker, board=None) -> bool:
+        if not self.protects(target, carrier):
+            return False
+        if self.when is not None and not self.when(board, carrier):
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
+
+    def prevents_damage(self, calc, carrier):
+        return bool(self.damage and calc.is_attack and calc.is_opposing
+                    and self._covers(calc.target, carrier, calc.attacker,
+                                     getattr(calc, "board", None)))
+
+    def blocks_attack_effects(self, target, carrier, attacker=None,
+                              board=None):
+        return bool(self.effects_too
+                    and self._covers(target, carrier, attacker, board))
+
+
+def attack_shield_from(attacker_pred=None, protects="carrier", damage=True,
+                       effects_too=False, when=None) -> Passive:
+    """"Prevent all [effects of] attacks[, including damage], done to <protects>
+    by attacks from <attacker_pred>". `damage=False` is the effects-only
+    wording; `effects_too=True` adds the effect half, which the damage path
+    can never express on its own. `when(board, carrier)` is the printed board
+    condition ("if you have Solrock in play")."""
+    return AttackShieldPassive(attacker_pred, protects, damage, effects_too,
+                               when)
+
+
 def damage_shield_from(pred, protects="carrier") -> Passive:
     """"Prevent all damage done to this Pokemon by attacks from <X>": full
     prevention gated on the ATTACKER, not the target. `pred` takes the
     attacking Pokemon -- `attacker_is_gx_or_ex()`, `attacker_of_types("Darkness")`,
     `attacker_has_ability()`, or any callable of your own."""
-    protects_match = _protects_pred(protects)
-
-    def shield(calc, carrier) -> bool:
-        attacker = calc.attacker
-        if attacker is None or not protects_match(calc.target, carrier):
-            return False
-        return bool(pred(attacker))
-
-    return prevent_damage_when(shield)
+    return attack_shield_from(pred, protects)
 
 
 class TypedDamageBoostPassive(Passive):
-    """The holder's attacks do +N to opposing targets matching a type/pred."""
+    """The holder's attacks do +N to opposing targets matching a type/pred.
 
-    def __init__(self, type_or_pred, amount, to_active_only=True):
+    Self-scoped by construction: only the carrier's own attacks are boosted. The
+    target is the printed scope; `when(calc, carrier)` is the printed CONDITION
+    ("if this Pokemon has any Water Energy attached"), which a target type cannot
+    express."""
+
+    def __init__(self, type_or_pred, amount, to_active_only=True, when=None):
         if callable(type_or_pred):
             self.target_match = type_or_pred
         else:
@@ -359,6 +446,7 @@ class TypedDamageBoostPassive(Passive):
             )
         self.amount = amount
         self.to_active_only = to_active_only
+        self.when = when
 
     def modify_damage_dealt(self, calc, carrier):
         if not (calc.is_attack and calc.is_opposing):
@@ -367,28 +455,38 @@ class TypedDamageBoostPassive(Passive):
             return
         if self.to_active_only and not calc.to_active:
             return
+        if self.when is not None and not self.when(calc, carrier):
+            return
         if self.target_match(calc.target):
             calc.amount += self.amount
 
 
-def typed_damage_boost_tool(type_or_pred, amount, to_active_only=True) -> Passive:
+def typed_damage_boost_tool(type_or_pred, amount, to_active_only=True,
+                            when=None) -> Passive:
     """Gloves shape: the holder's attacks do +N versus opposing Active
-    targets of the given PokemonTypes (or matching target_pred(target))."""
-    return TypedDamageBoostPassive(type_or_pred, amount, to_active_only)
+    targets of the given PokemonTypes (or matching target_pred(target)).
+    `when(calc, carrier)` adds the printed condition on the attacker."""
+    return TypedDamageBoostPassive(type_or_pred, amount, to_active_only, when)
 
 
 class HpBonusPassive(Passive):
-    """The holder gets +N max HP (Cape of Toughness shape)."""
+    """The holder gets +N max HP (Cape of Toughness shape).
+
+    `amount` may be a callable `(board, pokemon, carrier)` for the wording whose
+    number depends on the game state ("+10 for each Prize card your opponent has
+    taken"), which a constant could not express."""
 
     def __init__(self, amount, holder_pred=None):
         self.amount = amount
         self.holder_pred = holder_pred
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is not pokemon:
             return 0
         if self.holder_pred is not None and not self.holder_pred(pokemon):
             return 0
+        if callable(self.amount):
+            return int(self.amount(board, pokemon, carrier) or 0)
         return self.amount
 
 
@@ -454,25 +552,6 @@ def opponent_retreat_tax_passive(amount=1, active_only=False) -> Passive:
     return OpponentRetreatTaxPassive(amount, active_only)
 
 
-class NoEnergyFreeRetreatPassive(Passive):
-    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
-    inverted=True, "if this Pokemon has any Energy attached ..."."""
-
-    def __init__(self, inverted=False):
-        self.inverted = inverted
-
-    def modify_retreat_cost(self, cost, pokemon, carrier, board):
-        if pokemon is not carrier_pokemon(carrier):
-            return cost
-        has_energy = bool(board.attached_energies(pokemon))
-        free = has_energy if self.inverted else not has_energy
-        return 0 if free else cost
-
-
-def no_energy_free_retreat_passive() -> Passive:
-    return NoEnergyFreeRetreatPassive()
-
-
 class TypedEnergyFreeRetreatPassive(Passive):
     """"If this Pokemon has any [type] Energy attached, it has no Retreat
     Cost" (team=True: each of your Pokemon with that Energy); amount overrides
@@ -508,7 +587,7 @@ class HpPerTypedEnergyPassive(Passive):
         self.amount = amount
         self.type_value = type_value
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if carrier_pokemon(carrier) is not pokemon:
             return 0
         from ptcgo.game.card_effects.pokemon import energy_provides_type
@@ -598,7 +677,7 @@ class BenchedFullShieldPassive(Passive):
         return bool(calc.is_attack and calc.is_opposing
                     and self._benched(calc.target, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return self._benched(target, carrier)
 
 
@@ -954,19 +1033,27 @@ def healing_block_passive(target_pred) -> Passive:
 
 
 class AttackEffectShieldPassive(Passive):
-    """Protected Pokemon are shielded from opposing attack EFFECTS."""
+    """Protected Pokemon are shielded from opposing attack EFFECTS.
 
-    def __init__(self, protects="carrier"):
+    `attacker_pred(attacker)` is the printed scope ("effects of attacks used by
+    your opponent's Pokemon-EX"); None is every opposing attacker."""
+
+    def __init__(self, protects="carrier", attacker_pred=None):
         self.protects = _protects_pred(protects)
+        self.attacker_pred = attacker_pred
 
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.protects(target, carrier))
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
+        if not self.protects(target, carrier):
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
 
 
-def attack_effect_shield_passive(protects="carrier") -> Passive:
+def attack_effect_shield_passive(protects="carrier", attacker_pred=None) -> Passive:
     """Unfazed Fat generalized: shields from attack effects, not damage
     (the engine already scopes the check to opposing attacks)."""
-    return AttackEffectShieldPassive(protects)
+    return AttackEffectShieldPassive(protects, attacker_pred)
 
 
 class FlipPreventDamagePassive(Passive):
@@ -1065,8 +1152,15 @@ class TrainerEffectShieldPassive(Passive):
     (Dew Guard: "prevent all effects of that card done to you or your hand")."""
 
     def __init__(self, supporters_only=True, protects=None, while_active=False,
-                 condition=None):
+                 condition=None, any_player=False, kinds=None):
         self.supporters_only = supporters_only
+        # The exact kinds a wording names ("Item or Supporter"). None keeps the
+        # old behaviour, which is every trainer kind -- right for "any Trainer
+        # card", wrong for a clause that names two.
+        self.kinds = tuple(kinds) if kinds else None
+        # "Whenever ANY player plays..." (a Stadium shielding itself) has no
+        # owner side to check against: the object of the effect IS the card.
+        self.any_player = any_player
         # protects(affected_entity_or_None, carrier): scopes the shield to
         # matching direct objects (None = the whole side, legacy behavior).
         self.protects = protects
@@ -1078,7 +1172,10 @@ class TrainerEffectShieldPassive(Passive):
                                board=None):
         if self.supporters_only and trainer_type != TrainerType.SUPPORTER.value:
             return False
-        if affected_player_id != carrier.owning_player_id:
+        if self.kinds is not None and trainer_type not in self.kinds:
+            return False
+        if not self.any_player \
+                and affected_player_id != carrier.owning_player_id:
             return False
         if self.while_active \
                 and not is_in_active_spot(carrier_pokemon(carrier) or carrier):
@@ -1091,12 +1188,34 @@ class TrainerEffectShieldPassive(Passive):
 
 
 def trainer_effect_shield_passive(supporters_only=True, protects=None,
-                                  while_active=False, condition=None) -> Passive:
+                                  while_active=False, condition=None,
+                                  any_player=False, kinds=None) -> Passive:
     """Dew Guard shape; the engine already scopes it to effects a DIFFERENT
     player's trainer card does to the shielded side. protects/while_active/
-    condition(board, carrier) narrow the shield (Princess's Curtain, Baffling)."""
+    condition(board, carrier) narrow the shield (Princess's Curtain, Baffling).
+    `any_player` drops the owner-side test for a card that shields ITSELF."""
     return TrainerEffectShieldPassive(supporters_only, protects, while_active,
-                                      condition)
+                                      condition, any_player, kinds)
+
+
+def item_or_supporter_effect_shield(protects="carrier",
+                                    any_player=False) -> Passive:
+    """"Whenever your opponent plays an Item or Supporter card from their hand,
+    prevent all effects of that card done to <protects>."
+
+    The Pokemon form (Axew, Pyroar, Galvantula, Cetitan ex, Fraxure) shields
+    the carrier itself; the Stadium form (Black Market, Wondrous Labyrinth)
+    shields the Stadium card as the effect's direct object, which a protects
+    callable spells. Both were hand-written classes before this."""
+    if protects in (None, "carrier"):
+        def target_pred(entity, carrier):
+            holder = carrier_pokemon(carrier) or carrier
+            return entity is not None and entity.entity_id == holder.entity_id
+    else:
+        target_pred = protects
+    return trainer_effect_shield_passive(
+        supporters_only=False, protects=target_pred, any_player=any_player,
+        kinds=(TrainerType.ITEM.value, TrainerType.SUPPORTER.value))
 
 
 class SupporterReplacementPassive(Passive):
@@ -1189,8 +1308,12 @@ class TempShieldPassive(Passive):
     def prevents_damage(self, calc, carrier):
         return bool(self.prevent and self._answers(calc, carrier))
 
-    def blocks_attack_effects(self, target, carrier):
-        return bool(self.effects_too and carrier_pokemon(carrier) is target)
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
+        if not self.effects_too or carrier_pokemon(carrier) is not target:
+            return False
+        if self.attacker_pred is None:
+            return True
+        return attacker is not None and bool(self.attacker_pred(attacker))
 
 
 async def apply_protection(ctx, target=None, reduce=None, prevent=False,
@@ -1480,7 +1603,7 @@ class BenchDamageShieldPassive(Passive):
     def blocks_bench_damage(self, calc, carrier):
         return True
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         if not self.effects_too:
             return False
         parent = getattr(target, "parent", None)
@@ -1559,7 +1682,7 @@ class TeamHPBonusPassive(Passive):
         self.pred = pred
         self.stacking_key = stacking_key
 
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if not self.protects(pokemon, carrier):
             return 0
         if self.pred is not None and not self.pred(pokemon, carrier):
@@ -1918,6 +2041,19 @@ def attacker_is_gx_or_ex():
     return pred
 
 
+def attacker_has_energy_at_most(count: int):
+    """"attacks from your opponent's Pokemon that have N or less Energy
+    attached" -- the attacker's own attached Energy, counted on the entity."""
+    def pred(attacker) -> bool:
+        if attacker is None:
+            return False
+        attached = [child for child in (attacker.children or [])
+                    if child.get_attribute(AttrID.CARD_TYPE) == CardType.ENERGY.value]
+        return 0 <= len(attached) <= count
+
+    return pred
+
+
 def attacker_is_tag_team():
     """"damage from TAG TEAM Pokemon"."""
     from ptcgo.game.data_utils import subtypes_for
@@ -1955,6 +2091,71 @@ def reorder_top(where: str = "top"):
     return effect
 
 
+async def _attach_energy_where(ctx, energies, target="choice",
+                               candidates=None, distribute=False):
+    """The tail both attach-from-a-pile factories share: put `energies` on a
+    chosen Pokemon, on one named holder, or spread them "in any way you like"."""
+    from ptcgo.game.card_effects.support_common import distribute_energy
+
+    pool = candidates(ctx) if callable(candidates) else ctx.my_pokemon_in_play()
+    pool = list(pool or [])
+    if distribute:
+        return await distribute_energy(ctx, energies, pool)
+    if target == "self":
+        holder = ctx.source
+    elif target == "active":
+        holder = ctx.my_active()
+    else:
+        if not pool:
+            return []
+        if len(pool) == 1:
+            holder = pool[0]
+        else:
+            holder = await ctx.choose_pokemon(
+                pool, "Choose a Pokémon to attach the Energy to")
+    if holder is None:
+        return []
+    attached = []
+    for energy in energies:
+        await ctx.attach_energy(energy, holder)
+        attached.append((energy, holder))
+    return attached
+
+
+def attach_energy_from_discard(count: int = 1, predicate=None,
+                               target="choice", candidates=None,
+                               distribute: bool = False):
+    """"Attach N Energy card(s) from your discard pile to <target>" as a
+    standalone ability body (Metagross-GX's Geotech System).
+
+    `attach_energy_from_cards` is the twin for a pile an earlier step already
+    produced; it takes `(ctx, cards)`, so a card whose FIRST act is to reach into
+    the discard had no factory and reached for a damage body instead. `target`
+    is "choice" (prompt among your Pokemon), "self" or "active"; `candidates(ctx)`
+    narrows the pool; `distribute=True` is "in any way you like"."""
+    from ptcgo.game.card_effects.pokemon import is_energy_card
+
+    def matches(card) -> bool:
+        return (predicate or is_energy_card)(card)
+
+    async def effect(ctx):
+        available = [card for card in ctx.discard_pile() if matches(card)]
+        if not available:
+            return []
+        if len(available) > count:
+            picks = await ctx.choose_cards(
+                available, count, minimum=count,
+                prompt="Choose Energy from your discard pile to attach")
+        else:
+            picks = available[:count]
+        if not picks:
+            return []
+        return await _attach_energy_where(ctx, list(picks), target=target,
+                                          candidates=candidates,
+                                          distribute=distribute)
+    return effect
+
+
 def attach_energy_from_cards(target="choice", predicate=None,
                              distribute: bool = False):
     """Follow-up for a first part that produced cards: attach the Energy among
@@ -1967,29 +2168,11 @@ def attach_energy_from_cards(target="choice", predicate=None,
         return (predicate or is_energy_card)(card)
 
     async def effect(ctx, cards):
-        from ptcgo.game.card_effects.support_common import distribute_energy
-
         energies = [card for card in (cards or []) if matches(card)]
         if not energies:
             return []
-        if distribute:
-            # "attach them to your Pokemon in any way you like"
-            return await distribute_energy(ctx, energies, ctx.my_pokemon_in_play())
-        if target == "self":
-            holder = ctx.source
-        else:
-            candidates = ctx.my_pokemon_in_play()
-            if not candidates:
-                return []
-            holder = await ctx.choose_pokemon(
-                candidates, "Choose a Pokémon to attach the Energy to")
-            if holder is None:
-                return []
-        attached = []
-        for energy in energies:
-            await ctx.attach_energy(energy, holder)
-            attached.append((energy, holder))
-        return attached
+        return await _attach_energy_where(ctx, energies, target=target,
+                                          distribute=distribute)
     return effect
 
 

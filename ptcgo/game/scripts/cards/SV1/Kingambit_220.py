@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.passives_common import team_damage_boost_passive
+from ptcgo.game.session.effects import is_basic_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Leadership",
             game_text="Your Basic Pok\u00e9mon's attacks do 30 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=team_damage_boost_passive(30, attacker_pred=is_basic_pokemon),
         ),
         Attack(
             title="Hack At",

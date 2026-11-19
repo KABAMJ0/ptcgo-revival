@@ -4,7 +4,7 @@ from ptcgo.game.session.passives import Passive, carrier_pokemon
 
 
 class WarmingUpPassive(Passive):
-    def max_hp_bonus(self, pokemon, carrier):
+    def max_hp_bonus(self, pokemon, carrier, board=None):
         if pokemon is not carrier_pokemon(carrier):
             return 0
         for child in carrier.children:

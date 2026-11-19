@@ -1,6 +1,15 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def _blizzard_burst(ctx):
+    await ctx.deal_damage()
+    taken = ctx.prizes_taken(ctx.opponent_id)
+    if taken <= 0:
+        return
+    for target in ctx.opponent_bench():
+        await ctx.deal_damage(10 * taken, target=target, apply_modifiers=False)
+
+
 card = PokemonCardDef(
     guid="a622749a-b7fa-5e14-96b2-749bfdee92eb",
     key="ZSV10PT5",
@@ -28,7 +37,7 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to each of your opponent's Benched Pok\u00e9mon for each Prize card your opponent has taken. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=130,
-            effect=unimplemented,
+            effect=_blizzard_burst,
         ),
     ],
 )

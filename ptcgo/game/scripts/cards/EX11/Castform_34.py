@@ -1,6 +1,19 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, def_for, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import swap_with_named
 from ptcgo.game.scripts.cards import loader as card_loader
+
+_CASTFORM_FORMS = {"sunny castform", "rain castform", "snow-cloud castform"}
+
+
+def _is_castform_form(card):
+    definition = def_for(getattr(card, "archetype_id", "") or "")
+    return (getattr(definition, "display_name", "") or "").strip().lower() \
+        in _CASTFORM_FORMS
+
+
+async def _shuffle_away_outgoing(ctx, incoming):
+    await ctx.shuffle_deck()
 
 
 def _has_holon_energy(ctx):
@@ -37,7 +50,10 @@ card = PokemonCardDef(
         Ability(
             title="Temperamental Weather",
             game_text="Once during your turn (before your attack), you may search your deck for Sunny Castform, Rain Castform, or Snow-cloud Castform and switch it with Castform. (Any cards attached to Castform, damage counters, Special Conditions, and effects on it are now on the new Pok\u00e9mon.) Shuffle Castform back into your deck. You can't use more than 1 Temperamental Weather Pok\u00e9-Power each turn.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            shared_once_per_turn="Temperamental Weather",
+            effect=swap_with_named(predicate=_is_castform_form, destination="deck",
+                                   then=_shuffle_away_outgoing),
         ),
         Attack(
             title="Holon Draw",

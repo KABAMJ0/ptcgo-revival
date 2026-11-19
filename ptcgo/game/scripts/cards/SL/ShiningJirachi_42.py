@@ -1,5 +1,17 @@
+from ptcgo.game.card_effects.pokemon import devolve_depth
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+
+async def stellar_reign(ctx):
+    await ctx.deal_damage()
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    steps = devolve_depth(defender)
+    if steps <= 0:
+        return
+    await ctx.devolve_pokemon(defender, steps=steps, destination="hand")
 
 card = PokemonCardDef(
     guid="6e4c15e7-296e-5570-a9ae-2dde1126dc1f",
@@ -23,7 +35,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon is an evolved Pok\u00e9mon, devolve it by putting all of the Evolution cards on it into your opponent's hand.",
             cost={PokemonTypes.PSYCHIC: 1},
             damage=10,
-            effect=unimplemented,
+            effect=stellar_reign,
         ),
     ],
 )

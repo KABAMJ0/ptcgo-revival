@@ -1,7 +1,16 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.attacks_common import flip_damage
+
+async def rain_dish(ctx):
+    ludicolo = ctx.source
+    if ludicolo is None:
+        return
+    if ludicolo.get_attribute(AttrID.HP, 0) < ctx.max_hp(ludicolo):
+        await ctx.heal(10, ludicolo)
 
 card = PokemonCardDef(
     guid="f9275fc7-2e9d-5a01-baf7-b21cf13f9a3c",
@@ -24,7 +33,8 @@ card = PokemonCardDef(
         Ability(
             title="Rain Dish",
             game_text="At any time between turns, remove 1 damage counter from Ludicolo.",
-            effect=unimplemented,
+            effect=rain_dish,
+            trigger=Triggers.BETWEEN_TURNS,
         ),
         Attack(
             title="Fury Swipes",

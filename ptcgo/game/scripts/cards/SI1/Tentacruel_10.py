@@ -1,7 +1,17 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+
+async def tentacle_grip(ctx):
+    coins = count_energy("self", PokemonTypes.WATER)(ctx)
+    results = await ctx.flip_coins(coins, "Tentacle Grip") if coins else []
+    heads = sum(1 for result in results if result)
+    if heads <= 0:
+        return 0
+    return await ctx.draw_cards(heads * 2)
+
 
 card = PokemonCardDef(
     guid="2d85a4e8-1e80-50ba-9dad-cabf1537989f",
@@ -25,7 +35,7 @@ card = PokemonCardDef(
             title="Tentacle Grip",
             game_text="Flip a number of coins equal to the number of Water Energy attached to Tentacruel. For each heads, draw 2 cards.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=tentacle_grip,
         ),
         Attack(
             title="Poison Sting",

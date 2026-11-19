@@ -1,10 +1,36 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.content.definitions import def_for
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import attach_from_hand
+
+
+class FrenzyPassive(Passive):
+    """Attacks do 40 more to the Defending Pokemon while the opponent has any of
+    the named Pokemon in play."""
+
+    NAMES = ('Groudon', 'Groudon ex', 'Rayquaza', 'Rayquaza ex')
+
+    def modify_damage_dealt(self, calc, carrier):
+        if not (calc.is_attack and calc.is_opposing):
+            return
+        if calc.attacker is None or carrier_pokemon(carrier) is not calc.attacker:
+            return
+        if not getattr(calc, "to_active", False):
+            return
+        for player_id in calc.board.player_ids:
+            if player_id == calc.attacker.owning_player_id:
+                continue
+            for pokemon in calc.board.pokemon_in_play(player_id):
+                definition = def_for(pokemon.archetype_id)
+                if definition is not None and definition.display_name in self.NAMES:
+                    calc.amount += 40
+                    return
+
 
 
 card = PokemonCardDef(
@@ -27,7 +53,7 @@ card = PokemonCardDef(
         Ability(
             title="Frenzy",
             game_text="As long as your opponent has Groudon, Groudon ex, Rayquaza, or Rayquaza ex in play. Kyogre ex's attacks do 40 more damage to the Defending Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=spread_damage(10, side="opponent", include_active=False),
+            passive=FrenzyPassive(),
         ),
         Attack(
             title="Aqua Supply",

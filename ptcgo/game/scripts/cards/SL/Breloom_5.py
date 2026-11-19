@@ -1,5 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+
+
+async def hibernation_spore(ctx):
+    await ctx.apply_special_condition(
+        ctx.defender, SpecialConditions.ASLEEP, checkup_coins=2
+    )
 
 card = PokemonCardDef(
     guid="e3b08a71-e9dd-5106-b92b-6e8808fe266a",
@@ -23,7 +29,7 @@ card = PokemonCardDef(
             title="Hibernation Spore",
             game_text="Your opponent's Active Pok\u00e9mon is now Asleep. Your opponent flips 2 coins instead of 1 between turns. If either of them is tails, that Pok\u00e9mon is still Asleep.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=hibernation_spore,
         ),
         Attack(
             title="Magnum Punch",

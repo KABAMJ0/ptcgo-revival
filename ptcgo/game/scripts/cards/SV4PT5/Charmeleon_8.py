@@ -6,7 +6,7 @@ class _EffectShield(Passive):
     """Opposing attacks' effects do nothing to this Pokemon; damage is not an
     effect, so the damage pipeline is untouched."""
 
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return target is carrier_pokemon(carrier)
 
 card = PokemonCardDef(

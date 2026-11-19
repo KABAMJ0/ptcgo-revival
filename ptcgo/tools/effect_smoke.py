@@ -58,6 +58,21 @@ TEST_TIMEOUT = 30.0
 GUID_RE = re.compile(r"guid\s*=\s*[\"']([0-9a-fA-F-]{36})[\"']")
 
 PASS, FAIL, SKIP, UNIMPL = "PASS", "FAIL", "SKIP", "UNIMPL"
+# A block with no printed text and no body is COMPLETE: a vanilla attack's
+# printed damage IS its whole behaviour. Counting it as UNIMPL made a finished
+# set read as unfinished -- SV1 showed 130 and every one was this kind.
+VANILLA = "VANILLA"
+
+
+def _unscripted_note(ability) -> str:
+    """Which kind of "no body" this is: the two mean opposite things.
+
+    Only an ATTACK can be vanilla -- its printed damage is the whole behaviour.
+    An ability or Trainer with no body is work whether or not it prints text."""
+    text = (getattr(ability, "game_text", "") or "").strip()
+    if not text and isinstance(ability, Attack):
+        return "vanilla (no effect text; the printed damage is the behaviour)"
+    return "effect text not scripted (unimplemented/none)"
 
 
 class SmokeSession(GameSession):
@@ -683,8 +698,7 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
             # the row in PASS and made a set's "0 FAIL" meaningless for every
             # ability on the board. Report it as UNIMPL instead.
             if not callable(getattr(runner_key, "effect", None)):
-                raise _SkipTest(
-                    "effect text not scripted (unimplemented/none)")
+                raise _SkipTest(_unscripted_note(runner_key))
             note = _condition_blocks(definition, runner_key, rig, entities)
             if note:
                 raise _SkipTest(note)
@@ -708,7 +722,7 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
             if note:
                 raise _SkipTest(note)
             if not scripted:
-                raise _SkipTest("effect text not scripted (unimplemented/none)")
+                raise _SkipTest(_unscripted_note(definition))
             await run_trainer_effect(rig, entities)
         elif runner_key == "energy-attach":
             await run_energy_attach(rig, entities)
@@ -733,7 +747,12 @@ async def run_one(stem: str, definition, kind: str, label: str, runner_key,
         except GameOver:
             return SmokeResult(stem, kind, label, PASS, "(game ended)", scripted)
         except _SkipTest as skip:
-            status = UNIMPL if "not scripted" in skip.note else SKIP
+            if "not scripted" in skip.note:
+                status = UNIMPL
+            elif "vanilla" in skip.note:
+                status = VANILLA
+            else:
+                status = SKIP
             return SmokeResult(stem, kind, label, status, skip.note, scripted)
         except asyncio.TimeoutError:
             return SmokeResult(stem, kind, label, FAIL,
@@ -801,9 +820,12 @@ def _print_summary(results: List[SmokeResult], args):
     print(f"tests: {len(results)}  "
           + "  ".join(f"{k}: {v}" for k, v in sorted(counts.items())))
     unimpl = counts.get(UNIMPL, 0)
+    vanilla = counts.get(VANILLA, 0)
     print(f"scripted effects exercised: {len(scripted)} "
-          f"(PASS {scripted_pass} / FAIL {len(scripted) - scripted_pass})"
-          f"  unimpl {unimpl} (not failures: no body to exercise)")
+          f"(PASS {scripted_pass} / FAIL {len(scripted) - scripted_pass})")
+    print(f"real stubs {unimpl} (printed text, no body -- this is the work left)  "
+          f"vanilla {vanilla} (no text, no body -- complete by definition)  "
+          f"FAIL {counts.get(FAIL, 0)}")
     fails = [r for r in results if r.status == FAIL]
     if fails:
         print("\nfailures:")

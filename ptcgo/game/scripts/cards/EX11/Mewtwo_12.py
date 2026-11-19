@@ -1,5 +1,25 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import (
+    count_energy, damage_per, on_bench_play)
+from ptcgo.game.card_effects.support_common import move_energy_between
+from ptcgo.game.session.passives import is_basic_energy
+
+
+async def _delta_switch_body(ctx):
+    """Move any number of basic Energy from your Pokemon to your other
+    Pokemon, never to Mewtwo itself."""
+    mewtwo = ctx.source if ctx.source is not None else ctx.attacker
+    if mewtwo is None:
+        return
+    await move_energy_between(
+        predicate=is_basic_energy, count=None, from_pool="any", to_pool="any",
+        to_pred=lambda pokemon, _ctx: pokemon is not mewtwo)(ctx)
+
+
+def _total_energy(ctx) -> int:
+    return count_energy("self")(ctx) + count_energy("defender")(ctx)
+
 
 card = PokemonCardDef(
     guid="8e42d5e0-a11e-5f2b-bc2d-19102ddc9d30",
@@ -21,7 +41,8 @@ card = PokemonCardDef(
         Ability(
             title="Delta Switch",
             game_text="Once during your turn, when you put Mewtwo from your hand onto your Bench, you may move any number of basic Energy cards attached to your Pok\u00e9mon to your other Pok\u00e9mon (excluding Mewtwo) in any way you like.",
-            effect=unimplemented,
+            trigger=Triggers.ON_PLAY,
+            effect=on_bench_play(_delta_switch_body),
         ),
         Attack(
             title="Energy Burst",
@@ -29,7 +50,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.METAL: 1},
             damage=10,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_total_energy, 10, base=0),
         ),
     ],
 )

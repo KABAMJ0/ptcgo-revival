@@ -345,8 +345,11 @@ class Passive:
         """Returns the (possibly reduced) cost dict, client-name keyed."""
         return cost
 
-    def max_hp_bonus(self, pokemon: PokemonEntity, carrier: BoardEntity) -> int:
-        """Extra max HP granted to `pokemon` (e.g. Heat Fire Energy's +20)."""
+    def max_hp_bonus(self, pokemon: PokemonEntity, carrier: BoardEntity,
+                     board: Optional[BoardState] = None) -> int:
+        """Extra max HP granted to `pokemon` (e.g. Heat Fire Energy's +20).
+        `board` lets a bonus whose number depends on the game state read it
+        (Pangoro's per-taken-Prize HP); a constant bonus may ignore it."""
         return 0
 
     def modify_retreat_cost(
@@ -362,8 +365,13 @@ class Passive:
         Sky Pillar); only consulted when the target sits on a Bench."""
         return False
 
-    def blocks_attack_effects(self, target: PokemonEntity, carrier: BoardEntity) -> bool:
-        """True to shield `target` from opponents' attack EFFECTS (not damage)."""
+    def blocks_attack_effects(self, target: PokemonEntity, carrier: BoardEntity,
+                              attacker: Optional[PokemonEntity] = None,
+                              board: Optional[BoardState] = None) -> bool:
+        """True to shield `target` from opponents' attack EFFECTS (not damage).
+        `attacker` is the Pokemon whose attack is resolving, so a shield whose
+        printed scope names its attackers ("by attacks from Pokemon-EX") can
+        see the same Pokemon the damage path sees."""
         return False
 
     def blocks_abilities(self, pokemon: PokemonEntity, carrier: BoardEntity) -> bool:
@@ -1075,17 +1083,19 @@ def effective_max_hp(board: BoardState, pokemon: PokemonEntity) -> int:
         key = passive.stacking_key
         if key is not None and key in seen_keys:
             continue
-        gained = passive.max_hp_bonus(pokemon, carrier)
+        gained = passive.max_hp_bonus(pokemon, carrier, board)
         if gained and key is not None:
             seen_keys.add(key)
         bonus += gained
     return printed + bonus
 
 
-def attack_effects_blocked(board: BoardState, target: PokemonEntity) -> bool:
-    """Whether a passive shields `target` from opposing attack effects."""
+def attack_effects_blocked(board: BoardState, target: PokemonEntity,
+                           attacker: Optional[PokemonEntity] = None) -> bool:
+    """Whether a passive shields `target` from opposing attack effects.
+    `attacker` scopes the answer for a shield that only answers some attackers."""
     return any(
-        passive.blocks_attack_effects(target, carrier)
+        passive.blocks_attack_effects(target, carrier, attacker, board)
         for passive, carrier in active_passives(board)
     )
 

@@ -1,7 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy, return_attached_energy
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
+async def _snipe_bench_20(ctx, returned):
+    await snipe_attack(20, pool="bench", count=1, side="opponent")(ctx)
 
 
 def _is_holon_energy(card):
@@ -41,7 +47,11 @@ card = PokemonCardDef(
             game_text="You may return an Energy card attached to Jolteon to your hand. If you do, this attack does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=composed(
+                lambda ctx: ctx.deal_damage(),
+                return_attached_energy(1, to="hand", target="self",
+                                       then=_snipe_bench_20),
+            ),
         ),
     ],
 )
