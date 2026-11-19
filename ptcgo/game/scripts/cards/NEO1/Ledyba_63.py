@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_damage
 
 card = PokemonCardDef(
     guid="66276b54-7e4e-5a74-8fc9-f5486595a382",
@@ -30,7 +30,7 @@ card = PokemonCardDef(
             title="Comet Punch",
             game_text="Flip 4 coins. This attack does 10 damage times the number of heads.",
             cost={PokemonTypes.GRASS: 2},
-            effect=unimplemented,
+            effect=flip_damage(coins=4, per_heads=10),
         ),
     ],
 )
