@@ -1,4 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.content.definitions import Activations
+from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.pokemon import is_fire_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -22,7 +26,9 @@ card = PokemonCardDef(
         Ability(
             title="Roaring Resolve",
             game_text="Once during your turn (before your attack), you may put 2 damage counters on this Pok\u00e9mon. If you do, search your deck for up to 2 Fire Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            effect=place_counters(2, target="self", also=search_attach_energy(
+                predicate=is_fire_energy, count=2, to_self=True)),
         ),
         Attack(
             title="Continuous Blaze Ball",
