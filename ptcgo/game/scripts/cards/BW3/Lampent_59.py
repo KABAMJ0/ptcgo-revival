@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="80c96fd7-6a3c-5281-98a0-3a6273a46370",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Luring Light",
             game_text="Switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=0),
         ),
         Attack(
             title="Will-O-Wisp",

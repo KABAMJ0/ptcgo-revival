@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="7f8c299a-09ef-5aeb-9550-bed55bbc9f82",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Ice Chain",
             game_text="Switch the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=gust_attack(damage_to_new_active=0),
         ),
         Attack(
             title="Frost Vanish",
