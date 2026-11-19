@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Exoskeleton",
             game_text="Any damage done to Donphan by attacks is reduced by 20 (after applying Weakness and Resistance).",
-            effect=spread_damage(10, side="mine"),
+            effect=unimplemented,
         ),
         Attack(
             title="Earthquake",

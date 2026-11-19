@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Jet Cruise",
             game_text="Your Pok\u00e9mon in play have no Retreat Cost.",
-            effect=mill_attack(2, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dragon Pulse",

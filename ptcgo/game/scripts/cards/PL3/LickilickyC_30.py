@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Licking-Licking Heal",
             game_text="Attach a Basic Energy card from your hand to 1 of your Pok\u00e9mon. Then, remove 2 damage counters from that Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=draw_until_effect(6),
+            effect=unimplemented,
         ),
         Attack(
             title="Return",

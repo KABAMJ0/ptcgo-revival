@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Nurse Call",
             game_text="Once during your turn (before your attack), you may discard a card from your hand. If you do, remove 2 damage counters from 1 of your Pok\u00e9mon. You can't use more than 1 Nurse Call Pok\u00e9-Power each turn. This power can't be used if Blissey is affected by a Special Condition.",
-            effect=draw_until_effect(6),
+            effect=unimplemented,
         ),
         Attack(
             title="Return",

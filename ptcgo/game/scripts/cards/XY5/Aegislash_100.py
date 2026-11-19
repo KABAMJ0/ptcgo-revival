@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Miracle Guard",
             game_text="Each of your Pok\u00e9mon has no Weakness.",
-            effect=protect_next_turn(reduce=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Protect Charge",

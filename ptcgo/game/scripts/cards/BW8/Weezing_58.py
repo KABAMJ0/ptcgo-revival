@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Aftermath",
             game_text="When this Pok\u00e9mon is Knocked Out by damage from an opponent's attack, discard the top 3 cards of your opponent's deck.",
-            effect=spread_damage(20, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Smogbank",

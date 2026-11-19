@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="VACATION",
             game_text="Once during your turn (before your attack), you may remove 2 damage counters from each of your Pok\u00e9mon. If you do, your turn ends. This power can't be used if Unown V is affected by a Special Condition.",
-            effect=spread_damage(10, side="mine"),
+            effect=unimplemented,
         ),
         Attack(
             title="Hidden Power",

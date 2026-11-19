@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Negative Ion",
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 30 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Electrishower",

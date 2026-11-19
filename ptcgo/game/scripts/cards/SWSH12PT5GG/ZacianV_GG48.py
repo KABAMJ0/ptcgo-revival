@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Roar of the Sword",
             game_text="Once during your turn, you may search your deck for a Psychic Energy card and attach it to 1 of your Pok\u00e9mon. Then, shuffle your deck. If you use this Ability, your turn ends.",
-            effect=damage_per(count_energy("self", "psychic"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Storm Slash",

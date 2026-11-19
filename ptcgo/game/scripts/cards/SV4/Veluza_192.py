@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Fillet Memento",
             game_text="If this Pok\u00e9mon is in the Active Spot and is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon, move up to 2 Water Energy cards from this Pok\u00e9mon to 1 of your Benched Pok\u00e9mon.",
-            effect=damage_per(count_energy("self", "water"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Hydro Pump",

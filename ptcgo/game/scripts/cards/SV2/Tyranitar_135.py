@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
             damage_operator="+",
-            effect=mill_attack(4, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dread Mountain",

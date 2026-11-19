@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Booming Call",
             game_text="Put up to 3 Dragon Pok\u00e9mon from your discard pile onto your Bench.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=mill_attack(2, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dragon Pulse",

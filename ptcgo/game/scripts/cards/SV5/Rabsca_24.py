@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Spherical Shield",
             game_text="Prevent all damage from and effects of attacks from your opponent's Pok\u00e9mon done to your Benched Pok\u00e9mon.",
-            effect=damage_per(count_energy("defender"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Psychic",

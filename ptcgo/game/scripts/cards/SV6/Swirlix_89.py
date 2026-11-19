@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Festival Lead",
             game_text="If Festival Grounds is in play, this Pok\u00e9mon may use an attack it has twice. If the first attack Knocks Out your opponent's Active Pok\u00e9mon, you may attack again after your opponent chooses a new Active Pok\u00e9mon.",
-            effect=place_counters(2, target="choose_any_opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Sneaky Placement",

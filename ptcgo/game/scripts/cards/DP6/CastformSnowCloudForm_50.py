@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Temperament",
             game_text="Once during your turn (before your attack), you may search your deck for any Castform and switch it with Castform Snow-cloud Form. (Any cards attached to Castform Snow-cloud Form, damage counters, Special Conditions, and effects on it are now on the new Pok\u00e9mon.) Shuffle Castform Snow-cloud Form back into your deck. You can't use more than 1 Temperament Pok\u00e9-Power each turn.",
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Hail",

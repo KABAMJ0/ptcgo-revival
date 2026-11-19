@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Snowy Present",
             game_text="Draw a card for each Water Energy attached to all of your Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Hail",

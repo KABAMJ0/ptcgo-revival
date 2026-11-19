@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Scale Up",
             game_text="If this Pok\u00e9mon has 6 or more Grass Energy attached, it gets +250 HP.",
-            effect=heal_attack(50),
+            effect=unimplemented,
         ),
         Attack(
             title="Mega Drain",

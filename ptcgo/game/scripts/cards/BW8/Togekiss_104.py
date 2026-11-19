@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Bright Veil",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, whenever your opponent plays an Item card from his or her hand, prevent all effects of that card done to your Pok\u00e9mon.",
-            effect=draw_until_effect(6),
+            effect=unimplemented,
         ),
         Attack(
             title="Return",

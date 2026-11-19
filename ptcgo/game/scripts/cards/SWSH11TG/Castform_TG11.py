@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Weather Reading",
             game_text="If you have 8 or more Stadium cards in your discard pile, ignore all Energy in this Pok\u00e9mon's attack costs.",
-            effect=draw_until_effect(6),
+            effect=unimplemented,
         ),
         Attack(
             title="Weather Force",

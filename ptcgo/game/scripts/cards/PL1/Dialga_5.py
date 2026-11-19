@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Reverse Time",
             game_text="Once during your turn, when you put Dialga from your hand onto your Bench, you may search your discard pile for up to 3 in any combination of Pok\u00e9mon (excluding Pok\u00e9mon LV.X) and basic Energy cards. Show them to your opponent and put them on top of your deck in any order.",
-            effect=draw_until_effect(7),
+            effect=unimplemented,
         ),
         Attack(
             title="Time-Space Traveling",

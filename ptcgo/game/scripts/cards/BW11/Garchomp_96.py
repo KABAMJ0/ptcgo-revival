@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=mill_attack(2, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Dragonblade",

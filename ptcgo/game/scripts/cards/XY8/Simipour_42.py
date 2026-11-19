@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Green Fling",
             game_text="Put 3 Grass Energy from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=damage_per(count_hand("mine"), 10),
+            effect=unimplemented,
         ),
         Attack(
             title="Hand Fling",

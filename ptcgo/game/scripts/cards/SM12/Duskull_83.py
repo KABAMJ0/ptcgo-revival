@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Spiritborne Evolution",
             game_text="Once during your turn (before your attack), you may discard 3 cards from your hand. If you do, search your deck for a card that evolves from this Pok\u00e9mon and put it onto this Pok\u00e9mon to evolve it. Then, shuffle your deck.",
-            effect=place_counters(2, target="choose_any_opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Ominous Eyes",

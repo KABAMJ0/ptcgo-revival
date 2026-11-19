@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Genome Charge",
             game_text="Search your deck for up to 2 Basic Psychic Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=damage_per(count_energy("defender"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Psychic",
