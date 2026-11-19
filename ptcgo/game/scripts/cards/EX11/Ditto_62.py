@@ -5,7 +5,6 @@ from ptcgo.game.data_utils import Activations
 from ptcgo.game.card_effects.support_common import swap_with_named
 
 
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="6f90c5e5-6b2d-599d-ae09-02fea4e8add2",
     key="EX11",

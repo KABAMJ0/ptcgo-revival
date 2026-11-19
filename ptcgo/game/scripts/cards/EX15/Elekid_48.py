@@ -4,7 +4,6 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 _baby_effect, _baby_in_hand = baby_evolution("Electabuzz")
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="5dee685c-1436-5982-8a92-f55515203d20",
