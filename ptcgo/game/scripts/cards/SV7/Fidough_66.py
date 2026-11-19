@@ -1,7 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
-from ptcgo.game.session.effects import is_basic_pokemon
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="ccda91ae-a058-59e7-9f70-fd909dd5b608",
@@ -24,7 +23,7 @@ card = PokemonCardDef(
             title="Pleasant Aroma",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_bench(is_basic_pokemon, count=1),
+            effect=search_to_bench(count=1),
         ),
         Attack(
             title="Stampede",

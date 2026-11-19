@@ -1,14 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, count_prizes_taken
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.trainers import basic_energy_of
-
-async def infernal_reign(ctx):
-    """On evolve: search up to 3 Basic Fire Energy and attach them as you like."""
-    await search_attach_energy(is_basic_energy_of(PokemonTypes.FIRE), count=3,
-                               to_self=False, distribute=True)(ctx)
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="34f4c8f6-32da-5186-9146-8e29ca39e908",
@@ -31,7 +24,8 @@ card = PokemonCardDef(
         Ability(
             title="Infernal Reign",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may search your deck for up to 3 Basic Fire Energy cards and attach them to your Pok\u00e9mon in any way you like. Then, shuffle your deck.",
-            effect=infernal_reign,
+            trigger=Triggers.ON_EVOLVE,
+            effect=search_attach_energy(predicate=basic_energy_of("Fire"), count=3, distribute=True),
         ),
         Attack(
             title="Burning Darkness",
@@ -39,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=180,
             damage_operator="+",
-            effect=damage_per(count_prizes_taken("opponent"), per=30, base=180),
+            effect=unimplemented,
         ),
     ],
 )

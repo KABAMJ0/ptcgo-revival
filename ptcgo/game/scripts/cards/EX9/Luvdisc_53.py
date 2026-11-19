@@ -1,7 +1,6 @@
+from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import search_to_bench
-from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="96052f8e-ab09-5083-9c0d-69a8479f33dc",
@@ -24,7 +23,7 @@ card = PokemonCardDef(
             title="Call for Friend",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_bench(is_basic_pokemon, count=1),
+            effect=search_to_bench(count=1),
         ),
         Attack(
             title="Strange Scale",
