@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your next turn, each of this Pok\u00e9mon's attacks does 30 more damage (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1, PokemonTypes.FIGHTING: 1},
             damage=10,
-            effect=unimplemented,
+            effect=boost_own_next_turn(30),
         ),
     ],
 )
