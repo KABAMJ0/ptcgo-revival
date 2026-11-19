@@ -1,4 +1,6 @@
-from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.card_effects.passives_common import (
+    boost_own_next_turn, flip_protection,
+)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Focus Energy",
             game_text="During your next turn, base damage of Swellow's Agility is 70 instead of 30.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=boost_own_next_turn(40, attack_title="Agility"),
         ),
         Attack(
             title="Agility",

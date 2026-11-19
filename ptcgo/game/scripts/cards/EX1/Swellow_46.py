@@ -1,5 +1,14 @@
+from ptcgo.game.card_effects.support_common import opponent_switches
+from ptcgo.game.content.definitions import Activations
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def drive_off(ctx):
+    """If Swellow is Active, switch one of the opponent's Benched Pokemon with
+    their Active; the opponent picks."""
+    if not await ctx.ask_yes_no("Switch the Defending Pokemon with a Benched one?"):
+        return
+    await opponent_switches(ctx)
 
 card = PokemonCardDef(
     guid="4e959480-78cf-5cbc-ab9f-95b59b39c193",
@@ -23,7 +32,8 @@ card = PokemonCardDef(
         Ability(
             title="Drive Off",
             game_text="Once during your turn (before your attack), if Swellow is your Active Pok\u00e9mon, you may switch 1 of the Defending Pok\u00e9mon with 1 of your opponent's Benched Pok\u00e9mon. Your opponent picks the Benched Pok\u00e9mon to switch. This power can't be used if Swellow is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=drive_off,
+            activation=Activations.ONCE_PER_TURN,
         ),
         Attack(
             title="Wing Attack",

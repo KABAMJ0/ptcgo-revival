@@ -1,4 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.passives_common import (
+    attack_shield_from, side_has_named, team_of_names,
+)
+from ptcgo.game.card_effects.trainers import pokemon_lv_x
+
+
+def _is_lv_x():
+    """Attacker pred: a Pokemon LV.X. The corpus prints the subtype as
+    "Level-Up", so `pokemon_lv_x` accepts every spelling."""
+    return pokemon_lv_x()
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -21,7 +31,11 @@ card = PokemonCardDef(
         Ability(
             title="Marvel Eyes",
             game_text="If you have Solrock in play, prevent all effects of attacks, including damage, done to any of your Lunatone or Solrock by your opponent's Pok\u00e9mon LV.X.",
-            effect=unimplemented,
+            passive=attack_shield_from(
+                _is_lv_x(), protects=team_of_names("lunatone", "solrock"),
+                effects_too=True,
+                when=lambda board, carrier: side_has_named(
+                    board, carrier.owning_player_id, "solrock")),
         ),
         Attack(
             title="Gravity Wave",

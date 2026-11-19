@@ -90,7 +90,7 @@ class Shield(Passive):
 
 
 class EffShield(Passive):
-    def blocks_attack_effects(self, target, carrier):
+    def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
         return carrier_pokemon(carrier) is target
 
 
@@ -892,7 +892,7 @@ async def test_move_damage_counters():
     assert tgt.get_attribute(AttrID.HP) == tgt_hp - 30
 
     class EffShield(Passive):
-        def blocks_attack_effects(self, target, carrier):
+        def blocks_attack_effects(self, target, carrier, attacker=None, board=None):
             return carrier_pokemon(carrier) is target
 
     src.set_attribute(AttrID.HP, max_hp - 20)
@@ -1162,7 +1162,7 @@ async def test_stacking_key_dedup():
     class HPBoost(Passive):
         stacking_key = "test-boost"
 
-        def max_hp_bonus(self, pokemon, carrier):
+        def max_hp_bonus(self, pokemon, carrier, board=None):
             return 20
 
     class OtherBoost(HPBoost):

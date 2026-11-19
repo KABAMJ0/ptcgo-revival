@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Protective Dust",
             game_text="Prevent all effects of attacks, except damage, done to Dustox by the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Toxic",

@@ -2,6 +2,20 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.session.passives import Passive
+
+
+class DoubleTypePassive(Passive):
+    """As long as this Pokemon is in play it is both Grass and Fire."""
+
+    def modify_pokemon_types(self, types, pokemon, carrier):
+        if pokemon is not carrier:
+            return types
+        live = list(types or [])
+        for member in (PokemonTypes.GRASS.value, PokemonTypes.FIRE.value):
+            if member not in live:
+                live.append(member)
+        return live
 
 
 card = PokemonCardDef(
@@ -25,7 +39,7 @@ card = PokemonCardDef(
         Ability(
             title="Double Type",
             game_text="As long as this Pok\u00e9mon is in play, it is Grass and Fire type.",
-            effect=unimplemented,
+            passive=DoubleTypePassive(),
         ),
         Attack(
             title="Spicy Headbutt",

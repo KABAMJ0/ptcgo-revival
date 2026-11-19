@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+from ptcgo.game.card_effects.pokemon import is_energy_card
+
+
+def _my_pokemon_with_energy(target, carrier):
+    return (target.owning_player_id == carrier.owning_player_id
+            and any(is_energy_card(child) for child in target.children))
+
 
 card = PokemonCardDef(
     guid="074ee3b5-8d13-501c-a379-0fde07c1c1b1",
@@ -22,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Protective Mycelium",
             game_text="Prevent all effects of attacks used by your opponent's Pok\u00e9mon done to all of your Pok\u00e9mon that have Energy attached. (Existing effects are not removed. Damage is not an effect.)",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(protects=_my_pokemon_with_energy),
         ),
         Attack(
             title="Colony Rush",

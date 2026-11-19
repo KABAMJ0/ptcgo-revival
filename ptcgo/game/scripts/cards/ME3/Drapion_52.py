@@ -1,5 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack
+from ptcgo.game.attributes import (
+    PokemonTypes, PokemonStage, Rarities, SpecialConditions,
+)
+from ptcgo.game.card_effects.attacks_common import (
+    condition_attack, recoil_attack,
+)
+
 
 card = PokemonCardDef(
     guid="9391b3d0-ef32-5b9e-ac58-551bedc9032a",
@@ -29,7 +35,12 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon also does 70 damage to itself. Your opponent's Active Pok\u00e9mon is now Paralyzed and Poisoned.",
             cost={PokemonTypes.DARKNESS: 3},
             damage=100,
-            effect=unimplemented,
+            effect=recoil_attack(
+                70,
+                also=condition_attack(
+                    SpecialConditions.PARALYZED, SpecialConditions.POISONED,
+                    damage=0),
+            ),
         ),
     ],
 )

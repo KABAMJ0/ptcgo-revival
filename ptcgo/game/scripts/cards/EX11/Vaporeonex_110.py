@@ -1,6 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, on_evolve
+
+
+async def _evolutionary_swirl_body(ctx):
+    """The opponent shuffles their hand into their deck, then draws up to 4."""
+    opponent = ctx.opponent_id
+    hand = ctx.hand(opponent)
+    if hand:
+        await ctx.shuffle_into_deck(hand, opponent)
+    else:
+        await ctx.shuffle_deck(opponent)
+    drawn = await ctx.ask_opponent("Draw up to 4 cards",
+                                   ["0", "1", "2", "3", "4"])
+    if drawn:
+        await ctx.draw_cards(drawn, opponent)
+
 
 card = PokemonCardDef(
     guid="d535f55c-c9ed-5cd0-a0a2-6f1eaae4ed15",
@@ -23,7 +38,8 @@ card = PokemonCardDef(
         Ability(
             title="Evolutionary Swirl",
             game_text="Once during your turn, when you play Vaporeon ex from your hand to evolve 1 of your Pok\u00e9mon, you may have your opponent shuffle his or her hand into his or her deck. Then, your opponent draws up to 4 cards.",
-            effect=unimplemented,
+            trigger=Triggers.ON_EVOLVE,
+            effect=on_evolve(_evolutionary_swirl_body),
         ),
         Attack(
             title="Fastwave",

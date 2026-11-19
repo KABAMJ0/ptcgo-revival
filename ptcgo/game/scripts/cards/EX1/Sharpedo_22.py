@@ -1,5 +1,25 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+
+
+def is_darkness_energy(card):
+    return energy_provides_type(card, PokemonTypes.DARKNESS.value)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retaliate_counters_passive
+
+async def dark_slash(ctx):
+    """You may discard a Darkness Energy attached to Sharpedo for +30."""
+    energies = [card for card in ctx.attached_energies(ctx.attacker)
+                if is_darkness_energy(card)]
+    bonus = 0
+    if energies and await ctx.ask_yes_no(
+            "Discard a Darkness Energy from Sharpedo for 30 more damage?"):
+        discarded = await ctx.discard_energy_from(
+            ctx.attacker, 1, predicate=is_darkness_energy,
+            prompt="Discard a Darkness Energy card")
+        if discarded:
+            bonus = 30
+    await ctx.deal_damage(70 + bonus)
 
 card = PokemonCardDef(
     guid="c713de78-d71a-5718-8850-543fb3483b56",
@@ -22,7 +42,7 @@ card = PokemonCardDef(
         Ability(
             title="Rough Skin",
             game_text="If Sharpedo is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if Sharpedo is Knocked Out), put 2 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=retaliate_counters_passive(2),
         ),
         Attack(
             title="Dark Slash",
@@ -30,7 +50,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=dark_slash,
         ),
     ],
 )

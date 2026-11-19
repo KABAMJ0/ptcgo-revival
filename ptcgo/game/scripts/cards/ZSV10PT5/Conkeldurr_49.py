@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import hp_per_typed_energy_passive
+
+
 
 card = PokemonCardDef(
     guid="d726cc94-fdf9-5fc4-a7a2-f7a5cd6a8aeb",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Craftsmanship",
             game_text="This Pok\u00e9mon gets +40 HP for each Fighting Energy attached to it.",
-            effect=unimplemented,
+            passive=hp_per_typed_energy_passive(40, PokemonTypes.FIGHTING.value),
         ),
         Attack(
             title="Swing Around",

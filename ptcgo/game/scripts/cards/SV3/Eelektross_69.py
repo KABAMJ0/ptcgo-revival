@@ -1,5 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.support_common import gust_then
+
+
+def _paralyze_flip(pokemon):
+    """flip_gate rider: heads Paralyzes the Pokemon switched in."""
+    async def rider(ctx):
+        await ctx.apply_special_condition(pokemon, SpecialConditions.PARALYZED)
+    return flip_gate(rider)
+
+
+async def _suction_shock(ctx, new_active):
+    """60 to the new Active, then a coin flip for Paralysis on that Pokemon."""
+    await ctx.deal_damage(60, target=new_active)
+    await _paralyze_flip(new_active)(ctx)
+
 
 card = PokemonCardDef(
     guid="ef1c6a9b-7e29-5abc-b226-20d87cf1c5a7",
@@ -23,7 +39,7 @@ card = PokemonCardDef(
             title="Suction Shock",
             game_text="Switch in 1 of your opponent's Benched Pok\u00e9mon to the Active Spot. If you do, this attack does 60 damage to the new Active Pok\u00e9mon, and then flip a coin. If heads, that Pok\u00e9mon is now Paralyzed.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=gust_then(_suction_shock),
         ),
         Attack(
             title="Head Bolt",

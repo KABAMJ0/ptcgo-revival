@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import named_in_play
+
+async def paired_attack(ctx):
+    """Printed damage plus the partner's extra 20 and Special Condition."""
+    partner = named_in_play('Chimchar')(ctx)
+    printed = getattr(ctx.ability, "damage", 0) or 0
+    await ctx.deal_damage(printed + (20 if partner else 0))
+    if partner:
+        defender = ctx.defender
+        if defender is not None:
+            await ctx.apply_special_condition(defender, SpecialConditions.BURNED)
+
+
 card = PokemonCardDef(
     guid="74e3b07c-b275-5d6c-b911-ad816cbca154",
     key="POP9",
@@ -32,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=paired_attack,
         ),
     ],
 )

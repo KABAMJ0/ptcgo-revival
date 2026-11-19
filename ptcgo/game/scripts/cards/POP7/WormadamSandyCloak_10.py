@@ -1,6 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+
+
+
 card = PokemonCardDef(
     guid="81aea46e-35a3-5632-9eb8-5b0d715f72aa",
     key="POP7",
@@ -23,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Sandy Cloak",
             game_text="Prevent all effects, excluding damage, done to Wormadam Sandy Cloak.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Push Over",

@@ -1,6 +1,21 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.support_common import gust_attack
+
+async def sonic_bleed(ctx):
+    """Counters down to 50 HP from a Knock Out, then the opponent switches."""
+    defender = ctx.defender
+    if defender is None:
+        return
+    remaining = defender.get_attribute(AttrID.HP, 0)
+    counters = max(0, (remaining - 50) // 10)
+    if counters:
+        await ctx.place_damage_counters(counters, [defender])
+    if ctx.opponent_bench():
+        await gust_attack(opponent_chooses=True)(ctx)
+
 card = PokemonCardDef(
     guid="e38d3357-62d4-5056-a00e-f3048d9ab02d",
     key="POP7",
@@ -23,7 +38,7 @@ card = PokemonCardDef(
             title="Sonic Blade",
             game_text="Put damage counters on the Defending Pok\u00e9mon until it is 50 HP away from being Knocked Out. If you do, your opponent switches the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=sonic_bleed,
         ),
         Attack(
             title="Psychic Cut",

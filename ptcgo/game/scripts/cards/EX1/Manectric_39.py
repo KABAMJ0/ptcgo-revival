@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
@@ -34,7 +35,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to 2 of your opponent's Benched Pok\u00e9mon (1 if there is only 1). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench", count=2, apply_modifiers=False),
         ),
     ],
 )

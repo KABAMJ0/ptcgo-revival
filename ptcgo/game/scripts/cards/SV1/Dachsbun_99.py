@@ -1,5 +1,24 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.session.passives import Passive
+
+
+class WellBakedBodyPassive(Passive):
+    """Can't be Burned, and takes no damage from the opponent's Fire Pokemon's attacks."""
+
+    def blocks_special_conditions(self, target, condition, carrier):
+        return target is carrier and condition == SpecialConditions.BURNED
+
+    def prevents_damage(self, calc, carrier):
+        attacker = calc.attacker
+        return bool(
+            calc.is_attack
+            and calc.is_opposing
+            and calc.target is carrier
+            and attacker is not None
+            and PokemonTypes.FIRE.value in (attacker.get_attribute(AttrID.POKEMON_TYPES) or [])
+        )
+
 
 card = PokemonCardDef(
     guid="095b43c1-7b66-5676-9bdc-ef0b5795a229",
@@ -22,7 +41,7 @@ card = PokemonCardDef(
         Ability(
             title="Well-Baked Body",
             game_text="This Pok\u00e9mon can't be Burned. Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Fire Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=WellBakedBodyPassive(),
         ),
         Attack(
             title="Headbutt Bounce",

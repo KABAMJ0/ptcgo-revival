@@ -1,5 +1,25 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import named_one_of
+
+_SWORD = named_one_of("Honedge", "Doublade", "Aegislash")
+
+
+async def weaponized_swords(ctx):
+    """Reveal any number of Honedge, Doublade and Aegislash from your
+    hand; 60 damage for each card revealed."""
+    swords = [card for card in ctx.hand() if _SWORD(card)]
+    if not swords:
+        return
+    picks = await ctx.choose_cards(
+        swords, len(swords), minimum=0,
+        prompt="Reveal any number of Honedge, Doublade, and Aegislash from your hand",
+    )
+    if not picks:
+        return
+    await ctx.reveal_cards(picks)
+    await ctx.deal_damage(60 * len(picks))
+
 
 card = PokemonCardDef(
     guid="13c986ea-7ebd-5b97-97c9-feabdc0272bd",
@@ -26,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="x",
-            effect=unimplemented,
+            effect=weaponized_swords,
         ),
     ],
 )

@@ -1,4 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
+from ptcgo.game.card_effects.attacks_common import (
+    flip_damage, flip_gate, heal_self_damage_dealt,
+)
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +28,7 @@ card = PokemonCardDef(
             game_text="After your attack, remove from Sceptile the number of damage counters equal to the damage you did to the Defending Pok\u00e9mon. If Sceptile has fewer damage counters than that, remove all of them.",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=heal_self_damage_dealt(20),
         ),
         Attack(
             title="Leaf Blade",

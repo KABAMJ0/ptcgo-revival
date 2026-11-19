@@ -1,7 +1,18 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.session.passives import Passive
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
+class WitheringDustPassive(Passive):
+    """As long as Beautifly is in play, do not apply Resistance for any Active Pokemon."""
+
+    def modify_resistance(self, calc, carrier):
+        target = calc.target
+        if target is not None and is_in_active_spot(target):
+            calc.resistance_applies = False
 
 card = PokemonCardDef(
     guid="bfaeb3d5-656e-526a-aaae-ff013d28bc44",
@@ -24,7 +35,7 @@ card = PokemonCardDef(
         Ability(
             title="Withering Dust",
             game_text="As long as Beautifly is in play, do not apply Resistance for all Active Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=WitheringDustPassive(),
         ),
         Attack(
             title="Stun Spore",

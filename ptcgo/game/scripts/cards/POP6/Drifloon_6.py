@@ -1,6 +1,25 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+async def blowing_wind(ctx):
+    """Heads: one Benched Pokemon and everything attached goes on top of the deck."""
+    results = await ctx.flip_coins(1, "Blowing Wind")
+    bench = list(ctx.my_bench())
+    if not (results and results[0]) or not bench:
+        return
+    pick = await ctx.choose_pokemon(bench, "Choose a Benched Pok\u00e9mon")
+    if pick is None:
+        return
+    stack = [pick]
+    pending = [pick]
+    while pending:
+        entity = pending.pop()
+        for child in list(entity.children):
+            stack.append(child)
+            pending.append(child)
+    for card in stack:
+        await ctx.put_on_top_of_deck(card)
+    await ctx.shuffle_deck()
 card = PokemonCardDef(
     guid="6eb06cd6-e409-5ad4-9f16-c5473424ca14",
     key="POP6",
@@ -23,7 +42,7 @@ card = PokemonCardDef(
             title="Blowing Wind",
             game_text="Flip a coin. If heads, put 1 of your Benched Pok\u00e9mon and all cards attached to it on top of your deck. Shuffle your deck afterward.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=blowing_wind,
         ),
         Attack(
             title="Ominous Wind",

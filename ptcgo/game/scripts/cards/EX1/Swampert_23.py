@@ -1,6 +1,19 @@
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.data_utils import Triggers
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def natural_remedy(ctx):
+    """When you attach a Water Energy from your hand to Swampert, remove 1
+    damage counter from it."""
+    energy = getattr(ctx, "attached_energy", None)
+    receiver = getattr(ctx, "energy_receiver", None)
+    if ctx.source is None or receiver is not ctx.source or energy is None:
+        return
+    if not energy_provides_type(energy, PokemonTypes.WATER.value):
+        return
+    await ctx.heal(10, ctx.source)
 
 card = PokemonCardDef(
     guid="6fda4bd1-c99d-5e65-b5d8-992f08534542",
@@ -23,7 +36,8 @@ card = PokemonCardDef(
         Ability(
             title="Natural Remedy",
             game_text="Once during your turn (before your attack), when you attach a Water Energy card from your hand to Swampert, remove 1 damage counter from Swampert.",
-            effect=unimplemented,
+            effect=natural_remedy,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
         ),
         Attack(
             title="Water Arrow",

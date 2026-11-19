@@ -2,6 +2,31 @@ from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.attributes import AttrID, TrainerType
+from ptcgo.game.session.effects import resolve_trainer_effect
+
+
+def _is_supporter(card):
+    return (card.get_attribute(AttrID.CARD_TYPE) == 2
+            and card.get_attribute(AttrID.TRAINER_TYPE)
+            == TrainerType.SUPPORTER.value)
+
+async def psychic_research(ctx):
+    """A Supporter from the discard pile is used as this attack's effect; the
+    card stays in the discard pile."""
+    supporters = [card for card in ctx.discard_pile() if _is_supporter(card)]
+    if not supporters:
+        return
+    picks = await ctx.choose_cards(supporters, 1, minimum=1,
+                                   prompt="Choose a Supporter card to use")
+    if not picks:
+        return
+    inner = await resolve_trainer_effect(ctx.session, ctx.player_id, picks[0])
+    if inner is None:
+        return
+    await ctx.session._flush_effect_runs(inner)
+    inner._messages.clear()
+
 card = PokemonCardDef(
     guid="7cdba2d8-c442-52f8-a22a-fa6dc9e65227",
     key="POP7",
@@ -24,7 +49,7 @@ card = PokemonCardDef(
             title="Psychic Research",
             game_text="Search your discard pile for a Supporter card and use the effect of that card as the effect of this attack. (The Supporter card remains in your discard pile.)",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=psychic_research,
         ),
         Attack(
             title="Telekinesis",
