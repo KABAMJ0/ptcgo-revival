@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="5fcdd81a-af91-5b76-9a02-dc4e6c1c5ceb",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )

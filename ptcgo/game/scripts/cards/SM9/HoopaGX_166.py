@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="332f8da0-f547-57c3-94d9-4379bf0d0e6e",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Rogue Ring",
             game_text="Search your deck for up to 2 cards and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Dark Strike",

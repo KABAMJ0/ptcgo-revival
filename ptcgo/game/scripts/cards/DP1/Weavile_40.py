@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="d1bf6e84-60ee-527e-b27e-e9263d2e2e01",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Nasty Plot",
             game_text="Search your deck for any 1 card and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=1, minimum=1, reveal=False),
         ),
         Attack(
             title="Dark Pulse",

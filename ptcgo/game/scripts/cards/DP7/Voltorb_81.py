@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="7773956e-27da-58e0-9946-48fddc795f89",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Outlet",
             game_text="Search your deck for a Lightning Energy card, show it to your opponent, and put it into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(basic_energy_of("lightning"), count=1, minimum=1, reveal=True),
         ),
         Attack(
             title="Bouncing Ball",

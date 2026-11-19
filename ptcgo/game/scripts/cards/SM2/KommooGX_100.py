@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="053bb4ee-29b6-5216-871d-935263035859",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
         Attack(
             title="Ultra Uppercut-GX",

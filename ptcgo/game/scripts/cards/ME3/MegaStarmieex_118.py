@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,11 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness or Resistance, or by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=210,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(
+                ignore_weakness=True,
+                ignore_resistance=True,
+                ignore_target_effects=True,
+            ),
         ),
     ],
 )

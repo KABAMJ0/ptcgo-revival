@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -41,7 +41,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 3, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_target_effects=True),
         ),
     ],
 )

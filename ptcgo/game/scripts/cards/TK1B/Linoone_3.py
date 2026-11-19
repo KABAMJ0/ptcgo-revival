@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="58f7f4a1-d67e-5845-bb6a-43803079e1e3",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Seek Out",
             game_text="Search your deck for up to 2 cards and put them into your hand. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(None, count=2, minimum=0, reveal=False),
         ),
         Attack(
             title="Continuous Headbutt",

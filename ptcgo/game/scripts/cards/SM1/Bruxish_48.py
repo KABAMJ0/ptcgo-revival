@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="214c2718-3532-54d7-a433-7b6d099e9aff",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Vivid Charge",
             game_text="Search your deck for up to 3 basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_hand(is_basic_energy_card, count=3, minimum=0, reveal=True),
         ),
         Attack(
             title="Psychic Fangs",

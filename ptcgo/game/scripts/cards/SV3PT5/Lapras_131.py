@@ -1,7 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_pokemon_card
 from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.session.effects import is_pokemon_card
 
 card = PokemonCardDef(
     guid="db33b810-b0cf-54d6-92a0-1d0f1fb22bd5",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Hop on My Back",
             game_text="Search your deck for up to 2 Pok\u00e9mon, reveal them, and put them into your hand. Then, shuffle your deck.",
             cost={PokemonTypes.WATER: 1},
-            effect=search_to_hand(is_pokemon_card, count=2, reveal=True),
+            effect=search_to_hand(is_pokemon_card, count=2, minimum=0, reveal=True),
         ),
         Attack(
             title="Aqua Edge",

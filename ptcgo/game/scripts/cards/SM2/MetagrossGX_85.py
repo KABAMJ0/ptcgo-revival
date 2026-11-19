@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_hand
 
 card = PokemonCardDef(
     guid="8a49fc1b-23a3-53e6-8763-6d0238da3fe3",
@@ -37,7 +37,7 @@ card = PokemonCardDef(
             title="Algorithm-GX",
             game_text="Search your deck for up to 5 cards and put them into your hand. Then, shuffle your deck. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_hand(None, count=5, reveal=False),
+            effect=search_to_hand(None, count=5, minimum=0, reveal=False),
         ),
     ],
 )

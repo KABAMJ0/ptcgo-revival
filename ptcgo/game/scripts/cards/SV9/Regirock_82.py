@@ -4,6 +4,7 @@ from ptcgo.game.card_effects.passives_common import takes_less_passive
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.session.passives import carrier_pokemon
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 
 def _holder_with(type_value=None, basic_only=False):
@@ -47,7 +48,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Resistance.",
             cost={PokemonTypes.FIGHTING: 3},
             damage=120,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_resistance=True),
         ),
     ],
 )
