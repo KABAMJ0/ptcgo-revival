@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import can_move_energy, move_energy_between
+from ptcgo.game.data_utils import Activations
+def _grass_energy(card):
+    return energy_provides_type(card, PokemonTypes.GRASS.value)
+async def energy_trans(ctx):
+    """Take 1 Grass Energy attached to 1 of your Pokemon and attach it to a
+    different one."""
+    await move_energy_between(predicate=_grass_energy, count=1,
+                              from_pool="any", to_pool="any")(ctx)
+_can_energy_trans = can_move_energy(predicate=_grass_energy)
+
+
 card = PokemonCardDef(
     guid="1e9bc32d-8f3e-5131-9d4b-8f2be24f7497",
     key="BASE4",
@@ -22,7 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Energy Trans",
             game_text="As often as you like during your turn (before your attack), you may take 1 Grass Energy card attached to 1 of your Pok\u00e9mon and attach it to a different one. This power can't be used if Venusaur is Asleep, Confused, or Paralyzed.",
-            effect=unimplemented,
+            effect=energy_trans,
         ),
         Attack(
             title="Solarbeam",
