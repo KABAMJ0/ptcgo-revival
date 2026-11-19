@@ -182,6 +182,27 @@ _MAX_BENCH_ENFORCE_PASSES = 4
 AI_PROMPT_GRACE_SECONDS = 15.0
 
 
+def _selection_responses(selection) -> List[Any]:
+    """The shapes a client has been seen to answer an EntityList pick with.
+
+    The wire shape is ``{"targetResponses": [{"entityList": [...]}]}`` and stays the
+    fast path. A reply that sends the response list directly, or a single entity id,
+    used to parse as nothing: the pick counted as an under-pick, ``_run_pick_offer``
+    re-sent the same offer until the retries ran out, and from the player's seat the
+    choice vanished and the prompt came back. Accepting those two extra shapes keeps
+    the failure visible for a reply that is genuinely unusable -- anything else still
+    returns [] and re-offers rather than silently picking nothing.
+    """
+    if isinstance(selection, dict):
+        responses = selection.get("targetResponses")
+        return list(responses) if isinstance(responses, (list, tuple)) else []
+    if isinstance(selection, list):
+        return selection
+    if isinstance(selection, str):
+        return [selection]
+    return []
+
+
 class GameOver(Exception):
     """Raised once the game has been decided; unwinds the gameplay sequence."""
 
@@ -2191,13 +2212,13 @@ class GameSession:
                         return []
                     continue
                 picked: List[str] = []
-                responses = selection.get("targetResponses") or [] \
-                    if isinstance(selection, dict) else []
-                for response in responses:
+                for response in _selection_responses(selection):
                     if isinstance(response, dict):
                         picked.extend(
                             t for t in (response.get("entityList") or []) if t in valid
                         )
+                    elif isinstance(response, str) and response in valid:
+                        picked.append(response)
                 picked = picked[:count]
                 if len(picked) >= min_effective:
                     return picked
