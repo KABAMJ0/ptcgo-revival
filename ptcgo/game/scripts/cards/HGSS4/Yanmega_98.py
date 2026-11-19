@@ -18,6 +18,7 @@ def _hand_sizes_equal(board, pokemon, carrier) -> bool:
 def _hand_is_four(board, pokemon, carrier) -> bool:
     return _hand_count(board, carrier.owning_player_id) == 4
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="5f353973-462f-5be2-8f68-b906dd41051b",
     key="HGSS4",

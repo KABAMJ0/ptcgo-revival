@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate, snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus, snipe_attack
+
 
 card = PokemonCardDef(
     guid="74abad32-4b73-5f5f-b04e-0be535fc8ae8",

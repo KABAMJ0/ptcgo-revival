@@ -4,6 +4,7 @@ from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_targets
 
+from ptcgo.game.card_effects.support_common import heal_targets
 card = PokemonCardDef(
     guid="02c95fdc-384b-5d8e-8daa-1de594964e4f",
     key="ME2PT5",

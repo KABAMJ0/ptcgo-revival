@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_per_heads
 
+from ptcgo.game.card_effects.attacks_common import mill_per_heads
 card = PokemonCardDef(
     guid="e2588676-6eb2-58ac-b215-12f7cfdeaa93",
     key="ME3",

@@ -4,6 +4,7 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
 
 
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 card = PokemonCardDef(
     guid="a4944c7f-59db-5291-9d3e-03a28d659341",
     key="PL1",
