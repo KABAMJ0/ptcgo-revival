@@ -9670,3 +9670,31 @@ def heal_each_with_pokemon_in_play(amount: int, minimum: int = 6):
     return effect
 
 
+
+
+class FewerPrizeForKnockedOutPassive(Passive):
+    """Black Market Prism Star: a Darkness Pokemon with any Darkness Energy
+    attached that is Knocked Out by an opponent's attack gives that player 1
+    fewer Prize card. Evaluated before the stack moves, so the attached Energy
+    is still readable."""
+
+    def modify_prizes_for_knockout(self, pokemon, ctx, count, carrier):
+        if count <= 0:
+            return count
+        types = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+        if PokemonTypes.DARKNESS.value not in types:
+            return count
+        attacker = getattr(ctx, "attacker", None)
+        if attacker is None or attacker.owning_player_id == pokemon.owning_player_id:
+            return count
+        attached = ctx.board.attached_energies(pokemon)
+        has_darkness_energy = any(
+            PokemonTypes.DARKNESS.value in (energy.get_attribute(AttrID.POKEMON_TYPES) or [])
+            for energy in attached)
+        if not has_darkness_energy:
+            return count
+        return count - 1
+
+
+def fewer_prize_for_darkness_knockout() -> Passive:
+    return FewerPrizeForKnockedOutPassive()

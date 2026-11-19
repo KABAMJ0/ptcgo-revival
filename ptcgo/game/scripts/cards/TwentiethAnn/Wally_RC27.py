@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import evolve_from_deck_matching, is_pokemon_ex
 
 card = SupporterCardDef(
     guid="b5cb4fd0-47bb-5f4a-aa12-ab674497aecd",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=10027,
     set_code="TwentiethAnn",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=evolve_from_deck_matching(exclude=is_pokemon_ex)
 )
