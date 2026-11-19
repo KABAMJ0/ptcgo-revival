@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import flip_damage, spread_damage
 
 card = PokemonCardDef(
     guid="22ae1d68-7f10-5b36-bfe3-bc4bf61327d5",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each Benched Pok\u00e9mon (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1},
             damage=20,
-            effect=unimplemented,
+            effect=spread_damage(10, side="both", also_base=True),
         ),
         Attack(
             title="One-Two Strike",

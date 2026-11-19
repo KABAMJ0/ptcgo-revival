@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import takes_less_passive
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 30 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 2, PokemonTypes.COLORLESS: 1},
             damage=260,
-            effect=unimplemented,
+            effect=spread_damage(30, side="mine", also_base=True),
         ),
     ],
 )

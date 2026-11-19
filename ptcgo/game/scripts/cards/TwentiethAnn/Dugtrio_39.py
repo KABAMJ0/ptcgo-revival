@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, spread_damage
 
 card = PokemonCardDef(
     guid="617657f1-ea22-5ab2-8955-16f17079f7f5",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="This attack does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
             damage=60,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine", also_base=True),
         ),
         Attack(
             title="Rock Tumble",

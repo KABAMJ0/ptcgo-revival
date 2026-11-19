@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             title="Wide Laser",
             game_text="Does 10 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=damage_all_opponents(10),
         ),
     ],
 )

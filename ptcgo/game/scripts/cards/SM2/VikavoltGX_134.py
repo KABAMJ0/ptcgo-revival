@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack, spread_damage
 
 card = PokemonCardDef(
     guid="656b0d9a-70b8-5e2b-a96c-0d761c275319",
@@ -39,7 +39,7 @@ card = PokemonCardDef(
             title="Gigatron-GX",
             game_text="This attack does 60 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
-            effect=unimplemented,
+            effect=spread_damage(60, side="opponent"),
         ),
     ],
 )

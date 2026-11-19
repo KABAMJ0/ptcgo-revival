@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack, spread_damage
 
 card = PokemonCardDef(
     guid="026f26af-1a84-579f-a5ff-c5bd1a6eed46",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="This attack does 10 damage to each of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=spread_damage(10, side="mine", also_base=True),
         ),
     ],
 )

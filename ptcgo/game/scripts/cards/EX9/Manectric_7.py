@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, spread_damage
 
 card = PokemonCardDef(
     guid="5026824d-178f-582b-a845-ba50551f050c",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             game_text="Does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=spread_damage(10, side="opponent", also_base=True),
         ),
     ],
 )
