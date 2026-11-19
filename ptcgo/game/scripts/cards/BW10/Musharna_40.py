@@ -4,6 +4,13 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
 
+
+async def _precognitive_dream(ctx):
+    """Draw 3 cards, then this Pokemon is Asleep."""
+    await ctx.draw_cards(3)
+    await ctx.apply_special_condition(ctx.attacker, SpecialConditions.ASLEEP)
+
+
 card = PokemonCardDef(
     guid="311706f5-233e-532e-a60f-2dcdd8d2d5fc",
     key="BW10",
@@ -26,7 +33,7 @@ card = PokemonCardDef(
             title="Precognitive Dream",
             game_text="Draw 3 cards. This Pok\u00e9mon is now Asleep.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=condition_attack(SpecialConditions.CONFUSED),
+            effect=_precognitive_dream,
         ),
         Attack(
             title="Psybeam",
