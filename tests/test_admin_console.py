@@ -108,8 +108,9 @@ class AdminConsoleTests(unittest.TestCase):
                               password_hash=hash_password(ADMIN_PASS), is_admin=is_admin))
                 s.add(Wallet(account_id=account_id, coins=1000, gems=5, tickets=10))
             s.add(Collection(account_id=cls.p1, archetype_id=BLITZLE, tradable_count=3, nontradable_count=1))
-            s.add(Deck(id=str(uuid.uuid4()), account_id=cls.p1, name="Zap",
-                       deck_data={"piles": {"deck": [BLITZLE] * 4}}))
+            cls.deck_id = str(uuid.uuid4())
+            s.add(Deck(id=cls.deck_id, account_id=cls.p1, name="Zap",
+                       deck_data={"piles": {"deck": [BLITZLE] * 5 + ["00000000-0000-0000-0000-000000000000"]}}))
         status, _ = call("POST", "login", {"username": "root", "password": ADMIN_PASS})
         assert status == 200
         cls.token = next(t for t, s in admin_auth._sessions.items() if s["username"] == "root")
@@ -142,7 +143,8 @@ class AdminConsoleTests(unittest.TestCase):
                  "players/decks", "players/matches", "players/trades", "players/kick",
                  "trades/list", "trades/cancel", "trades/cancel-account", "trades/reopen",
                  "cards/bans/add", "cards/bans/remove", "cards/detail", "cards/overrides/save",
-                 "cards/overrides/delete", "cards/overrides/apply", "server/broadcast", "admin/password"]
+                 "cards/overrides/delete", "cards/overrides/apply", "server/broadcast", "admin/password",
+                 "players/deck", "cards/bodies"]
 
     def test_every_new_endpoint_refuses_without_a_session(self):
         for endpoint in self.NEW_GETS:
@@ -248,7 +250,7 @@ class AdminConsoleTests(unittest.TestCase):
         status, body = self.post("players/decks", {"account_id": self.p1})
         self.assertEqual(status, 200, body)
         deck = body["decks"][0]
-        self.assertEqual((deck["name"], deck["size"], deck["cards"][0]["count"]), ("Zap", 4, 4))
+        self.assertEqual((deck["name"], deck["size"], deck["cards"][0]["count"]), ("Zap", 6, 5))
         self.assertTrue(deck["formats"] and not any(f["valid"] for f in deck["formats"]))  # 4 cards
         activity.record("match_end", account="Ash", detail="beat Misty (prizes)", game_id="g1")
         status, body = self.post("players/matches", {"account_id": self.p1})
@@ -261,6 +263,79 @@ class AdminConsoleTests(unittest.TestCase):
         for endpoint in ("players/decks", "players/matches", "players/trades"):
             self.assertEqual(self.post(endpoint, {"account_id": "missing"})[0], 404, endpoint)
             self.assertEqual(self.post(endpoint, {})[0], 404, endpoint)
+
+    # ------------------------------------------------------- deck inspector
+
+    def test_inspect_deck_marks_each_card(self):
+        status, body = self.post("players/deck", {"account_id": self.p1, "deck_id": self.deck_id})
+        self.assertEqual(status, 200, body)
+        cards = {c["guid"].lower(): c for c in body["cards"]}
+        blitzle, unknown = cards[BLITZLE], cards["00000000-0000-0000-0000-000000000000"]
+        self.assertIn("MaxDuplicates", blitzle["problems"])
+        self.assertIn("UnownedCards", blitzle["problems"])
+        self.assertEqual((blitzle["count"], blitzle["owned"]), (5, 4))
+        self.assertTrue(blitzle["legality"]["Unlimited"])
+        self.assertFalse(unknown["known"])
+        self.assertIn("MustNotContain", unknown["problems"])
+        self.assertIn("ExactSize", {p["type"] for p in body["deck_problems"]})
+        self.post("cards/bans/add", {"guid": BLITZLE, "reason": "inspect"})
+        status, body = self.post("players/deck", {"account_id": self.p1, "deck_id": self.deck_id})
+        blitzle = next(c for c in body["cards"] if c["guid"].lower() == BLITZLE)
+        self.assertTrue(blitzle["banned"])
+        self.assertEqual(blitzle["problems"][0], "banned on this server")
+        self.assertFalse(any(blitzle["legality"].values()))
+        self.assertEqual(self.post("players/deck", {"account_id": self.p1, "deck_id": "nope"})[0], 404)
+        self.assertEqual(self.post("players/deck", {"account_id": self.p2, "deck_id": self.deck_id})[0], 404)
+        self.assertEqual(self.post("players/deck", {"account_id": self.p1})[0], 400)
+        self.assertEqual(self.post("players/deck", {"account_id": "x", "deck_id": self.deck_id})[0], 404)
+
+    # ----------------------------------------------------------- card bodies
+
+    def test_card_bodies_report_what_each_body_is(self):
+        from ptcgo.game.data_utils import unimplemented
+        status, body = self.post("cards/bodies", {"query": "Blitzle", "set": "BW1"})
+        self.assertEqual(status, 200, body)
+        rear_kick = next(b for c in body["cards"] if c["guid"].lower() == BLITZLE for b in c["bodies"])
+        self.assertEqual((rear_kick["slot"], rear_kick["status"]), ("Rear Kick", "vanilla"))
+        # every reported status agrees with the live object it describes
+        for status_name in ("stub", "pattern", "scripted"):
+            status, body = self.post("cards/bodies", {"query": "a", "status": status_name, "limit": 5})
+            self.assertEqual(status, 200, body)
+            self.assertTrue(body["cards"], status_name)
+            for card in body["cards"]:
+                definition = CARD_DEFS_BY_GUID[card["guid"].lower()]
+                live = {a.title: a for a in getattr(definition, "abilities", None) or []}
+                for b in card["bodies"]:
+                    if b["slot"] not in live:
+                        continue
+                    a = live[b["slot"]]
+                    if b["status"] == "stub":
+                        self.assertIs(a.effect, unimplemented)
+                    if b["status"] == "pattern":
+                        self.assertEqual(a.effect_source, "pattern:" + b["source"])
+                    if b["status"] == "scripted":
+                        self.assertIsNotNone(a.effect)
+                        self.assertIsNot(a.effect, unimplemented)
+        self.post("cards/overrides/save", {"guid": BLITZLE, "title": "Rear Kick", "spec": {"effect": None, "damage": 30}})
+        self.post("cards/overrides/apply", {"confirm": "APPLY"})
+        status, body = self.post("cards/detail", {"guid": BLITZLE})
+        self.assertEqual(body["abilities"][0]["body"], {"status": "admin", "source": "vanilla"})
+        for bad in ({}, {"query": "a", "status": "weird"}, {"query": "a", "limit": 0}, {"query": "a", "limit": "3"}):
+            self.assertEqual(self.post("cards/bodies", bad)[0], 400, bad)
+
+    def test_fonts_are_self_hosted(self):
+        page = admin_api.route_admin("GET", "/admin", None)[1].decode()
+        self.assertNotIn("googleapis", page)
+        self.assertNotIn("gstatic", page)
+        import re as _re
+        fonts = _re.findall(r"url\((/admin/fonts/[a-z0-9-]+\.woff2)\)", page)
+        self.assertEqual(len(fonts), 6)
+        for url in fonts:
+            status, payload, ctype = admin_api.route_admin("GET", url, None)[:3]
+            self.assertEqual((status, ctype), (200, "font/woff2"))
+            self.assertEqual(payload[:4], b"wOF2")
+        for bad in ("/admin/fonts/../admin_api.py", "/admin/fonts/OFL.txt", "/admin/fonts/x.woff2"):
+            self.assertEqual(admin_api.route_admin("GET", bad, None)[0], 404, bad)
 
     # ----------------------------------------------------------------- kick
 

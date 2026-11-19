@@ -36,7 +36,7 @@ MIN_PASSWORD = 12
 READ_ONLY_POSTS = {
     "login", "logout", "players/detail", "cards/search", "cards/lookup",
     "players/inventory", "players/decks", "players/matches", "players/trades",
-    "trades/list", "cards/detail",
+    "trades/list", "cards/detail", "cards/bodies", "players/deck",
 }
 
 
@@ -553,12 +553,14 @@ def card_detail(data):
         rows = {r.title: {"spec": r.spec_json, "enabled": r.enabled, "note": r.note,
                           "updated_by": r.updated_by, "updated_at": str(r.updated_at)}
                 for r in session.query(CardOverride).filter(func.lower(CardOverride.archetype_id) == guid)}
+    from ptcgo.game.data_utils import Attack
     abilities = []
     for ability in getattr(definition, "abilities", None) or []:
         entry = card_overrides.describe_attack(ability)
         entry["stored_override"] = rows.get(ability.title)
+        entry["body"] = body_of(ability, isinstance(ability, Attack))
         abilities.append(entry)
-    return _ok({"card": meta, "abilities": abilities,
+    return _ok({"card": meta, "abilities": abilities, "bodies": card_bodies(definition),
                 "trainer": not abilities,
                 "refusal": None if abilities else
                 "This card has no attacks. Trainer, Energy and Ability bodies cannot be overridden."})
@@ -726,6 +728,176 @@ def console_meta():
     })
 
 
+# -------------------------------------------------------------- card bodies
+
+def _callable_source(fn):
+    """'attacks_common.flip_damage' for a factory body, 'card script' for a local one."""
+    module = getattr(fn, "__module__", "") or ""
+    qual = (getattr(fn, "__qualname__", "") or type(fn).__name__).split(".<locals>")[0]
+    if module.startswith("card_script_"):
+        return f"card script: {qual}"
+    return f"{module.rsplit('.', 1)[-1]}.{qual}" if module else qual
+
+
+def body_of(entry, is_attack):
+    """{status, source} for one attack, ability or card-level hook.
+
+    status: stub (the unimplemented marker; an attack still deals printed damage),
+    pattern (bound from the printed wording at load), admin (an override),
+    scripted (a hand-written or factory body), vanilla (an attack with no
+    effect beyond damage), passive / trigger (continuous or event bodies), none.
+    """
+    from ptcgo.game.data_utils import unimplemented
+    effect = getattr(entry, "effect", None)
+    source = str(getattr(entry, "effect_source", "") or "")
+    passive = getattr(entry, "passive", None)
+    if effect is unimplemented:
+        return {"status": "stub", "source": "unimplemented"}
+    if source.startswith("admin:"):
+        return {"status": "admin", "source": source[6:]}
+    if source.startswith("pattern:"):
+        return {"status": "pattern", "source": source[8:]}
+    if effect is not None:
+        trigger = getattr(entry, "trigger", None)
+        return {"status": "scripted", "source": _callable_source(effect)
+                + (f" (on {trigger})" if trigger else "")}
+    if passive is not None:
+        return {"status": "passive", "source": type(passive).__name__ if type(passive).__name__ != "Passive"
+                else "Passive"}
+    if is_attack:
+        return {"status": "vanilla", "source": "printed damage only"}
+    return {"status": "none", "source": "no body"}
+
+
+def card_bodies(definition):
+    """Every body a card carries, labelled by where it lives on the card."""
+    from ptcgo.game.data_utils import Attack, TrainerCardDef, EnergyCardDef
+    out = []
+    for ability in getattr(definition, "abilities", None) or []:
+        is_attack = isinstance(ability, Attack)
+        out.append({"slot": ability.title, "kind": "attack" if is_attack else "ability",
+                    "text": ability.game_text, **body_of(ability, is_attack)})
+    if isinstance(definition, TrainerCardDef):
+        out.append({"slot": "Trainer effect", "kind": "trainer", "text": "", **body_of(definition, False)})
+        stadium = getattr(definition, "ability", None)
+        if stadium is not None:
+            out.append({"slot": stadium.title, "kind": "stadium", "text": stadium.game_text,
+                        **body_of(stadium, False)})
+    if isinstance(definition, EnergyCardDef):
+        hooks = [n for n in ("on_attach", "attach_cost", "passive") if getattr(definition, n, None) is not None]
+        out.append({"slot": "Energy hooks", "kind": "energy", "text": "",
+                    "status": "scripted" if hooks else "none",
+                    "source": ", ".join(hooks) if hooks else "provides energy only"})
+    elif getattr(definition, "passive", None) is not None and not isinstance(definition, TrainerCardDef):
+        out.append({"slot": "Card passive", "kind": "passive", "text": "",
+                    "status": "passive", "source": type(definition.passive).__name__})
+    for granted in getattr(definition, "granted_abilities", None) or []:
+        out.append({"slot": granted.title, "kind": "granted ability", "text": granted.game_text,
+                    **body_of(granted, False)})
+    return out
+
+
+BODY_STATUSES = ("stub", "scripted", "pattern", "admin", "vanilla", "passive", "none")
+
+
+def card_bodies_search(data):
+    from ptcgo.game.content.definitions import CARD_DEFS_BY_GUID
+    query = str(data.get("query") or "").strip().lower()
+    set_filter = str(data.get("set") or "").strip().upper()
+    status = data.get("status") or "all"
+    if status != "all" and status not in BODY_STATUSES:
+        return _err(400, "status must be all or one of " + ", ".join(BODY_STATUSES))
+    if not query and not set_filter:
+        return _err(400, "give a query or a set code")
+    try:
+        limit = _int(data.get("limit", 60), "limit", 1, 300)
+    except ValueError as exc:
+        return _err(400, str(exc))
+    _card_index()
+    results, scanned = [], 0
+    for card in card_loader.cards:
+        if set_filter and card.key.upper() != set_filter:
+            continue
+        if query and query not in f"{card.display_name or ''} {card.guid} {card.key}".lower():
+            continue
+        definition = CARD_DEFS_BY_GUID.get(card.guid.lower())
+        if definition is None:
+            continue
+        scanned += 1
+        bodies = card_bodies(definition)
+        if status != "all" and not any(b["status"] == status for b in bodies):
+            continue
+        counts = {}
+        for b in bodies:
+            counts[b["status"]] = counts.get(b["status"], 0) + 1
+        results.append({**item_meta(card.guid), "bodies": bodies, "counts": counts})
+        if len(results) >= limit:
+            break
+    return _ok({"cards": results, "matched": scanned, "truncated": len(results) >= limit})
+
+
+# ------------------------------------------------------------ deck inspector
+
+def inspect_deck(data):
+    from ptcgo.game.decks.validation import DeckValidator, card_display_name
+    from ptcgo.game.decks.formats import FormatManager
+    from ptcgo.database.player_data import get_owned_counts
+    deck_id = data.get("deck_id")
+    if not isinstance(deck_id, str) or not deck_id:
+        return _err(400, "deck_id required")
+    with db_session() as session:
+        account = _account(session, data.get("account_id"))
+        if account is None:
+            return _err(404, "account not found")
+        deck = session.query(Deck).filter_by(account_id=account.account_id, id=deck_id).first()
+        if deck is None:
+            return _err(404, "that player has no deck with that id")
+        deck_data, name, account_id = deck.deck_data or {}, deck.name, account.account_id
+    owned = get_owned_counts(account_id)
+    manager = FormatManager()
+    validator = DeckValidator({**deck_data, "deckID": deck_id}, owned_counts=owned)
+    formats = manager.play_format_guids()
+    rows = validator.validate(formats)
+    deck_problems, card_problems = [], {}
+    seen_base = set()
+    for row in rows:
+        for detail in row["results"]:
+            kind = detail["failureType"]
+            text = (detail.get("explanation") or {}).get("id", "")
+            per_format = kind == "DeckContainsBannedCards" or (kind == "BoolRestriction" and row["format"])
+            for guid in detail["offendingArchetypeIDs"]:
+                card_problems.setdefault(guid, set()).add(
+                    "not legal in " + row["formatName"] if kind == "DeckContainsBannedCards" else kind)
+            if not per_format and kind not in seen_base:
+                seen_base.add(kind)
+                deck_problems.append({"type": kind, "text": text})
+    counts = {}
+    for g in validator.guids:
+        counts[g] = counts.get(g, 0) + 1
+    by_guid = {c.guid.lower(): c for c in validator.cards}
+    format_names = [manager.format_name(f) for f in formats]
+    cards = []
+    for guid, n in counts.items():
+        card = by_guid.get(guid)
+        legality = {}
+        if card is not None:
+            for f in formats:
+                legality[manager.format_name(f)] = manager.is_card_legal(f, card)
+        problems = sorted(card_problems.get(guid, ()))
+        banned = card_bans.is_banned(guid)
+        if banned:
+            problems.insert(0, "banned on this server")
+        cards.append({**item_meta(guid), "count": n, "owned": owned.get(guid),
+                      "legality": legality, "problems": problems, "banned": banned,
+                      "known": card is not None,
+                      "copy_name": card_display_name(card) if card is not None else None})
+    cards.sort(key=lambda c: (not c["problems"], c["name"]))
+    return _ok({"deck": {"id": deck_id, "name": name, "size": len(validator.guids)},
+                "formats": [{"format": r["formatName"], "valid": r["valid"],
+                             "problems": sorted({d["failureType"] for d in r["results"]})} for r in rows],
+                "format_names": format_names, "deck_problems": deck_problems, "cards": cards})
+
+
 # --------------------------------------------------------------- dispatch
 
 def dispatch(method, endpoint, data, query_string, token):
@@ -750,6 +922,8 @@ def dispatch(method, endpoint, data, query_string, token):
         "players/matches": player_matches,
         "players/trades": player_trades,
         "players/kick": kick_player,
+        "players/deck": inspect_deck,
+        "cards/bodies": card_bodies_search,
         "trades/list": trades_list,
         "trades/cancel": trade_cancel,
         "trades/cancel-account": trade_cancel_account,
