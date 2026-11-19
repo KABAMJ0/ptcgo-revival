@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
 
 card = PokemonCardDef(
     guid="745115a8-a24a-5f56-9347-8749d2516a90",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Basic non-Colorless Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.WATER: 1, PokemonTypes.LIGHTNING: 1},
             damage=180,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_basic(include_colorless=False)),
         ),
     ],
 )

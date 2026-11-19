@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 
 card = PokemonCardDef(
     guid="15a6d791-f685-5bc4-ab83-d2586074a752",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't use attacks.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 1},
             damage=90,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
     ],
 )

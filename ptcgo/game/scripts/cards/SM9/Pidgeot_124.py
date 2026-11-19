@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def _opponent_switches_after_damage(ctx):
+    """Printed damage, then the opponent picks their new Active."""
+    await ctx.deal_damage()
+    await opponent_switches(ctx)
+
 
 card = PokemonCardDef(
     guid="25923ee3-c52d-5fee-a30e-17116cbe11c4",
@@ -25,7 +33,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=_opponent_switches_after_damage,
         ),
         Attack(
             title="Spin Storm",
