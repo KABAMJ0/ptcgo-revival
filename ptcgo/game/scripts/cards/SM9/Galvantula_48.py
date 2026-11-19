@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import trainer_effect_shield_passive
 from ptcgo.game.card_effects.support_common import recover_from_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Unnerve",
             game_text="Whenever your opponent plays an Item or Supporter card from their hand, prevent all effects of that card done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=trainer_effect_shield_passive(supporters_only=False),
         ),
         Attack(
             title="Spider Thread",
