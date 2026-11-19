@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import damage_half_remaining_hp
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 card = PokemonCardDef(
     guid="789321b0-22b1-5cbf-9220-4e497c00a387",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Super Fang",
             game_text="Does damage to the Defending Pok\u00e9mon equal to half the Defending Pok\u00e9mon's remaining HP (rounded up to the nearest 10).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_half_remaining_hp(),
         ),
     ],
 )

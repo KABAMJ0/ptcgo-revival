@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self, damage_counters_on, count_retreat_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 card = PokemonCardDef(
     guid="03206966-be57-51e2-b229-a5130ecf4455",
@@ -34,7 +35,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 3},
             damage=200,
             damage_operator="-",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=30, count_fn=count_retreat_cost("defender")),
         ),
     ],
 )

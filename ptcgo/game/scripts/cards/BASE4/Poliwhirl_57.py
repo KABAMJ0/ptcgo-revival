@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, lock_chosen_defender_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import flip_damage, choose_attack_lock
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Amnesia",
             game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.WATER: 2},
-            effect=lock_chosen_defender_attack(),
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Doubleslap",

@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
+from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack, choose_attack_lock
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import lock_chosen_defender_attack
 
 card = PokemonCardDef(
     guid="6b9c1692-fd74-5571-913e-4933f14febc0",
@@ -31,7 +30,7 @@ card = PokemonCardDef(
             game_text="Choose 1 of the Defending Pok\u00e9mon's attacks. That Pok\u00e9mon can't use that attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=lock_chosen_defender_attack(),
+            effect=choose_attack_lock(),
         ),
         Attack(
             title="Lazy Headbutt",
