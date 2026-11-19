@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import retaliate_counters_passive
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Rough Skin",
             game_text="If Carvanha is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if Carvanha is Knocked Out), put 1 damage counter on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=retaliate_counters_passive(1),
         ),
         Attack(
             title="Big Bite",

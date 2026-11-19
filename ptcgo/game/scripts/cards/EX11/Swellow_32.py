@@ -1,5 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate
+from ptcgo.game.card_effects.passives_common import boost_own_next_turn, protect_next_turn
+
+# "If tails, during your next turn, Swellow's Glide attack's base damage is
+# 100." Glide prints 40 and the turn modifier is additive, so the rider pays
+# the delta the two printed numbers name.
+_GLIDE_BASE_BOOST = 100 - 40
+
 
 card = PokemonCardDef(
     guid="7558e887-1477-5517-b0e9-6dd097cc68d4",
@@ -24,7 +32,10 @@ card = PokemonCardDef(
             title="Steep Dive",
             game_text="Flip a coin. If heads, prevent all effects of an attack, including damage, done to Swellow during your opponent's next turn. If tails, during your next turn, Swellow's Glide attack's base damage is 100.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(
+                protect_next_turn(prevent=True, effects_too=True),
+                tails=boost_own_next_turn(_GLIDE_BASE_BOOST, attack_title="Glide"),
+            ),
         ),
         Attack(
             title="Glide",

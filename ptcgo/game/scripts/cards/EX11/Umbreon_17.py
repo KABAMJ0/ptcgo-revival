@@ -1,6 +1,21 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.effects import is_special_energy
+
+
+async def _delta_moon(ctx):
+    """When the opponent attaches a Special Energy from hand, 1 damage counter
+    on the Pokemon that received it."""
+    receiver = ctx.energy_receiver
+    energy = ctx.attached_energy
+    if ctx.attaching_player_id != ctx.opponent_id or receiver is None:
+        return
+    if energy is None or not is_special_energy(energy):
+        return
+    await ctx.deal_damage(10, target=receiver, apply_modifiers=False,
+                          as_counters=True)
+
 
 card = PokemonCardDef(
     guid="84c3dfc3-4627-54ce-8df0-27976b5a9f2b",
@@ -24,7 +39,9 @@ card = PokemonCardDef(
         Ability(
             title="Delta Moon",
             game_text="When your opponent attaches a Special Energy card from his or her hand to 1 of his or her Pok\u00e9mon, put 1 damage counter on that Pok\u00e9mon. You can't use more than 1 Delta Moon Pok\u00e9-Body each turn.",
-            effect=unimplemented,
+            trigger=Triggers.ON_ENERGY_ATTACHED,
+            shared_once_per_turn="Delta Moon",
+            effect=_delta_moon,
         ),
         Attack(
             title="Feint Attack",

@@ -1,5 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import look_top_attach_energy
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.passives_common import unafflicted
 
 card = PokemonCardDef(
     guid="a3e91ad8-e151-5235-8c74-ea10cdc5fa20",
@@ -22,7 +25,10 @@ card = PokemonCardDef(
         Ability(
             title="Crush Draw",
             game_text="Once during your turn (before your attack), you may reveal the top card of your deck. If that card is a basic Energy card, attach it to 1 of your Pok\u00e9mon. If not, put the card back on top of your deck. This power can't be used if Tyranitar is affected by a Special Condition.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=unafflicted,
+            effect=look_top_attach_energy(1, predicate=is_basic_energy_card,
+                                          rest="back"),
         ),
         Attack(
             title="Delta Crush",

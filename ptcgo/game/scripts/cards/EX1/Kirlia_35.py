@@ -1,5 +1,20 @@
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def life_drain(ctx):
+    """Heads: put damage counters on the Defending Pokemon until it is 10 HP away
+    from being Knocked Out."""
+    results = await ctx.flip_coins(1, "Life Drain")
+    if not (results and results[0]):
+        return
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    remaining = defender.get_attribute(AttrID.HP, 0)
+    if remaining <= 10:
+        return
+    await ctx.deal_damage(remaining - 10, apply_modifiers=False, as_counters=True)
 
 card = PokemonCardDef(
     guid="a8d1be09-1a17-533e-80e0-8a99d0131922",
@@ -29,7 +44,7 @@ card = PokemonCardDef(
             title="Life Drain",
             game_text="Flip a coin. If heads, put damage counters on the Defending Pok\u00e9mon until it is 10 HP away from being Knocked Out.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=unimplemented,
+            effect=life_drain,
         ),
     ],
 )

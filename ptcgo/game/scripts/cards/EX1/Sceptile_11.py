@@ -1,5 +1,18 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
+async def lizard_poison(ctx):
+    """Asleep with 1 Energy attached, Poisoned with 2, Confused with 3."""
+    energy = count_energy("self")(ctx)
+    await ctx.deal_damage()
+    if energy >= 3:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.CONFUSED)
+    elif energy == 2:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.POISONED)
+    elif energy == 1:
+        await ctx.apply_special_condition(ctx.defender, SpecialConditions.ASLEEP)
 
 card = PokemonCardDef(
     guid="b7a7f4d8-9fab-51ce-9ee5-3db836cc9497",
@@ -25,7 +38,7 @@ card = PokemonCardDef(
             game_text="If 1 Energy is attached to Sceptile, the Defending Pok\u00e9mon is now Asleep. If 2 Energy is attached to Sceptile, the Defending Pok\u00e9mon is now Poisoned. If 3 Energy is attached to Sceptile, the Defending Pok\u00e9mon is now Asleep and Poisoned. If 4 or more Energy is attached to Sceptile, the Defending Pok\u00e9mon is now Asleep, Burned, and Poisoned.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=lizard_poison,
         ),
         Attack(
             title="Solarbeam",
