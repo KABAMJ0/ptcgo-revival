@@ -1,5 +1,27 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.data_utils import SupporterCardDef
+from ptcgo.game.attributes import AttrID, PokemonTypes, Rarities
+from ptcgo.game.card_effects.trainers import is_energy_card
+from ptcgo.game.card_effects.support_common import distribute_energy
+
+
+def _is_fighting_pokemon(pokemon):
+    types = pokemon.get_attribute(AttrID.POKEMON_TYPES) or []
+    return PokemonTypes.FIGHTING.value in types
+
+
+async def bea(ctx):
+    """Discard the top 5 of your deck; attach any Energy discarded this way
+    to your Benched Fighting Pokemon in any way you like."""
+    cards = ctx.deck_top(5)
+    await ctx.discard_cards(cards)
+    energies = [c for c in cards if is_energy_card(c)]
+    if not energies:
+        return
+    candidates = [p for p in ctx.my_bench() if _is_fighting_pokemon(p)]
+    if not candidates:
+        return
+    await distribute_energy(ctx, energies, candidates)
+
 
 card = SupporterCardDef(
     guid="5708e4c7-0a14-533b-9c7c-e07541852ac2",
@@ -11,5 +33,5 @@ card = SupporterCardDef(
     collector_number=25,
     set_code="SWSH10TG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=bea
 )

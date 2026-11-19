@@ -1,5 +1,26 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.session.effects import is_trainer_card
+from ptcgo.game.card_effects.support_common import requires_discard
+
+
+async def _sordward_shielbert(ctx):
+    discard = [c for c in ctx.discard_pile() if is_trainer_card(c)]
+    if not discard:
+        return
+    picks = await ctx.choose_cards(
+        discard, 1, minimum=1, prompt="Choose a Trainer card from your discard pile.",
+    )
+    if not picks:
+        return
+    if await ctx.ask_yes_no(
+        "Your opponent chose a Trainer card from their discard pile. May they put it into their hand?",
+        player_id=ctx.opponent_id,
+    ):
+        await ctx.put_in_hand(picks, reveal=False)
+    else:
+        await ctx.draw_cards(3)
+
 
 card = SupporterCardDef(
     guid="30973f6e-87d4-5bf4-8cc9-a10586e74b6e",
@@ -11,5 +32,6 @@ card = SupporterCardDef(
     collector_number=28,
     set_code="SWSH12TG",
     rarity=Rarities.RareUltra,
-    effect=unimplemented
+    effect=_sordward_shielbert,
+    condition=requires_discard(is_trainer_card),
 )
