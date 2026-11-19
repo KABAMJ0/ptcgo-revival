@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack, damage_counters_on, damage_per
 
 card = PokemonCardDef(
     guid="46ec25f4-93b4-52ed-8c43-94b913f19c13",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Bolt Strike",

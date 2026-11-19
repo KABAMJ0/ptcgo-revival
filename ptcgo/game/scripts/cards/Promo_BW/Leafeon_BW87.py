@@ -1,3 +1,6 @@
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -34,7 +37,7 @@ card = PokemonCardDef(
             game_text="Attach a basic Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target=lambda p: not is_in_active_spot(p)),
         ),
     ],
 )

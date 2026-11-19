@@ -1,6 +1,8 @@
+from ptcgo.game.card_effects.support_common import bare_mill
+from ptcgo.game.card_effects.passives_common import composed
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, flip_gate
 
 card = PokemonCardDef(
     guid="c9019459-8be3-5101-9d5d-d19462f63199",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Mix-Up",
             game_text="Flip a coin. If heads, discard the top 3 cards of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(bare_mill(3))),
         ),
         Attack(
             title="Tantrum",

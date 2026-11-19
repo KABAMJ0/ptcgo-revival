@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, Pachirisu does 10 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(tails_self_damage=10),
         ),
     ],
 )

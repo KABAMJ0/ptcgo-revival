@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import snipe_attack, flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="580b4c35-d908-5000-9e95-eac8e390bfd5",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 3},
             damage=90,
-            effect=unimplemented,
+            effect=flip_discard_opponent_energy(damage=90),
         ),
     ],
 )

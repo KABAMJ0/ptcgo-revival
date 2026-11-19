@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
@@ -39,7 +40,7 @@ card = PokemonCardDef(
             title="Maelstrom-GX",
             game_text="This attack does 40 damage to each of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.) (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.WATER: 1},
-            effect=unimplemented,
+            effect=damage_all_opponents(40),
         ),
     ],
 )

@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, bonus_if, hand_sizes_equal
 
 card = PokemonCardDef(
     guid="8b884263-7c4f-5b80-83ee-745f9e4bd23f",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(hand_sizes_equal, 90),
         ),
         Attack(
             title="Den of Iniquity-GX",

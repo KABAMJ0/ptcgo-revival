@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import remove_self_from_play
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Scamper Away",
             game_text="Shuffle this Pok\u00e9mon and all cards attached to it into your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=remove_self_from_play("deck"),
         ),
         Attack(
             title="Ram",

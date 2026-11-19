@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import flip_gate, self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, discard a Fire Energy card attached to Torchic.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=flip_gate(then=self_energy_discard_attack(count=1, energy_type=PokemonTypes.FIRE), tails=True),
         ),
     ],
 )
