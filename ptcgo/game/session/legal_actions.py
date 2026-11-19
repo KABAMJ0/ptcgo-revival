@@ -46,6 +46,7 @@ from .passives import (
     evolution_blocked,
     retreat_blocked,
     tool_slots_free,
+    attacks_blocked,
     plays_blocked,
     trainer_play_blocked,
 )
@@ -351,6 +352,10 @@ class TurnState:
                 if tp.expires_after_turn is None
                 or tp.expires_after_turn >= self.turn_number
             ]
+            # Goop Gas Attack: "until the end of your opponent's next turn".
+            if getattr(board, "poke_power_lock_through", 0) \
+                    and board.poke_power_lock_through < self.turn_number:
+                board.poke_power_lock_through = 0
 
     def mark_moved_to_active(self, entity_id: str) -> None:
         """Stamps the Active-spot arrival (once-this-turn triggers read
@@ -936,6 +941,10 @@ def _stadium_ability_entries(
         ability = getattr(definition, "ability", None)
         if ability is None or ability.effect is None or not ability.ability_id:
             continue
+        # A triggered ability in this slot (Cursed Stone's checkup) fires on
+        # its own trigger; it is not a clickable once-per-turn action.
+        if getattr(ability, "trigger", None) is not None:
+            continue
         # "As often as he or she likes" (Ultimate Zone) is an UNLIMITED
         # stadium ability: it is never spent, so the per-turn key never fills.
         if ability.activation != Activations.UNLIMITED \
@@ -1040,6 +1049,8 @@ def _attack_entries(
         )
         return []
 
+    if attacks_blocked(board, active):
+        return []  # Blizzard Town: 40 HP or less remaining can't attack
     energies = board.attached_energies(active)
     entries = []
     for ability in abilities:

@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import stop_poke_powers
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=78,
     set_code="BASE5",
     rarity=Rarities.Common,
-    effect=unimplemented
+    effect=stop_poke_powers()
 )

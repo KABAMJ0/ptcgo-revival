@@ -66,11 +66,15 @@ from .passives import (
     effective_bench_capacity,
     effective_max_hp,
     effective_pokemon_types,
+    discard_to_hand_blocked,
+    energy_discard_destination,
     energy_removal_blocked,
+    fire_active_switched,
     healing_blocked,
     modified_heal_amount,
     supporter_effect_replacement,
     trainer_effects_blocked,
+    trainer_play_flips,
 )
 
 # CakeAttackEffect's damageType is a string array of client type names.
@@ -659,6 +663,46 @@ class EffectContext:
         )
         return True
 
+    async def clear_attack_effects(self, player_id: Optional[str] = None) -> int:
+        """Removes the effects attacks have left on a player's side (Channeler):
+        every Special Condition, the attack-granted passives, and the attack
+        and player attack locks. Returns how many carriers were cleared.
+
+        Provenance is what makes this safe: only passives stamped
+        `from_attack` are removed, so a shield or bonus a Trainer or Ability
+        granted survives, as the card's wording requires."""
+        pid = player_id or self.player_id
+        state = self.session.turn_state
+        cleared = 0
+        for pokemon in self.board.pokemon_in_play(pid):
+            if await self.cure_all_conditions(pokemon):
+                cleared += 1
+        keep = []
+        for temp in self.board.temporary_passives:
+            if temp.from_attack and temp.carrier_entity_id in {
+                    p.entity_id for p in self.board.pokemon_in_play(pid)}:
+                cleared += 1
+                continue
+            keep.append(temp)
+        self.board.temporary_passives = keep
+        ids = {p.entity_id for p in self.board.pokemon_in_play(pid)}
+        kept = []
+        for modifier in state.target_damage_modifiers:
+            on_my_side = (modifier.target_entity_id in ids
+                          or (modifier.target_entity_id is None
+                              and modifier.owner_player_id == pid))
+            if modifier.from_attack and on_my_side:
+                cleared += 1
+                continue
+            kept.append(modifier)
+        state.target_damage_modifiers = kept
+        for key in [k for k in state.attack_locks if k[0] in ids]:
+            state.attack_locks.pop(key, None)
+            cleared += 1
+        if state.player_attack_locks.pop(pid, None) is not None:
+            cleared += 1
+        return cleared
+
     async def cure_all_conditions(self, target: Optional[PokemonEntity]) -> bool:
         """Removes every Special Condition from `target` ("...it recovers from
         all Special Conditions"); returns True if any were removed."""
@@ -716,7 +760,8 @@ class EffectContext:
         """Attaches an effect-granted passive to `target` (expires_after_turn
         None = until it leaves the Active spot / play)."""
         self.board.temporary_passives.append(
-            TempPassive(passive, target.entity_id, expires_after_turn)
+            TempPassive(passive, target.entity_id, expires_after_turn,
+                        from_attack=self.is_attack_effect())
         )
 
     def add_passive_through_opponents_turn(self, target, passive) -> None:
@@ -789,6 +834,7 @@ class EffectContext:
             owner_player_id=owner_player_id,
             attacks_only=attacks_only,
             source_entity_id=getattr(self.source, "entity_id", None),
+            from_attack=self.is_attack_effect(),
         ))
 
     def schedule_turn_effect(self, boundary, effect: Callable, *,
@@ -826,6 +872,14 @@ class EffectContext:
             source=self.source,
             source_entity_id=getattr(self.source, "entity_id", None),
             require_source_in_play=require_source_in_play,
+        )
+
+    def lock_poke_powers(self, through_turn: Optional[int] = None) -> None:
+        """"All Pokemon Powers stop working until the end of your opponent's
+        next turn" (Goop Gas Attack); `ability_locked` reads the flag."""
+        self.board.poke_power_lock_through = (
+            self.session.turn_state.turn_number + 1 if through_turn is None
+            else through_turn
         )
 
     def lock_retreat(self, target: PokemonEntity,
@@ -1802,6 +1856,10 @@ class EffectContext:
                 continue
             if self._energy_removal_blocked(card):
                 continue
+            # Pokemon Tower: a card already in a discard pile stays there when
+            # an effect would return it to hand.
+            if discard_to_hand_blocked(self.board, card):
+                continue
             if isinstance(card, CompositePokemonEntity):
                 departed.update(self._queue_composite_departure(card, hand, cards))
                 continue
@@ -1971,11 +2029,22 @@ class EffectContext:
         await self._move_to_public_pile(cards, "lostZone")
 
     async def _move_to_public_pile(self, cards: List[CardEntity], area_name: str):
+        requested = area_name
         departed = set()
         for card in cards:
             if card.entity_id in departed:
                 continue
             owner = card.owning_player_id or self.player_id
+            area_name = requested
+            # Ecogym: an Energy discarded from a Pokemon returns to its owner's
+            # hand instead of the discard pile. This is the single choke point
+            # every discard path runs through, so a script that discards an
+            # attached Energy directly gets the same redirect as the verbs.
+            if requested == "discard" and isinstance(card, EnergyEntity) \
+                    and isinstance(getattr(card, "parent", None), PokemonEntity) \
+                    and energy_discard_destination(
+                        self.board, card, card.parent, self.player_id) == "hand":
+                area_name = "hand"
             pile = self.board.find_player_area(owner, area_name)
             if not pile:
                 continue
@@ -2033,11 +2102,16 @@ class EffectContext:
                 self.deferred_actions.append(_fire_hand_discard)
 
     async def look_at_prizes_take_basic(self) -> bool:
-        """Hisuian Heavy Ball: look at your face-down Prizes; you may reveal a
-        Basic Pokemon to your hand and put the source card in its place as a
+        """Hisuian Heavy Ball: reveal a Basic Pokemon from your face-down
+        Prizes into your hand, the source card taking its place."""
+        return await self.look_at_prizes_take(is_basic_pokemon)
+
+    async def look_at_prizes_take(self, predicate=None) -> bool:
+        """Look at your face-down Prizes; you may reveal one matching
+        `predicate` to your hand and put the source card in its place as a
         face-down Prize. Always shuffles the Prizes (re-hiding them).
 
-        Returns True when a Basic was taken (the source now sits in the Prize
+        Returns True when a card was taken (the source now sits in the Prize
         pile, so the caller must NOT discard it); False when declined.
 
         Sends immediately (not via the deferred bracket runs) so the reveal,
@@ -2048,10 +2122,11 @@ class EffectContext:
         if not prize_area or not prize_area.children:
             return False
         prizes = list(prize_area.children)
-        basics = [c for c in prizes if is_basic_pokemon(c, self.board)]
+        eligible = [c for c in prizes
+                    if predicate is None or predicate(c, self.board)]
         picked_id = await session.prompt_prize_reveal_pick(
             self.player_id, self.source.entity_id,
-            [c.entity_id for c in prizes], [c.entity_id for c in basics],
+            [c.entity_id for c in prizes], [c.entity_id for c in eligible],
         )
         picked = self.board.get_entity(picked_id) if picked_id else None
         opponent = self.opponent_id
@@ -2062,7 +2137,7 @@ class EffectContext:
             if slot is None:
                 slot = prizes.index(picked)
             hand = self.board.find_player_area(self.player_id, "hand")
-            # Take the Basic to hand via WithOpenPrizeCards: once a Prize is
+            # Take the card to hand via WithOpenPrizeCards: once a Prize is
             # picked, r.B's own cleanup skips the fan teardown and defers to
             # this bracket, which cancels the explore command, flips+flies the
             # taken card to hand and CLOSES the present (blackout off,
@@ -2543,6 +2618,7 @@ class EffectContext:
         # All effects (Special Conditions, attack locks) end when a Pokemon
         # leaves the Active spot; the state-clearing lives in one shared helper.
         had_conditions = bool(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS))
+        had_conditions_list = list(old_active.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
         self.session.clear_pokemon_effects(old_active)
         if had_conditions:
             self._queue(
@@ -2581,6 +2657,12 @@ class EffectContext:
             self.session._entity_moved_msg(old_active.entity_id, bench_area.entity_id, slot),
             bracket=bracket,
         )
+        # Dust Island: a Stadium watches the swap itself ("whenever either
+        # player switches their Poisoned Active Pokemon ... with the effect of
+        # a Trainer card"), so the cause travels with the swap.
+        await fire_active_switched(board, self, player_id, old_active,
+                                   new_active, had_conditions_list,
+                                   self.is_trainer_effect)
         # Spikemuth: an Active moving to its owner's Bench during THEIR turn
         # takes counters (a gust during the opponent's turn does not).
         if player_id == self.session.turn_state.active_player_id:
@@ -3166,6 +3248,19 @@ async def resolve_trainer_effect(session, player_id: str, card,
             ctx.is_trainer_effect = True
             await replacement(ctx)
             return ctx
+    # Chaos Gym: "whenever a player plays a Trainer card other than a Stadium,
+    # that player flips a coin. If tails, that card does nothing."
+    if trainer_play_flips(session.board_state, card, player_id):
+        flip_ctx = EffectContext(session, player_id, card, None)
+        results = await flip_ctx.flip_coins(1)
+        if not (results and results[0]):
+            await session._flush_effect_runs(flip_ctx)
+            logging.info(
+                f"[Effects {session.game_id}] {card.entity_id} did nothing: "
+                f"Chaos Gym flip was tails."
+            )
+            return None
+        await session._flush_effect_runs(flip_ctx)
     effect = TRAINER_EFFECTS_BY_GUID.get((card.archetype_id or "").lower())
     if effect is None or effect is unimplemented:
         logging.warning(

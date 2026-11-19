@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.card_effects.trainers import blaines_quiz
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
 
 card = ItemCardDef(
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=97,
     set_code="GYM1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    effect=blaines_quiz("length", draw=2)
 )

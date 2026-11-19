@@ -135,8 +135,9 @@ from .passives import (
     carrier_pokemon,
     stadium_face,
     effective_bench_capacity, effective_max_hp,
-    effective_retreat_cost, energy_attach_taxer, evolve_heal_amount,
-    poison_checkup_counters,
+    conditions_kept_on_evolve, effective_retreat_cost, energy_attach_taxer,
+    retreat_flips,
+    evolve_heal_amount, poison_checkup_counters,
     granted_extra_attacks, retreat_energy_destination, tool_slots_free,
     tool_suppressed,
 )
@@ -1463,13 +1464,19 @@ class GameSession:
         self.poison_counters.pop(entity_id, None)
         self.paralyzed_since.pop(entity_id, None)
 
-    def clear_pokemon_effects(self, pokemon) -> bool:
+    def clear_pokemon_effects(self, pokemon, on_evolve: bool = False) -> bool:
         """Wipes every effect that ends when a Pokemon leaves the Active spot
         or play entirely: Special Conditions (attr + bookkeeping), attack and
         retreat locks, temporary passives, and entity-keyed history stamps.
-        Returns True iff it had any Special Conditions."""
-        had_conditions = bool(pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS))
-        pokemon.set_attribute(AttrID.SPECIAL_CONDITIONS, [])
+        Returns True iff it had any Special Conditions.
+
+        `on_evolve` keeps the conditions a passive holds through evolution
+        (Sea of Nothingness, Dizzying Valley)."""
+        current = list(pokemon.get_attribute(AttrID.SPECIAL_CONDITIONS) or [])
+        kept = (conditions_kept_on_evolve(self.board_state, pokemon, current)
+                if on_evolve else [])
+        had_conditions = bool(current)
+        pokemon.set_attribute(AttrID.SPECIAL_CONDITIONS, kept)
         self.clear_condition_state(pokemon.entity_id)
         entity_id = pokemon.entity_id
         state = self.turn_state
@@ -5037,7 +5044,8 @@ class GameSession:
         )
 
         # needs live client verification: condition marker clears on evolve
-        if self.clear_pokemon_effects(target):
+        # (unless a Stadium keeps it, Sea of Nothingness).
+        if self.clear_pokemon_effects(target, on_evolve=True):
             await self.send_game_sequence(
                 list(self.players.values()), GameSequence.REMOVE_SPECIAL_CONDITION,
                 [self._entity_id_data_effect_msg("Target", target.entity_id),
@@ -5466,6 +5474,21 @@ class GameSession:
                 f"({target_ids}); re-offering."
             )
             return
+
+        # Mirage Stadium: "whenever a player tries to retreat a Pokemon, that
+        # player flips a coin. If tails, that Pokemon can't retreat this turn."
+        if retreat_flips(self.board_state, card):
+            flip_ctx = EffectContext(self, player_id, card, None)
+            results = await flip_ctx.flip_coins(1)
+            await self._flush_effect_runs(flip_ctx)
+            if not (results and results[0]):
+                self.turn_state.lock_retreat(card.entity_id,
+                                            through_turn=self.turn_state.turn_number)
+                logging.info(
+                    f"[Session {self.game_id}] Retreat of {card.entity_id} "
+                    f"refused: the stadium flip was tails."
+                )
+                return
 
         cost = effective_retreat_cost(self.board_state, card)
         energies = [
