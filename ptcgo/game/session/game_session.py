@@ -5247,6 +5247,9 @@ class GameSession:
         if isinstance(outgoing, CompositePokemonEntity)                 or isinstance(incoming, (ComponentCardEntity, CompositePokemonEntity)):
             return None
         source_area = incoming._containing_area_name()
+        # destination_name "deck" is the bottom of the owner's deck (Ditto's
+        # "put the first Ditto on the bottom of your deck"), which is an area
+        # like the others -- appending puts it underneath.
         dest = self.board_state.find_player_area(owner_id, destination_name)
         out_of_play = self.board_state.find_global_area("outOfPlay")
         if dest is None or out_of_play is None or source_area is None:

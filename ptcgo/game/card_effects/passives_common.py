@@ -1421,12 +1421,120 @@ def poison_not_of_type(*types) -> Callable[[Any, Any], bool]:
     return pred
 
 
+class BenchDamageShieldPassive(Passive):
+    """Mountain Ring ("prevent all damage done to Benched Pokemon by attacks")
+    and Sky Pillar (the same plus the attack's effects)."""
+
+    def __init__(self, effects_too=False):
+        self.effects_too = effects_too
+
+    def blocks_bench_damage(self, calc, carrier):
+        return True
+
+    def blocks_attack_effects(self, target, carrier):
+        if not self.effects_too:
+            return False
+        parent = getattr(target, "parent", None)
+        return bool(parent) and parent.get_attribute(AttrID.NAME) == "bench"
+
+
+def bench_damage_shield(effects_too: bool = False) -> Passive:
+    """`effects_too=True` is Sky Pillar; the default is Mountain Ring."""
+    return BenchDamageShieldPassive(effects_too)
+
+
+class AttackCostModifierPassive(Passive):
+    """Attacks of one group of Pokemon cost [C] more or less, on either side
+    (Nighttime Mine: each Tera Pokemon's attacks; Wondrous Labyrinth: non-Fairy;
+    Dimension Valley: each Psychic Pokemon's attacks cost [C] less)."""
+
+    def __init__(self, delta, pred=None, side="both"):
+        self.delta = delta
+        self.pred = pred
+        self.side = side
+
+    def modify_attack_cost(self, cost, pokemon, carrier, board):
+        if self.side == "team" and pokemon.owning_player_id != carrier.owning_player_id:
+            return cost
+        if self.side == "opposing" and pokemon.owning_player_id == carrier.owning_player_id:
+            return cost
+        if self.pred is not None and not self.pred(pokemon, board):
+            return cost
+        colored = cost.get("Colorless", 0) + self.delta
+        if colored > 0:
+            cost["Colorless"] = colored
+        elif colored <= 0:
+            cost.pop("Colorless", None)
+        return cost
+
+
+def attack_cost_modifier(delta: int, pred=None, side: str = "both") -> Passive:
+    """`delta` +1 charges a Colorless more, -1 one less (dropping the entry at
+    zero); `pred(pokemon, board)` narrows who it applies to, and `side` is
+    "both", "team" or "opposing"."""
+    return AttackCostModifierPassive(delta, pred, side)
+
+
+class RetreatCostModifierPassive(Passive):
+    """Retreat cost +/- N, optionally for one group of Pokemon ("each Pokemon
+    without Team Aqua in its name pays [C] more", "Basic Pokemon pay [C]
+    more") -- the Stadium wording base."""
+
+    def __init__(self, delta, pred=None, active_only=False):
+        self.delta = delta
+        self.pred = pred
+        self.active_only = active_only
+
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if self.active_only and not is_in_active_spot(pokemon):
+            return cost
+        if self.pred is not None and not self.pred(pokemon, board):
+            return cost
+        return max(0, cost + self.delta)
+
+
+def retreat_cost_modifier(delta: int, pred=None,
+                          active_only: bool = False) -> Passive:
+    """`delta` +1 charges more, -1 pays less; `pred(pokemon, board)` narrows
+    who it applies to and `active_only` is "your Active Pokemon"."""
+    return RetreatCostModifierPassive(delta, pred, active_only)
+
+
+class TeamHPBonusPassive(Passive):
+    """Every Pokemon on the chosen side(s) gets `amount` more max HP (Aspertia
+    City Gym's +20 to Colorless; Snowpoint Temple's +20 to the unevolved)."""
+
+    def __init__(self, amount=20, protects="each", pred=None, stacking_key=None):
+        self.amount = amount
+        self.protects = _protects_pred(protects)
+        self.pred = pred
+        self.stacking_key = stacking_key
+
+    def max_hp_bonus(self, pokemon, carrier):
+        if not self.protects(pokemon, carrier):
+            return 0
+        if self.pred is not None and not self.pred(pokemon, carrier):
+            return 0
+        return self.amount
+
+
+def team_hp_bonus(amount: int = 20, protects="each", pred=None,
+                  stacking_key=None) -> Passive:
+    """`protects='each'` covers both boards, `'team'` only the Stadium holder's
+    side (Aspertia's wording names both). `pred(pokemon, carrier)` narrows it by
+    type or stage."""
+    return TeamHPBonusPassive(amount, protects, pred, stacking_key)
+
+
 class BenchCapacityPassive(Passive):
     """Bench cap for both players (Collapsed Stadium 4, Narrow Gym 4) or for
     the carrier's own side alone (Parallel City's down-arrow face: 3)."""
 
-    def __init__(self, limit=4, protects="each", trim_to="discard"):
+    def __init__(self, limit=4, protects="each", trim_to="discard", mode="cap"):
         self.limit = limit
+        self.mode = mode
+        if mode not in ("cap", "raise"):
+            raise ValueError(f"bench capacity mode must be 'cap' or 'raise': {mode!r}")
         self.side_only = protects == "team"
         if protects not in ("each", "team"):
             raise ValueError(
@@ -1437,6 +1545,13 @@ class BenchCapacityPassive(Passive):
         return not self.side_only or player_id == carrier.owning_player_id
 
     def bench_capacity(self, player_id, carrier):
+        if self.mode != "cap":
+            return None
+        return self.limit if self._covers(player_id, carrier) else None
+
+    def bench_capacity_raise(self, player_id, carrier):
+        if self.mode != "raise":
+            return None
         return self.limit if self._covers(player_id, carrier) else None
 
     def bench_trim_area(self, player_id, carrier):
@@ -1444,12 +1559,12 @@ class BenchCapacityPassive(Passive):
 
 
 def bench_capacity_passive(limit: int = 4, protects="each",
-                           trim_to: str = "discard") -> Passive:
+                           trim_to: str = "discard", mode: str = "cap") -> Passive:
     """`protects='each'` caps both players (Narrow Gym, Collapsed Stadium);
     `'team'` caps only the Stadium holder's side (Parallel City's face).
     `trim_to='hand'` returns trimmed stacks to hand (Narrow Gym) instead of
     discarding them."""
-    return BenchCapacityPassive(limit, protects, trim_to)
+    return BenchCapacityPassive(limit, protects, trim_to, mode)
 
 
 class VoidsStadiumPlayPassive(Passive):
