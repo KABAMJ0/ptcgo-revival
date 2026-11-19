@@ -5,7 +5,7 @@ from collections import Counter
 
 from sqlalchemy import text
 
-from ptcgo.database import Account, Collection, Deck, Wallet, db_session
+from ptcgo.database import Account, Collection, Deck, ProductClaim, Wallet, db_session
 from ptcgo.game.models.product import Deck as DeckProduct
 
 
@@ -63,6 +63,10 @@ def open_products(account_id, products, *, purchased=False, tradable_override=No
             if wallet is None:
                 raise ValueError("The account has no wallet to credit")
             wallet.coins += tokens
+        for product in products:
+            if getattr(product, "once_per_account", False) and session.query(ProductClaim).filter_by(
+                    account_id=account_id, product_guid=product.guid.lower()).first() is None:
+                session.add(ProductClaim(account_id=account_id, product_guid=product.guid.lower()))
         if decks:
             existing = {row.id for row in session.query(Deck.id).filter(Deck.id.in_(decks))}
             for deck_id, product in decks.items():

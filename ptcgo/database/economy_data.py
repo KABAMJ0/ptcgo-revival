@@ -4,10 +4,11 @@ import string
 import uuid
 
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 
 from ptcgo.database import (
     db_session, Wallet, Collection, Account,
-    RedemptionCode, CodeRedemptionEntry, ShopItem, DynamicPage, TradeOffer
+    RedemptionCode, CodeRedemptionEntry, ShopItem, DynamicPage, TradeOffer, ProductClaim
 )
 from ptcgo.game.attributes import AttrID
 
@@ -21,6 +22,7 @@ WALLET_FIELDS = {
 }
 PURCHASE_ERROR_FUNDS = "You don't have enough currency for this purchase."
 PURCHASE_ERROR_CURRENCY = "This item can't be bought with that currency."
+PURCHASE_ERROR_ONCE = "You already have this item. It is limited to one per account, so you have not been charged."
 
 
 def _code_to_dict(c):
@@ -196,40 +198,61 @@ def _grant_reward_in_session(session, account_id, reward):
         wallet.tickets += tickets
 
 
-def purchase_products(account_id, charges, grants, credit=None):
-    """Deducts {currency: amount}, grants {archetype_id: count} as tradable and credits
-    {currency: amount} (a bundle's tokens) in ONE transaction. Returns an error message
-    (nothing changed) or None on success."""
-    with db_session() as session:
-        if session.bind.dialect.name == "sqlite":
-            session.execute(text("BEGIN IMMEDIATE"))
-        wallet = session.query(Wallet).filter_by(account_id=account_id).with_for_update().first()
-        due = {currency: amount for currency, amount in charges.items() if amount > 0}
-        for currency, amount in due.items():
-            field = WALLET_FIELDS.get(currency)
-            if field is None:
-                return PURCHASE_ERROR_CURRENCY
-            if wallet is None or getattr(wallet, field) < amount:
-                return PURCHASE_ERROR_FUNDS
-        for currency, amount in due.items():
-            field = WALLET_FIELDS[currency]
-            setattr(wallet, field, getattr(wallet, field) - amount)
-        for currency, amount in (credit or {}).items():
-            field = WALLET_FIELDS.get(currency)
-            if field is None or wallet is None:
-                session.rollback()
-                return PURCHASE_ERROR_CURRENCY
-            setattr(wallet, field, getattr(wallet, field) + int(amount))
-        owned = {row.archetype_id: row for row in session.query(Collection).filter(
-            Collection.account_id == account_id,
-            Collection.archetype_id.in_(list(grants))).with_for_update()}
-        for archetype_id, count in grants.items():
-            row = owned.get(archetype_id)
-            if row is None:
-                row = Collection(account_id=account_id, archetype_id=archetype_id,
-                                 tradable_count=0, nontradable_count=0)
-                session.add(row)
-            row.tradable_count += count
+def purchase_products(account_id, charges, grants, credit=None, claims=()):
+    """Deducts {currency: amount}, grants {archetype_id: count} as tradable, credits
+    {currency: amount} (a bundle's tokens) and records one-per-account claims, all in ONE
+    transaction. Returns an error message (nothing changed) or None on success.
+
+    A claim already on record, or the same claim twice in one request, refuses the whole
+    purchase. The write lock taken first (BEGIN IMMEDIATE on SQLite, the wallet row lock on
+    MySQL) serialises two racing purchases, and the unique constraint backs it up."""
+    claims = [str(c).lower() for c in claims]
+    if len(set(claims)) != len(claims):
+        return PURCHASE_ERROR_ONCE
+    try:
+        with db_session() as session:
+            return _purchase_in_session(session, account_id, charges, grants, credit, claims)
+    except IntegrityError:
+        return PURCHASE_ERROR_ONCE
+
+
+def _purchase_in_session(session, account_id, charges, grants, credit, claims):
+    if session.bind.dialect.name == "sqlite":
+        session.execute(text("BEGIN IMMEDIATE"))
+    wallet = session.query(Wallet).filter_by(account_id=account_id).with_for_update().first()
+    if claims and session.query(ProductClaim).filter(
+            ProductClaim.account_id == account_id,
+            ProductClaim.product_guid.in_(claims)).first() is not None:
+        return PURCHASE_ERROR_ONCE
+    due = {currency: amount for currency, amount in charges.items() if amount > 0}
+    for currency, amount in due.items():
+        field = WALLET_FIELDS.get(currency)
+        if field is None:
+            return PURCHASE_ERROR_CURRENCY
+        if wallet is None or getattr(wallet, field) < amount:
+            return PURCHASE_ERROR_FUNDS
+    for currency, amount in due.items():
+        field = WALLET_FIELDS[currency]
+        setattr(wallet, field, getattr(wallet, field) - amount)
+    for currency, amount in (credit or {}).items():
+        field = WALLET_FIELDS.get(currency)
+        if field is None or wallet is None:
+            session.rollback()
+            return PURCHASE_ERROR_CURRENCY
+        setattr(wallet, field, getattr(wallet, field) + int(amount))
+    owned = {row.archetype_id: row for row in session.query(Collection).filter(
+        Collection.account_id == account_id,
+        Collection.archetype_id.in_(list(grants))).with_for_update()}
+    for archetype_id, count in grants.items():
+        row = owned.get(archetype_id)
+        if row is None:
+            row = Collection(account_id=account_id, archetype_id=archetype_id,
+                             tradable_count=0, nontradable_count=0)
+            session.add(row)
+        row.tradable_count += count
+    for guid in claims:
+        session.add(ProductClaim(account_id=account_id, product_guid=guid))
+    session.flush()
     return None
 
 

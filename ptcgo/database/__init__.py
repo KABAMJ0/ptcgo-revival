@@ -2,7 +2,7 @@ from ptcgo.database.base import Base
 from ptcgo.database.connection import engine, Session, db_session
 from ptcgo.database.models import (
     Account, Wallet, Deck, Collection, ArchetypeFlag, Friendship,
-    RedemptionCode, CodeRedemptionEntry, ShopItem, TradeOffer, DynamicPage,
+    RedemptionCode, CodeRedemptionEntry, ShopItem, TradeOffer, DynamicPage, ProductClaim,
     VersusProgress, DailyLoginProgress,
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim,
     TrainerChallengeProgress, LEAGUE_ROW,
@@ -25,6 +25,7 @@ __all__ = [
     "CodeRedemptionEntry",
     "ShopItem",
     "TradeOffer",
+    "ProductClaim",
     "DynamicPage",
     "VersusProgress",
     "DailyLoginProgress",

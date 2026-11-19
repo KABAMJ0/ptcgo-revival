@@ -10,7 +10,7 @@ from ptcgo.game.content.definitions import BoosterPackDef
 
 
 class BundleDef(BoosterPackDef):
-    def __init__(self, *, contents, tokens=0, **kwargs):
+    def __init__(self, *, contents, tokens=0, once_per_account=False, **kwargs):
         super().__init__(**kwargs)
         if not contents and not tokens:
             raise ValueError("a bundle must grant something")
@@ -18,3 +18,5 @@ class BundleDef(BoosterPackDef):
             raise ValueError("bundle tokens cannot be negative")
         self.contents = [str(g).lower() for g in contents]
         self.tokens = int(tokens)
+        # Enforced at purchase, atomically with the grant (economy_data.purchase_products).
+        self.once_per_account = bool(once_per_account)

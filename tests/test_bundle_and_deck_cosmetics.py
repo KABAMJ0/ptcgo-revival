@@ -28,6 +28,8 @@ from ptcgo.game.scripts.products import loader as product_loader  # noqa: E402
 BUNDLE = str(uuid.uuid5(uuid.NAMESPACE_URL, "ptcgo:product:bundle:charizard-ex-collection"))
 CHARIZARD = "087b2bf5-039a-55e8-80c8-899dbb0676a3"
 FUSION_STRIKE = "d017c195-83c5-c74e-0638-25128b3116c4"
+GOLD_CHARIZARD_COIN = "adb210c2-bca5-5b1a-8b24-c8bcdac41fb8"
+PRICE = 500
 
 
 def new_account(tokens):
@@ -80,14 +82,22 @@ class BundleTest(unittest.TestCase):
         self.assertIsInstance(bundle, product_model.Bundle)
         self.assertNotIsInstance(bundle, product_model.BoosterPack)
         self.assertEqual(bundle.product_type, ProductType.PACKS.value)
-        self.assertEqual(bundle.grants, [CHARIZARD, FUSION_STRIKE])
+        self.assertEqual(bundle.grants, [CHARIZARD, FUSION_STRIKE, GOLD_CHARIZARD_COIN])
         self.assertEqual(bundle.tokens, 1000)
+        self.assertTrue(bundle.once_per_account)
+        coin = product_loader.products_by_guid[GOLD_CHARIZARD_COIN]
+        self.assertEqual((coin.name, coin.product_type), ("ASRBL Gold Charizard Coin", ProductType.COINS.value))
+        self.assertEqual(bundle.get_attribute_value(AttrID.IMAGE_NAME), "charizard_ex_collection")
+        art = os.path.join(os.path.dirname(product_loader.scripts_dir), "..", "..", "assets", "products",
+                           "custom_packs", "charizard_ex_collection.png")
+        from PIL import Image
+        self.assertEqual(Image.open(art).size, (512, 512))
         card = card_loader.cards_by_guid[CHARIZARD]
         self.assertEqual((card.display_name, card.key, card.get_attribute_value(AttrID.COLLECTOR_NUMBER)),
                          ("Charizard ex", "SV3", 125))
         self.assertEqual(product_loader.products_by_guid[FUSION_STRIKE].name, "Sword & Shield - Fusion Strike")
         self.assertEqual(self.listing.product_type, ProductType.PACKS.value)
-        self.assertEqual(self.listing.prices, [{"name": AttrID.TRAINER_TOKENS.value, "value": 1500}])
+        self.assertEqual(self.listing.prices, [{"name": AttrID.TRAINER_TOKENS.value, "value": PRICE}])
 
     def test_buying_grants_the_card_the_pack_and_the_tokens(self):
         from ptcgo.packets.handlers.shop import ShopHandler
@@ -96,11 +106,12 @@ class BundleTest(unittest.TestCase):
         asyncio.run(ShopHandler(client).handle_purchase_catalog_products(
             {"selections": [self.listing.guid]}, 3, 0))
         purchased = next(p for p in sent if p.get("messageName") == "ProductsPurchased")
-        self.assertEqual(sorted(i["archetypeID"] for i in purchased["items"]), sorted([CHARIZARD, FUSION_STRIKE]))
-        self.assertEqual(collection(account_id), {CHARIZARD: 1, FUSION_STRIKE: 1})
-        self.assertEqual(tokens(account_id), 2000 - 1500 + 1000)
+        self.assertEqual(sorted(i["archetypeID"] for i in purchased["items"]),
+                         sorted([CHARIZARD, FUSION_STRIKE, GOLD_CHARIZARD_COIN]))
+        self.assertEqual(collection(account_id), {CHARIZARD: 1, FUSION_STRIKE: 1, GOLD_CHARIZARD_COIN: 1})
+        self.assertEqual(tokens(account_id), 2000 - PRICE + 1000)
         self.assertTrue(any(p.get("messageName") == "CurrentWallet" for p in sent))
-        self.assertEqual(client.player.wallet.balances[AttrID.TRAINER_TOKENS], 1500)
+        self.assertEqual(client.player.wallet.balances[AttrID.TRAINER_TOKENS], 2500)
 
         # The granted Fusion Strike pack is an ordinary pack: it opens into SWSH8 cards.
         sent.clear()
@@ -111,12 +122,12 @@ class BundleTest(unittest.TestCase):
 
     def test_not_enough_tokens_changes_nothing(self):
         from ptcgo.packets.handlers.shop import ShopHandler
-        account_id = new_account(1499)
+        account_id = new_account(PRICE - 1)
         client, sent = client_for(account_id)
         asyncio.run(ShopHandler(client).handle_purchase_catalog_products(
             {"selections": [self.listing.guid]}, 3, 0))
         self.assertTrue(any(p.get("messageName") == "ProductPurchaseFailure" for p in sent))
-        self.assertEqual((collection(account_id), tokens(account_id)), ({}, 1499))
+        self.assertEqual((collection(account_id), tokens(account_id)), ({}, PRICE - 1))
 
     def test_opening_an_owned_bundle_grants_the_same(self):
         from ptcgo.packets.handlers.shop import ShopHandler
@@ -125,9 +136,72 @@ class BundleTest(unittest.TestCase):
             s.add(Collection(account_id=account_id, archetype_id=BUNDLE, tradable_count=1, nontradable_count=0))
         client, sent = client_for(account_id)
         asyncio.run(ShopHandler(client).handle_open_products_by_archetype_id({"products": [BUNDLE]}, 5, 0))
-        self.assertEqual(collection(account_id), {BUNDLE: 0, CHARIZARD: 1, FUSION_STRIKE: 1})
+        self.assertEqual(collection(account_id), {BUNDLE: 0, CHARIZARD: 1, FUSION_STRIKE: 1, GOLD_CHARIZARD_COIN: 1})
         self.assertEqual(tokens(account_id), 1000)
         self.assertEqual(client.player.wallet.balances[AttrID.TRAINER_TOKENS], 1000)
+
+    def test_one_per_account_second_purchase_is_refused(self):
+        from ptcgo.packets.handlers.shop import ShopHandler
+        from ptcgo.database.economy_data import PURCHASE_ERROR_ONCE
+        account_id = new_account(5000)
+        client, sent = client_for(account_id)
+        for attempt in (1, 2):
+            asyncio.run(ShopHandler(client).handle_purchase_catalog_products(
+                {"selections": [self.listing.guid]}, attempt, 0))
+        outcomes = [p["messageName"] for p in sent if p.get("messageName") in ("ProductsPurchased", "ProductPurchaseFailure")]
+        self.assertEqual(outcomes, ["ProductsPurchased", "ProductPurchaseFailure"])
+        failure = next(p for p in sent if p.get("messageName") == "ProductPurchaseFailure")
+        self.assertEqual(failure["error"]["id"], PURCHASE_ERROR_ONCE)
+        self.assertEqual(collection(account_id), {CHARIZARD: 1, FUSION_STRIKE: 1, GOLD_CHARIZARD_COIN: 1})
+        self.assertEqual(tokens(account_id), 5000 - PRICE + 1000)
+        # Two in one request is refused outright, and so are the other purchase paths.
+        other = new_account(5000)
+        client, sent = client_for(other)
+        asyncio.run(ShopHandler(client).handle_purchase_catalog_products(
+            {"selections": [self.listing.guid, self.listing.guid]}, 1, 0))
+        self.assertEqual((collection(other), tokens(other)), ({}, 5000))
+        asyncio.run(ShopHandler(client).handle_purchase_archetypes({"archetypes": {self.listing.guid: 1}}, 2, 0))
+        asyncio.run(ShopHandler(client).handle_purchase_and_open_products({"products": [self.listing.guid]}, 3, 0))
+        asyncio.run(ShopHandler(client).handle_purchase_archetypes({"archetypes": {self.listing.guid: 1}}, 4, 0))
+        self.assertEqual(collection(other), {CHARIZARD: 1, FUSION_STRIKE: 1, GOLD_CHARIZARD_COIN: 1})
+        self.assertEqual(tokens(other), 5000 - PRICE + 1000)
+        failures = [p for p in sent if p.get("messageName") in ("ProductsOpenedFailure", "ArchetypesPurchaseFailure")]
+        self.assertEqual(len(failures), 2)
+
+    def test_racing_purchases_only_one_succeeds(self):
+        import threading
+        from collections import Counter as C
+        from ptcgo.database.economy_data import purchase_products
+        account_id = new_account(5000)
+        start = threading.Barrier(6)
+        results = []
+
+        def buy():
+            start.wait()
+            results.append(purchase_products(
+                account_id, {AttrID.TRAINER_TOKENS.value: PRICE},
+                C([CHARIZARD, FUSION_STRIKE, GOLD_CHARIZARD_COIN]),
+                credit={AttrID.TRAINER_TOKENS.value: 1000}, claims=[BUNDLE]))
+        threads = [threading.Thread(target=buy) for _ in range(6)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(results.count(None), 1, results)
+        self.assertEqual(collection(account_id), {CHARIZARD: 1, FUSION_STRIKE: 1, GOLD_CHARIZARD_COIN: 1})
+        self.assertEqual(tokens(account_id), 5000 - PRICE + 1000)
+
+    def test_a_row_still_at_the_old_price_is_repriced_but_an_admin_price_is_kept(self):
+        from ptcgo.database.economy_data import list_shop_items, upsert_shop_item
+        from ptcgo.database.shop_defaults import ensure_default_shop_items
+        row = lambda: next(r for r in list_shop_items() if r["product_guid"].lower() == BUNDLE)
+        upsert_shop_item(BUNDLE, price=1500, item_id=row()["id"])
+        ensure_default_shop_items()
+        self.assertEqual(row()["price"], PRICE)
+        upsert_shop_item(BUNDLE, price=750, item_id=row()["id"])
+        ensure_default_shop_items()
+        self.assertEqual(row()["price"], 750)
+        upsert_shop_item(BUNDLE, price=PRICE, item_id=row()["id"])
 
     def test_the_bundle_never_auto_lists_at_pack_price(self):
         from ptcgo.shop import shop_manager

@@ -370,29 +370,40 @@ class Bundle(Product):
     is_bundle = True
 
     def __init__(self, guid: str, key: str, attributes: Optional[Dict[str, Any]] = None,
-                 prices: Optional[List[Dict[str, Any]]] = None, *, grants=(), tokens=0):
+                 prices: Optional[List[Dict[str, Any]]] = None, *, grants=(), tokens=0,
+                 once_per_account=False):
         super().__init__(guid, key, attributes, prices)
         # Not "contents": anything with contents is read as a deck by the theme deck registry.
         self.grants = list(grants)
         self.tokens = int(tokens)
+        self.once_per_account = bool(once_per_account)
 
     def open(self, account_id: str) -> list[str]:
         return list(self.grants)
 
 
-def expand_bundles(product_guids):
-    """(granted GUIDs, Trainer Tokens to credit) for a purchase: each bundle is replaced by
-    its contents, everything else is granted as itself."""
+def find_bundle(guid):
     from ptcgo.game.scripts.products import loader as product_loader
-    granted, tokens = [], 0
+    product = product_loader.products_by_guid.get(guid) or product_loader.products_by_guid.get(str(guid).lower())
+    return product if isinstance(product, Bundle) else None
+
+
+def expand_bundles(product_guids):
+    """(granted GUIDs, Trainer Tokens to credit, once-per-account bundle GUIDs claimed) for
+    a purchase: each bundle is replaced by its contents, everything else is granted as
+    itself. A limited bundle bought twice in one request is claimed twice, which the
+    purchase refuses."""
+    granted, tokens, claims = [], 0, []
     for guid in product_guids:
-        product = product_loader.products_by_guid.get(guid) or product_loader.products_by_guid.get(str(guid).lower())
-        if isinstance(product, Bundle):
-            granted.extend(product.grants)
-            tokens += product.tokens
-        else:
+        bundle = find_bundle(guid)
+        if bundle is None:
             granted.append(guid)
-    return granted, tokens
+            continue
+        granted.extend(bundle.grants)
+        tokens += bundle.tokens
+        if bundle.once_per_account:
+            claims.append(bundle.guid.lower())
+    return granted, tokens, claims
 
 
 class DeckBox(Product):
