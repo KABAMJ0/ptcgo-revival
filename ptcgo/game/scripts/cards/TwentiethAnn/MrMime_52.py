@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+from ptcgo.game.card_effects.passives_common import bench_damage_shield
+
 card = PokemonCardDef(
     guid="90958556-9b46-5853-b9ca-ad96725df857",
     key="TwentiethAnn",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Bench Barrier",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by attacks.",
-            effect=unimplemented,
+            passive=bench_damage_shield(),
         ),
         Attack(
             title="Juggling",

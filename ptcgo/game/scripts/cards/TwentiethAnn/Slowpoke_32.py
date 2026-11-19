@@ -9,6 +9,21 @@ async def spacing_out(ctx):
         await ctx.heal(10, ctx.attacker)
 
 
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.card_effects.trainers import is_item_card
+
+
+async def scavenge(ctx):
+    discarded = await ctx.discard_energy_from(
+        ctx.attacker, 1,
+        predicate=lambda card: energy_provides_type(card, PokemonTypes.PSYCHIC.value),
+        prompt="Discard a Psychic Energy attached to this Pokemon")
+    if not discarded:
+        return
+    await recover_from_discard(is_item_card, count=1, to="hand",
+                               prompt="Choose an Item card from your discard pile")(ctx)
+
 card = PokemonCardDef(
     guid="39c432ae-497f-5878-a493-bffedc5920b2",
     key="TwentiethAnn",
@@ -36,7 +51,7 @@ card = PokemonCardDef(
             title="Scavenge",
             game_text="Discard a Psychic Energy attached to this Pok\u00e9mon. If you do, put an Item card from your discard pile into your hand.",
             cost={PokemonTypes.PSYCHIC: 2},
-            effect=unimplemented,
+            effect=scavenge,
         ),
     ],
 )

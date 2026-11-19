@@ -7,6 +7,19 @@ async def _spread(ctx):
     await ctx.place_damage_counters(4)
 
 
+from ptcgo.game.card_effects.passives_common import on_ko_from_attack
+from ptcgo.game.data_utils import Triggers
+
+
+async def drag_along(ctx):
+    heads = await ctx.flip_coins(1, "Drag Along")
+    if not heads or not heads[0]:
+        return
+    attacker = ctx.ko_attacker
+    if attacker is None:
+        return
+    await ctx.knock_out(attacker)
+
 card = PokemonCardDef(
     guid="fbf9fe63-7f35-5ec5-851d-9df4a02f6707",
     key="TwentiethAnn",
@@ -28,7 +41,8 @@ card = PokemonCardDef(
         Ability(
             title="Drag Along",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, flip a coin. If heads, the Attacking Pok\u00e9mon is Knocked Out.",
-            effect=unimplemented,
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=on_ko_from_attack(drag_along),
         ),
         Attack(
             title="Snowy Drop",
