@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import energy_move_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Scalding Steam",
             game_text="Once during your turn, if this Pok\u00e9mon is in the Active Spot, you may make your opponent's Active Pok\u00e9mon Burned.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Scorching Cyclone",

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Suction Cups",
             game_text="As long as Octillery is your Active Pok\u00e9mon, whenever the Defending Pok\u00e9mon retreats, discard all Energy cards attached to the Defending Pok\u00e9mon when it goes to the Bench.",
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Smokescreen",

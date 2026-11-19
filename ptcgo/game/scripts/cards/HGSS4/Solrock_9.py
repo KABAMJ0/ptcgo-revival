@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Heal Block",
             game_text="If you have Lunatone in play, damage counters can't be removed from any Pok\u00e9mon (both yours and your opponent's). (Damage counters can still be moved.)",
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Sun Flash",

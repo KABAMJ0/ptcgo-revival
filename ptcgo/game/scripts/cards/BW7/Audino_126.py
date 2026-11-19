@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import smokescreen_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Busybody",
             game_text="Once during your turn (before your attack), if this Pok\u00e9mon is in your hand, you may reveal it. If you do, heal 10 damage and remove a Special Condition from your Active Pok\u00e9mon. Then, discard this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=smokescreen_attack(),
         ),
         Attack(
             title="Hip Bump",

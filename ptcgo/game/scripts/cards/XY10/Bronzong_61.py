@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Metal Fortress",
             game_text="Prevent all effects of your opponent's attacks, including damage, done to your Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Guard Press",

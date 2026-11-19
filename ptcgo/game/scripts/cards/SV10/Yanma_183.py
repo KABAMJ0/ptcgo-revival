@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import opponent_switches
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Whirlwind",
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=opponent_switches,
         ),
         Attack(
             title="Razor Wing",
