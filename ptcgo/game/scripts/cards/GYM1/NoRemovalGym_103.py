@@ -1,4 +1,5 @@
 from ptcgo.game.data_utils import StadiumCardDef, unimplemented
+from ptcgo.game.card_effects.passives_common import trainer_play_cost_passive
 from ptcgo.game.attributes import Rarities
 
 card = StadiumCardDef(
@@ -11,5 +12,5 @@ card = StadiumCardDef(
     collector_number=103,
     set_code="GYM1",
     rarity=Rarities.Rare,
-    effect=unimplemented
+    passive=trainer_play_cost_passive(2, "Energy Removal", "Super Energy Removal")
 )
