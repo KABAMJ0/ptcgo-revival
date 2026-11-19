@@ -1,8 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-
-async def _spread_counters(ctx):
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
     await ctx.deal_damage()
     await ctx.place_damage_counters(3)
 
@@ -28,13 +28,13 @@ card = PokemonCardDef(
         Ability(
             title="Wise Aura",
             game_text="As long as Medicham ex is your Active Pok\u00e9mon, each Pok\u00e9mon (excluding Pok\u00e9mon-ex) (both yours and your opponent's) can't use any Pok\u00e9-Powers.",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Pure Power",
             game_text="Put 3 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=_spread_counters,
+            effect=unimplemented,
         ),
         Attack(
             title="Sky Kick",

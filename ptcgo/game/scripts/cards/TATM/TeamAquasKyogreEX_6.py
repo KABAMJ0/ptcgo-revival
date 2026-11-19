@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Power Saver",
             game_text="If there are 4 or fewer Team Aqua Pok\u00e9mon in play, this Pok\u00e9mon can't attack.",
-            effect=unimplemented,
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20),
         ),
         Attack(
             title="Aqua Impact",

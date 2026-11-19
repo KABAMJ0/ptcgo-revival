@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Rough Skin",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if this Pok\u00e9mon is Knocked Out), put 3 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20),
         ),
         Attack(
             title="Aqua Impact",

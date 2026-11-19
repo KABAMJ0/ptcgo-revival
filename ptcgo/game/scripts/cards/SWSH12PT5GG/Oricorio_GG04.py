@@ -1,8 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-
-async def _spread_counters(ctx):
+async def _spread(ctx):
+    """Printed damage, then N damage counters placed across the opponent's side."""
     await ctx.deal_damage()
     await ctx.place_damage_counters(5)
 
@@ -27,13 +27,13 @@ card = PokemonCardDef(
         Ability(
             title="Lesson in Zeal",
             game_text="All of your Fusion Strike Pok\u00e9mon take 20 less damage from attacks from your opponent's Pok\u00e9mon (after applying Weakness and Resistance). You can't apply more than 1 Lesson in Zeal Ability at a time.",
-            effect=unimplemented,
+            effect=_spread,
         ),
         Attack(
             title="Glistening Droplets",
             game_text="Put 5 damage counters on your opponent's Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
-            effect=_spread_counters,
+            effect=unimplemented,
         ),
     ],
 )

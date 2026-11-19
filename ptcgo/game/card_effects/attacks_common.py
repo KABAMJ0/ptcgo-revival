@@ -797,6 +797,35 @@ def lock_all_attacks(ctx, pokemon):
         ctx.session.turn_state.lock_attack(pokemon.entity_id, entry["abilityID"])
 
 
+def choose_attack_lock(damage: Optional[int] = None, through: str = "opponent"):
+    """Printed (or `damage`) damage, then the opponent picks one of their
+    Active's attacks and that attack is locked for their next turn ("Choose 1
+    of your opponent's Active Pokemon's attacks. That Pokemon can't use that
+    attack during your opponent's next turn.")."""
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        defender = ctx.defender
+        if defender is None or ctx.effects_blocked(defender):
+            return
+        from ptcgo.game.session.passives import attacks_of
+
+        candidates = [(defender, attack) for attack in attacks_of(defender)
+                      if getattr(attack, "ability_id", None)]
+        if not candidates:
+            return
+        chosen = await ctx.choose_attack_to_copy(
+            candidates,
+            "Choose 1 of your opponent's Active Pokémon's attacks")
+        if chosen is None:
+            return
+        attack = chosen[1]
+        state = ctx.session.turn_state
+        window = 1 if through == "opponent" else 0
+        state.attack_locks[(defender.entity_id, attack.ability_id)] = \
+            state.turn_number + window
+    return effect
+
+
 def lock_defender_attacks(ctx, defender=None) -> bool:
     """"The Defending Pokemon can't attack during your opponent's next turn";
     no-ops (False) on an effect-shielded target."""
@@ -897,6 +926,49 @@ def smokescreen_attack(damage: Optional[int] = None, also=None):
             ctx.require_attack_flip(defender)
         if also is not None:
             await also(ctx)
+    return effect
+
+
+def heal_self_damage_dealt(damage: Optional[int] = None,
+                           cap: Optional[int] = None):
+    """Printed (or `damage`) damage, then heal the attacker for the damage it
+    actually dealt ("Heal from this Pokemon the same amount of damage you did
+    to your opponent's Active Pokemon"). Deal_damage returns the final amount
+    after Weakness/Resistance and interception, which is exactly that."""
+    async def effect(ctx):
+        dealt = await ctx.deal_damage(damage)
+        if ctx.attacker is None or dealt <= 0:
+            return
+        await ctx.heal(min(dealt, cap) if cap is not None else dealt,
+                       target=ctx.attacker)
+    return effect
+
+
+def random_card_to_deck(damage: Optional[int] = None, destination: str = "deck",
+                        reveal: bool = True, count: int = 1):
+    """Printed (or `damage`) damage, then `count` random cards leave the
+    opponent's hand for their deck, revealed ("Choose a random card from your
+    opponent's hand. Your opponent reveals that card and shuffles it into his
+    or her deck"). `count` is for the "for each heads" printings; the pick is
+    always random, never chosen.
+
+    `destination` is part of the signature the queue asked for and every
+    printing in the corpus says "deck", so any other value is refused rather
+    than guessed at."""
+    if destination != "deck":
+        raise ValueError(
+            f"random_card_to_deck: only destination='deck' exists in the corpus, "
+            f"got {destination!r}")
+
+    async def effect(ctx):
+        await ctx.deal_damage(damage)
+        hand = ctx.hand(ctx.opponent_id)
+        if not hand or count <= 0:
+            return
+        cards = random.sample(hand, min(count, len(hand)))
+        if reveal:
+            await ctx.reveal_cards(cards)
+        await ctx.shuffle_into_deck(cards, ctx.opponent_id)
     return effect
 
 
