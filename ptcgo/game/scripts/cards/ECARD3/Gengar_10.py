@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Manipulate",
             game_text="When you play Gengar from your hand to evolve your Active Pok\u00e9mon, you may put a Basic Pok\u00e9mon (excluding Baby Pok\u00e9mon) from your discard pile onto your Bench. Then, flip 3 coins. For each heads, choose a basic Energy card from your discard pile and attach it to that Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True, tails_conditions=(SpecialConditions.CONFUSED,)),
         ),
         Attack(
             title="Hydrokinesis",

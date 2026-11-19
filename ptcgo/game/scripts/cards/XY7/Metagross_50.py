@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Guard Press",

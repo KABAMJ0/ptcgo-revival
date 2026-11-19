@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Moon Cleave Star",
             game_text="During your turn, you may put 4 damage counters on 1 of your opponent's Pok\u00e9mon. (You can't use more than 1 VSTAR Power in a game.)",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 110),
         ),
         Attack(
             title="Merciless Blade",

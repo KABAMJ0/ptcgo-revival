@@ -1,6 +1,6 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="865f5fbe-f91f-560b-8dd4-6904e1389eac",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Healing Pheromone",
             game_text="Heal 60 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=heal_attack(60, target="choice"),
+            effect=heal_attack(60),
         ),
         Attack(
             title="Phantom Queen",

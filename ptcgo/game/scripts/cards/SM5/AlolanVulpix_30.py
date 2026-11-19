@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def _opponent_switches_after_damage(ctx):
+    """Printed damage, then the opponent picks their new Active."""
+    await ctx.deal_damage()
+    await opponent_switches(ctx)
+
 
 card = PokemonCardDef(
     guid="63c2a4bb-83d5-567e-96af-ab797c754642",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
             title="Roar",
             game_text="Your opponent switches their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={},
-            effect=gust_attack(opponent_chooses=True),
+            effect=_opponent_switches_after_damage,
         ),
         Attack(
             title="Icy Snow",

@@ -24,7 +24,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.PSYCHIC: 1},
             damage=60,
             damage_operator="+",
-            effect=bonus_if(has_damage(), 100),
+            effect=bonus_if(has_damage("defender"), 100),
         ),
         Attack(
             title="Cyber Drive",

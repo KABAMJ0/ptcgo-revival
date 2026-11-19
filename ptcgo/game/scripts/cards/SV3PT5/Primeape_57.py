@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="f1e38251-166a-5a47-9022-e4a48a5ff6fc",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=40,
-            effect=condition_attack(SpecialConditions.CONFUSED, self_conditions=(SpecialConditions.CONFUSED,)),
+            effect=condition_attack(self_conditions=(SpecialConditions.CONFUSED,)),
         ),
         Attack(
             title="Raging Smash",

@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Force Canceler",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, prevent all effects of your opponent's GX attacks, including damage, done to your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Power Cyclone",

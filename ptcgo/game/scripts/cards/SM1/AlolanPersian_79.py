@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Taunt",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon.",
             cost={},
-            effect=unimplemented,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Claw Rend",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
             damage_operator="+",
-            effect=bonus_if(has_damage(), 30),
+            effect=unimplemented,
         ),
     ],
 )

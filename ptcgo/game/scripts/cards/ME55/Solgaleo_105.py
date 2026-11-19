@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Sunrise",
             game_text="Once during your turn, if this Pok\u00e9mon is on your Bench, you may use this Ability. Search your deck for up to 2 Basic Metal Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Sunsteel Strike",

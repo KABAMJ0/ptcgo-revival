@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Rip Off",
             game_text="Choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into his or her deck.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
         ),
         Attack(
             title="Psybeam",

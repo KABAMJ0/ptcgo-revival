@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="e1724a8e-4883-5e2f-9205-af508320b209",
@@ -23,7 +23,6 @@ card = PokemonCardDef(
         Ability(
             title="Magnetic Draw",
             game_text="Once during your turn (before your attack), you may draw cards until you have 4 cards in your hand.",
-            activation=Activations.ONCE_PER_TURN,
             effect=draw_until_effect(4),
         ),
         Attack(

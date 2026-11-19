@@ -22,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Power Saver",
             game_text="If there are 4 or fewer Team Magma Pok\u00e9mon in play, this Pok\u00e9mon can't attack.",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 80),
         ),
         Attack(
             title="Magma Quake",

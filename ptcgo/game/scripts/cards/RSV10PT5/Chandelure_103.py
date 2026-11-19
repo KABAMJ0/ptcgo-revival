@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Burn It All Up",

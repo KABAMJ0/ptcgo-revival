@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Rock Kagura",
             game_text="Search your deck for a Basic Fighting Energy card and attach it to 1 of your Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Mountain Ramming",

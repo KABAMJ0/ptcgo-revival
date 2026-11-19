@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=100,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Draconic Buster",

@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Ultra Burst",
             game_text="This Pok\u00e9mon can't attack unless your opponent has 2 or fewer Prize cards remaining.",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Luster of Downfall",

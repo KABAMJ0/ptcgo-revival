@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="83deb05d-b0ed-572c-ba17-46b7a1ebeab0",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Curative Pollen",
             game_text="Once during your turn (before your attack), you may heal 20 damage from 1 of your Pok\u00e9mon.",
-            effect=heal_attack(20, target="choice"),
+            effect=heal_attack(20),
         ),
         Attack(
             title="Fairy Wind",

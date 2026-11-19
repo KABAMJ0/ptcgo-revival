@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Dual Core",
             game_text="As long as this Pok\u00e9mon has a Future Booster Energy Capsule attached, it is Fighting and Metal type.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Wheel Pass",

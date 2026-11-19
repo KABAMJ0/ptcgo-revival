@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Heat Up",
             game_text="Once during your turn (before your attack), you may count the total number of Energy cards attached to all of your Pok\u00e9mon and all of your opponent's Pok\u00e9mon. If your opponent has more total Energy cards attached, you may search your deck for 1 Fire Energy card and attach it to 1 of your Benched Pok\u00e9mon, if any. Shuffle your deck afterward. This power can't be used if Typhlosion is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Super Singe",

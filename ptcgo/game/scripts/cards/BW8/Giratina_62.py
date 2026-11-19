@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Shadow Claw",

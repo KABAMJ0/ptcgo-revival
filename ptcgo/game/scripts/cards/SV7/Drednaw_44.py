@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Impervious Shell",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon if that damage is 200 or more.",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 80),
         ),
         Attack(
             title="Hard Crunch",

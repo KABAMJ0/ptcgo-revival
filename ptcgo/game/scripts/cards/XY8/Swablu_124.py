@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="a829dce5-c3f5-505b-af31-a1e92df13843",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Bind Wound",
             game_text="Heal 20 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=heal_attack(20, target="choice"),
+            effect=heal_attack(20),
         ),
     ],
 )

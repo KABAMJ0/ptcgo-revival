@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Counterattack Quills",
             game_text="If this Pok\u00e9mon is in the Active Spot and is damaged by an attack from your opponent's Pok\u00e9mon (even if this Pok\u00e9mon is Knocked Out), place 3 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Digging Claw",

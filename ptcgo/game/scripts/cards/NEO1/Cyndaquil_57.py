@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_choice
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="5a9e1143-f091-5c83-806a-6b78033e92a1",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=flip_choice(heads=30, tails=10),
+            effect=flip_damage(bonus=20),
         ),
     ],
 )

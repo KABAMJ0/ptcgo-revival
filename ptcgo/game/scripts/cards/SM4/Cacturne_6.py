@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="+",
-            effect=bonus_if(has_damage(), 60),
+            effect=bonus_if(has_damage("defender"), 60),
         ),
         Attack(
             title="Hunt",

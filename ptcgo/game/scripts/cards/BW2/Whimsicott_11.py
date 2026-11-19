@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Helping Hand",
             game_text="Search your deck for a basic Energy card and attach it to 1 of your Benched Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=30),
         ),
         Attack(
             title="Cotton Guard",

@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="e814a136-eaf3-5c5d-a320-303ae53b1bf2",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Nutrients",
             game_text="Heal 40 damage from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.GRASS: 1},
-            effect=heal_attack(40, target="choice"),
+            effect=heal_attack(40),
         ),
         Attack(
             title="Tackle",

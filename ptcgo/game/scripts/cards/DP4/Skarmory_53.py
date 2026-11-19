@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.passives_common import composed, protect_next_turn
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,14 +26,14 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1},
             damage=20,
-            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(then=discard_opponent_energy_attack(1, damage=0))),
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Steel Wing",
             game_text="During your opponent's next turn, any damage done to Skarmory by attacks is reduced by 20 (after applying Weakness and Resistance).",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=protect_next_turn(reduce=20),
+            effect=unimplemented,
         ),
     ],
 )

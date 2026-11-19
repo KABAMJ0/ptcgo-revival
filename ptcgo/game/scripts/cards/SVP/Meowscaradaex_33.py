@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Bouquet Magic",
             game_text="You must discard a Basic Grass Energy card from your hand in order to use this Ability. Once during your turn, you may put 3 damage counters on 1 of your opponent's Benched Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 120),
         ),
         Attack(
             title="Scratching Nails",

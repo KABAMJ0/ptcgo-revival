@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
 
 card = PokemonCardDef(
     guid="a2bb426e-d476-53b8-8ae2-993bf44a029d",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 10 (before applying Weakness and Resistance).",
             cost={PokemonTypes.FAIRY: 1},
             damage=10,
-            effect=unimplemented,
+            effect=debuff_defender_attacks(10),
         ),
     ],
 )

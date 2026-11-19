@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Multi Adapter",
             game_text="Each of your Pok\u00e9mon that has \"Rotom\" in its name may have up to 2 Pok\u00e9mon Tool cards attached. If this Ability goes away, discard Pok\u00e9mon Tools from those Pok\u00e9mon until only 1 remains on each.",
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Thunderbolt",

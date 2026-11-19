@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.support_common import opponent_switches
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="7af584a1-730f-5023-9563-4d0312cfef87",
@@ -26,7 +25,7 @@ card = PokemonCardDef(
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 1},
             damage=60,
-            effect=gust_attack(opponent_chooses=True),
+            effect=opponent_switches,
         ),
         Attack(
             title="Bye-Bye Flight",

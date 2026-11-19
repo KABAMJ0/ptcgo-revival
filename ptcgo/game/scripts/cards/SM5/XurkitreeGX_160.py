@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Flashing Head",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon that have any Special Energy attached to them.",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Rumbling Wires",

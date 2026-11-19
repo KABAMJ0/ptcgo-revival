@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 3, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=discard_opponent_energy_attack(1, special_only=True),
+            effect=discard_opponent_energy_attack(special_only=True),
         ),
         Attack(
             title="Blue Surge-GX",

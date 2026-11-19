@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_attack
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=heal_attack(50),
         ),
         Attack(
             title="Heal Pulse",

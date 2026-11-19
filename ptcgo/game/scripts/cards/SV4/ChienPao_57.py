@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="99cd467f-1468-5734-814d-68fe5bcd57d2",

@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.passives_common import composed
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,13 +24,13 @@ card = PokemonCardDef(
             title="Crystal Barrier",
             game_text="Flip a coin. If heads, prevent all effects of an attack, including damage, done to Tentacool during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Mysterious Beam",
             game_text="Flip a coin. If heads, discard an Energy card attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1},
-            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(then=discard_opponent_energy_attack(1, damage=0))),
+            effect=unimplemented,
         ),
     ],
 )

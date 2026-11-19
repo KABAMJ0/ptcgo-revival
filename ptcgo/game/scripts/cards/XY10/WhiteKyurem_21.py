@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="If this Pok\u00e9mon has any Fire Energy attached to it, this attack does 20 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=40,
-            effect=unimplemented,
+            effect=lock_self_attack(),
         ),
         Attack(
             title="Blizzard Burn",

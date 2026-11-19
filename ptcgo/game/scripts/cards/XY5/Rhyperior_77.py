@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Rock Wall",
             game_text="Any damage done to your Pok\u00e9mon by an opponent's attack is reduced by 10 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Hammer Arm",

@@ -1,5 +1,6 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -27,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_energy("defender"), 30, base=10),
+            effect=damage_per(count_energy("defender"), 30),
         ),
     ],
 )

@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent reveals their hand. Discard a card you find there.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Volt Strike",

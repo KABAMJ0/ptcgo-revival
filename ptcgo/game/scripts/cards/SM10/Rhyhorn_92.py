@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def _opponent_switches_after_damage(ctx):
+    """Printed damage, then the opponent picks their new Active."""
+    await ctx.deal_damage()
+    await opponent_switches(ctx)
+
 
 card = PokemonCardDef(
     guid="b6a0d76e-7f36-58ab-8405-f2de7821666e",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             game_text="Your opponent switches their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
-            effect=gust_attack(opponent_chooses=True),
+            effect=_opponent_switches_after_damage,
         ),
     ],
 )

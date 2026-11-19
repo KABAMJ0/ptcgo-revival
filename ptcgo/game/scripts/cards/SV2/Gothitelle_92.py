@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Read the Stars",
             game_text="Once during your turn, you may look at the top 2 cards of your opponent's deck and put 1 of them back. Put the other card on the bottom of their deck.",
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Psych Out",

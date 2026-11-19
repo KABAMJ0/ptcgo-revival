@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may have your opponent switch the Defending Pok\u00e9mon with 1 of his or her Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Diving Swipe",

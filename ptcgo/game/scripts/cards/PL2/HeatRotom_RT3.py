@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Heat Shift",
             game_text="Once during your turn (before your attack), you may use this power. Heat Rotom's type is Fire until the end of your turn.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED),
         ),
         Attack(
             title="Warm Up",

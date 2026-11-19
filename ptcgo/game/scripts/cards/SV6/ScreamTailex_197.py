@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Scream",
             game_text="You can use this attack only if you go second, and only during your first turn. Your opponent can't play any Supporter cards from their hand during their next turn.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Crunch",

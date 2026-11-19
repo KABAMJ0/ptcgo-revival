@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_random_hand_attack(1),
         ),
         Attack(
             title="Tyrannical Crush",

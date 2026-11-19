@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Pickup",
             game_text="Put 2 Item cards from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
         Attack(
             title="Dig",

@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="You may put an Energy attached to your opponent's Active Pok\u00e9mon into their hand.",
             cost={PokemonTypes.WATER: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(per_heads=90, until_tails=True),
         ),
         Attack(
             title="Octo Beatdown",

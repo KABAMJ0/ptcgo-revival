@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.trainers import draw_n
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Hurried Gait",
             game_text="Once during your turn, you may draw a card.",
-            effect=unimplemented,
+            effect=draw_n(1),
         ),
         Attack(
             title="Extrasensory",

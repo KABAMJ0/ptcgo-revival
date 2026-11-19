@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import attach_from_discard

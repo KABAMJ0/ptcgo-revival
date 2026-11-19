@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 card = PokemonCardDef(
     guid="309b9c78-5e42-5701-b2da-94098bfc6eb8",
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="If your opponent has any Benched Pok\u00e9mon, choose 1 of them and this attack does 10 damage to it. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=30,
-            effect=unimplemented,
+            effect=snipe_attack(10, pool="bench"),
         ),
     ],
 )

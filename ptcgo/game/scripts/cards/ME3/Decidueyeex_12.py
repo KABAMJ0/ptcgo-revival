@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Sniper's Eye",
             game_text="If your opponent has exactly 4 cards in their hand, ignore all Colorless Energy in the costs of attacks used by this Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Crushing Arrow",

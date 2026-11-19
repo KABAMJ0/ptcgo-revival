@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Crunch",

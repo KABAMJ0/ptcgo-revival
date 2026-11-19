@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Spiteful Swirl",
             game_text="If your Active Darkness Pok\u00e9mon is damaged by an attack from your opponent's Pok\u00e9mon (even if your Active Darkness Pok\u00e9mon is Knocked Out), place 1 damage counter on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Mountain Breaker",

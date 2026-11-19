@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.support_common import heal_targets
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Captivating Rhythm",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with his or her Active Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=heal_targets(20, scope="each_own"),
         ),
         Attack(
             title="Solar Ray",

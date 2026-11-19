@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Regi Power",
             game_text="The attacks of your Fighting Pok\u00e9mon (excluding Regirock-EX) do 10 more damage to your opponent's Active Pok\u00e9mon (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Bedrock Press",

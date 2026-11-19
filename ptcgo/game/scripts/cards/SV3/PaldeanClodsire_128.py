@@ -26,7 +26,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. During your opponent's next turn, that Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Muddy Hammer",

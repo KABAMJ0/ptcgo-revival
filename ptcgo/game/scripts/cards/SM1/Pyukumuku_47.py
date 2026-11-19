@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Innards Out",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is Knocked Out by damage from an opponent's attack, put 6 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=30, until_tails=True),
         ),
         Attack(
             title="Continuous Tumble",

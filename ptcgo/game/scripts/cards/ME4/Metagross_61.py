@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.support_common import opponent_switches
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="62696373-03a8-5971-a5c0-3200a5b9a750",
@@ -27,7 +26,7 @@ card = PokemonCardDef(
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.METAL: 1},
             damage=60,
-            effect=gust_attack(opponent_chooses=True),
+            effect=opponent_switches,
         ),
         Attack(
             title="Metallic Hammer",

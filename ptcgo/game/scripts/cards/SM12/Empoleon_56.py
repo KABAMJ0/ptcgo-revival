@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Recall",
             game_text="Choose an attack from 1 of this Pok\u00e9mon's previous Evolutions and use it as this attack.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Aquafall",

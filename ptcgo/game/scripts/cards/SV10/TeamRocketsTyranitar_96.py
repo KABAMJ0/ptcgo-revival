@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Sand Stream",
             game_text="During Pok\u00e9mon Checkup, if this Pok\u00e9mon is in the Active Spot, put 2 damage counters on each of your opponent's Basic Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Demolition Tackle",

@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Cargo Jet",
             game_text="Discard a Team Plasma card from your hand. if you do, draw 3 cards.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=protect_next_turn(reduce=20),
         ),
         Attack(
             title="Steel Wing",

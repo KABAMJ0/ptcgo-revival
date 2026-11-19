@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 
 card = PokemonCardDef(
     guid="dbfb1a33-9b73-570f-83f1-00afcdc2f6c8",
@@ -26,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), 10, base=20),
+            effect=damage_per(damage_counters_on("self"), 10),
         ),
         Attack(
             title="Blue Flare",
             game_text="Discard 2 Fire Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=self_energy_discard_attack(count=2, energy_type=PokemonTypes.FIRE),
+            effect=unimplemented,
         ),
     ],
 )

@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Water Shuriken",
             game_text="Once during your turn (before your attack), you may discard a Water Energy card from your hand. If you do, put 3 damage counters on 1 of your opponent's Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
         Attack(
             title="Mist Slash",

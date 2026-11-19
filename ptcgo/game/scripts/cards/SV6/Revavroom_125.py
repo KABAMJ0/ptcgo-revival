@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_damage(per_heads=100, until_tails=True),
         ),
         Attack(
             title="Running Charge",

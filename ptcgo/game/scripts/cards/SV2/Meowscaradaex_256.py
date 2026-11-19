@@ -58,7 +58,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=100,
             damage_operator="+",
-            effect=bonus_if(has_damage(), 120),
+            effect=bonus_if(has_damage("defender"), 120),
         ),
     ],
 )

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="5fdcc1c4-bb68-5479-8dca-3655cafc2026",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Seaking.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
     ],
 )

@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Precious Gift",
             game_text="Once at the end of your turn (after your attack), you may use this Ability. Draw cards until you have 8 cards in your hand.",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Power Cyclone",

@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Blessed Salt",
             game_text="During Pok\u00e9mon Checkup, heal 20 damage from each of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Knocking Hammer",

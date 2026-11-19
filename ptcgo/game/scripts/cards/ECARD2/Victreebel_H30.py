@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Fragrance Trap",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, choose 1 of your opponent's Benched Pok\u00e9mon and switch the Defending Pok\u00e9mon with it. This Power can't be used if Victreebel is affected by a Special Condition.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, flip=True),
         ),
         Attack(
             title="Corrosive Acid",

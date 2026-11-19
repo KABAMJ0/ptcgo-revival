@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
 
 card = PokemonCardDef(
     guid="2c44d537-951f-52c8-a9da-767bc42631d1",

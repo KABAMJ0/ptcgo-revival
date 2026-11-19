@@ -24,7 +24,7 @@ card = PokemonCardDef(
             title="Flick Poison",
             game_text="Switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. The new Active Pok\u00e9mon is now Poisoned.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Crunch",

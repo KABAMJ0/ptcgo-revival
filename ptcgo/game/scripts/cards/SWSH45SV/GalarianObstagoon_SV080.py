@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic, attacker_is_evolution
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
 
 card = PokemonCardDef(
     guid="2f8ccff5-e343-5a29-91c2-0afc53357dbd",

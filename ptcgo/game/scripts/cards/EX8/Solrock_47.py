@@ -1,3 +1,5 @@
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Sunbeam",
             game_text="The maximum HP for each Lunatone you have in play is now 80.",
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED, flip=True, tails_conditions=(SpecialConditions.BURNED,)),
         ),
         Attack(
             title="Scorching Light",

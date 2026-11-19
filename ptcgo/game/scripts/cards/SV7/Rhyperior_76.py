@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Wide Wall",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, whenever your opponent plays a Supporter card from their hand, prevent all effects of that card done to all of your Pok\u00e9mon.",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Drill Run",

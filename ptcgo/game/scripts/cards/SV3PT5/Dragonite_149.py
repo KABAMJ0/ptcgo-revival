@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
@@ -22,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Jet Cruise",
             game_text="Your Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=False),
         ),
         Attack(
             title="Dragon Pulse",

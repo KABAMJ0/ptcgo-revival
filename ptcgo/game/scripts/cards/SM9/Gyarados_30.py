@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Hyper Beam",

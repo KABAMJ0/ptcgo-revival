@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_tag_team
 
 card = PokemonCardDef(
     guid="b863051c-7166-5013-8547-37c4bdb7c2e8",
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from TAG TEAM Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_tag_team()),
         ),
         Attack(
             title="Clear Vision-GX",

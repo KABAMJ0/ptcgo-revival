@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Damp",
             game_text="Pok\u00e9mon in play (both yours and your opponent's) lose any Ability that requires the Pok\u00e9mon using it to Knock Out itself.",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "water"), 20),
         ),
         Attack(
             title="Hydro Pump",

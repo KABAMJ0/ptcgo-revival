@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Before doing damage, discard all Pok\u00e9mon Tool cards attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
-            effect=unimplemented,
+            effect=bonus_if(has_damage("defender"), 40),
         ),
         Attack(
             title="Tailspin Piledriver",

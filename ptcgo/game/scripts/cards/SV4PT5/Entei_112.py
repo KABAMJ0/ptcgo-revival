@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import count_energy
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -21,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Pressure",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, attacks used by your opponent's Active Pok\u00e9mon do 20 less damage (before applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self", "fire"), 20),
         ),
         Attack(
             title="Blaze Ball",

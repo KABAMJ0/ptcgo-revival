@@ -1,5 +1,5 @@
-from ptcgo.game.card_effects.passives_common import composed
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=composed(lambda ctx: ctx.deal_damage(), flip_gate(then=discard_opponent_energy_attack(1, damage=0))),
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
     ],
 )

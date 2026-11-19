@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Electrocharge",
             game_text="Search your deck for up to 2 Basic Lightning Energy cards and attach them to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=self_energy_discard_attack(all_energy=True),
         ),
         Attack(
             title="Thunderbolt",

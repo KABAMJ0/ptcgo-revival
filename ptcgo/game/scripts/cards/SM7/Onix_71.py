@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.attacks_common import damage_counters_on
+from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Screech",
             game_text="During your next turn, the Defending Pok\u00e9mon takes 20 more damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=damage_per(damage_counters_on("self"), 10),
         ),
         Attack(
             title="Rage",

@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import attach_from_hand
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Drought",
             game_text="Attach up to 2 Fighting Energy cards from your hand to 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_hand(basic_energy_of("fighting"), count=2, minimum=0, target="choice"),
         ),
         Attack(
             title="Trembling Ground",

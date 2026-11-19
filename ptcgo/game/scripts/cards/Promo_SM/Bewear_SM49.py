@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import flip_gate, mill_attack, condition_attack
 
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=condition_attack(SpecialConditions.CONFUSED, self_conditions=(SpecialConditions.CONFUSED,)),
+            effect=condition_attack(self_conditions=(SpecialConditions.CONFUSED,)),
         ),
     ],
 )

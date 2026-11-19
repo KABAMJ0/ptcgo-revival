@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="1e128a10-5788-58d3-ac2c-68c6b3b89b2d",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Yanma.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=flip_protection(prevent=True, effects_too=True),
         ),
         Attack(
             title="Triple Smash",
@@ -33,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=flip_damage(coins=3, base=20, bonus_per_heads=10),
+            effect=unimplemented,
         ),
     ],
 )

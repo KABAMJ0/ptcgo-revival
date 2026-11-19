@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=energy_move_attack(1),
         ),
         Attack(
             title="Y Cyclone",

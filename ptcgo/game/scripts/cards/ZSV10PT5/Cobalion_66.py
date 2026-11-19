@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy from your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.METAL: 1},
             damage=20,
-            effect=discard_opponent_energy_attack(1, special_only=True),
+            effect=discard_opponent_energy_attack(special_only=True),
         ),
         Attack(
             title="Metal Arms",

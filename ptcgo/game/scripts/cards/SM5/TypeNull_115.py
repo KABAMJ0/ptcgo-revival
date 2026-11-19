@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="+",
-            effect=bonus_if(has_damage(), 30),
+            effect=bonus_if(has_damage("defender"), 30),
         ),
         Attack(
             title="Headbang",
