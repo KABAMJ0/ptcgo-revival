@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
 
 card = PokemonCardDef(
     guid="fe4e1e1e-98df-56d7-a306-ebbd98916bda",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Wheely Draw",
             game_text="Shuffle your hand into your deck. Then, draw 6 cards.",
             cost={PokemonTypes.DARKNESS: 1},
-            effect=unimplemented,
+            effect=shuffle_hand_into_deck_draw(6),
         ),
         Attack(
             title="Hangry Blaster",

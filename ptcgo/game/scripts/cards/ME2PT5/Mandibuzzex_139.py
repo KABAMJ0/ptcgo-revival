@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import discard_from_opponent_hand
 
 card = PokemonCardDef(
     guid="840550b0-0ce3-5696-96f4-cd552bc182d7",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Discard a random card from your opponent's hand.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=160,
-            effect=unimplemented,
+            effect=discard_from_opponent_hand(),
         ),
     ],
 )

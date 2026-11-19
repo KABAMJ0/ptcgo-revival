@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="5508ef73-ed0f-58b2-a14e-bafa7764c599",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             game_text="Flip 3 coins. This attack does 10 damage for each heads.",
             cost={},
             damage=10,
-            effect=unimplemented,
+            effect=flip_damage(coins=3, per_heads=10),
         ),
     ],
 )
