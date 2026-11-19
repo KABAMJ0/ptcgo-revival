@@ -1,4 +1,5 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import pokemon_of_types, takes_less_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
@@ -24,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Thick Fat",
             game_text="Any damage done to Azumarill by attacks from Fire Pok\u00e9mon and Water Pok\u00e9mon is reduced by 30 (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            passive=takes_less_passive(30, attacker_pred=pokemon_of_types(PokemonTypes.FIRE, PokemonTypes.WATER)),
         ),
         Attack(
             title="Bubblebeam",

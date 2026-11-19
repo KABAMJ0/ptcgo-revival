@@ -1,7 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
-from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.passives_common import composed
+from ptcgo.game.card_effects.support_common import (
+    return_attached_energy, search_attach_energy)
 
 
 def _is_holon_energy(card):
@@ -9,6 +11,24 @@ def _is_holon_energy(card):
     definition = card_loader.cards_by_guid.get((getattr(card, "archetype_id", "") or "").lower())
     return definition is not None and \
         (getattr(definition, "display_name", "") or "").lower().startswith("holon energy")
+
+
+async def _return_defender_energy(ctx, returned):
+    """The "if you do" half: one Energy on the Defending Pokemon goes back to
+    the opponent's hand."""
+    defender = ctx.defender
+    if defender is None or ctx.effects_blocked(defender):
+        return
+    energies = list(ctx.attached_energies(defender))
+    if not energies:
+        return
+    picks = energies if len(energies) == 1 else await ctx.choose_cards(
+        energies, 1, minimum=1,
+        prompt="Choose an Energy card to return to your opponent's hand")
+    hand = ctx.board.find_player_area(ctx.opponent_id, "hand")
+    for card in picks:
+        ctx.board.move_card(card.entity_id, hand.entity_id)
+
 
 card = PokemonCardDef(
     guid="8aa2c804-b99d-5b65-bcc0-18320cc2f232",
@@ -40,7 +60,10 @@ card = PokemonCardDef(
             game_text="You may return an Energy card attached to Vaporeon to your hand. If you do, choose an Energy card attached to the Defending Pok\u00e9mon and return it to your opponent's hand.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=unimplemented,
+            effect=composed(
+                lambda ctx: ctx.deal_damage(),
+                return_attached_energy(count=1, target="self",
+                                       then=_return_defender_energy)),
         ),
     ],
 )
