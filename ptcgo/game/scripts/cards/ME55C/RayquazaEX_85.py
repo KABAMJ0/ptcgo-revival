@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import mill_then_attach_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
