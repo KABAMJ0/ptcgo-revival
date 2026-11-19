@@ -1,12 +1,10 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
-from ptcgo.game.card_effects.passives_common import (
-    is_in_active_spot,
-    no_weakness_passive,
-)
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
 from ptcgo.game.card_effects.pokemon import is_energy_card
 from ptcgo.game.card_effects.support_common import attach_from_discard
+
 
 def _is_basic_energy(card) -> bool:
     return (is_energy_card(card)
@@ -15,6 +13,7 @@ def _is_basic_energy(card) -> bool:
 
 def _is_benched(pokemon) -> bool:
     return not is_in_active_spot(pokemon)
+
 
 card = PokemonCardDef(
     guid="21a380f8-2e94-5d73-ba05-0437b7d1e237",

@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
 from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+
 card = PokemonCardDef(
     guid="cef2cba9-363c-50c6-99ee-9b634bb429d9",
     key="XY1",

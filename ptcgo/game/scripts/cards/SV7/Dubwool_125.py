@@ -2,6 +2,14 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import takes_less_passive
 
+
+async def blustery_wind(ctx):
+    """120 damage; you may discard the Stadium in play."""
+    await ctx.deal_damage()
+    if ctx.stadium_in_play() and await ctx.ask_yes_no("Discard the Stadium in play?"):
+        await ctx.discard_stadium()
+
+
 card = PokemonCardDef(
     guid="7157626b-581d-54a7-9d7b-aaec4610b729",
     key="SV7",
@@ -30,7 +38,7 @@ card = PokemonCardDef(
             game_text="You may discard a Stadium in play.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=unimplemented,
+            effect=blustery_wind,
         ),
     ],
 )

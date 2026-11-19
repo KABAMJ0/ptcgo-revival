@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.pokemon import delayed_knockout
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import delayed_knockout
 card = PokemonCardDef(
     guid="6387e5a2-6488-5c44-996c-cf421dc06d31",
     key="SV4PT5",

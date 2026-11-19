@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard, has_attack_titled
+
 card = PokemonCardDef(
     guid="4595c6f6-482a-5ed6-aca6-0be73f4e19d3",
     key="SWSH45SV",
@@ -20,7 +21,7 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Mad Party",
-            game_text="This attack does 20 damage for each Pok\u00e9mon in your discard pile that has the Mad Party attack.",
+            game_text="This attack does 20 damage for each Pokémon in your discard pile that has the Mad Party attack.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",

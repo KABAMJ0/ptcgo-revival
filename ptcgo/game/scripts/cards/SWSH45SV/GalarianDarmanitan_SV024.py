@@ -1,5 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
 
@@ -26,14 +25,14 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=80,
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=spread_damage(10, also_base=True),
         ),
         Attack(
             title="Crushing Headbutt",
             game_text="During your next turn, this Pok\u00e9mon can't use Crushing Headbutt.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 2},
             damage=170,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

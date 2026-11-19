@@ -1,13 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play, self_energy_discard_attack
+
 
 def _has_ability(pokemon) -> bool:
     abilities = pokemon.get_attribute(AttrID.PIE_ABILITIES) or []
     return any(isinstance(e, dict) and e.get("abilityType") in ("PokeAbility", "PokePower")
                for e in abilities)
+
 
 card = PokemonCardDef(
     guid="78fe694e-23c7-5321-82ca-ee1677ac365c",

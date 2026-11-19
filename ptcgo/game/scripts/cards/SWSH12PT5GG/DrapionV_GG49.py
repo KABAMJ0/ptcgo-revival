@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import WildStylePassive, dynamic_tail
+
 card = PokemonCardDef(
     guid="930da419-01d6-5f22-a77e-e81e209e8485",
     key="SWSH12PT5GG",
@@ -21,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Wild Style",
             game_text="This Pok\u00e9mon's attacks cost Colorless less for each of your opponent's Single Strike, Rapid Strike, and Fusion Strike Pok\u00e9mon in play.",
-            effect=unimplemented,
+            passive=WildStylePassive(),
         ),
         Attack(
             title="Dynamic Tail",

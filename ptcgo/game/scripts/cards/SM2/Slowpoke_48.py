@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 card = PokemonCardDef(
     guid="185c445e-6ce1-598b-8462-4880cbc71da0",

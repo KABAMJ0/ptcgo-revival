@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+
 
 card = PokemonCardDef(
     guid="6972cd64-5a76-57c3-b876-a874ec83e2de",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 10 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=debuff_defender_attacks(10),
         ),
     ],
 )

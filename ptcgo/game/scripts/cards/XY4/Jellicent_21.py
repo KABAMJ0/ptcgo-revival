@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Meddling",
             game_text="Attach 3 Energy cards from your opponent's discard pile to his or her Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.WATER: 1},
-            effect=damage_per(count_energy("defender"), 10),
+            effect=unimplemented,
         ),
         Attack(
             title="Ensnaring Spray",

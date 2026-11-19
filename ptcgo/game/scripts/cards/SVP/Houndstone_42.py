@@ -1,7 +1,9 @@
-from ptcgo.game.card_effects.support_common import recover_from_discard
-from ptcgo.game.session.effects import is_item_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+from ptcgo.game.session.effects import is_item_card
+
+
 card = PokemonCardDef(
     guid="b5ff2819-b9a4-5f5c-b4cc-9a9d1a2b51bc",
     key="SVP",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             title="Delve",
             game_text="Put up to 2 Item cards from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=recover_from_discard(is_item_card, count=2, to="hand"),
+            effect=recover_from_discard(is_item_card, count=2, to='hand'),
         ),
         Attack(
             title="Spooky Shot",

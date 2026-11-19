@@ -1,9 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.support_common import requires_damaged_pokemon
+
 
 async def witchs_domain(ctx):
     """Once during your turn, you may move up to 2 damage counters from your
@@ -27,6 +26,7 @@ async def witchs_domain(ctx):
         return
     await ctx.move_damage_counters(source, target, max_count=2)
 
+
 card = PokemonCardDef(
     guid="7ab746c7-bec3-527f-9dbf-5572200495d5",
     key="SWSH12PT5GG",
@@ -49,8 +49,9 @@ card = PokemonCardDef(
         Ability(
             title="Witch's Domain",
             game_text="Once during your turn, you may move up to 2 damage counters from your Pok\u00e9mon to your opponent's Active Pok\u00e9mon.",
-            effect=witchs_domain,
+            activation=Activations.ONCE_PER_TURN,
             condition=requires_damaged_pokemon("mine"),
+            effect=witchs_domain,
         ),
         Attack(
             title="G-Max Smite",

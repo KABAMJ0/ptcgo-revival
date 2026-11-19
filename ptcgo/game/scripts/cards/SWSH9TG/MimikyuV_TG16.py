@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.card_effects.passives_common import apply_protection
+
 
 async def dummy_doll(ctx):
     """On play from hand: you may prevent all damage to this Pokemon by
@@ -34,6 +34,7 @@ card = PokemonCardDef(
         Ability(
             title="Dummy Doll",
             game_text="When you play this Pok\u00e9mon from your hand onto your Bench during your turn, you may prevent all damage done to this Mimikyu V by attacks from your opponent's Pok\u00e9mon until the end of your opponent's next turn.",
+            trigger=Triggers.ON_PLAY,
             effect=dummy_doll,
         ),
         Attack(

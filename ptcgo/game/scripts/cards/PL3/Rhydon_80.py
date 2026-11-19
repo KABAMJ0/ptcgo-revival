@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, ignore_modifier_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="ce6e3c27-7136-548d-8220-2f58833d0904",

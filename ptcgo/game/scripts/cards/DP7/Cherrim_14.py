@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
+
 
 card = PokemonCardDef(
     guid="91f571d2-b41d-5498-b3f5-f365fd9dc61a",
@@ -30,7 +32,7 @@ card = PokemonCardDef(
             game_text="Remove 2 damage counters from 1 of your Pok\u00e9mon.",
             cost={},
             damage=20,
-            effect=unimplemented,
+            effect=heal_targets(20, scope='choice'),
         ),
         Attack(
             title="Solarbeam",

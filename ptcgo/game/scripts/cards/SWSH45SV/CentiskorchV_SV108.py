@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def radiating_heat(ctx):
     """20 damage. You may discard an Energy from this Pokémon; if you do,
@@ -16,6 +17,7 @@ async def radiating_heat(ctx):
     if defender is not None and ctx.attached_energies(defender) \
             and not ctx.effects_blocked(defender):
         await ctx.discard_energy_from(defender, 1)
+
 
 card = PokemonCardDef(
     guid="76a9c1e5-de7a-5b7d-8231-3d5752c9bf5d",
@@ -36,7 +38,7 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Radiating Heat",
-            game_text="You may discard an Energy from this Pok\u00e9mon. If you do, discard an Energy from your opponent's Active Pok\u00e9mon.",
+            game_text="You may discard an Energy from this Pokémon. If you do, discard an Energy from your opponent's Active Pokémon.",
             cost={PokemonTypes.FIRE: 1},
             damage=20,
             effect=radiating_heat,

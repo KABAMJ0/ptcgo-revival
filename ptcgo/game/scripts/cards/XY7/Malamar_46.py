@@ -1,7 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import recover_from_discard, requires_discard
-from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
+
 card = PokemonCardDef(
     guid="016c5ef3-65fa-5a96-ad24-48f948a78e74",
     key="XY7",
@@ -32,8 +33,7 @@ card = PokemonCardDef(
             game_text="Put a card from your discard pile into your hand.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=30,
-            effect=recover_from_discard(count=1, minimum=1, reveal=False, to="hand"),
-            condition=requires_discard(),
+            effect=recover_from_discard(count=1, minimum=1, reveal=False, to='hand'),
         ),
     ],
 )

@@ -26,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Zooming Draw",
             game_text="Once during your turn, you may put 1 damage counter on this Pok\u00e9mon. If you do, draw a card.",
-            effect=damage_per(damage_counters_on("self"), 30),
+            effect=unimplemented,
         ),
         Attack(
             title="Ballistic Beak",

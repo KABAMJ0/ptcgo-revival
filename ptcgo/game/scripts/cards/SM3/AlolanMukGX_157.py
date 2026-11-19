@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
 from ptcgo.game.card_effects.support_common import gust_then
@@ -7,6 +8,8 @@ async def _tri_hazard(ctx, new_active):
     for condition in (SpecialConditions.BURNED, SpecialConditions.PARALYZED,
                       SpecialConditions.POISONED):
         await ctx.apply_special_condition(new_active, condition)
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
+
 
 card = PokemonCardDef(
     guid="26e0fdbb-096b-57b8-9856-fec22f6827b4",
@@ -40,7 +43,7 @@ card = PokemonCardDef(
             game_text="Discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 2, PokemonTypes.COLORLESS: 2},
             damage=120,
-            effect=unimplemented,
+            effect=discard_opponent_energy_attack(1),
         ),
         Attack(
             title="Tri Hazard-GX",

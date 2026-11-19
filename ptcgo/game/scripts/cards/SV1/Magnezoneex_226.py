@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack, damage_per, count_energy
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("opponent"), 50),
         ),
         Attack(
             title="Pulse Launcher",

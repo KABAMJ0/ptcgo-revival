@@ -1,21 +1,8 @@
-from ptcgo.game.card_effects.passives_common import prevent_damage_when
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import protect_next_turn, attacker_is_basic
 
-async def _max_balloon(ctx):
-    await ctx.deal_damage()
-    ctx.add_passive_through_opponents_turn(
-        ctx.attacker, prevent_damage_when(_max_balloon_shield)
-    )
-
-
-def _max_balloon_shield(calc, carrier):
-    if calc.target is not carrier:
-        return False
-    attacker = calc.attacker
-    return attacker is not None and \
-        attacker.get_attribute(AttrID.STAGE) == PokemonStage.BASIC.value
 
 card = PokemonCardDef(
     guid="decd5fd4-92b6-5f8f-9a14-88d121cbb7c6",
@@ -47,7 +34,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, prevent all damage done to this Pok\u00e9mon by attacks from Basic Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=70,
-            effect=_max_balloon,
+            effect=protect_next_turn(prevent=True, attacker_pred=attacker_is_basic()),
         ),
     ],
 )

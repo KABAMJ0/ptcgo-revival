@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 async def mischievous_tail(ctx):
     """Look at the top card of your opponent's deck. You may have your
     opponent shuffle their deck."""
@@ -12,6 +13,7 @@ async def mischievous_tail(ctx):
         )
     if await ctx.ask_yes_no("Have your opponent shuffle their deck?"):
         await ctx.shuffle_deck(ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="1d03f9e8-d8a3-567f-9cf0-c7976e50d9e3",

@@ -1,7 +1,7 @@
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import mill_attack
-from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 card = PokemonCardDef(
     guid="4ee22711-f4ff-5f07-9371-f62b61922b53",
     key="Promo_BW",
@@ -24,7 +24,7 @@ card = PokemonCardDef(
             game_text="Discard a Special Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=mill_attack(2, opponent=False),
+            effect=discard_opponent_energy_attack(special_only=True),
         ),
         Attack(
             title="Hail Blizzard",

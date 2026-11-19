@@ -1,6 +1,8 @@
-from ptcgo.game.card_effects.attacks_common import place_counters
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
+
+
 card = PokemonCardDef(
     guid="b1e1ff20-9391-552d-957b-eef3f6d70d61",
     key="SV8",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Painful Memories",
             game_text="Put 2 damage counters on each of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 1},
-            effect=place_counters(2, "each_opponent"),
+            effect=place_counters(2, 'each_opponent'),
         ),
     ],
 )

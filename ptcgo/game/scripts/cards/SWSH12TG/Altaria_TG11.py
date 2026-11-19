@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+
 
 async def magical_echo(ctx):
     """Move all damage counters from 1 of your Benched Pokemon to the opponent's Active."""
@@ -13,6 +13,7 @@ async def magical_echo(ctx):
     if source is None:
         return
     await ctx.move_damage_counters(source, ctx.defender)
+
 
 card = PokemonCardDef(
     guid="f23c28cc-1219-5d97-aa8b-422a0cdbb64d",
@@ -31,11 +32,11 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.LIGHTNING,
     resistance_type=PokemonTypes.FIGHTING,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Swablu.Name",
-    family_id=334,
+    family_id=333,
     abilities=[
         Attack(
             title="Magical Echo",
-            game_text="Move all damage counters from 1 of your Benched Pok\u00e9mon to your opponent's Active Pok\u00e9mon.",
+            game_text="Move all damage counters from 1 of your Benched Pokémon to your opponent's Active Pokémon.",
             cost={PokemonTypes.COLORLESS: 2},
             effect=magical_echo,
         ),

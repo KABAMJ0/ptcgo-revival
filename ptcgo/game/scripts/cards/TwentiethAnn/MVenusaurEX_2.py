@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate, spread_damage
 
 card = PokemonCardDef(
     guid="dcd25acc-73d0-5144-ac99-87f0f606f51d",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, this attack does 30 damage to each of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 2},
             damage=130,
-            effect=unimplemented,
+            effect=flip_gate(then=spread_damage(30, side="opponent")),
         ),
     ],
 )

@@ -1,9 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 from ptcgo.game.card_effects.attacks_common import (
     condition_attack, bonus_if, defender_is_v, defender_is_gx,
 )
+
 card = PokemonCardDef(
     guid="03a7bbab-675a-5e0e-ab74-a9dc76b48492",
     key="SWSH45SV",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=no_retreat_attack(),
+            effect=condition_attack(no_retreat=True),
         ),
         Attack(
             title="Fighting Fangs",

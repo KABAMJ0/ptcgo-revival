@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Extreme Speed",
             game_text="Entei's Retreat Cost is Colorless Energy less for each Fire Energy attached to Entei.",
-            effect=mill_attack(3, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Wild Blaze",

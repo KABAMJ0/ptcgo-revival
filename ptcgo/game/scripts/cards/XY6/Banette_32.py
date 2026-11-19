@@ -8,6 +8,12 @@ async def _place_active_counters(ctx):
     await ctx.deal_damage()
     await ctx.place_damage_counters(7, [ctx.opponent_active()])
 
+
+async def _place_active_counters(ctx):
+    await ctx.deal_damage()
+    await ctx.place_damage_counters(5, [ctx.opponent_active()])
+
+
 card = PokemonCardDef(
     guid="88dbf48a-508d-5ecf-ae9d-cf645b859f7f",
     key="XY6",

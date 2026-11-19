@@ -2,6 +2,19 @@ from ptcgo.game.session.passives import effective_retreat_cost
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Triggers
+from ptcgo.game.card_effects.pokemon import in_active_spot
+
+
+async def counterattack(ctx):
+    """If Active and damaged by an attack (even if KO'd): 3 counters on the attacker."""
+    if not in_active_spot(ctx.board, ctx.player_id, ctx.source):
+        return
+    attacker = ctx.damaged_by
+    if attacker is None:
+        return
+    await ctx.deal_damage(30, target=attacker, apply_modifiers=False, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="8dcfaed6-46e6-501f-9081-02d627e3db2d",
@@ -25,7 +38,8 @@ card = PokemonCardDef(
         Ability(
             title="Rough Skin",
             game_text="If this Pok\u00e9mon is your Active Pok\u00e9mon and is damaged by an opponent's attack (even if this Pok\u00e9mon is Knocked Out), put 3 damage counters on the Attacking Pok\u00e9mon.",
-            effect=unimplemented,
+            trigger=Triggers.ON_DAMAGED_BY_ATTACK,
+            effect=counterattack,
         ),
         Attack(
             title="Aqua Impact",
@@ -33,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 20, base=60),
         ),
     ],
 )

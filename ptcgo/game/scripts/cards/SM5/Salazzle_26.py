@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import bonus_if, condition_attack, defender_has_any_condition
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_any_condition
 
 card = PokemonCardDef(
     guid="bba7b667-3cdf-5c22-be11-0492d79b2f82",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_has_any_condition, 60),
         ),
     ],
 )

@@ -1,4 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.trainers import retreat_cost_is
+from ptcgo.game.card_effects.attacks_common import flip_damage, discard_for_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
@@ -28,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
             damage_operator="x",
-            effect=flip_damage(per_heads=100, until_tails=True),
+            effect=discard_for_bonus(source="hand", predicate=retreat_cost_is(4), max_count=99, per=50, base=0),
         ),
         Attack(
             title="Iron Tail",

@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Blaine's Arcanine does 10 damage to itself.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
         Attack(
             title="Firestorm",

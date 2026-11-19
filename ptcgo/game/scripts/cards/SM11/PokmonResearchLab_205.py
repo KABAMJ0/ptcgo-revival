@@ -1,17 +1,22 @@
 from ptcgo.game.data_utils import StadiumCardDef
-from ptcgo.game.attributes import Rarities
+from ptcgo.game.attributes import AttrID, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
 from ptcgo.game.card_effects.trainers import (
-    ends_turn_after, fossil_evolution_card, stadium_ability,
+    ends_turn_after, stadium_ability,
 )
 
 
-async def _research_lab(ctx):
-    picks = await ctx.search_deck(
-        fossil_evolution_card, count=2, minimum=0,
-        prompt="Choose up to 2 Pok\u00e9mon that evolve from Unidentified Fossil")
-    for card in picks:
-        await ctx.bench_pokemon(card)
-    await ctx.shuffle_deck()
+def _evolves_from_unidentified_fossil(card) -> bool:
+    """A Pokemon whose direct pre-evolution is Unidentified Fossil.
+
+    Reads EVOLUTION_LOGIC_FROM (the pre-evolution's logic name).
+    `trainers.fossil_evolution_card` reads EVOLUTION_LOGIC_NAME -- the card's
+    own name -- which no fossil evolver carries, so it matches nothing.
+    """
+    return card.get_attribute(AttrID.EVOLUTION_LOGIC_FROM) == "UnidentifiedFossil"
+
+
+_SEARCH = ends_turn_after(search_to_bench(_evolves_from_unidentified_fossil, 2))
 
 
 card = StadiumCardDef(
@@ -25,5 +30,5 @@ card = StadiumCardDef(
     set_code="SM11",
     rarity=Rarities.Uncommon,
     ability=stadium_ability(
-        "Pok\u00e9mon Research Lab", ends_turn_after(_research_lab)),
+        "Pok\u00e9mon Research Lab", _SEARCH),
 )

@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
+
 
 card = PokemonCardDef(
     guid="335ef8ff-2fc0-5d10-a679-f313c7c21e52",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Scout",
             game_text="Your opponent reveals his or her hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=reveal_hand_attack(),
         ),
         Attack(
             title="Fasten Claws",

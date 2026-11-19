@@ -1,15 +1,8 @@
-from ptcgo.game.card_effects.passives_common import prevent_damage_when
-from ptcgo.game.models.board import BoardState
 from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
 
-def _attacker_has_special_energy(calc, carrier) -> bool:
-    if calc.target is not carrier or calc.attacker is None:
-        return False
-    return any(energy.get_attribute(AttrID.IS_SPECIAL_ENERGY)
-               for energy in BoardState.attached_energies(calc.attacker))
 
 card = PokemonCardDef(
     guid="28b2c49c-74da-5bfc-847e-bebb3df3efdc",
@@ -32,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Flashing Head",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon that have any Special Energy attached to them.",
-            passive=prevent_damage_when(_attacker_has_special_energy),
+            effect=mill_attack(1, opponent=True),
         ),
         Attack(
             title="Rumbling Wires",

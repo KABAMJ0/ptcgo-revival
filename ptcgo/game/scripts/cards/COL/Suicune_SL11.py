@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Extreme Speed",
             game_text="Suicune's Retreat Cost is Colorless less for each Water Energy attached to Suicune.",
-            effect=spread_damage(20, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Tsunami",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
 
 card = PokemonCardDef(
     guid="7996ca4d-8b1d-5f0c-8014-51e13da19f4d",
@@ -29,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(lambda ctx: count_prizes_remaining("theirs")(ctx) <= 2, 100),
         ),
     ],
 )

@@ -1,13 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if
+
 
 def _has_fusion_strike_energy(ctx):
     return any(
         "Fusion Strike" in subtypes_for(c.archetype_id)
         for c in ctx.attached_energies(ctx.attacker)
     )
+
 
 card = PokemonCardDef(
     guid="4c5c2ebe-7e18-5b1e-9057-0eab519c6c37",

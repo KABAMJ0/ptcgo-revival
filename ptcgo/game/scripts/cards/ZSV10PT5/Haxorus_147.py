@@ -12,6 +12,7 @@ async def oppressing_sandstorm(ctx):
     if defender is not None and is_basic_pokemon(defender):
         await ctx.knock_out(defender)
 
+
 card = PokemonCardDef(
     guid="51c1cb00-74d1-541a-ae5c-33a530d3238d",
     key="ZSV10PT5",

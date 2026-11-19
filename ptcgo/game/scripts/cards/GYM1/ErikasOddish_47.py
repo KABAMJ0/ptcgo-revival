@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.passives_common import rewrite_energy_types_passive
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="c0e409e3-b794-5ea6-a7a1-5802571c94b6",

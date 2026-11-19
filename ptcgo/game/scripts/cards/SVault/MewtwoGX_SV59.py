@@ -1,7 +1,8 @@
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, damage_per, count_energy
+
 card = PokemonCardDef(
     guid="824a6c76-dd4c-540a-981d-998a7de10c10",
     key="SVault",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_energy("self"), 30),
         ),
         Attack(
             title="Super Absorption",

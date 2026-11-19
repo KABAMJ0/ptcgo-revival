@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_bonus
 
+
+async def synchrodraw(ctx):
+    """Shuffle your hand into your deck. Then, draw a card for each card in
+    your opponent's hand."""
+    draw_count = ctx.hand_size(ctx.opponent_id)
+    await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+    await ctx.draw_cards(draw_count)
+
+
 card = PokemonCardDef(
     guid="6e0cb3ea-0956-54bb-98d2-4eddf01be725",
     key="Promo_SM",
@@ -22,7 +31,7 @@ card = PokemonCardDef(
             title="Mimic",
             game_text="Shuffle your hand into your deck. Then, draw a card for each card in your opponent's hand.",
             cost={PokemonTypes.FAIRY: 1},
-            effect=unimplemented,
+            effect=synchrodraw,
         ),
         Attack(
             title="Play Rough",

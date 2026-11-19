@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.attacks_common import lock_self_attack, flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
@@ -28,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=lock_self_attack(),
+            effect=flip_damage(bonus=60, require_all=True, tails_self_damage=20),
         ),
         Attack(
             title="Giga Impact",

@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=80,
             damage_operator="x",
-            effect=bonus_if(has_damage("defender"), 0, base=30),
+            effect=unimplemented,
         ),
         Attack(
             title="Huge Bite",

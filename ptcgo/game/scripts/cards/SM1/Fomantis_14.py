@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
+
+
+def _is_grass_energy(card) -> bool:
+    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.GRASS.value)
+
 
 card = PokemonCardDef(
     guid="081d8f1b-4cdd-54a2-b35d-7ff081bb324f",
@@ -22,7 +29,7 @@ card = PokemonCardDef(
             title="Synthesis",
             game_text="Search your deck for a Grass Energy card and attach it to 1 of your Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(_is_grass_energy, count=1, distribute=False),
         ),
         Attack(
             title="Leafage",

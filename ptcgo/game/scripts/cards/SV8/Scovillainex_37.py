@@ -1,8 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import damage_counters_on
 from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="15b7791a-478b-51fc-adce-012f1d029b6a",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Double Type",
             game_text="As long as this Pok\u00e9mon is in play, it is Grass and Fire type.",
-            effect=damage_per(damage_counters_on("self"), 70),
+            effect=unimplemented,
         ),
         Attack(
             title="Spicy Rage",

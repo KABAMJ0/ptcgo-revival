@@ -5,6 +5,9 @@ from ptcgo.game.card_effects.support_common import discard_then_draw
 def first_turn(board, player_id, pokemon):
     turn_state = getattr(board, "turn_state", None)
     return turn_state is not None and turn_state.turn_number <= 2
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.passives_common import is_in_active_spot
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 
 card = PokemonCardDef(
@@ -38,7 +41,7 @@ card = PokemonCardDef(
             game_text="Attach up to 2 Basic Energy cards from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=attach_from_discard(predicate=is_basic_energy_card, count=2, minimum=0, target=lambda p: not is_in_active_spot(p), prompt='Choose up to 2 basic Energy cards to attach'),
         ),
     ],
 )

@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import lock_self_attack
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 card = PokemonCardDef(
     guid="fa1a899f-b514-5fa2-a9c8-3bd966b0d3fd",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Skyliner",
             game_text="Your Basic Pok\u00e9mon in play have no Retreat Cost.",
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target='choice'),
         ),
         Attack(
             title="Eon Blade",

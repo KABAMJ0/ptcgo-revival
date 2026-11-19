@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import heal_targets
+
+
 card = PokemonCardDef(
     guid="d9bb3256-dff6-526f-b68b-eb88d4363ceb",
     key="XY1",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Massage",
             game_text="Heal 60 damage from 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 1},
-            effect=heal_targets(60, scope="bench_choice"),
+            effect=heal_targets(60, scope='bench_choice'),
         ),
         Attack(
             title="Slap Down",

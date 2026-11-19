@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.pokemon import shady_dealings
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import search_to_hand
-from ptcgo.game.session.effects import is_trainer_card
-from ptcgo.game.card_effects.attacks_common import snipe_attack, lock_all_attacks
+
 card = PokemonCardDef(
     guid="b72fdaeb-528a-5d3b-842b-a6b6292ebc92",
     key="SWSH45SV",
@@ -25,14 +25,14 @@ card = PokemonCardDef(
             title="Shady Dealings",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may search your deck for up to 2 Trainer cards, reveal them, and put them into your hand. Then, shuffle your deck.",
             trigger=Triggers.ON_EVOLVE,
-            effect=search_to_hand(is_trainer_card, count=2, reveal=True),
+            effect=shady_dealings(2),
         ),
         Attack(
             title="Aqua Bullet",
             game_text="This attack also does 20 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=snipe_attack(20, pool="bench", count=1, side="opponent", also_base=True),
+            effect=snipe_attack(20, also_base=True),
         ),
     ],
 )

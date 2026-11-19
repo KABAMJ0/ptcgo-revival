@@ -2,6 +2,9 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, uni
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.attributes import SpecialConditions
+
 
 card = PokemonCardDef(
     guid="8069e1c4-479b-5a90-83b5-fd82c4ccfbbe",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             game_text="Both this Pok\u00e9mon and the Defending Pok\u00e9mon are now Asleep.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, both_actives=True),
         ),
     ],
 )

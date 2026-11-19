@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import flip_bonus, spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
 
 card = PokemonCardDef(
     guid="e2ec4a3d-feb0-52e4-bea7-d93d20836d46",

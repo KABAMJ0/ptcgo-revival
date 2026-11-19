@@ -2,6 +2,9 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, 
 from ptcgo.game.card_effects.pokemon import in_active_spot
 from ptcgo.game.card_effects.trainers import search_to_top
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="c9ea48b2-0d14-53a3-8495-11e638f8d67a",
@@ -34,7 +37,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Confused and Poisoned.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.CONFUSED, SpecialConditions.POISONED),
         ),
     ],
 )

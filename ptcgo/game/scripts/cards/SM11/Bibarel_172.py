@@ -1,6 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import choose_attack_lock
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import choose_attack_lock
+from ptcgo.game.card_effects.passives_common import attack_effect_shield_passive
+
 
 card = PokemonCardDef(
     guid="05f28044-85e6-5e62-9730-2be421d1ab58",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
         Ability(
             title="Unaware",
             game_text="Prevent all effects of your opponent's attacks, except damage, done to this Pok\u00e9mon.",
-            effect=unimplemented,
+            passive=attack_effect_shield_passive(),
         ),
         Attack(
             title="Amnesia",

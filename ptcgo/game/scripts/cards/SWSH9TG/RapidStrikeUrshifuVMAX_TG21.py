@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, snipe_attack
+
 
 async def gmax_rapid_flow(ctx):
     """Discard all Energy from this Pokémon, then 120 to 2 of the opponent's Pokémon (no W/R on Bench)."""
@@ -8,6 +9,7 @@ async def gmax_rapid_flow(ctx):
         ctx.attacker, 99, prompt="Choose Energy to discard from this Pokémon"
     )
     await snipe_attack(120, pool="any", count=2)(ctx)
+
 
 card = PokemonCardDef(
     guid="9e76f102-c402-50c6-9c4a-ea6593c36ae6",
@@ -29,7 +31,7 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Gale Thrust",
-            game_text="If this Pok\u00e9mon moved from your Bench to the Active Spot this turn, this attack does 120 more damage.",
+            game_text="If this Pokémon moved from your Bench to the Active Spot this turn, this attack does 120 more damage.",
             cost={PokemonTypes.FIGHTING: 1},
             damage=30,
             damage_operator="+",
@@ -37,7 +39,7 @@ card = PokemonCardDef(
         ),
         Attack(
             title="G-Max Rapid Flow",
-            game_text="Discard all Energy from this Pok\u00e9mon. This attack does 120 damage to 2 of your opponent's Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
+            game_text="Discard all Energy from this Pokémon. This attack does 120 damage to 2 of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             effect=gmax_rapid_flow,
         ),

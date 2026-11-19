@@ -1,9 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.card_effects.trainers import is_energy_card
+
 
 async def max_blaze(ctx):
     """130 damage. Choose up to 2 Benched Rapid Strike Pokémon and attach a
@@ -30,6 +29,7 @@ async def max_blaze(ctx):
             ctx.visual_targets.append(target.entity_id)
         await ctx.attach_energy(picks[0], target)
 
+
 card = PokemonCardDef(
     guid="982e6c4a-5470-5189-b841-ffa57a54b10d",
     key="SWSH12TG",
@@ -50,14 +50,14 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Clutch",
-            game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
+            game_text="During your opponent's next turn, the Defending Pokémon can't retreat.",
             cost={PokemonTypes.FIRE: 1},
             damage=60,
-            effect=no_retreat_attack(),
+            effect=condition_attack(no_retreat=True),
         ),
         Attack(
             title="Max Blaze",
-            game_text="Choose up to 2 of your Benched Rapid Strike Pok\u00e9mon and attach an Energy card from your discard pile to each of them.",
+            game_text="Choose up to 2 of your Benched Rapid Strike Pokémon and attach an Energy card from your discard pile to each of them.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=130,
             effect=max_blaze,

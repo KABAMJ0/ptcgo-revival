@@ -26,7 +26,7 @@ card = PokemonCardDef(
             title="Upside-Down Draw",
             game_text="Draw 3 cards from the bottom of your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=damage_per(count_energy("defender"), 90),
+            effect=unimplemented,
         ),
         Attack(
             title="Psychic",

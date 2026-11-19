@@ -19,7 +19,7 @@ card = PokemonCardDef(
     retreat_cost=4,
     weakness_type=PokemonTypes.FIRE,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Quilladin.Name",
-    family_id=650,
+    family_id=652,
     abilities=[
         Attack(
             title="Spike Lariat",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
             damage_operator="+",
-            effect=protect_next_turn(reduce=20),
+            effect=bonus_if(has_damage(), 60),
         ),
         Attack(
             title="Adamantine Press",

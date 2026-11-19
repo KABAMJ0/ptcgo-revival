@@ -1,14 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
 
-async def super_fang(ctx):
-    """Damage counters on the opponent's Active until its remaining HP is 10."""
+
+async def life_squeeze(ctx):
+    """Put damage counters on the opponent's Active until its remaining HP is 10."""
     target = ctx.defender
     if target is None:
         return
-    hp = target.get_attribute(AttrID.HP, 0)
-    if hp > 10:
-        await ctx.deal_damage(hp - 10, target=target, as_counters=True)
+    current = target.get_attribute(AttrID.HP, 0)
+    amount = current - 10
+    if amount > 0:
+        await ctx.deal_damage(amount, target=target, as_counters=True)
+
 
 card = PokemonCardDef(
     guid="726d597a-c9ee-5041-8292-3e87e13483ea",
@@ -31,7 +35,7 @@ card = PokemonCardDef(
             title="Super Fang",
             game_text="Put damage counters on your opponent's Active Pok\u00e9mon until its remaining HP is 10.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=super_fang,
+            effect=life_squeeze,
         ),
     ],
 )

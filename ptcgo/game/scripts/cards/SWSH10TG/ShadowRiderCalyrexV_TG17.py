@@ -1,7 +1,21 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
 from ptcgo.game.session.effects import is_special_energy
+
+
+def _is_stadium_card(card):
+    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value
+
+
+async def shadow_mist(ctx):
+    """10 damage; during your opponent's next turn, they can't play any
+    Special Energy or Stadium cards from their hand."""
+    await ctx.deal_damage()
+    ctx.lock_plays(
+        ctx.opponent_id,
+        lambda card: is_special_energy(card) or _is_stadium_card(card),
+    )
+
 
 async def astral_barrage(ctx):
     """Choose 2 of your opponent's Pokemon and put 5 damage counters on each."""
@@ -14,18 +28,6 @@ async def astral_barrage(ctx):
     for target in chosen:
         await ctx.deal_damage(50, target=target, as_counters=True)
 
-async def shadow_mist(ctx):
-    """10 damage; during your opponent's next turn, they can't play any
-    Special Energy or Stadium cards from their hand."""
-    await ctx.deal_damage()
-    ctx.lock_plays(
-        ctx.opponent_id,
-        lambda card: is_special_energy(card) or _is_stadium_card(card),
-    )
-
-
-def _is_stadium_card(card):
-    return card.get_attribute(AttrID.TRAINER_TYPE) == TrainerType.STADIUM.value
 
 card = PokemonCardDef(
     guid="75b04b31-a182-59a7-8171-7aa0fbc36154",

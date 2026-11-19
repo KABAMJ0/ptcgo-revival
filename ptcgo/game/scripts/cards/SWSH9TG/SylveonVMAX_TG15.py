@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.card_effects.pokemon import is_energy_card
+
 
 async def _precious_touch(ctx):
     bench = ctx.my_bench()
@@ -18,12 +18,14 @@ async def _precious_touch(ctx):
     if await ctx.attach_energy(picks[0], target):
         await ctx.heal(120, target=target)
 
+
 def _distinct_bench_types(ctx) -> int:
     types = set()
     for pokemon in ctx.my_bench():
         for t in pokemon.get_attribute(AttrID.POKEMON_TYPES) or []:
             types.add(t)
     return len(types)
+
 
 card = PokemonCardDef(
     guid="4c30257b-7259-5240-b744-0f55ca8794eb",

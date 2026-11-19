@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
@@ -12,6 +12,7 @@ laser_focus = search_attach_energy(
     predicate=_is_fighting_energy, count=2, to_self=True,
     prompt="Choose up to 2 Fighting Energy cards to attach.",
 )
+
 
 card = PokemonCardDef(
     guid="50b11dfa-5347-578e-930e-c127b9efed27",
@@ -41,7 +42,7 @@ card = PokemonCardDef(
             game_text="During your next turn, this Pok\u00e9mon can't use Impact Blow.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=180,
-            effect=unimplemented,
+            locks_next_turn=True,
         ),
     ],
 )

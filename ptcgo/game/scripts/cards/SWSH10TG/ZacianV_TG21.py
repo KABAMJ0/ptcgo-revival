@@ -1,8 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import lock_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.trainers import is_metal_energy_card
+
 
 async def intrepid_sword(ctx):
     """Once per turn: look at the top 3, attach any Metal Energy found there
@@ -22,6 +21,7 @@ async def intrepid_sword(ctx):
     rest = [c for c in top if c not in picks]
     if rest:
         await ctx.put_in_hand(rest, reveal=False)
+
 
 card = PokemonCardDef(
     guid="3efcccdb-d897-56e4-8fd0-ee10b62e963a",
@@ -43,15 +43,17 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Intrepid Sword",
-            game_text="Once during your turn, you may look at the top 3 cards of your deck and attach any number of Metal Energy cards you find there to this Pok\u00e9mon. Put the other cards into your hand. If you use this Ability, your turn ends.",
+            game_text="Once during your turn, you may look at the top 3 cards of your deck and attach any number of Metal Energy cards you find there to this Pokémon. Put the other cards into your hand. If you use this Ability, your turn ends.",
+            activation=Activations.ONCE_PER_TURN,
+            ends_turn=True,
             effect=intrepid_sword,
         ),
         Attack(
             title="Brave Blade",
-            game_text="During your next turn, this Pok\u00e9mon can't attack.",
+            game_text="During your next turn, this Pokémon can't attack.",
             cost={PokemonTypes.METAL: 3},
             damage=230,
-            effect=lock_self_attack(),
+            locks_next_turn=True,
         ),
     ],
 )

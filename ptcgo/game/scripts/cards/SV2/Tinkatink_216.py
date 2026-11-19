@@ -1,12 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.support_common import heal_attack, recover_from_discard, requires_discard
+from ptcgo.game.card_effects.support_common import recover_from_discard
 from ptcgo.game.session.effects import is_item_card
 
-ideal_fishing_day = recover_from_discard(
-    predicate=is_item_card, count=1, minimum=1, reveal=False, to="hand",
-    prompt="Choose an Item card to put into your hand.",
-)
 
 card = PokemonCardDef(
     guid="7a5cde1f-8344-5b3f-9fc3-b5f84d56df21",
@@ -29,8 +25,7 @@ card = PokemonCardDef(
             title="Scrap Pickup",
             game_text="Put an Item card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=ideal_fishing_day,
-            condition=requires_discard(is_item_card),
+            effect=recover_from_discard(is_item_card, count=1, minimum=1, reveal=False, to='hand'),
         ),
         Attack(
             title="Fairy Wind",

@@ -1,9 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_per, count_discard, has_attack_titled
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import requires_hand
 from ptcgo.game.card_effects.attacks_common import count_discard, damage_per, has_attack_titled
+
 _HAS_MAD_PARTY = has_attack_titled("Mad Party")
 
 
@@ -18,6 +17,8 @@ async def tea_break(ctx):
         return
     if await ctx.ask_yes_no("Draw 2 cards?"):
         await ctx.draw_cards(2)
+
+
 card = PokemonCardDef(
     guid="9a2c83af-30f8-5650-ae8e-d01987413d20",
     key="SWSH45SV",
@@ -39,17 +40,18 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Tea Break",
-            game_text="You must discard a Pok\u00e9mon that has the Mad Party attack from your hand in order to use this Ability. Once during your turn, you may draw 2 cards.",
-            effect=tea_break,
+            game_text="You must discard a Pokémon that has the Mad Party attack from your hand in order to use this Ability. Once during your turn, you may draw 2 cards.",
+            activation=Activations.ONCE_PER_TURN,
             condition=requires_hand(_HAS_MAD_PARTY),
+            effect=tea_break,
         ),
         Attack(
             title="Mad Party",
-            game_text="This attack does 20 damage for each Pok\u00e9mon in your discard pile that has the Mad Party attack.",
+            game_text="This attack does 20 damage for each Pokémon in your discard pile that has the Mad Party attack.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="x",
-            effect=damage_per(count_discard("mine", has_attack_titled("Mad Party")), 20),
+            effect=damage_per(count_discard("mine", _HAS_MAD_PARTY), 20),
         ),
     ],
 )

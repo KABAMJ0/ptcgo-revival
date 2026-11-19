@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import raise_defender_attack_cost_next_turn
+from ptcgo.game.card_effects.attacks_common import flip_gate
+
 
 card = PokemonCardDef(
     guid="6ffac369-0040-5602-b8d4-e3a166ffddeb",
@@ -34,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_gate(then=lambda ctx: ctx.deal_damage(70)),
         ),
     ],
 )

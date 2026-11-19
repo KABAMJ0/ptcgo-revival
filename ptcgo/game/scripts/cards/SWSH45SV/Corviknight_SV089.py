@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import apply_protection
+
 
 async def iron_wings(ctx):
     await ctx.deal_damage()
@@ -11,6 +12,7 @@ async def iron_wings(ctx):
         picks = await ctx.discard_energy_from(ctx.attacker, 2)
         if picks:
             await apply_protection(ctx, reduce=100)
+
 
 card = PokemonCardDef(
     guid="b30be7f5-32ff-5e62-a204-4d8863bf4173",

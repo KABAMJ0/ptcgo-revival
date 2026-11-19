@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Mighty Shield",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from each of your opponent's Pok\u00e9mon that has any Special Energy attached to it.",
-            effect=damage_per(count_energy("self", "metal"), 20),
+            effect=unimplemented,
         ),
         Attack(
             title="Slash Blast",

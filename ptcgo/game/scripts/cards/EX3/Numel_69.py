@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
 
 card = PokemonCardDef(
     guid="8982f33a-c264-5bd7-aa01-d6c7147dbe7d",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=flip_gate(then=lambda ctx: ctx.deal_damage(20)),
+            effect=flip_bonus(10),
         ),
         Attack(
             title="Tackle",

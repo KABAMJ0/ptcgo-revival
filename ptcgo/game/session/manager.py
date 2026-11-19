@@ -8,6 +8,7 @@ from ptcgo.network.message_names import OutboundMsg
 from ptcgo.game.attributes import DeckFormat
 from ptcgo.game.decks.formats import FormatManager
 from ptcgo.game.decks.validation import DeckValidator
+from ptcgo.game.decks import card_bans
 from ptcgo.server import metrics
 from ptcgo.server import activity
 from ptcgo import config
@@ -113,11 +114,28 @@ class GameSessionManager:
             self.pending_pairings.pop(game_id, None)
             logging.info(f"[SessionManager] Dropped pending pairing {game_id} (client disconnected)")
 
+    async def _refuse_banned_deck(self, client, deck_data: dict, request_id: int = 0,
+                                  challenge: bool = False) -> bool:
+        """Refuses a deck holding a server-banned card; True when it did."""
+        text = card_bans.refusal_text(deck_data)
+        if text is None:
+            return False
+        player = getattr(client, "player", None)
+        activity.record("match_refused_banned", account=getattr(player, "username", None), detail=text)
+        if challenge:
+            await self._send_challenge_failed(client, text, request_id)
+        else:
+            await client.send_packet({"messageName": "MatchRequestError", "errorMsg": {"id": text}},
+                                     request_id)
+        return True
+
     async def add_to_queue(self, client, queue_name: str, deck_data: dict, client_options: dict,
                            request_id: int = 0, tournament_context: dict = None):
         """Adds a client to the matchmaking queue for a format."""
         if not isinstance(queue_name, str) or len(queue_name) > _MAX_QUEUE_NAME_LEN:
             logging.warning(f"[Matchmaking] Rejecting oversized/invalid queueName from {client.addr}")
+            return
+        if await self._refuse_banned_deck(client, deck_data, request_id):
             return
         format_guid = FormatManager().resolve_format_guid(queue_name)
         if format_guid == DeckFormat.THEME.value or queue_name.lower().endswith("themedeck"):
@@ -215,6 +233,8 @@ class GameSessionManager:
         behalf sends `MatchFound`, which is what moves the client's matchmaking
         state into the game.
         """
+        if await self._refuse_banned_deck(client, deck_data, request_id):
+            return
         await self.remove_from_queue(client, send_left_packet=False)
         self.remove_session_by_player_id(client.player.account_id)
 
@@ -292,6 +312,8 @@ class GameSessionManager:
 
     async def create_challenge(self, client, opponent_id: str, deck_data: dict, match_options: dict):
         """Handles RequestMatchWithSpecificClient: offers a friend challenge to an online opponent."""
+        if await self._refuse_banned_deck(client, deck_data, challenge=True):
+            return
         # A player can only have one outstanding challenge in either direction
         await self.remove_challenges_for_client(client, notify_self=False)
 
@@ -335,6 +357,9 @@ class GameSessionManager:
                 self.pending_challenges[path] = entry
             return await self._send_challenge_failed(client, "This challenge is no longer available.")
 
+        if await self._refuse_banned_deck(client, deck_data, challenge=True):
+            self.pending_challenges[path] = entry
+            return
         challenger = entry["challenger"]
         if not challenger.player or challenger not in client.server.clients:
             return await self._send_challenge_failed(client, "Your opponent is no longer online.")
@@ -528,6 +553,21 @@ class GameSessionManager:
         """Instantiates the active GameSession and sends MatchFound to start scene transition."""
         pairing = self.pending_pairings.pop(game_id, None)
         if not pairing:
+            return
+        # Backstop for a ban that landed while a deck sat in a queue or a ready check.
+        humans = [info["client"] for info in pairing["players"].values() if info.get("client")]
+        refusal = next((text for text in (card_bans.refusal_text(info.get("deck"))
+                                          for info in pairing["players"].values() if info.get("client"))
+                        if text), None)
+        if refusal:
+            activity.record("match_refused_banned", detail=f"game {game_id}: {refusal}")
+            for human in humans:
+                try:
+                    await human.send_packet({"messageName": "MatchRequestError",
+                                             "errorMsg": {"id": "A deck in this match contains a card "
+                                                                "banned on this server."}}, 0)
+                except Exception as e:
+                    logging.error(f"[Matchmaking] could not notify banned-deck refusal: {e}")
             return
 
         logging.info(f"[Matchmaking] All players ready! Transitioning game {game_id} to active gameplay")

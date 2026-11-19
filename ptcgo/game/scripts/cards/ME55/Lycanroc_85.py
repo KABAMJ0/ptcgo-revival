@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
+
 
 card = PokemonCardDef(
     guid="62848a0e-af31-5006-96de-da01f93804cd",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=mill_attack(2, opponent=True),
         ),
         Attack(
             title="Boulder Crush",

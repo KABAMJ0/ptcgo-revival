@@ -1,7 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import spread_damage
+
 
 card = PokemonCardDef(
     guid="b8482cef-e79d-5e68-8549-21d5434f9637",
@@ -25,7 +26,7 @@ card = PokemonCardDef(
             title="Snow Coating",
             game_text="Double the number of damage counters on each of your opponent's Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Blizzard",

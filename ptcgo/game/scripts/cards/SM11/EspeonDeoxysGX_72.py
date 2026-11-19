@@ -1,5 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
+
+
+def _is_psychic(pokemon) -> bool:
+    return PokemonTypes.PSYCHIC.value in (pokemon.get_attribute(AttrID.POKEMON_TYPES) or [])
+
 
 card = PokemonCardDef(
     guid="16c40fac-a578-5dfb-b04e-8a987097dddc",
@@ -24,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=10,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench('mine', _is_psychic), 30, base=10),
         ),
         Attack(
             title="Cross Division-GX",

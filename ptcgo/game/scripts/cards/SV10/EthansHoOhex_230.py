@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Golden Flame",
             game_text="Once during your turn, you may attach up to 2 Basic Fire Energy cards from your hand to 1 of your Benched Ethan's Pok\u00e9mon.",
-            effect=heal_targets(50, scope="each_own"),
+            effect=unimplemented,
         ),
         Attack(
             title="Shining Feathers",

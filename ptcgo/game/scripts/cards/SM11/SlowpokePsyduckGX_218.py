@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.trainers import is_supporter_card
+from ptcgo.game.card_effects.attacks_common import discard_for_bonus
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=40,
             damage_operator="x",
-            effect=unimplemented,
+            effect=discard_for_bonus(source="hand", predicate=is_supporter_card, max_count=99, per=40, optional=True, base=0),
         ),
         Attack(
             title="Thrilling Times-GX",

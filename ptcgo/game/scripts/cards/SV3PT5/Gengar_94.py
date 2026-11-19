@@ -5,6 +5,14 @@ async def _spread_bench(ctx):
     """Printed damage, then 3 damage counters across the opponent's Bench, any way they like."""
     await ctx.deal_damage()
     await ctx.place_damage_counters(3, candidates=ctx.opponent_bench())
+from ptcgo.game.session.effects import is_trainer_card
+
+
+async def poltergeist(ctx):
+    """Opponent reveals their hand; 50 damage for each Trainer card found there."""
+    cards = await ctx.reveal_hand(of_player=ctx.opponent_id)
+    count = sum(1 for c in cards if is_trainer_card(c))
+    await ctx.deal_damage(50 * count)
 
 
 card = PokemonCardDef(
@@ -32,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1},
             damage=50,
             damage_operator="x",
-            effect=unimplemented,
+            effect=poltergeist,
         ),
         Attack(
             title="Hollow Dive",

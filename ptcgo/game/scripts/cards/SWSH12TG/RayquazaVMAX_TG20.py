@@ -1,8 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
+
 
 async def azure_pulse(ctx):
     """Once per turn: you may discard your hand and draw 3 cards."""
@@ -10,6 +9,12 @@ async def azure_pulse(ctx):
         return
     await ctx.discard_cards(ctx.hand())
     await ctx.draw_cards(3)
+
+
+def _is_basic_type(card, type_value):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_basic_energy_card(card) and type_value in types
+
 
 async def max_burst(ctx):
     """You may discard any amount of basic Fire or Lightning Energy from
@@ -29,10 +34,6 @@ async def max_burst(ctx):
             await ctx.discard_cards(picks)
     await ctx.deal_damage(20 + 80 * len(picks))
 
-
-def _is_basic_type(card, type_value):
-    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
-    return is_basic_energy_card(card) and type_value in types
 
 card = PokemonCardDef(
     guid="ec5a6dc1-3dc0-5f08-9095-7b3e12a62633",
@@ -54,11 +55,12 @@ card = PokemonCardDef(
         Ability(
             title="Azure Pulse",
             game_text="Once during your turn, you may discard your hand and draw 3 cards.",
+            activation=Activations.ONCE_PER_TURN,
             effect=azure_pulse,
         ),
         Attack(
             title="Max Burst",
-            game_text="You may discard any amount of basic Fire Energy or any amount of basic Lightning Energy from this Pok\u00e9mon. This attack does 80 more damage for each card you discarded in this way.",
+            game_text="You may discard any amount of basic Fire Energy or any amount of basic Lightning Energy from this Pokémon. This attack does 80 more damage for each card you discarded in this way.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.LIGHTNING: 1},
             damage=20,
             damage_operator="+",

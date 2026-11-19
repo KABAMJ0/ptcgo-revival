@@ -1,6 +1,7 @@
+from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import flip_damage, condition_attack
 
 card = PokemonCardDef(
     guid="b7c6814c-c7cd-57a1-9082-dea3499e2443",
@@ -32,14 +33,14 @@ card = PokemonCardDef(
             title="Super Intense Poison",
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 10 damage counters instead of 1 on that Pok\u00e9mon between turns.",
             cost={PokemonTypes.PSYCHIC: 3},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=10),
         ),
         Attack(
             title="Total Shelter-GX",
             game_text="Prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.PSYCHIC: 3},
             damage=150,
-            effect=unimplemented,
+            effect=protect_next_turn(prevent=True, effects_too=True),
         ),
     ],
 )

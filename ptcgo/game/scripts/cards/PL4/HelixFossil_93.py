@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import FossilItemCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.trainers import FossilBodyPassive, fossil_discard_ability
 
+
 card = FossilItemCardDef(
     guid="6446788d-846b-5cee-8431-09a8bae44527",
     key="PL4",

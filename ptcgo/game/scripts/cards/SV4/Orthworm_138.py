@@ -1,6 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _deck_has_few_cards(ctx) -> bool:
+    deck = ctx.board.find_player_area(ctx.player_id, "deck")
+    return deck is not None and len(deck.children) <= 3
+
 
 card = PokemonCardDef(
     guid="b8ad65cb-9667-5bea-a7ac-fc55f65041d3",
@@ -33,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_deck_has_few_cards, 150),
         ),
     ],
 )

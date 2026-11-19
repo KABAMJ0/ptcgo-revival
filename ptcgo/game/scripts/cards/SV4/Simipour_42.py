@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Monkey Trio",
             game_text="If you have Simisage, Simisear, and Simipour in play, ignore all Colorless Energy in the costs of attacks used by this Pok\u00e9mon.",
-            effect=spread_damage(30, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Liquid Lashing",

@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_all_opponents
+from ptcgo.game.card_effects.support_common import bare_mill
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -24,7 +25,8 @@ card = PokemonCardDef(
         Ability(
             title="Aftermath",
             game_text="When this Pok\u00e9mon is Knocked Out by damage from an opponent's attack, discard the top 3 cards of your opponent's deck.",
-            effect=spread_damage(20, side="opponent"),
+            trigger=Triggers.ON_KNOCKED_OUT,
+            effect=bare_mill(3),
         ),
         Attack(
             title="Smogbank",

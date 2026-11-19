@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.session.effects import is_supporter_card
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def tempting_tune(ctx):
     """Search a Supporter, reveal it, shuffle, then put it on top of the deck."""
@@ -14,6 +14,7 @@ async def tempting_tune(ctx):
     await ctx.shuffle_deck()
     if picks:
         await ctx.put_on_top_of_deck(picks[0])
+
 
 card = PokemonCardDef(
     guid="d98cdea9-f730-5637-98c9-fc71a38d4495",
@@ -35,6 +36,7 @@ card = PokemonCardDef(
         Ability(
             title="Tempting Tune",
             game_text="Once during your turn, you may search your deck for a Supporter card, reveal it, shuffle your deck, then put that card on top of it.",
+            activation=Activations.ONCE_PER_TURN,
             effect=tempting_tune,
         ),
         Attack(

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
+
 
 card = PokemonCardDef(
     guid="15f6e90c-ee9b-5df5-9154-4d715b4bbe24",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
         Attack(
             title="Sky Uppercut",

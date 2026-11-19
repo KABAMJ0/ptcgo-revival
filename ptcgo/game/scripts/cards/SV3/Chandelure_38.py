@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_energy("defender"), 50),
+            effect=damage_per(count_energy("defender"), 50, base=10),
         ),
         Attack(
             title="Heat Blast",

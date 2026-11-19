@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import condition_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import count_prizes_taken, damage_per
+
 
 card = PokemonCardDef(
     guid="90560cfc-1dab-5fe6-8cca-d6c6b76038df",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_taken('mine'), 70),
         ),
     ],
 )

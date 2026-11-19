@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.card_effects.support_common import baby_evolution
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 _baby_effect, _baby_in_hand = baby_evolution("Pikachu")
 

@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import spread_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_all_opponents
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import shield_from_defender_next_turn
 
 card = PokemonCardDef(
     guid="e9158516-7569-510c-9151-ac8fbce990d6",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             title="Negative Ion",
             game_text="During your opponent's next turn, any damage done by attacks from the Defending Pok\u00e9mon is reduced by 30 (before applying Weakness and Resistance).",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=spread_damage(10, side="opponent"),
+            effect=shield_from_defender_next_turn(reduce=30),
         ),
         Attack(
             title="Electrishower",

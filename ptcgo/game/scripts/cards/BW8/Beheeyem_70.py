@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack, move_counters_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 
 card = PokemonCardDef(
     guid="b901b866-2d57-54a0-8198-e651bab1bd51",

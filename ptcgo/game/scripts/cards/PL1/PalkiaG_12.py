@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="You may switch Palkia G with 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Pearl Breath",

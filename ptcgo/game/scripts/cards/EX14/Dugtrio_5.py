@@ -1,6 +1,13 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import is_in_active_spot, prevent_damage_when
+
+
+def _protects_own_bench(calc, carrier) -> bool:
+    return (calc.target.owning_player_id == carrier.owning_player_id
+            and not is_in_active_spot(calc.target))
+
 
 card = PokemonCardDef(
     guid="0b324c26-e4e7-59a9-bbbc-f6ebaf3613e4",
@@ -23,7 +30,7 @@ card = PokemonCardDef(
         Ability(
             title="Sand Veil",
             game_text="Prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_protects_own_bench),
         ),
         Attack(
             title="Dig Under",

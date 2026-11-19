@@ -1,12 +1,14 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy
+
 
 async def g_max_drill(ctx):
     attached = count_energy("self", energy_type=PokemonTypes.DARKNESS)(ctx)
     extra = max(0, attached - 3)
     bonus = min(100, extra * 50)
     await ctx.deal_damage(170 + bonus)
+
 
 card = PokemonCardDef(
     guid="6091d5ef-f4ed-5226-9559-96ead11da446",

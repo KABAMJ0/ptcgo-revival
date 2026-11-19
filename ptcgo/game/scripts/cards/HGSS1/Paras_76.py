@@ -29,7 +29,7 @@ card = PokemonCardDef(
             game_text="Paras does 10 damage to itself.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

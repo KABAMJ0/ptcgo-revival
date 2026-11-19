@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import Activations
+from ptcgo.game.card_effects.support_common import requires_hand
+
+
+async def reconstitute(ctx):
+    """Discard 2 cards from your hand. Once during your turn, you may draw a
+    card."""
+    await ctx.discard_from_hand(2, prompt="Discard 2 cards to use Reconstitute")
+    if await ctx.ask_yes_no("Draw a card?"):
+        await ctx.draw_cards(1)
+
 
 card = PokemonCardDef(
     guid="e63c51f5-90f4-5753-9740-09d9c2883ab3",
@@ -22,7 +33,9 @@ card = PokemonCardDef(
         Ability(
             title="Reconstitute",
             game_text="You must discard 2 cards from your hand in order to use this Ability. Once during your turn, you may draw a card.",
-            effect=unimplemented,
+            activation=Activations.ONCE_PER_TURN,
+            condition=requires_hand(n=2),
+            effect=reconstitute,
         ),
         Attack(
             title="R Command",

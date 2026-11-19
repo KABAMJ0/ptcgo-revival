@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.support_common import draw_until_effect
+
 
 card = PokemonCardDef(
     guid="46724bde-24e7-5f7b-97c3-f568e85350a2",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="You may draw cards until you have 6 cards in your hand.",
             cost={PokemonTypes.FIGHTING: 2},
             damage=60,
-            effect=unimplemented,
+            effect=draw_until_effect(6, optional=True),
         ),
         Attack(
             title="Somersault Kick",

@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="6c819101-d2e2-5cc0-bed1-f3bca3d1c81c",

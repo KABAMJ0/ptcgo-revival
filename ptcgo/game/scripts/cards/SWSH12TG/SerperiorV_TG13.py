@@ -1,9 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def noble_light(ctx):
     for pokemon in ctx.my_pokemon_in_play() + ctx.opponent_pokemon_in_play():
         await ctx.heal(30, pokemon)
+
 
 card = PokemonCardDef(
     guid="7aba9597-78bc-5b20-a354-6ac74d5ca20f",

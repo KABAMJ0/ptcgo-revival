@@ -1,9 +1,11 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 async def radar(ctx):
     """Look at the top 4 cards of your deck and put them back in any order."""
     await ctx.reorder_deck_top(4)
+
 
 card = PokemonCardDef(
     guid="a4ba63ed-1d41-5bd8-be94-ed52bbc8bfc3",

@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="31423115-7a86-5916-bac8-e2065fb9af70",
@@ -28,7 +31,7 @@ card = PokemonCardDef(
             game_text="Your opponent can't attach Energy from his or her hand to the Defending Pok\u00e9mon during his or her next turn.",
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, flip=True),
         ),
     ],
 )

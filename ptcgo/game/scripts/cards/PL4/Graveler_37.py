@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Graveler does 10 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=70,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

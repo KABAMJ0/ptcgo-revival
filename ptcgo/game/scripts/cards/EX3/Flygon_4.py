@@ -1,5 +1,22 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
+from ptcgo.game.card_effects.support_common import distribute_energy
+
+
+async def decorate(ctx):
+    """Attach any number of basic Energy cards from your hand to your Pokemon in any way you like."""
+    energies = [c for c in ctx.hand() if is_basic_energy_card(c)]
+    if not energies:
+        return
+    picks = await ctx.choose_cards(
+        energies, len(energies), minimum=0,
+        prompt="Choose basic Energy cards to attach.",
+    )
+    candidates = ctx.my_pokemon_in_play()
+    if picks and candidates:
+        await distribute_energy(ctx, picks, candidates)
+
 
 card = PokemonCardDef(
     guid="6d5f28f3-2fcc-55d7-ab01-bcdb9bf6bf61",
@@ -24,7 +41,7 @@ card = PokemonCardDef(
             title="Energy Shower",
             game_text="Attach any number of basic Energy cards from your hand to your Pok\u00e9mon in any way you like.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=decorate,
         ),
         Attack(
             title="Rainbow Burn",

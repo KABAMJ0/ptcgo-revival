@@ -1,12 +1,13 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack, flip_or_nothing
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.card_effects.passives_common import apply_protection
+
 
 async def _fly_success(ctx):
     await ctx.deal_damage()
     await apply_protection(ctx, prevent=True, effects_too=True)
+
 
 card = PokemonCardDef(
     guid="b198517a-686f-50d0-87c1-0a7b40fbe01f",

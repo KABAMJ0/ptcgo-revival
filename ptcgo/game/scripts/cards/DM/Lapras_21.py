@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+
 
 card = PokemonCardDef(
     guid="d82eb6fb-ea70-5a1f-b893-d6dc299a43fe",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=70,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy('self', energy_type=PokemonTypes.WATER), 10, base=70),
         ),
     ],
 )

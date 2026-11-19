@@ -1,7 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy
 from ptcgo.game.card_effects.pokemon import energy_provides_type
+
 
 async def g_max_centiferno(ctx):
     """40 more damage for each Fire Energy attached to this Pokémon. If you did any damage, you may attach a Fire Energy card from your discard pile to this Pokémon."""
@@ -17,6 +18,7 @@ async def g_max_centiferno(ctx):
         prompt="Choose a Fire Energy card to attach to this Pokémon.")
     for card in picks:
         await ctx.attach_energy(card, ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="9201466c-eb12-593d-86ae-54d780287f13",

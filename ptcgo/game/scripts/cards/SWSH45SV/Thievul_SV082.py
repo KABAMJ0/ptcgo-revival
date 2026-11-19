@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def thief(ctx):
     """20 damage. Reveal the opponent's hand and put a card found there on
@@ -14,6 +15,7 @@ async def thief(ctx):
     )
     for card_entity in picks:
         await ctx.put_on_bottom_of_deck(card_entity)
+
 
 card = PokemonCardDef(
     guid="d5743083-70e1-507d-b905-b4e37435eabf",

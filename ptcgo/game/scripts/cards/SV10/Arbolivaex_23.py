@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.support_common import cure_conditions_effect
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This Pok\u00e9mon recovers from all Special Conditions.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=160,
-            effect=unimplemented,
+            effect=cure_conditions_effect("active"),
         ),
     ],
 )

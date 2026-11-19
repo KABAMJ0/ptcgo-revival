@@ -1,4 +1,5 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.pokemon import MysteriousNestPassive
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -20,8 +21,8 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Mysterious Nest",
-            game_text="Colorless Pok\u00e9mon in play (both yours and your opponent's) have no Weakness.",
-            effect=unimplemented,
+            game_text="Colorless Pokémon in play (both yours and your opponent's) have no Weakness.",
+            passive=MysteriousNestPassive(),
         ),
         Attack(
             title="Rollout",

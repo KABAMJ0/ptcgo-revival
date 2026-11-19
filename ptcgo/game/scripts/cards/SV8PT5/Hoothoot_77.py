@@ -1,5 +1,8 @@
 from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.passives_common import condition_immunity_passive
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 card = PokemonCardDef(
     guid="8597ac47-5cc3-5283-aab3-e517b28f6eb3",

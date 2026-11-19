@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import remove_self_from_play
+
 
 card = PokemonCardDef(
     guid="b3d63ff8-d015-58dd-8809-26f51016550f",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="Put this Pok\u00e9mon and all attached cards into your hand.",
             cost={PokemonTypes.GRASS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=remove_self_from_play(destination='hand', with_attachments='same'),
         ),
         Attack(
             title="Bug Out",

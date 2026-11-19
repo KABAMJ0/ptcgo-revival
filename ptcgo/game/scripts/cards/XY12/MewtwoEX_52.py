@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+
 
 card = PokemonCardDef(
     guid="727a83e6-723a-5668-b890-1437a78e0cf5",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Energy Absorption",
             game_text="Attach an Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=attach_from_discard(),
         ),
         Attack(
             title="Regeneration",

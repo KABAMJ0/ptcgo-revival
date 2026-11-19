@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
+from ptcgo.game.card_effects.attacks_common import damage_reduction_on_self
+
 
 card = PokemonCardDef(
     guid="d4801e6b-f32d-5cfa-9670-82412ba13628",
@@ -23,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Wall of Sand",
             game_text="This Pok\u00e9mon takes 20 less damage from attacks (after applying Weakness and Resistance).",
-            effect=unimplemented,
+            effect=damage_reduction_on_self(per=20),
         ),
         Attack(
             title="Absorb Vitality",

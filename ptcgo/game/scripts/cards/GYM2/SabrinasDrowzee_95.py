@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+
 
 card = PokemonCardDef(
     guid="06251efa-e95a-5361-bf88-37b51873890a",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="Don't apply Weakness and Resistance for this attack. (Any other effects that would happen after applying Weakness and Resistance still happen.)",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True),
         ),
     ],
 )

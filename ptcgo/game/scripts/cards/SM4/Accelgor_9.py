@@ -1,5 +1,16 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+
+
+async def recover(ctx):
+    """Discard an Energy from this Pokemon and heal all damage from it."""
+    picks = await ctx.discard_energy_from(ctx.source, 1, prompt="Discard an Energy from Frillish")
+    if not picks:
+        return
+    pokemon = ctx.source
+    await ctx.heal(ctx.max_hp(pokemon) - pokemon.get_attribute(AttrID.HP, 0), pokemon)
+
 
 card = PokemonCardDef(
     guid="c530de71-fbff-5f12-bd08-4654d5a873c1",
@@ -23,7 +34,7 @@ card = PokemonCardDef(
             title="Recover",
             game_text="Discard an Energy from this Pok\u00e9mon and heal all damage from it.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover,
         ),
         Attack(
             title="Speed Attack",

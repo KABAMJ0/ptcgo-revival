@@ -1,5 +1,24 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import def_for
+
+
+async def nine_tailed_shapeshifter(ctx):
+    """Choose 1 of the opponent's Active Pokemon's attacks and use it."""
+    defender = ctx.defender
+    if defender is None:
+        return
+    definition = def_for(defender.archetype_id)
+    attacks = [a for a in getattr(definition, "abilities", []) if isinstance(a, Attack)]
+    if not attacks:
+        return
+    candidates = [(defender, atk) for atk in attacks]
+    picked = await ctx.choose_attack_to_copy(candidates, "Choose an attack to copy")
+    if picked is None:
+        return
+    _, chosen = picked
+    await ctx.use_attack(chosen)
+
 
 card = PokemonCardDef(
     guid="ba147a8e-660a-5184-a130-8c9345da3f96",
@@ -23,7 +42,7 @@ card = PokemonCardDef(
             title="Metronome",
             game_text="Choose 1 of your opponent's Active Pok\u00e9mon's attacks and use it as this attack.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=nine_tailed_shapeshifter,
         ),
         Attack(
             title="Magical Shot",

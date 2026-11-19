@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import heal_dealt_attack
+from ptcgo.game.card_effects.attacks_common import no_weakness_next_turn
 from ptcgo.game.card_effects.attacks_common import heal_dealt_attack, no_weakness_next_turn
 card = PokemonCardDef(
     guid="c00cece1-4af6-5c09-ac9f-e778a0c9feba",

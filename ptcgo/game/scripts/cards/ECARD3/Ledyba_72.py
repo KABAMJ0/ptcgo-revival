@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="52858abf-ac9a-5ab6-bfb3-a1f90ca23621",

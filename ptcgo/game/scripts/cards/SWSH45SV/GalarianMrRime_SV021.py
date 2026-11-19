@@ -1,8 +1,16 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard, has_attack_titled
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, GameSequence
+
+
+def _shuffle_dance_condition(board, player_id, pokemon):
+    opponent = next((p for p in board.player_ids if p != player_id), None)
+    if opponent is None:
+        return False
+    prizes = board.find_player_area(opponent, "prizePile")
+    deck = board.find_player_area(opponent, "deck")
+    return bool(prizes and prizes.children and deck and deck.children)
+
 
 async def shuffle_dance(ctx):
     """Switch 1 of the opponent's face-down Prizes with the top card of their
@@ -42,14 +50,6 @@ async def shuffle_dance(ctx):
     ctx.visual_targets = [prize_area.entity_id, deck.entity_id]
 
 
-def _shuffle_dance_condition(board, player_id, pokemon):
-    opponent = next((p for p in board.player_ids if p != player_id), None)
-    if opponent is None:
-        return False
-    prizes = board.find_player_area(opponent, "prizePile")
-    deck = board.find_player_area(opponent, "deck")
-    return bool(prizes and prizes.children and deck and deck.children)
-
 card = PokemonCardDef(
     guid="c3fcf44b-e5f5-5813-af6b-dc48eb9357df",
     key="SWSH45SV",
@@ -71,8 +71,9 @@ card = PokemonCardDef(
         Ability(
             title="Shuffle Dance",
             game_text="Once during your turn, you may switch 1 of your opponent's face-down Prize cards with the top card of their deck. (The cards stay face down.)",
-            effect=shuffle_dance,
+            activation=Activations.ONCE_PER_TURN,
             condition=_shuffle_dance_condition,
+            effect=shuffle_dance,
         ),
         Attack(
             title="Mad Party",

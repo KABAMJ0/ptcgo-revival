@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30),
+            effect=damage_per(lambda c: effective_retreat_cost(c.board, c.defender), 30, base=10),
         ),
         Attack(
             title="Jet Headbutt",

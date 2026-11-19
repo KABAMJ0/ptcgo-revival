@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import no_energy_free_retreat_passive
+
 
 card = PokemonCardDef(
     guid="a8ba95de-1912-51b9-a36a-01e2c0c10926",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Melt Away",
             game_text="If this Pok\u00e9mon has no Energy attached, it has no Retreat Cost.",
-            effect=unimplemented,
+            passive=no_energy_free_retreat_passive(),
         ),
         Attack(
             title="Lava Burst",

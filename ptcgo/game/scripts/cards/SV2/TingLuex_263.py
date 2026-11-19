@@ -22,7 +22,7 @@ card = PokemonCardDef(
         Ability(
             title="Cursed Land",
             game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent's Pok\u00e9mon in play that have any damage counters on them have no Abilities, except for Pok\u00e9mon ex.",
-            effect=bench_counter_picks(1, 2),
+            effect=unimplemented,
         ),
         Attack(
             title="Land Scoop",

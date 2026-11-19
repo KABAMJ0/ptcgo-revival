@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.support_common import heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, stadium_in_play_cond
+
 
 card = PokemonCardDef(
     guid="e119c58e-6473-5578-9966-d2a1bf309e94",
@@ -25,7 +28,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(stadium_in_play_cond, 20),
         ),
         Attack(
             title="Cell Storm",

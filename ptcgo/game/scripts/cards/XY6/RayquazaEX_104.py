@@ -2,6 +2,9 @@ from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import mill_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.trainers import is_pokemon_ex
+
 
 card = PokemonCardDef(
     guid="9158d9a1-434a-580d-baa9-be3213fc151e",
@@ -27,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=mill_attack(3, opponent=False),
+            effect=bonus_if(lambda ctx: is_pokemon_ex(ctx.defender), 50),
         ),
         Attack(
             title="Dragon Pulse",

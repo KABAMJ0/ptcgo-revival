@@ -1,6 +1,13 @@
 from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive, carrier_pokemon
+
+
+class AdaptiveEvolutionPassive(Passive):
+    def may_evolve_early(self, pokemon, carrier):
+        return carrier_pokemon(carrier) is pokemon
+
 
 class AdaptiveEvolutionPassive(Passive):
     def may_evolve_early(self, pokemon, carrier):

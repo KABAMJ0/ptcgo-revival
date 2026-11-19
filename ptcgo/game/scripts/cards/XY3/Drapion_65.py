@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_has_condition, condition_attack
 card = PokemonCardDef(
     guid="9efecc3e-f8d9-59b8-a954-d85e0653f97d",

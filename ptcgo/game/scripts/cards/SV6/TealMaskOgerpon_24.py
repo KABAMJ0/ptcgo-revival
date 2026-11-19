@@ -1,3 +1,6 @@
+from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
+from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -21,6 +24,7 @@ card = PokemonCardDef(
     stage=PokemonStage.BASIC,
     retreat_cost=1,
     weakness_type=PokemonTypes.FIRE,
+    family_id=1017,
     abilities=[
         Attack(
             title="Mountain Stroll",
@@ -34,7 +38,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_bench("opponent"), per=20, base=20),
         ),
     ],
 )

@@ -1,6 +1,8 @@
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
+
 card = PokemonCardDef(
     guid="1e475bd0-075a-5fa2-a184-51080ffa0254",
     key="SV6",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             game_text="This attack also does 10 damage to 1 of your Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=snipe_attack(10, pool="bench", count=1, side="mine", also_base=True),
+            effect=snipe_attack(10, pool='bench', count=1, side='mine', also_base=True),
         ),
     ],
 )

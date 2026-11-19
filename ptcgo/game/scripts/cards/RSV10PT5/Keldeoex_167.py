@@ -1,6 +1,12 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
+
+def _entered_active_this_turn(ctx):
+    return ctx.entered_active_this_turn(ctx.attacker)
+
 
 card = PokemonCardDef(
     guid="02cca661-90b2-52e7-b5c6-5d3cdf8e2a12",
@@ -25,7 +31,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(_entered_active_this_turn, 90),
         ),
         Attack(
             title="Sonic Edge",

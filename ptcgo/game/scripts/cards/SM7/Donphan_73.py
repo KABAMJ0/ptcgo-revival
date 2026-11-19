@@ -1,6 +1,20 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import opponent_switches
+
+
+async def gyro_ball(ctx):
+    """Switch self with a Benched Pokemon; if you do, the opponent switches too."""
+    await ctx.deal_damage()
+    bench = ctx.my_bench()
+    if not bench:
+        return
+    target = await ctx.choose_pokemon(bench, "Choose your new Active Pokémon")
+    await ctx.switch_active(ctx.player_id, target or bench[0])
+    await ctx.flush_choreography()
+    await opponent_switches(ctx)
+
 
 card = PokemonCardDef(
     guid="453667a2-65e5-5f80-b9b4-77d6e6f90e5a",
@@ -33,7 +47,7 @@ card = PokemonCardDef(
             game_text="Switch this Pok\u00e9mon with 1 of your Benched Pok\u00e9mon. If you do, your opponent switches their Active Pok\u00e9mon with 1 of their Benched Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=gyro_ball,
         ),
     ],
 )

@@ -2,6 +2,19 @@ from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import switch_self_attack
+from ptcgo.game.card_effects.attacks_common import damage_per
+from ptcgo.game.session.legal_actions import energy_provided_count
+
+
+def _both_actives_energy(ctx):
+    total = 0
+    for pokemon in (ctx.my_active(), ctx.opponent_active()):
+        if pokemon is None:
+            continue
+        for energy in ctx.attached_energies(pokemon):
+            total += energy_provided_count(energy)
+    return total
+
 
 card = PokemonCardDef(
     guid="f88dcd7c-de83-5ce0-b296-f2ea9da03329",
@@ -33,7 +46,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(_both_actives_energy, 30),
         ),
     ],
 )

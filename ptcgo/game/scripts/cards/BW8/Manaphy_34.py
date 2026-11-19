@@ -1,10 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers, unimplemented
+from ptcgo.game.data_utils import unimplemented, unimplemented, PokemonCardDef, Attack, Ability, Triggers, unimplemented
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.passives_common import on_ko_from_attack
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 async def _final_wish(ctx):
     await search_to_hand(None, count=1, reveal=False)(ctx)
+from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 
 
 card = PokemonCardDef(

@@ -1,6 +1,14 @@
-from ptcgo.game.card_effects.attacks_common import recoil_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
+
+
+async def risk_taker(ctx):
+    """Flip a coin. If heads, discard the top 5 cards of your opponent's
+    deck. If tails, discard the top 5 cards of your deck."""
+    heads = await ctx.flip_coins(1, "Risk Taker")
+    pid = ctx.opponent_id if heads[0] else ctx.player_id
+    await ctx.discard_cards(ctx.deck_top(5, player_id=pid))
 
 async def risk_taker(ctx):
     """Flip a coin. If heads, discard the top 5 cards of your opponent's

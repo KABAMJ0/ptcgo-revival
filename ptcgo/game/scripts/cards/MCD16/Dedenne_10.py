@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="4fe1050c-6277-5ea1-a06d-fa32e5a2f3ad",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="Heal 20 damage from this Pok\u00e9mon.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=unimplemented,
+            effect=heal_attack(20),
         ),
     ],
 )

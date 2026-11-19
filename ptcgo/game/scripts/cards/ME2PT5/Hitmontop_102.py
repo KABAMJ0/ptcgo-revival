@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import shuffle_hand_into_deck_draw
 
 card = PokemonCardDef(
     guid="71fc2f24-11a1-5e4a-9039-99297914111d",

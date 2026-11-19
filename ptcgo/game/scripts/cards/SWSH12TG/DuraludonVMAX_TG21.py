@@ -1,6 +1,22 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.passives_common import prevent_damage_when
+from ptcgo.game.models.board import BoardState
+from ptcgo.game.session.effects import is_special_energy
+
+
+def _skyscraper_pred(calc, carrier):
+    if calc.target is not carrier:
+        return False
+    attacker = calc.attacker
+    return attacker is not None and any(
+        is_special_energy(e) for e in BoardState.attached_energies(attacker)
+    )
+
+
+async def g_max_pulverization(ctx):
+    await ctx.deal_damage(ignore_target_effects=True)
+
 
 card = PokemonCardDef(
     guid="9f8cca40-6667-5ae2-a48f-eef80183f2ed",
@@ -22,14 +38,14 @@ card = PokemonCardDef(
         Ability(
             title="Skyscraper",
             game_text="Prevent all damage done to this Pok\u00e9mon by attacks from your opponent's Pok\u00e9mon that have Special Energy attached.",
-            effect=unimplemented,
+            passive=prevent_damage_when(_skyscraper_pred),
         ),
         Attack(
             title="G-Max Pulverization",
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.METAL: 2},
             damage=220,
-            effect=ignore_modifier_attack(ignore_target_effects=True),
+            effect=g_max_pulverization,
         ),
     ],
 )

@@ -1,10 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def instigate(ctx):
     moved = await ctx.hand_to_bottom_of_deck(ctx.opponent_id)
     if moved > 0:
         await ctx.draw_cards(3, player_id=ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="21f5f566-8786-5ac0-adea-c515f9779d1e",

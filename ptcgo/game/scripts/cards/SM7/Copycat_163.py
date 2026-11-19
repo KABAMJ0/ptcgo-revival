@@ -1,6 +1,8 @@
+from ptcgo.game.card_effects.trainers import copycat_draw
 from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
 from ptcgo.game.card_effects.trainers import copycat_draw
+
 
 card = SupporterCardDef(
     guid="d256b5ed-7e16-582d-9828-0e8f68580918",

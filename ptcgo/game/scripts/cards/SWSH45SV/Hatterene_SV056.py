@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters, count_discard
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_pokemon_card
+
 
 async def mind_hat(ctx):
     """Once per turn: each player discards a card from their hand (opponent first)."""
@@ -16,6 +16,7 @@ async def mind_hat(ctx):
         1, minimum=0, player_id=ctx.player_id,
         prompt="Discard a card from your hand.",
     )
+
 
 card = PokemonCardDef(
     guid="370b1a69-44a6-5126-8757-a0de262edb3e",
@@ -39,11 +40,12 @@ card = PokemonCardDef(
         Ability(
             title="Mind Hat",
             game_text="Once during your turn, you may use this Ability. Each player discards a card from their hand. (Your opponent discards first.)",
+            activation=Activations.ONCE_PER_TURN,
             effect=mind_hat,
         ),
         Attack(
             title="Dripping Grudge",
-            game_text="Put 1 damage counter on your opponent's Active Pok\u00e9mon for each Pok\u00e9mon in your discard pile.",
+            game_text="Put 1 damage counter on your opponent's Active Pokémon for each Pokémon in your discard pile.",
             cost={PokemonTypes.PSYCHIC: 1},
             effect=place_counters(count_discard("mine", is_pokemon_card), "opponent_active"),
         ),

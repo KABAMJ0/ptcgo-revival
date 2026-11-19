@@ -2,6 +2,15 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_evolution_pokemon
 from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.session.effects import is_basic_pokemon
+
+
+async def oppressing_sandstorm(ctx):
+    """If your opponent's Active Pokemon is a Basic Pokemon, it is Knocked Out."""
+    defender = ctx.defender
+    if defender is not None and is_basic_pokemon(defender):
+        await ctx.knock_out(defender)
+
 
 card = PokemonCardDef(
     guid="11f0b89a-1a36-56bf-b13e-d0e0b89868f1",
@@ -33,7 +42,7 @@ card = PokemonCardDef(
             title="Wild Crash",
             game_text="If your opponent's Active Pok\u00e9mon is a Basic Pok\u00e9mon, it is Knocked Out.",
             cost={PokemonTypes.FIGHTING: 3},
-            effect=unimplemented,
+            effect=oppressing_sandstorm,
         ),
     ],
 )

@@ -1,8 +1,9 @@
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import is_in_active_spot
 from ptcgo.game.card_effects.pokemon import energy_provides_type, is_energy_card
 from ptcgo.game.card_effects.support_common import attach_from_discard
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 def _is_psychic_energy(card) -> bool:
     return is_energy_card(card) and energy_provides_type(card, PokemonTypes.PSYCHIC.value)
@@ -27,7 +28,7 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.PSYCHIC,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Inkay.Name",
-    family_id=686,
+    family_id=687,
     abilities=[
         Ability(
             title="Psychic Recharge",

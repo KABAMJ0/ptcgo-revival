@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Medicham does 20 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 1},
             damage=80,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

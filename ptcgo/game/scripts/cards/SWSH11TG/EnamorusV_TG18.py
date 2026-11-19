@@ -1,8 +1,23 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.session.passives import Passive, carrier_pokemon
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.support_common import distribute_energy
+
+
+class GuardianOfLovePassive(Passive):
+    """Shields your Pokemon holding any Psychic Energy (except Enamorus V)
+    from the opponent's Ability effects."""
+
+    def blocks_ability_effects(self, target, carrier):
+        holder = carrier_pokemon(carrier)
+        if holder is None or target.owning_player_id != holder.owning_player_id:
+            return False
+        if target.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "EnamorusV":
+            return False
+        return any(energy_provides_type(c, PokemonTypes.PSYCHIC.value)
+                   for c in target.children if is_energy_card(c))
 
 
 async def blossom_tail(ctx):
@@ -21,6 +36,7 @@ async def blossom_tail(ctx):
     )
     if picks:
         await distribute_energy(ctx, picks, bench)
+
 
 card = PokemonCardDef(
     guid="b2fbebe7-48c7-534d-9701-7e2fec8dfa86",
@@ -42,7 +58,7 @@ card = PokemonCardDef(
         Ability(
             title="Guardian of Love",
             game_text="Prevent all effects of your opponent's Pok\u00e9mon's Abilities done to each of your Pok\u00e9mon that has any Psychic Energy attached, except any Enamorus V.",
-            effect=unimplemented,
+            passive=GuardianOfLovePassive(),
         ),
         Attack(
             title="Blossom Tail",

@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Fabled Defense",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, prevent all damage done to your Benched Pok\u00e9mon by your opponent's attacks.",
-            effect=spread_damage(30, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Ultimate Arrow",

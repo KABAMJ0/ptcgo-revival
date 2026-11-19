@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import energy_provides_type
+
 
 async def spiky_knuckle(ctx):
     """200. Put 2 Darkness Energy attached to this Pokemon into your hand."""
@@ -16,6 +17,7 @@ async def spiky_knuckle(ctx):
         prompt="Choose up to 2 Darkness Energy to put into your hand.",
     )
     await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="afc074ad-64ee-58b9-9a3c-11006d765596",

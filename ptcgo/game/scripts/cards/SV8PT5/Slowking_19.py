@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 async def _aqua_wash(ctx):
     await ctx.deal_damage()
     active = ctx.opponent_active()
@@ -15,6 +16,7 @@ async def _aqua_wash(ctx):
         energies, 2, prompt="Choose Energy to put into their hand"
     )
     await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="bc210f12-a2ef-55e6-8d24-8688dcd1278e",

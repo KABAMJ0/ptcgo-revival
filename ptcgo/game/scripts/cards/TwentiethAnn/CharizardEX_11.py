@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of
+
 
 card = PokemonCardDef(
     guid="d3739a5b-de0a-565f-8c91-714d293da945",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             game_text="Attach a Fire Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(basic_energy_of('fire'), count=1, target='self'),
         ),
         Attack(
             title="Burning Breath",

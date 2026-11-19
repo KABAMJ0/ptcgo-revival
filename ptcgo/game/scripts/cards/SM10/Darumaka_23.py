@@ -1,3 +1,5 @@
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             game_text="Search your deck for a Fire Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("Fire"), count=1, to_self=True),
         ),
         Attack(
             title="Flop",

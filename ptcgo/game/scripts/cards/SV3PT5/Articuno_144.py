@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Ice Float",
             game_text="If this Pok\u00e9mon has any Water Energy attached, it has no Retreat Cost.",
-            effect=spread_damage(10, side="opponent", include_active=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Blizzard",

@@ -1,6 +1,16 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.passives_common import (
+    ability_lock_passive,
+    is_in_active_spot,
+    opposing_pokemon,
+)
+
+
+def _neutralizing_gas_target(pokemon, carrier):
+    return opposing_pokemon(pokemon, carrier) and is_in_active_spot(carrier)
+
 
 card = PokemonCardDef(
     guid="b76de6ca-b268-5136-b775-a39d35f20833",
@@ -22,12 +32,12 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Neutralizing Gas",
-            game_text="As long as this Pok\u00e9mon is in the Active Spot, your opponent's Pok\u00e9mon in play have no Abilities, except for Neutralizing Gas.",
-            effect=unimplemented,
+            game_text="As long as this Pokémon is in the Active Spot, your opponent's Pokémon in play have no Abilities, except for Neutralizing Gas.",
+            passive=ability_lock_passive(_neutralizing_gas_target),
         ),
         Attack(
             title="Severe Poison",
-            game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 4 damage counters instead of 1 on that Pok\u00e9mon during Pok\u00e9mon Checkup.",
+            game_text="Your opponent's Active Pokémon is now Poisoned. Put 4 damage counters instead of 1 on that Pokémon during Pokémon Checkup.",
             cost={PokemonTypes.DARKNESS: 1},
             effect=condition_attack(SpecialConditions.POISONED, counters=4),
         ),

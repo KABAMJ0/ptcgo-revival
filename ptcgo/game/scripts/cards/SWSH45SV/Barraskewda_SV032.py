@@ -1,6 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import is_energy_card, energy_provides_type
+
+
+def _is_water_energy_card(card):
+    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER)
+
 
 async def spiral_jet(ctx):
     """Discard 2 Water Energy cards from hand. If you don't, this attack does nothing."""
@@ -12,9 +17,6 @@ async def spiral_jet(ctx):
         return
     await ctx.deal_damage()
 
-
-def _is_water_energy_card(card):
-    return is_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER)
 
 card = PokemonCardDef(
     guid="f18c0e45-0d3f-5389-8b59-9b98512444d3",

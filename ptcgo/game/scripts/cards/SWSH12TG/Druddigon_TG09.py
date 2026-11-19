@@ -1,9 +1,11 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if
 
+
 def _kos_suffered_last_turn(ctx):
     return ctx.kos_suffered_last_turn() > 0
+
 
 card = PokemonCardDef(
     guid="31f1c07f-bd26-5711-9846-ce37e4b8ee0b",

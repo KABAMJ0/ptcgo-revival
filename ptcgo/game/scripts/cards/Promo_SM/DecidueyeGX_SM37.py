@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import place_counters
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="284f3aed-3956-53f4-82e5-62639b50c237",
@@ -35,7 +37,7 @@ card = PokemonCardDef(
             title="Hollow Hunt-GX",
             game_text="Put 3 cards from your discard pile into your hand. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=3),
         ),
     ],
 )

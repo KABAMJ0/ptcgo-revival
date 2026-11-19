@@ -1,12 +1,28 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, unimplemented
-from ptcgo.game.card_effects.support_common import look_at_top
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, def_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+
 
 def _is_leon(card):
     definition = def_for(card.archetype_id)
     return bool(definition) and getattr(definition, "display_name", "") == "Leon"
+
+
+async def _battle_sense(ctx):
+    if not await ctx.ask_yes_no("Look at the top 3 cards of your deck?"):
+        return
+    top = ctx.deck_top(3)
+    if not top:
+        return
+    picks = await ctx.choose_cards(
+        top, 1, minimum=1,
+        prompt="Put 1 card into your hand. Discard the other cards.",
+    )
+    await ctx.put_in_hand(picks, reveal=False)
+    rest = [c for c in top if c not in picks]
+    if rest:
+        await ctx.discard_cards(rest)
+
 
 card = PokemonCardDef(
     guid="5ba844d8-f7d2-5aef-b985-18b254438c19",
@@ -24,13 +40,13 @@ card = PokemonCardDef(
     retreat_cost=3,
     weakness_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Charmeleon.Name",
-    family_id=6,
+    family_id=4,
     abilities=[
         Ability(
             title="Battle Sense",
             game_text="Once during your turn, you may look at the top 3 cards of your deck and put 1 of them into your hand. Discard the other cards.",
             activation=Activations.ONCE_PER_TURN,
-            effect=look_at_top(3, take=1, rest="discard"),
+            effect=_battle_sense,
         ),
         Attack(
             title="Royal Blaze",

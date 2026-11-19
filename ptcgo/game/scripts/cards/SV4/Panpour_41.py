@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
+
 
 card = PokemonCardDef(
     guid="708d3531-59b2-5c45-8d39-748187be0d37",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_to_bench(is_basic_pokemon, count=1),
         ),
         Attack(
             title="Water Pulse",

@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import active_is, bonus_if, has_tool
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, active_is, has_tool
 card = PokemonCardDef(
     guid="de2763e5-ea51-5755-bd30-90c160ee5aee",
     key="SV6",

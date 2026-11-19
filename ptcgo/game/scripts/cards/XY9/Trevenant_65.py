@@ -1,8 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import count_energy
 from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import unimplemented, PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 card = PokemonCardDef(
     guid="fede04df-a191-52f1-80a8-3a35bd9a37a2",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
         Ability(
             title="Nervous Seed",
             game_text="As long as this Pok\u00e9mon is your Active Pok\u00e9mon, your opponent's Basic Pok\u00e9mon's attacks cost Colorless more.",
-            effect=damage_per(count_energy("defender"), 10),
+            effect=unimplemented,
         ),
         Attack(
             title="Energy Press",

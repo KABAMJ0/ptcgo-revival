@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 
@@ -35,6 +35,7 @@ async def metal_transfer(ctx):
     if target is not None:
         await ctx.move_energy(energy, target)
 
+
 card = PokemonCardDef(
     guid="1880a3ee-d641-5c18-b47b-d01fc6fb7518",
     key="SWSH10TG",
@@ -52,13 +53,14 @@ card = PokemonCardDef(
     weakness_type=PokemonTypes.FIRE,
     resistance_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Bronzor.Name",
-    family_id=437,
+    family_id=436,
     abilities=[
         Ability(
             title="Metal Transfer",
             game_text="As often as you like during your turn, you may move a Metal Energy from 1 of your Pok\u00e9mon to another of your Pok\u00e9mon.",
-            effect=metal_transfer,
+            activation=Activations.UNLIMITED,
             condition=_metal_transfer_condition,
+            effect=metal_transfer,
         ),
         Attack(
             title="Zen Headbutt",

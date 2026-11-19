@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.pokemon import psychic_leap
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import psychic_leap
 card = PokemonCardDef(
     guid="e41bb8b3-04d7-5b58-982a-d55cb9c00259",
     key="SV8",

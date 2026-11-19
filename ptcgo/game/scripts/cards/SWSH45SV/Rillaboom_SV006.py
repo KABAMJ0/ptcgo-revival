@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.trainers import is_grass_energy_card
 from ptcgo.game.card_effects.support_common import search_attach_energy
+
 card = PokemonCardDef(
     guid="e1213b61-569c-59f8-930e-7057f73f700a",
     key="SWSH45SV",
@@ -24,6 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Voltage Beat",
             game_text="Once during your turn, you may search your deck for up to 2 Grass Energy cards and attach them to 1 of your Pok\u00e9mon. Then, shuffle your deck.",
+            activation=Activations.ONCE_PER_TURN,
             effect=search_attach_energy(predicate=is_grass_energy_card, count=2, distribute=False),
         ),
         Attack(

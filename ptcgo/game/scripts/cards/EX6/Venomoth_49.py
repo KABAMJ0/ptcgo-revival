@@ -1,6 +1,10 @@
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="87a66198-7d96-54aa-934d-86ff869a5274",
@@ -29,7 +33,7 @@ card = PokemonCardDef(
             title="Sleep Poison",
             game_text="The Defending Pok\u00e9mon is now Asleep and Poisoned.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, SpecialConditions.POISONED),
         ),
         Attack(
             title="Razor Wind",

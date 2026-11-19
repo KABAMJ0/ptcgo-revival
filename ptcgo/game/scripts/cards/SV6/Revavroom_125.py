@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
+from ptcgo.game.card_effects.attacks_common import bonus_if
+
 
 card = PokemonCardDef(
     guid="8b35db38-a601-5d42-bf32-0f2ad94242ec",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="+",
-            effect=flip_damage(per_heads=100, until_tails=True),
+            effect=bonus_if(lambda ctx: ctx.kos_suffered_last_turn(ctx.player_id) > 0, 90),
         ),
         Attack(
             title="Running Charge",

@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_stadium_attack
 
 card = PokemonCardDef(
     guid="ccb08162-d7c9-5cf6-964b-cbf0c796c0cb",
@@ -22,7 +23,7 @@ card = PokemonCardDef(
             title="Ion Pool",
             game_text="Discard any Stadium card in play.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=discard_stadium_attack(),
         ),
         Attack(
             title="Water Gun",

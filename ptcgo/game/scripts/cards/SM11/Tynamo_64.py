@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_lightning_energy
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
 
 card = PokemonCardDef(
     guid="79261db0-abc5-50e0-a8ec-ce929a44ec2a",
@@ -23,7 +26,7 @@ card = PokemonCardDef(
             title="Generate Electricity",
             game_text="Search your deck for a Lightning Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.LIGHTNING: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=is_lightning_energy, count=1, to_self=True),
         ),
     ],
 )

@@ -1,3 +1,4 @@
+from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play, has_tool
 import random
 
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
@@ -46,7 +47,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", has_tool), 30),
         ),
     ],
 )

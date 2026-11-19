@@ -1,11 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, def_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
+
 
 def _is_serena_card(card):
     definition = def_for(getattr(card, "archetype_id", None) or "")
     return getattr(definition, "display_name", None) == "Serena"
+
 
 card = PokemonCardDef(
     guid="ed793162-1d5b-51ae-a31b-ab4088b1bdfb",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
     retreat_cost=1,
     weakness_type=PokemonTypes.WATER,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Fennekin.Name",
-    family_id=654,
+    family_id=653,
     abilities=[
         Attack(
             title="Combustion",

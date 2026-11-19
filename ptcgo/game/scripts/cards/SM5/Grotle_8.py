@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.support_common import heal_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_attack
 
 card = PokemonCardDef(
     guid="9fd0f6e0-127c-5b20-aa62-8ec24721253e",

@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import recoil_attack, damage_per, count_energy, condition_attack
 
 card = PokemonCardDef(
     guid="dd3c57fe-b277-5671-8673-41efcab3759e",
@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_energy("mine", PokemonTypes.LIGHTNING), 20, base=20),
         ),
         Attack(
             title="Thunder",
@@ -41,7 +41,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Paralyzed. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.LIGHTNING: 2, PokemonTypes.COLORLESS: 1},
             damage=120,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.PARALYZED),
         ),
     ],
 )

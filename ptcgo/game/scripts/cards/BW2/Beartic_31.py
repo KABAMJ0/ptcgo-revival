@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per
+from ptcgo.game.card_effects.attacks_common import optional_bonus_self_damage
+
 
 card = PokemonCardDef(
     guid="f3a0b133-704b-5142-a78e-72b712c7beb2",
@@ -33,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2, PokemonTypes.COLORLESS: 1},
             damage=60,
             damage_operator="+",
-            effect=unimplemented,
+            effect=optional_bonus_self_damage(20, 20),
         ),
     ],
 )

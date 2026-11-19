@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.trainers import basic_energy_of
+
 
 card = PokemonCardDef(
     guid="3c9e7428-90cf-5766-b0c2-c38410363c61",
@@ -31,7 +34,7 @@ card = PokemonCardDef(
             title="Nutritional Support",
             game_text="Search your deck for up to 2 Grass Energy cards and attach them to any of your Pok\u00e9mon in any way you like. Shuffle your deck afterward.",
             cost={PokemonTypes.GRASS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of('Grass'), count=2, distribute=True),
         ),
     ],
 )

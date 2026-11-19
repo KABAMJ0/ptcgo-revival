@@ -33,7 +33,7 @@ card = PokemonCardDef(
             game_text="Machoke does 20 damage to itself.",
             cost={PokemonTypes.FIGHTING: 2, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=recoil_attack(20, damage=0),
+            effect=recoil_attack(20),
         ),
     ],
 )

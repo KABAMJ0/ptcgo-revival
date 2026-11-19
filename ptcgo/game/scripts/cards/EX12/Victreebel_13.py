@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="9108fb3f-c0f0-5ecb-837e-a240e256feda",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Asleep and Poisoned.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.ASLEEP, SpecialConditions.POISONED),
         ),
         Attack(
             title="Sharp Leaf",

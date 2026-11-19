@@ -1,7 +1,9 @@
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_item_card
+from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
 card = PokemonCardDef(
     guid="4824d5ee-f116-5f35-ad3a-2d99e10b2df4",
@@ -35,7 +37,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this attack does nothing.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 2},
             damage=150,
-            effect=unimplemented,
+            effect=flip_or_nothing(),
         ),
         Attack(
             title="Item Maniac-GX",

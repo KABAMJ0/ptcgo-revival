@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.attacks_common import damage_per, count_prizes_remaining
+
 
 card = PokemonCardDef(
     guid="4ef9db17-a1be-5ec5-862a-ee8827a92640",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 3},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=damage_per(count_prizes_remaining('mine'), 20, base=50),
         ),
     ],
 )

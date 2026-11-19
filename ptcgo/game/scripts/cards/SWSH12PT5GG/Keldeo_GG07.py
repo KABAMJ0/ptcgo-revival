@@ -1,8 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.session.effects import is_pokemon_card
-from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
+
 card = PokemonCardDef(
     guid="860ff7db-23d4-56c3-b15a-83c0f4cecc63",
     key="SWSH12PT5GG",
@@ -31,7 +30,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_bench("mine"), 20, base=50),
+            effect=damage_per(count_bench("mine"), 20, base=10),
         ),
     ],
 )

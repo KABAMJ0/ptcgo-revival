@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.support_common import gust_attack
+from ptcgo.game.card_effects.support_common import gust_attack, heal_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Remove 1 damage counter from Bastiodon GL.",
             cost={PokemonTypes.METAL: 1, PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=heal_attack(10, target="self"),
         ),
     ],
 )

@@ -1,5 +1,18 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
+
+
+async def devour(ctx):
+    """For each of your Durant in play, discard the top card of your
+    opponent's deck."""
+    count = sum(
+        1 for p in ctx.my_pokemon_in_play()
+        if p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Durant"
+    )
+    if count:
+        await ctx.discard_cards(ctx.deck_top(count, player_id=ctx.opponent_id))
+
 
 card = PokemonCardDef(
     guid="f1a8f96c-a6e2-582c-88aa-4c89c0bc299a",
@@ -23,7 +36,7 @@ card = PokemonCardDef(
             title="Devour",
             game_text="For each of your Durant in play, discard the top card of your opponent's deck.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=devour,
         ),
         Attack(
             title="Vice Grip",

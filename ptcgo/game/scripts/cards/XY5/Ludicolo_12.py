@@ -25,7 +25,7 @@ card = PokemonCardDef(
         Ability(
             title="Captivating Rhythm",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, switch 1 of your opponent's Benched Pok\u00e9mon with his or her Active Pok\u00e9mon.",
-            effect=heal_targets(20, scope="each_own"),
+            effect=unimplemented,
         ),
         Attack(
             title="Solar Ray",

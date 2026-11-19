@@ -1,6 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, condition_attack
 
 card = PokemonCardDef(
     guid="c5ba8b42-4922-5e19-ac25-70062edc6723",
@@ -32,14 +35,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=80,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(has_damage('self'), 80),
         ),
         Attack(
             title="Dragon Nova-GX",
             game_text="Your opponent's Active Pok\u00e9mon is now Burned and Paralyzed. (You can't use more than 1 GX attack in a game.)",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=200,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.BURNED, SpecialConditions.PARALYZED),
         ),
     ],
 )

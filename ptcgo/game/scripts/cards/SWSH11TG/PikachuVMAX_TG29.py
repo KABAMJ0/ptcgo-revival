@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def g_max_volt_tackle(ctx):
     energies = ctx.attached_energies(ctx.attacker)
@@ -10,6 +11,7 @@ async def g_max_volt_tackle(ctx):
         await ctx.deal_damage(270)
     else:
         await ctx.deal_damage(120)
+
 
 card = PokemonCardDef(
     guid="24644e2f-192b-5efb-a239-51f288408879",

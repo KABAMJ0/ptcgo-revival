@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
+
 async def burning_licks(ctx):
     """70 damage; flip 2 coins, discard an Energy from the opponent's Active per heads."""
     await ctx.deal_damage()
@@ -8,6 +9,7 @@ async def burning_licks(ctx):
     count = sum(heads)
     if count and not ctx.effects_blocked(ctx.defender):
         await ctx.discard_energy_from(ctx.defender, count)
+
 
 card = PokemonCardDef(
     guid="412f9441-5fff-596e-9c6c-d4b1d8df02a7",

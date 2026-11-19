@@ -2,7 +2,9 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.card_effects.attacks_common import bonus_if
-from ptcgo.game.card_effects.trainers import is_pokemon_ex
+from ptcgo.game.card_effects.trainers import is_pokemon_EX
+
+
 card = PokemonCardDef(
     guid="1029a7d6-1112-5e80-9114-ae41298b2876",
     key="XY1",
@@ -27,7 +29,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=bonus_if(lambda ctx: is_pokemon_ex(ctx.defender), 60),
+            effect=bonus_if(lambda ctx: is_pokemon_EX(ctx.defender), 60),
         ),
         Attack(
             title="Wild Barking",

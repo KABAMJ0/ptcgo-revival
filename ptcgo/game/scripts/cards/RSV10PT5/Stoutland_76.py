@@ -3,6 +3,21 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.session.effects import is_special_energy
 from ptcgo.game.card_effects.attacks_common import bonus_if
 
+
+async def follow_the_scent(ctx):
+    heads = await ctx.flip_coins(3, "Follow the Scent")
+    count = sum(1 for h in heads if h)
+    discard = ctx.discard_pile()
+    if count <= 0 or not discard:
+        return
+    picks = await ctx.choose_cards(
+        discard, count, minimum=1,
+        prompt=f"Choose up to {count} cards from your discard pile to put into your hand.",
+    )
+    if picks:
+        await ctx.put_in_hand(picks, reveal=False)
+
+
 card = PokemonCardDef(
     guid="39d04351-7551-5b1c-bcf4-39c47986762b",
     key="RSV10PT5",
@@ -25,7 +40,7 @@ card = PokemonCardDef(
             title="Odor Sleuth",
             game_text="Flip 3 coins. Put a number of cards up to the number of heads from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 2},
-            effect=unimplemented,
+            effect=follow_the_scent,
         ),
         Attack(
             title="Special Fang",

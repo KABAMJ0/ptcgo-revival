@@ -1,9 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import bonus_if
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if
 
-def _same_hand_size(ctx):
-    return ctx.hand_size() == ctx.hand_size(ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="110563a9-f258-524b-8f30-1983b2627214",
@@ -28,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=70,
             damage_operator="+",
-            effect=bonus_if(_same_hand_size, 80),
+            effect=bonus_if(lambda ctx: ctx.hand_size() == ctx.hand_size(ctx.opponent_id), 80),
         ),
     ],
 )

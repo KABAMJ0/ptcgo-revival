@@ -1,7 +1,9 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
-from ptcgo.game.card_effects.attacks_common import damage_per, count_energy, self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+
 card = PokemonCardDef(
     guid="66efa14d-1406-52dc-a6ea-b84b7dcc95e1",
     key="SVault",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=damage_per(count_energy("defender"), 20, base=20),
+            effect=damage_per(count_energy('defender'), 20, base=60),
         ),
     ],
 )

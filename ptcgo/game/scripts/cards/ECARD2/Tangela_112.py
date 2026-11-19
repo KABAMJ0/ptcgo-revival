@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
+
 
 card = PokemonCardDef(
     guid="14de2b62-9629-5e23-85d1-20e564c8577b",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=10,
-            effect=unimplemented,
+            effect=flip_defender_lock_attack(),
         ),
         Attack(
             title="Double Kick",

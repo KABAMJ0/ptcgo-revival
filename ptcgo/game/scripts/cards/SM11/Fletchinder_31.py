@@ -1,5 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import energy_provides_type
+from ptcgo.game.card_effects.support_common import search_attach_energy
+
 
 card = PokemonCardDef(
     guid="87f7f48c-25f3-5a5f-91c9-822e823d5cd2",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             game_text="Search your deck for a Fire Energy card and attach it to this Pok\u00e9mon. Then, shuffle your deck.",
             cost={PokemonTypes.FIRE: 1},
             damage=20,
-            effect=unimplemented,
+            effect=search_attach_energy(predicate=lambda c: energy_provides_type(c, PokemonTypes.FIRE.value), count=1, to_self=True, prompt='Choose a Fire Energy card to attach.'),
         ),
     ],
 )

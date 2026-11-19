@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import lost_mine_condition
+
 
 async def lost_impact(ctx):
     """280. Put 2 Energy attached to your Pokemon in the Lost Zone."""
@@ -17,11 +18,13 @@ async def lost_impact(ctx):
     if picks:
         await ctx.move_to_lost_zone(picks)
 
+
 async def star_requiem(ctx):
     """VSTAR Power: your opponent's Active Pokemon is Knocked Out."""
     target = ctx.defender
     if target is not None:
         await ctx.knock_out(target)
+
 
 card = PokemonCardDef(
     guid="5bb2595e-f648-5396-b2c0-d1b63316590d",
@@ -42,17 +45,18 @@ card = PokemonCardDef(
     abilities=[
         Attack(
             title="Lost Impact",
-            game_text="Put 2 Energy attached to your Pok\u00e9mon in the Lost Zone.",
+            game_text="Put 2 Energy attached to your Pokémon in the Lost Zone.",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=280,
             effect=lost_impact,
         ),
         Attack(
             title="Star Requiem",
-            game_text="You can use this attack only if you have 10 or more cards in the Lost Zone. Your opponent's Active Pok\u00e9mon is Knocked Out. (You can't use more than 1 VSTAR Power in a game.)",
+            game_text="You can use this attack only if you have 10 or more cards in the Lost Zone. Your opponent's Active Pokémon is Knocked Out. (You can't use more than 1 VSTAR Power in a game.)",
             cost={PokemonTypes.GRASS: 1, PokemonTypes.PSYCHIC: 1},
-            effect=star_requiem,
+            vstar=True,
             condition=lost_mine_condition,
+            effect=star_requiem,
         ),
     ],
 )

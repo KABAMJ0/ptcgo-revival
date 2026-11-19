@@ -1,6 +1,14 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import debuff_defender_attacks
+from ptcgo.game.card_effects.attacks_common import discard_random_from_hand
+
+
+async def _flip_discard(ctx):
+    await ctx.deal_damage()
+    if any(await ctx.flip_coins(1, "Flip a coin")):
+        await discard_random_from_hand(ctx, ctx.opponent_id)
+
 
 card = PokemonCardDef(
     guid="23e34891-0992-5ab6-b313-84956259dfa4",
@@ -25,7 +33,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard a random card from your opponent's hand.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=_flip_discard,
         ),
         Attack(
             title="Dark Edge",

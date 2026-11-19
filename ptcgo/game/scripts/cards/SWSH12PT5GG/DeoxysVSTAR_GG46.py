@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import is_pokemon_v
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, is_pokemon_v
 from ptcgo.game.card_effects.attacks_common import damage_per, count_discard
 from ptcgo.game.session.effects import is_pokemon_card
@@ -14,6 +15,7 @@ async def axe_break(ctx):
         )
         if target is not None:
             await ctx.deal_damage(60, target=target, apply_modifiers=False)
+
 
 card = PokemonCardDef(
     guid="d4c76c5a-932f-5200-8390-2ae28f998560",

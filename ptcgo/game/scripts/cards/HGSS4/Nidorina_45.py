@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage, flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_bonus
 
 card = PokemonCardDef(
     guid="6bb02721-48d9-549b-96a6-df655ba48b38",
@@ -26,7 +26,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 1},
             damage=20,
             damage_operator="+",
-            effect=flip_gate(then=lambda ctx: ctx.deal_damage(30)),
+            effect=flip_bonus(10),
         ),
         Attack(
             title="Tail Slap",

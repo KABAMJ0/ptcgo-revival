@@ -52,6 +52,9 @@ class PTCGOServer:
             ssl=self.context
         )
         self.running = True
+        # The admin API runs on HTTP worker threads and schedules kicks and chat
+        # broadcasts onto this loop.
+        self.loop = asyncio.get_running_loop()
         state.ACTIVE_TCP_SERVER = self
 
         db_manager.start_writer()

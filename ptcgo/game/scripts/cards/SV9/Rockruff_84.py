@@ -13,6 +13,19 @@ async def dig_it_up(ctx):
     if idx == 0:
         await ctx.discard_cards([card])
 
+
+async def dig_it_up(ctx):
+    """Look at the top card of your deck. You may discard that card."""
+    top = ctx.deck_top(1)
+    if not top:
+        return
+    card = top[0]
+    idx = await ctx.present_card_choice(
+        card, "Discard this card?", ["Discard", "Keep on top"])
+    if idx == 0:
+        await ctx.discard_cards([card])
+
+
 card = PokemonCardDef(
     guid="89ef2adf-667b-5247-b226-39f994bafbc9",
     key="SV9",

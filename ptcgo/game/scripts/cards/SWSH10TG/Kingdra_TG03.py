@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.card_effects.pokemon import energy_provides_type
+
 
 async def deep_sea_king(ctx):
     """Ally Active KO'd by an opponent's attack: you may move any amount of Water Energy from it to this Pokemon."""
@@ -22,6 +22,7 @@ async def deep_sea_king(ctx):
         predicate=lambda e: energy_provides_type(e, PokemonTypes.WATER.value),
     )
 
+
 card = PokemonCardDef(
     guid="d7799e20-ebf0-550a-b42a-6ee9f8ec28bc",
     key="SWSH10TG",
@@ -38,11 +39,12 @@ card = PokemonCardDef(
     retreat_cost=1,
     weakness_type=PokemonTypes.LIGHTNING,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Seadra.Name",
-    family_id=230,
+    family_id=116,
     abilities=[
         Ability(
             title="Deep Sea King",
             game_text="When your Active Pok\u00e9mon is Knocked Out by damage from an attack from your opponent's Pok\u00e9mon, you may move any amount of Water Energy from that Pok\u00e9mon to this Pok\u00e9mon.",
+            trigger=Triggers.ON_ALLY_KNOCKED_OUT,
             effect=deep_sea_king,
         ),
         Attack(

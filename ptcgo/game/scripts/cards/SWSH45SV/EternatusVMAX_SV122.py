@@ -1,10 +1,36 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_in_play
 from ptcgo.game.card_effects.trainers import is_darkness_pokemon
 from ptcgo.game.models.board import PokemonEntity
 from ptcgo.game.session.passives import Passive
+
+
+def _all_darkness_in_play(carrier) -> bool:
+    player_entity = carrier.parent.parent if carrier.parent else None
+    if player_entity is None:
+        return False
+    mons = [
+        c for area in player_entity.children
+        if area.get_attribute(AttrID.NAME) in ("bench", "activePokemonArea")
+        for c in area.children if isinstance(c, PokemonEntity)
+    ]
+    return bool(mons) and all(is_darkness_pokemon(m) for m in mons)
+
+
+class EternalZonePassive(Passive):
+    """While every one of the owner's in-play Pokemon is Darkness type, Bench
+    capacity is 8 (auto-enforced back down to 5 when it stops applying). The
+    accompanying "can't put non-Darkness Pokemon into play" restriction has no
+    engine hook for Pokemon-from-hand plays yet (play_locked only gates
+    Energy/Trainer offers) and is not enforced here."""
+
+    def bench_capacity(self, player_id, carrier):
+        if player_id != carrier.owning_player_id:
+            return None
+        return 8 if _all_darkness_in_play(carrier) else None
+
+
 card = PokemonCardDef(
     guid="0b50525b-09a5-589b-b2b7-3fda2c881214",
     key="SWSH45SV",
@@ -26,7 +52,7 @@ card = PokemonCardDef(
         Ability(
             title="Eternal Zone",
             game_text="If all of your Pok\u00e9mon in play are Darkness type, you can have up to 8 Pok\u00e9mon on your Bench, and you can't put non-Darkness Pok\u00e9mon into play. (If this Ability stops working, discard Pok\u00e9mon from your Bench until you have 5.)",
-            effect=unimplemented,
+            passive=EternalZonePassive(),
         ),
         Attack(
             title="Dread End",

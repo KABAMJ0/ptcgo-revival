@@ -24,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Frost Shift",
             game_text="Once during your turn (before your attack), you may use this power. Frost Rotom's type is Water until the end of your turn.",
-            effect=spread_damage(10, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Hail",

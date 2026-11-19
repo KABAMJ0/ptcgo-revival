@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack, ignore_modifier_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack, ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="966dddc2-4b78-59ac-8d4b-f4c53412b83c",
@@ -26,11 +26,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by Weakness, Resistance, Pok\u00e9mon Powers, or any other effects on the Defending Pok\u00e9mon.",
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=ignore_modifier_attack(
-                ignore_weakness=True,
-                ignore_resistance=True,
-                ignore_target_effects=True,
-            ),
+            effect=ignore_modifier_attack(ignore_weakness=True, ignore_resistance=True, ignore_target_effects=True),
         ),
         Attack(
             title="Needle Ball",

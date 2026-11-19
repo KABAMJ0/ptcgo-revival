@@ -1,10 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import count_energy
-from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
 from ptcgo.game.card_effects.passives_common import flip_protection
-
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 card = PokemonCardDef(
     guid="db6894f2-e070-5582-92d6-7eed3c35062d",
     key="SWSH45SV",
@@ -36,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=50,
             damage_operator="+",
-            effect=damage_per(count_energy("self", PokemonTypes.WATER), per=20, base=50),
+            effect=damage_per(count_energy("self", energy_type=PokemonTypes.WATER), 20, base=50),
         ),
     ],
 )

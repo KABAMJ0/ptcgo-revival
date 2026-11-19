@@ -1,11 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def gmax_one_blow(ctx):
     await ctx.discard_energy_from(
         ctx.attacker, 99, prompt="Discard all Energy from this Pokémon"
     )
     await ctx.deal_damage(ignore_target_effects=True)
+
 
 card = PokemonCardDef(
     guid="c16f9aba-aa90-5ad0-bbcb-3daf8e33be97",

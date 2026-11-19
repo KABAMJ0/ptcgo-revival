@@ -1,7 +1,8 @@
-from ptcgo.game.card_effects.support_common import recover_from_discard
-from ptcgo.game.session.effects import is_trainer_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import electromagnetic_sonar
+
+
 card = PokemonCardDef(
     guid="06890406-daf9-5a73-847e-b2e207d930c8",
     key="SV8",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Electromagnetic Sonar",
             game_text="Put a Trainer card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=recover_from_discard(is_trainer_card, count=1, to="hand"),
+            effect=electromagnetic_sonar,
         ),
         Attack(
             title="Gnaw",

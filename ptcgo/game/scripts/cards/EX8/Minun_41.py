@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import recover_from_discard
+
 
 card = PokemonCardDef(
     guid="d616de21-6170-50d5-8159-bffbaab4da0c",
@@ -22,7 +24,7 @@ card = PokemonCardDef(
             title="Sniff Out",
             game_text="Put any 1 card from your discard pile into your hand.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=recover_from_discard(count=1),
         ),
         Attack(
             title="Negative Spark",

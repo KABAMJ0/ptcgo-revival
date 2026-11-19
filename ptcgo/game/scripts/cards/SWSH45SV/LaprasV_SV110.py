@@ -1,18 +1,12 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.trainers import is_energy_card
 
-async def ocean_loop(ctx):
-    """210 damage, then put 2 Water Energy attached to this Pokémon into your hand."""
-    await ctx.deal_damage()
-    attached = [c for c in ctx.attached_energies(ctx.source) if _is_water_energy(c)]
-    if not attached:
-        return
-    picks = await ctx.choose_cards(
-        attached, 2, prompt="Choose 2 Water Energy to put into your hand.",
-    )
-    await ctx.put_in_hand(picks, reveal=False)
+
+def _is_water_energy(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy_card(card) and PokemonTypes.WATER.value in types
+
 
 async def body_surf(ctx):
     """Attach a Water Energy from hand to this Pokémon; if you do, switch it with a Benched Pokémon."""
@@ -37,9 +31,17 @@ async def body_surf(ctx):
         await ctx.switch_active(ctx.player_id, target)
 
 
-def _is_water_energy(card):
-    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
-    return is_energy_card(card) and PokemonTypes.WATER.value in types
+async def ocean_loop(ctx):
+    """210 damage, then put 2 Water Energy attached to this Pokémon into your hand."""
+    await ctx.deal_damage()
+    attached = [c for c in ctx.attached_energies(ctx.source) if _is_water_energy(c)]
+    if not attached:
+        return
+    picks = await ctx.choose_cards(
+        attached, 2, prompt="Choose 2 Water Energy to put into your hand.",
+    )
+    await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="edd2330e-2bb9-5423-a082-6a0f61497679",

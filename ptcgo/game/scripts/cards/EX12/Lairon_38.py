@@ -1,5 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 
 
@@ -9,6 +8,7 @@ async def _rest(ctx, counters):
     await ctx.cure_all_conditions(target)
     await ctx.heal(counters * 10, target)
     await ctx.apply_special_condition(target, SpecialConditions.ASLEEP)
+from ptcgo.game.card_effects.attacks_common import condition_attack
 
 card = PokemonCardDef(
     guid="9a469c54-cb4b-588f-ba01-3933d0af8432",

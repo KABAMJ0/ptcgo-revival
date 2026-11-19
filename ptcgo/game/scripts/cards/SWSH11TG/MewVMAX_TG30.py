@@ -1,7 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 from ptcgo.game.card_effects.pokemon import cross_fusion_strike, max_miracle
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 card = PokemonCardDef(
     guid="d91d9cd5-322b-5b6a-ad30-55d82d0191ec",
     key="SWSH11TG",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack's damage isn't affected by any effects on your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.PSYCHIC: 2},
             damage=130,
-            effect=ignore_modifier_attack(ignore_target_effects=True),
+            effect=max_miracle,
         ),
     ],
 )

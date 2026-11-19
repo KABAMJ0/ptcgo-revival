@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack, count_energy
+
 
 async def hundred_foot_flames(ctx):
     """Discard the top card of your opponent's deck for each Fire Energy
@@ -9,6 +9,7 @@ async def hundred_foot_flames(ctx):
     count = count_energy("self", energy_type=PokemonTypes.FIRE)(ctx)
     if count > 0:
         await ctx.discard_cards(ctx.deck_top(count, player_id=ctx.opponent_id))
+
 
 card = PokemonCardDef(
     guid="4fe8b0d5-b9aa-57f8-b96e-135b5e30dede",

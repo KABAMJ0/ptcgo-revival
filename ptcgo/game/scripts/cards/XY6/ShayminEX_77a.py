@@ -3,12 +3,14 @@ from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import draw_until_effect
 from ptcgo.game.card_effects.trainers import return_pokemon_to_hand
 
+
 async def sky_return(ctx):
     """30 damage, then return this Pokemon and all cards attached to it to your
     hand."""
     pokemon = ctx.attacker
     await ctx.deal_damage()
     await return_pokemon_to_hand(lambda p: p is pokemon, with_attachments="same")(ctx)
+
 
 card = PokemonCardDef(
     guid="9b81cdb6-4ef9-57fd-8985-cee3d115060a",

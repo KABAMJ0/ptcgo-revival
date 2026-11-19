@@ -1,7 +1,14 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import damage_all_opponents
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
+from ptcgo.game.card_effects.attacks_common import bonus_if, damage_all_opponents
+
+
+def _magmortar_bench_damaged(ctx) -> bool:
+    for p in ctx.my_bench():
+        if p.get_attribute(AttrID.EVOLUTION_LOGIC_NAME) == "Magmortar" \
+                and p.get_attribute(AttrID.HP, ctx.max_hp(p)) < ctx.max_hp(p):
+            return True
+    return False
 
 card = PokemonCardDef(
     guid="3895e24d-4d0f-5661-9db9-e987a002ff14",
@@ -19,7 +26,7 @@ card = PokemonCardDef(
     retreat_cost=3,
     weakness_type=PokemonTypes.FIGHTING,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Electabuzz.Name",
-    family_id=466,
+    family_id=125,
     abilities=[
         Attack(
             title="Explosive Bolt",
@@ -27,7 +34,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.LIGHTNING: 1},
             damage=30,
             damage_operator="+",
-            effect=spread_damage(50, side="opponent"),
+            effect=bonus_if(_magmortar_bench_damaged, 90),
         ),
         Attack(
             title="High-Voltage Current",

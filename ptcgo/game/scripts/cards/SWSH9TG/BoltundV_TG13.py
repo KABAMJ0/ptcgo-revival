@@ -1,8 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.card_effects.pokemon import is_lightning_energy
+
 
 async def electrify(ctx):
     """Search up to 2 Lightning Energy and attach them to your Benched
@@ -12,6 +13,7 @@ async def electrify(ctx):
         is_lightning_energy, count=2,
         target_pred=lambda p: p.entity_id in bench_ids,
     )(ctx)
+
 
 card = PokemonCardDef(
     guid="5bf8fae9-5598-51dc-bb62-91b23f6dcb7a",

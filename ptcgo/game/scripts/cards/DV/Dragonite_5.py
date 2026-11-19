@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack, flip_gate
+
 
 card = PokemonCardDef(
     guid="94502a0c-2793-5a19-98ee-549ed90f6bf5",
@@ -25,7 +27,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy attached to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=unimplemented,
+            effect=flip_gate(discard_opponent_energy_attack(1)),
         ),
         Attack(
             title="Hurricane Tail",

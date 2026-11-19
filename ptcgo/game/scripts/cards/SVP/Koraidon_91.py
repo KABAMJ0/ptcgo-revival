@@ -1,6 +1,9 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import (
+    count_in_play, damage_per, ignore_modifier_attack,
+)
+from ptcgo.game.card_effects.trainers import pokemon_of_subtype
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
 
 card = PokemonCardDef(
     guid="5476e4d0-37f2-5b4f-bd0d-0d68c28acd81",
@@ -24,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIGHTING: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
             damage_operator="x",
-            effect=unimplemented,
+            effect=damage_per(count_in_play("mine", pokemon_of_subtype("Ancient")), 30),
         ),
         Attack(
             title="Shred",

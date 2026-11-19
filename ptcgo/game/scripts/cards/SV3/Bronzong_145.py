@@ -1,12 +1,8 @@
-from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.trainers import draw_n
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
-from ptcgo.game.card_effects.attacks_common import bonus_if
+from ptcgo.game.card_effects.passives_common import protect_next_turn
+from ptcgo.game.card_effects.attacks_common import bonus_if, hand_sizes_equal
 
-def _same_hand_size(ctx):
-    return ctx.hand_size() == ctx.hand_size(ctx.opponent_id)
 
 card = PokemonCardDef(
     guid="cc5a1d45-fee8-5c4c-a5d5-ec46a7cd9c96",
@@ -40,7 +36,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.METAL: 2},
             damage=70,
             damage_operator="+",
-            effect=bonus_if(_same_hand_size, 90),
+            effect=bonus_if(hand_sizes_equal, 90),
         ),
     ],
 )

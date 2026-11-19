@@ -1,6 +1,8 @@
 from ptcgo.game.card_effects.attacks_common import snipe_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import heal_targets
+
 
 card = PokemonCardDef(
     guid="04fece48-72a5-56e9-bf90-03b7d7d65f14",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Honey Scent",
             game_text="Remove 2 damage counters from 1 of your Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=heal_targets(20, scope='choice'),
         ),
         Attack(
             title="Flitter",

@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.support_common import gust_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="f2e52d9c-1611-5b62-9eba-d22c0498db9a",

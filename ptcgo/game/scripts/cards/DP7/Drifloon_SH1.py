@@ -35,7 +35,7 @@ card = PokemonCardDef(
             game_text="Drifloon does 50 damage to itself.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=50,
-            effect=recoil_attack(50, damage=0),
+            effect=recoil_attack(50),
         ),
     ],
 )

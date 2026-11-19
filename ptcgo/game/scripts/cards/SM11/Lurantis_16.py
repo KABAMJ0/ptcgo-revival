@@ -1,4 +1,4 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
+from ptcgo.game.card_effects.attacks_common import spread_damage, bonus_if, self_has_energy_of_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=50,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(self_has_energy_of_type(PokemonTypes.FIRE), 50),
         ),
     ],
 )

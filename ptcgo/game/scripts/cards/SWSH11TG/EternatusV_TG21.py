@@ -1,8 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if, defender_is_vmax
 from ptcgo.game.card_effects.trainers import is_energy_card
+
+
+def _is_darkness_energy(card) -> bool:
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy_card(card) and PokemonTypes.DARKNESS.value in types
+
 
 async def power_accelerator(ctx):
     """30 damage. You may attach a Darkness Energy from hand to 1 Benched Pokémon."""
@@ -24,11 +29,6 @@ async def power_accelerator(ctx):
     )
     if target is not None:
         await ctx.attach_energy(picked[0], target)
-
-
-def _is_darkness_energy(card) -> bool:
-    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
-    return is_energy_card(card) and PokemonTypes.DARKNESS.value in types
 
 card = PokemonCardDef(
     guid="70e51471-a6e2-5468-86d7-54230e6a81e4",

@@ -1,5 +1,17 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.session.passives import Passive
+
+
+class LayOfTheLandPassive(Passive):
+    def modify_retreat_cost(self, cost, pokemon, carrier, board):
+        if pokemon is not carrier:
+            return cost
+        area = board.find_global_area("activeStadium")
+        if not (area and area.children):
+            return cost
+        return 0
+
 
 card = PokemonCardDef(
     guid="4b55efbd-28b9-5506-8fe5-789e4042b8f1",
@@ -22,10 +34,10 @@ card = PokemonCardDef(
         Ability(
             title="Lay of the Land",
             game_text="If you have a Stadium in play, this Pok\u00e9mon has no Retreat Cost.",
-            effect=unimplemented,
+            passive=LayOfTheLandPassive(),
         ),
         Attack(
-            title="Branch Pok\u00e9",
+            title="Branch Poke",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
         ),

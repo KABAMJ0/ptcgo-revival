@@ -1,8 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import no_retreat_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 async def perish_body(ctx):
     """If in the Active Spot and Knocked Out by damage from an opponent's
@@ -15,6 +14,7 @@ async def perish_body(ctx):
     results = await ctx.flip_coins(1, "Perish Body")
     if results and results[0]:
         await ctx.knock_out(ctx.ko_attacker)
+
 
 card = PokemonCardDef(
     guid="2fe36aa8-2c0a-5407-9f46-84006dc60a34",
@@ -37,15 +37,16 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Perish Body",
-            game_text="If this Pok\u00e9mon is in the Active Spot and is Knocked Out by damage from an opponent's attack, flip a coin. If heads, the Attacking Pok\u00e9mon is Knocked Out.",
+            game_text="If this Pokémon is in the Active Spot and is Knocked Out by damage from an opponent's attack, flip a coin. If heads, the Attacking Pokémon is Knocked Out.",
+            trigger=Triggers.ON_KNOCKED_OUT,
             effect=perish_body,
         ),
         Attack(
             title="Corner",
-            game_text="During your opponent's next turn, the Defending Pok\u00e9mon can't retreat.",
+            game_text="During your opponent's next turn, the Defending Pokémon can't retreat.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
             damage=60,
-            effect=no_retreat_attack(),
+            effect=condition_attack(no_retreat=True),
         ),
     ],
 )

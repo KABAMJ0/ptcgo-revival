@@ -2,6 +2,7 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_or_nothing
 
+
 async def _put_discard_card_in_hand(ctx):
     discard = ctx.discard_pile()
     if not discard:
@@ -11,6 +12,7 @@ async def _put_discard_card_in_hand(ctx):
         prompt="Choose a card from your discard pile to put into your hand.",
     )
     await ctx.put_in_hand(picks, reveal=False)
+
 
 card = PokemonCardDef(
     guid="bb19e3a7-3bf2-5422-ba81-5abd8adb81c9",

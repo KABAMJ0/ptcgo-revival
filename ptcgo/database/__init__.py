@@ -7,6 +7,7 @@ from ptcgo.database.models import (
     AsyncTournament, TournamentEntry, TournamentLeaderboardClaim,
     TrainerChallengeProgress, LEAGUE_ROW,
     TutorialProgress,
+    CardOverride, CardBan, AdminAudit,
 )
 
 __all__ = [
@@ -33,4 +34,7 @@ __all__ = [
     "TrainerChallengeProgress",
     "LEAGUE_ROW",
     "TutorialProgress",
+    "CardOverride",
+    "CardBan",
+    "AdminAudit",
 ]

@@ -1,9 +1,18 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.trainers import is_energy_card
 from ptcgo.game.card_effects.support_common import requires_discard, distribute_energy
+
+
+def _is_fire_energy_card(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy_card(card) and PokemonTypes.FIRE.value in types
+
+
+def _is_fighting_energy_card(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy_card(card) and PokemonTypes.FIGHTING.value in types
+
 
 async def tar_generator(ctx):
     """Once per turn, you may attach a Fire Energy, a Fighting Energy, or
@@ -31,15 +40,6 @@ async def tar_generator(ctx):
     await distribute_energy(ctx, picks, ctx.my_pokemon_in_play())
 
 
-def _is_fire_energy_card(card):
-    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
-    return is_energy_card(card) and PokemonTypes.FIRE.value in types
-
-
-def _is_fighting_energy_card(card):
-    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
-    return is_energy_card(card) and PokemonTypes.FIGHTING.value in types
-
 card = PokemonCardDef(
     guid="9e3afc40-3616-5c25-bff1-920499a39949",
     key="SWSH45SV",
@@ -60,11 +60,12 @@ card = PokemonCardDef(
     abilities=[
         Ability(
             title="Tar Generator",
-            game_text="Once during your turn, you may attach a Fire Energy card, a Fighting Energy card, or 1 of each from your discard pile to your Pok\u00e9mon in any way you like.",
-            effect=tar_generator,
+            game_text="Once during your turn, you may attach a Fire Energy card, a Fighting Energy card, or 1 of each from your discard pile to your Pokémon in any way you like.",
+            activation=Activations.ONCE_PER_TURN,
             condition=requires_discard(
                 lambda c: _is_fire_energy_card(c) or _is_fighting_energy_card(c)
             ),
+            effect=tar_generator,
         ),
         Attack(
             title="Flaming Avalanche",

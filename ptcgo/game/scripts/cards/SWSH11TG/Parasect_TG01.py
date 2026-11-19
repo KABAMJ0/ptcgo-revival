@@ -1,8 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import flip_bonus
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
+from ptcgo.game.card_effects.attacks_common import flip_bonus
+
 
 async def lethargy_spores(ctx):
     """On evolve: you may make both Active Pokemon Asleep and Poisoned."""
@@ -30,11 +29,12 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.FIRE,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Paras.Name",
-    family_id=47,
+    family_id=46,
     abilities=[
         Ability(
             title="Lethargy Spores",
             game_text="When you play this Pok\u00e9mon from your hand to evolve 1 of your Pok\u00e9mon during your turn, you may make both Active Pok\u00e9mon Asleep and Poisoned.",
+            trigger=Triggers.ON_EVOLVE,
             effect=lethargy_spores,
         ),
         Attack(

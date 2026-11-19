@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonToolCardDef, Ability, Triggers
 from ptcgo.game.attributes import Rarities
-from ptcgo.game.card_effects.trainers import tool_counters_on_attacker
+from ptcgo.game.card_effects.trainers import (
+    tool_counters_on_attacker, tool_discard_after_opponents_turn,
+)
 
 card = PokemonToolCardDef(
     guid="be4af5b4-2fb5-5014-87db-b12d4fafece0",
@@ -19,5 +21,6 @@ card = PokemonToolCardDef(
             trigger=Triggers.ON_DAMAGED_BY_ATTACK,
             effect=tool_counters_on_attacker(10, 180),
         ),
+        tool_discard_after_opponents_turn("Giant Bomb"),
     ],
 )

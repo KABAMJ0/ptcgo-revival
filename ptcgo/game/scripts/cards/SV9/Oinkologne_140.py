@@ -1,11 +1,14 @@
-from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_defender_attacks
 
-async def entangling_string(ctx):
-    heads = await ctx.flip_coins(1, "Entangling String")
+
+async def tail_whip(ctx):
+    """Flip a coin. If heads, the Defending Pokémon can't attack next turn."""
+    heads = await ctx.flip_coins(1, "Tail Whip")
     if heads[0]:
         lock_defender_attacks(ctx)
+
 
 card = PokemonCardDef(
     guid="de554ae8-01d0-56c3-9795-353d1cbb60fc",
@@ -30,7 +33,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, during your opponent's next turn, the Defending Pok\u00e9mon can't attack.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=entangling_string,
+            effect=tail_whip,
         ),
         Attack(
             title="Headbutt Bounce",

@@ -1,12 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_bench
 from ptcgo.game.card_effects.support_common import distribute_energy, requires_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.session.effects import is_water_pokemon
+
+
+def _is_water_energy(card):
+    return is_basic_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER.value)
+
 
 async def star_portal(ctx):
     pool = [c for c in ctx.discard_pile() if _is_water_energy(c)]
@@ -31,10 +34,6 @@ def _star_portal_condition(board, player_id, pokemon=None):
 
 subspace_swell = damage_per(count_bench("both"), 20, base=60)
 
-
-def _is_water_energy(card):
-    return is_basic_energy_card(card) and energy_provides_type(card, PokemonTypes.WATER.value)
-
 card = PokemonCardDef(
     guid="41cfd6d0-8aa8-5c7f-9ed0-a9a3f899d010",
     key="SWSH12PT5GG",
@@ -56,6 +55,8 @@ card = PokemonCardDef(
         Ability(
             title="Star Portal",
             game_text="During your turn, you may attach up to 3 Water Energy cards from your discard pile to your Water Pok\u00e9mon in any way you like. (You can't use more than 1 VSTAR Power in a game.)",
+            activation=Activations.ONCE_PER_TURN,
+            vstar=True,
             effect=star_portal,
             condition=_star_portal_condition,
         ),
@@ -65,7 +66,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.WATER: 2},
             damage=60,
             damage_operator="+",
-            effect=damage_per(count_bench("both"), 20, base=60),
+            effect=subspace_swell,
         ),
     ],
 )

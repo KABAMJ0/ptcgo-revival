@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import AttrID
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 
 async def magical_echo(ctx):
@@ -13,6 +14,7 @@ async def magical_echo(ctx):
     if source is None:
         return
     await ctx.move_damage_counters(source, ctx.defender)
+
 
 card = PokemonCardDef(
     guid="4c0b9f79-73e1-58a5-b2bc-efb86ffad3a3",

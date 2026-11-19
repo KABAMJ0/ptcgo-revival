@@ -1,4 +1,4 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
 from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
 from ptcgo.game.card_effects.pokemon import energy_provides_type
@@ -45,6 +45,7 @@ async def underworld_door(ctx):
     await ctx.attach_energy(picked[0], target)
     await ctx.draw_cards(2)
 
+
 card = PokemonCardDef(
     guid="afbaccf2-6a03-5a03-b8a7-984075eae122",
     key="SWSH10TG",
@@ -67,8 +68,9 @@ card = PokemonCardDef(
         Ability(
             title="Underworld Door",
             game_text="Once during your turn, you may attach a Psychic Energy card from your hand to 1 of your Benched Psychic Pok\u00e9mon. If you attached Energy to a Pok\u00e9mon in this way, draw 2 cards.",
-            effect=underworld_door,
+            activation=Activations.ONCE_PER_TURN,
             condition=underworld_door_condition,
+            effect=underworld_door,
         ),
         Attack(
             title="Max Geist",

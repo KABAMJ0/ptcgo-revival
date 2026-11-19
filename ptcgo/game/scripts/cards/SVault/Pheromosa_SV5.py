@@ -1,6 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, count_prizes_remaining
+
 
 def _one_prize_left(ctx) -> bool:
     return count_prizes_remaining("mine")(ctx) == 1

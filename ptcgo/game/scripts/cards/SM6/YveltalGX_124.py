@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack
+from ptcgo.game.card_effects.attacks_common import ignore_modifier_attack, heal_dealt_attack
 
 card = PokemonCardDef(
     guid="9f7b9735-52db-54d1-8236-20b05bb0c7bd",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.DARKNESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=heal_dealt_attack(),
         ),
         Attack(
             title="Sonic Evil",

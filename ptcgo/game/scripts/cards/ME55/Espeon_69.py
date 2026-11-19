@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.trainers import tm_devolve_all
+
 
 card = PokemonCardDef(
     guid="2d58a26e-0564-5b7d-93bd-2b6ca2caad36",
@@ -24,7 +26,7 @@ card = PokemonCardDef(
             title="Miraculous Shine",
             game_text="Devolve each of your opponent's evolved Pok\u00e9mon by putting the highest Stage Evolution card on it into your opponent's hand.",
             cost={PokemonTypes.PSYCHIC: 1, PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=tm_devolve_all(),
         ),
         Attack(
             title="Super Psy Bolt",

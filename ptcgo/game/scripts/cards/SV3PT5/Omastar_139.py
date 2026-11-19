@@ -2,7 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.passives_common import no_retreat_passive, opposing_active, is_in_active_spot
 from ptcgo.game.card_effects.attacks_common import snipe_attack
-from ptcgo.game.card_effects.passives_common import flip_prevent_damage_passive
+
+
 card = PokemonCardDef(
     guid="c9e17862-fda1-5435-ad63-30ac4b63f79e",
     key="SV3PT5",
@@ -31,7 +32,7 @@ card = PokemonCardDef(
             game_text="This attack also does 30 damage to 2 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 2},
             damage=90,
-            effect=snipe_attack(30, pool="bench", count=2, apply_modifiers=False, also_base=True),
+            effect=snipe_attack(30, pool='bench', count=2, apply_modifiers=False, also_base=True),
         ),
     ],
 )

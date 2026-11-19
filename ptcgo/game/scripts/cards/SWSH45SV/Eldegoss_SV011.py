@@ -1,7 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.trainers import is_grass_energy_card
 from ptcgo.game.card_effects.support_common import distribute_energy
+
 
 async def blessing_of_fluff(ctx):
     """Search your deck for up to 3 Grass Energy cards and attach them to
@@ -14,6 +15,7 @@ async def blessing_of_fluff(ctx):
     if picks and bench:
         await distribute_energy(ctx, picks, bench)
     await ctx.shuffle_deck()
+
 
 card = PokemonCardDef(
     guid="3e408bda-6f02-5ce3-bce4-a8ec4c611e57",

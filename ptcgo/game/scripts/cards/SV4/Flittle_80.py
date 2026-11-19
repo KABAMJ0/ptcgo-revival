@@ -27,7 +27,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.PSYCHIC: 2},
             damage=10,
             damage_operator="+",
-            effect=damage_per(count_energy("defender"), 10),
+            effect=damage_per(count_energy("defender"), 10, base=10),
         ),
     ],
 )

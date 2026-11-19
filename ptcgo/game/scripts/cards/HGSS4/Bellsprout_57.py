@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
@@ -30,7 +31,7 @@ card = PokemonCardDef(
             game_text="Bellsprout does 10 damage to itself.",
             cost={PokemonTypes.GRASS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=recoil_attack(10),
         ),
     ],
 )

@@ -1,8 +1,8 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.card_effects.pokemon import energy_provides_type
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Triggers
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+
 
 async def libero(ctx):
     """Once per turn, on move to Active: you may attach up to 2 Fire Energy from discard."""
@@ -17,6 +17,7 @@ async def libero(ctx):
     )
     for card in picks:
         await ctx.attach_energy(card, ctx.source)
+
 
 card = PokemonCardDef(
     guid="240dfb3b-98d5-54a5-bf4c-bf94a515d161",
@@ -39,6 +40,7 @@ card = PokemonCardDef(
         Ability(
             title="Libero",
             game_text="Once during your turn, when this Pok\u00e9mon moves from your Bench to the Active Spot, you may attach up to 2 Fire Energy cards from your discard pile to it.",
+            trigger=Triggers.ON_MOVE_TO_ACTIVE,
             effect=libero,
         ),
         Attack(

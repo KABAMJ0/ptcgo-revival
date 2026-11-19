@@ -1,6 +1,9 @@
 from ptcgo.game.card_effects.passives_common import shield_source_next_turn
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Triggers
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.card_effects.attacks_common import condition_attack
+
 
 card = PokemonCardDef(
     guid="3539237a-40af-5b43-b834-4094f33d6b8a",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             game_text="Your opponent's Active Pok\u00e9mon is now Poisoned. Put 4 damage counters instead of 1 on that Pok\u00e9mon between turns.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=unimplemented,
+            effect=condition_attack(SpecialConditions.POISONED, counters=4),
         ),
     ],
 )

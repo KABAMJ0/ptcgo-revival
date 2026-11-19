@@ -1,6 +1,7 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import bonus_if
+
 card = PokemonCardDef(
     guid="504531f7-6f49-5412-bdad-509887449d52",
     key="SWSH11TG",
@@ -17,7 +18,7 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.HisuianGrowlithe.Name",
-    family_id=59,
+    family_id=58,
     abilities=[
         Attack(
             title="Very Vulnerable",

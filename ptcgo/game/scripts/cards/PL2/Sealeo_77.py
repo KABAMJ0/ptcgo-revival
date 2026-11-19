@@ -1,7 +1,10 @@
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.attacks_common import flip_defender_lock_attack
+
 
 card = PokemonCardDef(
     guid="682049b0-9fba-5abb-ba0e-156421c63cc3",
@@ -32,7 +35,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, the Defending Pok\u00e9mon can't attack during your opponent's next turn.",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_defender_lock_attack(),
         ),
     ],
 )

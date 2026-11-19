@@ -1,5 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import snipe_attack
+
 
 card = PokemonCardDef(
     guid="07ac6e60-459f-58dc-b96a-b2336963f0ac",
@@ -28,7 +30,7 @@ card = PokemonCardDef(
             title="Triple Needle",
             game_text="Choose 3 of your opponent's Pok\u00e9mon. This attack does 10 damage to each of those Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=unimplemented,
+            effect=snipe_attack(10, pool='any', count=3, apply_modifiers=False),
         ),
         Attack(
             title="Light Punch",

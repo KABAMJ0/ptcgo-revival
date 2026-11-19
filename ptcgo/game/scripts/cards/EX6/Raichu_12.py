@@ -1,4 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.trainers import basic_energy_of
+from ptcgo.game.card_effects.support_common import search_attach_energy
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -23,7 +25,7 @@ card = PokemonCardDef(
             title="Recharge",
             game_text="Search your deck for up to 2 Lightning Energy cards and attach them to Raichu. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=unimplemented,
+            effect=search_attach_energy(basic_energy_of("lightning"), count=2, to_self=True),
         ),
         Attack(
             title="Thunder Reflection",

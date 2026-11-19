@@ -1,6 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack
+from ptcgo.game.card_effects.attacks_common import condition_attack, bonus_if, defender_has_condition
 
 card = PokemonCardDef(
     guid="517e65fa-74f1-5db7-966c-bdbb63634d3f",
@@ -32,7 +32,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.GRASS: 1},
             damage=30,
             damage_operator="+",
-            effect=unimplemented,
+            effect=bonus_if(defender_has_condition(SpecialConditions.ASLEEP), 90),
         ),
     ],
 )

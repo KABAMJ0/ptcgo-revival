@@ -23,7 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Frosty Flapping",
             game_text="Once during your turn, if you have Moltres and Zapdos in play, you may use this Ability. Attach a Basic Water Energy card from your hand to this Pok\u00e9mon.",
-            effect=spread_damage(30, side="opponent"),
+            effect=unimplemented,
         ),
         Attack(
             title="Hail",

@@ -1,6 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import no_retreat_attack
+from ptcgo.game.card_effects.attacks_common import heal_self_damage_dealt
+
 
 card = PokemonCardDef(
     guid="680227dc-1f5d-5508-a796-d207a9b58bc2",
@@ -32,7 +34,7 @@ card = PokemonCardDef(
             game_text="Heal from this Pok\u00e9mon the same amount of damage you did to the Defending Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 2},
             damage=40,
-            effect=unimplemented,
+            effect=heal_self_damage_dealt(),
         ),
     ],
 )

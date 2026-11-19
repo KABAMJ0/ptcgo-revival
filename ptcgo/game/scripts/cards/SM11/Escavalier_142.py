@@ -1,7 +1,8 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
+
+
 card = PokemonCardDef(
     guid="8e4e09b9-2f34-5513-992b-9b3fd4643e63",
     key="SM11",
@@ -26,7 +27,7 @@ card = PokemonCardDef(
             game_text="If your opponent's Active Pok\u00e9mon has no damage counters on it before this attack does damage, this attack does nothing.",
             cost={PokemonTypes.METAL: 1},
             damage=80,
-            effect=bonus_if(has_damage("defender"), 0, else_nothing=True),
+            effect=bonus_if(has_damage('defender'), 0, else_nothing=True),
         ),
         Attack(
             title="Iron Lance",

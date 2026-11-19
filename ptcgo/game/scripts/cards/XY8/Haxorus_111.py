@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Dragon Dance",
             game_text="As long as this Haxorus is your Active Pok\u00e9mon, each of its attacks does 100 more damage (before applying Weakness and Resistance). You can't add more than 100 damage in this way.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=mill_attack(3, opponent=False),
+            effect=unimplemented,
         ),
         Attack(
             title="Sharp Fang",

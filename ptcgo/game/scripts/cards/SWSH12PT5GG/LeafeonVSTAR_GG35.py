@@ -1,7 +1,13 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.passives_common import protect_next_turn
 from ptcgo.game.card_effects.passives_common import TakesLessPassive
+
+
+def _ivy_star_condition(board, player_id, pokemon):
+    opponent_id = next(p for p in board.player_ids if p != player_id)
+    bench = board.find_player_area(opponent_id, "bench")
+    return bool(board.active_pokemon(opponent_id)) and bool(bench and bench.children)
+
 
 async def ivy_star(ctx):
     """You may switch 1 of your opponent's Benched Pokémon with their Active
@@ -21,10 +27,12 @@ async def ivy_star(ctx):
         await ctx.switch_active(ctx.opponent_id, target)
 
 
-def _ivy_star_condition(board, player_id, pokemon):
-    opponent_id = next(p for p in board.player_ids if p != player_id)
-    bench = board.find_player_area(opponent_id, "bench")
-    return bool(board.active_pokemon(opponent_id)) and bool(bench and bench.children)
+async def leaf_guard(ctx):
+    """180. During your opponent's next turn, this Pokémon takes 30 less
+    damage from attacks (after applying Weakness and Resistance)."""
+    await ctx.deal_damage()
+    ctx.add_passive_through_opponents_turn(ctx.attacker, TakesLessPassive(30))
+
 
 card = PokemonCardDef(
     guid="3b52d26b-baa4-5a58-9e3a-13e84cb6f26a",
@@ -47,15 +55,16 @@ card = PokemonCardDef(
         Ability(
             title="Ivy Star",
             game_text="During your turn, you may switch 1 of your opponent's Benched Pok\u00e9mon with their Active Pok\u00e9mon. (You can't use more than 1 VSTAR Power in a game.)",
-            effect=ivy_star,
+            vstar=True,
             condition=_ivy_star_condition,
+            effect=ivy_star,
         ),
         Attack(
             title="Leaf Guard",
             game_text="During your opponent's next turn, this Pok\u00e9mon takes 30 less damage from attacks (after applying Weakness and Resistance).",
             cost={PokemonTypes.GRASS: 2, PokemonTypes.COLORLESS: 1},
             damage=180,
-            effect=protect_next_turn(reduce=30),
+            effect=leaf_guard,
         ),
     ],
 )

@@ -1,7 +1,15 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, subtypes_for
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.pokemon import is_energy_card
+
+
+def _is_single_strike_energy(card):
+    return is_energy_card(card) and "Single Strike" in subtypes_for(card.archetype_id)
+
+
+def _is_single_strike_pokemon(pokemon):
+    return "Single Strike" in subtypes_for(pokemon.archetype_id)
+
 
 async def single_strike_roar(ctx):
     """Once per turn: you may search for a Single Strike Energy card and
@@ -31,13 +39,6 @@ async def single_strike_roar(ctx):
     await ctx.deal_damage(20, target=target, apply_modifiers=False, as_counters=True)
 
 
-def _is_single_strike_energy(card):
-    return is_energy_card(card) and "Single Strike" in subtypes_for(card.archetype_id)
-
-
-def _is_single_strike_pokemon(pokemon):
-    return "Single Strike" in subtypes_for(pokemon.archetype_id)
-
 card = PokemonCardDef(
     guid="f9e20389-3779-58cc-8bed-3bb7160af044",
     key="SWSH9TG",
@@ -54,11 +55,12 @@ card = PokemonCardDef(
     retreat_cost=2,
     weakness_type=PokemonTypes.GRASS,
     evolves_from="com.direwolfdigital.cake.data.archetypes.pokemon.Houndour.Name",
-    family_id=229,
+    family_id=228,
     abilities=[
         Ability(
             title="Single Strike Roar",
             game_text="Once during your turn, you may search your deck for a Single Strike Energy card and attach it to 1 of your Single Strike Pok\u00e9mon. Then, shuffle your deck. If you attached Energy to a Pok\u00e9mon in this way, put 2 damage counters on that Pok\u00e9mon.",
+            activation=Activations.ONCE_PER_TURN,
             effect=single_strike_roar,
         ),
         Attack(

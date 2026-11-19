@@ -32,7 +32,7 @@ card = PokemonCardDef(
             game_text="Tauros does 10 damage to itself.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=40,
-            effect=recoil_attack(10, damage=0),
+            effect=recoil_attack(10),
         ),
     ],
 )

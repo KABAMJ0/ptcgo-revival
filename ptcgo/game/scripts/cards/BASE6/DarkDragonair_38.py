@@ -2,6 +2,8 @@ from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations, 
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID
 from ptcgo.game.card_effects.support_common import search_to_hand
 from ptcgo.game.session.effects import is_evolution_pokemon
+from ptcgo.game.card_effects.attacks_common import flip_choice
+
 
 card = PokemonCardDef(
     guid="333783cb-6fce-5b17-a43c-c3689f36aa6a",
@@ -35,7 +37,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=20,
             damage_operator="+",
-            effect=unimplemented,
+            effect=flip_choice(heads=40, tails=20),
         ),
     ],
 )

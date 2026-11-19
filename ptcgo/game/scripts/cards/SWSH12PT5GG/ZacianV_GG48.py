@@ -1,8 +1,14 @@
-from ptcgo.game.card_effects.attacks_common import count_energy
-from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import count_energy, damage_per
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, Activations
+from ptcgo.game.attributes import AttrID, PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.pokemon import is_energy_card
+from ptcgo.game.card_effects.support_common import search_attach_energy
+from ptcgo.game.card_effects.attacks_common import damage_per, count_energy
+
+
+def _is_psychic_energy_card(card):
+    types = card.get_attribute(AttrID.POKEMON_TYPES) or []
+    return is_energy_card(card) and PokemonTypes.PSYCHIC.value in types
+
 
 card = PokemonCardDef(
     guid="ce3650cc-fa4e-56b5-9c30-0038c796df18",
@@ -24,7 +30,9 @@ card = PokemonCardDef(
         Ability(
             title="Roar of the Sword",
             game_text="Once during your turn, you may search your deck for a Psychic Energy card and attach it to 1 of your Pok\u00e9mon. Then, shuffle your deck. If you use this Ability, your turn ends.",
-            effect=damage_per(count_energy("self", "psychic"), 30),
+            activation=Activations.ONCE_PER_TURN,
+            ends_turn=True,
+            effect=search_attach_energy(predicate=_is_psychic_energy_card, count=1, distribute=False),
         ),
         Attack(
             title="Storm Slash",
@@ -32,7 +40,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
             damage_operator="+",
-            effect=damage_per(count_energy("self", PokemonTypes.PSYCHIC), per=30, base=60),
+            effect=damage_per(count_energy("self", energy_type=PokemonTypes.PSYCHIC), 30, base=60),
         ),
     ],
 )
