@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate, random_card_to_deck
 
 card = PokemonCardDef(
     guid="a9f5c617-0107-593c-b3fe-744d95b993a7",
@@ -20,7 +21,7 @@ card = PokemonCardDef(
         Ability(
             title="Peppy Pick",
             game_text="Once during your turn (before your attack), you may flip a coin. If heads, choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into their deck. If you use this Ability, your turn ends.",
-            effect=unimplemented,
+            effect=flip_gate(then=random_card_to_deck()),
         ),
     ],
 )

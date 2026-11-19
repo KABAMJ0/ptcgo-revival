@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import place_counters
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented, Activations
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="e53d8005-b0e8-5c3f-9556-5b3bbd207c34",
@@ -23,6 +23,7 @@ card = PokemonCardDef(
         Ability(
             title="Feather Arrow",
             game_text="Once during your turn (before your attack), you may put 2 damage counters on 1 of your opponent's Pok\u00e9mon.",
+            activation=Activations.ONCE_PER_TURN,
             effect=place_counters(2, target="choose_any_opponent"),
         ),
         Attack(

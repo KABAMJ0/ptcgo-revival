@@ -1,8 +1,5 @@
-from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, mill_attack
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
-from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -28,14 +25,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=mill_attack(2, opponent=False),
+            effect=damage_per(damage_counters_on("self"), 10, base=20),
         ),
         Attack(
             title="Dragon Pulse",
             game_text="Discard the top 2 cards of your deck.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=100,
-            effect=mill_attack(count=2, opponent=False),
+            effect=unimplemented,
         ),
     ],
 )

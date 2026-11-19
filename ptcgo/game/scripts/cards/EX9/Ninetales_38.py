@@ -1,9 +1,6 @@
-from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
-from ptcgo.game.attributes import SpecialConditions
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, SpecialConditions
 from ptcgo.game.card_effects.attacks_common import condition_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
     guid="0be9422b-206f-5889-b049-fe1a81258ea0",
@@ -28,7 +25,7 @@ card = PokemonCardDef(
             game_text="The Defending Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.FIRE: 1},
             damage=10,
-            effect=condition_attack(SpecialConditions.BURNED),
+            effect=condition_attack(SpecialConditions.CONFUSED),
         ),
         Attack(
             title="Searing Flame",

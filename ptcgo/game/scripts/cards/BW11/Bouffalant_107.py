@@ -1,4 +1,3 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
@@ -26,14 +25,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=flip_damage(tails_self_damage=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Head Charge",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=80,
-            effect=flip_damage(coins=1, base=80, tails_self_damage=20),
+            effect=flip_damage(tails_self_damage=20),
         ),
     ],
 )

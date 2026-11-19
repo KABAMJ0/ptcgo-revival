@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import spread_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import spread_damage
 
 card = PokemonCardDef(
     guid="7d0c651d-9729-5d6c-9eb7-05c97f046d1b",

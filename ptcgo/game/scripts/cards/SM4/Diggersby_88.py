@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import mill_attack
-from ptcgo.game.card_effects.passives_common import flip_protection
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="bfa76be0-70f2-5782-b02a-4eb8e24712dc",
@@ -26,14 +25,14 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, prevent all effects of attacks, including damage, done to this Pok\u00e9mon during your opponent's next turn.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=60,
-            effect=flip_protection(prevent=True, effects_too=True),
+            effect=unimplemented,
         ),
         Attack(
             title="Hammer Arm",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.COLORLESS: 4},
             damage=90,
-            effect=mill_attack(1, opponent=True),
+            effect=mill_attack(1),
         ),
     ],
 )

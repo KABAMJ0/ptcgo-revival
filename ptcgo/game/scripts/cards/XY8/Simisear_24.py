@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.attacks_common import count_hand
 from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_hand, damage_per
 
 card = PokemonCardDef(
     guid="cb9f855c-bdb4-5dd0-86fb-4482054a9df4",

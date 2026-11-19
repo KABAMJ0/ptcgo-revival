@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.passives_common import flip_protection
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.passives_common import flip_protection
 
 card = PokemonCardDef(
     guid="996b0938-b020-510e-9a15-73ee12a38b39",

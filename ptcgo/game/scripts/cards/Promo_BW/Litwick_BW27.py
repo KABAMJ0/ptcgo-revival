@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="08234ab7-60c4-5f7a-b797-313c9d6b5d01",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_bench(count=1),
+            effect=search_to_bench(is_basic_pokemon, count=1),
         ),
         Attack(
             title="Will-O-Wisp",

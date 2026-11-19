@@ -1,7 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities, AttrID, TrainerType
 from ptcgo.game.card_effects.passives_common import free_attack_cost_passive
-from ptcgo.game.card_effects.attacks_common import snipe_attack
 
 
 _TOOL_TYPES = (TrainerType.POKEMON_TOOL.value, TrainerType.POKEMON_TOOL_F.value)
@@ -39,7 +38,7 @@ card = PokemonCardDef(
             title="Wash Arrow",
             game_text="This attack does 50 damage to 1 of your opponent's Benched Pok\u00e9mon. (Don't apply Weakness and Resistance for Benched Pok\u00e9mon.)",
             cost={PokemonTypes.WATER: 1, PokemonTypes.COLORLESS: 2},
-            effect=snipe_attack(50, pool="bench", count=1),
+            effect=unimplemented,
         ),
     ],
 )

@@ -1,4 +1,3 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
@@ -25,14 +24,14 @@ card = PokemonCardDef(
             title="Flame Charge",
             game_text="Search your deck for a Fire Energy card and attach it to this Pok\u00e9mon. Shuffle your deck afterward.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=flip_damage(tails_self_damage=30),
+            effect=unimplemented,
         ),
         Attack(
             title="Thunder",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 30 damage to itself.",
             cost={PokemonTypes.LIGHTNING: 1, PokemonTypes.COLORLESS: 2},
             damage=90,
-            effect=flip_damage(coins=1, base=90, tails_self_damage=30),
+            effect=flip_damage(tails_self_damage=30),
         ),
     ],
 )

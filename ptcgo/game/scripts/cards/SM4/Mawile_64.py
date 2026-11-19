@@ -1,7 +1,7 @@
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
-from ptcgo.game.card_effects.attacks_common import flip_gate
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="9ed86894-e067-5366-bd7b-538d9e2e61fa",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             title="Call for Family",
             game_text="Search your deck for up to 2 Basic Pok\u00e9mon and put them onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=search_to_bench(is_basic_pokemon, count=2),
         ),
         Attack(
             title="Crunch",

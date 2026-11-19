@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.support_common import opponent_switches
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import gust_attack
 
 card = PokemonCardDef(
     guid="ec40f4ce-22bf-5596-a7aa-d4b402ab4091",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Switch out your opponent's Active Pok\u00e9mon to the Bench. (Your opponent chooses the new Active Pok\u00e9mon.)",
             cost={PokemonTypes.COLORLESS: 2},
             damage=50,
-            effect=opponent_switches,
+            effect=gust_attack(opponent_chooses=True),
         ),
         Attack(
             title="Solar Beam",

@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import mill_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="7eae81ae-5447-5a69-b306-6697b76b1b21",
@@ -25,7 +25,7 @@ card = PokemonCardDef(
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.LIGHTNING: 2},
             damage=70,
-            effect=mill_attack(1, opponent=True),
+            effect=mill_attack(1),
         ),
         Attack(
             title="Gaia Punk",

@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import discard_opponent_energy_attack
-from ptcgo.game.card_effects.attacks_common import flip_gate
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_discard_opponent_energy
 
 card = PokemonCardDef(
     guid="e4dfe477-a469-5fbb-aee2-cc576ea0513e",
@@ -26,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, discard an Energy attached to your opponent's Active Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1},
             damage=20,
-            effect=flip_gate(discard_opponent_energy_attack(1)),
+            effect=flip_discard_opponent_energy(),
         ),
         Attack(
             title="Crackling Ribbon",

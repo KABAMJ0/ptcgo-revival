@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import count_energy, flip_damage
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import basic_energy_of, is_basic_energy_card
 
 card = PokemonCardDef(
     guid="a3ce752b-1669-5bdc-afca-79a8da8a9428",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Attach an Energy card from your discard pile to this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="self"),
         ),
         Attack(
             title="Flare Storm",
@@ -32,7 +33,7 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 1, PokemonTypes.COLORLESS: 3},
             damage=100,
             damage_operator="+",
-            effect=flip_damage(coins_from=count_energy("self", PokemonTypes.FIRE), bonus_per_heads=20, base=100),
+            effect=unimplemented,
         ),
     ],
 )

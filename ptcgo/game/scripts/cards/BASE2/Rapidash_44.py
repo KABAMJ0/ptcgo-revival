@@ -1,9 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import flip_choice, flip_damage
-from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.passives_common import flip_protection
+from ptcgo.game.card_effects.attacks_common import flip_choice
 
 card = PokemonCardDef(
     guid="d688b8b7-c041-59c6-b2ee-ae9b3db26e5f",
@@ -29,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.COLORLESS: 2},
             damage=20,
             damage_operator="+",
-            effect=flip_damage(base=20, bonus=10),
+            effect=flip_choice(heads=30, tails=20),
         ),
         Attack(
             title="Agility",
             game_text="Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Rapidash.",
             cost={PokemonTypes.FIRE: 2, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=flip_protection(prevent=True, effects_too=True),
+            effect=unimplemented,
         ),
     ],
 )

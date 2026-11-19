@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import place_counters
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="f6d913ce-e56a-5fa7-81cd-d9f36d2ec730",

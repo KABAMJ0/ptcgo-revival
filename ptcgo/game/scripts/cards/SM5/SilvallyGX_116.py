@@ -2,6 +2,8 @@ from ptcgo.game.card_effects.support_common import attach_from_discard
 from ptcgo.game.card_effects.trainers import is_basic_energy_card
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.support_common import attach_from_discard
+from ptcgo.game.card_effects.trainers import is_basic_energy_card
 
 card = PokemonCardDef(
     guid="1c3c3b37-48bf-5710-9236-5e0bf0de430e",
@@ -31,7 +33,7 @@ card = PokemonCardDef(
             game_text="Attach a basic Energy card from your discard pile to 1 of your Benched Pok\u00e9mon.",
             cost={PokemonTypes.COLORLESS: 3},
             damage=120,
-            effect=unimplemented,
+            effect=attach_from_discard(is_basic_energy_card, count=1, target="choice"),
         ),
         Attack(
             title="Rebel-GX",

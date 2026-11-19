@@ -2,6 +2,7 @@ from ptcgo.game.card_effects.support_common import switch_self_attack
 from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import self_energy_discard_attack
 
 card = PokemonCardDef(
     guid="e2a834c8-e54b-517c-818d-40798e2b8eee",

@@ -1,4 +1,3 @@
-from ptcgo.game.card_effects.attacks_common import flip_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.attacks_common import flip_damage
@@ -24,14 +23,14 @@ card = PokemonCardDef(
         Ability(
             title="Jewel Armor",
             game_text="As long as this Pok\u00e9mon is on your Bench, prevent all damage done to this Pok\u00e9mon by attacks (both yours and your opponent's).",
-            effect=flip_damage(tails_self_damage=20),
+            effect=unimplemented,
         ),
         Attack(
             title="Spin Tackle",
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 20 damage to itself.",
             cost={PokemonTypes.FAIRY: 1, PokemonTypes.COLORLESS: 2},
             damage=60,
-            effect=flip_damage(coins=1, base=60, tails_self_damage=20),
+            effect=flip_damage(tails_self_damage=20),
         ),
     ],
 )

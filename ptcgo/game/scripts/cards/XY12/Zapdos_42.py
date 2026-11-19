@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
-from ptcgo.game.card_effects.attacks_common import recoil_attack, self_energy_discard_attack
+from ptcgo.game.card_effects.attacks_common import recoil_attack
 
 card = PokemonCardDef(
     guid="8ffd306d-1f98-5e81-9702-eca49e9aa6f3",
@@ -31,7 +31,7 @@ card = PokemonCardDef(
             game_text="Discard all Energy attached to this Pok\u00e9mon.",
             cost={PokemonTypes.LIGHTNING: 4},
             damage=170,
-            effect=self_energy_discard_attack(all_energy=True),
+            effect=unimplemented,
         ),
     ],
 )

@@ -1,7 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import count_bench
-from ptcgo.game.card_effects.attacks_common import damage_per
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import count_bench, damage_per
 
 card = PokemonCardDef(
     guid="ef04ca94-67d1-5c36-828b-2123f9180b39",

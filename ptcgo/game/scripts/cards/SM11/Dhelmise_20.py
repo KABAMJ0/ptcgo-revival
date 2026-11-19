@@ -1,6 +1,7 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 from ptcgo.game.card_effects.support_common import search_to_bench
+from ptcgo.game.session.effects import is_basic_pokemon
 
 card = PokemonCardDef(
     guid="a40a9e5c-20df-53b0-b120-5b5075cb972c",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Sea Creeper Net",
             game_text="Search your deck for a Basic Pok\u00e9mon and put it onto your Bench. Then, shuffle your deck.",
             cost={PokemonTypes.COLORLESS: 1},
-            effect=search_to_bench(),
+            effect=search_to_bench(is_basic_pokemon, count=1),
         ),
         Attack(
             title="Spinning Attack",

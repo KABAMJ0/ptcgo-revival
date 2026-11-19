@@ -1,5 +1,6 @@
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_gate, random_card_to_deck
 
 card = PokemonCardDef(
     guid="8435d63b-cb60-55c9-8480-690b9afdc5aa",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
             title="Astonish",
             game_text="Flip a coin. If heads, choose a random card from your opponent's hand. Your opponent reveals that card and shuffles it into his or her deck.",
             cost={PokemonTypes.METAL: 1},
-            effect=unimplemented,
+            effect=flip_gate(then=random_card_to_deck()),
         ),
         Attack(
             title="Big Ol' Bite",

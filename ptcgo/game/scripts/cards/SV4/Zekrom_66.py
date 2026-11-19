@@ -1,6 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import discard_defender_tools_then_damage
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
-from ptcgo.game.card_effects.attacks_common import snipe_attack
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
+from ptcgo.game.card_effects.attacks_common import snipe_attack, discard_defender_tools_then_damage
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(

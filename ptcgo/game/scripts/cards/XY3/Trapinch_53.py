@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import mill_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import mill_attack
 
 card = PokemonCardDef(
     guid="55a6f948-3fe5-591b-accf-a4fb76440662",
@@ -23,7 +23,7 @@ card = PokemonCardDef(
             title="Mountain Munch",
             game_text="Discard the top card of your opponent's deck.",
             cost={PokemonTypes.FIGHTING: 1},
-            effect=mill_attack(1, opponent=True),
+            effect=mill_attack(1),
         ),
         Attack(
             title="Mud-Slap",

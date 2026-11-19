@@ -1,9 +1,5 @@
-from ptcgo.game.card_effects.attacks_common import damage_counters_on, damage_per, self_energy_discard_attack
-from ptcgo.game.data_utils import Ability, Attack, PokemonCardDef, unimplemented
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities
-from ptcgo.game.card_effects.attacks_common import damage_counters_on
-from ptcgo.game.card_effects.attacks_common import damage_per
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.card_effects.attacks_common import damage_per, damage_counters_on
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
 
 card = PokemonCardDef(
@@ -30,14 +26,14 @@ card = PokemonCardDef(
             cost={PokemonTypes.FIRE: 2},
             damage=30,
             damage_operator="+",
-            effect=damage_per(damage_counters_on("self"), 10),
+            effect=damage_per(damage_counters_on("self"), 10, base=30),
         ),
         Attack(
             title="Bright Flame",
             game_text="Discard 2 Fire Energy from this Pok\u00e9mon.",
             cost={PokemonTypes.FIRE: 3},
             damage=250,
-            effect=self_energy_discard_attack(count=2, energy_type=PokemonTypes.FIRE),
+            effect=unimplemented,
         ),
     ],
 )

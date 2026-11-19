@@ -1,6 +1,6 @@
-from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import reveal_hand_attack
 
 card = PokemonCardDef(
     guid="bd69c7fa-6f23-513c-ad2b-1583b98e7f6b",

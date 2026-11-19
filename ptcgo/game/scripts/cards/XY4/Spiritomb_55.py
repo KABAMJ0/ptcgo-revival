@@ -1,6 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
-from ptcgo.game.attributes import PokemonStage, PokemonTypes, Rarities, SpecialConditions
-from ptcgo.game.card_effects.attacks_common import condition_attack, lock_opponent_evolutions
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import lock_opponent_evolutions
 
 card = PokemonCardDef(
     guid="4953e3a5-4950-55ed-bf2e-4e0100982cfb",
@@ -30,7 +30,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If heads, your opponent's Active Pok\u00e9mon is now Confused.",
             cost={PokemonTypes.DARKNESS: 1, PokemonTypes.COLORLESS: 1},
             damage=30,
-            effect=condition_attack(SpecialConditions.CONFUSED, flip=True),
+            effect=unimplemented,
         ),
     ],
 )
