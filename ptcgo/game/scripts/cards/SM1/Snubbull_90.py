@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
+from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import flip_damage
 
 card = PokemonCardDef(
     guid="4b31f03c-bab2-5406-a40e-dcb0de090876",
@@ -24,7 +25,7 @@ card = PokemonCardDef(
             game_text="Flip a coin. If tails, this Pok\u00e9mon does 10 damage to itself.",
             cost={PokemonTypes.FAIRY: 1},
             damage=20,
-            effect=unimplemented,
+            effect=flip_damage(coins=1, base=20, tails_self_damage=10),
         ),
     ],
 )
