@@ -602,6 +602,14 @@ class Passive:
         """True to keep `card` from being discarded by an opponent's effect."""
         return False
 
+    async def on_attack_resolved(self, ctx, attacker, defender, carrier) -> None:
+        """After an attack resolved, for a Stadium rider keyed on the attacker
+        (Vermilion City Gym: "whenever a player attacks with a Pokemon with
+        Lt. Surge in its name, he or she may flip a coin"). Extra damage lands
+        as its own step, which is what "after applying Weakness and Resistance"
+        means for the +10 half."""
+        return None
+
     async def on_active_switched(self, ctx, player_id: str,
                                  outgoing: PokemonEntity,
                                  incoming: PokemonEntity,

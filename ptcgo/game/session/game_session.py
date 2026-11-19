@@ -5609,6 +5609,15 @@ class GameSession:
             self.turn_state.consume_attack_cost_waiver(card, ability.title)
 
         ctx = await resolve_attack(self, player_id, card, ability, action_id)
+        # Stadium riders keyed on the attacker run after the attack resolves
+        # (Vermilion City Gym's Lt. Surge flip); their damage is its own step,
+        # so it lands after Weakness and Resistance like the printed wording.
+        rider_ctx = EffectContext(self, player_id, card, None)
+        defender = self.board_state.active_pokemon(self._opponent_id(player_id))
+        for passive, carrier in active_passives(self.board_state):
+            await passive.on_attack_resolved(rider_ctx, card, defender, carrier)
+        await self._flush_effect_runs(rider_ctx)
+        await self.resolve_knockouts(rider_ctx)
         # Effects like Aqua Return can remove the attacker itself from play.
         for pid in list(self.players.keys()):
             if self.board_state.active_pokemon(pid) is None \

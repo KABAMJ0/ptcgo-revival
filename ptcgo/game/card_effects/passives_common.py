@@ -1568,6 +1568,38 @@ def bench_capacity_passive(limit: int = 4, protects="each",
     return BenchCapacityPassive(limit, protects, trim_to, mode)
 
 
+class NamedAttackerFlipRiderPassive(Passive):
+    """Vermilion City Gym: after an attack by a Pokemon whose printed name
+    contains `name`, flip a coin -- heads adds `heads_damage` to the Defending
+    Pokemon, tails puts `tails_self_damage` on the attacker."""
+
+    def __init__(self, name, heads_damage=10, tails_self_damage=10):
+        self.name = (name or "").strip().lower()
+        self.heads_damage = heads_damage
+        self.tails_self_damage = tails_self_damage
+
+    async def on_attack_resolved(self, ctx, attacker, defender, carrier):
+        if attacker is None:
+            return
+        definition = def_for(getattr(attacker, "archetype_id", "") or "")
+        if self.name not in (getattr(definition, "display_name", "") or "").lower():
+            return
+        results = await ctx.flip_coins(1, f"{self.name.title()} attack")
+        heads = bool(results) and all(results)
+        if heads and defender is not None and self.heads_damage:
+            await ctx.deal_damage(self.heads_damage, target=defender,
+                                  apply_modifiers=False)
+        elif not heads and self.tails_self_damage:
+            await ctx.deal_damage(self.tails_self_damage, target=attacker,
+                                  apply_modifiers=False)
+
+
+def named_attacker_flip_rider(name: str, heads_damage: int = 10,
+                              tails_self_damage: int = 10) -> Passive:
+    """`name` is matched against the attacker's printed name (Lt. Surge)."""
+    return NamedAttackerFlipRiderPassive(name, heads_damage, tails_self_damage)
+
+
 class TrainerPlayCostPassive(Passive):
     """No Removal Gym: playing one of `names` costs `cost` OTHER hand cards."""
 
