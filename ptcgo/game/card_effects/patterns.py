@@ -15194,7 +15194,7 @@ def _energy_string_pred(phrase: str):
     return pred
 
 
-def _attach_energy_from_discard(m, ability):
+def _attach_typed_energy_from_discard(m, ability):
     """"...attach N <type> Energy card(s) from your discard pile to <where>"."""
     from ptcgo.game.card_effects.passives_common import attach_energy_from_discard
 
@@ -15540,7 +15540,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
     ("attach.energy-from-discard",
      re.compile(r"attach (?:a|(\d+)) basic energy cards? from your discard "
                 r"pile to (?:this pokemon|(?:a|\d+) of your benched pokemon)\."),
-     _attach_energy_from_discard),
+     _attach_typed_energy_from_discard),
 
     # -- next-turn passives --------------------------------------------
     ("protect.no-weakness",
@@ -19985,7 +19985,7 @@ _PATTERNS: List[Tuple[str, "re.Pattern", Callable]] = [
      re.compile(r"attach (?P<count>a|an|1|\d+) (?P<types>[a-z\- ]+?) energy "
                 r"cards? from your discard pile to (?P<where>your active "
                 r"pokemon|this pokemon|1 of your pokemon)\."),
-     _attach_energy_from_discard),
+     _attach_typed_energy_from_discard),
     ("shield.item-or-supporter-holder",
      re.compile(r"whenever your opponent plays an item or supporter card from "
                 r"their hand, prevent all effects of that card done to this "

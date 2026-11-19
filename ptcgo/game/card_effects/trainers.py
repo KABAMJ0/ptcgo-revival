@@ -1551,14 +1551,6 @@ def draw_n(n: int):
     return effect
 
 
-def discard_hand_draw(n: int):
-    """Discard your whole hand, then draw `n` (Professor's Research shape)."""
-    async def effect(ctx):
-        await ctx.discard_cards(ctx.hand())
-        await ctx.draw_cards(n)
-    return effect
-
-
 def shuffle_hand_draw(n: int, opponent_prizes_low=None):
     """Shuffle your hand into your deck, then draw `n`. With
     opponent_prizes_low=(threshold, n_low) the draw becomes `n_low` once the
@@ -6929,20 +6921,6 @@ def each_player_shuffle_flip_draw(heads: int, tails: int):
 
 
 # --- discard-ultra-beast-draw-per ---
-def discard_pred_draw_per(predicate, count: int, per: int):
-    """Discard up to `count` matching cards from your hand, then draw `per` for
-    each (Ultra Recon Squad, Roxie)."""
-    async def effect(ctx):
-        hand = [c for c in ctx.hand() if predicate is None or predicate(c)]
-        if not hand:
-            return
-        picks = await ctx.choose_cards(
-            hand, count, minimum=0, prompt="Choose cards to discard")
-        if not picks:
-            return
-        await ctx.discard_cards(picks)
-        await ctx.draw_cards(per * len(picks))
-    return effect
 
 
 # --- discard-not-rule-box-draw-per ---
@@ -6977,22 +6955,6 @@ def each_player_discard_to(keep: int):
 
 
 # --- opponent-hand-bottom-draw-same ---
-def opponent_hand_to_bottom_draw_same(optional: bool = False):
-    """The opponent counts their hand, puts it on the bottom of their deck, and
-    draws that many (Meddling Memo; Peeking Red Card makes it optional)."""
-    async def effect(ctx):
-        hand = ctx.hand(ctx.opponent_id)
-        if not hand:
-            return
-        if optional and not await ctx.ask_yes_no(
-                "Have your opponent shuffle their hand into their deck?"):
-            return
-        count = len(hand)
-        for card in hand:
-            await ctx.put_on_bottom_of_deck(card)
-        await ctx.shuffle_deck(ctx.opponent_id)
-        await ctx.draw_cards(count, ctx.opponent_id)
-    return effect
 
 
 # --- opponent-hand-bottom-draw-optional ---
@@ -8616,32 +8578,7 @@ def prize_ahead_tool(amount, attacker_side, to_active_only=False):
     return PrizeAheadPassive(amount, attacker_side, to_active_only)
 
 
-def team_aqua_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team aqua" in name.lower()
-
-
-def team_magma_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Magma in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team magma" in name.lower()
-
-
 # --- Pokemon Tool passives and turn-boundary hooks -----------------------------
-
-
-
-def team_aqua_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Aqua in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team aqua" in name.lower()
-
-
-def team_magma_target(pokemon) -> bool:
-    """Tool attach target: a Pokemon with Team Magma in its printed name."""
-    name = getattr(def_for(pokemon.archetype_id), "display_name", "") or ""
-    return "team magma" in name.lower()
 
 
 # --- Pokemon Tool passives and turn-boundary hooks -----------------------------
@@ -9539,8 +9476,14 @@ def basic_from_hand_as_active():
     return effect
 
 
-def bench_has_room():
-    """Play condition: the Bench has a free slot (Lt. Surge)."""
+def bench_has_room_condition():
+    """Play condition: the Bench has a free slot (Lt. Surge).
+
+    Named apart from `bench_has_room(board, player_id)` on purpose: the two used
+    to share a name, so this zero-argument factory SHADOWED the predicate every
+    other card passes straight to `condition=`. Furisode Girl and CaraLiss then
+    handed the engine a factory it called with (board, player_id) -- a TypeError
+    at play time, with the loader clean."""
     def check(board, player_id):
         bench = board.find_player_area(player_id, "bench")
         used = len(bench.children) if bench else 0

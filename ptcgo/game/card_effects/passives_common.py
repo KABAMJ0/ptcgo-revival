@@ -492,25 +492,6 @@ def opponent_retreat_tax_passive(amount=1, active_only=False) -> Passive:
     return OpponentRetreatTaxPassive(amount, active_only)
 
 
-class NoEnergyFreeRetreatPassive(Passive):
-    """"If this Pokemon has no Energy attached, it has no Retreat Cost"; with
-    inverted=True, "if this Pokemon has any Energy attached ..."."""
-
-    def __init__(self, inverted=False):
-        self.inverted = inverted
-
-    def modify_retreat_cost(self, cost, pokemon, carrier, board):
-        if pokemon is not carrier_pokemon(carrier):
-            return cost
-        has_energy = bool(board.attached_energies(pokemon))
-        free = has_energy if self.inverted else not has_energy
-        return 0 if free else cost
-
-
-def no_energy_free_retreat_passive() -> Passive:
-    return NoEnergyFreeRetreatPassive()
-
-
 class TypedEnergyFreeRetreatPassive(Passive):
     """"If this Pokemon has any [type] Energy attached, it has no Retreat
     Cost" (team=True: each of your Pokemon with that Energy); amount overrides

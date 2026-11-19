@@ -1223,20 +1223,6 @@ def discard_defender_tools_then_damage(damage: Optional[int] = None):
     return effect
 
 
-def no_weakness_next_turn(damage: Optional[int] = None):
-    """Printed (or `damage`) damage, then the attacker has no Weakness during
-    the opponent's next turn ("During your opponent's next turn, this Pokemon
-    has no Weakness"). The shield is a temporary passive, so it ends with the
-    turn window the same way a protection rider does."""
-    async def effect(ctx):
-        await ctx.deal_damage(damage)
-        if ctx.attacker is None:
-            return
-        ctx.add_passive_through_opponents_turn(
-            ctx.attacker, no_weakness_passive())
-    return effect
-
-
 def identity_swap_from_deck(named: str, prompt: str = ""):
     """Search your deck for another `<named>` and switch it with this Pokemon,
     keeping everything on it ("Any cards attached to Ditto, damage counters,
