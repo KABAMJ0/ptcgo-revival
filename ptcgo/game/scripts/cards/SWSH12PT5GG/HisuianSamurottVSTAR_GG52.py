@@ -1,6 +1,7 @@
 from ptcgo.game.card_effects.attacks_common import bonus_if, has_damage
 from ptcgo.game.data_utils import PokemonCardDef, Attack, Ability, unimplemented
 from ptcgo.game.attributes import PokemonTypes, PokemonStage, Rarities
+from ptcgo.game.card_effects.attacks_common import place_counters
 
 card = PokemonCardDef(
     guid="999da08a-82bd-5b0c-b730-d8eee75aa0ac",
@@ -23,7 +24,7 @@ card = PokemonCardDef(
         Ability(
             title="Moon Cleave Star",
             game_text="During your turn, you may put 4 damage counters on 1 of your opponent's Pok\u00e9mon. (You can't use more than 1 VSTAR Power in a game.)",
-            effect=bonus_if(has_damage("defender"), 110),
+            effect=place_counters(4, target="choose_any_opponent"),
         ),
         Attack(
             title="Merciless Blade",
