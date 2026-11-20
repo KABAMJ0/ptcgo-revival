@@ -473,7 +473,7 @@ class DataSyncHandler(BaseHandler):
             "messageName": OutboundMsg.MOTD.value,
             "id": 1,
             "title": {"token": "PTCGO Revival", "bundle": {}},
-            "text": {"token": "Welcome to the Spirit PTCGO Private Server!", "bundle": {}}
+            "text": {"token": "Welcome to PTCGO Revival, an unofficial fan-run community server. It is not affiliated with Nintendo or The Pokémon Company. Have fun and play fair!", "bundle": {}}
         }
         await self.client.send_packet(res, request_id, flags=WargFlags.CLEAR)
 

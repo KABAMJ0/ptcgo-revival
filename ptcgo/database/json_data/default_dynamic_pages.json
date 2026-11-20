@@ -38,7 +38,7 @@
         "GameText": {
           "token": "spirit.dynamic_page.game_text",
           "bundle": {
-            "en_US": "The first PTCGO private server!"
+            "en_US": "A fan-run community server"
           }
         }
       },

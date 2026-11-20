@@ -746,9 +746,9 @@ class MockHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         current_time_ms = int(time.time() * 1000)
         response = {
             "message": {
-                "en": "Welcome to Brandon's PTCGO Private Server!",
-                "en_US": "Welcome to Brandon's PTCGO Private Server!",
-                "en_UK": "Welcome to Brandon's PTCGO Private Server!"
+                "en": "Welcome to PTCGO Revival, an unofficial fan-run community server. It is not affiliated with Nintendo or The Pokémon Company. Have fun and play fair!",
+                "en_US": "Welcome to PTCGO Revival, an unofficial fan-run community server. It is not affiliated with Nintendo or The Pokémon Company. Have fun and play fair!",
+                "en_UK": "Welcome to PTCGO Revival, an unofficial fan-run community server. It is not affiliated with Nintendo or The Pokémon Company. Have fun and play fair!"
             },
             "urgency": "High",
             "date": current_time_ms
