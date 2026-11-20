@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import tickling_machine
 
 card = ItemCardDef(
     guid="c7315377-2a14-5f14-bc97-679102ca9c77",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=119,
     set_code="GYM1",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=tickling_machine
 )

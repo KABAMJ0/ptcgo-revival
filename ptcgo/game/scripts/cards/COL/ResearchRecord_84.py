@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import ItemCardDef, unimplemented
+from ptcgo.game.data_utils import ItemCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import research_record
 
 card = ItemCardDef(
     guid="d31b1943-452c-54a0-b602-16d652bf348f",
@@ -11,5 +12,5 @@ card = ItemCardDef(
     collector_number=84,
     set_code="COL",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=research_record
 )

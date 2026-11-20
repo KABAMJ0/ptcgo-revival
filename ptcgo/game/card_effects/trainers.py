@@ -4518,6 +4518,42 @@ def look_top_reorder(count: int):
     return effect
 
 
+async def tickling_machine(ctx):
+    """Flip a coin. Heads: the opponent can't use any card from their hand during their
+    next turn, which leaves them only attacking or ending the turn (a playable stand-in
+    for setting their hand aside, since the hand comes back at the end of that turn
+    anyway). Tails: your turn ends."""
+    heads, = await ctx.flip_coins(1, "Tickling Machine")
+    if heads:
+        ctx.lock_plays(ctx.opponent_id, lambda card: True)
+    else:
+        ctx.ends_turn = True
+
+
+async def research_record(ctx):
+    """Look at the top 4 cards of your deck, put any of them back on top in the order you
+    pick, and put the rest on the bottom of the deck."""
+    top = ctx.deck_top(4)
+    if not top:
+        return
+    picked_ids = await ctx.session.prompt_card_chooser(
+        ctx.player_id, ctx.source.entity_id, top, len(top), minimum=0,
+        prompt="Choose cards to put back on top, in order (the rest go to the bottom)",
+        ordered=True,
+    )
+    by_id = {c.entity_id: c for c in top}
+    keep = [by_id[i] for i in dict.fromkeys(picked_ids) if i in by_id]
+    rest = [c for c in top if c not in keep]
+    deck = ctx.board.find_player_area(ctx.player_id, "deck")
+    for card in top:
+        deck.children.remove(card)
+    # The top of the deck is the LAST child, so the bottom is the front.
+    deck.children[0:0] = rest
+    for card in reversed(keep):
+        deck.children.append(card)
+    ctx._queue_pile_reordered(deck)
+
+
 def look_top_peek(count: int):
     """Look at the top `count` cards and put them back in the same order."""
     async def effect(ctx):
