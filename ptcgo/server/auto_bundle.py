@@ -3,6 +3,7 @@ import sys
 import logging
 import subprocess
 import json
+from functools import partial
 from PIL import Image, ImageDraw
 
 from ptcgo.game.attributes import AttrID, TrainerType
@@ -11,6 +12,7 @@ from ptcgo.game.scripts.cards import loader
 from ptcgo.server.auto_bundle_cosmetics import compile_all_cosmetics
 from ptcgo.server import dynamic_pages
 from ptcgo.server import foil_mask_gen
+from ptcgo.server.parallel import run_parallel as _run_parallel, worker_count as _worker_count
 
 ASSETS_DIR = "ptcgo/assets"
 BUNDLE_CACHE_DIR = os.path.join(ASSETS_DIR, "bundleCache")
@@ -20,6 +22,7 @@ CARDS_IMG_DIR = os.path.join(ASSETS_DIR, "cards")
 CREATE_BUNDLE_SCRIPT = "re_tools/create_card_bundle.py"
 # The default template used by create_card_bundle.py
 DEFAULT_TEMPLATE = "ptcgo/templates/card_bundle"
+
 
 def _generate_bundle(bundle_name, mapping, keep_size=False) -> int:
     bundle_path = os.path.join(BUNDLE_CACHE_DIR, bundle_name, "00000000000000000000000001000000", "__data")
@@ -106,16 +109,20 @@ def ensure_generated_mask(art_png, set_code, asset_name, kind, style):
     return out_path if foil_mask_gen.generate_mask_png(art_png, out_path, style) else None
 
 
+def foil_bundle_jobs(foil_sets):
+    """foil_sets: {set_code: {kind: {padded_num: png_path}}} -> zero-argument build jobs."""
+    return [
+        partial(_generate_bundle, f"en_US_{set_code}_wp_{kind}_Foil2", mapping, keep_size=True)
+        for set_code, kinds in foil_sets.items()
+        for kind, mapping in kinds.items()
+        if mapping
+    ]
+
+
 def generate_foil_bundles(foil_sets) -> int:
-    """foil_sets: {set_code: {kind: {padded_num: png_path}}} -> built count."""
-    count = 0
-    for set_code, kinds in foil_sets.items():
-        for kind, mapping in kinds.items():
-            if mapping:
-                count += _generate_bundle(
-                    f"en_US_{set_code}_wp_{kind}_Foil2", mapping, keep_size=True
-                )
-    return count
+    """Built count for the foil bundles."""
+    return sum(r or 0 for r in _run_parallel(foil_bundle_jobs(foil_sets)))
+
 
 def _is_special_energy(card_def) -> bool:
     spec = (getattr(card_def, "extra_attributes", None) or {}).get(
@@ -243,6 +250,9 @@ def check_and_generate_bundles(set_codes=None) -> int:
     # Group cards by set_code
     sets = {} # set_code -> {coll_num_str: {asset_name: png_path}}
     foil_sets = {} # set_code -> {kind: {padded_num: png_path}}
+    # Mask and pip images are queued here and produced on the worker pool after the scan.
+    pending_masks = []  # (kind_map, asset_name, job)
+    pending_pips = []   # (card_assets, keys, job)
 
     scripts_dir = loader.scripts_dir
     for root, _, files in os.walk(scripts_dir):
@@ -298,36 +308,43 @@ def check_and_generate_bundles(set_codes=None) -> int:
                             kind_map = foil_sets.setdefault(set_code, {}).setdefault(kind, {})
                             if asset_name in kind_map:
                                 continue
-                            gen_path = ensure_generated_mask(png_path, set_code, asset_name, kind, style)
-                            if gen_path:
-                                kind_map[asset_name] = gen_path
+                            pending_masks.append((kind_map, asset_name, partial(
+                                ensure_generated_mask, png_path, set_code, asset_name, kind, style)))
 
                     if _is_special_energy(card_def) and os.path.exists(png_path):
-                        pip_path, icon_path = generate_energy_pip_png(png_path, set_code, asset_name, declaration)
-                        if pip_path:
-                            card_assets[f"{asset_name}_energypip"] = pip_path
-                            card_assets[f"{asset_name}_energyicon"] = icon_path
+                        pending_pips.append((card_assets, (f"{asset_name}_energypip", f"{asset_name}_energyicon"),
+                                             partial(generate_energy_pip_png, png_path, set_code, asset_name, declaration)))
                     elif _is_pokemon_tool(card_def) and os.path.exists(png_path):
-                        pip_path = generate_tool_pip_png(png_path, set_code, asset_name, declaration)
-                        if pip_path:
-                            card_assets[f"{asset_name}_toolpip"] = pip_path
+                        pending_pips.append((card_assets, (f"{asset_name}_toolpip",),
+                                             partial(generate_tool_pip_png, png_path, set_code, asset_name, declaration)))
 
                     sets[set_code][asset_name] = card_assets
 
                 except Exception as e:
                     logging.error(f"[AutoBundle] Failed to parse {file}: {e}")
 
-    generated_count = 0
+    workers = _worker_count()
+    logging.info(f"[AutoBundle] Preparing {len(pending_masks)} foil masks and {len(pending_pips)} pips "
+                 f"on {workers} worker(s)...")
+    for (kind_map, asset_name, _), gen_path in zip(pending_masks, _run_parallel([j for _, _, j in pending_masks], workers)):
+        if gen_path:
+            kind_map[asset_name] = gen_path
+    for (card_assets, keys, _), result in zip(pending_pips, _run_parallel([j for _, _, j in pending_pips], workers)):
+        paths = result if isinstance(result, tuple) else (result,)
+        if result and all(paths):
+            card_assets.update(dict(zip(keys, paths)))
 
+    jobs = []
     for set_code, cards_dict in sets.items():
         # Merge all card assets for this set into one mapping
         set_mapping = {}
         for coll_num, card_assets in cards_dict.items():
             set_mapping.update(card_assets)
+        jobs.append(partial(self_generate_set_bundle, set_code, set_mapping))
+    jobs.extend(foil_bundle_jobs(foil_sets))
 
-        generated_count += self_generate_set_bundle(set_code, set_mapping)
-
-    generated_count += generate_foil_bundles(foil_sets)
+    logging.info(f"[AutoBundle] Checking {len(jobs)} bundles on {workers} worker(s)...")
+    generated_count = sum(r or 0 for r in _run_parallel(jobs, workers))
 
     logging.info(f"[AutoBundle] Scan complete. Generated/Updated: {generated_count} set bundles.")
     return generated_count

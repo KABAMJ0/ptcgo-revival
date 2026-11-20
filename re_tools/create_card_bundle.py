@@ -17,6 +17,7 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ptcgo.server.bundle_variants import drop_textures  # noqa: E402
+from ptcgo.server.asset_map import update_entry  # noqa: E402
 
 ASSET_MAP_PATH = "ptcgo/server/asset_map.json"
 OUTPUT_DIR = "ptcgo/assets/bundleCache"
@@ -220,15 +221,10 @@ def create_card_set_bundle(png_mapping, template_path, target_bundle_name, keep_
     update_asset_map_bulk(bundle_logical_name, list(png_mapping.keys()))
 
 def update_asset_map_bulk(bundle_name, asset_names):
-    if not os.path.exists(ASSET_MAP_PATH):
-        return
+    # Several builder processes may run at once, so the update is locked and atomic.
     try:
-        with open(ASSET_MAP_PATH, "r") as f:
-            amap = json.load(f)
-        amap[bundle_name] = asset_names
-        with open(ASSET_MAP_PATH, "w") as f:
-            json.dump(amap, f)
-        print(f"Updated asset_map.json for set '{bundle_name}' with {len(asset_names)} assets.")
+        if update_entry(ASSET_MAP_PATH, bundle_name, asset_names):
+            print(f"Updated asset_map.json for set '{bundle_name}' with {len(asset_names)} assets.")
     except Exception as e:
         print(f"Error updating asset_map.json: {e}")
 
