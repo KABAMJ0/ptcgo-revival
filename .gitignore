@@ -39,3 +39,11 @@ logs/
 
 # Cached asset manifest (rebuilt when bundles change)
 ptcgo/server/.manifest_cache/
+
+# Card art is downloaded by tools/fetch_art.py (and drawn by render_missing_art.py when no
+# scan exists). Never commit it: placeholder faces committed here shadow the real scans,
+# because the fetcher skips any card that already has an image file.
+ptcgo/assets/cards/*/*.png
+ptcgo/assets/cards/*/*.jpg
+!ptcgo/assets/cards/CUSTOM/*.png
+!ptcgo/assets/cards/Free_Energy/*.png

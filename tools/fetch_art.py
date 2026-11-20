@@ -63,12 +63,19 @@ def get(url, tries=6, as_json=False):
 
 
 def api_cards(code):
-    """Card records for a set: the committed set JSON if present, else the API."""
+    """Card records for a set: the committed set JSON when it covers every card script
+    and carries image links, else the API."""
+    scripts = [p for p in glob.glob(os.path.join(CARDS, code, "*.py"))
+               if os.path.basename(p) != "__init__.py"]
     for path in glob.glob(os.path.join(CARDS, code, "*.json")):
         try:
-            return json.load(open(path, encoding="utf-8"))
+            records = json.load(open(path, encoding="utf-8"))
         except Exception:
             continue
+        with_images = sum(1 for c in records if (c.get("images") or {}).get("large")
+                          or (c.get("images") or {}).get("small"))
+        if len(records) >= len(scripts) and with_images:
+            return records
     set_id = API_IDS.get(code.upper(), code.lower())
     cards, page = [], 1
     while True:
