@@ -1,5 +1,6 @@
-from ptcgo.game.data_utils import SupporterCardDef, unimplemented
+from ptcgo.game.data_utils import SupporterCardDef
 from ptcgo.game.attributes import Rarities
+from ptcgo.game.card_effects.trainers import team_galactics_wager
 
 card = SupporterCardDef(
     guid="0f31d040-2705-5e38-86cf-53e7669a73a8",
@@ -11,5 +12,5 @@ card = SupporterCardDef(
     collector_number=115,
     set_code="DP2",
     rarity=Rarities.Uncommon,
-    effect=unimplemented
+    effect=team_galactics_wager
 )

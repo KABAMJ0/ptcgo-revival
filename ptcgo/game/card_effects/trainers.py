@@ -4530,6 +4530,18 @@ async def tickling_machine(ctx):
         ctx.ends_turn = True
 
 
+async def team_galactics_wager(ctx):
+    """Each player shuffles their hand into their deck, then "Rock-Paper-Scissors" decides
+    who draws more: the winner draws 6, the loser 3, and you draw first. The game has no
+    Rock-Paper-Scissors, so it is one coin flip (heads = you win), the same 50/50 odds."""
+    await ctx.shuffle_into_deck(ctx.hand(), ctx.player_id)
+    await ctx.shuffle_into_deck(ctx.hand(ctx.opponent_id), ctx.opponent_id)
+    heads, = await ctx.flip_coins(1, "Team Galactic's Wager")
+    mine, theirs = (6, 3) if heads else (3, 6)
+    await ctx.draw_cards(mine)
+    await ctx.draw_cards(theirs, ctx.opponent_id)
+
+
 async def research_record(ctx):
     """Look at the top 4 cards of your deck, put any of them back on top in the order you
     pick, and put the rest on the bottom of the deck."""
